@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# This program uses the utilities pdftotext and pdfinfo from the 
+# This program uses the utilities pdftotext and pdfinfo from the
 # xpdf package.
 
 # $result = `pdftotext -enc UTF-8 $ARGV[0] -`;
@@ -12,14 +12,18 @@ use Getopt::Std;
 getopts('eo');
 
 my $num_pages;
+my $os="";
 my $x;
 my $result;
 
+# find number of pages in the document
 if ($opt_o || $opt_e){
     $num_pages =  `pdfinfo $ARGV[0]|grep Pages:`;
     $num_pages =~ s/Pages://g;
     $num_pages =~ tr/ //s;
+    $os = `pdfinfo $ARGV[0]|grep Distiller`;
 #    print "$num_pages\n";
+    print "$os\n";
 }
 
 if ($opt_o){
@@ -35,9 +39,17 @@ $result = get_result($x);
 
 #
 $result = remove_garbage($result);
-$result = utf8_to_xfst($result);
-$result = ws2_to_xfst($result);
-$result = mac_to_xfst($result);
+
+if ( rindex($os, "Macintosh") >= 0 ){
+    print "os if\n";
+    $result = mac_to_xfst($result);
+} else {    
+    print "else...\n";
+    $result = utf8_to_xfst($result);
+    $result = ws2_to_xfst($result);
+    
+}
+
 print $result;
 
 sub get_result {
@@ -55,11 +67,11 @@ sub get_result {
     } else {
 	$text = `pdftotext -raw -enc UTF-8 $ARGV[0] -`;
     }
-
-    return lc($text);
+    print "get_result\n";
+    return $text;
 
 }
-    
+
 
 
 sub utf8_to_xfst {
@@ -68,20 +80,20 @@ sub utf8_to_xfst {
     #print "utf8";
     my ($text) = @_;
 
-    $text =~ s/\xC3\xA1/\xE1/g; # a sharp
-    $text =~ s/\xC5\xA1/s1/g;   # s caron
-    $text =~ s/\xC5\xA7/t1/g;   # t stroke
-    $text =~ s/\xC5\x8B/n1/g;   # eng
-    $text =~ s/\xC4\x91/d1/g;   # d stroke
-    $text =~ s/\xC5\xBE/z1/g;   # z caron
-    $text =~ s/\xC4\x8D/c1/g;   # c caron
-    $text =~ s/\xC3\x81/\xE1/g; # A sharp
-    $text =~ s/\xC5\xA0/s1/g; # S caron
-    $text =~ s/\xC5\xA6/t1/g; # T stroke
-    $text =~ s/\xC5\x80/n1/g; # ENG
-    $text =~ s/\xC4\x90/d1/g; # D stroke
-    $text =~ s/\xC5\xBD/z1/g; # Z caron
-    $text =~ s/\xC4\x8C/c1/g; # C caron
+     $text =~ s/á/\xE1/g; # a sharp
+     $text =~ s/š/s1/g;   # s caron
+     $text =~ s/ŧ/t1/g;   # t stroke
+     $text =~ s/ŋ/n1/g;   # eng
+     $text =~ s/đ/d1/g;   # d stroke
+     $text =~ s/ž/z1/g;   # z caron
+     $text =~ s/č/c1/g;   # c caron
+     $text =~ s/Á/\xE1/g; # A sharp
+     $text =~ s/Š/s1/g; # S caron
+     $text =~ s/Ŧ/t1/g; # T stroke
+     $text =~ s/Ŋ/n1/g; # ENG
+     $text =~ s/Đ/d1/g; # D stroke
+     $text =~ s/Ž/z1/g; # Z caron
+     $text =~ s/Č/c1/g; # C caron
 
     return lc($text);
 }
@@ -91,19 +103,20 @@ sub ws2_to_xfst {
 # convert the 7 sami letters
 # written on win9x, converted
 # to utf-8
+# eng seems to vanish?
 
 # This one is not complete
     my ($text) = @_;
-    #print "ws2";
-    $text =~ s/\xC2\xB7/\xE1/g; #a sharp
-    $text =~ s/\xC2\xA1/\xE1/g; #A sharp
-    $text =~ s/\xC3\xB6/s1/g; #s1
-    $text =~ s/\xC3\xA4/s1/g; #S1
-    $text =~ s/\xC3\x87/c1/g; #C1
-    $text =~ s/\xC3\xB8/z1/g; #z1
-    $text =~ s/\xC2\xBA/t1/g; #t1
-    $text =~ s/\xC3\xB2/d1/g; #d1
-    $text =~ s/\xC3\x91/c1/g; #c1
+    print "ws2";
+    $text =~ s/·/\xE1/g; #a sharp
+    $text =~ s/¡/\xE1/g; #A sharp
+    $text =~ s/ä/S1/g; #S1
+    $text =~ s/ö/s1/g; #s1
+    $text =~ s/Ç/C1/g; #C1
+    $text =~ s/ø/z1/g; #z1
+    $text =~ s/º/t1/g; #t1
+    $text =~ s/ò/d1/g; #d1
+    $text =~ s/Ñ/c1/g; #c1
 
     return lc($text);
 }
@@ -115,19 +128,20 @@ sub mac_to_xfst {
 # written on mac, converted
 # to utf-8
     #print "mac";
-    $text =~ s/\xC3\xA1/\xE1/g; # a sharp
-    $text =~ s/\xC2\xA2\x45/c1/g;
-    $text =~ s/\xE2\x88\x8F/c1/g;
-    $text =~ s/\xE2\x88\x9E/d1/g;
-    $text =~ s/\xCF\x80/d1/g;
-    $text =~ s/\261/N1/g;
-    $text =~ s/\xE2\x88\xAB/n1/g;
-    $text =~ s/\xC2\xA5/s1/g;
-    $text =~ s/\xC2\xAA/s1/g;
-    $text =~ s/\xC2\xB5/T1/g;
-    $text =~ s/\xC2\xBA/t1/g;
-    $text =~ s/\267/Z1/g;
-    $text =~ s/\xE2\x84\xA6/z1/g;
+    $text =~ s/á/\xE1/g; # a sharp
+    $text =~ s/Á/\xE1/g; # A sharp
+    $text =~ s/¢/C1/g;
+    $text =~ s/∏/c1/g;
+    $text =~ s/∞/D1/g;
+    $text =~ s/π/d1/g;
+    $text =~ s/±/N1/g;
+    $text =~ s/∫/n1/g;
+    $text =~ s/¥/S1/g;
+    $text =~ s/ª/s1/g;
+    $text =~ s/µ/T1/g;
+    $text =~ s/º/t1/g;
+    $text =~ s//Z1/g;
+    $text =~ s/Ω/z1/g;
 
 
     return lc($text);
@@ -136,7 +150,6 @@ sub mac_to_xfst {
 sub remove_garbage {
     my ($text) = @_;
 
-
     $text =~ s/-\n//g;
     $text =~ s/ /\n/g;
     $text =~ s/\)//g;
@@ -144,9 +157,8 @@ sub remove_garbage {
     $text =~ s/\///g;
     $text =~ s/\?//g;
     $text =~ s/%//g;
-    $text =~ s/§//g;
     $text =~ s/\.\.//g;
-#    $text =~ s/§§//g;
+#    $text =~ s///g;
     $text =~ s/sek //g;
 #    $text =~ s/b\.//g;
 #    $text =~ s/c\.//g;
