@@ -27,16 +27,16 @@
   (if (search-backward " <<<" (- (point) 4) t)
 	  (delete-char 4))
   (if (not (eolp))
-	  (message "Insert tag only at the end of line")
-	(if (not (save-excursion 
-			   (search-backward "<!Correct>" (- (point) 10) t)))
-		(insert-correct 1)
-	  (message "Already contains a correct tag."))))
+	  (end-of-line))
+  (if (not (save-excursion 
+			 (search-backward "<Correct!>" (- (point) 10) t)))
+	  (insert-correct 1)
+	(message "Line already contains a correct tag.")))
 
 (defun insert-correct (tag)
   "Insert tag"
   (interactive "p")
-  (insert " <!Correct>")
+  (insert " <Correct!>")
   (correct-corpus-forward-cohort 1))
 
 (define-key correct-corpus-mode-map
@@ -61,7 +61,7 @@
   (interactive "p")
   (re-search-forward ">\"" nil t)
   (end-of-line 2)
-  (while (and (save-excursion (search-backward "<!Correct>" (- (point) 10) t))
+  (while (and (save-excursion (search-backward "<Correct!>" (- (point) 10) t))
 			  (not (eobp))
 			  (not (looking-at "[
 ]\t")))
