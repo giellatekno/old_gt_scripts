@@ -179,8 +179,6 @@ else {
 				&printsolution($lexicalstring, ++$cnt);
 			}
 		}
-		
-		print "\n$text";
 		# these subroutines print out suitable HTML codes
 	}
 
@@ -243,8 +241,8 @@ sub unicode {
 	
 	# removing characters that would harm the shell.
 	$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
-	$utext = `echo $text | $bindir/7bit-utf8.pl`;
-	return $utext;
+#	$utext = `echo $text | $bindir/7bit-utf8.pl`;
+	return $text;
 }
 
 # Convert windows charachters to Sami digraphs
@@ -351,6 +349,8 @@ sub htmlent_7bit {
 sub digr_utf8 {
 	my $ctext = shift(@_);
 
+$ctext =~ s/A1/Á/g ;
+$ctext =~ s/a1/á/g ;
 $ctext =~ s/C1/Č/g ;
 $ctext =~ s/c1/č/g ;
 $ctext =~ s/D1/Đ/g ;
