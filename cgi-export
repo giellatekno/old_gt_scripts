@@ -7,7 +7,7 @@
 #
 # $Id$
 
-EXPORTDIR="/www/var/www/cgi-bin/smi"
+EXPORTDIR="/opt/sami/www/cgi-bin/smi"
 #EXPORTDIR="koe"
 MODULE="gt/script/cgi-scripts"
 USER=`whoami`
