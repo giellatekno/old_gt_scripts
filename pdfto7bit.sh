@@ -6,17 +6,17 @@
 # This will convert all the pdf files in the CORP directory to the format that 
 # the sme database expects
 
-CORP=../sme/corp
-for i in $CORP/*.pdf
+FROMCORP=../sme/corp/original
+TOCORP=../sme/corp/modified
+
+for i in $FROMCORP/sams*.pdf
 do
 	echo "Konverting $i..."
 	pdftotext -raw -enc UTF-8 $i - \
-	| tr '\n'  ' ' \
 	| tr -s ' ' \
 	| ./del.pl \
 	| ./utf8.pl \
-	| tr ' ' '\n' \
-	> $CORP/`basename $i .pdf`.txt
+	> $TOCORP/`basename $i .pdf`.txt
 	echo "done"
 done
 
