@@ -93,7 +93,7 @@ if ($action =~ /disamb/)
 $text =~ s/%(..)/pack("c",hex($1))/ge ;
 
 # Convert html-entity input to 7-bit
-$text = htmlent_7bit($text);
+#$text = htmlent_7bit($text);
 #$text = win_7bit($text);
 
 # Convert digraphs to utf-8
