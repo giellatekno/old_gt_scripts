@@ -94,11 +94,15 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 
 # Convert html-entity input to 7-bit
 $text = htmlent_7bit($text);
-$text = win_7bit($text);
+#$text = win_7bit($text);
+
+# Convert digraphs to utf-8
+$text = digr_utf8($text);
 
 # Convert utf8-input to 7-bit
-if ($coding !~ /latin/)
-{ $text = utf8_7bit($text); }
+# DEPRECATED since moved to utf8-input
+# if ($coding !~ /latin/)
+# { $text = utf8_7bit($text); }
 
 # Remove the unsecure characters from the input.
 $text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
@@ -121,11 +125,11 @@ my $result;
 
 if ($disamb) {
      $result = `echo $text | $bindir/preprocess --abbr=$smefstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -d $smefstdir/sme.fst | \ 
+			$utilitydir/lookup -utf8 -flags mbTT -d $smefstdir/sme.fst | \ 
 			$bindir/lookup2cg | $bindir/vislcg --grammar=$smefstdir/sme-dis.rle`; }
 else {
 	$result = `echo $text | $bindir/preprocess --abbr=$smefstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -d $smefstdir/sme.fst | \ 
+			$utilitydir/lookup -utf8 -flags mbTT -d $smefstdir/sme.fst | \ 
 			$bindir/lookup2cg`;
 }
  
@@ -258,8 +262,8 @@ sub win_7bit {
 sub htmlent_7bit {
 	my $ctext  = shift(@_);
 
-	$ctext =~ s/&\#193\;/Á/g ;
-	$ctext =~ s/&\#225\;/á/g ;
+	$ctext =~ s/&\#193\;/ï¿½/g ;
+	$ctext =~ s/&\#225\;/ï¿½/g ;
 	$ctext =~ s/&\#268\;/C1/g ;
 	$ctext =~ s/&\#269\;/c1/g ;
 	$ctext =~ s/&\#272\;/D1/g ;
@@ -273,73 +277,92 @@ sub htmlent_7bit {
 	$ctext =~ s/&\#381\;/Z1/g ;
 	$ctext =~ s/&\#382\;/z1/g ;
 
-	$ctext =~ s/&\#192;/À/g ;
-	$ctext =~ s/&\#194;/Â/g ;
-	$ctext =~ s/&\#195;/Ã/g ;
-	$ctext =~ s/&\#196;/Ä/g ;
-	$ctext =~ s/&\#197;/Å/g ;
-	$ctext =~ s/&\#198;/Æ/g ;
-	$ctext =~ s/&\#199;/Ç/g ;
-	$ctext =~ s/&\#200;/È/g ;
-	$ctext =~ s/&\#201;/É/g ;
-	$ctext =~ s/&\#202;/Ê/g ;
-	$ctext =~ s/&\#203;/Ë/g ;
-	$ctext =~ s/&\#204;/Ì/g ;
-	$ctext =~ s/&\#205;/Í/g ;
-	$ctext =~ s/&\#206;/Î/g ;
-	$ctext =~ s/&\#207;/Ï/g ;
-	$ctext =~ s/&\#208;/Ð/g ;
-	$ctext =~ s/&\#209;/Ñ/g ;
-	$ctext =~ s/&\#210;/Ò/g ;
-	$ctext =~ s/&\#211;/Ó/g ;
-	$ctext =~ s/&\#212;/Ô/g ;
-	$ctext =~ s/&\#213;/Õ/g ;
-	$ctext =~ s/&\#214;/Ö/g ;
+	$ctext =~ s/&\#192;/ï¿½/g ;
+	$ctext =~ s/&\#194;/ï¿½/g ;
+	$ctext =~ s/&\#195;/ï¿½/g ;
+	$ctext =~ s/&\#196;/ï¿½/g ;
+	$ctext =~ s/&\#197;/ï¿½/g ;
+	$ctext =~ s/&\#198;/ï¿½/g ;
+	$ctext =~ s/&\#199;/ï¿½/g ;
+	$ctext =~ s/&\#200;/ï¿½/g ;
+	$ctext =~ s/&\#201;/ï¿½/g ;
+	$ctext =~ s/&\#202;/ï¿½/g ;
+	$ctext =~ s/&\#203;/ï¿½/g ;
+	$ctext =~ s/&\#204;/ï¿½/g ;
+	$ctext =~ s/&\#205;/ï¿½/g ;
+	$ctext =~ s/&\#206;/ï¿½/g ;
+	$ctext =~ s/&\#207;/ï¿½/g ;
+	$ctext =~ s/&\#208;/ï¿½/g ;
+	$ctext =~ s/&\#209;/ï¿½/g ;
+	$ctext =~ s/&\#210;/ï¿½/g ;
+	$ctext =~ s/&\#211;/ï¿½/g ;
+	$ctext =~ s/&\#212;/ï¿½/g ;
+	$ctext =~ s/&\#213;/ï¿½/g ;
+	$ctext =~ s/&\#214;/ï¿½/g ;
 	$ctext =~ s/&\#215;/x/g ;
-	$ctext =~ s/&\#216;/Ø/g ;
-	$ctext =~ s/&\#217;/Ù/g ;
-	$ctext =~ s/&\#218;/Ú/g ;
-	$ctext =~ s/&\#219;/Û/g ;
-	$ctext =~ s/&\#220;/Ü/g ;
-	$ctext =~ s/&\#221;/Ý/g ;
-	$ctext =~ s/&\#222;/Þ/g ;
-	$ctext =~ s/&\#223;/ß/g ;
-	$ctext =~ s/&\#224;/à/g ;
-	$ctext =~ s/&\#226;/â/g ;
-	$ctext =~ s/&\#227;/ã/g ;
-	$ctext =~ s/&\#228;/ä/g ;
-	$ctext =~ s/&\#229;/å/g ;
-	$ctext =~ s/&\#230;/æ/g ;
-	$ctext =~ s/&\#231;/ç/g ;
-	$ctext =~ s/&\#232;/è/g ;
-	$ctext =~ s/&\#233;/é/g ;
-	$ctext =~ s/&\#234;/ê/g ;
-	$ctext =~ s/&\#235;/ë/g ;
-	$ctext =~ s/&\#236;/ì/g ;
-	$ctext =~ s/&\#237;/í/g ;
-	$ctext =~ s/&\#238;/î/g ;
-	$ctext =~ s/&\#239;/ï/g ;
-	$ctext =~ s/&\#240;/ð/g ;
-	$ctext =~ s/&\#241;/ñ/g ;
-	$ctext =~ s/&\#242;/ò/g ;
-	$ctext =~ s/&\#243;/ó/g ;
-	$ctext =~ s/&\#244;/ô/g ;
-	$ctext =~ s/&\#245;/õ/g ;
-	$ctext =~ s/&\#246;/ö/g ;
-	$ctext =~ s/&\#247;/÷/g ;
-	$ctext =~ s/&\#248;/ø/g ;
-	$ctext =~ s/&\#249;/ù/g ;
-	$ctext =~ s/&\#250;/ú/g ;
-	$ctext =~ s/&\#251;/û/g ;
-	$ctext =~ s/&\#252;/ü/g ;
-	$ctext =~ s/&\#253;/ý/g ;
-	$ctext =~ s/&\#254;/þ/g ;
-	$ctext =~ s/&\#255;/ÿ/g ;
+	$ctext =~ s/&\#216;/ï¿½/g ;
+	$ctext =~ s/&\#217;/ï¿½/g ;
+	$ctext =~ s/&\#218;/ï¿½/g ;
+	$ctext =~ s/&\#219;/ï¿½/g ;
+	$ctext =~ s/&\#220;/ï¿½/g ;
+	$ctext =~ s/&\#221;/ï¿½/g ;
+	$ctext =~ s/&\#222;/ï¿½/g ;
+	$ctext =~ s/&\#223;/ï¿½/g ;
+	$ctext =~ s/&\#224;/ï¿½/g ;
+	$ctext =~ s/&\#226;/ï¿½/g ;
+	$ctext =~ s/&\#227;/ï¿½/g ;
+	$ctext =~ s/&\#228;/ï¿½/g ;
+	$ctext =~ s/&\#229;/ï¿½/g ;
+	$ctext =~ s/&\#230;/ï¿½/g ;
+	$ctext =~ s/&\#231;/ï¿½/g ;
+	$ctext =~ s/&\#232;/ï¿½/g ;
+	$ctext =~ s/&\#233;/ï¿½/g ;
+	$ctext =~ s/&\#234;/ï¿½/g ;
+	$ctext =~ s/&\#235;/ï¿½/g ;
+	$ctext =~ s/&\#236;/ï¿½/g ;
+	$ctext =~ s/&\#237;/ï¿½/g ;
+	$ctext =~ s/&\#238;/ï¿½/g ;
+	$ctext =~ s/&\#239;/ï¿½/g ;
+	$ctext =~ s/&\#240;/ï¿½/g ;
+	$ctext =~ s/&\#241;/ï¿½/g ;
+	$ctext =~ s/&\#242;/ï¿½/g ;
+	$ctext =~ s/&\#243;/ï¿½/g ;
+	$ctext =~ s/&\#244;/ï¿½/g ;
+	$ctext =~ s/&\#245;/ï¿½/g ;
+	$ctext =~ s/&\#246;/ï¿½/g ;
+	$ctext =~ s/&\#247;/ï¿½/g ;
+	$ctext =~ s/&\#248;/ï¿½/g ;
+	$ctext =~ s/&\#249;/ï¿½/g ;
+	$ctext =~ s/&\#250;/ï¿½/g ;
+	$ctext =~ s/&\#251;/ï¿½/g ;
+	$ctext =~ s/&\#252;/ï¿½/g ;
+	$ctext =~ s/&\#253;/ï¿½/g ;
+	$ctext =~ s/&\#254;/ï¿½/g ;
+	$ctext =~ s/&\#255;/ï¿½/g ;
 
 	$ctext =~ s/&nbsp;/ /g ;
 
 
 	return $ctext;
+}
+
+sub digr_utf8 {
+	my $ctext = shift(@_);
+
+$ctext =~ s/C1/\304\214/g ;
+$ctext =~ s/c1/\304\215/g ;
+$ctext =~ s/D1/\304\220/g ;
+$ctext =~ s/d1/\304\221/g ;
+$ctext =~ s/N1/\305\212/g ;
+$ctext =~ s/n1/\305\213/g ;
+$ctext =~ s/S1/\305\240/g ;
+$ctext =~ s/s1/\305\241/g ;
+$ctext =~ s/T1/\305\246/g ;
+$ctext =~ s/t1/\305\247/g ;
+$ctext =~ s/Z1/\305\275/g ;
+$ctext =~ s/z1/\305\276/g ;
+	
+return $ctext;
 }
 
 sub utf8_7bit {
@@ -361,85 +384,85 @@ $ctext =~ s/\305\247/t1/g ;
 $ctext =~ s/\305\275/Z1/g ;
 $ctext =~ s/\305\276/z1/g ;
 
-$ctext =~ s/\303\200/À/g ;
-$ctext =~ s/\303\201/Á/g ;    
-$ctext =~ s/\303\202/Â/g ;
-$ctext =~ s/\303\203/Ã/g ;
-$ctext =~ s/\303\204/Ä/g ;
-$ctext =~ s/\303\205/Å/g ;
-$ctext =~ s/\303\206/Æ/g ;
+$ctext =~ s/\303\200/ï¿½/g ;
+$ctext =~ s/\303\201/ï¿½/g ;    
+$ctext =~ s/\303\202/ï¿½/g ;
+$ctext =~ s/\303\203/ï¿½/g ;
+$ctext =~ s/\303\204/ï¿½/g ;
+$ctext =~ s/\303\205/ï¿½/g ;
+$ctext =~ s/\303\206/ï¿½/g ;
 $ctext =~ s/\303\207/C/g ;
 
-$ctext =~ s/\303\210/È/g ;
-$ctext =~ s/\303\211/É/g ;
-$ctext =~ s/\303\212/Ê/g ;
-$ctext =~ s/\303\213/Ë/g ;
-$ctext =~ s/\303\214/Ì/g ;
-$ctext =~ s/\303\215/Í/g ;
-$ctext =~ s/\303\216/Î/g ;
-$ctext =~ s/\303\217/Ï/g ;
+$ctext =~ s/\303\210/ï¿½/g ;
+$ctext =~ s/\303\211/ï¿½/g ;
+$ctext =~ s/\303\212/ï¿½/g ;
+$ctext =~ s/\303\213/ï¿½/g ;
+$ctext =~ s/\303\214/ï¿½/g ;
+$ctext =~ s/\303\215/ï¿½/g ;
+$ctext =~ s/\303\216/ï¿½/g ;
+$ctext =~ s/\303\217/ï¿½/g ;
 
-$ctext =~ s/\303\220/Ð/g ;
-$ctext =~ s/\303\221/Ñ/g ;
-$ctext =~ s/\303\222/Ò/g ;
-$ctext =~ s/\303\223/Ó/g ;
-$ctext =~ s/\303\224/Ô/g ;
-$ctext =~ s/\303\225/Õ/g ;
-$ctext =~ s/\303\226/Ö/g ;
+$ctext =~ s/\303\220/ï¿½/g ;
+$ctext =~ s/\303\221/ï¿½/g ;
+$ctext =~ s/\303\222/ï¿½/g ;
+$ctext =~ s/\303\223/ï¿½/g ;
+$ctext =~ s/\303\224/ï¿½/g ;
+$ctext =~ s/\303\225/ï¿½/g ;
+$ctext =~ s/\303\226/ï¿½/g ;
 $ctext =~ s/\303\227/x/g ;
 
-$ctext =~ s/\303\230/Ø/g ;
-$ctext =~ s/\303\231/Ù/g ;
-$ctext =~ s/\303\232/Ú/g ;
-$ctext =~ s/\303\233/Û/g ;
-$ctext =~ s/\303\234/Ü/g ;
-$ctext =~ s/\303\235/Ý/g ;
-$ctext =~ s/\303\236/Þ/g ;
-$ctext =~ s/\303\237/ß/g ;
+$ctext =~ s/\303\230/ï¿½/g ;
+$ctext =~ s/\303\231/ï¿½/g ;
+$ctext =~ s/\303\232/ï¿½/g ;
+$ctext =~ s/\303\233/ï¿½/g ;
+$ctext =~ s/\303\234/ï¿½/g ;
+$ctext =~ s/\303\235/ï¿½/g ;
+$ctext =~ s/\303\236/ï¿½/g ;
+$ctext =~ s/\303\237/ï¿½/g ;
 
-$ctext =~ s/\303\240/à/g ;
-$ctext =~ s/\303\241/á/g ;
-$ctext =~ s/\303\242/â/g ;
-$ctext =~ s/\303\243/ã/g ;
-$ctext =~ s/\303\244/ä/g ;
-$ctext =~ s/\303\245/å/g ;
-$ctext =~ s/\303\246/æ/g ;
+$ctext =~ s/\303\240/ï¿½/g ;
+$ctext =~ s/\303\241/ï¿½/g ;
+$ctext =~ s/\303\242/ï¿½/g ;
+$ctext =~ s/\303\243/ï¿½/g ;
+$ctext =~ s/\303\244/ï¿½/g ;
+$ctext =~ s/\303\245/ï¿½/g ;
+$ctext =~ s/\303\246/ï¿½/g ;
 $ctext =~ s/\303\247/c/g ;
 
-$ctext =~ s/\303\250/è/g ;
-$ctext =~ s/\303\251/é/g ;
-$ctext =~ s/\303\252/ê/g ;
-$ctext =~ s/\303\253/ë/g ;
-$ctext =~ s/\303\254/ì/g ;
-$ctext =~ s/\303\255/í/g ;
-$ctext =~ s/\303\256/î/g ;
-$ctext =~ s/\303\257/ï/g ;
+$ctext =~ s/\303\250/ï¿½/g ;
+$ctext =~ s/\303\251/ï¿½/g ;
+$ctext =~ s/\303\252/ï¿½/g ;
+$ctext =~ s/\303\253/ï¿½/g ;
+$ctext =~ s/\303\254/ï¿½/g ;
+$ctext =~ s/\303\255/ï¿½/g ;
+$ctext =~ s/\303\256/ï¿½/g ;
+$ctext =~ s/\303\257/ï¿½/g ;
 
-$ctext =~ s/\303\260/ð/g ;
-$ctext =~ s/\303\261/ñ/g ;
-$ctext =~ s/\303\262/ò/g ;
-$ctext =~ s/\303\263/ó/g ;
-$ctext =~ s/\303\264/ô/g ;
-$ctext =~ s/\303\265/õ/g ;
-$ctext =~ s/\303\266/ö/g ;
+$ctext =~ s/\303\260/ï¿½/g ;
+$ctext =~ s/\303\261/ï¿½/g ;
+$ctext =~ s/\303\262/ï¿½/g ;
+$ctext =~ s/\303\263/ï¿½/g ;
+$ctext =~ s/\303\264/ï¿½/g ;
+$ctext =~ s/\303\265/ï¿½/g ;
+$ctext =~ s/\303\266/ï¿½/g ;
 #$ctext =~ s/\303\267/-/g ;
 
-$ctext =~ s/\303\270/ø/g ;
-$ctext =~ s/\303\271/ù/g ;
-$ctext =~ s/\303\272/ú/g ;
-$ctext =~ s/\303\273/û/g ;
-$ctext =~ s/\303\274/ü/g ;
-$ctext =~ s/\303\275/ý/g ;
-$ctext =~ s/\303\276/þ/g ;
-$ctext =~ s/\303\277/ÿ/g ;
+$ctext =~ s/\303\270/ï¿½/g ;
+$ctext =~ s/\303\271/ï¿½/g ;
+$ctext =~ s/\303\272/ï¿½/g ;
+$ctext =~ s/\303\273/ï¿½/g ;
+$ctext =~ s/\303\274/ï¿½/g ;
+$ctext =~ s/\303\275/ï¿½/g ;
+$ctext =~ s/\303\276/ï¿½/g ;
+$ctext =~ s/\303\277/ï¿½/g ;
 
-$ctext =~ s/â\200\223/--/g ; # Input is m-dash, I render by two hyphens.
-$ctext =~ s/â\200\231/\'/g ; # Single quotation marks
-$ctext =~ s/â\200\234/«/g ;  # These quotation marks had the symbol â
-$ctext =~ s/â\200\235/»/g ;  # preceeding them in a certain text.
+$ctext =~ s/ï¿½\200\223/--/g ; # Input is m-dash, I render by two hyphens.
+$ctext =~ s/ï¿½\200\231/\'/g ; # Single quotation marks
+$ctext =~ s/ï¿½\200\234/ï¿½/g ;  # These quotation marks had the symbol ï¿½
+$ctext =~ s/ï¿½\200\235/ï¿½/g ;  # preceeding them in a certain text.
 
-$ctext =~ s/\200\234/«/g ;
-$ctext =~ s/\200\235/»/g ;
+$ctext =~ s/\200\234/ï¿½/g ;
+$ctext =~ s/\200\235/ï¿½/g ;
 
 # removing litter
 $ctext =~ s/\377//g ;
