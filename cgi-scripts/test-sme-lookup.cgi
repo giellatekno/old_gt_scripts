@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-
-
 $utilitydir = "/opt/xerox/bin" ;
 $smefstdir = "/opt/smi/sme/bin" ;
 
@@ -10,26 +8,45 @@ $smefstdir = "/opt/smi/sme/bin" ;
 &printfinalhtmlcodes ;
 
 
-sub printinitialhtmlcodes 
+sub printinitialhtmlcodes
 {
     print "Content-TYPE: text/html\n\n" ;
 
     print "<HEAD>\n";
-    print "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\">\n";
-    
-    print "<TITLE>Sámi morfologiija </TITLE>\n</HEAD>\n\n" ;
-    print "<H2 ALIGN=\"center\">Sámi instituhtta, Tromssa Universitehta</H2>\n\n" ;
-    print "Copyright &copy; Sámi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
+   print "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\">\n";
+
+    print "<TITLE>S&#225;mi morfologiija </TITLE>\n</HEAD>\n\n" ;
+    print "<H2 ALIGN=\"center\">S&#225;mi instituhtta, Tromssa Universitehta</H2>\n\n" ;
+    print "Copyright &copy; S&#225;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
+    print "<p>Om resultatet ikke blir leselig samisk, kan du hjelpe oss ved \
+&#229; gj&#248;re f&#248;lgende:\
+    <ul>\
+    <li>G&#229; til foreg&#229;ende side, f&#248;lg anvisningene for hvordan man kan hjelpe</li> \
+    <li>Lagre den resulterende siden (G&#229; til Fil->Lagre e.l.). Om man kopierer \
+    siden inn i et e-post program kan det skje \"artige\" ting med kodingen av \
+    disse sidene.</li> \
+    <li>Send en e-post til \
+<a href=mailto:\"boerre.gaup\@pc.nu\">B&#248;rre Gaup</a> der du legger ved den \
+siden du nettopp lagret.\
+    Fortell om hvilket <b>operativsystem</b> og <b>webleser</b> du bruker. Angi \
+    gjerne versjonsinformasjon ogs&#229;.</li> \
+<li>Kopier URL:en til svarsiden og lim \
+den inn i brevet (den kan f.eks se slik ut: \
+    <pre> \
+    http://rust.uit.no:81/cgi-bin/smi/test-sme-lookup.cgi?text=geah%C4%8D%C4%8Dalan+muo%C5%A7%C5%A7%C3%A1 \
+    </pre></li> \
+    </ul> \
+    Takk for hjelpen!\n";
 }
 
-sub printfinalhtmlcodes 
+sub printfinalhtmlcodes
 {
     print "<HR SIZE=4 NOSHADE>\n<BR>\n\n" ;
     print "\n<ADDRESS>\n" ;
-    print "\nSámi giellateknologiija, Trond Trosterud<BR>\n" ;
+    print "\nS&#225;mi giellateknologiija, Trond Trosterud<BR>\n" ;
     print "http://www.hum.uit.no/sam/giellatekno/\n<BR>\n" ;
     print "</ADDRESS>\n" ;
-    
+
     print "\n</BODY>\n</HTML>\n" ;
 }
 
@@ -38,13 +55,13 @@ sub printsolution
 {
     my ($solution, $num) = @_ ;
     $solution =~ s/\=\>/\=\> / ;
-    $solution = xfst_to_utf8($solution);
+    $solution = xfst_to_html_entities($solution);
     print "\n<BR>\n$num.  $solution\n";
 }
 
 sub utf8_to_xfst {
     my ($text) = @_;
-    #replace sámi letters with something lookup understands
+    #replace s&#225;mi letters with something lookup understands
     $text =~ s/\303\241/\341/g; # a sharp
     $text =~ s/\305\241/s1/g;   # s caron
     $text =~ s/\305\247/t1/g;   # t stroke
@@ -75,6 +92,21 @@ sub xfst_to_utf8 {
     $text =~ s/d1/\304\221/g;   # d stroke
     $text =~ s/z1/\305\276/g;   # z caron
     $text =~ s/c1/\304\215/g;   # c caron
+
+    print "<p>xfst_to... $text</p>\n";
+    return lc($text);
+}
+
+sub xfst_to_html_entities {
+    my ($text) = @_;
+    #replace lookup's text with utf8
+    $text =~ s/\341/&\#225;/g; # a sharp
+    $text =~ s/s1/&\#353;/g;   # s caron
+    $text =~ s/t1/&\#359;/g;   # t stroke
+    $text =~ s/n1/&\#331;/g;   # eng
+    $text =~ s/d1/&\#273;/g;   # d stroke
+    $text =~ s/z1/&\#382;/g;   # z caron
+    $text =~ s/c1/&\#269;/g;   # c caron
 
     print "<p>xfst_to... $text</p>\n";
     return lc($text);
@@ -134,7 +166,7 @@ sub browser_dependent_transform {
 # the characters that are input are from ws2, but encoded as utf-8...
 sub quasi_ws2_to_xfst {
     my ($text) = @_;
-    #replace sámi letters with something lookup understands
+    #replace s�i letters with something lookup understands
     $text =~ s/\303\241/\341/g; # a sharp
     $text =~ s/\305\241/s1/g;   # s caron
     $text =~ s/\302\274/t1/g;   # t stroke
@@ -161,7 +193,7 @@ sub ws2_to_xfst {
     my ($text) = @_;
 
     $text =~ s/\202/c1/g ; 
-    $text =~ s/\204/c1/g ; 
+    $text =~ s/\204/c1/g ;
     $text =~ s/\211/d1/g ; 
     $text =~ s/\230/d1/g ; 
     $text =~ s/\270/n1/g ; 
@@ -180,19 +212,19 @@ sub ws2_to_xfst {
 sub mac_to_xfst {
     my ($text) = @_;
 
-    $text =~ s/¢/C1/g ;
-    $text =~ s/½/c1/g ;
-    $text =~ s/Ð/D1/g ;
-    $text =~ s/¼/d1/g ;
-    $text =~ s/±/N1/g ;
+    $text =~ s/\242/C1/g ;
+    $text =~ s/\275/c1/g ;
+    $text =~ s/\320/D1/g ;
+    $text =~ s/\274/d1/g ;
+    $text =~ s/\261/N1/g ;
     $text =~ s/\206/n1/g ;
-    $text =~ s/¥/S1/g ;
-    $text =~ s/ª/s1/g ;
-    $text =~ s/µ/T1/g ;
-    $text =~ s/º/t1/g ;
+    $text =~ s/\245/S1/g ;
+    $text =~ s/\252/s1/g ;
+    $text =~ s/\265/T1/g ;
+    $text =~ s/\272/t1/g ;
     $text =~ s/\205/Z1/g ;
     $text =~ s/\207/z1/g ;
-    
+
     print "<p>mac_to... $text</p>\n";
     return ($text);
 }
@@ -233,7 +265,7 @@ sub parser
 	print "\n<BR><HR SIZE=2 NOSHADE>\n" ;
 
 	$cnt = 0 ;
-	
+
 	@lexicalstrings = split(/\n/, $solutiongroup) ;
 	
 	
