@@ -1,6 +1,6 @@
-cp /export/home/trond/gt/sma/bin/sma.fst /opt/smi/sma/bin/
-cp /export/home/trond/gt/sme/bin/sme.fst /opt/smi/sme/bin/
-cp /export/home/trond/gt/smj/bin/smj.fst /opt/smi/smj/bin/
-cp /export/home/trond/gt/sma/bin/isma.fst /opt/smi/sma/bin/
-cp /export/home/trond/gt/sme/bin/isme.fst /opt/smi/sme/bin/
-cp /export/home/trond/gt/smj/bin/ismj.fst /opt/smi/smj/bin/
+cp /home/trond/gt/sma/bin/sma.fst /opt/smi/sma/bin/
+cp /home/trond/gt/sme/bin/sme.fst /opt/smi/sme/bin/
+cp /home/trond/gt/smj/bin/smj.fst /opt/smi/smj/bin/
+cp /home/trond/gt/sma/bin/isma.fst /opt/smi/sma/bin/
+cp /home/trond/gt/sme/bin/isme.fst /opt/smi/sme/bin/
+cp /home/trond/gt/smj/bin/ismj.fst /opt/smi/smj/bin/
