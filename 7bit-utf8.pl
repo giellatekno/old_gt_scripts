@@ -11,10 +11,10 @@ while (<>)
 # This set has to be first, because some of the characters 
 # occur in the next set 
 # (Ä = \304 etc. to avoid substituting them twise.) 
+s/Ã/\303\203/g ;
 s/À/\303\200/g ;
 s/Á/\303\201/g ;    
 s/Â/\303\202/g ;
-s/Ã/\303\203/g ;
 s/Ä/\303\204/g ;
 s/Å/\303\205/g ;
 s/Æ/\303\206/g ;
