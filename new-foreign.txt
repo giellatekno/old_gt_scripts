@@ -1,3 +1,5 @@
+purnu
+rouko
 kiihtää
 purmu
 vorva
@@ -1571,6 +1573,7 @@ suntoine
 suntovuttoa
 suojainen
 suomalais-ugrilainen
+suomalais-ugrilaisen
 suomalais-ugrilaiseen
 suomalaiskielten
 suomenkielen
