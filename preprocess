@@ -17,7 +17,7 @@ use open ':utf8';
 
 # Use the local character class. 
 # It means that variable \w contains Latin-1 alphabet.
-use locale;
+#use locale;
 
 # permit named arguments
 use Getopt::Long;
@@ -70,7 +70,7 @@ sub verbose {
 		return;
 	}
 	
-	print "[$from:$linenumber] $word\n";
+	print STDERR "[$from:$linenumber] $word\n";
 }
 
 # read one paragraph at the time.
@@ -100,6 +100,7 @@ while (<>) {
 		# alphabetical characters optionally preceded by one non-alphabetic
 		# character, it is a word.
 		if ($word =~ /^[\W]?[^\W\d]+.*/) {
+		    verbose("if word", $word , __LINE__);
 			process_word ($word, \@words, \@tokens);
 		}
 		# Otherwise it is processed like numeral.
@@ -307,7 +308,7 @@ sub process_numeral {
 		$end_word = $1;
 	}
 	
-	verbose ("process_numeral/end_word", $word, __LINE__);
+	verbose ("process_numeral/end_word", $end_word, __LINE__);
 	verbose ("process_numeral/abbr", $word, __LINE__);
 
 	my $rest_punct;
