@@ -263,11 +263,13 @@ sub process_numeral {
 	# cases like: 123! and 123.), 123). 10,-. 
     # problem: 123.? and 123 is an ordinal.
 	my $end_punct;
+	if ($word =~ s/([$SEPARATE_PUNCT:]+\.?)$//){
+		$end_punct = $1;
+	}
 	if ($word =~ /([$SEPARATE_PUNCT:\-\%]+\.?)$/){
 		$word =~ s/(\.?)$//;
 		$end_punct = $1;
-#		print $end_punct;
-	}
+	    }
 	my $rest_punct;
 	# Check for ending dot, it is a separate token if 
 	# the following word starts with capital letter. Or if there is
