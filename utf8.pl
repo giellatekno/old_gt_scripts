@@ -12,7 +12,7 @@ s/\xC5\x8B/n1/g;   # eng
 s/\xC4\x91/d1/g;   # d stroke
 s/\xC5\xBE/z1/g;   # z caron
 s/\xC4\x8D/c1/g;   # c caron
-s/\xC3\x81/\xE1/g;# A sharp
+s/\xC3\x81/\xC1/g;# A sharp
 s/\xC5\xA0/s1/g; # S caron
 s/\xC5\xA6/t1/g; # T stroke
 s/\xC5\x80/n1/g; # ENG
@@ -25,7 +25,7 @@ s/\xC4\x8C/c1/g; # C caron
 # to utf-8
 
 s/\xC2\xB7/\xE1/g; #a sharp
-s/\xC2\xA1/\xE1/g; #A sharp
+s/\xC2\xA1/\xC1/g; #A sharp
 s/\xC3\xB6/s1/g; #s1
 s/\xC3\xA4/s1/g; #S1
 s/\xC3\x87/c1/g; #C1
