@@ -23,7 +23,7 @@ while (<>) {
     if (/^\"<(.*?)>/) {
 	$wordform =$1;
     }
-    elsif (/^\t\"(.*?)\" +(([A-Za-z]+\*( [a-z]+| s1 Dimin)? )?[A-Za-z]+)( +(.*?))?( (\@.*))? *$/) {
+    elsif (/^\t\"(.*?)\" +(([A-Za-z]+\*( [a-z]+| s1 Dimin)? )?[A-Za-z]+)( +([^\@]*?))?( (\@.*))? *$/) {
 	$base =$1;
 	$pos =$2;
 	if ($5) {$morf =$6;}
@@ -41,16 +41,18 @@ while (<>) {
 		print "SME$num$sentence\n";
 		print "A1\n";
 #		goto target;
-		$output =~ s/\@CC/Cc/g;
-		$output =~ s/\@CS/Cs/g;
+
+#		print "***$output\n";  # debugging line, nice.
+		$output =~ s/\@CC/CO/g;
+		$output =~ s/\@CS/SUB/g;
 		$output =~ s/\@ADVL/A/g;
 		$output =~ s/\@SUBJ/S/g;
 		$output =~ s/\@OBJ/Od/g;
 		$output =~ s/\@\+FAUXV/Vaux/g;
 		$output =~ s/\@\+FMAINV/P/g;
 		$output =~ s/\@\-FMAINV/P/g;
-		$output =~ s/\@INTERJ/Interj/g;
-		$output =~ s/\@PCLE/PCLE/g;
+		$output =~ s/\@INTERJ/Ainterj/g;
+		$output =~ s/\@PCLE/Apcle/g;
 		$output =~ s/\@GN>/=D/g;
 		$output =~ s/\@GP>/=D/g;
 		$output =~ s/\@<GQ/=D/g;
@@ -59,6 +61,11 @@ while (<>) {
 		$output =~ s/\@PronN</=D/g;
 		$output =~ s/\@AN>/=D/g;
 		$output =~ s/\@DN>/=D/g;
+		$output =~ s/\@SPRED/Cs/g;
+		$output =~ s/\@OPRED/Co/g;
+		$output =~ s/\@X/X/g;
+		$output =~ s/\@X/X/g;
+		$output =~ s/\@X/X/g;
 
 $output =~ s/([ ,:])adda,/$1der,/g ;
 $output =~ s/([ ,:])ahtti,/$1der,/g ;
