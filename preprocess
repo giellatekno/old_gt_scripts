@@ -37,7 +37,7 @@ my $PUNCT = quotemeta("|{}[]()$.*?!,;:'\.\"%");
 # whether word or numeral expression.
 # There are characters added to this list depending on if
 # the processed string is word or numeral.
-my $SEPARATE_PUNCT = quotemeta("|{}[]()«»?!;,'\"");
+my $SEPARATE_PUNCT = quotemeta("|{}[]()«»?!;,'`\"");
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SEPARATE_PUNCT.
