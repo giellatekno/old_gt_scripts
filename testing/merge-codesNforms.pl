@@ -30,22 +30,23 @@ if (($file1, $file2) = @ARGV) {
 	die "Too many files in input.\n";
 }
 
-chop (@codes  = <TAGFILE>);
-chop (@wforms = <WFORMFILE>);
+chop (@codes  = <TAGFILE>);		# Remove all newline characters
+chop (@wforms = <WFORMFILE>);	# from both files/arrays
 
-if (scalar(@codes) == scalar(@wforms )) {
-	$baseform = $wforms[0];
+close TAGFILE;		# Since we now have all the data in the arrays,
+close WFORMFILE;	# we can immediately close the input files
+
+if (scalar(@codes) == scalar(@wforms )) { # If the number of elements is the
+										  # same in both, then:
+	$baseform = $wforms[0];				  # 
 	$i = 0;
-	foreach $code (@codes) {
-		print "$baseform\t$code\t$wforms[$i]\n";
+	foreach $code (@codes) {			  # Step through the list of codes,
+		print "$baseform\t$code\t$wforms[$i]\n"; # and print out the tabular data
 		$i++;
 	}
-} else {
+} else {								  # If not, print this error message
 	print "Not the same numbers (of lines) of tags as wordforms!!!\n";
 	print "Check both $file1 and $file2 for errors!!!\n";
-	exit;
+	die "Could not complete task.\n";	  # and exit with an error code
 }
-
-close TAGFILE;
-close WFORMFILE;
 

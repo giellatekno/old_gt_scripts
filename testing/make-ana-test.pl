@@ -21,13 +21,14 @@
 # Date:		$Da$
 # Version:	$Id$
 
-while (<>) {
-	chop;
+while (<>) {	# as long as there are lines in the file, for each line:
+	chop;						# Remove the newline char
 	@parts = split /\t/, $_;	# Get all the fields in the line
 	$wfs = $parts[2];			# Store (all) the word forms
 	@wfs = split /,/, $wfs;		# Get all the word forms, one or more
 	foreach $wf (@wfs) {		# Print all word forms, one on each line
-		print "$wf\t$parts[0]$parts[1]\n";
+		print "$wf\t$parts[0]$parts[1]\n"; # with the baseform and the code
+								# strung together appended with a tab
 	}
 }
 
