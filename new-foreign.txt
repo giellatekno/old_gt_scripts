@@ -1,3 +1,8 @@
+kiihtää
+purmu
+vorva
+säämä
+säämätä
 für
 utgåve
 *)vorveh
@@ -1425,6 +1430,7 @@ roukkonen
 roukonen
 ruokatavaroiden
 ruteselskap
+rätt
 šahten
 šomer
 šäär
@@ -1761,6 +1767,7 @@ zerchlagen
 ältesten
 äänne-
 å
+år
 årbok
 årstidsbestemte
 æign
