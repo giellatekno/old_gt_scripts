@@ -1,6 +1,6 @@
-cp /usr/local/cvs/repository/gt/sma/sma.fst /opt/sma/bin/
-cp /usr/local/cvs/repository/gt/sme/sme.fst /opt/sme/bin/
-cp /usr/local/cvs/repository/gt/smj/smj.fst /opt/smj/bin/
-cp /usr/local/cvs/repository/gt/sma/isma.fst /opt/sma/bin/
-cp /usr/local/cvs/repository/gt/sme/isme.fst /opt/sme/bin/
-cp /usr/local/cvs/repository/gt/smj/ismj.fst /opt/smj/bin/
+cp /export/home/trond/gt/sma/sma.fst /opt/sma/bin/
+cp /export/home/trond/gt/sme/sme.fst /opt/sme/bin/
+cp /export/home/trond/gt/smj/smj.fst /opt/smj/bin/
+cp /export/home/trond/gt/sma/isma.fst /opt/sma/bin/
+cp /export/home/trond/gt/sme/isme.fst /opt/sme/bin/
+cp /export/home/trond/gt/smj/ismj.fst /opt/smj/bin/
