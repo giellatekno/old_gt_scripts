@@ -9,7 +9,7 @@ use strict;
 #
 # An abbreviation file may be given as input parameter --abbr, 
 # the file has special syntax and the usage is connected 
-# to other s�mi tools.
+# to other sámi tools.
 # 
 # $Id$
 
@@ -31,13 +31,13 @@ my $IDIOM="IDIOM";
 my $MULTIWORD_SIZE = 3;
 
 # General punctuation, not much used variable.
-my $PUNCT = quotemeta("|{}[]()$.*?!,;:'\.\"%");
+my $PUNCT = quotemeta("|{}[]()«»‹›“”’‘$.*?!,;:'\.\"%");
 
 # Punctuation marks that are always their own tokens,
 # whether word or numeral expression.
 # There are characters added to this list depending on if
 # the processed string is word or numeral.
-my $SEPARATE_PUNCT = quotemeta("|{}[]()��?!;,'`\"");
+my $SEPARATE_PUNCT = quotemeta("|{}[]()«»‹›“”‘’?!;,'`\"");
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SEPARATE_PUNCT.
