@@ -1,14 +1,14 @@
 #!/usr/bin/perl -w
 use strict;
 
-# convert2cwb 
+# convert2cwb --tags=<tag_file>
 # Perl script for converting CG2 output to a format 
 # which is required for creating an IMS Corpus Workbench binary corpus.
 # In the output, each word is in its own line followed by base form,
 # and the list of tags, separated by tab.
-# The script takes one command line argument --tags which is the 
-# name of the file where the names of the tag classes and tag names
-# are specified.
+# The script reads STDIN and takes one command line argument --tags
+# which is the  name of the file where the names of the tag classes
+# and tag names are specified.
 #
 # $Id$
 
@@ -35,7 +35,7 @@ my $tag_class;
 while (<TAGS>) {
 		chomp;
 		s/\s+//g;
-		if (/^!/) {
+		if (/^%/) {
 			next;
 		}
 		if (/^$/) {
@@ -59,22 +59,30 @@ close TAGS;
 #print @classes;
 
 
-my $first; 
-my $second;
+my $word; 
+my $correct="";
 my $base;
 my @tag_list;
 
 while (<>) {
 
 	chomp;
+	#If at the start of a cohort, read the word and go to next line.
 	if (/^\"</) {
-		$first = $_;
+		$word = $_;
+		$correct = "";
 		next;
 	}
-	$second = $_;
-	$first =~ s/^\"<(.*)?>\".*$/$1/;
-	$second =~ s/^\s+//;
-	($base, @tag_list) = split(/\s/, $second);
+	#Read next line if the start of the cohort is not yet read.
+	# or if the analysis was not correct.
+	if(!/<Correct!>/ || $correct ) {
+		next;
+	}
+	$correct = $_;
+	$word =~ s/^\"<(.*)?>\".*$/$1/;
+	$correct =~ s/^\s+//;
+	$correct =~ s/\s*<Correct!>//;
+	($base, @tag_list) = split(/\s/, $correct);
 	$base =~ s/\"//g;
 
 	my %curr_tag;
@@ -94,7 +102,7 @@ while (<>) {
 			push @list, "";
 		}
 	}
-	my $line = join "\t", $first, $base, @list, "\n";
+	my $line = join "\t", $word, $base, @list, "\n";
 	print $line;
 }
 
