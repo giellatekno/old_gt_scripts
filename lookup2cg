@@ -157,7 +157,7 @@ sub mark_deriv_tags {
 	my $aref = shift @_;
 
 	foreach my $line ( @{$aref} ) {
-		$line =~ s/(\s[V|N|A])(\s.*?\s[V|N|A]\s)/$1\*$2/;
-		$line =~ s/(\s[V|N|A])(\*.*?)(\s[V|N|A])(\s.*?\s[V|N|A]\s)/$1$2$3\*$4/;
+		$line =~ s/(\s(?:V|N|Adv|A))(\s|\s.*?\s)((?:V|N|Adv|A)\s)/$1\*$2$3/;
+		$line =~ s/(\s(?:V|N|Adv|A)\*(?:\s|\s.*?\s)(?:V|N|Adv|A))((?:\s|\s.*?\s)(?:V|N|Adv|A)\s)/$1\*$2/;
 	}
 }
