@@ -9,7 +9,7 @@ use strict;
 #
 # An abbreviation file may be given as input parameter --abbr, 
 # the file has special syntax and the usage is connected 
-# to other sámi tools.
+# to other sï¿½mi tools.
 # 
 # $Id$
 
@@ -37,7 +37,7 @@ my $PUNCT = quotemeta("|{}[]()$.*?!,;:'\.\"%");
 # whether word or numeral expression.
 # There are characters added to this list depending on if
 # the processed string is word or numeral.
-my $SEPARATE_PUNCT = quotemeta("|{}[]()«»?!;,'`\"");
+my $SEPARATE_PUNCT = quotemeta("|{}[]()ï¿½ï¿½?!;,'`\"");
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SEPARATE_PUNCT.
@@ -45,8 +45,10 @@ my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h';
 
 my $abbr_file;
 my $help=0;
+my $verbose=0;
 GetOptions ("abbr=s" => \$abbr_file,
-			"help" => \$help) ;
+			"help" => \$help,
+			"v" => \$verbose) ;
 
 if ($help) {
 	&print_usage;
@@ -57,6 +59,16 @@ if ($help) {
 # read the abbreviations from the file to a hash.
 if ($abbr_file) {
 	&read_abbr (\%abbrs);
+}
+
+sub verbose {
+	my ($from, $word, $linenumber) = @_;
+	
+	if (!$verbose) {
+		return;
+	}
+	
+	print "[$from:$linenumber] $word\n";
 }
 
 # read one paragraph at the time.
@@ -267,6 +279,9 @@ sub process_numeral {
 		$word = $word . " " . $words_aref->[0];
 		shift @{$words_aref};
 	}
+	
+	verbose ("process_numeral", $word, __LINE__);
+	
 	# Clean first the end of the token, where punctuation follows
 	# the numeral or an ordinal and does not belong to the expression.
 	# cases like: 123! and 123.), 123). 10,-. 
@@ -279,14 +294,19 @@ sub process_numeral {
 		$word =~ s/(\.?)$//;
 		$end_punct = $1;
 	}
+	
+	verbose ("process_numeral", $word, __LINE__);
 
 	# Check if there is an abbreviation or a word attached to
 	# numeral.
 	my $end_word;
-	if ($word =~ /\.(\w+\.?)$/){
-		$word =~ s/(\w+\.?)$//;
+	if ($word =~ /\.([A-Za-z]+\.?)$/){
+		$word =~ s/([A-Za-z]+\.?)$//;
 		$end_word = $1;
 	}
+	
+	verbose ("process_numeral/end_word", $word, __LINE__);
+	verbose ("process_numeral/abbr", $word, __LINE__);
 
 	my $rest_punct;
 	# Check for ending dot, it is a separate token if 
@@ -297,6 +317,8 @@ sub process_numeral {
 	if (!defined $end_word) {
 	if ((($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) {
 		$end_punct = "." . $end_punct;
+		
+		verbose ("process_numeral/ending dot", $word, __LINE__);
 
 		# Clean the rest of the token:
 		# cases like 123). where dot is preceded by punctuation.
@@ -305,6 +327,8 @@ sub process_numeral {
 		}
 	}
     }
+    
+    verbose ("process_numeral", $word, __LINE__);
 
 	# Push everything to the tokens array.
 	push (@{$tokens_aref}, $word);
