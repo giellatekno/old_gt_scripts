@@ -52,7 +52,7 @@ while(<>) {
 				$line =~ s/\+/ /go;				
 				# If line contains a compound
 				if ( $line =~ /#/ ) { 
-					 &format_compound(\$base, \$line); 
+					 &format_compound(\$base, \$line, \$word); 
 				 }
 				# Format output
 				$line =  "\t" . " \"$base\" " . $line . "\n"; 
@@ -94,7 +94,6 @@ sub rate_compounds {
 	# Then sort the table
 	# And remove the readings with too many #'s
 	@$aref = sort {$a <=> $b} @$aref;
-	my $i = 0;
 	for my $line (@$aref) {
 		if ($line !~ /^$best_word_count/)
 		{ $line = undef; }
@@ -105,7 +104,7 @@ sub rate_compounds {
 }
 
 sub format_compound {
-	my ($refbase, $refline) = @_;
+	my ($refbase, $refline, $refword) = @_;
 
 	# Take only the analysis of the last part of the compound
 	$$refline =~ s/^.*#(.*?)\s(.*$)/$2/o;
@@ -122,8 +121,17 @@ sub format_compound {
 	}
 	# If the compound boundary is found, 
 	# replace the last word by its base form.
-	if ($word =~ m/$substring/) {
-		$$refbase = $word;
+	if ($$refword =~ m/$substring/) {
+		$$refbase = $$refword;
 		$$refbase =~ s/(^.*)$substring.*$/$1$last_word/;
+	}
+    # If the compound boundary is not found, 
+	# use "last resort": 2 letters instead of 3 or 4.
+	else {
+		$substring = substr($last_word,0,2);
+		if ($$refword =~ m/$substring/) {
+			$$refbase = $$refword;
+			$$refbase =~ s/(^.*)$substring.*$/$1$last_word/;
+		}
 	}
 }
