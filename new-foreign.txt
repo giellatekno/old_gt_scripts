@@ -221,6 +221,7 @@ Fælledsvirksomhed
 Fødder
 Føie
 Førebygging
+säämätä
 GUNNAR
 Gamstuhaugen
 Ganhunde
@@ -1118,6 +1119,13 @@ kuoksak
 kuosñe1-hte$-
 kuouhsak
 kuuhkoinen
+kuukkeli
+kahlata
+kortata
+von
+säimiä
+viti
+frå
 kuukkoinen
 kuusik
 kuusikainen
