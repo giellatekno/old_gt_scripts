@@ -349,18 +349,18 @@ sub htmlent_7bit {
 sub digr_utf8 {
 	my $ctext = shift(@_);
 
-$ctext =~ s/C1/\304\214/g ;
-$ctext =~ s/c1/\304\215/g ;
-$ctext =~ s/D1/\304\220/g ;
-$ctext =~ s/d1/\304\221/g ;
-$ctext =~ s/N1/\305\212/g ;
-$ctext =~ s/n1/\305\213/g ;
-$ctext =~ s/S1/\305\240/g ;
-$ctext =~ s/s1/\305\241/g ;
-$ctext =~ s/T1/\305\246/g ;
-$ctext =~ s/t1/\305\247/g ;
-$ctext =~ s/Z1/\305\275/g ;
-$ctext =~ s/z1/\305\276/g ;
+$ctext =~ s/C1/Č/g ;
+$ctext =~ s/c1/č/g ;
+$ctext =~ s/D1/Đ/g ;
+$ctext =~ s/d1/đ/g ;
+$ctext =~ s/N1/Ŋ/g ;
+$ctext =~ s/n1/ŋ/g ;
+$ctext =~ s/S1/Š/g ;
+$ctext =~ s/s1/š/g ;
+$ctext =~ s/T1/Ŧ/g ;
+$ctext =~ s/t1/ŧ/g ;
+$ctext =~ s/Z1/Ž/g ;
+$ctext =~ s/z1/ž/g ;
 	
 return $ctext;
 }
