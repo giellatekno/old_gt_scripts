@@ -275,7 +275,7 @@ sub process_numeral {
 	# the following word starts with capital letter. Or if there is
 	# case ending.
 	# Otherwise belongs to the expression.
-	if ((($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/\d(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) {
+	if ((($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) {
 		$end_punct = "." . $end_punct;
 
 		# Clean the rest of the token:
