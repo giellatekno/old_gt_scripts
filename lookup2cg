@@ -34,8 +34,9 @@ while(<>) {
 		} 
 		# store the word into a variable
 		# and the analysis part into an array.
-		($word, $tmp) = split (" ", $_);
-		push @Analyses, $tmp;
+		$_ =~ /^(.*?)\s+(.*)$/;
+		$word = $1;
+		push @Analyses, $2;
 	}
 	# if empty line, format the output and print
 	else {
@@ -46,7 +47,7 @@ while(<>) {
 		# Format each analysis
 		for my $line (@Analyses) {			
 			# Separate the base form from the analysis
-			if ( $line =~ /^(.*?)\+(.*)$/o ) {
+			if ( $line =~ /^(.*?)\s*\+(.*)$/o ) {
 				my $base = $1;
 				$line = $2;
 				$line =~ s/\+/ /go;				
