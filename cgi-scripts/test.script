@@ -1,7 +1,8 @@
 #!/bin/sh
 #Denne funker...
+export HTTP_USER_AGENT='mozilla Linux'
 export QUERY_STRING=`cat input.txt`
-./utf8-sme-lookup.cgi
+./test-sme-lookup.cgi
 
 
 #export QUERY_STRING=`cat input.txt |iconv -f utf8 -t ucs2`
