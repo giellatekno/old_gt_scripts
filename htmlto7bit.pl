@@ -27,6 +27,8 @@ HTML::Parser->new(api_version => 3,
 if ($charset eq "windows-1252") { $result = win_1252($result) }
 elsif ($charset eq "iso-8859-10") { $result = latin6($result) }
 elsif ($charset eq "utf-8") { $result = unicode_ent_utf8($result) }
+elsif ($charset eq "UTF-8") { $result = unicode_ent_utf8($result) }
+elsif ($charset eq "iso-8859-1") { $result = unicode_ent_utf8($result) }
 else { $result = generic($result); }
 
 #
