@@ -456,7 +456,7 @@ sub unicode_ent_utf8
 
     $text =~ s/&\#x014A;/\xc5\x8a/g;   # ENG
     $text =~ s/&\#x017D;/\xc5\xbd/g;   # Z caron
-    $text =~ s/&\#x010D;/\xc4\x8c/g;   # C caron
+    $text =~ s/&\#x010C;/\xc4\x8c/g;   # C caron
 
 
 # Hex notation of the Sámi letters, no initial 0
