@@ -62,20 +62,20 @@ sub printsolution
 sub utf8_to_xfst {
     my ($text) = @_;
     #replace s&#225;mi letters with something lookup understands
-    $text =~ s/\XC3\XA1/\341/g; # a sharp
-    $text =~ s/\305\241/s1/g;   # s caron
-    $text =~ s/\305\247/t1/g;   # t stroke
-    $text =~ s/\305\213/n1/g;   # eng
-    $text =~ s/\304\221/d1/g;   # d stroke
-    $text =~ s/\305\276/z1/g;   # z caron
-    $text =~ s/\304\215/c1/g;   # c caron
-    $text =~ s/\303\201/\341/g; # A sharp
-    $text =~ s/\305\240/s1/g; # S caron
-    $text =~ s/\305\246/t1/g; # T stroke
-    $text =~ s/\305\212/n1/g; # ENG
-    $text =~ s/\304\220/d1/g; # D stroke
-    $text =~ s/\305\275/z1/g; # Z caron
-    $text =~ s/\304\214/c1/g; # C caron
+    $text =~ s/\xC3\xA1/\341/g; # a sharp
+    $text =~ s/\xC5\241/s1/g;   # s caron
+    $text =~ s/\xC5\247/t1/g;   # t stroke
+    $text =~ s/\xC5\213/n1/g;   # eng
+    $text =~ s/\xC4\221/d1/g;   # d stroke
+    $text =~ s/\xC5\276/z1/g;   # z caron
+    $text =~ s/\xC4\215/c1/g;   # c caron
+    $text =~ s/\xC3\201/\341/g; # A sharp
+    $text =~ s/\xC5\240/s1/g; # S caron
+    $text =~ s/\xC5\246/t1/g; # T stroke
+    $text =~ s/\xC5\212/n1/g; # ENG
+    $text =~ s/\xC4\220/d1/g; # D stroke
+    $text =~ s/\xC5\275/z1/g; # Z caron
+    $text =~ s/\xC4\214/c1/g; # C caron
 
     print "<p>utf8_to $text</p>\n";
 
@@ -214,17 +214,17 @@ sub mac_to_xfst {
 
     $text =~ s/\303\241/\341/g; # a sharp
     $text =~ s/\242/C1/g ;
-    $text =~ s/\XE2\X88\X8F/c1/g ;
+    $text =~ s/\xE2\x88\x8F/c1/g ;
     $text =~ s/\260/D1/g ;
-    $text =~ s/\XCF\X80/d1/g ;
+    $text =~ s/\xCF\x80/d1/g ;
     $text =~ s/\261/N1/g ;
-    $text =~ s/\XE2\X88\XAB/n1/g ;
+    $text =~ s/\xE2\x88\xAB/n1/g ;
     $text =~ s/\264/S1/g ;
-    $text =~ s/\XC2\XAA/s1/g ;
+    $text =~ s/\xC2\xAA/s1/g ;
     $text =~ s/\265/T1/g ;
-    $text =~ s/\XC2\XBA/t1/g ;
+    $text =~ s/\xC2\xBA/t1/g ;
     $text =~ s/\267/Z1/g ;
-    $text =~ s/\XCE\XA9/z1/g ;
+    $text =~ s/\xCE\xA9/z1/g ;
 
     print "<p>mac_to... $text</p>\n";
     return ($text);
