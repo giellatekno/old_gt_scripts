@@ -179,6 +179,8 @@ else {
 				&printsolution($lexicalstring, ++$cnt);
 			}
 		}
+		
+		print "\n$text";
 		# these subroutines print out suitable HTML codes
 	}
 
