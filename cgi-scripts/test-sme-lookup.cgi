@@ -62,7 +62,7 @@ sub printsolution
 sub utf8_to_xfst {
     my ($text) = @_;
     #replace s&#225;mi letters with something lookup understands
-    $text =~ s/\303\241/\341/g; # a sharp
+    $text =~ s/\XC3\XA1/\341/g; # a sharp
     $text =~ s/\305\241/s1/g;   # s caron
     $text =~ s/\305\247/t1/g;   # t stroke
     $text =~ s/\305\213/n1/g;   # eng
@@ -130,10 +130,10 @@ sub format_text {
 
 sub browser_dependent_transform {
     my ($text) = @_;
-    
+
     use HTTP::BrowserDetect;
     my $browser = new HTTP::BrowserDetect($ENV{HTTP_USER_AGENT});
-    
+
     $tust = $browser->os_string;
     print "<p>dette er os_strengen $tust</p>";
 
@@ -212,18 +212,19 @@ sub ws2_to_xfst {
 sub mac_to_xfst {
     my ($text) = @_;
 
+    $text =~ s/\303\241/\341/g; # a sharp
     $text =~ s/\242/C1/g ;
-    $text =~ s/\270/c1/g ;
+    $text =~ s/\XE2\X88\X8F/c1/g ;
     $text =~ s/\260/D1/g ;
-    $text =~ s/\271/d1/g ;
+    $text =~ s/\XCF\X80/d1/g ;
     $text =~ s/\261/N1/g ;
-    $text =~ s/\272/n1/g ;
+    $text =~ s/\XE2\X88\XAB/n1/g ;
     $text =~ s/\264/S1/g ;
-    $text =~ s/\273/s1/g ;
+    $text =~ s/\XC2\XAA/s1/g ;
     $text =~ s/\265/T1/g ;
-    $text =~ s/\274/t1/g ;
+    $text =~ s/\XC2\XBA/t1/g ;
     $text =~ s/\267/Z1/g ;
-    $text =~ s/\275/z1/g ;
+    $text =~ s/\XCE\XA9/z1/g ;
 
     print "<p>mac_to... $text</p>\n";
     return ($text);
