@@ -1,12 +1,20 @@
 #!/usr/bin/perl -w
 # Converting text from MS .doc files to internal format
 
+# note that the newest versions of MS Word save as UTF-16.
+# This script can thus only be used for files saved with
+# StarOffice, OpenOffice or NeoOffice. Word files should be opened in
+# any of these three, and then saved as "Text Encoded", and run through
+# this script.
+
 while (<>) 
 {
 # convert encoded text-saved text from staroffice
 # the input files to star office are unicode-encoded ms-files.
 # The files are transformet to internal Latin 1 digraph Sami.
 
+# Here comes the digraphs, the UTF-8 values of the 
+# Sแmi letters.
 
 s/\304\214/C1/g ;
 s/\304\215/c1/g ;
@@ -20,6 +28,63 @@ s/\305\246/T1/g ;
 s/\305\247/t1/g ;
 s/\305\275/Z1/g ;
 s/\305\276/z1/g ;
+
+# Here, we convert the UTF-8 values of the right-hand side of Latin 1
+# into Latin 1.
+
+# Column 8 and 9 
+# The entries here are strange, probably due to broken
+# 1252 input, we let them stay until proven harmful.
+
+s/โ\200\223/--/g ; # Input is m-dash, I render by two hyphens.
+s/โ\200\231/\'/g ; # Single quotation marks
+s/โ\200\234/ซ/g ;  # These quotation marks had the symbol โ
+s/โ\200\235/ป/g ;  # preceeding them in a certain text.
+
+s/\200\234/ซ/g ;
+s/\200\235/ป/g ;
+
+# Column A
+
+s/\302\240/\240/g ;   # xA0
+s/\302\241/ก/g ;      # xA1
+s/\302\242/ข/g ;      # xA2
+s/\302\243/ฃ/g ;      # xA3
+s/\302\244/\244/g ;   # xA4
+s/\302\245/ฅ/g ;      # xA5
+s/\302\246/\246/g ;   # xA6
+s/\302\247/ง/g ;      # xA7
+
+s/\302\250/จ/g ;      # xA8
+s/\302\251/ฉ/g ;      # xA9
+s/\302\252/\252/g ;      # xAA
+s/\302\253/\253/g ;      # xAB
+s/\302\254/\254/g ;      # xAC
+s/\302\255/\255/g ;      # xAD
+s/\302\256/\256/g ;      # xAE
+s/\302\257/\257/g ;      # xAF
+
+# Column B
+
+s/\302\260/\260/g ;      # xB0
+s/\302\261/\261/g ;      # xB1
+s/\302\262/\262/g ;      # xB2
+s/\302\263/\263/g ;      # xB3
+s/\302\264/\264/g ;      # xB4
+s/\302\265/\265/g ;      # xB5
+s/\302\266/\266/g ;      # xB6
+s/\302\267/\267/g ;      # xB7
+
+s/\302\270/\270/g ;      # xB8
+s/\302\271/\271/g ;      # xB9
+s/\302\272/\272/g ;      # xBA
+s/\302\273/\273/g ;      # xBB
+s/\302\274/\274/g ;      # xBC
+s/\302\275/\275/g ;      # xBD
+s/\302\276/\276/g ;      # xBE
+s/\302\277/\277/g ;      # xBF
+
+# Column C
 
 s/\303\200/ภ/g ;
 s/\303\201/ม/g ;    
@@ -57,6 +122,8 @@ s/\303\235/Ý/g ;
 s/\303\236/Þ/g ;
 s/\303\237/฿/g ;
 
+# Column E
+
 s/\303\240/เ/g ;
 s/\303\241/แ/g ;
 s/\303\242/โ/g ;
@@ -74,6 +141,8 @@ s/\303\254/์/g ;
 s/\303\255/ํ/g ;
 s/\303\256/๎/g ;
 s/\303\257/๏/g ;
+
+# Column F
 
 s/\303\260/๐/g ;
 s/\303\261/๑/g ;
@@ -93,15 +162,6 @@ s/\303\275/ý/g ;
 s/\303\276/þ/g ;
 s/\303\277/ÿ/g ;
 
-s/โ\200\223/--/g ; # Input is m-dash, I render by two hyphens.
-s/โ\200\231/\'/g ; # Single quotation marks
-s/โ\200\234/ซ/g ;  # These quotation marks had the symbol โ
-s/โ\200\235/ป/g ;  # preceeding them in a certain text.
-
-s/\200\234/ซ/g ;
-s/\200\235/ป/g ;
-
-s/ยง/ง/g ;         # paragraph
 
 # removing litter
 s/\377//g ;
