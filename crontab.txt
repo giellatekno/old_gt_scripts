@@ -1,1 +1,1 @@
-0 0 * * * fst2opt
+0 0 * * * /home/trond/gt/script/fst2opt
