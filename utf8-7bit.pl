@@ -93,6 +93,14 @@ s/\303\275/ý/g ;
 s/\303\276/þ/g ;
 s/\303\277/ÿ/g ;
 
+s/â\200\223/--/g ; # Input is m-dash, I render by two hyphens.
+s/â\200\231/\'/g ; # Single quotation marks
+s/â\200\234/«/g ;  # These quotation marks had the symbol â
+s/â\200\235/»/g ;  # preceeding them in a certain text.
+
+s/\200\234/«/g ;
+s/\200\235/»/g ;
+
 # removing litter
 s/\377//g ;
 
