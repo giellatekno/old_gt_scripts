@@ -8,7 +8,7 @@ while [ 1 ]                                 # as long as there is input
 do                                          # run the following loop
 echo -n "Atte cealkaga (ctrl-C = STOP): "          # (message to user)
 read sentence                               # next 3 lines is the usual command
-echo $sentence | preprocess ~/gt/sme/bin/abbr.txt | \
+echo $sentence | preprocess --abbr=~/gt/sme/bin/abbr.txt | \
 lookup -flags mbTT ~/gt/sme/bin/sme.fst | ~/gt/script/lookup2cg | \
 vislcg --grammar ~/gt/sme/src/sme-dis.rle #--minimal
 
