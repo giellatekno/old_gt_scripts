@@ -9,7 +9,6 @@ s/³/s1/g ;
 s/±/n1/g ;
 s/¤/d1/g ;
 s/¢/c1/g ;
-s/^L/ /g ;
 s/¡/C1/g ;
 
 print ;
