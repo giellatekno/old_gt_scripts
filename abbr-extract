@@ -16,7 +16,9 @@ use strict;
 
 # Use the local character class. 
 # It means that variable \w contains Latin-1 alphabet.
-use locale;
+#use locale;
+#use encoding 'utf-8';
+use open ':utf8';
 
 # permit named arguments
 use Getopt::Long;
@@ -61,7 +63,7 @@ while (<LEX>) {
 	# at least following type (see documentation)
 	# nr
 	# j.d.s
-	# earret% eará
+	# earret% earï¿½
 	
 	if ((my $abbr = $_)	=~ s/^([\w\.]+(% [\w\.]+)*)\s.*/$1/) {
 		$abbr =~ s/%//g;
