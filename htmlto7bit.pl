@@ -286,9 +286,10 @@ sub unicode_ent_utf8
 
 # Sgml named entities
 
+
 # Named sgml entities of the A column of Latin 1
 
-    $text =~ s/&nbsp;/\xc2\xa0/g; # 
+    $text =~ s/&nbsp;/ /g; #        nbsp to space.
     $text =~ s/&iexcl;/\xc2\xa1/g; # 
     $text =~ s/&cent;/\xc2\xa2/g; # 
     $text =~ s/&pound;/\xc2\xa3/g; # 
@@ -320,7 +321,7 @@ sub unicode_ent_utf8
     $text =~ s/&cedil;/\xc2\xb8/g; # 
     $text =~ s/&sup1;/\xc2\xb9/g; # 
     $text =~ s/&ordm;/\xc2\xba/g; # 
-    $text =~ s/&raqup;/\xc2\xbb/g; # 
+    $text =~ s/&raquo;/\xc2\xbb/g; # 
     $text =~ s/&frac14;/\xc2\xbc/g; # 
     $text =~ s/&frac12;/\xc2\xbd/g; # 
     $text =~ s/&frac34;/\xc2\xbe/g; # 
@@ -406,6 +407,12 @@ sub unicode_ent_utf8
     $text =~ s/&thorn;/\xc3\xbe/g; # 
     $text =~ s/&yuml;/\xc3\xbf/g; # 
 
+# Named entities from ASCII
+
+    $text =~ s/&amp;/\x26/g; # 
+    $text =~ s/&lt;/\x3c/g; # 
+    $text =~ s/&gt;/\x3e/g; # 
+    $text =~ s/&quot;/\x22/g; # 
 
 # Decimal sgml entities of the 6 x 2 Sámi letters
 
@@ -416,7 +423,6 @@ sub unicode_ent_utf8
     $text =~ s/&\#382;/\xc5\xbe/g;   # z caron
     $text =~ s/&\#269;/\xc4\x8d/g;   # c caron
 
-
     $text =~ s/&\#352;/\xc5\xa0/g;   # S caron
     $text =~ s/&\#358;/\xc5\xa6/g;   # T stroke
     $text =~ s/&\#330;/\xc5\x8a/g;   # ENG
@@ -425,9 +431,8 @@ sub unicode_ent_utf8
     $text =~ s/&\#268;/\xc4\x8c/g;   # C caron
 
 
-# This takes care of hexadecimal notation
 
-    $text =~ s/&\#x00e1;/\xc3\xa1/g; # a sharp
+# Hex notation of the Sámi letters
 
     $text =~ s/&\#x0161;/\xc5\xa1/g;   # s caron
     $text =~ s/&\#x0167;/\xc5\xa7/g;   # t stroke
@@ -436,14 +441,49 @@ sub unicode_ent_utf8
     $text =~ s/&\#x017e;/\xc5\xbe/g;   # z caron
     $text =~ s/&\#x010d;/\xc4\x8d/g;   # c caron
 
-    $text =~ s/&\#x0193;/\xc3\x81/g; # A sharp
-
     $text =~ s/&\#x0160;/\xc5\xa0/g;   # S caron
     $text =~ s/&\#x0166;/\xc5\xa6/g;   # T stroke
     $text =~ s/&\#x014a;/\xc5\x8a/g;   # ENG
     $text =~ s/&\#x0110;/\xc4\x90/g;   # D stroke
     $text =~ s/&\#x017d;/\xc5\xbd/g;   # Z caron
     $text =~ s/&\#x010c;/\xc4\x8c/g;   # C caron
+
+# hex notation of the Sámi letters, capital A-F
+
+    $text =~ s/&\#x014B;/\xc5\x8b/g;   # eng
+    $text =~ s/&\#x017E;/\xc5\xbe/g;   # z caron
+    $text =~ s/&\#x010D;/\xc4\x8d/g;   # c caron
+
+    $text =~ s/&\#x014A;/\xc5\x8a/g;   # ENG
+    $text =~ s/&\#x017D;/\xc5\xbd/g;   # Z caron
+    $text =~ s/&\#x010D;/\xc4\x8c/g;   # C caron
+
+
+# Hex notation of the Sámi letters, no initial 0
+
+    $text =~ s/&\#x161;/\xc5\xa1/g;   # s caron
+    $text =~ s/&\#x167;/\xc5\xa7/g;   # t stroke
+    $text =~ s/&\#x14b;/\xc5\x8b/g;   # eng
+    $text =~ s/&\#x111;/\xc4\x91/g;   # d stroke
+    $text =~ s/&\#x17e;/\xc5\xbe/g;   # z caron
+    $text =~ s/&\#x10d;/\xc4\x8d/g;   # c caron
+
+    $text =~ s/&\#x160;/\xc5\xa0/g;   # S caron
+    $text =~ s/&\#x166;/\xc5\xa6/g;   # T stroke
+    $text =~ s/&\#x14a;/\xc5\x8a/g;   # ENG
+    $text =~ s/&\#x110;/\xc4\x90/g;   # D stroke
+    $text =~ s/&\#x17d;/\xc5\xbd/g;   # Z caron
+    $text =~ s/&\#x10c;/\xc4\x8c/g;   # C caron
+
+# hex notation of the Sámi letters, capital A-F
+
+    $text =~ s/&\#x14B;/\xc5\x8b/g;   # eng
+    $text =~ s/&\#x17E;/\xc5\xbe/g;   # z caron
+    $text =~ s/&\#x10D;/\xc4\x8d/g;   # c caron
+
+    $text =~ s/&\#x14A;/\xc5\x8a/g;   # ENG
+    $text =~ s/&\#x17D;/\xc5\xbd/g;   # Z caron
+    $text =~ s/&\#x10D;/\xc4\x8c/g;   # C caron
 
     return $text;
 
@@ -703,7 +743,7 @@ sub latin9_to_utf8 {
 sub remove_garbage {
     my ($text) = @_;
 #    $text =~ s/<[^>]*>//g;
-#    $text =~ s/&nbsp\;//g;
+#    $text =~ s/&nbsp\;/ /g;
 #    $text =~ s/&copy\;//g;
 #    $text =~ s/&aacute\;/\xe1/g;
 #    $text =~ s/&eth\;/\xc4\x91/g;
