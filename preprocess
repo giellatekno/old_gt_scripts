@@ -85,38 +85,57 @@ while (<>) {
 		}		
 		if( $word =~ s/^([^\w]+)// ) {
 			$start_punct = $1;
-		}		
-
-		# If the word belongs to a multi-word idiom, it is
+		}
+		# If the word belongs to a multiword expression, it is
 		# concatenated with the next word.
 		if (&idiom ($word, $next_word)) {
 			$word = $word . " " . $next_word;
 			$next_word = shift @words;
 		}
-
 		# If the word does not end with a dot, the output is printed
 		# straight away.
 		# There is no sentence boundary.
 		if ($word !~ /\.$/) {
+			&middle_dot(\$word, $next_word, \$s_boundary)
 			&print_output($start_punct,0,0);
-			&print_output($word,0,0);
+			&print_output($word,0,$s_boundary);
 			&print_output($end_punct, 0,0);
 			next;
-		}	
+		}
 		# If the word ends with a dot, it is checked for abbreviation.
 		# And for sentence boundary.
-		else {			
+		else {
 			(my $abbr = $word) =~ s/\.$//;
+
 			if (&test_abbr($abbr, $next_word, \$s_boundary)) {
 				$isabbr = 1;
 			}
-			else { 
-				$s_boundary = 1; 
-				$isabbr = 0;
+			if (&middle_dot(\$word, $next_word, \$s_boundary)) {
+				$isabbr = 1;
 			}
 			&print_output($start_punct,0,0);
 			&print_output($word, $isabbr, $s_boundary);
 			&print_output($end_punct,0,0);
+		}
+	}
+}
+
+sub middle_dot {
+	my ($word, $nextw, $sbound) = @_;
+
+	(my $abbr = $$word) =~ s/\.$//;
+	if ($abbr =~ /([^\W\d]+)\./ ) {
+#		print "JEE2\n";
+		if (&test_abbr($1, $nextw, \$sbound)) {
+			$$word =~ s/([^\W\d]+\.)/$1\n/;
+#			print "JEE3\n";
+		}		
+	}
+	if ($abbr =~ /\.([^\W\d]+)/) {
+#		print "JEE4 $1\n";
+		if (&test_abbr($1, $nextw, \$sbound)) {
+			$$word =~ s/\.([^\W\d]+\.)/\n$1/;
+#			print "JEE5 $$word\n";			
 		}
 	}
 }
@@ -156,16 +175,19 @@ sub print_output {
 	# Remove and store the punctuation in the middle.
 	# Except for - 
 	my $middle = "";
-	if($word =~ s/^([^\W\d_]+)([^\w\s\-]+)([^\W\d_]+)$/$1/) {
+	if($word =~ s/^([^\W\d_]+)([^\w\s\-\:]+)([^\W\d_]+)$/$1/) {
 		$middle = join "\n", split //, $2;
 		$middle = $middle ."\n". $3;
 	}
-# replace / and ' with ^£ and ^¤
-#	$word =~ s/\//\^£/g;
-#	$word =~ s/'/\^¤/g;
+#replace / and ' with ^£ and ^¤
+	$word =~ s/\//\£/g;
+	$word =~ s/'/\¤/g;
 		
-#    $end_punct2 =~ s/\//\^£/g;
-#	$end_punct2 =~ s/'/\^¤/g;
+    $middle =~ s/\//\£/g;
+	$middle =~ s/'/\¤/g;
+		
+    $end_punct2 =~ s/\//\£/g;
+	$end_punct2 =~ s/'/\¤/g;
 	
 	if ($word) {
 		print "$word\n";
@@ -181,7 +203,6 @@ sub print_output {
 sub test_abbr {
 	my ($before, $after, $sref) = @_;
 
-#	print "TESTI $before,, $after,, $sref\n";
 	# Transitive abbreviations are never followed
 	# by sentence boundary.
 	if (exists $abbrs{$TRAB}{$before}) {
