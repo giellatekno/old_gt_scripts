@@ -40,6 +40,16 @@ if ($help) {
 	exit;
 }
 
+# The filename may contain a tilde ~
+# Expand the filename manually
+
+$abbr_file =~ s{^~([^/])*} {
+	$1
+		? (getpwnam($1))[7]
+		: ($ENV{HOME} || (getpwuid($>))[7]
+		   )
+	}ex;
+
 # If the abbreviation file is give,
 # read the abbreviations from a file to a hash.
 if ($abbr_file) {
