@@ -60,6 +60,8 @@ sub utf8_to_xfst {
     $text =~ s/\305\275/z1/g; # Z caron
     $text =~ s/\304\214/c1/g; # C caron
 
+    print "<p>utf8_to $text</p>\n";
+
     return $text;
 }
 
@@ -74,6 +76,7 @@ sub xfst_to_utf8 {
     $text =~ s/z1/\305\276/g;   # z caron
     $text =~ s/c1/\304\215/g;   # c caron
 
+    print "<p>xfst_to... $text</p>\n";
     return lc($text);
 }
 
@@ -89,6 +92,7 @@ sub format_text {
     $text =~ s/\s+$// ;         # chop any whitespace off the back
     $text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
 
+    print "<p>format_text $text</p>\n";
     return $text;
 }
 
@@ -98,16 +102,21 @@ sub browser_dependent_transform {
     use HTTP::BrowserDetect;
     my $browser = new HTTP::BrowserDetect($ENV{HTTP_USER_AGENT});
     
+    $tust = $browser->os_string;
+    print "<p>dette er os_strengen $tust</p>";
+
     # Detect operating system
     if ($browser->windows) {
+	print "<p>i win</p>\n";
 	if ($browser->winnt) {
 	    $text = utf8_to_xfst($text);
 	} elsif ($browser->win95 || $browser->win98 || $browser->winME) {
 	    if ($browser->opera){
+		print "<p>opera</p>\n";
 		$text = ws2_to_xfst($text);
-	    } 
-	} else {
+	    }  else {
 	    $text = quasi_ws2_to_xfst($text);
+	}
 	}
     } elsif ($browser->linux) {
 	$text = utf8_to_xfst($text);
@@ -141,6 +150,7 @@ sub quasi_ws2_to_xfst {
     $text =~ s/\302\276/z1/g; # Z caron
     $text =~ s/\342\200\232/c1/g; # C caron
 
+    print "<p>quasi $text</p>\n";
 
     return $text;
 }
@@ -162,7 +172,8 @@ sub ws2_to_xfst {
     $text =~ s/\272/t1/g ; 
     $text =~ s/\277/z1/g ;
     $text =~ s/\276/z1/g ;
-    
+
+    print "<p>ws2_to $text</p>\n";
     return lc($text);
 }
 
@@ -182,6 +193,7 @@ sub mac_to_xfst {
     $text =~ s/\205/Z1/g ;
     $text =~ s/\207/z1/g ;
     
+    print "<p>mac_to... $text</p>\n";
     return ($text);
 }
 
