@@ -107,6 +107,8 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 # Convert html-entity input to 7-bit
 $text = htmlent_7bit($text);
 
+$text = win_7bit($text);
+
 # Convert utf8-input to 7-bit
 if ($coding !~ /latin/)
 { $text = utf8_7bit($text); }
@@ -341,14 +343,22 @@ sub unicode {
 	return $utext;
 }
 
-# Convert html to Sami digraphs
-sub htmlent_7bit {
+# Convert windows charachters to Sami digraphs
+sub win_7bit {
 	my $ctext  = shift(@_);
 
 	$ctext =~ s/\212/S1/g ;
 	$ctext =~ s/\232/s1/g ;
 	$ctext =~ s/\216/Z1/g ;
 	$ctext =~ s/\236/z1/g ;
+
+	return $ctext;
+}
+
+
+# Convert html to Sami digraphs
+sub htmlent_7bit {
+	my $ctext  = shift(@_);
 
 	$ctext =~ s/&\#193\;/Á/g ;
 	$ctext =~ s/&\#225\;/á/g ;
