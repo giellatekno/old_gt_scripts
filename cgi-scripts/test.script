@@ -1,0 +1,12 @@
+#!/bin/sh
+#Denne funker...
+export QUERY_STRING=`cat input.txt`
+./utf8-sme-lookup.cgi
+
+
+#export QUERY_STRING=`cat input.txt |iconv -f utf8 -t ucs2`
+#./winuni-sme-lookup.cgi
+
+
+#export QUERY_STRING=`cat input.txt | iconv -f utf8 -t ws2`
+#./win9x-sme-lookup.cgi
