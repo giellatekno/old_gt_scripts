@@ -1,110 +1,129 @@
-# Script for making Xerox lookup output into CG-2 input.
+#!/usr/bin/perl
+use strict;
 
-# Written by Anssi Yli-Jyrä, comments by Trond Trosterud
-# usage:  bash$ lookup2sg < input.txt > output.txt
-# or in a pipe: .. lookup xeroxparser.fst | lookup2cg | mdis --grammar=gr.rle ..
+# lookup2cg
+# Perl-script for converting lookup-output to CG-2 input.
+# - Rates and removes compound analyses according to 
+#   the number of word boundaries.
+# - Reformats compound analyses and base forms, removes duplicates
+#
+# Input: 
+# Dan     dat+Pron+Dem+Sg+Acc
+# Dan     dat+Pron+Dem+Sg+Gen
+#
+# Output:
+# "<Dan>"
+#        "dat" Pron Dem Sg Acc
+#        "dat" Pron Dem Sg Gen
+#
+# $Id$
 
-perl -e '
-# Block 1: Mark cohorts and make them into one line each
- while( <> )
- {
-   if (!$error && m/[\001\002]/)
-   {
-	print STDERR "ERROR: ¶ or § found!\n";
-        $error = 1; 
-   }
-   tr/§¶/\001\002/;
+my @Analyses;
+my $word;
+my $tmp;
+my $compound = 0;
 
-   s/ /==/g;	# mark multiword compounds with ==
-   s/^\n/§/;	# mark empty lines (between cohorts) with §
-   s/\n/¶/;	# newline (after each analysis and empty lines) to ¶
-   s/§/\n/g;	# each cohort now consists of one line
-   print $_;
- }
+# Read while not eol
+while(<>) {	
+	# While line not empty, store word to a scalar and
+	# analyses into an array.
+	if (! /^\s*$/) {
+		chomp;
+		if (/#/) { 
+			$compound = 1; 
+		} 
+		# store the word into a variable
+		# and the analysis part into an array.
+		($word, $tmp) = split (" ", $_);
+		push @Analyses, $tmp;
+	}
+	# if empty line, format the output and print
+	else {
+		# Rate compounds accoring to word boundaries
+		if ($compound) { 
+			&rate_compounds(\@Analyses); 
+		}		
+		# Format each analysis
+		for my $line (@Analyses) {			
+			# Separate the base form from the analysis
+			if ( $line =~ /^(.*?)\+(.*)$/o ) {
+				my $base = $1;
+				$line = $2;
+				$line =~ s/\+/ /go;				
+				# If line contains a compound
+				if ( $line =~ /#/ ) { 
+					 &format_compound(\$base, \$line); 
+				 }
+				# Format output
+				$line =  "\t" . " \"$base\" " . $line . "\n"; 
+			}
+		} 
+		# Remove identical analyses
+		for my $i ( 0 .. $#Analyses ) {
+			for my $j ( $i+1 .. $#Analyses ) {
+				if ( $Analyses[$i] eq $Analyses[$j] )
+				{ $Analyses[$j] = undef; }
+			}
+		}
+		# Print output
+		print "\"<$word>\"\n";
+		for my $line (@Analyses)
+		{ print $line; }
+		
+		#TODO: problem: this is one element in the array.
+		@Analyses = 0;
+		pop @Analyses;
+		$compound = 0;
+	}
+} # end of while
 
-'|
+sub rate_compounds {
+	my $aref = shift @_;
+	
+	# Rate compounds and remove extra readings.
+	# First mark the number of words in the compound
+	# to the beginning of the string
+	my $word_count;
+	my $best_word_count = 5;
+	for my $line (@$aref) {
+		$word_count = split ("#", $line);
+		$line = $word_count . $line;
+		if ( $word_count < $best_word_count )
+		{ $best_word_count = $word_count; }
+	}
+	# Then sort the table
+	# And remove the readings with too many #'s
+	@$aref = sort {$a <=> $b} @$aref;
+	my $i = 0;
+	for my $line (@$aref) {
+		if ($line !~ /^$best_word_count/)
+		{ $line = undef; }
+	}
+	# Remove the extra digits
+	for my $line (@$aref) 
+	{ $line =~ s/^\d(.*)$/$1/o; }
+}
 
-# Dát     dát+Pron+Dem+Pl+Nom¶Dát dát+Pron+Dem+Sg+Nom¶
-# lea    leat+V+Ind+Prs+Sg3¶
-# Jesus  Jesus+N+Prop+Sg+Nom¶
-# Kristusa       Kristus+N+Prop+Sg+Acc¶Kristusa  Kristus+N+Prop+Sg+Gen¶
+sub format_compound {
+	my ($refbase, $refline) = @_;
 
-perl -ne '
-# Block 2: Change the main shape of the cohort
-# while( <> )   # for ped.-purpose: here no while but -n to see that TMTOWTDI
- {
-   s/^/"</;		# insert "< for first instance of wordform
-   s/\t/>"\n\t"/;	# insert >" and tab after wforms
-   s/¶[^\t]*\t/\n\t"/g;	# remove the wf from all the other readings,
-                        # replace with newline, tab and " mark in front of lexeme
-   print $_;		
- }
+	# Take only the analysis of the last part of the compound
+	$$refline =~ s/^.*#(.*?)\s(.*$)/$2/o;
+	my $last_word = $1;
 
-'|
-
-perl -e '
-# Block 3: Change the format of the morphosyntactic tags
- while( <> )
- {
-   s/\+/" /;	# remove the first + and insert " after the lexeme
-   s/\+/ /g;	# replace + with space
-   s/#/ # /g;	# insert space around the compound marker
-
-#  s/¶//;       # keep ¶ for the compound disambiguator
-   print $_;
- }
-
-' |
-
-perl -e '
-# Block 3: Mark compounds and rate them according to complexity
- while( <> )
- {
-   chop;			# remove end-of-line
-   s/¶/¶\n/;			# ¶ to newline
-   if (m/^\t.*\#.*\#.*\#/)	# if the line is a 4-part compound (has 3 #)
-   {   print "§3$_";		# then print §3 in front of the line
-   } 
-   elsif (m/^\t.*\#.*\#/)	# else if it is a 3-part compound
-   {   print "§2$_";		# print §2
-   } 
-   elsif (m/^\t.*\#/)		# etc.
-   {   print "§1$_";
-   } 
-   elsif (m/^\t/)		# etc.
-   {   print "§0$_";
-   } 
-   elsif (m/^/)			# this is for the lines without an initial tab
-   {   print "$_\n";		# they must be part of the output also
-   } 
- }
-
-' |
-
-perl -e '
-# Block 4: Remove compounds when lexicalised compounds available
- while( <> )
- {				# so, within the same cohort, delete readings
-   if (m/§0/) 			# that have one or more # if there is a reading
-   { 				# with no #, 
-       s/§[321][^§¶]*//g;	
-   }
-   elsif (m/§1/) 		# if there is one #
-   { 
-       s/§[32][^§¶]*//g;	# remove two or more
-   }
-   elsif (m/§2/) 		# etc.
-   { 
-       s/§[3][^§¶]*//g;
-   }
-
-   s/§.//;			# delete the first §. symbol (clean up, that is)
-   s/§./\n/g;			# and restore cohort to one reading at each line
-   s/¶//;			# ¶ could have been deleted in block 3, in fact
-
-   tr/\001\002/§¶/;
-   s/==/ /g;			# restore the multi-word entries.
-   print $_;			# then finally print it all.
- }
-' 
-
+	# Search for the 3 first letters of the last base form
+	# from the original compound 
+	my $substring = substr($last_word,0,3);
+	
+	# If some of the 3 letters is 2-letter garpheme
+	# take 4 letters instead of 3
+	if($substring =~ /c1|s1|z1|d1|t1/o) {
+		$substring = substr($last_word,0,4);
+	}
+	# If the compound boundary is found, 
+	# replace the last word by its base form.
+	if ($word =~ m/$substring/) {
+		$$refbase = $word;
+		$$refbase =~ s/(^.*)$substring.*$/$1$last_word/;
+	}
+}
