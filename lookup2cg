@@ -1,0 +1,80 @@
+# Script for making Xerox lookup output into CG-2 input.
+
+# Written by Anssi Yli-Jyrä, comments by Trond Trosterud
+# usage:  bash$ lookup2sg < input.txt > output.txt
+# or in a pipe: .. lookup xeroxparser.fst | lookup2cg | mdis --grammar=gr.rle ..
+
+perl -e '
+# Block 1: Mark cohorts and make them into one line each
+ while( <> )
+ {
+   s/^$/§/;	# mark empty lines with §
+   s/\n/¶/;	# newline to ¶
+   s/§/\n/g;	# each cohort now consists of one line
+   print $_;
+ }
+
+'|
+
+perl -e '
+# Block 2: Change the main shape of the cohort
+ while( <> )
+ {
+   s/^¶/"</;		# insert "< for first instance of wordform
+   s/\t/>"\n\t"/;	# insert >" and tab after first instance of wf
+   s/¶[^\t]*\t/\n\t"/g;	# remove the wf from all the other readings, re-
+   print $_;		# place with newline, tab and " mark in front of lexeme
+ }
+
+'|
+
+perl -e '
+# Block 3: Change the format of the morphosyntactic tags
+ while( <> )
+ {
+   s/\+/" /;	# remove the first + and insert " after the lexeme
+   s/\+/ /g;	# replace + with space
+   s/#/ # /g;	# insert space around the compound marker
+   print $_;
+ }
+
+' |
+
+perl -e '
+# Block 3: Mark compounds and rate them according to complexity
+ while( <> )
+ {
+   chop;			# remove end-of-line
+   s/¶/\n/;			# ¶ to newline
+   if (m/^\t.*\#.*\#.*\#/)	# if the line is a 4-part compound (has 3 #)
+   {   print "§3$_";		# then print §3 in front of the line
+   } 
+   elsif (m/^\t.*\#.*\#/)	# else if it is a 3-part compound
+   {   print "§2$_";		# print §2
+   } 
+   elsif (m/^\t.*\#/)		# etc.
+   {   print "§1$_";
+   } 
+   elsif (m/^\t/)		# etc.
+   {   print "§0$_";
+   } 
+   elsif (m/^/)			# this is for the lines without an initial tab
+   {   print "$_\n";		# they must be part of the output also
+   } 
+ }
+
+' |
+
+perl -e '
+# Block 4: Remove compounds when lexicalised compounds available
+ while( <> )
+ {				# so, within the same cohort, delete area from 
+   s/§3[^§]*//g if (m/§[210]/);	# §3 to next § if the cohort contains §2 etc.
+   s/§2[^§]*//g if (m/§[10]/);	# and the same for §2 if there is a §1 or §0
+   s/§1[^§]*//g if (m/§0/);	# etc for §1 wrt §0
+   s/§.//;			# delete the first §. symbol (clean up, that is)
+   s/§./\n/g;			# and restore cohort to one reading at each line
+   print $_;			# then finally print it all.
+ }
+'
+
