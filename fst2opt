@@ -1,5 +1,7 @@
 
-cvs checkout -d /usr/tmp/gt gt
+PATH=$PATH:/opt/xerox/bin
+
+cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/gt gt
 for lang in "sme" "smj" "sma"
 do
 		cd /usr/tmp/gt/$lang/src && make
