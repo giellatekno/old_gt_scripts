@@ -101,6 +101,8 @@ s/โ\200\235/ป/g ;  # preceeding them in a certain text.
 s/\200\234/ซ/g ;
 s/\200\235/ป/g ;
 
+s/ยง/ง/g ;         # paragraph
+
 # removing litter
 s/\377//g ;
 
