@@ -8,22 +8,35 @@ perl -e '
 # Block 1: Mark cohorts and make them into one line each
  while( <> )
  {
-   s/^$/¤§/;	# mark empty lines with ¤§
-   s/\n/¤¶/;	# newline to ¤¶
-   s/¤§/\n/g;	# each cohort now consists of one line
+   if (!$error && m/[\001\002]/)
+   {
+	print STDERR "ERROR: ¶ or § found!\n";
+        $error = 1; 
+   }
+   tr/§¶/\001\002/;
+
+   s/^\n/§/;	# mark empty lines (between cohorts) with §
+   s/\n/¶/;	# newline (after each analysis and empty lines) to ¶
+   s/§/\n/g;	# each cohort now consists of one line
    print $_;
  }
 
 '|
 
-perl -e '
+# Dát     dát+Pron+Dem+Pl+Nom¶Dát dát+Pron+Dem+Sg+Nom¶
+# lea    leat+V+Ind+Prs+Sg3¶
+# Jesus  Jesus+N+Prop+Sg+Nom¶
+# Kristusa       Kristus+N+Prop+Sg+Acc¶Kristusa  Kristus+N+Prop+Sg+Gen¶
+
+perl -ne '
 # Block 2: Change the main shape of the cohort
- while( <> )
+# while( <> )   # for ped.-purpose: here no while but -n to see that TMTOWTDI
  {
-   s/^¤¶/"</;		# insert "< for first instance of wordform
-   s/\t/>"\n\t"/;	# insert >" and tab after first instance of wf
-   s/¤¶[^\t]*\t/\n\t"/g;	# remove the wf from all the other readings, re-
-   print $_;		# place with newline, tab and " mark in front of lexeme
+   s/^/"</;		# insert "< for first instance of wordform
+   s/\t/>"\n\t"/;	# insert >" and tab after wforms
+   s/¶[^\t]*\t/\n\t"/g;	# remove the wf from all the other readings,
+                        # replace with newline, tab and " mark in front of lexeme
+   print $_;		
  }
 
 '|
@@ -35,6 +48,8 @@ perl -e '
    s/\+/" /;	# remove the first + and insert " after the lexeme
    s/\+/ /g;	# replace + with space
    s/#/ # /g;	# insert space around the compound marker
+
+#  s/¶//;       # keep ¶ for the compound disambiguator
    print $_;
  }
 
@@ -45,18 +60,18 @@ perl -e '
  while( <> )
  {
    chop;			# remove end-of-line
-   s/¤¶/\n/;			# ¤¶ to newline
+   s/¶/¶\n/;			# ¶ to newline
    if (m/^\t.*\#.*\#.*\#/)	# if the line is a 4-part compound (has 3 #)
-   {   print "¤§3$_";		# then print ¤§3 in front of the line
+   {   print "§3$_";		# then print §3 in front of the line
    } 
    elsif (m/^\t.*\#.*\#/)	# else if it is a 3-part compound
-   {   print "¤§2$_";		# print ¤§2
+   {   print "§2$_";		# print §2
    } 
    elsif (m/^\t.*\#/)		# etc.
-   {   print "¤§1$_";
+   {   print "§1$_";
    } 
    elsif (m/^\t/)		# etc.
-   {   print "¤§0$_";
+   {   print "§0$_";
    } 
    elsif (m/^/)			# this is for the lines without an initial tab
    {   print "$_\n";		# they must be part of the output also
@@ -68,13 +83,26 @@ perl -e '
 perl -e '
 # Block 4: Remove compounds when lexicalised compounds available
  while( <> )
- {				# so, within the same cohort, delete area from 
-   s/¤§3[^¤§]*//g if (m/¤§[210]/);	# ¤§3 to next ¤§ if the cohort contains ¤§2 etc.
-   s/¤§2[^¤§]*//g if (m/¤§[10]/);	# and the same for ¤§2 if there is a ¤§1 or ¤§0
-   s/¤§1[^¤§]*//g if (m/¤§0/);	# etc for ¤§1 wrt ¤§0
-   s/¤§.//;			# delete the first ¤§. symbol (clean up, that is)
-   s/¤§./\n/g;			# and restore cohort to one reading at each line
+ {				# so, within the same cohort, delete readings
+   if (m/§0/) 			# that have one or more # if there is a reading
+   { 				# with no #, 
+       s/§[321][^§¶]*//g;	
+   }
+   elsif (m/§1/) 		# if there is one #
+   { 
+       s/§[32][^§¶]*//g;	# remove two or more
+   }
+   elsif (m/§2/) 		# etc.
+   { 
+       s/§[3][^§¶]*//g;
+   }
+
+   s/§.//;			# delete the first §. symbol (clean up, that is)
+   s/§./\n/g;			# and restore cohort to one reading at each line
+   s/¶//;			# ¶ could have been deleted in block 3, in fact
+
+   tr/\001\002/§¶/;
    print $_;			# then finally print it all.
  }
-'
+' 
 
