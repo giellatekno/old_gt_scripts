@@ -48,7 +48,14 @@
 	(message "Line already contains a correct tag"))
   (if (= recursive 1)
 	   (forward-cohort t)
-	(forward-line 1)
+	(forward-line-in-cohort t)))
+
+(defun forward-line-in-cohort (tag)
+  "Move to the next line in the same cohort"
+  (interactive "p")
+  (forward-line 1)
+  (if (re-search-forward "\"<" (+ (point) 2) t)
+	  (forward-cohort t)
 	(end-of-line)))
 
 (defun forward-cohort (tag)
