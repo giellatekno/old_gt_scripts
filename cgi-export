@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Shell script for exporting cgi-scripts from cvs 
+# to the official cgi-bin directory
+# Only the cgi-scripts with tag "release" are exported.
+# The command for tagging the release:    cvs tag release files...
+#
+# $Id$
+
+EXPORTDIR="/www/var/www/cgi-bin/smi"
+#EXPORTDIR="koe"
+MODULE="gt/script/cgi-scripts"
+USER=`whoami`
+
+#if [ $USER != "root" ]; then
+#   echo "Error: You must be a root to run the script"
+#   exit
+#fi
+
+echo "**** Exporting module $MODULE to directory: $EXPORTDIR"
+cvs -d /usr/local/cvs/repository export -r release -d $EXPORTDIR $MODULE
+chmod 775 $EXPORTDIR
+chmod 555 $EXPORTDIR/*
