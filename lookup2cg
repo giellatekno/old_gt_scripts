@@ -15,6 +15,7 @@ perl -e '
    }
    tr/§¶/\001\002/;
 
+   s/ /==/g;	# mark multiword compounds with ==
    s/^\n/§/;	# mark empty lines (between cohorts) with §
    s/\n/¶/;	# newline (after each analysis and empty lines) to ¶
    s/§/\n/g;	# each cohort now consists of one line
@@ -102,6 +103,7 @@ perl -e '
    s/¶//;			# ¶ could have been deleted in block 3, in fact
 
    tr/\001\002/§¶/;
+   s/==/ /g;			# restore the multi-word entries.
    print $_;			# then finally print it all.
  }
 ' 
