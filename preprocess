@@ -268,10 +268,11 @@ sub process_numeral {
 	}
 	my $rest_punct;
 	# Check for ending dot, it is a separate token if 
-	# the following word starts with capital letter.
+	# the following word starts with capital letter. Or if there is
+	# case ending.
 	# Otherwise belongs to the expression.
-	if (($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/(\.)$// )) {
-		$end_punct = $1 . $end_punct;
+	if ((($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/\d(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) {
+		$end_punct = "." . $end_punct;
 
 		# Clean the rest of the token:
 		# cases like 123). where dot is preceded by punctuation.
