@@ -67,8 +67,8 @@ sub find_charset
 	my $last= rindex($res,"\">") - $first;
 	
 	$cset = substr($res,($first),$last);
-	print "hola  ... $first, $last\t$cset \n";
-    } else { print "ingen charset\n";
+	print "$first, $last\t$cset \n";      # no merry printing of "hola ..."
+    } else { print "ingen charset\n";         # TODO: remove this header.
 	     $cset = "none";}
 
     return $cset;
@@ -282,6 +282,130 @@ sub unicode_ent_utf8
     $text =~ s/&\#253;/\xc3\xbd/g; # 
     $text =~ s/&\#254;/\xc3\xbe/g; # 
     $text =~ s/&\#255;/\xc3\xbf/g; # 
+
+
+# Sgml named entities
+
+# Named sgml entities of the A column of Latin 1
+
+    $text =~ s/&nbsp;/\xc2\xa0/g; # 
+    $text =~ s/&iexcl;/\xc2\xa1/g; # 
+    $text =~ s/&cent;/\xc2\xa2/g; # 
+    $text =~ s/&pound;/\xc2\xa3/g; # 
+    $text =~ s/&curren;/\xc2\xa4/g; # 
+    $text =~ s/&yen;/\xc2\xa5/g; # 
+    $text =~ s/&brvbar;/\xc2\xa6/g; # 
+    $text =~ s/&sect;/\xc2\xa7/g; # 
+
+    $text =~ s/&uml;/\xc2\xa8/g; # 
+    $text =~ s/&copy;/\xc2\xa9/g; # 
+    $text =~ s/&ordf;/\xc2\xaa/g; # 
+    $text =~ s/&laquo;/\xc2\xab/g; # 
+    $text =~ s/&not;/\xc2\xac/g; # 
+    $text =~ s/&shy;/\xc2\xad/g; # 
+    $text =~ s/&reg;/\xc2\xae/g; # 
+    $text =~ s/&macr;/\xc2\xaf/g; # 
+
+# Named sgml entities of the B column of Latin 1
+
+    $text =~ s/&deg;/\xc4\xb0/g; # 
+    $text =~ s/&plusnm;/\xc2\xb1/g; # 
+    $text =~ s/&sup2;/\xc2\xb2/g; # 
+    $text =~ s/&sup3;/\xc2\xb3/g; # 
+    $text =~ s/&acute;/\xc2\xb4/g; # 
+    $text =~ s/&micro;/\xc2\xb5/g; # 
+    $text =~ s/&para;/\xc2\xb6/g; # 
+    $text =~ s/&middot;/\xc2\xb7/g; # 
+
+    $text =~ s/&cedil;/\xc2\xb8/g; # 
+    $text =~ s/&sup1;/\xc2\xb9/g; # 
+    $text =~ s/&ordm;/\xc2\xba/g; # 
+    $text =~ s/&raqup;/\xc2\xbb/g; # 
+    $text =~ s/&frac14;/\xc2\xbc/g; # 
+    $text =~ s/&frac12;/\xc2\xbd/g; # 
+    $text =~ s/&frac34;/\xc2\xbe/g; # 
+    $text =~ s/&iquest;/\xc2\xbf/g; # 
+
+# Named sgml entities of the C column of Latin 1
+
+    $text =~ s/&Agrave;/\xc3\x80/g; # À
+    $text =~ s/&Aacute;/\xc3\x81/g; # Á
+    $text =~ s/&Acirc;/\xc3\x82/g; # 
+    $text =~ s/&Atilde;/\xc3\x83/g; # 
+    $text =~ s/&Auml;/\xc3\x84/g; # 
+    $text =~ s/&Aring;/\xc3\x85/g; # 
+    $text =~ s/&AElig;/\xc3\x86/g; # 
+    $text =~ s/&Ccedil;/\xc3\x87/g; # 
+
+    $text =~ s/&Egrave;/\xc3\x88/g; # 
+    $text =~ s/&Eacute;/\xc3\x89/g; # 
+    $text =~ s/&Ecirc;/\xc3\x8a/g; # 
+    $text =~ s/&Euml;/\xc3\x8b/g; # 
+    $text =~ s/&Igrave;/\xc3\x8c/g; # 
+    $text =~ s/&Iacute;/\xc3\x8d/g; # 
+    $text =~ s/&Icirc;/\xc3\x8e/g; # 
+    $text =~ s/&Iuml;/\xc3\x8f/g; # 
+
+# Named sgml entities of the D column of Latin 1
+
+    $text =~ s/&ETH;/\xc4\x90/g; # Assuming Iclandic doesn't exist :-(
+    $text =~ s/&Ntilde;/\xc3\x91/g; # 
+    $text =~ s/&Ograve;/\xc3\x92/g; # 
+    $text =~ s/&Oacute;/\xc3\x93/g; # 
+    $text =~ s/&Ocirc;/\xc3\x94/g; # 
+    $text =~ s/&Otilde;/\xc3\x95/g; # 
+    $text =~ s/&Ouml;/\xc3\x96/g; # 
+    $text =~ s/&times;/\xc3\x97/g; # 
+
+    $text =~ s/&Oslash;/\xc3\x98/g; # 
+    $text =~ s/&Ugrave;/\xc3\x99/g; # 
+    $text =~ s/&Uacute;/\xc3\x9a/g; # 
+    $text =~ s/&Ucirc;/\xc3\x9b/g; # 
+    $text =~ s/&Uuml;/\xc3\x9c/g; # 
+    $text =~ s/&Yacute;/\xc3\x9d/g; # 
+    $text =~ s/&THORN;/\xc3\x9e/g; # 
+    $text =~ s/&szlig;/\xc3\x9f/g; # 
+
+# Named sgml entities of the E column of Latin 1
+
+    $text =~ s/&agrave;/\xc3\xa0/g; # 
+    $text =~ s/&aacute;/\xc3\xa1/g; # a sharp
+    $text =~ s/&acirc;/\xc3\xa2/g; # 
+    $text =~ s/&atilde;/\xc3\xa3/g; # 
+    $text =~ s/&auml;/\xc3\xa4/g; # 
+    $text =~ s/&aring;/\xc3\xa5/g; # 
+    $text =~ s/&aelig;/\xc3\xa6/g; # 
+    $text =~ s/&ccedil;/\xc3\xa7/g; # 
+
+    $text =~ s/&egrave;/\xc3\xa8/g; # 
+    $text =~ s/&eacute;/\xc3\xa9/g; # 
+    $text =~ s/&ecirc;/\xc3\xaa/g; # 
+    $text =~ s/&euml;/\xc3\xab/g; # 
+    $text =~ s/&igrave;/\xc3\xac/g; # 
+    $text =~ s/&iacute;/\xc3\xad/g; # 
+    $text =~ s/&icirc;/\xc3\xae/g; # 
+    $text =~ s/&iuml;/\xc3\xaf/g; # 
+
+# Named sgml entities of the F column of Latin 1
+
+    $text =~ s/&eth;/\xc5\x8b/g; # d1, assuming the Icelandic error again
+    $text =~ s/&ntilde;/\xc3\xb1/g; # ñ
+    $text =~ s/&ograve;/\xc3\xb2/g; # 
+    $text =~ s/&oacute;/\xc3\xb3/g; # 
+    $text =~ s/&ocirc;/\xc3\xb4/g; # 
+    $text =~ s/&otilde;/\xc3\xb5/g; # 
+    $text =~ s/&ouml;/\xc3\xb6/g; # 
+    $text =~ s/&divide;/\xc3\xb7/g; # 
+
+    $text =~ s/&oslash;/\xc3\xb8/g; # 
+    $text =~ s/&ugrave;/\xc3\xb9/g; # 
+    $text =~ s/&uacute;/\xc3\xba/g; # 
+    $text =~ s/&ucirc;/\xc3\xbb/g; # 
+    $text =~ s/&uuml;/\xc3\xbc/g; # 
+    $text =~ s/&yacute;/\xc3\xbd/g; # 
+    $text =~ s/&thorn;/\xc3\xbe/g; # 
+    $text =~ s/&yuml;/\xc3\xbf/g; # 
+
 
 # Decimal sgml entities of the 6 x 2 Sámi letters
 
@@ -572,14 +696,17 @@ sub latin9_to_utf8 {
 #
 # This removes garbage, and does the last conversions before 
 # the result is representable for tokenize and lookup
-#
+# Most of this garbage is punctuation marks, and thus kept.
+# This section should be removed in a stable version of the script.
+
+
 sub remove_garbage {
     my ($text) = @_;
 #    $text =~ s/<[^>]*>//g;
-    $text =~ s/&nbsp\;//g;
-    $text =~ s/&copy\;//g;
-    $text =~ s/&aacute\;/\xe1/g;
-    $text =~ s/&eth\;/\xc4\x91/g;
+#    $text =~ s/&nbsp\;//g;
+#    $text =~ s/&copy\;//g;
+#    $text =~ s/&aacute\;/\xe1/g;
+#    $text =~ s/&eth\;/\xc4\x91/g;
 #    $text =~ s/-\n//g;
 #    $text =~ s/\n/ /g;
 #    $text =~ s/-/\n/g;
@@ -588,7 +715,7 @@ sub remove_garbage {
 #    $text =~ s/\///g;
 #    $text =~ s/\?//g;
 #    $text =~ s/%//g;
-#   $text =~ s///g;
+#    $text =~ s///g;
 #    $text =~ s/\.\.//g;
 #    $text =~ s/\d//g;
 #    $text =~ s/\[//g;
