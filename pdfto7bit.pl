@@ -17,7 +17,7 @@ if ($opt_o || $opt_p){
     $num_pages =  `pdfinfo $ARGV[0]|grep Pages:`;
     $num_pages =~ s/Pages://g;
     $num_pages =~ tr/ //s;
-    print "$num_pages\n";
+#    print "$num_pages\n";
 }
 
 if ($opt_o){
@@ -132,11 +132,27 @@ sub mac_to_xfst {
 }
 
 sub remove_garbage {
-    # This one ought to remove numbers as well
-    #print "remove";
     my ($text) = @_;
 
-    $text =~ s/- //g;
+
+    $text =~ s/-\n//g;
+    $text =~ s/ /\n/g;
+    $text =~ s/\)//g;
+    $text =~ s/\(//g;
+    $text =~ s/\///g;
+    $text =~ s/\?//g;
+    $text =~ s/%//g;
+    $text =~ s/§//g;
+    $text =~ s/\.\.//g;
+#    $text =~ s/§§//g;
+    $text =~ s/sek //g;
+#    $text =~ s/b\.//g;
+#    $text =~ s/c\.//g;
+#    $text =~ s/y\.//g;
+#    $text =~ s/ km //g;
+#    $text =~ s/..//g;
+#    $text =~ s/nr//g;
+#   $text =~ s/ kr //g;
     $text =~ s/&nbsp\;//g;
     $text =~ s/\x0c//g;
     $text =~ s/\xC3\xAC//g;
@@ -145,7 +161,7 @@ sub remove_garbage {
     $text =~ s/\342\200\242//g;
     $text =~ s/\d//g;
 #    $text =~ s/\W//g;
-
+  
 
     return lc($text);
 }
