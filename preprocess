@@ -20,25 +20,24 @@ use locale;
 # permit named arguments
 use Getopt::Long;
 
-my $abbr_file;
-
 my @words;
 my %abbrs;
 my $TRAB="TRAB";
 my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
-my $help=0;
 
 # Max size of a multi-word expression.
-my $idiom_size = 3;
+my $MULTIWORD_SIZE = 3;
 
-my $punct = quotemeta("|{}[]()$.*?!,;:-'\.\"%");
-my $separate_punct = quotemeta("|{}[]()«»?!;,'\"");
+my $PUNCT = quotemeta("|{}[]()$.*?!,;:-'\.\"%");
+my $SEPARATE_PUNCT = quotemeta("|{}[]()«»?!;,'\"");
 
 # Regex for tokens that contain punctuation:
-my $contain_punct = 'ja\/dahje|http|:\/\/';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/';
 
+my $abbr_file;
+my $help=0;
 GetOptions ("abbr=s" => \$abbr_file,
 			"help" => \$help) ;
 
@@ -72,7 +71,7 @@ while (<>) {
 		
 		# store extra punctuation from the front of the expression
 		# to the tokens array.
-		if ($word =~ s/^([$separate_punct]+)//) {
+		if ($word =~ s/^([$SEPARATE_PUNCT]+)//) {
 			push (@tokens, split(/ */, $1));
 		}
 		# Examine the type of the string. If the expression contains
@@ -102,16 +101,16 @@ sub process_word {
 	my $rest_punct;
 
     # Test for multiword expression.
-	test_idiom(\$word, $words_aref, $idiom_size);
+	test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
 
     # Store the punctuation at the end of the string
-	if ($word =~ s/([-+=%$separate_punct]+)$//) {
+	if ($word =~ s/([-+=%$SEPARATE_PUNCT]+)$//) {
 		$end_punct = $1
 	}
 
 	# Cut the word into tokens if there is punctuation in the middle.
 	# An Exception!! ja/dahje
-	if ($word !~ /$contain_punct/ && (my @parts = split (/([+=%$separate_punct\/])/, $word))) {
+	if ($word !~ /$CONTAIN_PUNCT/ && (my @parts = split (/([+=%$SEPARATE_PUNCT\/])/, $word))) {
 		my $i;
 		for ($i=0; $i < $#parts; $i++) {
 			push (@{$tokens_aref}, $parts[$i]); 
@@ -119,7 +118,7 @@ sub process_word {
 		# Process the last part further, it may contain some punctuation
 		# that has to be removed.
 		$word = $parts[$i];
-		if ($word =~ s/^([$punct])//) {
+		if ($word =~ s/^([$PUNCT])//) {
 			push (@{$tokens_aref}, $1);
 			}
 		if (!$word) {
@@ -137,7 +136,7 @@ sub process_word {
 	elsif (! test_abbr($word, $words_aref->[0], $tokens_aref)) {
 		# If the word was not an abbreviation, the rest
 		# of the punctuation is removed and stored as separate tokens.
-		if ($word =~ s/([$separate_punct\.:]+)$//) {
+		if ($word =~ s/([$SEPARATE_PUNCT\.:]+)$//) {
 			$rest_punct =  $1;
 		}
 		push (@{$tokens_aref}, $word);
@@ -181,11 +180,14 @@ sub test_abbr {
 	}
 	# Check for abbreviation with 2-3 capital letters
 	# If followed by a capital letter or number,
-	# There is a sentence boundary.
+	# There is a sentence boundary. todo: Remove this as irrelevant!!
 	elsif ($abbr =~ /^[[:upper:]1]{2,3}$/o ) {
-		push (@{$tokens_aref}, $word);
 		if ($next_word !~ /^[[:lower:]]/ ) {
+			push (@{$tokens_aref}, $abbr);
 			push (@{$tokens_aref}, ".");
+		}
+		else {
+			push (@{$tokens_aref}, $word);
 		}
 		return 1;
 	}
@@ -229,7 +231,7 @@ sub process_numeral {
 	
 	# Combine hyphen with numeral if followed by other numeral.
 	# cases 123- 456 and 123 -456 and 123 456 and 123 - 456
-	while (($word =~ /[\d-]$/) && ($words_aref->[0] =~ /^[-\d]/)) {
+	while (($word =~ /[\d-]$/) && ($words_aref->[0] =~ /^-$|^-?\d+/)) {
 		$word = $word . " " . $words_aref->[0];
 		shift @{$words_aref};
 	}
@@ -243,7 +245,7 @@ sub process_numeral {
 	# Clean first the end of the token:
 	# cases like: 123! and 123.) problem: 123.? and 123 is an ordinal.
 	my $end_punct;
-	if ($word =~ s/([$separate_punct:]+)$//){
+	if ($word =~ s/([$SEPARATE_PUNCT:]+)$//){
 		$end_punct = $1;
 	}
 	my $rest_punct;
@@ -255,7 +257,7 @@ sub process_numeral {
 		
 		# Clean the rest of the token:
 		# cases like 123).
-		if ($word =~ s/([$separate_punct:]+)$//) {
+		if ($word =~ s/([$SEPARATE_PUNCT:]+)$//) {
 			$rest_punct =  $1;
 		}
 	}
