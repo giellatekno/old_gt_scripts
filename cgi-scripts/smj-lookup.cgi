@@ -98,9 +98,8 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 # change the plus signs back to the original spaces typed by the user
 $text =~ s/\+/ /g ;
 
-# change common punctuation (for now) to spaces (the symbols . and , removed
-# from this clause, cf next clause below. is this a security risk?)
-$text =~ tr/;:/    / ;
+#Removing the unsecure characters from the input.
+$text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}:'"]/ /g;
 
 # make space before question marks
 $text =~ s/\?/ \?/g ;
