@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 
-# prerpocess
+# preprocess
 # Perl-script for text preprocessing 
 #  - Cuts text into sentences and sentences into words (tokens).
 #  - Reads plain text from STDIN and outputs 
@@ -30,6 +30,9 @@ my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
 my $help=0;
 
+# The size of a multi-word expression.
+my $idiom_size = 3;
+
 my $punct = quotemeta("|{}[]()$.*?!,;:-'\"");
 
 GetOptions ("abbr=s" => \$abbr_file,
@@ -50,8 +53,8 @@ $abbr_file =~ s{^~([^/])*} {
 		   )
 	}ex;
 
-# If the abbreviation file is give,
-# read the abbreviations from a file to a hash.
+# If the abbreviation file is given,
+# read the abbreviations from the file to a hash.
 if ($abbr_file) {
 	&read_abbr (\%abbrs);
 }
@@ -86,12 +89,12 @@ while (<>) {
 		if( $word =~ s/^([^\w]+)// ) {
 			$start_punct = $1;
 		}
-		# If the word belongs to a multiword expression, it is
-		# concatenated with the next word.
-		if (&idiom ($word, $next_word)) {
-			$word = $word . " " . $next_word;
-			$next_word = shift @words;
-		}
+		# Test for multiword expression.
+		# If the word starts an multiword expression, it is replaced
+		# by the expression, and the other parts are
+		# removed from the words array.
+		test_idiom(\$word, \@words, $idiom_size);
+
 		# If the word does not end with a dot, the output is printed
 		# straight away.
 		# There is no sentence boundary.
@@ -119,7 +122,7 @@ while (<>) {
 		}
 	}
 }
-
+# Tarkista mitä tämä funktio tekee!!
 sub middle_dot {
 	my ($word, $nextw, $sbound) = @_;
 
@@ -145,6 +148,7 @@ sub middle_dot {
 
 #	my $keys = keys %{$abbrs{$IDIOM}};
 #	print "\nJEES: $keys\n\n";
+
 
 # print output
 sub print_output {
@@ -213,10 +217,10 @@ sub test_abbr {
 		}
 		return 1;
 	}
-	# There is no sentence boundary if
-	# intransitive abbreviation is followed by small letter.
+	# There is a sentence boundary if intransitive abbreviation 
+	# is NOT followed by a small alphabetic char.
 	if (exists $abbrs{$ITRAB}{$before}) {
-		if ($after =~ /^[[:lower:]]/o) {
+		if ($after !~ /^[[:lower:]]/o) {
 			$$sref = 1;
 		}
 		return 1;
@@ -226,8 +230,9 @@ sub test_abbr {
 	if ($before =~ /^[,:\.\-\d]+$/o) {
 		# If the following word starts with capital letter
 		# then there is a sentence boundary.
-		if ($after =~ /^[[:upper:]]+/o ) {
+		if ($after =~ /^[[:upper:]]/o ) {
 			$$sref = 1;
+			return 0;
 		}
 		return 1;
 	}
@@ -250,11 +255,37 @@ sub capital {
 	return 0;
 }
 
-sub idiom {
-	my 	$token = join ' ', @_;
+#sub idiom {
+#	my 	$token = join ' ', @_;
+#
+#	if (exists $abbrs{$IDIOM}{$token}) {
+#		return 1;
+#	}
+#	return 0;
+#}
 
-	if (exists $abbrs{$IDIOM}{$token}) {
-		return 1;
+sub test_idiom {
+	my ($word_ref, $words_aref, $size) = @_;
+
+	my $token = $$word_ref;
+	# Test for multiword expressions by growing the token
+	# one word at a time
+	for (my $i=0; $i < $size; $i++) {
+		$token = $token . " " . $words_aref->[$i];
+		# Remove the punctuation at the end of the expression.
+		(my $token_2 = $token) =~ s/[$punct\.]*$//;
+		# Test if the formed multiword expression exists in the
+		# idiom list. Test also lower case version.		 
+		if (exists $abbrs{$IDIOM}{$token_2} || exists $abbrs{$IDIOM}{lcfirst($token_2)} ) {
+			for (my $j=0; $j <= $i; $j++) {
+				# Construct the new multiword processing unit.
+				# Remove the parts of the multiword expression from
+				# the word array.
+				$$word_ref = $$word_ref . " " . $words_aref->[0];
+				shift @{$words_aref};
+			}
+			return 1;
+		}
 	}
 	return 0;
 }
