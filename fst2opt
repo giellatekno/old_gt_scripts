@@ -1,0 +1,3 @@
+cp /usr/local/cvs/repository/gt/sma/sma.fst /opt/sma/bin/
+cp /usr/local/cvs/repository/gt/sme/sme.fst /opt/sme/bin/
+cp /usr/local/cvs/repository/gt/smj/smj.fst /opt/smj/bin/
