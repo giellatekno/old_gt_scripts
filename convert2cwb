@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+use strict;
+
+# convert2cwb 
+# Perl script for converting CG2 output to a format 
+# which is required for creating an IMS Corpus Workbench binary corpus.
+# In the output, each word is in its own line followed by base form,
+# and the list of tags, separated by tab.
+# The script takes one command line argument --tags which is the 
+# name of the file where the names of the tag classes and tag names
+# are specified.
+#
+# $Id$
+
+# Use the local character class. 
+# It means that variable \w contains Latin-1 alphabet.
+use locale;
+
+# permit named arguments
+use Getopt::Long;
+
+my %tags;
+my @classes;
+
+my $tags_file;
+GetOptions ("tags=s" => \$tags_file);
+
+# Read from lex-file and write to abbr file.
+open TAGS, "< $tags_file" or die "Cant open the file: $!\n";
+
+#read from the beginning of the file.
+my $current;
+my $tag_class;
+
+while (<TAGS>) {
+		chomp;
+		s/\s+//g;
+		if (/^!/) {
+			next;
+		}
+		if (/^$/) {
+			next;
+		}
+		if (s/#//) {
+			$tag_class = $_;
+			push @classes, $tag_class;
+			next;
+		}
+		$tags{$tag_class}{$_} = 1;
+	}
+close TAGS;
+
+#foreach my $key (keys %tags) {
+#	print "JOO $key JES\n";
+#	for my $tag ( keys %{ $tags{$key} } ) {
+#		print "$tag\n";
+#	}
+#}
+#print @classes;
+
+
+my $first; 
+my $second;
+my $base;
+my @tag_list;
+
+while (<>) {
+
+	chomp;
+	if (/^\"</) {
+		$first = $_;
+		next;
+	}
+	$second = $_;
+	$first =~ s/^\"<(.*)?>\".*$/$1/;
+	$second =~ s/^\s+//;
+	($base, @tag_list) = split(/\s/, $second);
+	$base =~ s/\"//g;
+
+	my %curr_tag;
+	for my $tag (@tag_list) {
+		foreach my $class (keys %tags) {
+			if ( exists $tags{$class}{$tag} ) {
+				$curr_tag{$class} = $tag;
+			}
+		}
+	}
+	my @list;
+	for my $class (@classes) {
+		if ( exists $curr_tag{$class} ) {
+			push @list, $curr_tag{$class};
+		}
+		else {
+			push @list, "";
+		}
+	}
+	my $line = join "\t", $first, $base, @list, "\n";
+	print $line;
+}
+
