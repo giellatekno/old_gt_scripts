@@ -7,8 +7,8 @@
 #
 # $Id$
 
-EXPORTDIR="/opt/sami/www/cgi-bin/smi"
-#EXPORTDIR="koe"
+#EXPORTDIR="/opt/sami/www/cgi-bin/smi"
+EXPORTDIR="koe"
 MODULE="gt/script/cgi-scripts"
 USER=`whoami`
 
@@ -17,7 +17,8 @@ USER=`whoami`
 #   exit
 #fi
 
+rm -rf $EXPORTDIR/*.cgi
 echo "**** Exporting module $MODULE to directory: $EXPORTDIR"
 cvs -d /usr/local/cvs/repository export -r release -d $EXPORTDIR $MODULE
 chmod 775 $EXPORTDIR
-chmod 555 $EXPORTDIR/*
+chmod 755 $EXPORTDIR/*
