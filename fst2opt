@@ -1,6 +1,16 @@
-cp /home/trond/gt/sma/bin/sma.fst /opt/smi/sma/bin/
-cp /home/trond/gt/sme/bin/sme.fst /opt/smi/sme/bin/
-cp /home/trond/gt/smj/bin/smj.fst /opt/smi/smj/bin/
-cp /home/trond/gt/sma/bin/isma.fst /opt/smi/sma/bin/
-cp /home/trond/gt/sme/bin/isme.fst /opt/smi/sme/bin/
-cp /home/trond/gt/smj/bin/ismj.fst /opt/smi/smj/bin/
+
+cvs checkout -d /usr/tmp/gt gt
+for lang in "sme" "smj" "sma"
+do
+		cd /usr/tmp/gt/$lang/src && make
+done
+
+cp /usr/tmp/gt/sme/bin/sme.fst /opt/smi/sme/bin/
+cp /usr/tmp/gt/sme/bin/isme.fst /opt/smi/sme/bin/
+cp /usr/tmp/gt/sme/src/sme-dis.rle /opt/smi/sme/bin/
+cp /usr/tmp/gt/sme/bin/abbr.txt /opt/smi/sme/bin/
+
+cp /usr/tmp/gt/sma/bin/sma.fst /opt/smi/sma/bin/
+cp /usr/tmp/gt/sma/bin/isma.fst /opt/smi/sma/bin/
+cp /usr/tmp/gt/smj/bin/smj.fst /opt/smi/smj/bin/
+cp /usr/tmp/gt/smj/bin/ismj.fst /opt/smi/smj/bin/
