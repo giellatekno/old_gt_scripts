@@ -29,7 +29,7 @@
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
 # The directory where smj.fst is stored
-$smjfstdir = "/opt/smj/bin" ;
+$smjfstdir = "/opt/smi/smj/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -229,13 +229,13 @@ sub printinitialhtmlcodes
 #               Print out a standard HTML header
 
     print "Content-TYPE: text/html\n\n" ;
-    print "<HEAD>\n<TITLE>S&aacute;mi morfologiija </TITLE>\n</HEAD>\n\n" ;
+    print "<HEAD>\n<TITLE>S&aacute;me morfologiia </TITLE>\n</HEAD>\n\n" ;
 
 #    print "<BODY BGCOLOR=\"#D0FFD0\">\n<P>\n\n" ;
 
 #               Include some Copyright notices
 
-    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Tromssa Universitehta</H2>\n\n" ;
+    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Romssa universitehta</H2>\n\n" ;
     print "Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
 
 # consider trying to automate the update of the release number

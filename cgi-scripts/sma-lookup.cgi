@@ -29,7 +29,7 @@
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
 # The directory where sma.fst is stored
-$smafstdir = "/opt/sma/bin" ;
+$smafstdir = "/opt/smi/sma/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -235,7 +235,7 @@ sub printinitialhtmlcodes
 
 #               Include some Copyright notices
 
-    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Tromssa Universitehta</H2>\n\n" ;
+    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Romssa universitehta</H2>\n\n" ;
     print "Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
 
 # consider trying to automate the update of the release number

@@ -29,7 +29,7 @@
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
 # The directory where sme.fst is stored
-$smefstdir = "/opt/sme/bin" ;
+$smefstdir = "/opt/smi/sme/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -167,7 +167,7 @@ $allwords = join(" ", @words) ;
 $result = `echo $allwords | tr " " "\n" | \
  $utilitydir/lookup -flags mbL\" => \"LTT -d $smefstdir/sme.fst` ;
 
-#  ***** Now we need to parse the $result string to output the information as HTML ***
+#  Now we need to parse the $result string to output the information as HTML
 #  This information will be directed automatically back to the user's browser for display
 
 
@@ -235,7 +235,7 @@ sub printinitialhtmlcodes
 
 #               Include some Copyright notices
 
-    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Tromssa Universitehta</H2>\n\n" ;
+    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Romssa universitehta</H2>\n\n" ;
     print "Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
 
 # consider trying to automate the update of the release number
