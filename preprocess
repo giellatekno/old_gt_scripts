@@ -1,0 +1,259 @@
+#!/usr/bin/perl
+use strict;
+
+# prerpocess
+# Perl-script for text preprocessing 
+#  - Cuts text into sentences and sentences into words (tokens).
+#  - Reads plain text from STDIN and outputs 
+#    a list of words separated by newline.
+#
+# An abbreviation file may be given as input parameter --abbr, 
+# the file has special syntax and the usage is connected 
+# to other sámi tools.
+# 
+# $Id$
+
+# Use the local character class. 
+# It means that variable \w contains Latin-1 alphabet.
+use locale;
+
+# permit named arguments
+use Getopt::Long;
+
+my $abbr_file;
+
+my @words;
+my %abbrs;
+my $TRAB="TRAB";
+my $ITRAB="ITRAB";
+my $TRNUMAB="TRNUMAB";
+my $IDIOM="IDIOM";
+my $help=0;
+
+my $punct = quotemeta("|{}[]()$.*?!,;:-'\"");
+
+GetOptions ("abbr=s" => \$abbr_file,
+			"help" => \$help) ;
+
+if ($help) {
+	&print_usage;
+	exit;
+}
+
+# If the abbreviation file is give,
+# read the abbreviations from a file to a hash.
+if ($abbr_file) {
+	&read_abbr (\%abbrs);
+}
+
+# read one paragraph at the time.
+# the paragraph ends with two subsequent newlines.
+$/ = "";
+
+while (<>) {
+	chomp;
+
+	# join hyphenated words separated by newline
+	s/\-\n/\-/g;
+	
+	# split the sentence to words.
+    my @words = split (/[\n\s]+/, $_) ;
+
+	while (@words) {
+		my $word = shift (@words) ;
+		my $next_word = $words[0] ;
+		my $s_boundary=0;
+		my $isabbr=0;
+
+		# Remove and store all punctuation starting the word
+		# And all that ends the word, but do not take the dot
+		# or anything that precedes it.
+		my $end_punct = "";
+		my $start_punct = "";
+		if( $word =~ s/([^\w\.]+)$// ) {
+			$end_punct = $1;
+		}		
+		if( $word =~ s/^([^\w]+)// ) {
+			$start_punct = $1;
+		}		
+
+		# If the word belongs to a multi-word idiom, it is
+		# concatenated with the next word.
+		if (&idiom ($word, $next_word)) {
+			$word = $word . " " . $next_word;
+			$next_word = shift @words;
+		}
+
+		# If the word does not end with a dot, the output is printed
+		# straight away.
+		# There is no sentence boundary.
+		if ($word !~ /\.$/) {
+			&print_output($start_punct,0,0);
+			&print_output($word,0,0);
+			&print_output($end_punct, 0,0);
+			next;
+		}	
+		# If the word ends with a dot, it is checked for abbreviation.
+		# And for sentence boundary.
+		else {			
+			(my $abbr = $word) =~ s/\.$//;
+			if (&test_abbr($abbr, $next_word, \$s_boundary)) {
+				$isabbr = 1;
+			}
+			else { 
+				$s_boundary = 1; 
+				$isabbr = 0;
+			}
+			&print_output($start_punct,0,0);
+			&print_output($word, $isabbr, $s_boundary);
+			&print_output($end_punct,0,0);
+		}
+	}
+}
+
+#foreach my $key (keys %abbrs) {
+#	print "JOO $key JES\n";
+#	for my $abbr ( keys %{ $abbrs{$key} } ) {
+#		print "$abbr\n";
+#	}
+#}
+
+#	my $keys = keys %{$abbrs{$IDIOM}};
+#	print "\nJEES: $keys\n\n";
+
+# print output
+sub print_output {
+	my ($word, $isabbr, $s_boundary) = @_ ;
+
+	if (! $word) {
+		return;
+	}
+	# if the word is not an abbreviation, do further processing.
+	my $end_punct2 = "" ;
+	if (! $isabbr) {
+		# Store all the punctuation following the word into a variable.
+		# Each punctuation mark is followed by newline.
+		if ( $word =~ s/([^\w]+)$//o ) {
+			$end_punct2 = join "\n", split //, $1;
+		}
+	}
+	# If the word is an abbreviation and followed
+	# by sentence boundary then an extra dot is added.
+	elsif ($isabbr && $s_boundary) {
+		$word =  $word . "\n.";
+		}
+
+	# Remove and store the punctuation in the middle.
+	# Except for - 
+	my $middle = "";
+	if($word =~ s/^([^\W\d_]+)([^\w\s\-]+)([^\W\d_]+)$/$1/) {
+		$middle = join "\n", split //, $2;
+		$middle = $middle ."\n". $3;
+	}
+# replace / and ' with ^£ and ^¤
+#	$word =~ s/\//\^£/g;
+#	$word =~ s/'/\^¤/g;
+		
+#    $end_punct2 =~ s/\//\^£/g;
+#	$end_punct2 =~ s/'/\^¤/g;
+	
+	if ($word) {
+		print "$word\n";
+	}
+	if ($middle) {
+		print "$middle\n";
+	}
+	if ($end_punct2) {
+		print "$end_punct2\n";
+	}
+}
+
+sub test_abbr {
+	my ($before, $after, $sref) = @_;
+
+#	print "TESTI $before,, $after,, $sref\n";
+	# Transitive abbreviations are never followed
+	# by sentence boundary.
+	if (exists $abbrs{$TRAB}{$before}) {
+		$$sref=0;
+		return 1;
+	}
+	# There is a sentence boundary if the abbreviation
+	# is followed by other than number.
+	if (exists $abbrs{$TRNUMAB}{$before}) {
+		if ($after !~ /^[0-9]/ ) {
+			$$sref = 1;
+		}
+		return 1;
+	}
+	# There is no sentence boundary if
+	# intransitive abbreviation is followed by small letter.
+	if (exists $abbrs{$ITRAB}{$before}) {
+		if ($after =~ /^[[:lower:]]/o) {
+			$$sref = 1;
+		}
+		return 1;
+	}
+	# Check if the word contains only digits and some other symbols
+	# This accounts for ordinals, dates etc.
+	if ($before =~ /^[,:\.\-\d]+$/o) {
+		# If the following word starts with capital letter
+		# then there is a sentence boundary.
+		if ($after =~ /^[[:upper:]]+/o ) {
+			$$sref = 1;
+		}
+		return 1;
+	}
+	return 0;
+}
+
+
+sub capital {
+	my ($before, $after, $sref) = @_;
+
+	# Check for abbreviation with 2-3 capital letters
+	# If followed by a capital letter or number,
+	# There is a sentence boundary.
+	if ($before =~ /^[[:upper:]1]{2,3}$/o ) {
+		if ($after !~ /^[[:upper:]0-9]/ ) {
+			$$sref = 1;
+		}
+		return 1;
+	}
+	return 0;
+}
+
+sub idiom {
+	my 	$token = join ' ', @_;
+
+	if (exists $abbrs{$IDIOM}{$token}) {
+		return 1;
+	}
+	return 0;
+}
+
+
+
+sub read_abbr {
+	my ($abbr_href) = @_;
+	
+	local $/="\n";
+	open LEX, "< $abbr_file" or die "Cant open the file: $!\n";
+	#read from the beginning of the file.
+	my $current;
+	while (<LEX>) {
+		chomp;
+		if (/^LEXICON (.*)$/) {
+			$current = $1;
+			next;
+		}
+		$$abbr_href{$current}{$_} = 1;
+#		$$abbr_href{$current}{ucfirst{$_}} = 1;
+	}
+		close LEX;	
+}
+
+sub print_usage {
+	print "Usage: preprocess --abbr=<file_name>\n";
+	print "Split text into sentences and words.\n"
+}
