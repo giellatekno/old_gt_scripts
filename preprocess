@@ -125,17 +125,13 @@ sub middle_dot {
 
 	(my $abbr = $$word) =~ s/\.$//;
 	if ($abbr =~ /([^\W\d]+)\./ ) {
-#		print "JEE2\n";
 		if (&test_abbr($1, $nextw, \$sbound)) {
 			$$word =~ s/([^\W\d]+\.)/$1\n/;
-#			print "JEE3\n";
 		}		
 	}
 	if ($abbr =~ /\.([^\W\d]+)/) {
-#		print "JEE4 $1\n";
 		if (&test_abbr($1, $nextw, \$sbound)) {
 			$$word =~ s/\.([^\W\d]+\.)/\n$1/;
-#			print "JEE5 $$word\n";			
 		}
 	}
 }
