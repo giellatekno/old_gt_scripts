@@ -99,9 +99,8 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 #$text =~ s/\+/ /g ;
 # no, keep the pluses (but fix this thorouthly!)
 
-# change common punctuation (for now) to spaces (the symbols . and , removed
-# from this clause, cf next clause below. is this a security risk?)
-$text =~ tr/;:/    / ;
+#Removing the unsecure characters from the input.
+$text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}:'"]/ /g;
 
 # make space before question marks
 $text =~ s/\?/ \?/g ;
