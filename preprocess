@@ -112,7 +112,7 @@ sub process_word {
 	test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
 
     # Store the punctuation at the end of the string to a variable
-	if ($word =~ s/([+=%$SEPARATE_PUNCT]+)$//) {
+	if ($word =~ s/([+=%:$SEPARATE_PUNCT]+)$//) {
 		$end_punct = $1
 	}
 
@@ -162,10 +162,10 @@ sub test_abbr {
 	my ($word, $next_word, $tokens_aref) = @_;
 
 	my $abbr = $word;
-	if (! ($abbr =~ s/\.$//)) {
+	if (! ($abbr =~ s/\.($)//)) {
 		return 0;
 	}
-
+	
 	# Transitive abbreviations are never followed
 	# by sentence boundary.
 	if (exists $abbrs{$TRAB}{$abbr}) {
