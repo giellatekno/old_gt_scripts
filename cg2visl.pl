@@ -41,8 +41,24 @@ while (<>) {
 		print "SME$num$sentence\n";
 		print "A1\n";
 #		goto target;
+		$output =~ s/\@CC/Cc/g;
+		$output =~ s/\@CS/Cs/g;
+		$output =~ s/\@ADVL/A/g;
 		$output =~ s/\@SUBJ/S/g;
-		$output =~ s/\@FAUX/Vaux/g;
+		$output =~ s/\@OBJ/Od/g;
+		$output =~ s/\@\+FAUXV/Vaux/g;
+		$output =~ s/\@\+FMAINV/P/g;
+		$output =~ s/\@\-FMAINV/P/g;
+		$output =~ s/\@INTERJ/Interj/g;
+		$output =~ s/\@PCLE/PCLE/g;
+		$output =~ s/\@GN>/=D/g;
+		$output =~ s/\@GP>/=D/g;
+		$output =~ s/\@<GQ/=D/g;
+		$output =~ s/\@QN>/=H/g;
+		$output =~ s/\@PronN>/=D/g;
+		$output =~ s/\@PronN</=D/g;
+		$output =~ s/\@AN>/=D/g;
+		$output =~ s/\@DN>/=D/g;
 
 $output =~ s/([ ,:])adda,/$1der,/g ;
 $output =~ s/([ ,:])ahtti,/$1der,/g ;
