@@ -43,7 +43,7 @@ while(<>) {
 		# Rate compounds accoring to word boundaries
 		if ($compound) { 
 			&rate_compounds(\@Analyses); 
-		}		
+		}
 		# Format each analysis
 		for my $line (@Analyses) {			
 			# Separate the base form from the analysis
@@ -59,13 +59,12 @@ while(<>) {
 				$line =  "\t" . " \"$base\" " . $line . "\n"; 
 			}
 		} 
-		# Remove identical analyses
-		for my $i ( 0 .. $#Analyses ) {
-			for my $j ( $i+1 .. $#Analyses ) {
-				if ( $Analyses[$i] eq $Analyses[$j] )
-				{ $Analyses[$j] = undef; }
-			}
-		}
+		#Remove identical analyses
+		&remove_identical(\@Analyses);
+
+		# Mark derivational tags
+		&mark_deriv_tags(\@Analyses);
+		
 		# Print output
 		print "\"<$word>\"\n";
 		for my $line (@Analyses)
@@ -77,6 +76,18 @@ while(<>) {
 		$compound = 0;
 	}
 } # end of while
+
+sub remove_identical {
+	my $aref = shift @_;
+
+	# Remove identical analyses
+	for my $i ( 0 .. $#{ $aref } ) {
+		for my $j ( $i+1 .. $#{ $aref } ) {
+			if ( $aref->[$i] eq $aref->[$j] )
+			{ $aref->[$j] = undef; }
+		}
+	}
+}
 
 sub rate_compounds {
 	my $aref = shift @_;
@@ -133,6 +144,20 @@ sub format_compound {
 		if ($$refword =~ m/$substring/) {
 			$$refbase = $$refword;
 			$$refbase =~ s/(^.*)$substring.*$/$1$last_word/;
-		}
+
+		}		
+	}
+#	if ($$refline !~ /Prop/) {
+#		print "JEE\n";
+#		$$refbase =~ s/[A-ZÅÄÖÆØ]/[a-zåäöæø]/;
+#	}
+}
+
+sub mark_deriv_tags {
+	my $aref = shift @_;
+
+	foreach my $line ( @{$aref} ) {
+		$line =~ s/(\s[V|N|A])(\s.*?\s[V|N|A]\s)/$1\*$2/;
+		$line =~ s/(\s[V|N|A])(\*.*?)(\s[V|N|A])(\s.*?\s[V|N|A]\s)/$1$2$3\*$4/;
 	}
 }
