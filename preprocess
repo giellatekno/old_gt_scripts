@@ -30,10 +30,14 @@ my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
 my $help=0;
 
-# The size of a multi-word expression.
+# Max size of a multi-word expression.
 my $idiom_size = 3;
 
-my $punct = quotemeta("|{}[]()$.*?!,;:-'\"");
+my $punct = quotemeta("|{}[]()$.*?!,;:-'\.\"%");
+my $separate_punct = quotemeta("|{}[]()«»?!;,'\"");
+
+# Regex for tokens that contain punctuation:
+my $contain_punct = 'ja\/dahje|http|:\/\/';
 
 GetOptions ("abbr=s" => \$abbr_file,
 			"help" => \$help) ;
@@ -42,16 +46,6 @@ if ($help) {
 	&print_usage;
 	exit;
 }
-
-# The filename may contain a tilde ~
-# Expand the filename manually
-
-$abbr_file =~ s{^~([^/])*} {
-	$1
-		? (getpwnam($1))[7]
-		: ($ENV{HOME} || (getpwuid($>))[7]
-		   )
-	}ex;
 
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
@@ -69,200 +63,138 @@ while (<>) {
 	# join hyphenated words separated by newline
 	s/\-\n/\-/g;
 	
-	# split the sentence to words.
+	# split the sentence by space.
     my @words = split (/[\n\s]+/, $_) ;
 
 	while (@words) {
 		my $word = shift (@words) ;
-		my $next_word = $words[0] ;
-		my $s_boundary=0;
-		my $isabbr=0;
-
-		# Remove and store all punctuation starting the word
-		# And all that ends the word, but do not take the dot
-		# or anything that precedes it.
-		my $end_punct = "";
-		my $start_punct = "";
-		if( $word =~ s/([^\w\.]+)$// ) {
-			$end_punct = $1;
-		}		
-		if( $word =~ s/^([^\w]+)// ) {
-			$start_punct = $1;
+		my @tokens;
+		
+		# store extra punctuation from the front of the expression
+		# to the tokens array.
+		if ($word =~ s/^([$separate_punct]+)//) {
+			push (@tokens, split(/ */, $1));
 		}
-		# Test for multiword expression.
-		# If the word starts an multiword expression, it is replaced
-		# by the expression, and the other parts are
-		# removed from the words array.
-		test_idiom(\$word, \@words, $idiom_size);
-
-		# If the word does not end with a dot, the output is printed
-		# straight away.
-		# There is no sentence boundary.
-		if ($word !~ /\.$/) {
-			&middle_dot(\$word, $next_word, \$s_boundary)
-			&print_output($start_punct,0,0);
-			&print_output($word,0,$s_boundary);
-			&print_output($end_punct, 0,0);
-			next;
-		}
-		# If the word ends with a dot, it is checked for abbreviation.
-		# And for sentence boundary.
-		else {
-			(my $abbr = $word) =~ s/\.$//;
-
-			if (&test_abbr($abbr, $next_word, \$s_boundary)) {
-				$isabbr = 1;
+		# Examine the type of the string. If the expression contains
+		# alphabetical characters optionally preceded by one non-alphabetic
+		# character, it is a word. covers typos as well as hyphen.
+		if ($word =~ s/^([\W]?)([^\W\d]+.*)/$2/) {
+			if ($1) {
+				push (@tokens, $1);
 			}
-			if (&middle_dot(\$word, $next_word, \$s_boundary)) {
-				$isabbr = 1;
-			}
-			&print_output($start_punct,0,0);
-			&print_output($word, $isabbr, $s_boundary);
-			&print_output($end_punct,0,0);
+			process_word ($word, \@words, \@tokens);
 		}
-	}
-}
-# Tarkista mitä tämä funktio tekee!!
-sub middle_dot {
-	my ($word, $nextw, $sbound) = @_;
-
-	(my $abbr = $$word) =~ s/\.$//;
-	if ($abbr =~ /([^\W\d]+)\./ ) {
-		if (&test_abbr($1, $nextw, \$sbound)) {
-			$$word =~ s/([^\W\d]+\.)/$1\n/;
-		}		
-	}
-	if ($abbr =~ /\.([^\W\d]+)/) {
-		if (&test_abbr($1, $nextw, \$sbound)) {
-			$$word =~ s/\.([^\W\d]+\.)/\n$1/;
+		# Otherwise it is processed like numeral.
+		elsif ($word) {
+			process_numeral ($word, \@words, \@tokens);
+		}
+		for my $token (@tokens) {
+			print "$token\n" unless (! $token);
 		}
 	}
 }
 
-#foreach my $key (keys %abbrs) {
-#	print "JOO $key JES\n";
-#	for my $abbr ( keys %{ $abbrs{$key} } ) {
-#		print "$abbr\n";
-#	}
-#}
 
-#	my $keys = keys %{$abbrs{$IDIOM}};
-#	print "\nJEES: $keys\n\n";
-
-
-# print output
-sub print_output {
-	my ($word, $isabbr, $s_boundary) = @_ ;
-
-	if (! $word) {
-		return;
-	}
-	# if the word is not an abbreviation, do further processing.
-	my $end_punct2 = "" ;
-	if (! $isabbr) {
-		# Store all the punctuation following the word into a variable.
-		# Each punctuation mark is followed by newline.
-		if ( $word =~ s/([^\w]+)$//o ) {
-			$end_punct2 = join "\n", split //, $1;
-		}
-	}
-	# If the word is an abbreviation and followed
-	# by sentence boundary then an extra dot is added.
-	elsif ($isabbr && $s_boundary) {
-		$word =  $word . "\n.";
-		}
-
-	# Remove and store the punctuation in the middle.
-	# Except for - 
-	my $middle = "";
-	if($word =~ s/^([^\W\d_]+)([^\w\s\-\:]+)([^\W\d_]+)$/$1/) {
-		$middle = join "\n", split //, $2;
-		$middle = $middle ."\n". $3;
-	}
-#replace / and ' with ^£ and ^¤
-	$word =~ s/\//\£/g;
-	$word =~ s/'/\¤/g;
-		
-    $middle =~ s/\//\£/g;
-	$middle =~ s/'/\¤/g;
-		
-    $end_punct2 =~ s/\//\£/g;
-	$end_punct2 =~ s/'/\¤/g;
+sub process_word {
+	my ($word, $words_aref, $tokens_aref) = @_;
 	
-	if ($word) {
-		print "$word\n";
+	my $end_punct;
+	my $rest_punct;
+
+    # Test for multiword expression.
+	test_idiom(\$word, $words_aref, $idiom_size);
+
+    # Store the punctuation at the end of the string
+	if ($word =~ s/([-+=%$separate_punct]+)$//) {
+		$end_punct = $1
 	}
-	if ($middle) {
-		print "$middle\n";
+
+	# Cut the word into tokens if there is punctuation in the middle.
+	# An Exception!! ja/dahje
+	if ($word !~ /$contain_punct/ && (my @parts = split (/([+=%$separate_punct\/])/, $word))) {
+		my $i;
+		for ($i=0; $i < $#parts; $i++) {
+			push (@{$tokens_aref}, $parts[$i]); 
+		}
+		# Process the last part further, it may contain some punctuation
+		# that has to be removed.
+		$word = $parts[$i];
+		if ($word =~ s/^([$punct])//) {
+			push (@{$tokens_aref}, $1);
+			}
+		if (!$word) {
+			push (@{$tokens_aref}, split(/ */, $end_punct));
+			return;
+		}
 	}
-	if ($end_punct2) {
-		print "$end_punct2\n";
+
+	# If the punctuation at the end contains a sentence delimiter
+	# ? or !, the word ends the sentence in any case.
+	if ($end_punct =~ /[\?\!\.]/) {
+		push (@{$tokens_aref}, $word);
 	}
+	# The word is checked for abbreviation and sentence boundary.
+	elsif (! test_abbr($word, $words_aref->[0], $tokens_aref)) {
+		# If the word was not an abbreviation, the rest
+		# of the punctuation is removed and stored as separate tokens.
+		if ($word =~ s/([$separate_punct\.:]+)$//) {
+			$rest_punct =  $1;
+		}
+		push (@{$tokens_aref}, $word);
+		push (@{$tokens_aref}, split(/ */, $rest_punct));			
+	}
+	push (@{$tokens_aref}, split(/ */, $end_punct));
 }
+
 
 sub test_abbr {
-	my ($before, $after, $sref) = @_;
+	my ($word, $next_word, $tokens_aref) = @_;
+
+	my $abbr = $word;
+	if (! ($abbr =~ s/\.$//)) {
+		return 0;
+	}
 
 	# Transitive abbreviations are never followed
 	# by sentence boundary.
-	if (exists $abbrs{$TRAB}{$before}) {
-		$$sref=0;
+	if (exists $abbrs{$TRAB}{$abbr}) {
+		push (@{$tokens_aref}, $word);
 		return 1;
 	}
 	# There is a sentence boundary if the abbreviation
-	# is followed by other than number.
-	if (exists $abbrs{$TRNUMAB}{$before}) {
-		if ($after !~ /^[0-9]/ ) {
-			$$sref = 1;
+	# is followed by other than number or non-alphabetic char.
+	elsif (exists $abbrs{$TRNUMAB}{$abbr}) {
+		push (@{$tokens_aref}, $word);
+		if ($next_word !~ /^[0-9]/ ) {
+			push (@{$tokens_aref}, ".");
 		}
 		return 1;
 	}
 	# There is a sentence boundary if intransitive abbreviation 
 	# is NOT followed by a small alphabetic char.
-	if (exists $abbrs{$ITRAB}{$before}) {
-		if ($after !~ /^[[:lower:]]/o) {
-			$$sref = 1;
+	elsif (exists $abbrs{$ITRAB}{$abbr}) {
+		push (@{$tokens_aref}, $word);
+		if ($next_word !~ /^[[:lower:]]/o) {
+			push (@{$tokens_aref}, ".");
 		}
 		return 1;
 	}
-	# Check if the word contains only digits and some other symbols
-	# This accounts for ordinals, dates etc.
-	if ($before =~ /^[,:\.\-\d]+$/o) {
-		# If the following word starts with capital letter
-		# then there is a sentence boundary.
-		if ($after =~ /^[[:upper:]]/o ) {
-			$$sref = 1;
-			return 0;
-		}
-		return 1;
-	}
-	return 0;
-}
-
-
-sub capital {
-	my ($before, $after, $sref) = @_;
-
 	# Check for abbreviation with 2-3 capital letters
 	# If followed by a capital letter or number,
 	# There is a sentence boundary.
-	if ($before =~ /^[[:upper:]1]{2,3}$/o ) {
-		if ($after !~ /^[[:upper:]0-9]/ ) {
-			$$sref = 1;
+	elsif ($abbr =~ /^[[:upper:]1]{2,3}$/o ) {
+		push (@{$tokens_aref}, $word);
+		if ($next_word !~ /^[[:lower:]]/ ) {
+			push (@{$tokens_aref}, ".");
 		}
 		return 1;
 	}
 	return 0;
 }
 
-#sub idiom {
-#	my 	$token = join ' ', @_;
-#
-#	if (exists $abbrs{$IDIOM}{$token}) {
-#		return 1;
-#	}
-#	return 0;
-#}
+# If the word starts an multiword expression, it is replaced
+# by the expression. The other parts are
+# removed from the words array.
 
 sub test_idiom {
 	my ($word_ref, $words_aref, $size) = @_;
@@ -270,10 +202,12 @@ sub test_idiom {
 	my $token = $$word_ref;
 	# Test for multiword expressions by growing the token
 	# one word at a time
-	for (my $i=0; $i < $size; $i++) {
+	my $i=0;
+	while ($i < $size && $words_aref->[$i]) {
 		$token = $token . " " . $words_aref->[$i];
+
 		# Remove the punctuation at the end of the expression.
-		(my $token_2 = $token) =~ s/[$punct\.]*$//;
+		(my $token_2 = $token) =~ s/[^\w]*$//;
 		# Test if the formed multiword expression exists in the
 		# idiom list. Test also lower case version.		 
 		if (exists $abbrs{$IDIOM}{$token_2} || exists $abbrs{$IDIOM}{lcfirst($token_2)} ) {
@@ -284,20 +218,69 @@ sub test_idiom {
 				$$word_ref = $$word_ref . " " . $words_aref->[0];
 				shift @{$words_aref};
 			}
-			return 1;
 		}
+		$i++;
 	}
-	return 0;
 }
 
+
+sub process_numeral {
+	my ($word, $words_aref, $tokens_aref) = @_;
+	
+	# Combine hyphen with numeral if followed by other numeral.
+	# cases 123- 456 and 123 -456 and 123 456 and 123 - 456
+	while (($word =~ /[\d-]$/) && ($words_aref->[0] =~ /^[-\d]/)) {
+		$word = $word . " " . $words_aref->[0];
+		shift @{$words_aref};
+	}
+
+	# Combine percent sign to the numeral when separate.
+	# covers cases like: 50 %
+	if (($word =~ /\d$/) && ($words_aref->[0] =~ /^\%/)) {
+		$word = $word . " " . $words_aref->[0];
+		shift @{$words_aref};
+	}
+	# Clean first the end of the token:
+	# cases like: 123! and 123.) problem: 123.? and 123 is an ordinal.
+	my $end_punct;
+	if ($word =~ s/([$separate_punct:]+)$//){
+		$end_punct = $1;
+	}
+	my $rest_punct;
+	# Ending dot is a separate token if 
+	# the following word starts with capital letter.
+	# Otherwise belongs to the expression.
+	if (($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/(\.)$// )) {
+		$end_punct = $1 . $end_punct;
+		
+		# Clean the rest of the token:
+		# cases like 123).
+		if ($word =~ s/([$separate_punct:]+)$//) {
+			$rest_punct =  $1;
+		}
+	}
+	# Push everything to the tokens array.
+	push (@{$tokens_aref}, $word);
+	push (@{$tokens_aref}, split(/ */, $rest_punct));
+	push (@{$tokens_aref}, split(/ */, $end_punct));
+}
 
 
 sub read_abbr {
 	my ($abbr_href) = @_;
 	
 	local $/="\n";
+    # The filename may contain a tilde ~
+    # Expand the filename manually
+	$abbr_file =~ s{^~([^/])*} {
+		$1
+			? (getpwnam($1))[7]
+			: ($ENV{HOME} || (getpwuid($>))[7]
+			   )
+		}ex;
+
 	open LEX, "< $abbr_file" or die "Cant open the file: $!\n";
-	#read from the beginning of the file.
+
 	my $current;
 	while (<LEX>) {
 		chomp;
@@ -306,12 +289,15 @@ sub read_abbr {
 			next;
 		}
 		$$abbr_href{$current}{$_} = 1;
-#		$$abbr_href{$current}{ucfirst{$_}} = 1;
 	}
-		close LEX;	
+	close LEX;	
 }
 
 sub print_usage {
 	print "Usage: preprocess --abbr=<file_name>\n";
 	print "Split text into sentences and words.\n"
 }
+
+
+
+
