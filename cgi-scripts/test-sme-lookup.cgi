@@ -51,7 +51,7 @@ sub printfinalhtmlcodes
 }
 
 
-sub printsolution 
+sub printsolution
 {
     my ($solution, $num) = @_ ;
     $solution =~ s/\=\>/\=\> / ;
@@ -157,7 +157,7 @@ sub browser_dependent_transform {
     } else {
 	print "hola\n";
     }
-    
+
     return lc($text);
 }
 
@@ -192,16 +192,16 @@ sub quasi_ws2_to_xfst {
 sub ws2_to_xfst {
     my ($text) = @_;
 
-    $text =~ s/\202/c1/g ; 
+    $text =~ s/\202/c1/g ;
     $text =~ s/\204/c1/g ;
-    $text =~ s/\211/d1/g ; 
-    $text =~ s/\230/d1/g ; 
-    $text =~ s/\270/n1/g ; 
-    $text =~ s/\271/n1/g ; 
-    $text =~ s/\212/s1/g ; 
+    $text =~ s/\211/d1/g ;
+    $text =~ s/\230/d1/g ;
+    $text =~ s/\270/n1/g ;
+    $text =~ s/\271/n1/g ;
+    $text =~ s/\212/s1/g ;
     $text =~ s/\232/s1/g ;
-    $text =~ s/\274/t1/g ;  
-    $text =~ s/\272/t1/g ; 
+    $text =~ s/\274/t1/g ;
+    $text =~ s/\272/t1/g ;
     $text =~ s/\277/z1/g ;
     $text =~ s/\276/z1/g ;
 
@@ -213,23 +213,23 @@ sub mac_to_xfst {
     my ($text) = @_;
 
     $text =~ s/\242/C1/g ;
-    $text =~ s/\275/c1/g ;
-    $text =~ s/\320/D1/g ;
-    $text =~ s/\274/d1/g ;
+    $text =~ s/\270/c1/g ;
+    $text =~ s/\260/D1/g ;
+    $text =~ s/\271/d1/g ;
     $text =~ s/\261/N1/g ;
-    $text =~ s/\206/n1/g ;
-    $text =~ s/\245/S1/g ;
-    $text =~ s/\252/s1/g ;
+    $text =~ s/\272/n1/g ;
+    $text =~ s/\264/S1/g ;
+    $text =~ s/\273/s1/g ;
     $text =~ s/\265/T1/g ;
-    $text =~ s/\272/t1/g ;
-    $text =~ s/\205/Z1/g ;
-    $text =~ s/\207/z1/g ;
+    $text =~ s/\274/t1/g ;
+    $text =~ s/\267/Z1/g ;
+    $text =~ s/\275/z1/g ;
 
     print "<p>mac_to... $text</p>\n";
     return ($text);
 }
 
-sub parser 
+sub parser
 {
     $wordlimit = 50 ;
     @query =  $ENV{'QUERY_STRING'}  ;
