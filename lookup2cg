@@ -34,7 +34,7 @@ while(<>) {
 		} 
 		# store the word into a variable
 		# and the analysis part into an array.
-		$_ =~ /^(.*?)\s+(.*)$/;
+		$_ =~ /^(.*?)\t(.*)$/;
 		$word = $1;
 		push @Analyses, $2;
 	}
