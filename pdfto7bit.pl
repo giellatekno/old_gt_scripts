@@ -1,19 +1,21 @@
 #!/usr/bin/perl -w
 
+# This program uses the utilities pdftotext and pdfinfo from the 
+# xpdf package.
 
 # $result = `pdftotext -enc UTF-8 $ARGV[0] -`;
 
 use strict;
-use vars qw($opt_o $opt_p);
+use vars qw($opt_o $opt_e);
 use Getopt::Std;
 
-getopts('op');
+getopts('eo');
 
 my $num_pages;
 my $x;
 my $result;
 
-if ($opt_o || $opt_p){
+if ($opt_o || $opt_e){
     $num_pages =  `pdfinfo $ARGV[0]|grep Pages:`;
     $num_pages =~ s/Pages://g;
     $num_pages =~ tr/ //s;
@@ -22,7 +24,7 @@ if ($opt_o || $opt_p){
 
 if ($opt_o){
     $x = 1;
-} elsif ($opt_p){
+} elsif ($opt_e){
     $x = 2;
 } else {
     $x = 0;
