@@ -17,10 +17,18 @@ s/\272/T1/g ;
 s/\276/Z1/g ;
 s/\277/z1/g ;
 
+# Remove Word-specific crap
+
+s/\377//g ;
+s/\015/ /g ;
+s/\226/-/g ;
+s/\227/-/g ;
+
+
 # remove punctuation, should be omitted when a preprocessor
 # is in place.
-s/[0".,:;\?\-\*\(\)]//g ;
-s/[2-9]//g ;
-s/ 1//g ;
+#s/[0".,:;\?\-\*\(\)]//g ;
+#s/[2-9]//g ;
+#s/ 1//g ;
 print ;
 }
