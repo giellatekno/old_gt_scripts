@@ -9,8 +9,9 @@ undef $/;
 
 find ( sub {
   return if(__FILE__ =~ $_);
-  return if("digr-utf8.txt" =~ $_);
-  return if("digr-utf8-2.txt" =~ $_);
+  return if(! -f $_);
+  return if("corp-utf8.txt" =~ $_);
+  return if("corp-utf8-2.txt" =~ $_);
   open (FILE, "< $File::Find::name") or return;
   my $string = <FILE>;
   close (FILE);
