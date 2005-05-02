@@ -15,7 +15,10 @@ find ( sub {
 
   open (FILE, "< $File::Find::name") or return;
   my $string = <FILE>;
-
+  close (FILE);
+  
+  open (FILE, "< $File::Find::name") or return;
+  
   my $args;
   
   print $string;
