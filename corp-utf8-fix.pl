@@ -22,6 +22,7 @@ find ( sub {
 
   if ($string =~ /[èÈ¼©]/){
      while(<FILE>) {
+     	print "While!";
       	s/¹/đ/g;
 		s/©/Đ/g;
 		s/è/č/g;
@@ -33,6 +34,7 @@ find ( sub {
 #    $args = ("corp-utf8-2.txt");
   } else {
      while (<FILE>) {
+     	print "While!";
     		s/„/č/g;
 		s/˜/đ/g;
 		s/¿/ž/g;
