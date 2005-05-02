@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
-my $string = <STDIN>;
+my $string = ;
 
 if ($string =~ /[èÈ¼©]/){
   print "if\n";
-  while ($string){
+  while (<$string>){
     print "if-while\n";
     s/¹/đ/g;
 	s/©/Đ/g;
@@ -17,7 +17,7 @@ if ($string =~ /[èÈ¼©]/){
 }
 else {
   print "else\n";
-  while ($string){
+  while (<$string>){
     print "else-while\n";
     s/„/č/g;
 	s/˜/đ/g;
