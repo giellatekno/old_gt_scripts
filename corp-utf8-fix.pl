@@ -14,7 +14,6 @@ find ( sub {
   return if("corp-utf8-2.txt" =~ $_);
   open (FILE, "< $File::Find::name") or return;
   my $string = <FILE>;
-  close (FILE);
 
   my $args;
 
@@ -62,6 +61,8 @@ find ( sub {
      }
 #    $args = ("corp-utf8.txt");
   }
+
+  close (FILE);
 
 #  system ("sed -f $args $File::Find::name");
 }, '.');
