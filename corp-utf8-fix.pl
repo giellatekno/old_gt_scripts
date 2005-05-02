@@ -13,11 +13,11 @@ find ( sub {
   return if("corp-utf8.txt" =~ $_);
   return if("corp-utf8-2.txt" =~ $_);
 
-  open (FILE, "< $File::Find::name") or return;
+  open (FILE, "$File::Find::name") or return;
   my $string = <FILE>;
-  close (FILE);
+#  close (FILE);
   
-  open (FILE, "< $File::Find::name") or return;
+#  open (FILE, "$File::Find::name") or return;
   
   my $args;
   
