@@ -16,6 +16,8 @@ find ( sub {
   my $string = <FILE>;
 
   my $args;
+  
+  print $string;
 
   if ($string =~ /[èÈ¼©]/){
      while(<FILE>) {
