@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
-my $string = ;
+while (<>)
+  my $string = <STDIN>;
 
 if ($string =~ /[èÈ¼©]/){
   print "if\n";
