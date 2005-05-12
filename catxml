@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+
+use strict;
+use encoding 'utf-8';
+use open ':utf8';
+use XML::Twig;
+use File::Find;
+use Getopt::Long;
+
+
+my $para = 'true';
+my $title;
+my $list;
+my $table;
+my $help;
+my @input;
+
+GetOptions ('para!' => \$para,
+	    'title' => \$title,
+	    'list' => \$list,
+	    'table' => \$table,
+	    'help' => \$help,
+	    'input=s' => \@input);
+
+if ($help) {
+    &print_usage;
+    exit;
+}
+
+
+foreach my $in (@input) {
+    find ( \&process_file, $in) if -d $in;
+    process_file ($in) if -f $in;
+}
+
+
+sub process_file {
+    my $file = $_;
+    $file = shift (@_) if (!$file);
+    return if $file =~ /^\./;
+    return unless $file =~ /\.xml$/;
+
+    my $document = XML::Twig->new(twig_handlers =>
+				  {p => \&process_xml} );
+
+    $document->parsefile ($file);
+}
+
+sub process_xml {
+    my ($twig, $elt) = @_;
+
+    if ($para) {
+		if (!$elt->att("type") || $elt->att("type") =~ "text") {
+		    print $elt->text;
+		}
+    }
+
+    if ($title) {
+		if ($elt->att("type") =~ "title") {
+		    print $elt->text;
+		}
+    }
+
+    if ($list) {
+        if ($elt->att("type") =~ "listitem") {
+	    print $elt->text;
+        }
+    }
+
+    if ($table) {
+		if ($elt->att("type") =~ "tablecell") {
+		    print $elt->text;
+		}
+    }
+
+    $twig->purge;
+}
+
+sub print_usage {
+    print "Usage: " . __FILE__ . " <options> --input FileName|Directory\n";
+    print "where possible options include:\n";
+    print "--para\t\t\tPrint paragraphs with text content (default)\n";
+    print "--nopara\t\tDon't print text paragraphs\n";
+    print "--title\t\t\tPrint paragraphs with title type\n";
+    print "--list\t\t\tPrint paragraphs with list type\n";
+    print "--table\t\t\tPrint paragraphs with table type\n";
+}
