@@ -45,7 +45,7 @@ find ( sub {
     	$xmlfile->parsefile ($temp_file);
 
 	   my $int = File::Spec->rel2abs($_);
-	   $int =~ s/(.^\/)*int\/.*/$lang\/$PROJECT\/$publisher\/$year\/$title\.xml/;
+	   $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$publisher\/$year\/$title\.xml/;
 	   my $intdir;
 	   my $volume;
 	   my $file;
@@ -54,7 +54,7 @@ find ( sub {
         my $dirpath = "";
         for my $dir (@dirs) {
             $dirpath = $dirpath . $dir . "/";
-            print $dirpath . "\n";
+#            print $dirpath . "\n";
     	   mkdir ("$dirpath", 0755) unless -d $dirpath;
         }
 
