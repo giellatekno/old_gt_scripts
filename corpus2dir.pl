@@ -45,7 +45,18 @@ find ( sub {
     	$xmlfile->parsefile ($temp_file);
 
 	   my $int = File::Spec->rel2abs($_);
-	   $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$publisher\/$year\/$title\.xml/;
+	   if ($publisher) {
+    	   	   $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$publisher\/$year\/$title\.xml/;
+       }
+       
+       elsif ($author) {
+           $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$author\/$year\/$title\.xml/;
+       }
+       
+       else {
+       		print STDERR "Unable to process file $int";
+       }
+
 	   my $intdir;
 	   my $volume;
 	   my $file;
