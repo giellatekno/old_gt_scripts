@@ -49,8 +49,8 @@ find ( sub {
     	   	   $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$publisher\/$year\/$title\.xml/;
        }
        
-       elsif ($author) {
-           $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$author\/$year\/$title\.xml/;
+       elsif ($person) {
+           $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$person\/$year\/$title\.xml/;
        }
        
        else {
@@ -72,28 +72,6 @@ find ( sub {
 	   system ("mv \"$TEMP_DIR/$_\" \"$int\"");
     }
 }, '.');
-
-#find ( sub {
-#    return if -d;
-#    return unless ($_ =~ /\.int\.xml/);
-
-#    my $lang;
-#    my $document = XML::Twig->new(twig_handlers =>
-#				  {'document' => sub { $lang = $_->{'att'}->{'xml:lang'}}} );
-#    $document->parsefile ($_);
-#    $document->purge;
-
-#    my $xmlfile = XML::Twig->new(twig_roots =>
-#				 {'document/header' => \&process_header } );
-
-#    $xmlfile->parsefile ($_);
-
-#    my $int = File::Spec->rel2abs($_);
-#    $int =~ s/int\/.*/$lang\/$publisher\/$year\/$title\.xml/;
-
-#    print ("mv $_ $int");
-#    print "\n";
-#}, $TEMP_DIR);
 
 rmdir ("$TEMP_DIR");
 
