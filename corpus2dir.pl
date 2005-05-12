@@ -30,7 +30,7 @@ find ( sub {
     if (-e $manual_xsl) {
     	my $temp_file = "$TEMP_DIR/$_";
 
-    	system "xsltproc --novalid \"$manual_xsl\" $_ > \"$temp_file\"";
+    	system "xsltproc --novalid \"$manual_xsl\" \"$_\" > \"$temp_file\"";
     
 	   my $lang;
 	   my $document = XML::Twig->new(twig_handlers =>
