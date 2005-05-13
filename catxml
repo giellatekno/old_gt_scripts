@@ -58,19 +58,21 @@ sub process_xml {
     if ($title) {
 		if ($elt->att("type") && $elt->{'att'}->{'type'} =~ "title") {
 		    print $elt->text;
-		    print "\n";
+		    print ".\n";
 		}
     }
 
     if ($list) {
         if ($elt->att("type") && $elt->att("type") =~ "listitem") {
 		    print $elt->text;
+		    print ".";
         }
     }
 
     if ($table) {
 		if ($elt->att("type") && $elt->att("type") =~ "tablecell") {
 		    print $elt->text;
+		    print ".";
 		}
     }
 
