@@ -21,6 +21,7 @@ find ( sub {
 	mkdir ("$int", 0755) unless -d $int;
 	return;
     }
+    return unless ($_ =~ /\.doc/);
     return if (__FILE__ =~ $_);
     return if ($_ =~ /[\~]$/);
     
