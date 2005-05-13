@@ -33,13 +33,15 @@ my $IDIOM="IDIOM";
 my $MULTIWORD_SIZE = 3;
 
 # General punctuation, not much used variable.
-my $PUNCT = quotemeta("|{}[]()«»‹›“”’‘$.*?!,;:'\.\"%");
+#my $PUNCT = quotemeta("|{}[]()«»‹›“”’‘$.*?!,;:'\.\"%"); # orig, tt 050513
+my $PUNCT = quotemeta("¶|{}[]()«»‹›“”’‘$.*?!,;:'\.\"%");
 
 # Punctuation marks that are always their own tokens,
 # whether word or numeral expression.
 # There are characters added to this list depending on if
 # the processed string is word or numeral.
-my $SEPARATE_PUNCT = quotemeta("|{}[]()«»‹›“”‘’?!;,'`\"");
+#my $SEPARATE_PUNCT = quotemeta("|{}[]()«»‹›“”‘’?!;,'`\""); # orig, tt 050513
+my $SEPARATE_PUNCT = quotemeta("¶|{}[]()«»‹›“”‘’?!;,'`\"");
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SEPARATE_PUNCT.
@@ -161,7 +163,8 @@ sub process_word {
 	# If the punctuation at the end contains a sentence delimiter
 	# ? or !, the word ends the sentence in any case, so the word can
 	# be treated as a token.
-	if ($end_punct =~ /[\?\!\.]/) {
+#	if ($end_punct =~ /[\?\!\.]/) {       # tt 050513
+	if ($end_punct =~ /[¶\?\!\.]/) {
 		push (@{$tokens_aref}, $word);
 	}
 	# Otherwise
