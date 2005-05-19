@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
-<!--
-<xsl:import href="/Users/tomi/Documents/eclipse/workspace/gt/script/generate-ids.xsl" />
--->
 
-<xsl:output method="xml" 
-            version="1.0" 
-            encoding="UTF-8" 
+<!--
+Output the header information
+-->
+<xsl:output method="xml"
+            version="1.0"
+            encoding="UTF-8"
             indent="yes"
             doctype-public="-//UIT//DTD Corpus V1.0//EN"
             doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/>
@@ -15,50 +15,62 @@
 <!--<xsl:strip-space elements="title emphasis"/>-->
 
 <!--
-   Root element 
+   Root element
 -->
 
+<!--
+Find the book element, which then is converted to the "document" tag
+-->
 <xsl:template match="book">
+    <!-- Insert an empty line -->
     <xsl:text>
     </xsl:text>
+    <!-- Open the "document" tag, which is the root element of the UIT DTD -->
     <xsl:element name="document">
         <xsl:attribute name="xml:lang">
             <xsl:value-of select="@lang"/>
         </xsl:attribute>
         <xsl:text>
         </xsl:text>
+        <!-- Open the "header" tag -->
         <xsl:element name="header">
             <xsl:text>
             </xsl:text>
+            <!-- Use the function "bookinfo" -->
             <xsl:apply-templates select="bookinfo"/>
+        <!-- Close the "header" tag -->
         </xsl:element>
 
         <xsl:text>
         </xsl:text>
 
+        <!-- Then insert the "body" tag -->
         <body>
+            <!-- Apply the following functions -->
             <xsl:apply-templates select="chapter"/>
             <xsl:apply-templates select="para"/>
             <xsl:apply-templates select="table"/>
             <xsl:apply-templates select="orderedlist"/>
             <xsl:text>
             </xsl:text>
+        <!-- Close the "body" tag -->
         </body>
 
         <xsl:text>
         </xsl:text>
+    <!-- Close the "document" tag -->
     </xsl:element>
 </xsl:template>
 
 <!--
-    Meta information
+    Transform the meta information found in the "bookinfo" tag in docbook to the wanted header info of the UIT DTD.
 -->
 
 <xsl:template match="bookinfo">
-<!--    <xsl:element name="fileDesc"> -->
     <xsl:text>
     </xsl:text>
 
+    <!-- Open "title" tag -->
     <xsl:element name="title">
         <xsl:value-of select="title"/>
     </xsl:element>
@@ -69,7 +81,7 @@
     <xsl:element name="language">
         <xsl:value-of select="/book/@lang"/>
     </xsl:element>
---> 
+-->
     <xsl:text>
     </xsl:text>
     <xsl:element name="translated-from">
@@ -77,8 +89,12 @@
     </xsl:element>
     <xsl:text>
     </xsl:text>
+
+
     <xsl:element name="genre">
+        <!-- Insert a comment -->
         <xsl:comment>
+            <!-- Containing this text -->
             <xsl:text>Uncomment the relevant option:</xsl:text>
         </xsl:comment>
         <xsl:comment>
@@ -91,10 +107,13 @@
     <xsl:text>
     </xsl:text>
 <!--     <xsl:element name="sourceDesc">-->
+
+    <!-- Apply the author and date functions -->
     <xsl:apply-templates select="author"/>
     <xsl:apply-templates select="date"/>
     <xsl:choose>
         <xsl:when test="corpname">
+            <!-- Apply the function corpname -->
             <xsl:apply-templates select="corpname"/>
         </xsl:when>
         <xsl:otherwise>
@@ -108,8 +127,10 @@
 <!--     </xsl:element>-->
     <xsl:text>
     </xsl:text>
+<!-- Close the "header" tag -->
 </xsl:template>
 
+<!-- The author function extracts the author info -->
 <xsl:template match="author">
     <xsl:text>
     </xsl:text>
@@ -127,6 +148,7 @@
     </xsl:element>
 </xsl:template>
 
+<!-- Extract the which year the document is written -->
 <xsl:template match="date">
     <xsl:text>
         </xsl:text>
@@ -166,7 +188,7 @@
         </xsl:text>
         <xsl:element name="section">
             <xsl:apply-templates mode="chapter"/>
-            <xsl:text>   </xsl:text>
+            <xsl:text>    </xsl:text>
         </xsl:element>
     </xsl:if>
 </xsl:template>
@@ -177,7 +199,7 @@
         </xsl:text>
         <xsl:element name="section">
             <xsl:apply-templates mode="chapter"/>
-            <xsl:text>   </xsl:text>
+            <xsl:text>    </xsl:text>
         </xsl:element>
     </xsl:if>
 </xsl:template>
@@ -186,10 +208,10 @@
 <!--    <xsl:strip-space elements="*"/>-->
     <xsl:choose>
         <xsl:when test="normalize-space(.)">
-            <xsl:text>       </xsl:text>
+            <xsl:text>        </xsl:text>
             <xsl:choose>
                 <!-- Guessing whether a title is actually a paragraph -->
-                <xsl:when 
+                <xsl:when
                     test="string-length(.) > 130 and not(starts-with(translate(., '0123456789', '9999999999'), '9'))">
 <!--                 <xsl:element name="text"> -->
                     <xsl:text>
@@ -221,7 +243,7 @@
 
 <xsl:template match="title" mode="text">
     <xsl:if test="normalize-space(.)">
-        
+
     </xsl:if>
 </xsl:template>
 
@@ -239,13 +261,13 @@
 <!--                </xsl:element>-->
             </xsl:when>
             <xsl:otherwise>
-                <xsl:text>     </xsl:text>
+                <xsl:text>    </xsl:text>
 <!--                <xsl:element name="text">-->
                 <xsl:text>
                 </xsl:text>
                 <xsl:element name="p">
                     <xsl:apply-templates mode="text"/>
-                        <xsl:text>         </xsl:text>
+                        <xsl:text>        </xsl:text>
                 </xsl:element>
                 <xsl:text>
               </xsl:text>
@@ -275,16 +297,16 @@
 <!--    <xsl:strip-space elements="*"/>-->
     <xsl:choose>
         <xsl:when
-        test="starts-with(translate(., '0123456789', '9999999999'), '9') or 
+        test="starts-with(translate(., '0123456789', '9999999999'), '9') or
               not(contains(., '.'))">
-            <xsl:text>     </xsl:text>
+            <xsl:text>    </xsl:text>
             <xsl:element name="p">
                 <xsl:attribute name="type">title</xsl:attribute>
                 <xsl:apply-templates mode="chapter"/>
             </xsl:element>
         </xsl:when>
         <xsl:otherwise>
-            <xsl:text>     </xsl:text>
+            <xsl:text>    </xsl:text>
 <!--        <xsl:element name="text">-->
             <xsl:text>
             </xsl:text>
