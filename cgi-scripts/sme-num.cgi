@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d $smefstdir/sme-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/sme-num.fst` ;
 # $utilitydir/lookup -flags mbL" => "LTT -d $smefstdir/sme-num.fst` ;
 # testing line two here, lauri's advice.
 #back with line one
