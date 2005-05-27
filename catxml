@@ -8,6 +8,7 @@ use File::Find;
 use Getopt::Long;
 
 
+my $all;
 my $para = 'true';
 my $title;
 my $list;
@@ -16,11 +17,18 @@ my $help;
 my @input;
 
 GetOptions ('para!' => \$para,
+	    'all' => \$all,
 	    'title' => \$title,
 	    'list' => \$list,
 	    'table' => \$table,
 	    'help' => \$help,
 	    'input=s' => \@input);
+
+if ($all) {
+    $title = 'true';
+    $list = 'true';
+    $table = 'true';
+}
 
 if ($help) {
     &print_usage;
@@ -80,11 +88,13 @@ sub process_xml {
 }
 
 sub print_usage {
-    print "Usage: " . __FILE__ . " <options> --input FileName|Directory\n";
-    print "where possible options include:\n";
-    print "--para\t\t\tPrint paragraphs with text content (default)\n";
-    print "--nopara\t\tDon't print text paragraphs\n";
-    print "--title\t\t\tPrint paragraphs with title type\n";
-    print "--list\t\t\tPrint paragraphs with list type\n";
-    print "--table\t\t\tPrint paragraphs with table type\n";
+    print "\nUsage: catxml <options> [-i | --input] [FileName | Directory]\n";
+    print "\nwhere possible options include:\n";
+    print "[-a | --all]\t\t\tPrint all text elements\n";
+    print "[-p | --para]\t\t\tPrint paragraphs with text content (default)\n";
+    print "[-nop | --nopara]\t\tDon't print text paragraphs\n";
+    print "[-ti | --title]\t\t\tPrint paragraphs with title type\n";
+    print "[-l | --list]\t\t\tPrint paragraphs with list type\n";
+    print "[-ta | --table]\t\t\tPrint paragraphs with table type\n";
+    print "\n";
 }
