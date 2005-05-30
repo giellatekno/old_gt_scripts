@@ -125,11 +125,11 @@ my $result;
 
 if ($disamb) {
      $result = `echo $text | $bindir/preprocess --abbr=$smefstdir/abbr.txt | \
-			$utilitydir/lookup -utf8 -flags mbTT -d $smefstdir/sme.fst | \ 
+			$utilitydir/lookup -flags mbTT -utf8 -d $smefstdir/sme.fst | \ 
 			$bindir/lookup2cg | $bindir/vislcg --grammar=$smefstdir/sme-dis.rle`; }
 else {
 	$result = `echo $text | $bindir/preprocess --abbr=$smefstdir/abbr.txt | \
-			$utilitydir/lookup -utf8 -flags mbTT -d $smefstdir/sme.fst | \ 
+			$utilitydir/lookup -flags mbTT -utf8 -d $smefstdir/sme.fst | \ 
 			$bindir/lookup2cg`;
 }
  

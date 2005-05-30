@@ -165,7 +165,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d $smefstdir/sme.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $smefstdir/sme.fst` ;
 
 #  Now we need to parse the $result string to output the information as HTML
 #  This information will be directed automatically back to the user's browser for display
