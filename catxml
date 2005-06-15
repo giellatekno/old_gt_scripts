@@ -1,26 +1,66 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+
+# catxml
+# Perl-script for processing corpus xml-files as text.
+#  - Reads xml-file(s) or directory containing xml-file(s)
+#	 as input and outputs plain text.
+#
+# Getting help, give command:
+# catxml --help 
+#
+# $Id: catxml,v Exp $
 
 use strict;
+
+# Use utf-8 encoding
 use encoding 'utf-8';
 use open ':utf8';
+
+# using XML
 use XML::Twig;
+
 use File::Find;
 use Getopt::Long;
 
 
+
+############################
+# Variables
+#
+############################
+
+# variable for processing all elements
 my $all;
+
+# one variable per element
 my $para = 'true';
 my $title;
 my $list;
 my $table;
+
+# choosing what language we want
+my $lang = "sme";
+
+# for help
 my $help;
+
+# input file(s) in an array
 my @input;
 
+# language of the document
+my $doclang;
+
+
+#############################
+# Get options
+#
+#############################
 GetOptions ('para!' => \$para,
 	    'all' => \$all,
 	    'title' => \$title,
 	    'list' => \$list,
 	    'table' => \$table,
+	    'lang=s' => \$lang,
 	    'help' => \$help,
 	    'input=s' => \@input);
 
@@ -37,7 +77,10 @@ if ($help) {
 
 
 foreach my $in (@input) {
+	# if input is directory
     find ( \&process_file, $in) if -d $in;
+    
+    # if input is file
     process_file ($in) if -f $in;
 }
 
@@ -45,10 +88,24 @@ foreach my $in (@input) {
 sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
+    
+    	# Check that 
+    	# a)file is not hidden file    
     return if $file =~ /^\./;
+
+    # b)file ends with .xml
     return unless $file =~ /\.xml$/;
 
+
+	# Find out the language of the file
     my $document = XML::Twig->new(twig_handlers =>
+				  {'document' => sub { $doclang = $_->{'att'}->{'xml:lang'}}} );
+
+	$document->parsefile ($file);
+	
+
+	# Process all <p> elements
+    $document = XML::Twig->new(twig_handlers =>
 				  {p => \&process_xml} );
 
     $document->parsefile ($file);
@@ -57,30 +114,41 @@ sub process_file {
 sub process_xml {
     my ($twig, $elt) = @_;
 
-    if ($para) {
-		if (!$elt->att("type") || $elt->att("type") =~ "text") {
-		    print $elt->text;
+
+	# We want to process only paragraphs within document that has the 
+	# wanted language OR paragraph is in the wanted language
+    if ((!$elt->att("xml:lang") && $doclang =~ $lang) || 
+		$elt->att("xml:lang" =~ $lang))
+    {
+    		# print out paragraphs with text content
+		if ($para) {
+			if (!$elt->att("type") || $elt->att("type") =~ "text") {
+			    print $elt->text;
+			}
+	    }
+
+    		# print out paragraphs with title content
+		if ($title) {
+			if ($elt->att("type") && $elt->{'att'}->{'type'} =~ "title") {
+			    print $elt->text;
+		    		print "¶\n";             # Specical sign for titles
+			}
+	    }
+
+    		# print out paragraphs with list content
+		if ($list) {
+		    if ($elt->att("type") && $elt->att("type") =~ "listitem") {
+			    print $elt->text;
+		    		print "¶";               # Using the title sign also here
+	    		}
 		}
-    }
 
-    if ($title) {
-		if ($elt->att("type") && $elt->{'att'}->{'type'} =~ "title") {
-		    print $elt->text;
-		    print "¶\n";             # Specical sign for titles
-		}
-    }
-
-    if ($list) {
-        if ($elt->att("type") && $elt->att("type") =~ "listitem") {
-		    print $elt->text;
-		    print "¶";               # Using the title sign also here
-        }
-    }
-
-    if ($table) {
-		if ($elt->att("type") && $elt->att("type") =~ "tablecell") {
-		    print $elt->text;
-		    print "¶";               # Using the title sign also here
+    		# print out paragraphs with table content
+		if ($table) {
+			if ($elt->att("type") && $elt->att("type") =~ "tablecell") {
+			    print $elt->text;
+		    		print "¶";               # Using the title sign also here
+			}
 		}
     }
 
@@ -94,7 +162,9 @@ sub print_usage {
     print "[-p | --para]\t\t\tPrint paragraphs with text content (default)\n";
     print "[-nop | --nopara]\t\tDon't print text paragraphs\n";
     print "[-ti | --title]\t\t\tPrint paragraphs with title type\n";
-    print "[-l | --list]\t\t\tPrint paragraphs with list type\n";
+    print "[-li | --list]\t\t\tPrint paragraphs with list type\n";
     print "[-ta | --table]\t\t\tPrint paragraphs with table type\n";
+    print "[-la='lang' | --lang='lang']\tPrint only paragraphs in language 'lang'\n";
+    print "\t\t\t\t(default language is sme)\n";
     print "\n";
 }
