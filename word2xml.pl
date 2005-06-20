@@ -51,7 +51,7 @@ for my $file (@files) {
     close FILE;
     open (FILE, $file) or die "Cannot open file $file: $!";
 
-    if (@outString =~ /[èÈ¼©]/){
+    if (@outString =~ /[èÈ¼©∏π∫]/){
 	undef (@outString);
 
 	while ($string = <FILE>) {
@@ -63,23 +63,35 @@ for my $file (@files) {
 	    $string =~ s/¿/ŋ/g;
 	    $string =~ s/º/š/g;
 
+	    $string =~ s/∏/č/g;
+	    $string =~ s/π/đ/g;
+	    $string =~ s/∫/ŋ/g;
+	    $string =~ s/ª/š/g;
+#	    $string =~ s//ŧ/g;
+	    $string =~ s/Ω/ž/g;
+	    $string =~ s/¢/Č/g;
+#	    $string =~ s//Đ/g;
+#	    $string =~ s//Ŋ/g;
+	    $string =~ s/¥/Š/g;
+#	    $string =~ s//Ŧ/g;
+#	    $string =~ s//Ž/g;
+
 	    push (@outString, $string);
 	}
     }
     else {
 	undef (@outString);
-
+	
 	while ($string = <FILE>) {
+
 	    $string =~ s/„/č/g;
 	    $string =~ s/\˜/đ/g;
 	    $string =~ s/¿/ž/g;
 	    $string =~ s/ð/đ/g;
 	    $string =~ s/‚/Č/g;
 	    $string =~ s/¹/ŋ/g;
-	    $string =~ s/ð/đ/g;
 	    $string =~ s/‰/Đ/g;
 
-	    $string =~ s/ð/đ/g;
 	    $string =~ s/ç/č/g;
 	    $string =~ s/Ç/Č/g;
 	    $string =~ s/Ó/Š/g;
