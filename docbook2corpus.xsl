@@ -344,7 +344,6 @@ Find the book element, which then is converted to the "document" tag
     <xsl:element name="p">
         <xsl:attribute name="type">tablecell</xsl:attribute>
         <xsl:apply-templates mode="text"/>
-        <xsl:text>    </xsl:text>
     </xsl:element>
     <xsl:text>
     </xsl:text>
