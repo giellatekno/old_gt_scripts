@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 
 use strict;
-#use encoding 'utf-8';
+use encoding 'utf-8';
 use open ':utf8';
 use File::Find;
 use File::Spec;
 use IO::File;
 use Getopt::Long;
+
 
 my $xsl_file;
 GetOptions ("xsl=s" => \$xsl_file);
@@ -51,66 +52,94 @@ for my $file (@files) {
     close FILE;
     open (FILE, $file) or die "Cannot open file $file: $!";
 
-    if (@outString =~ /[èÈ¼©∏π∫]/){
+# This block is for Latin 6, Statens Kartverk
+     if (grep( m/[èÈ¼©]/, @outString)){
 	undef (@outString);
-
+	print $file . "Latin 6\n";
 	while ($string = <FILE>) {
-	    $string =~ s/¹/đ/g;
-	    $string =~ s/©/Đ/g;
-	    $string =~ s/è/č/g;
 	    $string =~ s/È/Č/g;
 	    $string =~ s/¼/ž/g;
 	    $string =~ s/¿/ŋ/g;
 	    $string =~ s/º/š/g;
-
-	    $string =~ s/∏/č/g;
-	    $string =~ s/π/đ/g;
-	    $string =~ s/∫/ŋ/g;
-	    $string =~ s/ª/š/g;
-#	    $string =~ s//ŧ/g;
-	    $string =~ s/Ω/ž/g;
-	    $string =~ s/¢/Č/g;
-#	    $string =~ s//Đ/g;
-#	    $string =~ s//Ŋ/g;
-	    $string =~ s/¥/Š/g;
-#	    $string =~ s//Ŧ/g;
-#	    $string =~ s//Ž/g;
-
+	    $string =~ s/¹/đ/g;
+	    $string =~ s/©/Đ/g;
+	    $string =~ s/è/č/g;
 	    push (@outString, $string);
 	}
     }
-    else {
+
+
+# This block is for ISO-IR 197
+     elsif (grep( m/[¡£¤¯²³]/, @outString)){
 	undef (@outString);
-	
+	print $file . "ISO-IR 197\n";
 	while ($string = <FILE>) {
-
-	    $string =~ s/„/č/g;
-	    $string =~ s/\˜/đ/g;
-	    $string =~ s/¿/ž/g;
-	    $string =~ s/ð/đ/g;
-	    $string =~ s/‚/Č/g;
-	    $string =~ s/¹/ŋ/g;
-	    $string =~ s/‰/Đ/g;
-
-	    $string =~ s/ç/č/g;
-	    $string =~ s/Ç/Č/g;
-	    $string =~ s/Ó/Š/g;
-	    $string =~ s/ó/š/g;
-	    $string =~ s/þ/ž/g;
-	    $string =~ s/ñ/ŋ/g;
-	    $string =~ s/Ñ/Ŋ/g;
-	    $string =~ s/ý/ŧ/g;
-
+	    $string =~ s/¡/Č/g;
+	    $string =~ s/¢/č/g;
+	    $string =~ s/£/Đ/g;
+	    $string =~ s/¤/đ/g;
+	    $string =~ s/¯/Ŋ/g;
+	    $string =~ s/±/ŋ/g;
 	    $string =~ s/²/Š/g;
 	    $string =~ s/³/š/g;
-	    $string =~ s/¢/č/g;
-	    $string =~ s/¡/Č/g;
-	    $string =~ s/±/ŋ/g;
-	    $string =~ s/ð/đ/g;
-	    $string =~ s/ç/č/g;
+	    $string =~ s/µ/Ŧ/g;
+	    $string =~ s/¸/ŧ/g;
+	    $string =~ s/¹/Ž/g; 
 	    $string =~ s/º/ž/g;
-	    $string =~ s/¤/đ/g;
+	    push (@outString, $string);
+	}
+    }
 
+
+# This block is for Mac Roman input
+     elsif (grep( m/[ª∞π∫Ω¥]/, @outString)){
+	undef (@outString);
+	print $file . "Mac Roman\n";
+	while ($string = <FILE>) {
+#	    $string =~ s/ª/š/g; #NOT WORKING
+	    $string =~ s/\302\252/š/g; #Octal UTF-8 for ª.
+	    $string =~ s/∏/č/g;
+	    $string =~ s/π/đ/g;
+	    $string =~ s/∫/ŋ/g;
+	    $string =~ s/\302\272/ŧ/g; #Octal UTF-8 for masc ord
+	    $string =~ s/Ω/ž/g;
+#	    $string =~ s/À/Á/g;
+	    $string =~ s/\302\242/Č/g; #cent NOT WORKING
+	    $string =~ s/∞/Đ/g;
+	    $string =~ s/\302\261/Ŋ/g; #plusminus NOT WORKING
+	    $string =~ s/\302\245/Š/g; #yen NOT WORKING
+	    $string =~ s/\302\265/Ŧ/g; #Octal UTF-8 for myy
+	    $string =~ s/∑/Ž/g;
+	    push (@outString, $string);
+	}
+    }
+
+    else {
+	undef (@outString);
+	print $file . "\n";	
+	while ($string = <FILE>) {
+#	    print $string . "\n";
+# This block is for Levi input
+#	    $string =~ s/∏/č/g; #MacRoman
+	    $string =~ s/„/č/g; #Levi
+	    $string =~ s/\˜/đ/g;#??? 
+	    $string =~ s/¿/ž/g; #???
+	    $string =~ s/‚/Č/g; #Le
+	    $string =~ s/¹/ŋ/g; #Le
+	    $string =~ s/‰/Đ/g; #Le
+
+# This block is for Winsam
+	    $string =~ s/ç/č/g; #WS
+	    $string =~ s/Ç/Č/g; #WS
+	    $string =~ s/ð/đ/g; #WS
+	    $string =~ s/Ó/Š/g; #WS
+	    $string =~ s/ó/š/g; #WS
+	    $string =~ s/þ/ž/g; #WS
+	    $string =~ s/ñ/ŋ/g; #WS
+	    $string =~ s/Ñ/Ŋ/g; #WS
+	    $string =~ s/ý/ŧ/g; #WS
+
+#	    print $string . "\n";
 	    push (@outString, $string);
         }
     }
