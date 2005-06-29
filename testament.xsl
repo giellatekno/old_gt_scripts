@@ -18,6 +18,9 @@ Output the header information
 
 <xsl:template match="document">
 	<xsl:copy>
+		 <xsl:attribute name="xml:lang">
+        		<xsl:value-of select="@lang"/>
+        	</xsl:attribute>
 		<xsl:apply-templates/>
 	</xsl:copy>
 </xsl:template>
