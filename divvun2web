@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Shell script for exporting divvun.no www-pages from cvs 
+# to the official www-directory
+# Only the xml-files with tag "release" are exported.
+# The command for tagging the release:    cvs tag release files...
+#
+# To get cvs ssh working without password prompting:
+# ssh-keygen -t rsa
+# <just type enter to all questions>
+# chmod 0644 .ssh/id_rsa.pub
+# scp id_rsa.pub <user>@cochiseuit.no:.ssh/authorized_keys2
+
+# Correct the path to divvun
+#EXPORTDIR="koe"
+EXPORTDIR="/Library/Tomcat/jakarta-tomcat-5.5.9/webapps/divvun-no/project/src/documentation/content"
+EXPORTDOC="$EXPORTDIR/xdocs"
+
+TEMPDIR="xdocs"
+TEMPDOC="doc"
+
+# Module name what we want to publish
+MODULE="xtdoc/sd/src/documentation/content/xdocs"
+DOCMODULE="gt/doc"
+
+# Release we want to publish
+#RELEASE="DIVVUN-NO_1_0_RELEASE"
+RELEASE="HEAD"
+
+#export CVS_RSH=ssh
+
+rm -rf $TEMPDIR/*
+rm -rf $TEMPDOC/*
+
+# Export gt/doc
+echo "**** Exporting module $DOCMODULE"
+cvs -d /usr/local/cvs/repository export -r $RELEASE -d $TEMPDOC $DOCMODULE
+
+# Export xtdoc/sd
+echo "**** Exporting module $MODULE"
+cvs -d /usr/local/cvs/repository export -r $RELEASE -d $TEMPDIR $MODULE
+
+chmod 775 $TEMPDIR
+chmod -R 755 $TEMPDIR/*
+
+scp -r $TEMPDIR divvun@129.242.176.176:$EXPORTDIR
+#mv $TEMPDIR $EXPORTDIR
+
+chmod 775 $TEMPDOC
+chmod -R 755 $TEMPDOC/*
+
+scp -r $TEMPDOC divvun@129.242.176.176:$EXPORTDOC
