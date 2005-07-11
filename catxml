@@ -29,6 +29,9 @@ use Getopt::Long;
 #
 ############################
 
+my $gt="/Users/tomi/Documents/eclipse/workspace/gt";
+my $ANALYZE = "preprocess --abbr=$gt/sme/bin/abbr.txt | lookup -d -flags mbTT -utf8 $gt/sme/bin/sme.fst | lookup2cg | vislcg --grammar=$gt/sme/src/sme-dis.rle --quiet\n";
+
 # variable for processing all elements
 my $all;
 
@@ -40,6 +43,9 @@ my $table;
 
 # choosing what language we want
 my $lang = "sme";
+
+# If we want to analyze the xml document
+my $analyze;
 
 # for help
 my $help;
@@ -61,6 +67,7 @@ GetOptions ('para!' => \$para,
 	    'list' => \$list,
 	    'table' => \$table,
 	    'lang=s' => \$lang,
+	    'analyze' => \$analyze,
 	    'help' => \$help,
 	    'input=s' => \@input);
 
@@ -123,15 +130,29 @@ sub process_xml {
     		# print out paragraphs with text content
 		if ($para) {
 			if (!$elt->att("type") || $elt->att("type") =~ "text") {
-			    print $elt->text;
+				if ($analyze) {
+					print "<" . $elt->tag . ">\n";
+					analyze ($elt);
+					print "<\\" . $elt->tag . ">\n";
+				}
+				else {
+			    		print $elt->text;
+			    	}
 			}
 	    }
 
     		# print out paragraphs with title content
 		if ($title) {
 			if ($elt->att("type") && $elt->{'att'}->{'type'} =~ "title") {
-			    print $elt->text;
-		    		print "¶\n";             # Specical sign for titles
+				if ($analyze) {
+					print "<" . $elt->tag . " type=" . $elt->att("type") . ">\n";
+					analyze ($elt);
+					print "<\\" . $elt->tag . ">\n";
+				}
+				else {
+				    print $elt->text;
+			    		print "¶\n";             # Specical sign for titles
+			    	}
 			}
 	    }
 
@@ -155,10 +176,18 @@ sub process_xml {
     $twig->purge;
 }
 
+sub analyze {
+	my $elt = $_;
+	
+	my $text = $elt->text;
+#	print $text;
+	system "echo \"$text\" | $ANALYZE";
+}
+
 sub print_usage {
     print "\nUsage: catxml <options> [-i | --input] [FileName | Directory]\n";
     print "\nwhere possible options include:\n";
-    print "[-a | --all]\t\t\tPrint all text elements\n";
+    print "[-al | --all]\t\t\tPrint all text elements\n";
     print "[-p | --para]\t\t\tPrint paragraphs with text content (default)\n";
     print "[-nop | --nopara]\t\tDon't print text paragraphs\n";
     print "[-ti | --title]\t\t\tPrint paragraphs with title type\n";
@@ -166,5 +195,6 @@ sub print_usage {
     print "[-ta | --table]\t\t\tPrint paragraphs with table type\n";
     print "[-la='lang' | --lang='lang']\tPrint only paragraphs in language 'lang'\n";
     print "\t\t\t\t(default language is sme)\n";
+	print "[-an | --analyze]\t\t\tAnalyze the text (currently only plain text and titles)\n";
     print "\n";
 }
