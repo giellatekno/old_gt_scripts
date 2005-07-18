@@ -20,6 +20,7 @@ use open ':utf8';
 use XML::Twig;
 
 use File::Find;
+use File::Spec;
 use Getopt::Long;
 
 
@@ -42,7 +43,14 @@ my $list;
 my $table;
 
 # choosing what language we want
-my $lang = "sme";
+my $path = File::Spec->rel2abs($_);
+my $lang;
+$lang = "sme" if $path =~ "sme";
+$lang = "sma" if $path =~ "sma";
+$lang = "smj" if $path =~ "smj";
+$lang = "smi" if $path =~ "smi";
+$lang = "smn" if $path =~ "smn";
+$lang = "sms" if $path =~ "sms";
 
 # If we want to analyze the xml document
 my $analyze;
