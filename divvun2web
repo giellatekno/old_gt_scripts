@@ -9,7 +9,7 @@
 # ssh-keygen -t rsa
 # <just type enter to all questions>
 # chmod 0644 .ssh/id_rsa.pub
-# scp id_rsa.pub <user>@cochiseuit.no:.ssh/authorized_keys2
+# scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
 
 # Correct the path to divvun
 #EXPORTDIR="koe"
