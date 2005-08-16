@@ -13,14 +13,14 @@
 
 # Correct the path to divvun
 #EXPORTDIR="koe"
-EXPORTDIR="/Library/Tomcat/jakarta-tomcat-5.5.9/webapps/divvun-no/project/src/documentation/content"
+EXPORTDIR="/var/lib/tomcat5/webapps/divvun-no/project/src/documentation"
 EXPORTDOC="$EXPORTDIR/xdocs"
 
 TEMPDIR="xdocs"
 TEMPDOC="doc"
 
 # Module name what we want to publish
-MODULE="xtdoc/sd/src/documentation/content/xdocs"
+MODULE="xtdoc/sd/src/documentation"
 DOCMODULE="gt/doc"
 
 # Release we want to publish
@@ -43,10 +43,10 @@ cvs -d /usr/local/cvs/repository export -r $RELEASE -d $TEMPDIR $MODULE
 chmod 775 $TEMPDIR
 chmod -R 755 $TEMPDIR/*
 
-scp -r $TEMPDIR divvun@129.242.176.176:$EXPORTDIR
+scp -r $TEMPDIR giella@129.242.102.146:$EXPORTDIR
 #mv $TEMPDIR $EXPORTDIR
 
 chmod 775 $TEMPDOC
 chmod -R 755 $TEMPDOC/*
 
-scp -r $TEMPDOC divvun@129.242.176.176:$EXPORTDOC
+scp -r $TEMPDOC giella@129.242.102.146:$EXPORTDOC
