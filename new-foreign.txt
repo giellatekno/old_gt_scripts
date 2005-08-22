@@ -1,3 +1,5 @@
+nasjoner
+stemmeklang
 purnu
 rouko
 kiihtää
@@ -18,16 +20,19 @@ utgåve
 *palc
 *wanc
 --Mulders
+-Affekterte
 -Gjelsvik
 -Ingenmannsrett
 -Norsk
 -naaluinen
 -noalaine
 -noaluine
+-Signaldalen
 -tj-
 -tutkielma
 -valkoinen
 ..."fiskerätt
+...låte
 ..."voxende
 ...[N]aar
 10-årige
@@ -57,6 +62,7 @@ Aabne
 Aar
 Aarene
 Aarsberetninger
+Abrek
 Ad-Hoc
 Adevehr
 Agderforskning
@@ -74,6 +80,7 @@ Atque
 Atskilligt
 Aufbewahrungsstelle
 Auflage
+Automobil-Forbund
 Avhendelse
 Balkenwerk
 Bankwatch
@@ -101,6 +108,7 @@ Børnene
 Caijaners
 Canc
 Cancellie
+Candidatus
 Carelers
 Charakter
 Christoffers
@@ -109,6 +117,7 @@ Commissarier
 Communique
 Confercnce
 Constitutionelle
+Coregonus
 Creolization
 Datatjeneste
 Decolonizing
@@ -130,6 +139,7 @@ Eigedomsgrenser
 Einwand
 Einödgebiet
 Eksaminasjonsprotokoller
+Ekspress
 Emneregister
 Emulation
 Enbusk
@@ -149,6 +159,7 @@ FaaBForordninger
 Familiebog
 Familievern
 Familievernkontorers
+Far
 Farminga
 Fastighetsrättens
 Fastsetting
@@ -259,6 +270,7 @@ Handbok
 Handelskompagnier
 Handelssproget
 Handelsvare
+Harking
 Havnegangene
 Hebraerens
 Herreders
@@ -297,6 +309,7 @@ Jussens
 Justisprotokoller
 Juxeby-Lappar
 Jægterne
+Jössz
 Karasjokfolkets
 Karelischen
 Karjalassakin
@@ -337,6 +350,7 @@ Lakseelver
 Lapmarkiske
 Lappalaisten
 Lappar
+Lappecodisiila
 Lappeforholdene
 Lappekvinde
 Lapperne
@@ -392,6 +406,7 @@ Mordvalaiskielten
 Muinaishistoriallinen
 Mulders
 Museumsutvikling
+Mut
 Mänkee
 Møtebok
 NLNorske
@@ -424,6 +439,7 @@ Notandum
 Nååmesjevuemie
 Næringskombinasjoner
 Næringskomite
+Nærings-
 Næringsveie
 Odelsbaarne
 Odelstingsproposisjon
@@ -437,6 +453,7 @@ Omraade
 Opferpriester
 Ophævelse
 Opkomst
+Oppgaveregistera
 Oppiaine
 Opplæringsavdeling
 Organisasjonsteoretiske
@@ -464,6 +481,7 @@ Quellblume
 Qvæghøveders
 Qvæner
 Raentsere
+Rangifer
 Reenbete
 Regeringsrättens
 Regionalstatistikk
@@ -491,6 +509,7 @@ Rettstenkning
 Rettstidende
 Rigs-Registranter
 Rogen
+Rubus
 Ruo¸a
 Russefinnerne
 Russikie
@@ -513,6 +532,7 @@ Samernas
 Samers
 Samers
 Sametingets
+Sametingsplanen
 Samfundsaand
 Samfundsinteresser
 Samfunnsavdeling
@@ -522,6 +542,7 @@ Samojedisch
 Samojedischer
 Samorganisasjon
 Samtak
+Sandemark
 Schamleiste
 Schnitlers
 Secwepemc
@@ -537,8 +558,10 @@ Skogarna
 Skogret
 Skolt-lapparna
 Skolts
+Skolöverstyrelsen
 Skovforholdene
 Skriftsserie
+Skriveregler
 Skylddeling
 Slaatterne
 Sligt
@@ -553,6 +576,7 @@ Sprachen
 Sprachgeschichte
 Språkavdeling
 Språkpolitikk
+Språkråd
 Språkrådets
 Spørgsmaalets
 Standardization
@@ -571,10 +595,12 @@ Strandtindene
 Strækninger
 Stålhane
 Sub-Commission
+Suomalais-ugrilainen
 Suomalais-ugrilaisten
 Suomalaiskielten
 Sustainable
 Sver
+Sydsamisk
 Sydsamisk-norsk
 Symposio
 Sårene
@@ -585,11 +611,13 @@ Søe-lapper
 Søefinner
 Søfinner
 Søksmålbetingelser
+Sørsamisk
 Sør-Varangers
 Tallak
 Tanaelvens
 Teahter
 Teatere
+Teltneset
 Terfinner
 Terræ
 Texte
@@ -614,6 +642,7 @@ Ubmeje
 Ugric
 Umwandlung
 Undersaatter
+Undersøkelsen
 Universitetsstudiene
 Unterricht
 Unyttelse
@@ -664,6 +693,7 @@ administrasjonsavdelingen
 administrasjonshistorie
 adne
 af
+affekterter
 afhøringsmetoder
 agnoscere
 aht
@@ -705,7 +735,10 @@ användning
 arcem
 arealpolitikk
 argumentum
+artium
 assimilasjonspolitikk
+asyndeton
+attføringstrygd
 avendelse
 avhendelse
 avvitring
@@ -763,9 +796,13 @@ bøndenes
 čakčam
 čoahkkinjođih
 čuođenare
+camembert
+candidata
+chamaemrus
 christelig
 cilgen
 cit.s
+citato
 complectitur
 conditionelle
 conserned
@@ -774,6 +811,7 @@ daen
 dakkáár
 datatjeneste
 datetjeneste
+deiksis
 demo-kratier
 demokratiutredningen
 derivare
@@ -808,6 +846,7 @@ einiger
 einsilbigen
 eksaminasjonsprotokoller
 eldreomsorgen
+elegi
 elektrisitetsforsyning
 elevar
 ellerinteressemaksimering
@@ -872,6 +911,7 @@ folkminnesarkivet
 forbrydelser
 forbudne
 foreldreveiledning
+forente
 forfaller
 forfatterhonorar
 forfatterstøtte
@@ -923,6 +963,8 @@ giktedh
 gjengjvelse
 gjennomfuktig
 gjerdene
+gjære
+gjø
 glühen
 goble
 goesngedh
@@ -952,12 +994,14 @@ guovluminister
 guðe
 gwrysgen
 gymnasklasser
+gå
 gåertedh
 gåhttjum
 görvar
 haapapuusta
 habere
 handbok
+has
 hauffuer
 havde
 heilskapleg
@@ -999,6 +1043,8 @@ hölzerner
 høgskolesenter
 høierestaaende
 høirestaaende
+høide
+høit
 identitets-skaping
 identitetsdannende
 identitetskapende
@@ -1053,6 +1099,7 @@ kaikennoaluine
 kaima
 kainen
 kaksihaarainen
+kan$
 kangaspäällysteinen
 kantakielen
 karelske
@@ -1065,12 +1112,15 @@ kielen-
 kielentutkimukseen
 kielentutkimuksen
 kielikontaktien
+kieliopas
 kiente$
 kihtää
 kihtää
 kiihkottaa
 kiihtää
 kiihtää
+kilovoltampere
+kilovoltampere
 kjernefamilien
 kjønnsforskning
 kjønnsgapet
@@ -1149,10 +1199,12 @@ kvinnebevegelse
 kvinnekonferanse
 kvinnerepresentasjon
 kvinnerepresentasjonen
+kvitrev
 kyborg
 kyrkojord
 kåårðtiet
 l.c
+labben
 laektedh
 laksefisk
 laksefiske
@@ -1173,7 +1225,9 @@ lappmark
 lappmarken
 lappmarker
 lappmarksgränsen
+lapska
 lasagne
+lc
 ledinga
 leicht
 leksikografiaa
@@ -1183,10 +1237,13 @@ leseforskning
 leuchten
 leufer
 levemaade
+licentiata
+licentiatus
 likestillingsparadokser
 livischen
 livjelak
 livsmedelverk
+loco
 loddetorskefisket
 logenare
 lokal-demokratiet
@@ -1196,7 +1253,10 @@ lokalpolitikere
 lokalpolitikk
 luvlie
 lyde-
+lydløshet
+lyserginsyredietylamid
 lägger
+lähteä
 länsimurteiden
 læremiddelsenter
 læreplaner
@@ -1227,8 +1287,10 @@ mellomkrigstiden
 mennesekelige
 merjiennam
 metodelære
+mezzopiano
 miljø-ødeleggelsene
 milliare
+milliwatt
 mineralressurser
 minnoalaine
 minoritetskulturene
@@ -1263,6 +1325,7 @@ naturresursser
 nedbygging
 nedtråkket
 neiden
+nescio
 neutraalien
 ngt
 nomadisme
@@ -1276,6 +1339,7 @@ numerantur
 nybyggarna
 nybyggere
 nykytutkimuksen
+nysing
 nysne
 näringens
 næringsavdeling
@@ -1287,6 +1351,8 @@ nördlichen
 nødsår
 oajvvadam
 oarñe$
+obliqua
+obsol
 oc
 occupatio
 ock
@@ -1296,17 +1362,23 @@ oittaa
 oktroanene
 oluenpanosammio
 omform-ing
+område
 områdetilhørighet
+opere
 opinio
 opinnäytetyöstä
 oppgavefordeling
+opplæring
 oppmåling
 oppsto
 oprindelige
+ordfører
 organisasjonsvitenskap
 orig
 orten
+ortnamn
 ortnamnen
+ortnamnskommissionen
 osmelteverket
 ostseefinnischen
 ovddabelade
@@ -1331,18 +1403,25 @@ passlig
 pastoralisme
 patens
 peculiare
+persona
 perspektivets
 pertransire
+pesetas
 petroleumsvirksomheten
 peuplere
+pipende
 pirstoutuminen
 piscatum
+pitää
 ploughed
 plurale
 poiss
 politikker
+pondus
+portemoné
 possesion
 possessiones
+post-postskriptum
 precario
 preste
 prestegardane
@@ -1358,6 +1437,7 @@ provianteringsråd
 præcipue
 præfectum
 præter
+pt
 publisering
 puolivalveille
 quartam
@@ -1370,6 +1450,7 @@ qvænsk
 ranching
 rannikkoalueille
 rechtvaardigen
+redegjørelse
 reflek-sjoner
 reformats
 regionaldeparte-mentet
@@ -1423,6 +1504,7 @@ rettskilder
 rettsliggjøring
 rettsoppfatninger
 rettsorden
+rettsstilling
 rettsstudier
 rettstidende
 rettsvern
@@ -1431,6 +1513,7 @@ rinnastuksen
 romanes
 roukkonen
 roukonen
+roping
 ruokatavaroiden
 ruteselskap
 rätt
@@ -1475,9 +1558,11 @@ samlinger:s
 sammenliggende
 sammenlignende
 sana-arkisto
+sanakirja
 sanastosta
 sangare
 satuttaa
+schillet
 schlagen
 sektoretatar
 selitysvaihtoehtoa
@@ -1494,6 +1579,7 @@ sesongbeiter
 sesongflyttinger
 sevnnodiie
 seämee
+si
 sidste
 sierralagásj
 signationem
@@ -1506,6 +1592,7 @@ sjöfinne
 sjøaurefiske
 skapande
 skapats
+skarphet
 skattebyrden
 skattefjällsmålet
 skiferbrudd
@@ -1524,11 +1611,13 @@ skoleforhold
 skolehelsetjenesten
 skridfinner
 skriftserie
+skråle
 skyddsväsen
 skyte-
 skánner
 slic
 smaler
+snorking
 sockenlapparna
 socknar
 solens
@@ -1543,10 +1632,15 @@ spesialbibliotek
 spier
 spinnen
 spleissen
+språk
 språkets
+språkpolitikk
+språkpolitiske
 språkråd
 spørre-undersøkelse
 staae
+staaten
+stammefolk
 stammers
 stangfiske
 statsalmenninger
@@ -1558,6 +1652,7 @@ steinsatt
 stereotypier
 storgårder
 streiftog
+strømledning
 studier:s
 stää
 suam
@@ -1579,6 +1674,7 @@ suomalais-ugrilaiseen
 suomalaiskielten
 suomenkielen
 suonsilmä
+supé
 suttie
 svendske
 sámesiidda¡d
@@ -1590,10 +1686,12 @@ säimäyttää
 säpäle
 säämä
 säämää
+sån
 sååbbar
 særrett
 søesiden
 søring
+sørsamisk
 tamreindriften
 tamreinstammen
 tegen
@@ -1660,6 +1758,7 @@ umkommen
 undergång
 undergång
 undersökning
+undersøkelsen
 undgaae
 unum
 unüberwindlicher
@@ -1667,6 +1766,7 @@ up-turned
 uppgifter
 uppodling
 uppslagsbok
+urbefolkninger
 urfolksforskning
 urkunder
 urminnestider
@@ -1680,6 +1780,7 @@ utmarkskommisjon
 utmarksressursene
 utrecht
 utredningssenter
+utsom
 utuntur
 utviklingsmuligheter
 utviklingssenter
@@ -1687,6 +1788,7 @@ utøvelse
 uuvuuttaa
 valgdeltakelse
 valgforskning
+valgkrets
 vasskraftkommunar
 vdnek
 vegitasjonen
@@ -1696,6 +1798,7 @@ venner:s
 vepse-
 vepsskogo
 verbesserte
+verbiketju
 verbrennen
 verdener
 verdslige
@@ -1704,6 +1807,7 @@ verlorengehen
 verneområder
 verschwinden
 versengen
+vesener
 vestnorsk
 veterinærhøyskole
 vexler
