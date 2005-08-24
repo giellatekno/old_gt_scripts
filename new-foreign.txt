@@ -24,10 +24,12 @@ utgåve
 -Gjelsvik
 -Ingenmannsrett
 -Norsk
+-n
 -naaluinen
 -noalaine
 -noaluine
 -Signaldalen
+-t
 -tj-
 -tutkielma
 -valkoinen
@@ -1398,6 +1400,7 @@ paradokser
 partam
 partens
 partiprogrammer
+pasientjournal
 pasientskadeerstatning
 passlig
 pastoralisme
@@ -1870,6 +1873,7 @@ zerchlagen
 Ønsket
 Østlandsforskning
 Østsamene
+økonomisk
 ánden
 áššejođih
 ältesten
