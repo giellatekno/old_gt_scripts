@@ -656,6 +656,7 @@ Urfolkskvinner
 Urschöpfung
 Utbildningsdepartementet
 Utviklingene
+Ut
 Vaekie
 Valgdeltakelse
 Valgstatistikk
@@ -1803,6 +1804,7 @@ vepsskogo
 verbesserte
 verbiketju
 verbrennen
+verden
 verdener
 verdslige
 verfaulter
