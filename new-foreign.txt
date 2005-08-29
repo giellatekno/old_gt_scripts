@@ -182,6 +182,7 @@ Fieldfinner
 Fieldlapper
 Finbog
 Finlandiae
+Finlansveien
 Finmarkske
 Finnars
 Finndmarkum
@@ -568,6 +569,7 @@ Skylddeling
 Slaatterne
 Sligt
 Slovar
+SM-cup
 Småbrännorna
 Snosaa
 Snosaa
@@ -682,6 +684,7 @@ Womens
 Wortgleichungen
 Wurzelfaser
 Wörterbuch
+X-Game
 Yorks:s
 Yrkessamband
 Ytringsfrihetskommisjonens
