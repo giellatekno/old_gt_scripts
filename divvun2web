@@ -11,42 +11,60 @@
 # chmod 0644 .ssh/id_rsa.pub
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
 
-# Correct the path to divvun
-#EXPORTDIR="koe"
-EXPORTDIR="/var/lib/tomcat5/webapps/divvun-no/project/src/documentation"
-EXPORTDOC="$EXPORTDIR/xdocs"
-
-TEMPDIR="xdocs"
-TEMPDOC="doc"
-
-# Module name what we want to publish
-MODULE="xtdoc/sd/src/documentation"
-DOCMODULE="gt/doc"
-
-# Release we want to publish
-#RELEASE="DIVVUN-NO_1_0_RELEASE"
-RELEASE="HEAD"
 
 #export CVS_RSH=ssh
+checkout()
+{
+    # Module name what we want to publish
+    MODULE="xtdoc/sd/src/documentation"
+    DOCMODULE="gt/doc"
+    REPOSITORY=":ext:cochise.uit.no:/usr/local/cvs/repository"
+    TEMPDIR="toserver"
+    TEMPDOC="doc"
+    echo $TEMPDOC
+    cd $HOME
 
-rm -rf $TEMPDIR/*
-rm -rf $TEMPDOC/*
+    if  ! [ -d $TEMPDIR ]; then
+         mkdir $TEMPDIR
+    fi
 
-# Export gt/doc
-echo "**** Exporting module $DOCMODULE"
-cvs -d /usr/local/cvs/repository export -r $RELEASE -d $TEMPDOC $DOCMODULE
+     # Release we want to publish
+    #RELEASE="DIVVUN-NO_1_0_RELEASE"
+    RELEASE="HEAD"
 
-# Export xtdoc/sd
-echo "**** Exporting module $MODULE"
-cvs -d /usr/local/cvs/repository export -r $RELEASE -d $TEMPDIR $MODULE
 
-chmod 775 $TEMPDIR
-chmod -R 755 $TEMPDIR/*
+    rm -rf $TEMPDIR/*
+    
+    # Export xtdoc/sd
+    echo "**** Exporting module $MODULE"
+    cvs -d $REPOSITORY export -r $RELEASE -d $TEMPDIR $MODULE
+    
+    echo "he he `pwd`"
+    
+    mkdir $TEMPDOC
+    # Export gt/doc
+    echo "**** Exporting module $DOCMODULE"
+    cvs -d $REPOSITORY export -r $RELEASE -d $TEMPDOC $DOCMODULE
 
-scp -r $TEMPDIR giella@129.242.102.146:$EXPORTDIR
-#mv $TEMPDIR $EXPORTDIR
+    cd
+    mv $TEMPDOC $MODULE/xdocs
+}
 
-chmod 775 $TEMPDOC
-chmod -R 755 $TEMPDOC/*
+pack_dir ()
+{
+    cd
+  cd ~/toserver/documentation
+  tar cf temp.tar *
+}
 
-scp -r $TEMPDOC giella@129.242.102.146:$EXPORTDOC
+move_archives()
+{
+  USERNAME="giella"
+  IP_NUMBER="129.242.176.166"
+  EXPORTDIR="/var/lib/tomcat5/webapps/divvun-no/project/src/documentation"
+
+  scp ~/toserver/documentation/temp.tar $USERNAME@$IP_NUMBER:
+  shh $USERNAME@$IP_NUMBER sudo -u tomcat5 tar xf temp.tar -C $EXPORTDIR
+}
+
+checkout
