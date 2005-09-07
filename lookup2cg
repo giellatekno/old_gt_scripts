@@ -55,6 +55,7 @@ while(<>) {
 				if ( $line =~ /#/ ) { 
 					 &format_compound(\$base, \$line, \$word); 
 				 }
+#				print "TESTI $base JA $line \n";
 				# Format output
 				$line =  "\t" . " \"$base\" " . $line . "\n"; 
 			}
@@ -122,22 +123,28 @@ sub format_compound {
 	$$refline =~ s/^.*#(.*?)\s(.*$)/$2/o;
 	my $last_word = $1;
 
-	# Search for the 3 first letters of the last base form
+	# Search for the 4 first letters of the last base form
 	# from the original compound 
-	my $substring = substr($last_word,0,3);
-	
-	# If some of the 3 letters is 2-letter garpheme
-	# take 4 letters instead of 3
-	if($substring =~ /c1|s1|z1|d1|t1/o) {
-		$substring = substr($last_word,0,4);
+	my $substring = substr($last_word,0,4);
+	if (! $$refword =~ m/$substring/) {
+
+		# If the compound boundary was not found,
+		# search for the 3 first letters of the last base form
+		# from the original compound 
+		my $substring = substr($last_word,0,3);
 	}
-	# If the compound boundary is found, 
-	# replace the last word by its base form, and insert a # mark in front of
-    # it, in order to mark the result as a compound.
 	if ($$refword =~ m/$substring/) {
+	
+		# If the compound boundary is found, 
+		# replace the last word by its base form, and insert a # mark in front of
+		# it, in order to mark the result as a compound.
 		$$refbase = $$refword;
+#		print "TESTE $$refbase\n";
+#		print "TESME $substring\n";
 		$$refbase =~ s/(^.*)$substring.*$/$1#$last_word/;
+#		print "TES $$refbase\n";
 	}
+
     # If the compound boundary is not found, 
 	# use "last resort": 2 letters instead of 3 or 4.
 	else {
