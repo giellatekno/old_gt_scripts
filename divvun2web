@@ -1,9 +1,8 @@
 #!/bin/bash
 #
-# Shell script for exporting divvun.no www-pages from cvs 
+# $Id$
+# Shell script for exporting divvun.no and giellaktekno www-pages from cvs 
 # to the official www-directory
-# Only the xml-files with tag "release" are exported.
-# The command for tagging the release:    cvs tag release files...
 #
 # To get cvs ssh working without password prompting:
 # ssh-keygen -t rsa
@@ -12,59 +11,60 @@
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
 
 
-#export CVS_RSH=ssh
+export CVS_RSH=ssh
+
 checkout()
 {
     # Module name what we want to publish
-    MODULE="xtdoc/sd/src/documentation"
-    DOCMODULE="gt/doc"
     REPOSITORY=":ext:cochise.uit.no:/usr/local/cvs/repository"
-    TEMPDIR="toserver"
-    TEMPDOC="doc"
-    echo $TEMPDOC
-    cd $HOME
-
+    TEMPDIR=$1
+    echo "This is checkout" $TEMPDIR
     if  ! [ -d $TEMPDIR ]; then
-         mkdir $TEMPDIR
+         cvs -d $REPOSITORY co $TEMPDIR
+    else
+        cd $TEMPDIR
+        cvs -z4 up -dP
     fi
-
-     # Release we want to publish
-    #RELEASE="DIVVUN-NO_1_0_RELEASE"
-    RELEASE="HEAD"
-
-
-    rm -rf $TEMPDIR/*
-    
-    # Export xtdoc/sd
-    echo "**** Exporting module $MODULE"
-    cvs -d $REPOSITORY export -r $RELEASE -d $TEMPDIR $MODULE
-    
-    echo "he he `pwd`"
-    
-    mkdir $TEMPDOC
-    # Export gt/doc
-    echo "**** Exporting module $DOCMODULE"
-    cvs -d $REPOSITORY export -r $RELEASE -d $TEMPDOC $DOCMODULE
-
-    cd
-    mv $TEMPDOC $MODULE/xdocs
 }
 
-pack_dir ()
+fetch_giella_and_divvun()
 {
-    cd
-  cd ~/toserver/documentation
-  tar cf temp.tar *
+    for cvs_dir in xtdoc gt
+    do
+        echo "This is cvs_dir $cvs_dir"
+        checkout $cvs_dir
+    done
+
+    for site in gtuit sd
+    do
+        if ! [ -l xtdoc/$site/src/documentation/content/xdocs/doc ]
+        then
+            ln -s gt/doc xtdoc/$site/src/documentation/content/xdocs/doc
+        fi
+    done
 }
 
-move_archives()
+validate_sites()
 {
-  USERNAME="giella"
-  IP_NUMBER="129.242.176.166"
-  EXPORTDIR="/var/lib/tomcat5/webapps/divvun-no/project/src/documentation"
-
-  scp ~/toserver/documentation/temp.tar $USERNAME@$IP_NUMBER:
-  shh $USERNAME@$IP_NUMBER sudo -u tomcat5 tar xf temp.tar -C $EXPORTDIR
+    for site in sd gtuit
+    do
+        cd xtdoc/$site
+        #make a check out of this. If success, copy site, if not, mail problem to divvun@samediggi.no, preferably with a backtrace.
+        if [ forrest validate-xdocs ]
+        then
+            cd src/
+            if $site == sd
+            then
+                goal=divvun-no
+            else
+                goal=giellatekno
+            fi
+            sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
+        else
+            mail -a divvun@samediggi.no -s Could not validate site $site
+        fi
+    done
 }
 
-checkout
+fetch_giella_and_divvun
+#validate_sites
