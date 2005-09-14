@@ -37,7 +37,7 @@ fetch_giella_and_divvun()
 
     for site in gtuit sd
     do
-        if ! [ -l xtdoc/$site/src/documentation/content/xdocs/doc ]
+        if ! [ -h xtdoc/$site/src/documentation/content/xdocs/doc ]
         then
             ln -s gt/doc xtdoc/$site/src/documentation/content/xdocs/doc
         fi
