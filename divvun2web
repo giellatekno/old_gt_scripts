@@ -13,19 +13,27 @@
 
 export CVS_RSH=ssh
 
+# This function uses cvs to checkout the directory given as it's argument,
+# or updates the given directory.
+
 checkout()
 {
-    # Module name what we want to publish
     REPOSITORY=":ext:cochise.uit.no:/usr/local/cvs/repository"
     TEMPDIR=$1
     echo "This is checkout" $TEMPDIR
-    if  ! [ -d $TEMPDIR ]; then
+    cd
+    if  ! [ -x $TEMPDIR ]; then
          cvs -d $REPOSITORY co $TEMPDIR
     else
         cd $TEMPDIR
         cvs -z4 up -dP
     fi
 }
+
+# This function uses the 'checkout' function to update or checkout
+# the two directories used in the giellatekno and divvun sites.
+# It also makes a symbolic link to gt/doc in the gtuit and sd sites, 
+# making complete 'forrest-trees' out of both xtdoc/sd and xtdoc/gtuit
 
 fetch_giella_and_divvun()
 {
@@ -44,10 +52,16 @@ fetch_giella_and_divvun()
     done
 }
 
+# This function validates the documents in the xtdoc/sd and xtdoc/gt 
+# directories.
+# If successfull it copies the relevant files to the tomcat-servers 
+# directories, else it sends an e-mail to the site administrator.
+
 validate_sites()
 {
     for site in sd gtuit
     do
+        cd
         cd xtdoc/$site
         #make a check out of this. If success, copy site, if not, mail problem to divvun@samediggi.no, preferably with a backtrace.
         if [ forrest validate-xdocs ]
@@ -59,9 +73,11 @@ validate_sites()
             else
                 goal=giellatekno
             fi
-            sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
+            #sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
+            echo "copying files to tomcat5 dir $goal..."
         else
-            mail -a divvun@samediggi.no -s Could not validate site $site
+            #mail -a divvun@samediggi.no -s Could not validate site $site
+            echo "mailing error report to divvun@samediggi.no"
         fi
     done
 }
