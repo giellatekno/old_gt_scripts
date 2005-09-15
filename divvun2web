@@ -47,7 +47,7 @@ fetch_giella_and_divvun()
     do
         if ! [ -h xtdoc/$site/src/documentation/content/xdocs/doc ]
         then
-            ln -s `pwd`/gt/doc xtdoc/$SITE/src/documentation/content/xdocs/doc
+            ln -s $HOME/gt/doc xtdoc/$SITE/src/documentation/content/xdocs/doc
         fi
     done
 }
