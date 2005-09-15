@@ -37,17 +37,17 @@ checkout()
 
 fetch_giella_and_divvun()
 {
-    for cvs_dir in xtdoc gt
-    do
-        echo "This is cvs_dir $cvs_dir"
-        checkout $cvs_dir
-    done
+#     for CVS_DIR in xtdoc gt
+#     do
+#         echo "This is cvs_dir $CVS_DIR"
+#         checkout $CVS_DIR
+#     done
 
-    for site in gtuit sd
+    for SITE in gtuit sd
     do
         if ! [ -h xtdoc/$site/src/documentation/content/xdocs/doc ]
         then
-            ln -s gt/doc xtdoc/$site/src/documentation/content/xdocs/doc
+            ln -s `pwd`/gt/doc xtdoc/$SITE/src/documentation/content/xdocs/doc
         fi
     done
 }
@@ -59,28 +59,40 @@ fetch_giella_and_divvun()
 
 validate_sites()
 {
-    for site in sd gtuit
+    ERROR_FILE="$HOME/forrest-validation-error.txt"
+    for SITE in sd gtuit
     do
         cd
-        cd xtdoc/$site
-        #make a check out of this. If success, copy site, if not, mail problem to divvun@samediggi.no, preferably with a backtrace.
-        if [ forrest validate-xdocs ]
+        cd xtdoc/$SITE
+
+        # Validate the docs, redirect error output to the ERROR_FILE
+        forrest validate-xdocs > /dev/null 2>$ERROR_FILE
+
+        # $? is the status of the last executed program.
+        # 0 is success, anything else indicates some kind of error
+        if [ "$?"  == "0" ]
         then
-            cd src/
-            if $site == sd
+            if  [ "$SITE" == "sd" ]
             then
-                goal=divvun-no
+                GOAL="divvun-no"
             else
-                goal=giellatekno
+                GOAL="giellatekno"
             fi
-            #sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
-            echo "copying files to tomcat5 dir $goal..."
+            cd src/
+            echo "copying files to tomcat5 dir $GOAL..."
+            sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
         else
-            #mail -a divvun@samediggi.no -s Could not validate site $site
-            echo "mailing error report to divvun@samediggi.no"
+            echo "Sending error mail ..."
+            (
+            echo "From: borre.gaup@samediggi.no"
+            echo "Subject: Error validating files in $SITE"
+            echo "TO:boerre@skolelinux.no"
+            echo ""
+            cat $ERROR_FILE
+            )|sendmail -t
         fi
     done
 }
 
 fetch_giella_and_divvun
-#validate_sites
+validate_sites
