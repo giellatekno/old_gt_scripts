@@ -107,7 +107,8 @@ validate_sites()
             fi
             cd src/
             echo "copying files to tomcat5 dir $GOAL..."
-#             sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
+            sudo -u tomcat5 /bin/cp -a * \
+                    /var/lib/tomcat5/webapps/$GOAL/project/src/
             if [ "$?"  != "0" ]
             then
                 (
