@@ -54,7 +54,7 @@ checkout()
 
 fetch_giella_and_divvun()
 {
-    for CVS_DIR in xtdoc gt
+    for CVS_DIR in xtdoc gt/doc
     do
         checkout $CVS_DIR
     done
