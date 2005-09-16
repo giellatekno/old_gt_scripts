@@ -61,19 +61,16 @@ fetch_giella_and_divvun()
 
     for SITE in gtuit sd
     do
-        if ! [ -h $HOME/xtdoc/$SITE/src/documentation/content/xdocs/doc ]
-        then
-            ln -s $HOME/gt/doc \ 
-                    xtdoc/$SITE/src/documentation/content/xdocs/doc
-            if [ "$?" != "0" ]; then
-                (echo "From: borre.gaup@samediggi.no"
-                echo "Subject: ln -s error"
-                echo "TO:$MAIL_TO"
-                echo "")|sendmail -t
-                #  If this fails, then the common documentations won't be 
-                #  updated ... quit script
-                exit 1
-            fi
+        cd $HOME/gt
+        cp -a doc $HOME/xtdoc/$SITE/src/documentation/content/xdocs/.
+        if [ "$?" != "0" ]; then
+            (echo "From: borre.gaup@samediggi.no"
+            echo "Subject: ln -s error"
+            echo "TO:$MAIL_TO"
+            echo "")|sendmail -t
+            #  If this fails, then the common documentations won't be 
+            #  updated ... quit script
+            exit 1
         fi
     done
 }
@@ -88,8 +85,7 @@ validate_sites()
     ERROR_FILE="$HOME/forrest-validation-error.txt"
     for SITE in sd gtuit
     do
-        cd
-        cd xtdoc/$SITE
+        cd $HOME/xtdoc/$SITE
 
         # Validate the docs, redirect error output to the ERROR_FILE
         echo "Validating docs in $SITE ..."
@@ -107,8 +103,7 @@ validate_sites()
             fi
             cd src/
             echo "copying files to tomcat5 dir $GOAL..."
-            sudo -u tomcat5 /bin/cp -a * \
-                    /var/lib/tomcat5/webapps/$GOAL/project/src/
+            sudo -u tomcat5 /bin/cp -a /var/lib/tomcat5/webapps/$GOAL/project/src/
             if [ "$?"  != "0" ]
             then
                 (
