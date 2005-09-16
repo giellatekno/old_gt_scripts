@@ -11,8 +11,8 @@
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
 
 
-export CVS_RSH=ssh
-
+CVS_RSH=ssh
+MAIL_TO="borre.gaup@samediggi.no"
 # This function uses cvs to checkout the directory given as it's argument,
 # or updates the given directory.
 
@@ -20,13 +20,30 @@ checkout()
 {
     REPOSITORY=":ext:cochise.uit.no:/usr/local/cvs/repository"
     TEMPDIR=$1
-    echo "This is checkout" $TEMPDIR
+    echo "Checking out $TEMPDIR ..."
     cd
     if  ! [ -x $TEMPDIR ]; then
-         cvs -d $REPOSITORY co $TEMPDIR
+        cvs -d $REPOSITORY co $TEMPDIR 2> /dev/null
+        if [ "$?" != "0" ]; then
+            (echo "From: borre.gaup@samediggi.no"
+            echo "Subject: cvs checkout error"
+            echo "TO:$MAIL_TO"
+            echo "")|sendmail -t
+            # No point in continuing without any data to work on ...
+            exit 1
+        fi
     else
         cd $TEMPDIR
-        cvs -z4 up -dP
+        cvs -z4 up -dP  2> /dev/null
+        if [ "$?" != "0" ]; then
+            (echo "From: borre.gaup@samediggi.no"
+            echo "Subject: cvs update error"
+            echo "TO:$MAIL_TO"
+            echo "")|sendmail -t
+            # No point in continuing without new data to work on ...
+            exit 1
+        fi
+        cd
     fi
 }
 
@@ -39,15 +56,24 @@ fetch_giella_and_divvun()
 {
     for CVS_DIR in xtdoc gt
     do
-        echo "This is cvs_dir $CVS_DIR"
         checkout $CVS_DIR
     done
 
     for SITE in gtuit sd
     do
-        if ! [ -h xtdoc/$site/src/documentation/content/xdocs/doc ]
+        if ! [ -h $HOME/xtdoc/$SITE/src/documentation/content/xdocs/doc ]
         then
-            ln -s $HOME/gt/doc xtdoc/$SITE/src/documentation/content/xdocs/doc
+            ln -s $HOME/gt/doc \ 
+                    xtdoc/$SITE/src/documentation/content/xdocs/doc
+            if [ "$?" != "0" ]; then
+                (echo "From: borre.gaup@samediggi.no"
+                echo "Subject: ln -s error"
+                echo "TO:$MAIL_TO"
+                echo "")|sendmail -t
+                #  If this fails, then the common documentations won't be 
+                #  updated ... quit script
+                exit 1
+            fi
         fi
     done
 }
@@ -66,6 +92,7 @@ validate_sites()
         cd xtdoc/$SITE
 
         # Validate the docs, redirect error output to the ERROR_FILE
+        echo "Validating docs in $SITE ..."
         forrest validate-xdocs > /dev/null 2>$ERROR_FILE
 
         # $? is the status of the last executed program.
@@ -80,13 +107,22 @@ validate_sites()
             fi
             cd src/
             echo "copying files to tomcat5 dir $GOAL..."
-            sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
+#             sudo -u tomcat5 cp -a * /var/lib/tomcat5/webapps/$goal/project/src/
+            if [ "$?"  != "0" ]
+            then
+                (
+                echo "From: borre.gaup@samediggi.no"
+                echo "Subject: Error copying files to webapps dir"
+                echo "TO:$MAIL_TO"
+                echo ""
+                )|sendmail -t
+            fi
         else
             echo "Sending error mail ..."
             (
             echo "From: borre.gaup@samediggi.no"
             echo "Subject: Error validating files in $SITE"
-            echo "TO:boerre@skolelinux.no"
+            echo "TO:$MAIL_TO"
             echo ""
             cat $ERROR_FILE
             )|sendmail -t
@@ -96,3 +132,5 @@ validate_sites()
 
 fetch_giella_and_divvun
 validate_sites
+
+echo "Done updating giellatekno and divvun:-)!"
