@@ -100,7 +100,7 @@ validate_sites()
             cd src/documentation/content/xdocs/
             echo "copying files to tomcat5 dir $GOAL..."
             # Find only files that belong to the documentation, and copy them
-            find . ! \( -name CVS -o -name Root -o -name Repository -o -name "Entries*" -o -name .cvsignore -o -type d \) -exec tar cf - {} + | sudo -u tomcat5 /bin/tar xf - -C /var/lib/tomcat5/webapps/divvun-no/project/src/documentation/content/
+            find . ! \( -name CVS -o -name Root -o -name Repository -o -name "Entries*" -o -name .cvsignore -o -type d \) -exec tar cf - {}  \;| sudo -u tomcat5 /bin/tar xf - -C /var/lib/tomcat5/webapps/divvun-no/project/src/documentation/content/
             if [ "$?"  != "0" ]
             then
                 (
