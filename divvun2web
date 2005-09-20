@@ -1,46 +1,55 @@
 #!/bin/bash
-#
 # $Id$
+# This script is written by Børre Gaup, and is licensed under the
+# GPL, version 2 or later.
+#
 # Shell script for exporting divvun.no and giellaktekno www-pages from cvs 
 # to the official www-directory
 #
 # To get cvs ssh working without password prompting:
 # ssh-keygen -t rsa
-# <just type enter to all questions>
+# <just type enter to all questions>ll
 # chmod 0644 .ssh/id_rsa.pub
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
 
 
 CVS_RSH=ssh
+MAIL_FROM="giella@giellatekno.uit.no"
 MAIL_TO="borre.gaup@samediggi.no"
 # This function uses cvs to checkout the directory given as it's argument,
 # or updates the given directory.
 
 checkout()
 {
-    REPOSITORY=":ext:cochise.uit.no:/usr/local/cvs/repository"
     TEMPDIR=$1
-    echo "Checking out $TEMPDIR ..."
+    echo "Updating $TEMPDIR ..."
     cd
     if  ! [ -x $TEMPDIR ]; then
-        cvs -d $REPOSITORY co $TEMPDIR 2> /dev/null
-        if [ "$?" != "0" ]; then
-            (echo "From: borre.gaup@samediggi.no"
+            (echo "From: $MAIL_FROM"
             echo "Subject: cvs checkout error"
             echo "TO:$MAIL_TO"
             echo "")|sendmail -t
-            # No point in continuing without any data to work on ...
+            echo "No point in continuing without any data to work on ..."
             exit 1
-        fi
     else
         cd $TEMPDIR
-        cvs -z4 up -dP  2> /dev/null
+        cvs -z4 up -dP
         if [ "$?" != "0" ]; then
-            (echo "From: borre.gaup@samediggi.no"
+                echo "cvs up failed in $TEMPDIR ..."
+            (echo "From: $MAIL_FROM"
             echo "Subject: cvs update error"
             echo "TO:$MAIL_TO"
             echo "")|sendmail -t
-            # No point in continuing without new data to work on ...
+            exit 1
+        fi
+        cd doc
+        cvs -z4 up -dP
+        if [ "$?" != "0" ]; then
+                echo "cvs up failed $TEMPDIR/doc ..."
+            (echo "From: $MAIL_FROM"
+            echo "Subject: cvs update error"
+            echo "TO:$MAIL_TO"
+            echo "")|sendmail -t
             exit 1
         fi
         cd
@@ -54,25 +63,11 @@ checkout()
 
 fetch_giella_and_divvun()
 {
-    for CVS_DIR in xtdoc gt/doc
+    for CVS_DIR in xtdoc/sd/src/documentation/content/xdocs xtdoc/gtuit/src/documentation/content/xdocs
     do
         checkout $CVS_DIR
     done
 
-    for SITE in gtuit sd
-    do
-        cd $HOME/gt
-        cp -a doc $HOME/xtdoc/$SITE/src/documentation/content/xdocs/.
-        if [ "$?" != "0" ]; then
-            (echo "From: borre.gaup@samediggi.no"
-            echo "Subject: ln -s error"
-            echo "TO:$MAIL_TO"
-            echo "")|sendmail -t
-            #  If this fails, then the common documentations won't be 
-            #  updated ... quit script
-            exit 1
-        fi
-    done
 }
 
 # This function validates the documents in the xtdoc/sd and xtdoc/gt 
@@ -83,13 +78,14 @@ fetch_giella_and_divvun()
 validate_sites()
 {
     ERROR_FILE="$HOME/forrest-validation-error.txt"
+    touch $ERROR_FILE
     for SITE in sd gtuit
     do
         cd $HOME/xtdoc/$SITE
 
         # Validate the docs, redirect error output to the ERROR_FILE
         echo "Validating docs in $SITE ..."
-        forrest validate-xdocs > /dev/null 2>$ERROR_FILE
+        forrest validate-xdocs > /dev/null #2>>$ERROR_FILE
 
         # $? is the status of the last executed program.
         # 0 is success, anything else indicates some kind of error
@@ -101,22 +97,24 @@ validate_sites()
             else
                 GOAL="giellatekno"
             fi
-            cd src/
+            cd src/documentation/content/xdocs/
             echo "copying files to tomcat5 dir $GOAL..."
-            sudo -u tomcat5 /bin/cp -a * /var/lib/tomcat5/webapps/$GOAL/project/src/.
+            # Find only files that belong to the documentation, and copy them
+            find . ! \( -name CVS -o -name Root -o -name Repository -o -name "Entries*" -o -name .cvsignore -o -type d \) -exec tar cf - {} + | sudo -u tomcat4 /bin/tar xf - -C /var/lib/tomcat4/webapps/divvun-no/project/src/documentation/content/
             if [ "$?"  != "0" ]
             then
                 (
-                echo "From: borre.gaup@samediggi.no"
+                echo "From: $MAIL_FROM"
                 echo "Subject: Error copying files to webapps dir"
                 echo "TO:$MAIL_TO"
                 echo ""
                 )|sendmail -t
+                echo "sudo -u tomcat5 failed ......"
             fi
         else
             echo "Sending error mail ..."
             (
-            echo "From: borre.gaup@samediggi.no"
+            echo "From: $MAIL_FROM"
             echo "Subject: Error validating files in $SITE"
             echo "TO:$MAIL_TO"
             echo ""
