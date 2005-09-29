@@ -47,10 +47,12 @@ find ( sub {
 	   my $int = File::Spec->rel2abs($_);
 	   if ($publisher) {
     	   	   $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$publisher\/$year\/$title\.xml/;
+                    print "$int\n";
        }
        
        elsif ($person) {
            $int =~ s/sme\/int\/.*/$lang\/$PROJECT\/$person\/$year\/$title\.xml/;
+            print "$int\n";
        }
        
        else {
@@ -69,11 +71,11 @@ find ( sub {
     	   mkdir ("$dirpath", 0755) unless -d $dirpath;
         }
 
-	   system ("mv \"$TEMP_DIR/$_\" \"$int\"");
+	   #system ("cp \"$TEMP_DIR/$_\" \"$int\"");
     }
 }, '.');
 
-rmdir ("$TEMP_DIR");
+#rmdir ("$TEMP_DIR");
 
 sub process_header
 {
