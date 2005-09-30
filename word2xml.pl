@@ -14,31 +14,42 @@ GetOptions ("xsl=s" => \$xsl_file);
 
 my @files;
 
-find ( sub {
-    if (-d) {
-	my $orig = File::Spec->rel2abs($_);
+#print "$ARGV[$#ARGV]\n";
+#exit (0);
+
+find ( &process_file, $ARGV[$#ARGV]) if -d $ARGV[$#ARGV];
+process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+
+sub process_file {
+    my $file = $_;
+    $file = shift (@_) if (!$file);
+#    print "$file\n";
+
+    if (-d $file) {
+	my $orig = File::Spec->rel2abs($file);
 	my $int = $orig;
 	$int =~ s/orig/int/i;
 	mkdir ("$int", 0755) unless -d $int;
 	return;
     }
-    return unless ($_ =~ /\.doc/);
-    return if (__FILE__ =~ $_);
-    return if ($_ =~ /[\~]$/);
+    return unless ($file =~ /\.doc/);
+    return if (__FILE__ =~ $file);
+    return if ($file =~ /[\~]$/);
     
-    my $orig = File::Spec->rel2abs($_);
+    my $orig = File::Spec->rel2abs($file);
     my $int = $orig;
     $int =~ s/orig/int/i; 
     $int =~ s/.doc$/.int.xml/i;
 
-    IO::File->new($int, O_CREAT) 
-	or die "Couldn't open $int for writing: $!\n";
+#    print "$int\n";
 
-    system "antiword -s -x db \"$orig\" | xsltproc \"$xsl_file\" - > \"$int\"";
+    IO::File->new($int, O_RDWR|O_CREAT) 
+	or die "Couldn't open $int for writing: $!\n";
+    
+    system "HOME=/home/tomi /usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl_file\" - > \"$int\"";
 
     push (@files, $int);
-
-}, '.');
+}
 
 for my $file (@files) {
     open (FILE, $file) or die "Cannot open file $file: $!";
@@ -55,7 +66,7 @@ for my $file (@files) {
 # This block is for Latin 6, Statens Kartverk
      if (grep( m/[èÈ¼©]/, @outString)){
 	undef (@outString);
-	print $file . "Latin 6\n";
+#	print $file . "Latin 6\n";
 	while ($string = <FILE>) {
 	    $string =~ s/È/Č/g;
 	    $string =~ s/¼/ž/g;
@@ -72,7 +83,7 @@ for my $file (@files) {
 # This block is for ISO-IR 197
      elsif (grep( m/[¡£¤¯²³]/, @outString)){
 	undef (@outString);
-	print $file . "ISO-IR 197\n";
+#	print $file . "ISO-IR 197\n";
 	while ($string = <FILE>) {
 	    $string =~ s/¡/Č/g;
 	    $string =~ s/¢/č/g;
@@ -94,7 +105,7 @@ for my $file (@files) {
 # This block is for Mac Roman input
      elsif (grep( m/[ª∞π∫Ω¥]/, @outString)){
 	undef (@outString);
-	print $file . "Mac Roman\n";
+#	print $file . "Mac Roman\n";
 	while ($string = <FILE>) {
 #	    $string =~ s/ª/š/g; #NOT WORKING
 	    $string =~ s/\302\252/š/g; #Octal UTF-8 for ª.
