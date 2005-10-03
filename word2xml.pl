@@ -46,7 +46,7 @@ sub process_file {
     IO::File->new($int, O_RDWR|O_CREAT) 
 	or die "Couldn't open $int for writing: $!\n";
     
-    system "HOME=/home/tomi /usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl_file\" - > \"$int\"";
+    system "antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl_file\" - > \"$int\"";
 
     push (@files, $int);
 }
