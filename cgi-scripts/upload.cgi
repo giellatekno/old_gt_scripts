@@ -31,7 +31,7 @@ close UPLOADFILE;
 
 system "/home/tomi/gt/script/word2xml.pl --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$filename\"";# or die "Couldn't call system";
 
-#copy ("/home/tomi/gt/script/XSL-template.xsl", "$upload_dir/$filename.xsl") or die "Copy failed!";
+copy ("/home/tomi/gt/script/XSL-template.xsl", "$upload_dir/$filename.xsl") or die "Copy failed!";
 
 my $title;
 my $author;
