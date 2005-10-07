@@ -39,7 +39,7 @@ sub process_file {
     my $orig = File::Spec->rel2abs($file);
     my $int = $orig;
 #    $int =~ s/orig/int/i; 
-    $int =~ s/.doc$/.int.xml/i;
+    $int =~ s/.doc$/.doc.xml/i;
 
 #    print "$int\n";
 
