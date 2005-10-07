@@ -28,8 +28,8 @@ sub process_file {
     if (-d $file) {
 	my $orig = File::Spec->rel2abs($file);
 	my $int = $orig;
-	$int =~ s/orig/int/i;
-	mkdir ("$int", 0755) unless -d $int;
+#	$int =~ s/orig/int/i;
+#	mkdir ("$int", 0755) unless -d $int;
 	return;
     }
     return unless ($file =~ /\.doc/);
@@ -38,7 +38,7 @@ sub process_file {
     
     my $orig = File::Spec->rel2abs($file);
     my $int = $orig;
-    $int =~ s/orig/int/i; 
+#    $int =~ s/orig/int/i; 
     $int =~ s/.doc$/.int.xml/i;
 
 #    print "$int\n";
@@ -57,7 +57,7 @@ for my $file (@files) {
     my $string;
     my @outString;
     while ($string = <FILE>) {
-	push (@outString, $string);
+		push (@outString, $string);
     }
 
     close FILE;
