@@ -1,70 +1,89 @@
 #!/usr/bin/perl -w
 
+# Importing CGI libraries
 use CGI;
+
+# Forwarding warnings and fatal errors to browser window
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
-use File::Copy;
+
+#use Apache::SubProcess qw(system);
+
+# File copying and xml-processing
 use XML::Twig;
 
-print "Content-TYPE: text/html\n\n" ;
+my ( $sec, $min, $hr, $mday, $mon, $thisyear, $wday, $yday, $isdst ) =
+  localtime(time);
 
-$upload_dir = "/usr/local/share/corp/sme/orig";
+$thisyear = 1900 + $thisyear;
+$mon = 1 + $mon; # $mon should be modified so that it will give numbers 01-12
+
+# The first thing is to print some kind of html-code
+print "Content-TYPE: text/html; charset=utf-8\n\n" ;
+
+# Define upload directory and mkdir it, if necessary
+$upload_dir = "/usr/local/share/corp/sme/orig/$thisyear-$mon";
+mkdir ($upload_dir, 0755) unless -d $upload_dir;
 
 $query = new CGI;
 
+# Getting the filename and parsing the path away
 $filename = $query->param("document");
 $filename =~ s/.*[\/\\](.*)/$1/;
 
-$upload_filehandle = $query->upload("document");
+# Resolving filetype
+# MS Word = application/msword
+$filetype = $query->uploadInfo($filename)->{'Content-Type'};
 
-open UPLOADFILE, ">$upload_dir/$filename"
-      or die "Can't open file!";
+# TODO: Check the file
+# This includes: type, sámi characters (how?), ...
+
+# Handle to the file
+$upload_filehandle = $query->upload("document");
 
 if (!$upload_filehandle) {
     die "FILE NOT FOUND!";
 }
 
+# Open file on the server and print uploaded file into it.
+open UPLOADFILE, ">$upload_dir/$filename"
+      or die "Can't open file!";
 while (<$upload_filehandle>) {
 	print UPLOADFILE;
 }
-
 close UPLOADFILE;
 
+# Calling word2xml -script with hardcoded execution path
+# The 'or die' part doesn't work, it dies everytime...
 system "/home/tomi/gt/script/word2xml.pl --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$filename\"";# or die "Couldn't call system";
 
-copy ("/home/tomi/gt/script/XSL-template.xsl", "$upload_dir/$filename.xsl") or die "Copy failed!";
-
+# Define variables for XSL-template
 my $title;
 my $author;
 my $gender;
 my $pub;
 my $year;
 my $lang;
+my $isbn;
+my $issn;
 
-my $document = XML::Twig->new(twig_handlers => {'xsl:variable' => 
-sub { 
-      if ("title" eq $_->{'att'}->{'name'}) {
-        $title = $_->{'att'}->{'select'}
-      }
-      if ("author" eq $_->{'att'}->{'name'}) {
-        $author = $_->{'att'}->{'select'}
-      }
-      if ("author-gender" eq $_->{'att'}->{'name'}) {
-        $gender = $_->{'att'}->{'select'}
-      }
-      if ("publisher" eq $_->{'att'}->{'name'}) {
-        $pub = $_->{'att'}->{'select'}
-      }
-      if ("year" eq $_->{'att'}->{'name'}) {
-        $year = $_->{'att'}->{'select'}
-      }
-      if ("mainlang" eq $_->{'att'}->{'name'}) {
-        $lang = $_->{'att'}->{'select'}
-      }      
-    }} );
+# Resolve XSL-variables with XML::Twig
+# Find out the language of the file
+my $document = XML::Twig->new(twig_handlers =>
+				  {'document' => sub { $lang = $_->{'att'}->{'xml:lang'}},
+				   'header/title' => sub { $title = $_->text},
+				   'header/author/person' => sub { $author = $_->{'att'}->{'name'};
+				                                   $gender = $_->{'att'}->{'sex'}
+				                                 },
+				   'header/year' => sub { $year = $_->text},
+				   'publChannel/publisher' => sub { $pub = $_->text},
+				   'publisher/ISBN' => sub { $isbn = $_->text},
+				   'publisher/ISSN' => sub { $issn = $_->text}
+				  } );
 
-$document->parsefile ("$upload_dir/$filename.xsl");
+$document->parsefile ("$upload_dir/$filename.xml");
 
-print $query->header ( ); 
+# The html-part starts here
+#print $query->header ( ); 
 print <<END_HTML;
 
 <html>
@@ -75,13 +94,15 @@ print <<END_HTML;
   <body>
     <p>Thank you for uploading file <a href="$upload_dir/$filename"> $filename </a></p>
     <br/><br/>
-    <form TYPE="text" ACTION="xsl-template.cgi" METHOD="post">
-      Title: <input type="text" name="title" value=$title> <br/>
-      Author name: <input type="text" name="author" value=$author> <br/>
+    <form TYPE="text" ACTION="xsl-process.cgi" METHOD="post">
+      Title: <input type="text" name="title" value="$title" size="50"> <br/>
+      Author name: <input type="text" name="author" value="$author" size="50"> <br/>
       Author gender: <input type="radio" name="gender" value="m"> Male
             <input type="radio" name="gender" value="f"> Female <br/>
       Publishing year: <input type="text" name="year" value=$year> <br/>
       Publisher: <input type="text" name="pub" value=$pub> <br/>
+      ISBN: <input type="text" name="isbn" value=$isbn> <br/>
+      ISSN: <input type="text" name="issn" value=$issn> <br/>
       Genre: <br/>
              <select name="genre" size="5">
                <option value="news">Newstext</option>
@@ -90,15 +111,16 @@ print <<END_HTML;
                <option value="asdf">Asdf</option>
                <option value="ghj">Ghj</option>
              </select> <br/>
-      Language: ($lang)<br/>
-             <select name="lang" size="5">
-               <option value="sme">North Sámi</option>
-               <option value="smj">Julev Sámi</option>
+      Language: (document: $lang)<br/>
+             <select name="lang" size="6">
+               <option value="sme">North S&aacute;mi</option>
+               <option value="smj">Julev S&aacute;mi</option>
                <option value="nno">Nynorsk</option>
-               <option value="nob">Bokmål</option>
+               <option value="nob">Bokm&aring;l</option>
                <option value="fi">Finnish</option>
                <option value="sv">Swedish</option>
              </select> <br/>
+      <input type="hidden" name="filename" value="$upload_dir/$filename">
 
       <input type="submit" name="Submit" value="submit form">
     </form>
