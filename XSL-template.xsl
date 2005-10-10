@@ -25,6 +25,7 @@
 <xsl:variable name="year" select="''"/>
 <xsl:variable name="ISBN" select="''"/>
 <xsl:variable name="ISSN" select="''"/>
+<xsl:variable name="genre" select="''"/>
 
 <xsl:variable name="mainlang" select="'sme'"/>
 
