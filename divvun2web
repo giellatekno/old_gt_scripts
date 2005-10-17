@@ -11,8 +11,8 @@
 # <just type enter to all questions>ll
 # chmod 0644 .ssh/id_rsa.pub
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
-
-
+FORREST_HOME=/home/giella/apache-forrest-0.7
+PATH=$PATH:$FORREST_HOME/bin
 CVS_RSH=ssh
 MAIL_FROM="giella@giellatekno.uit.no"
 MAIL_TO="borre.gaup@samediggi.no"
@@ -28,7 +28,7 @@ checkout()
             (echo "From: $MAIL_FROM"
             echo "Subject: cvs checkout error"
             echo "TO:$MAIL_TO"
-            echo "")|sendmail -t
+            echo "")|/usr/lib/sendmail -t
             echo "No point in continuing without any data to work on ..."
             exit 1
     else
@@ -39,7 +39,7 @@ checkout()
             (echo "From: $MAIL_FROM"
             echo "Subject: cvs update error"
             echo "TO:$MAIL_TO"
-            echo "")|sendmail -t
+            echo "")|/usr/lib/sendmail -t
             exit 1
         fi
         cd doc
@@ -49,7 +49,7 @@ checkout()
             (echo "From: $MAIL_FROM"
             echo "Subject: cvs update error"
             echo "TO:$MAIL_TO"
-            echo "")|sendmail -t
+            echo "")|/usr/lib/sendmail -t
             exit 1
         fi
         cd
@@ -98,6 +98,7 @@ validate_sites()
                 GOAL="giellatekno"
             fi
             cd src/documentation/content/xdocs/
+            rm -rf doc/admin/projman/Projects
             echo "copying files to tomcat5 dir $GOAL..."
             # Find only files that belong to the documentation, and copy them
             tar cf - `find . ! \( -name CVS -o -name Root -o -name Repository -o -name "Entries*" -o -name .cvsignore -o -type d \)` | sudo -u tomcat5 /bin/tar xf - -C /var/lib/tomcat5/webapps/$GOAL/project/src/documentation/content/xdocs/
@@ -108,7 +109,7 @@ validate_sites()
                 echo "Subject: Error copying files to webapps dir"
                 echo "TO:$MAIL_TO"
                 echo ""
-                )|sendmail -t
+                )|/usr/lib/sendmail -t
                 echo "sudo -u tomcat5 failed ......"
             fi
         else
@@ -119,7 +120,7 @@ validate_sites()
             echo "TO:$MAIL_TO"
             echo ""
             cat $ERROR_FILE
-            )|sendmail -t
+            )|/usr/lib/sendmail -t
         fi
     done
 }
