@@ -8,7 +8,7 @@ dis ()
 #read sentence                               # next 3 lines is the usual command
 cat $1 | preprocess --abbr=~/gt/sme/bin/abbr.txt | \
 lookup -flags mbTT -utf8 ~/gt/sme/bin/sme.fst | ~/gt/script/lookup2cg | \
-vislcg --grammar ~/gt/sme/src/sme-dis.rle --minimal | less 
+vislcg --grammar ~/gt/sme/src/sme-dis.rle --minimal
 }
 #exit 0
 dis $1
