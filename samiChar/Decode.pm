@@ -17,16 +17,12 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @EXPORT = qw(&decode_file &guess_encoding &find_dec &combine_two_codings);
 @EXPORT_OK   = qw(%convertTable);
 
-
-
-
-
 our %Char_Files = (
                  "latin6" => "iso8859-10-1.txt",
 #                "levi" => "levi.txt",
 #                "macroman" => "macroman.txt",
-		 "plainroman" => "ROMAN.txt",
-		 "CP1258" => "CP1258.txt",
+				 "plainroman" => "ROMAN.txt",
+				 "CP1258" => "CP1258.txt",
                  "iso_ir_197" => "iso_ir_197.txt",
                  "samimac_roman" => "samimac_roman.txt",
                  "levi_winsam" => "levi_CP1258.txt",
@@ -82,9 +78,9 @@ sub guess_encoding () {
     my ($file, $lang) = @_;
     
     if (!$lang || ! $Char_Tables{$lang}) {
-	die "guess_encoding: language is not specified or $lang is not supported\n";
+		die "guess_encoding: language is not specified or $lang is not supported\n";
     }
-
+	
     # Read the corpus file
     my @text_array = &read_file($file);
     
@@ -93,90 +89,92 @@ sub guess_encoding () {
 
     for my $encoding (keys %Char_Files) {
 
-	# Read the encoding table
-	my %convert_table = &read_char_table($Char_Files{$encoding});
-
-	# test_table contains the tested sámi chars in both utf and tested encoding.
-	# count_table is for counting the occurences of sámi chars,
-	# both those in tested encoding and already correct ones.
-	my %test_table; 
-	my %count_table;
+		# Read the encoding table
+		my %convert_table = &read_char_table($Char_Files{$encoding});
+		
+		# test_table contains the tested sámi chars in both utf and tested encoding.
+		# count_table is for counting the occurences of sámi chars,
+		# both those in tested encoding and already correct ones.
+		my %test_table; 
+		my %count_table;
       CHAR_TABLE:
-	for my $char (keys % { $Char_Tables{$lang}}){
-	    $count_table{$char}->[$UNCONVERTED] = 0;
-	    $count_table{$char}->[$CORRECT] = 0;
-	  CONVERT_TABLE:
-	    # pick the tested sámi chars from conversion table
-	    for my $key (keys %convert_table) {
-		if ($convert_table{$key} == $char) {
-		    $test_table{$key} = $char;
-		    last CONVERT_TABLE;
+		for my $char (keys % { $Char_Tables{$lang}}){
+			$count_table{$char}->[$UNCONVERTED] = 0;
+			$count_table{$char}->[$CORRECT] = 0;
+		  CONVERT_TABLE:
+			# pick the tested sámi chars from conversion table
+			for my $key (keys %convert_table) {
+				if ($convert_table{$key} == $char) {
+					$test_table{$key} = $char;
+					last CONVERT_TABLE;
+				}
+			}
 		}
-	    }
+		# Count the occurences of the sami characters
+		# in the corpus file line by line
+		my $total_char_count=0;
+	  LINE:
+		for my $line (@text_array) {
+			my @unpacked = unpack("U*", $line);
+		  BYTE:
+			for my $byte (@unpacked) {
+				$total_char_count++;
+				if ($test_table{$byte}) {
+					# Sámi char in tested encoding is found
+					$count_table{$test_table{$byte}}->[$UNCONVERTED]++;
+				}
+				elsif ($count_table{$byte}) {
+					# Already correctly coded sámi char
+					$count_table{$byte}->[$CORRECT]++;
+				}
+			}
+		}
+		# Count the total
+		# Add the statistical tests here if needed.
+		my $unconv_total = 0;
+		my $other_total = 0;
+		for my $key (keys %count_table) {
+			$unconv_total += $count_table{$key}->[$UNCONVERTED];
+			$other_total += $count_table{$key}->[$CORRECT];
+		}
+		$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_char_count) ;
+		$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_char_count) ;
+		
+		# Test print
+		if($Test) {
+			for my $key (keys %count_table) {
+				my $found = 0;
+				for my $key2 (keys %test_table) {
+					if ($key == $test_table{$key2}) {
+						print $encoding, " ", $key, " ", pack("U*", $key), " ", pack("U*", $key2), " ", $count_table{$key}->[$UNCONVERTED], " ", $count_table{$key}->[$CORRECT], "\n";
+						$found = 1;
+						last;
+					}
+				}
+				if ($found == 0) {
+					print $encoding, " ", $key, " ", pack("U*", $key), " ", $count_table{$key}->[$UNCONVERTED], " ", $count_table{$key}->[$CORRECT], "\n";
+				}
+			}
+		} # Test print
+		
 	}
-	# Count the occurences of the sami characters
-	# in the corpus file line by line
-	my $total_char_count=0;
-      LINE:
-	for my $line (@text_array) {
-	    my @unpacked = unpack("U*", $line);
-	  BYTE:
-	    for my $byte (@unpacked) {
-		$total_char_count++;
-		if ($test_table{$byte}) {
-		    # Sámi char in tested encoding is found
-		    $count_table{$test_table{$byte}}->[$UNCONVERTED]++;
-		}
-		elsif ($count_table{$byte}) {
-		    # Already correctly coded sámi char
-		    $count_table{$byte}->[$CORRECT]++;
-		}
-	    }
-	}
-	# Count the total
-	# Add the statistical tests here if needed.
-	my $unconv_total = 0;
-	my $other_total = 0;
-	for my $key (keys %count_table) {
-	    $unconv_total += $count_table{$key}->[$UNCONVERTED];
-	    $other_total += $count_table{$key}->[$CORRECT];
-	}
-	$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_char_count) ;
-	$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_char_count) ;
-
-	# Test print
-	if($Test) {
-	    for my $key (keys %count_table) {
-		my $found = 0;
-		for my $key2 (keys %test_table) {
-		    if ($key == $test_table{$key2}) {
-			print $encoding, " ", $key, " ", pack("U*", $key), " ", pack("U*", $key2), " ", $count_table{$key}->[$UNCONVERTED], " ", $count_table{$key}->[$CORRECT], "\n";
-			$found = 1;
-			last;
-		    }
-		}
-		if ($found == 0) {
-		    print $encoding, " ", $key, " ", pack("U*", $key), " ", $count_table{$key}->[$UNCONVERTED], " ", $count_table{$key}->[$CORRECT], "\n";
-		}
-	    }
-	} # Test print
-    
-    }
     # Select the best encoding by comparing the amount of chars to be converted.
     my $encoding = $NO_ENCODING;
     my $last_val;
     for  my $key (sort { $statistics{$a}->[$UNCONVERTED] cmp $statistics{$b}->[$UNCONVERTED] } keys %statistics) {
-	if($Test) {
-	    my $rounded_unconv = sprintf("%.3f", $statistics{$key}->[$UNCONVERTED]);
-	    my $rounded_correct = sprintf("%.3f", $statistics{$key}->[$CORRECT]);
-	    print $file, " ", $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
+		if($Test) {
+			my $rounded_unconv = sprintf("%.3f", $statistics{$key}->[$UNCONVERTED]);
+			my $rounded_correct = sprintf("%.3f", $statistics{$key}->[$CORRECT]);
+			print $file, " ", $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
+		}
+		$last_val = $key;
 	}
-	$last_val = $key;
-    }
     if ($statistics{$last_val}->[$UNCONVERTED] > $MIN_AMOUNT ) {
-	$encoding = $last_val;
+		$encoding = $last_val;
     }
-    print "$file: $encoding \n";
+    if ($encoding eq $NO_ENCODING) { print "$file: no_encoding \n"; }
+    else { print "$file: $encoding \n"; }
+	
     return $encoding;
 }
 
@@ -185,16 +183,15 @@ sub decode_file (){
     my ($file, $encoding, $outfile) =  @_;
 
     unless ($outfile) {
-	$outfile = $file . ".out";
-    }
-
+		$outfile = $file . ".out";
+	}
+	
+    if ($encoding eq $NO_ENCODING) { return; }
+	
     if (! $encoding || !$Char_Files{$encoding}) {
-	die "convert_file: Encoding is not specified or encoding $encoding is not supported: $!\n";
+		die "convert_file: Encoding is not specified or encoding $encoding is not supported: $!\n";
     }
-    if ($encoding eq $NO_ENCODING) {
-	return;
-    }
-
+	
     print "Converting $file -> $outfile\n";
     my $charfile = $Char_Files{$encoding};
     
@@ -205,7 +202,7 @@ sub decode_file (){
 	my @unpacked = unpack("U*", $line);
 	for my $byte (@unpacked) {
 	    if ($convert_table{$byte}) {
-		$byte = $convert_table{$byte};
+			$byte = $convert_table{$byte};
 	    }
 	}
 	$line = pack("U*", @unpacked);
@@ -239,14 +236,14 @@ sub read_char_table{
     
     while (my $line = <CHARFILE>) {
 
-	next if ($line =~ /^\#/);
-	my  @convertLine = split (/\s+/, $line);
-
-	my $byte1 = hex($convertLine[0]);
-	my $byte2 = hex($convertLine[1]);
-	unless ($byte1 == $byte2) {
-	    $convert_table{$byte1} = $byte2;
-	}
+		next if ($line =~ /^\#/);
+		my  @convertLine = split (/\s+/, $line);
+		
+		my $byte1 = hex($convertLine[0]);
+		my $byte2 = hex($convertLine[1]);
+		unless ($byte1 == $byte2) {
+			$convert_table{$byte1} = $byte2;
+		}
     }
     close (CHARFILE);
     return %convert_table;
@@ -261,12 +258,12 @@ sub find_dec {
     my @text_array = &read_file($file);
 
     for my $line (@text_array) {
-	my @unpacked = unpack("U*", $line);
-	for my $byte (@unpacked) {
-	    if ($dec == $byte) {
-		$count++;
-	    }		
-	}
+		my @unpacked = unpack("U*", $line);
+		for my $byte (@unpacked) {
+			if ($dec == $byte) {
+				$count++;
+			}		
+		}
     }
     return $count;
 }
@@ -297,30 +294,29 @@ sub combine_two_codings {
     open (CHARFILE, $charfile2) or die "Cannot open file $charfile2: $!";
     my %second_coding;
     while (my $line = <CHARFILE>) {
-	next if ($line =~ /^\#/);
-	
-	chomp $line;
-	my ($hex, $utf, $desc) = split (/\s+/, $line, 3);
-	$hex =~ s/0x(.*)/0x00$1/;
-	$second_coding{$hex} = $utf;
-	
+		next if ($line =~ /^\#/);
+		
+		chomp $line;
+		my ($hex, $utf, $desc) = split (/\s+/, $line, 3);
+		$hex =~ s/0x(.*)/0x00$1/;
+		$second_coding{$hex} = $utf;		
     }
     
     my %combined;
     
     for my $key (keys %first_coding) {
-	if ($second_coding{$key}) {
-	    if ($second_coding{$key} ne $first_coding{$key}) {
-		$combined{$second_coding{$key}} = $first_coding{$key};
-	    }
+		if ($second_coding{$key}) {
+			if ($second_coding{$key} ne $first_coding{$key}) {
+				$combined{$second_coding{$key}} = $first_coding{$key};
+			}
 #	elsif (($second_coding{$key} != $key) && (! $combined{$key})) {
 #	    $combined{$key} = $first_coding{$key};
 #	}
+		}
 	}
-    }
     for my $key (keys %combined) {
-	print (OUTFILE $key, " ", $combined{$key}, "\n");
-    }
+		print (OUTFILE $key, " ", $combined{$key}, "\n");
+	}
     
     close (CHARFILE); 
     close (OUTFILE);
