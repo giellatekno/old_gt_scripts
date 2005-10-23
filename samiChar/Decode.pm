@@ -80,7 +80,7 @@ sub guess_encoding () {
     if (!$lang || ! $Char_Tables{$lang}) {
 		die "guess_encoding: language is not specified or $lang is not supported\n";
     }
-	
+
     # Read the corpus file
     my @text_array = &read_file($file);
     
@@ -137,9 +137,10 @@ sub guess_encoding () {
 			$unconv_total += $count_table{$key}->[$UNCONVERTED];
 			$other_total += $count_table{$key}->[$CORRECT];
 		}
-		$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_char_count) ;
-		$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_char_count) ;
-		
+		if ($total_char_count > 0) {
+			$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_char_count) ;
+			$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_char_count) ;
+		}
 		# Test print
 		if($Test) {
 			for my $key (keys %count_table) {
@@ -199,15 +200,15 @@ sub decode_file (){
     my @text_array = &read_file($file);
 
     for my $line (@text_array) {
-	my @unpacked = unpack("U*", $line);
-	for my $byte (@unpacked) {
-	    if ($convert_table{$byte}) {
-			$byte = $convert_table{$byte};
-	    }
+		my @unpacked = unpack("U*", $line);
+		for my $byte (@unpacked) {
+			if ($convert_table{$byte}) {
+				$byte = $convert_table{$byte};
+			}
+		}
+		$line = pack("U*", @unpacked);
 	}
-	$line = pack("U*", @unpacked);
-    }
-
+	
     open (FH, ">$outfile") or die "Cannot open file $outfile: $!";
     print(FH @text_array); 
     close (FH);
