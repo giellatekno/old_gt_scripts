@@ -20,9 +20,11 @@ my @files;
 
 # Search the files in the directory $dir and process each one of them.
 find (\&process_file, $dir) if -d $dir;
+process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
 
 sub process_file {
     my $file = $_;
+    $file = shift (@_) if (!$file);
 
 	print "Processing file $file...\n";
     return unless ($file =~ m/\.(doc|pdf|html)$/);
@@ -51,9 +53,16 @@ sub process_file {
 		&pdfclean($html, $int);
 		
 # Add this when ready
-#  /usr/bin/xsltproc \"$xsl_file\" - > \"$int\"";
+#  tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -language sme file.html
+#	| /usr/bin/xsltproc \"$xsl_file\" - > \"$int\"";
 	}
 
+	# Conversion for html documents	
+	elsif ($file =~ /\.html$/) {
+		system("tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -language sme $file | /usr/bin/xsltproc \"$xsl_file\" - > \"$int\"") == 0
+			or die "system failed: $?";
+	}
+	
 	push (@files, $int);
 }
 
