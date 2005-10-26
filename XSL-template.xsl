@@ -132,6 +132,23 @@
     </xsl:choose>
 </xsl:template>
 
+<xsl:template match="genre">
+	<xsl:choose>
+		<xsl:when test="string-length($genre) > 0">
+			<xsl:element name="genre">
+				<xsl:attribute name="code">
+					<xsl:value-of select="$genre"/>
+				</xsl:attribute>
+			</xsl:element>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:element name="genre">
+				<xsl:apply-templates/>
+			</xsl:element>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 <xsl:template match="translated-from">
     <!-- Use the variable declared above iff the DocBook does not contain a title,
          or the variable is different from the DocBook version-->
