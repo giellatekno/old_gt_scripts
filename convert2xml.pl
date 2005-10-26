@@ -7,6 +7,7 @@ use File::Find;
 use IO::File;
 use File::Basename;
 use Getopt::Long;
+use Cwd;
 use samiChar::Decode;
 
 sub print_help {
@@ -51,7 +52,10 @@ my $docxsl = $script_dir . "/docbook2corpus.xsl";
 my $htmlxsl = $script_dir . "/xhtml2corpus.xsl";
 
 # If the directory is not specified, the search is not done.
-if (! $dir) { die "The input directory (--dir) is not specified.\n"; }
+if (! $dir) { 
+	print "Warning: the input directory (--dir) is not specified.\n"; 
+	$dir = getcwd;
+}
 
 # A log file is created for each file, it contains the executed commands
 # and redirected STDERR of these commands.
