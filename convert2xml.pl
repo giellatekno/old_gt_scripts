@@ -84,7 +84,7 @@ sub process_file {
 
 	# Redirect STDERR to log files.
 	my $log_file = $log_dir . "/" . $file . ".log";
-	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
+	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
@@ -94,8 +94,8 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $docxsl; }
-		print STDERR "antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"\n";
-		system("antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"") == 0 
+		print STDERR "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"\n";
+		system("/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"") == 0 
 			or die "system failed: $?";
 	}
 
