@@ -17,6 +17,7 @@
 (define-key namelex-mode-map "f" '(lambda () (interactive) (insert-markup "fem")))
 (define-key namelex-mode-map "s" '(lambda () (interactive) (insert-markup "sur")))
 (define-key namelex-mode-map "p" '(lambda () (interactive) (insert-markup "plc")))
+(define-key namelex-mode-map "r" '(lambda () (interactive) (insert-markup "surplc")))
 (define-key namelex-mode-map "o" '(lambda () (interactive) (insert-markup "org")))
 (define-key namelex-mode-map "b" '(lambda () (interactive) (insert-markup "obj")))
 (define-key namelex-mode-map "n" '(lambda ()(interactive)(search-next-name 1)))
