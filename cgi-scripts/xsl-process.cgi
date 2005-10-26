@@ -37,6 +37,19 @@ else {
 my $fname = $filename;
 $fname =~ s/.*[\/\\](.*)/$1/;
 
+# The principles
+if (-e "$upload_dir/$fname") {
+	$fname = $title;
+	$fname =~ tr/\.A-Za-z0-9/_/c;
+}
+
+$i = 1;
+
+while (-e "$upload_dir/$fname") {
+	$fname = "$fname-$i";
+	$i++;
+}
+
 copy ("/home/tomi/gt/script/XSL-template.xsl", "$upload_dir/$fname.xsl") or die "Copy failed ($upload_dir/$fname.xsl): $!";
 move ("$filename", "$upload_dir/$fname");
 move ("$filename.xml", "$upload_dir/$fname.xml");
