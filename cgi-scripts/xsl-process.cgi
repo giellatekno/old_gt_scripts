@@ -4,20 +4,10 @@
 use CGI;
 use File::Copy;
 
-
 # Forwarding warnings and fatal errors to browser window
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 
 use XML::Twig;
-
-my ( $sec, $min, $hr, $mday, $mon, $thisyear, $wday, $yday, $isdst ) =
-  localtime(time);
-
-$thisyear = 1900 + $thisyear;
-$mon = 1 + $mon; # $mon should be modified so that it will give numbers 01-12
-
-# Define upload directory
-$upload_dir = "/usr/local/share/corp/sme/orig/$thisyear-$mon";
 
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html\n\n" ;
@@ -35,19 +25,34 @@ $lang = $query->param("lang");
 $genre = $query->param("genre");
 $filename = $query->param("filename");
 
-copy ("/home/tomi/gt/script/XSL-template.xsl", "$filename.xsl") or die "Copy failed ($filename.xsl): $!";
+# Define upload directory
+if ($genre eq "news" || $genre eq "admin") {
+	$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/$pub";
+}
+else {
+	$upload_dir = "/usr/local/share/corp/orig/$lang/$genre";
+}
+
+# Strip path
+my $fname = $filename;
+$fname =~ s/.*[\/\\](.*)/$1/;
+
+copy ("/home/tomi/gt/script/XSL-template.xsl", "$upload_dir/$fname.xsl") or die "Copy failed ($upload_dir/$fname.xsl): $!";
+move ("$filename", "$upload_dir/$fname");
+move ("$filename.xml", "$upload_dir/$fname.xml");
 
 my $document = XML::Twig->new(twig_handlers => {'xsl:variable' => \&process });
 
-$document->parsefile ("$filename.xsl");
+$document->parsefile ("$upload_dir/$fname.xsl");
 
-open (FH, ">$filename.xsl") or die "Cannot open file $filename.xsl for output: $!";
+open (FH, ">$upload_dir/$fname.xsl") or die "Cannot open file $upload_dir/$fname.xsl for output: $!";
 $document->print( \*FH);
 
-system "/home/tomi/gt/script/corpus2dir.pl";
+$finaldir = $upload_dir;
+$finaldir =~ s/\/corp\/orig/\/corp\/gt/;
+system "xsltproc --novalid $upload_dir/$fname.xsl $upload_dir/$fname.xml > $finaldir/$fname.xml";
 
 # The html-part starts here
-#print $query->header ( ); 
 print <<END_HTML;
 
 <html>
@@ -56,7 +61,7 @@ print <<END_HTML;
   </head>
   
   <body>
-    <p>$title</p>
+    <p>$finaldir</p>
   </body>
 </html>
 
@@ -66,30 +71,30 @@ sub process {
     my ( $t, $var) = @_;
     
     if ("title" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $title);
+        $var->set_att( 'select' => "'" . $title . "'");
     }
     if ("author" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $author);
+        $var->set_att( 'select' => "'" . $author . "'");
     }
     if ("author-gender" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $gender);
+        $var->set_att( 'select' => "'" . $gender . "'");
     }
     if ("publisher" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $pub);
+        $var->set_att( 'select' => "'" . $pub . "'");
     }
     if ("ISBN" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $isbn);
+        $var->set_att( 'select' => "'" . $isbn . "'");
     }
     if ("ISSN" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $issn);
+        $var->set_att( 'select' => "'" . $issn . "'");
     }
     if ("year" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $year);
+        $var->set_att( 'select' => "'" . $year . "'");
     }
     if ("genre" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $genre);
+        $var->set_att( 'select' => "'" . $genre . "'");
     }
     if ("mainlang" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => $lang);
+        $var->set_att( 'select' => "'" . $lang . "'");
     }
 }
