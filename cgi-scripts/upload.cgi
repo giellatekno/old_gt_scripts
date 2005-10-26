@@ -6,22 +6,14 @@ use CGI;
 # Forwarding warnings and fatal errors to browser window
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 
-#use Apache::SubProcess qw(system);
-
 # File copying and xml-processing
 use XML::Twig;
-
-my ( $sec, $min, $hr, $mday, $mon, $thisyear, $wday, $yday, $isdst ) =
-  localtime(time);
-
-$thisyear = 1900 + $thisyear;
-$mon = 1 + $mon; # $mon should be modified so that it will give numbers 01-12
 
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
 
 # Define upload directory and mkdir it, if necessary
-$upload_dir = "/usr/local/share/corp/sme/orig/$thisyear-$mon";
+$upload_dir = "/usr/local/share/corp/tmp";
 mkdir ($upload_dir, 0755) unless -d $upload_dir;
 
 $query = new CGI;
@@ -29,6 +21,12 @@ $query = new CGI;
 # Getting the filename and parsing the path away
 $filename = $query->param("document");
 $filename =~ s/.*[\/\\](.*)/$1/;
+
+# Replace space with underscore - c = complement the search list
+my $fname = $filename;
+$fname =~ tr/\.A-Za-z0-9/_/c;
+
+
 
 # Resolving filetype
 # MS Word = application/msword
@@ -45,16 +43,17 @@ if (!$upload_filehandle) {
 }
 
 # Open file on the server and print uploaded file into it.
-open UPLOADFILE, ">$upload_dir/$filename"
-      or die "Can't open file!";
+open UPLOADFILE, ">$upload_dir/$fname"
+      or die "Can't open file $upload_dir/$fname!";
 while (<$upload_filehandle>) {
 	print UPLOADFILE;
 }
 close UPLOADFILE;
 
-# Calling word2xml -script with hardcoded execution path
+# Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
-system "/home/tomi/gt/script/word2xml.pl --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$filename\"";# or die "Couldn't call system";
+system "/home/tomi/gt/script/convert2xml.pl --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$fname\"";
+	# or die "Couldn't call system";
 
 # Define variables for XSL-template
 my $title;
@@ -80,7 +79,7 @@ my $document = XML::Twig->new(twig_handlers =>
 				   'publisher/ISSN' => sub { $issn = $_->text}
 				  } );
 
-$document->parsefile ("$upload_dir/$filename.xml");
+$document->parsefile ("$upload_dir/$fname.xml");
 
 # The html-part starts here
 #print $query->header ( ); 
@@ -104,23 +103,26 @@ print <<END_HTML;
       ISBN: <input type="text" name="isbn" value=$isbn> <br/>
       ISSN: <input type="text" name="issn" value=$issn> <br/>
       Genre: <br/>
-             <select name="genre" size="5">
+             <select name="genre">
                <option value="news">Newstext</option>
-               <option value="fict">Fiction</option>
-               <option value="bible">Bible</option>
-               <option value="asdf">Asdf</option>
-               <option value="ghj">Ghj</option>
+               <option value="laws">Lawtext</option>
+               <option value="ficti">Fiction</option>
+          	  <option value="bible">Bible</option>
+               <option value="admin">Admin</option>
+               <option value="facta">Facta</option>
              </select> <br/>
       Language: (document: $lang)<br/>
              <select name="lang" size="6">
                <option value="sme">North S&aacute;mi</option>
                <option value="smj">Julev S&aacute;mi</option>
+               <option value="sma">South S&aacute;mi</option>
                <option value="nno">Nynorsk</option>
                <option value="nob">Bokm&aring;l</option>
-               <option value="fi">Finnish</option>
-               <option value="sv">Swedish</option>
+               <option value="fin">Finnish</option>
+               <option value="swe">Swedish</option>
+               <option value="eng">English</option>
              </select> <br/>
-      <input type="hidden" name="filename" value="$upload_dir/$filename">
+      <input type="hidden" name="filename" value="$upload_dir/$fname">
 
       <input type="submit" name="Submit" value="submit form">
     </form>
