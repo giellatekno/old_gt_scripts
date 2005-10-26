@@ -9,13 +9,34 @@ use File::Basename;
 use Getopt::Long;
 use samiChar::Decode;
 
-my $use_decode; # use module Decode to decode the file. this is to be removed.
-my $xsl_file = '';  # The xsl-file, if it is not one of the default files.
-my $dir; # the directory where the search for files is done
+sub print_help {
+	print"Usage: convert2xml.pl --dir=<file> [OPTIONS]\n";
+	print "The available options:\n";
+	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
+    print"                    If not specified, the default values are used.\n";
+    print"    --dir=<dir>     The directory where to search for converted files.\n";
+    print"    --logdir=<dir>  The directory where the log-files are stored.\n";
+    print"    --use-decode    Whether the character decoding is used or not.\n";
+    print"                    This option is for testing.\n";
+    print"    --help          Print this message and exit.\n";
+};
+
+my $use_decode;
+my $xsl_file = '';
+my $dir = '';
+my $log_dir = ''; 
+my $help;
 
 GetOptions ("use-decode" => \$use_decode,
 			"xsl=s" => \$xsl_file,
-			"dir=s" => \$dir);
+			"dir=s" => \$dir,
+			"logdir=s" => \$log_dir,
+			"help" => \$help);
+
+if ($help) {
+	&print_help;
+	exit 1;
+}
 
 my $xsltproc="/usr/bin/xsltproc";
 my $tidy = "/usr/local/bin/tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
@@ -29,12 +50,16 @@ $script_dir = File::Spec->rel2abs($script_dir);
 my $docxsl = $script_dir . "/docbook2corpus.xsl";
 my $htmlxsl = $script_dir . "/xhtml2corpus.xsl";
 
+# If the directory is not specified, the search is not done.
+if (! $dir) { die "The input directory (--dir) is not specified.\n"; }
 
 # A log file is created for each file, it contains the executed commands
 # and redirected STDERR of these commands.
 # The log file is created to the same directory as the other files,
 # the directory should perhaps be changed.
-my $log_dir = $dir;
+if(! $log_dir || ! -d $log_dir) {
+	$log_dir = $dir;
+}
 
 # Search the files in the directory $dir and process each one of them.
 find (\&process_file, $dir) if -d $dir;
