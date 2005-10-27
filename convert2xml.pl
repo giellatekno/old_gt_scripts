@@ -53,7 +53,7 @@ my $htmlxsl = $script_dir . "/xhtml2corpus.xsl";
 
 # If the directory is not specified, the search is not done.
 if (! $dir) { 
-	print "Warning: the input directory (--dir) is not specified.\n"; 
+#	print "Warning: the input directory (--dir) is not specified.\n"; 
 	$dir = getcwd;
 }
 
