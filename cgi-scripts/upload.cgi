@@ -26,7 +26,11 @@ $filename =~ s/.*[\/\\](.*)/$1/;
 my $fname = $filename;
 $fname =~ tr/\.A-Za-z0-9/_/c;
 
+# a hash where we will store the md5sums
+my @md5sum;
 
+# Calculate md5sums of files in orig/ dir
+@md5sum = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
 
 # Resolving filetype
 # MS Word = application/msword
@@ -49,6 +53,16 @@ while (<$upload_filehandle>) {
 	print UPLOADFILE;
 }
 close UPLOADFILE;
+
+$md5 = (`md5sum $upload_dir/$fname | cut -c 1-32`);
+
+# Check that file doesn't already exist
+for my $i (@md5sum) {
+	if ($i eq $md5) {
+#		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
+		die "File already exists in our corpus base!: $i $md5";
+	}
+}
 
 # Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
@@ -81,10 +95,10 @@ my $document = XML::Twig->new(twig_handlers =>
 
 $document->parsefile ("$upload_dir/$fname.xml");
 
+
 # The html-part starts here
 #print $query->header ( ); 
 print <<END_HTML;
-
 <html>
   <head>
   	<title>File uploaded</title>
@@ -92,6 +106,8 @@ print <<END_HTML;
   
   <body>
     <p>Thank you for uploading file <a href="$upload_dir/$filename"> $filename </a></p>
+    
+    
     <br/><br/>
     <form TYPE="text" ACTION="xsl-process.cgi" METHOD="post">
       Title: <input type="text" name="title" value="$title" size="50"> <br/>
