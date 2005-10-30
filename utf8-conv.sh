@@ -7,6 +7,6 @@
 
 for i in $@
 do
-  /usr/bin/iconv -f ISO-8859-1 -t UTF-8 $i | sed -f ../script/digr-utf8.txt > u-$i
+  /usr/bin/iconv -f ISO-8859-1 -t UTF-8 $i | sed -f ~/gt/script/digr-utf8.txt > u-$i
   /bin/mv -f u-$i $i
 done
