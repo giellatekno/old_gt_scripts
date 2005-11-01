@@ -54,7 +54,10 @@ my $htmlxsl = $script_dir . "/xhtml2corpus.xsl";
 # If the directory is not specified, the search is not done.
 if (! $dir) { 
 #	print "Warning: the input directory (--dir) is not specified.\n"; 
-	$dir = getcwd;
+	# With getcwd we have problems, because it will try to process the working
+	# directory even when we want just to process one file.
+#	$dir = getcwd;
+	$dir = $ARGV[$#ARGV];
 }
 
 # A log file is created for each file, it contains the executed commands
@@ -84,7 +87,7 @@ sub process_file {
 
 	# Redirect STDERR to log files.
 	my $log_file = $log_dir . "/" . $file . ".log";
-	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
+	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
