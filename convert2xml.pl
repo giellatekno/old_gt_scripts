@@ -118,8 +118,8 @@ sub process_file {
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
 		my $html = $dir . "/temporary.out";
-		print STDERR "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"\n";
-		system("pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"") == 0 
+		print STDERR "/usr/bin/pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"\n";
+		system("/usr/bin/pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"") == 0 
 			or die "system failed: $?";
 		&pdfclean($html);
 		print STDERR "$tidy \"$html\" | /usr/bin/xsltproc \"$xsl\" -  > \"$int\"\n";
