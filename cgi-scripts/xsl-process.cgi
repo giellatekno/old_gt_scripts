@@ -27,7 +27,18 @@ $filename = $query->param("filename");
 
 # Define upload directory
 if ($genre eq "news" || $genre eq "admin") {
-	$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/$pub";
+	# Kautokeino hack
+	if ($pub = Kautokeino) {
+		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/guovda";
+	}
+	# Karasjok hack
+	else if ($pub = Karasjok) {
+		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/karas";
+	}
+	
+	else {
+		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/$pub";
+	}
 }
 else {
 	$upload_dir = "/usr/local/share/corp/orig/$lang/$genre";
