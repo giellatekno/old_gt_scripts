@@ -60,13 +60,13 @@ $md5 = (`md5sum $upload_dir/$fname | cut -c 1-32`);
 for my $i (@md5sum) {
 	if ($i eq $md5) {
 #		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
-		die "File already exists in our corpus base!: $i $md5";
+		die "File already exists in our corpus base!";
 	}
 }
 
 # Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
-system "/home/tomi/gt/script/convert2xml.pl --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$fname\"";
+system "/home/tomi/gt/script/convert2xml.pl --logdir=/usr/local/share/corp/tmp --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$fname\"";
 	# or die "Couldn't call system";
 
 # Define variables for XSL-template
