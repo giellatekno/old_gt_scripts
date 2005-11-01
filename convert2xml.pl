@@ -86,8 +86,9 @@ sub process_file {
 	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
 
 	# Redirect STDERR to log files.
+	$file =~ s/.*[\/\\](.*)/$1/;
 	my $log_file = $log_dir . "/" . $file . ".log";
-	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
+	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
