@@ -28,11 +28,11 @@ $filename = $query->param("filename");
 # Define upload directory
 if ($genre eq "news" || $genre eq "admin") {
 	# Kautokeino hack
-	if ($pub = Kautokeino) {
+	if ($pub == Kautokeino) {
 		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/guovda";
 	}
 	# Karasjok hack
-	elsif ($pub = Karasjok) {
+	elsif ($pub == Karasjok) {
 		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/karas";
 	}
 	
