@@ -24,7 +24,7 @@ $filename =~ s/.*[\/\\](.*)/$1/;
 
 # Replace space with underscore - c = complement the search list
 my $fname = $filename;
-$fname =~ tr/\.A-Za-z0-9/_/c;
+$fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
 
 # a hash where we will store the md5sums
 my @md5sum;
