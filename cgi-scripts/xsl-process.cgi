@@ -32,7 +32,7 @@ if ($genre eq "news" || $genre eq "admin") {
 		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/guovda";
 	}
 	# Karasjok hack
-	else if ($pub = Karasjok) {
+	elsif ($pub = Karasjok) {
 		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/karas";
 	}
 	
