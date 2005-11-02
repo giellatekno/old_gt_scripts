@@ -17,6 +17,12 @@ $query = new CGI;
 $title = $query->param("title");
 $author = $query->param("author");
 $gender = $query->param("gender");
+$author2 = $query->param("author2");
+$gender2 = $query->param("gender2");
+$author3 = $query->param("author3");
+$gender3 = $query->param("gender3");
+$author4 = $query->param("author4");
+$gender4 = $query->param("gender4");
 $pub = $query->param("pub");
 $isbn = $query->param("isbn");
 $issn = $query->param("issn");
@@ -102,6 +108,24 @@ sub process {
     }
     if ("author-gender" eq $var->{'att'}->{'name'}) {
         $var->set_att( 'select' => "'" . $gender . "'");
+    }
+    if ("author2" eq $var->{'att'}->{'name'}) {
+        $var->set_att( 'select' => "'" . $author2 . "'");
+    }
+    if ("author-gender2" eq $var->{'att'}->{'name'}) {
+        $var->set_att( 'select' => "'" . $gender2 . "'");
+    }
+    if ("author3" eq $var->{'att'}->{'name'}) {
+        $var->set_att( 'select' => "'" . $author3 . "'");
+    }
+    if ("author-gender3" eq $var->{'att'}->{'name'}) {
+        $var->set_att( 'select' => "'" . $gender3 . "'");
+    }
+    if ("author4" eq $var->{'att'}->{'name'}) {
+        $var->set_att( 'select' => "'" . $author4 . "'");
+    }
+    if ("author-gender4" eq $var->{'att'}->{'name'}) {
+        $var->set_att( 'select' => "'" . $gender4 . "'");
     }
     if ("publisher" eq $var->{'att'}->{'name'}) {
         $var->set_att( 'select' => "'" . $pub . "'");

@@ -111,9 +111,19 @@ print <<END_HTML;
     <br/><br/>
     <form TYPE="text" ACTION="xsl-process.cgi" METHOD="post">
       Title: <input type="text" name="title" value="$title" size="50"> <br/>
-      Author name: <input type="text" name="author" value="$author" size="50"> <br/>
-      Author gender: <input type="radio" name="gender" value="m"> Male
+      Author(s): <br/>
+      Author name: <input type="text" name="author" value="$author" size="50">
+      Gender: <input type="radio" name="gender" value="m"> Male
             <input type="radio" name="gender" value="f"> Female <br/>
+      Author name: <input type="text" name="author2" value="" size="50">
+      Gender: <input type="radio" name="gender2" value="m"> Male
+            <input type="radio" name="gender2" value="f"> Female <br/>
+      Author name: <input type="text" name="author3" value="" size="50">
+      Gender: <input type="radio" name="gender3" value="m"> Male
+            <input type="radio" name="gender3" value="f"> Female <br/>
+      Author name: <input type="text" name="author4" value="" size="50">
+      Gender: <input type="radio" name="gender4" value="m"> Male
+            <input type="radio" name="gender4" value="f"> Female <br/>
       Publishing year: <input type="text" name="year" value=$year> <br/>
       Publisher: <input type="text" name="pub" value=$pub> <br/>
       ISBN: <input type="text" name="isbn" value=$isbn> <br/>

@@ -20,6 +20,12 @@
 <xsl:variable name="title" select="''"/>
 <xsl:variable name="author" select="''"/>
 <xsl:variable name="author-gender" select="'f'"/>
+<xsl:variable name="author2" select="''"/>
+<xsl:variable name="author-gender2" select="'f'"/>
+<xsl:variable name="author3" select="''"/>
+<xsl:variable name="author-gender3" select="'f'"/>
+<xsl:variable name="author4" select="''"/>
+<xsl:variable name="author-gender4" select="'f'"/>
 <xsl:variable name="publisher" select="''"/>
 <xsl:variable name="translated-from" select="''"/>
 <xsl:variable name="year" select="''"/>
@@ -67,6 +73,42 @@
                 <xsl:value-of select="$mainlang"/>
             </xsl:attribute>
             <xsl:apply-templates />
+            <xsl:if test="string-length($author2) > 0">
+            		<author>
+            			<person>
+            				<xsl:attribute name="name">
+            					<xsl:value-of select="$author2"/>
+            				</xsl:attribute>
+            				<xsl:attribute name="sex">
+            					<xsl:value-of select="$author-gender2"/>
+            				</xsl:attribute>
+            			</person>
+            		</author>
+            </xsl:if>
+            <xsl:if test="string-length($author3) > 0">
+            		<author>
+            			<person>
+            				<xsl:attribute name="name">
+            					<xsl:value-of select="$author3"/>
+            				</xsl:attribute>
+            				<xsl:attribute name="sex">
+            					<xsl:value-of select="$author-gender3"/>
+            				</xsl:attribute>
+            			</person>
+            		</author>
+            </xsl:if>
+            <xsl:if test="string-length($author4) > 0">
+            		<author>
+            			<person>
+            				<xsl:attribute name="name">
+            					<xsl:value-of select="$author4"/>
+            				</xsl:attribute>
+            				<xsl:attribute name="sex">
+            					<xsl:value-of select="$author-gender4"/>
+            				</xsl:attribute>
+            			</person>
+            		</author>
+            </xsl:if>
         </xsl:element>
     </xsl:if>
 </xsl:template>
