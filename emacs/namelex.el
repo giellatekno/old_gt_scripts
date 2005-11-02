@@ -13,6 +13,7 @@
 \\{namelex-mode-map}" 
   (setq case-fold-search nil))
 
+(define-key namelex-mode-map "a" '(lambda () (interactive) (insert-markup "ani")))
 (define-key namelex-mode-map "m" '(lambda () (interactive) (insert-markup "mal")))
 (define-key namelex-mode-map "f" '(lambda () (interactive) (insert-markup "fem")))
 (define-key namelex-mode-map "s" '(lambda () (interactive) (insert-markup "sur")))
