@@ -11,13 +11,18 @@ use XML::Twig;
 my $twig = new XML::Twig;
 $twig->set_pretty_print('record');
 
-my $file = "../sme/src/propernoun-sme-lex.txt";
-#my $file = "testi.txt";
+# Usage: 
+# perl namelex2xml.pl
+#
+# Specify the $infile and $outfile to the files you want:
 
-open (FH, "$file") or die "Cannot open file $file: $!";
+my $infile = "../sme/src/propernoun-sme-lex.txt";
+my $outfile = "propernoun_test.xml";
+
+open (FH, "$infile") or die "Cannot open file $infile: $!";
 
 my $FH1;
-open($FH1, ">koe.txt");
+open($FH1, ">$outfile");
 
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.1'  encoding="UTF-8"?>|;
