@@ -21,6 +21,8 @@
 (define-key namelex-mode-map "r" '(lambda () (interactive) (insert-markup "surplc")))
 (define-key namelex-mode-map "o" '(lambda () (interactive) (insert-markup "org")))
 (define-key namelex-mode-map "b" '(lambda () (interactive) (insert-markup "obj")))
+(define-key namelex-mode-map "t" '(lambda () (interactive) (insert-markup "tit")))
+(define-key namelex-mode-map "u" '(lambda () (interactive) (insert-markup "surmal")))
 (define-key namelex-mode-map "n" '(lambda ()(interactive)(search-next-name 1)))
 
 (defun insert-markup (tag)
@@ -32,6 +34,6 @@
 (defun search-next-name (tag)
   "Move to the next name"
   (interactive "p")
-  (if (re-search-forward "[A-Z\-]+ " nil t)
+  (if (re-search-forward "[A-ZØ\-]+ " nil t)
       (skip-chars-backward " ;")
       (goto-char (end-of-line))))
