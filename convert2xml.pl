@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+# Version $Id$
 
 use strict;
 use encoding 'utf-8';
@@ -87,7 +88,7 @@ sub process_file {
 
 	# Redirect STDERR to log files.
 	$file =~ s/.*[\/\\](.*)/$1/;
-	my $log_file = $log_dir . "/" . $file . ".log";
+#	my $log_file = $log_dir . "/" . $file . ".log";
 	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
