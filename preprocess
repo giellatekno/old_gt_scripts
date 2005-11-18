@@ -132,12 +132,14 @@ sub process_word {
     if ($word =~ /\.(\d+\.?)$/){
         $word =~ s/(\d+\.?)$//;
         $end_num = $1;
+        verbose ("process_word/end_num", $end_num, __LINE__);
     }
 
 
     # Store the punctuation at the end of the string to a variable
 	if ($word =~ s/([+=%:$SEPARATE_PUNCT]+)$//) {
-		$end_punct = $1
+		$end_punct = $1;
+		verbose ("process_word/end_punct", $end_punct, __LINE__);
 	}
 
 	# Cut the word into tokens if there is punctuation in the middle.
@@ -175,9 +177,11 @@ sub process_word {
 		# This operation is for taking the dot out.
 		if ($word =~ s/([$SEPARATE_PUNCT\.:]+)$//) {
 			$rest_punct =  $1;
+			verbose ("process_word/rest_punct", $rest_punct, __LINE__);
 		}
 		push (@{$tokens_aref}, $word);
-		push (@{$tokens_aref}, split(/ */, $rest_punct));			
+		# push (@{$tokens_aref}, split(/ */, $rest_punct));	# tomi 051118	... -issue
+		push (@{$tokens_aref}, $rest_punct);
 	}
 	push (@{$tokens_aref}, $end_num);
 	push (@{$tokens_aref}, split(/ */, $end_punct));
