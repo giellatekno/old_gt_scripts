@@ -93,9 +93,20 @@ while (<>) {
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
 		
+		next if (! $word);
+		# Move forward if the word is nothing special. 
+        # This is for making preprocessing faster, however the
+        # test_idiom part is the most time consuming.                                               
+		if ($word =~ /^[^\W\d\s\n]*$/){
+			if (! test_idiom(\$word, \@words, $MULTIWORD_SIZE)) {
+				print "$word\n";
+				next;
+			}
+		}
+
 		# store punctuation from the front of the expression
 		# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-		if ($word =~ s/^([$SEPARATE_PUNCT]+)//) {
+		if ($word =~ s/^([$SEPARATE_PUNCT]+)//o) {
 			push (@tokens, split(/ */, $1));
 		}
 		# Examine the type of the string. If the expression contains
@@ -137,7 +148,7 @@ sub process_word {
 
 
     # Store the punctuation at the end of the string to a variable
-	if ($word =~ s/([+=%:$SEPARATE_PUNCT]+)$//) {
+	if ($word =~ s/([+=%:$SEPARATE_PUNCT]+)$//o) {
 		$end_punct = $1;
 		verbose ("process_word/end_punct", $end_punct, __LINE__);
 	}
@@ -145,7 +156,7 @@ sub process_word {
 	# Cut the word into tokens if there is punctuation in the middle.
 	# e.g. gielddat/guovllut
 	# Check for expressions in $CONTAIN_PUNCT -variable.
-	if ($word !~ /$CONTAIN_PUNCT/ && (my @parts = split (/([+=%$SEPARATE_PUNCT\/])/, $word))) {
+	if ($word !~ /$CONTAIN_PUNCT/o && (my @parts = split (/([+=%$SEPARATE_PUNCT\/])/o, $word))) {
 		my $i;
 		for ($i=0; $i < $#parts; $i++) {
 			push (@{$tokens_aref}, $parts[$i]); 
@@ -153,7 +164,7 @@ sub process_word {
 		# Process the last part further, it may start with punctuation
 		# that is separate token.
 		$word = $parts[$i];
-		if ($word =~ s/^([$PUNCT])//) {
+		if ($word =~ s/^([$PUNCT])//o) {
 			push (@{$tokens_aref}, $1);
 			}
 		if (!$word) {
@@ -175,7 +186,7 @@ sub process_word {
 		# If the word was not an abbreviation, the rest
 		# of the punctuation is removed and stored as separate tokens.
 		# This operation is for taking the dot out.
-		if ($word =~ s/([$SEPARATE_PUNCT\.:]+)$//) {
+		if ($word =~ s/([$SEPARATE_PUNCT\.:]+)$//o) {
 			$rest_punct =  $1;
 			verbose ("process_word/rest_punct", $rest_punct, __LINE__);
 		}
@@ -278,7 +289,7 @@ sub process_numeral {
 
 	# Combine punctuation with numeral if followed by other numeral.
 	# cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
-	while (($word =~ /^[\d$NUM_PUNCT ]+$/) && ($words_aref->[0] =~ /^[\d$NUM_PUNCT ]+$/)) {
+	while (($word =~ /^[\d$NUM_PUNCT ]+$/o) && ($words_aref->[0] =~ /^[\d$NUM_PUNCT ]+$/o)) {
 		$word = $word . " " . $words_aref->[0];
 		shift @{$words_aref};
 	}
@@ -297,10 +308,10 @@ sub process_numeral {
 	# cases like: 123! and 123.), 123). 10,-. 
     # problem: 123.? and 123 is an ordinal.
 	my $end_punct;
-	if ($word =~ s/([$SEPARATE_PUNCT:]+\.?)$//){
+	if ($word =~ s/([$SEPARATE_PUNCT:]+\.?)$//o){
 		$end_punct = $1;
 	}
-	if ($word =~ /([$SEPARATE_PUNCT:\-\%]+\.?)$/){
+	if ($word =~ /([$SEPARATE_PUNCT:\-\%]+\.?)$/o){
 		$word =~ s/(\.?)$//;
 		$end_punct = $1;
 	}
@@ -325,18 +336,18 @@ sub process_numeral {
 	# do checking.
 	# Otherwise belongs to the expression.
 	if (!defined $end_word) {
-	if ((($words_aref->[0] !~ /^[[:lower:]\d]/o) && ($word =~ s/(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) {
-		$end_punct = "." . $end_punct;
-		
-		verbose ("process_numeral/ending dot", $word, __LINE__);
-
-		# Clean the rest of the token:
-		# cases like 123). where dot is preceded by punctuation.
-		if ($word =~ s/([$SEPARATE_PUNCT:]+)$//) {
-			$rest_punct =  $1;
+		if ((($words_aref->[0] !~ /^[[:lower:]\d]/) && ($word =~ s/(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) {
+			$end_punct = "." . $end_punct;
+			
+			verbose ("process_numeral/ending dot", $word, __LINE__);
+			
+			# Clean the rest of the token:
+			# cases like 123). where dot is preceded by punctuation.
+			if ($word =~ s/([$SEPARATE_PUNCT:]+)$//o) {
+				$rest_punct =  $1;
+			}
 		}
 	}
-    }
     
     verbose ("process_numeral", $word, __LINE__);
 
