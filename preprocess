@@ -59,10 +59,11 @@ if ($help) {
 	exit;
 }
 
+my %idioms;
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
 if ($abbr_file) {
-	&read_abbr (\%abbrs);
+	&read_abbr (\%abbrs, \%idioms);
 }
 
 sub verbose {
@@ -97,8 +98,8 @@ while (<>) {
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster, however the
         # test_idiom part is the most time consuming.                                               
-		if ($word =~ /^[^\W\d\s\n]*$/){
-			if (! test_idiom(\$word, \@words, $MULTIWORD_SIZE)) {
+		if ($word =~ /^[^\W\d\s\n]*$/) {
+			if (! $idioms{lcfirst($word)}) {
 				print "$word\n";
 				next;
 			}
@@ -137,7 +138,9 @@ sub process_word {
 	my $rest_punct;
 
     # Test for multiword expression.
-	test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
+	if ($idioms{lcfirst($word)}) {
+		test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
+	}
 
     my $end_num;
     if ($word =~ /\.(\d+\.?)$/){
@@ -255,18 +258,18 @@ sub test_abbr {
 sub test_idiom {
 	my ($word_ref, $words_aref, $size) = @_;
 
-	my $token = $$word_ref;
+	my $word = lcfirst($$word_ref);
 	# Test for multiword expressions by growing the token
 	# one word at a time
 	my $i=0;
+	my $token = $words_aref->[0];
 	while ($i < $size && $words_aref->[$i]) {
-		$token = $token . " " . $words_aref->[$i];
 
 		# Remove the punctuation at the end of the expression.
 		(my $token_2 = $token) =~ s/[^\w]*$//;
 		# Test if the formed multiword expression exists in the
-		# idiom list. Test also lower case version.		 
-		if (exists $abbrs{$IDIOM}{$token_2} || exists $abbrs{$IDIOM}{lcfirst($token_2)} ) {
+		# idiom list. Test also lower case version.
+		if ($idioms{$word} eq $token_2) {
 			for (my $j=0; $j <= $i; $j++) {
 				# Construct the new multiword processing unit.
 				# Remove the parts of the multiword expression from
@@ -276,6 +279,7 @@ sub test_idiom {
 			}
 		}
 		$i++;
+		$token = $token . " " . $words_aref->[$i];
 	}
 }
 
@@ -364,7 +368,7 @@ sub process_numeral {
 
 
 sub read_abbr {
-	my ($abbr_href) = @_;
+	my ($abbr_href, $idiom_href) = @_;
 	
 	local $/="\n";
     # The filename may contain a tilde ~
@@ -380,12 +384,18 @@ sub read_abbr {
 
 	my $current;
 	while (<LEX>) {
-		chomp;
+		chomp;		
+		last if (/^LEXICON IDIOM/);
 		if (/^LEXICON (.*)$/) {
 			$current = $1;
 			next;
 		}
 		$$abbr_href{$current}{$_} = 1;
+	}
+	while (<LEX>) {
+		chomp;
+		my ($first, $last) = split(/ /, $_);
+		$$idiom_href{$first} = $last;
 	}
 	close LEX;	
 }
