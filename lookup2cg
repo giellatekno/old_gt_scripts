@@ -146,7 +146,7 @@ sub format_compound {
 		# If the compound boundary is found, 
 		# replace the last word by its base form, and insert a # mark in front of
 		# it, in order to mark the result as a compound.
-		$$refbase = $$refword;
+		$$refbase = lcfirst($$refword);
 		$$refbase =~ s/(^.*)$substring.*$/$1#$last_word/;
 	}
 }
