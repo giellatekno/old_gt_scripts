@@ -53,7 +53,7 @@ while(<>) {
 				$line =~ s/\+/ /go;				
 				# If line contains a compound
 				if ( $line =~ /#/ ) { 
-					 &format_compound(\$base, \$line, \$word); 
+					&format_compound(\$base, \$line, \$word); 
 				 }
 #				print "TESTI $base JA $line \n";
 				# Format output
@@ -146,8 +146,12 @@ sub format_compound {
 		# If the compound boundary is found, 
 		# replace the last word by its base form, and insert a # mark in front of
 		# it, in order to mark the result as a compound.
-		$$refbase = lcfirst($$refword);
+		my $orig = $$refbase;
+		$$refbase = $$refword;
 		$$refbase =~ s/(^.*)$substring.*$/$1#$last_word/;
+		if ($orig =~ m/^\p{isLower}/) {
+			$$refbase = lcfirst($$refbase);
+		}
 	}
 }
 
