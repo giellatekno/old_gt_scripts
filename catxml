@@ -139,12 +139,15 @@ sub process_xml {
 		if ($para) {
 			if (!$elt->att("type") || $elt->att("type") =~ "text") {
 				if ($analyze) {
-					print "<" . $elt->tag . ">\n";
+#					print "<" . $elt->tag . ">\n";
+					print "<" . $elt->tag . ">¶\n";   # testing, TT.
 					analyze ($elt);
-					print "<\\" . $elt->tag . ">\n";
+#					print "<\\" . $elt->tag . ">\n";
+					print "<\\" . $elt->tag . ">¶\n"; # testing, TT.
 				}
 				else {
 			    		print $elt->text;
+			    		print "¶\n";             # Testing, TT.
 			    	}
 			}
 	    }
