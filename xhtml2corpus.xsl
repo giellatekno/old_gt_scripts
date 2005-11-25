@@ -67,15 +67,7 @@ xsltproc /Users/tomi/Documents/eclipse/workspace/gt/script/xhtml2corpus.xsl - > 
    						|.//html:h3[1]"/>
   </p>
 
-  <xsl:apply-templates select=".//html:h1
-  							 |.//html:h2
-				              |.//html:h3
-				              |.//html:h4
-				              |.//html:h5
-				              |.//html:h6
-				              |.//html:ul
-				              |.//html:ol
-				              |.//html:table"/>
+  <xsl:apply-templates select=".//html:*"/>
  </body>
 </xsl:template>
 
@@ -115,7 +107,7 @@ xsltproc /Users/tomi/Documents/eclipse/workspace/gt/script/xhtml2corpus.xsl - > 
   -->
   <xsl:apply-templates/>
  </p>
- <xsl:apply-templates select=".//html:p | following-sibling::*[1]//html:p"/>
+ <xsl:apply-templates />
  </section>
 </xsl:template>
         
