@@ -41,7 +41,7 @@ if ($help) {
 }
 
 my $xsltproc="/usr/bin/xsltproc";
-my $tidy = "/usr/local/bin/tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
+my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
 
 # Find the directory where the xsl-files are.
 # (The same where this script is)
@@ -109,8 +109,8 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		print STDERR "$tidy \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"\n";
-		system("$tidy \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"") == 0
+		print STDERR "$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"\n";
+		system("$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"") == 0
 			or die "system failed: $?";
 	}
 
@@ -119,13 +119,13 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		my $html = $dir . "/temporary.out";
-		print STDERR "/usr/bin/pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"\n";
-		system("/usr/bin/pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"") == 0 
+		my $html = $dir . "-temporary.out";
+		print STDERR "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"\n";
+		system("pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"") == 0 
 			or die "system failed: $?";
 		&pdfclean($html);
-		print STDERR "$tidy \"$html\" | /usr/bin/xsltproc \"$xsl\" -  > \"$int\"\n";
-		system("$tidy \"$html\" | /usr/bin/xsltproc \"$xsl\" -  > \"$int\"") == 0
+		print STDERR "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"\n";
+		system("$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"") == 0
 			or die "system failed: $?";
 	}
 
