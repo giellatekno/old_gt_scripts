@@ -12,18 +12,19 @@ use Cwd;
 use samiChar::Decode;
 
 sub print_help {
-	print"Usage: convert2xml.pl --dir=<file> [OPTIONS]\n";
+	print"Usage: convert2xml.pl --dir=<dir> [OPTIONS] [FILE]\n";
 	print "The available options:\n";
 	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
     print"                    If not specified, the default values are used.\n";
     print"    --dir=<dir>     The directory where to search for converted files.\n";
+    print"                    If not given, only FILE is processed.\n";
     print"    --logdir=<dir>  The directory where the log-files are stored.\n";
     print"    --use-decode    Whether the character decoding is used or not.\n";
     print"                    This option is for testing.\n";
     print"    --help          Print this message and exit.\n";
 };
 
-my $use_decode;
+my $use_decode = 1;
 my $xsl_file = '';
 my $dir = '';
 my $log_dir = ''; 
@@ -70,7 +71,7 @@ if(! $log_dir || ! -d $log_dir) {
 }
 
 # Search the files in the directory $dir and process each one of them.
-find (\&process_file, $dir) if -d $dir;
+#find (\&process_file, $dir) if -d $dir;
 process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
 
 sub process_file {
