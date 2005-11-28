@@ -22,11 +22,6 @@ use open ':utf8';
 # permit named arguments
 use Getopt::Long;
 
-# Trade space for time
-use Memoize;
-memoize('test_idiom');
-memoize('verbose');
-
 my @words;
 my %abbrs;
 my $TRAB="TRAB";
