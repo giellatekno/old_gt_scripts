@@ -22,6 +22,11 @@ use open ':utf8';
 # permit named arguments
 use Getopt::Long;
 
+# Trade space for time
+use Memoize;
+memoize('test_idiom');
+memoize('verbose');
+
 my @words;
 my %abbrs;
 my $TRAB="TRAB";
@@ -50,9 +55,14 @@ my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h';
 my $abbr_file;
 my $help=0;
 my $verbose=0;
+my $hyph=0;
+my $use_hyph_tag=0;
+
 GetOptions ("abbr=s" => \$abbr_file,
 			"help" => \$help,
-			"v" => \$verbose) ;
+			"v" => \$verbose,
+			"hyph" => \$hyph,
+			"use-hyph-tag" => \$use_hyph_tag) ;
 
 if ($help) {
 	&print_usage;
@@ -83,7 +93,13 @@ $/ = "";
 while (<>) {
 	chomp;
 
-	# join hyphenated words separated by newline. Check this!
+	# Process the <hyph> tag.
+	if (! $use_hyph_tag) {
+		if ($hyph) { s/\<hyph\>/-/g; }
+		else { s/\<hyph\>//g; }
+	}
+
+	# The newline is removed from the possible remaining hyphenation points.
 	s/\w\-\n/\-/g;
 
 	# split the sentence by space.
@@ -401,8 +417,15 @@ sub read_abbr {
 }
 
 sub print_usage {
-	print "Usage: preprocess --abbr=<file_name>\n";
-	print "Split text into sentences and words.\n"
+	print "Usage: preprocess [OPTIONS] --abbr=<file_name> FILES\n";
+	print "Split text in FILE into sentences and words.\n";
+	print "Options\n";
+	print "--hyph          show the hyphenation points, i.e. change the <hyph> tags\n";
+    print "                to hyphens. The default is to just remove the <hyph> tags.\n";
+    print "--use-hyph-tags leave the <hyph> tags untouched\n";
+    print "--help          prints the help text and exit.\n";
+    print " --v            prints information of the execution of the script\n";
+
 }
 
 
