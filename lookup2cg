@@ -19,101 +19,90 @@ use strict;
 # $Id$
 
 my @Analyses;
+my %forms;
 my $word;
 my $tmp;
 my $compound = 0;
+my $comp_rate = 0;
+my $max_comp_rate = 0;
 
 # Read while not eol
 while(<>) {	
 	# While line not empty, store word to a scalar and
-	# analyses into an array.
+	# analysis (=base form and tags) to an array
 	if (! /^\s*$/) {
 		chomp;
-		if (/#/) { 
-			$compound = 1; 
-		} 
-		# store the word into a variable
-		# and the analysis part into an array.
-		$_ =~ /^(.*?)\t(.*)$/;
-		$word = $1;
-		push @Analyses, $2;
+		my $analysis;
+		($word, $analysis) = split(/\t/, $_, 2);
+		$analysis =~ tr/\t//d;
+		push @Analyses, $analysis;
+		$comp_rate = tr/#//;
+		if ($comp_rate > $max_comp_rate) { 
+			$max_comp_rate = $comp_rate; 
+		}
 	}
-	# if empty line, format the output and print
+	# Empty line means that the whole cohort has been read,
+	# format the output and print
 	else {
 		# Rate compounds accoring to word boundaries
-		if ($compound) { 
-			&rate_compounds(\@Analyses); 
+		if ($max_comp_rate > 0) { 
+			rate_compounds(\@Analyses); 
 		}
 		# Format each analysis
-		for my $line (@Analyses) {			
+		for my $line (@Analyses) {
 			# Separate the base form from the analysis
-			if ( $line =~ /^(.*?)\s*\+(.*)$/o ) {
-				my $base = $1;
-				$line = $2;
-				$line =~ s/\+/ /go;				
-				# If line contains a compound
-				if ( $line =~ /#/ ) { 
-					&format_compound(\$base, \$line, \$word); 
-				 }
-#				print "TESTI $base JA $line \n";
-				# Format output
-				$line =  "\t" . " \"$base\" " . $line . "\n"; 
-			}
-		} 
-		#Remove identical analyses
-		&remove_identical(\@Analyses);
+			my ($base, $line2) = split(/\+/, 2);
+			$line2 =~ tr/+/ /;
+			# If line contains a compound
+			if ( $max_comp_rate > 0 ) {
+				 format_compound(\$base, \$line2, \$word); 
+			 }
+			# Mark derivational tags
+			1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
 
-		# Mark derivational tags
-		&mark_deriv_tags(\@Analyses);
+			# Format output
+			$line =  "\t" . " \"$base\" " . $line2 . "\n";
+			
+			# Store the analysis to a hash
+			$forms{$line} = 1;
+		} 
 		
 		# Print output
 		print "\"<$word>\"\n";
-		for my $line (@Analyses)
-		{ print $line; }
+		for my $line (keys %forms)
+		{ print "$line"; }
 		
-		#TODO: problem: this is one element in the array.
-		@Analyses = 0;
-		pop @Analyses;
-		$compound = 0;
+		@Analyses = ();
+		%forms = ();
+		$comp_rate = 0;
+		$max_comp_rate = 0;
+
 	}
+
 } # end of while
 
-sub remove_identical {
-	my $aref = shift @_;
-
-	# Remove identical analyses
-	for my $i ( 0 .. $#{ $aref } ) {
-		for my $j ( $i+1 .. $#{ $aref } ) {
-			if ( $aref->[$i] eq $aref->[$j] )
-			{ $aref->[$j] = undef; }
-		}
-	}
-}
 
 sub rate_compounds {
 	my $aref = shift @_;
 	
 	# Rate compounds and remove extra readings.
-	# First mark the number of words in the compound
-	# to the beginning of the string
-	my $word_count;
-	my $best_word_count = 5;
-	for my $line (@$aref) {
-		$word_count = split ("#", $line);
-		$line = $word_count . $line;
-		if ( $word_count < $best_word_count )
-		{ $best_word_count = $word_count; }
+	my $min_boundary_count=5;
+	my $boundary_count=0;
+	foreach (@$aref) {
+		$boundary_count = tr/#//;
+		if ( $boundary_count < $min_boundary_count )
+		{ $min_boundary_count = $boundary_count; }
 	}
-	# Then sort the table
-	# And remove the readings with too many #'s
-	@$aref = sort {$a <=> $b} @$aref;
-	for my $line (@$aref) {
-		if ($line !~ /^$best_word_count/)
-		{ $line = undef; }
+	my $i=0;
+	$boundary_count = 0;
+	my @temp;
+	foreach (@$aref) {
+		$boundary_count = tr/#//;
+		if ( $boundary_count <= $min_boundary_count )
+		{ push @temp, $_; }
+		$i++;
 	}
-	# Remove the extra digits
-	for my $line (@$aref) 
-	{ $line =~ s/^\d(.*)$/$1/o; }
+	@$aref = @temp;
 }
 
 sub format_compound {
@@ -152,14 +141,5 @@ sub format_compound {
 		if ($orig =~ m/^\p{isLower}/) {
 			$$refbase = lcfirst($$refbase);
 		}
-	}
-}
-
-sub mark_deriv_tags {
-	my $aref = shift @_;
-
-	foreach my $line ( @{$aref} ) {
-		$line =~ s/(\s(?:V|N|Adv|A))(\s|\s.*?\s)((?:V|N|Adv|A)\s)/$1\*$2$3/;
-		$line =~ s/(\s(?:V|N|Adv|A)\*(?:\s|\s.*?\s)(?:V|N|Adv|A))((?:\s|\s.*?\s)(?:V|N|Adv|A)\s)/$1\*$2/;
 	}
 }
