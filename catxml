@@ -116,14 +116,19 @@ sub process_file {
     my $document = XML::Twig->new(twig_handlers =>
 				  {'document' => sub { $doclang = $_->{'att'}->{'xml:lang'}}} );
 
-	$document->parsefile ($file);
+	if ($document->safe_parsefile ($file) == 0) {
+		print STDERR "Couldn't parse file $file: $@";
+	}
 	
-
-	# Process all <p> elements
-    $document = XML::Twig->new(twig_handlers =>
-				  {p => \&process_xml} );
-
-    $document->parsefile ($file);
+	else {
+		# Process all <p> elements
+	    $document = XML::Twig->new(twig_handlers =>
+					  {p => \&process_xml} );
+	
+	    if ($document->safe_parsefile ($file) == 0) {
+			print STDERR "Couldn't parse file $file: $@";
+		}
+    }
 }
 
 sub process_xml {
