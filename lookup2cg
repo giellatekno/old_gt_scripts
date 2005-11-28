@@ -51,8 +51,9 @@ while(<>) {
 		# Format each analysis
 		for my $line (@Analyses) {
 			# Separate the base form from the analysis
-			my ($base, $line2) = split(/\+/, 2);
+			my ($base, $line2) = split(/\+/, $line, 2);
 			$line2 =~ tr/+/ /;
+
 			# If line contains a compound
 			if ( $max_comp_rate > 0 ) {
 				 format_compound(\$base, \$line2, \$word); 
