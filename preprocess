@@ -45,7 +45,7 @@ my $SEPARATE_PUNCT = quotemeta("¶|{}[]()«»‹›“”‘’?!;…,•'`´/\\
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SEPARATE_PUNCT.
-my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@';
 
 my $abbr_file;
 my $help=0;
@@ -98,14 +98,15 @@ while (<>) {
 	s/\w\-\n/\-/g;
 
 	# split the sentence by space.
-    my @words = split (/[\s]+/, $_) ;
+    my @words = split;
 
 	while (@words) {
-		my $word = shift (@words) ;
+		
+		my $word = shift @words;
+
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
 		
-		next if (! $word);
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster, however the
         # test_idiom part is the most time consuming.                                               
@@ -129,11 +130,11 @@ while (<>) {
 			process_word ($word, \@words, \@tokens);
 		}
 		# Otherwise it is processed like numeral.
-		elsif ($word) {
+		else {
 			process_numeral ($word, \@words, \@tokens);
 		}
 		for my $token (@tokens) {
-			print "$token\n" unless (! $token);
+			print "$token\n"  unless ($token =~ /^$/);
 		}
 	}
 }
@@ -173,7 +174,7 @@ sub process_word {
 	if ($word !~ /$CONTAIN_PUNCT/o && (my @parts = split (/([+=%$SEPARATE_PUNCT\/])/o, $word))) {
 		my $i;
 		for ($i=0; $i < $#parts; $i++) {
-			push (@{$tokens_aref}, $parts[$i]); 
+			push (@{$tokens_aref}, $parts[$i]);
 		}
 		# Process the last part further, it may start with punctuation
 		# that is separate token.
@@ -368,6 +369,7 @@ sub process_numeral {
 
 	# Push everything to the tokens array.
 	push (@{$tokens_aref}, $word);
+
 	push (@{$tokens_aref}, split(/ */, $rest_punct));
 	push (@{$tokens_aref}, split(/ */, $end_punct));
 
@@ -405,7 +407,7 @@ sub read_abbr {
 	}
 	while (<LEX>) {
 		chomp;
-		my ($first, $last) = split(/ /, $_);
+		my ($first, $last) = split;
 		$$idiom_href{$first} = $last;
 	}
 	close LEX;	
