@@ -40,11 +40,11 @@ my $PUNCT = quotemeta("¶|{}[]()«»‹›“”’‘$.*?!,;:…•'\.\"%´");
 # whether word or numeral expression.
 # There are characters added to this list depending on if
 # the processed string is word or numeral.
-#my $SEPARATE_PUNCT = quotemeta("|{}[]()«»‹›“”‘’?!;,'`\""); # orig, tt 050513
-my $SEPARATE_PUNCT = quotemeta("¶|{}[]()«»‹›“”‘’?!;…,•'`´/\\\"");
+#my $SINGLE_PUNCT = quotemeta("|{}[]()«»‹›“”‘’?!;,'`\""); # orig, tt 050513
+my $SINGLE_PUNCT = quotemeta("¶|{}[]()«»‹›“”‘’?!;…,•'`´/\\\"");
 
 # Regex for tokens that nevertheless contain punctuation that
-# is specified in variable $SEPARATE_PUNCT.
+# is specified in variable $SINGLE_PUNCT.
 my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@';
 
 my $abbr_file;
@@ -119,7 +119,7 @@ while (<>) {
 
 		# store punctuation from the front of the expression
 		# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-		if ($word =~ s/^([$SEPARATE_PUNCT]+)//o) {
+		if ($word =~ s/^([$SINGLE_PUNCT]+)//o) {
 			push (@tokens, split(/ */, $1));
 		}
 		# Examine the type of the string. If the expression contains
@@ -163,7 +163,7 @@ sub process_word {
 
 
     # Store the punctuation at the end of the string to a variable
-	if ($word =~ s/([+=%:$SEPARATE_PUNCT]+)$//o) {
+	if ($word =~ s/([+=%:$SINGLE_PUNCT]+)$//o) {
 		$end_punct = $1;
 		verbose ("process_word/end_punct", $end_punct, __LINE__);
 	}
@@ -171,7 +171,7 @@ sub process_word {
 	# Cut the word into tokens if there is punctuation in the middle.
 	# e.g. gielddat/guovllut
 	# Check for expressions in $CONTAIN_PUNCT -variable.
-	if ($word !~ /$CONTAIN_PUNCT/o && (my @parts = split (/([+=%$SEPARATE_PUNCT\/])/o, $word))) {
+	if ($word !~ /$CONTAIN_PUNCT/o && (my @parts = split (/([+=%$SINGLE_PUNCT\/])/o, $word))) {
 		my $i;
 		for ($i=0; $i < $#parts; $i++) {
 			push (@{$tokens_aref}, $parts[$i]);
@@ -201,7 +201,7 @@ sub process_word {
 		# If the word was not an abbreviation, the rest
 		# of the punctuation is removed and stored as separate tokens.
 		# This operation is for taking the dot out.
-		if ($word =~ s/([$SEPARATE_PUNCT\.:]+)$//o) {
+		if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
 			$rest_punct =  $1;
 			verbose ("process_word/rest_punct", $rest_punct, __LINE__);
 		}
@@ -324,10 +324,10 @@ sub process_numeral {
 	# cases like: 123! and 123.), 123). 10,-. 
     # problem: 123.? and 123 is an ordinal.
 	my $end_punct;
-	if ($word =~ s/([$SEPARATE_PUNCT:]+\.?)$//o){
+	if ($word =~ s/([$SINGLE_PUNCT:]+\.?)$//o){
 		$end_punct = $1;
 	}
-	if ($word =~ /([$SEPARATE_PUNCT:\-\%]+\.?)$/o){
+	if ($word =~ /([$SINGLE_PUNCT:\-\%]+\.?)$/o){
 		$word =~ s/(\.?)$//;
 		$end_punct = $1;
 	}
@@ -359,7 +359,7 @@ sub process_numeral {
 			
 			# Clean the rest of the token:
 			# cases like 123). where dot is preceded by punctuation.
-			if ($word =~ s/([$SEPARATE_PUNCT:]+)$//o) {
+			if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
 				$rest_punct =  $1;
 			}
 		}
