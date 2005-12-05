@@ -68,8 +68,6 @@ if ($help) {
 	exit;
 }
 
-	open FH, ">dot.txt";
-
 my %idioms;
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
@@ -145,7 +143,6 @@ while (<>) {
 	}
 }
 
-	close FH;
 
 sub process_word {
 	my ($word, $words_aref, $tokens_aref) = @_;
@@ -361,7 +358,6 @@ sub process_numeral {
 	my $end_word;
 	if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) { 
 		$word =~ s/([^\W\d]+\.?)$//;
-		print FH "JEE $word, $1\n";
 		push (@$tokens_aref, $word);
 		$end_word = $1;
 	}
