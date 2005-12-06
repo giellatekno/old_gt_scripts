@@ -11,10 +11,10 @@
 # <just type enter to all questions>ll
 # chmod 0644 .ssh/id_rsa.pub
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
-FORREST_HOME=/home/giella/apache-forrest-0.7
+FORREST_HOME=$HOME/forrest
 PATH=$PATH:$FORREST_HOME/bin
 CVS_RSH=ssh
-MAIL_FROM="giella@giellatekno.uit.no"
+MAIL_FROM="boerre@cochise.uit.no"
 MAIL_TO="borre.gaup@samediggi.no"
 # This function uses cvs to checkout the directory given as it's argument,
 # or updates the given directory.
@@ -52,6 +52,9 @@ checkout()
             echo "")|/usr/lib/sendmail -t
             exit 1
         fi
+        # This doesn't belong to the forrest sources and will cause an error 
+        # when building the site
+        rm -rf admin/projman/Projects
         cd
     fi
 }
@@ -63,7 +66,7 @@ checkout()
 
 fetch_giella_and_divvun()
 {
-    for CVS_DIR in xtdoc/sd/src/documentation/content/xdocs xtdoc/gtuit/src/documentation/content/xdocs
+    for CVS_DIR in xtdoc/sd xtdoc/gtuit
     do
         checkout $CVS_DIR
     done
@@ -75,33 +78,22 @@ fetch_giella_and_divvun()
 # If successfull it copies the relevant files to the tomcat-servers 
 # directories, else it sends an e-mail to the site administrator.
 
-validate_sites()
+build_and_copy_sites()
 {
-    ERROR_FILE="$HOME/forrest-validation-error.txt"
-    touch $ERROR_FILE
     for SITE in sd gtuit
     do
         cd $HOME/xtdoc/$SITE
 
-        # Validate the docs, redirect error output to the ERROR_FILE
-        echo "Validating docs in $SITE ..."
-        forrest validate-xdocs > /dev/null #2>>$ERROR_FILE
+        # Build the site, at the same time checking the docs
+        echo "Building $SITE ..."
+        forrest -Dforrest.jvmargs=-Djava.awt.headless=true
 
         # $? is the status of the last executed program.
         # 0 is success, anything else indicates some kind of error
         if [ "$?"  == "0" ]
         then
-            if  [ "$SITE" == "sd" ]
-            then
-                GOAL="divvun-no"
-            else
-                GOAL="giellatekno"
-            fi
-            cd src/documentation/content/xdocs/
-            rm -rf doc/admin/projman/Projects
-            echo "copying files to tomcat5 dir $GOAL..."
-            # Find only files that belong to the documentation, and copy them
-            tar cf - `find . ! \( -name CVS -o -name Root -o -name Repository -o -name "Entries*" -o -name .cvsignore -o -type d \)` | sudo -u tomcat5 /bin/tar xf - -C /var/lib/tomcat5/webapps/$GOAL/project/src/documentation/content/xdocs/
+            cd build/site
+            scp -r * $SITE@giellatekno.uit.no:~/public_html/.
             if [ "$?"  != "0" ]
             then
                 (
@@ -110,7 +102,7 @@ validate_sites()
                 echo "TO:$MAIL_TO"
                 echo ""
                 )|/usr/lib/sendmail -t
-                echo "sudo -u tomcat5 failed ......"
+                echo "copying files to $SITE failed..."
             fi
         else
             echo "Sending error mail ..."
@@ -126,6 +118,6 @@ validate_sites()
 }
 
 fetch_giella_and_divvun
-validate_sites
+build_and_copy_sites
 
 echo "Done updating giellatekno and divvun:-)!"
