@@ -11,6 +11,7 @@
 # <just type enter to all questions>ll
 # chmod 0644 .ssh/id_rsa.pub
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
+
 FORREST_HOME=$HOME/forrest
 PATH=$PATH:$FORREST_HOME/bin
 CVS_RSH=ssh
@@ -25,38 +26,20 @@ checkout()
     echo "Updating $TEMPDIR ..."
     cd
     if  ! [ -x $TEMPDIR ]; then
-            (echo "From: $MAIL_FROM"
-            echo "Subject: cvs checkout error"
-            echo "TO:$MAIL_TO"
-            echo "")|/usr/lib/sendmail -t
-            echo "No point in continuing without any data to work on ..."
-            exit 1
+        cvs co $TEMPDIR
     else
         cd $TEMPDIR
         cvs -z4 up -dP
-        if [ "$?" != "0" ]; then
-                echo "cvs up failed in $TEMPDIR ..."
-            (echo "From: $MAIL_FROM"
-            echo "Subject: cvs update error"
-            echo "TO:$MAIL_TO"
-            echo "")|/usr/lib/sendmail -t
-            exit 1
-        fi
-        cd doc
-        cvs -z4 up -dP
-        if [ "$?" != "0" ]; then
-                echo "cvs up failed $TEMPDIR/doc ..."
-            (echo "From: $MAIL_FROM"
-            echo "Subject: cvs update error"
-            echo "TO:$MAIL_TO"
-            echo "")|/usr/lib/sendmail -t
-            exit 1
-        fi
-        # This doesn't belong to the forrest sources and will cause an error 
-        # when building the site
-        rm -rf admin/projman/Projects
-        cd
     fi
+    if [ "$?" != "0" ]; then
+            echo "cvs up failed in $TEMPDIR ..."
+        (echo "From: $MAIL_FROM"
+        echo "Subject: cvs update error"
+        echo "TO:$MAIL_TO"
+        echo "")|/usr/lib/sendmail -t
+        exit 1
+    fi
+    cd
 }
 
 # This function uses the 'checkout' function to update or checkout
@@ -66,7 +49,7 @@ checkout()
 
 fetch_giella_and_divvun()
 {
-    for CVS_DIR in xtdoc/sd xtdoc/gtuit
+    for CVS_DIR in xtdoc gt
     do
         checkout $CVS_DIR
     done
@@ -85,15 +68,18 @@ build_and_copy_sites()
         cd $HOME/xtdoc/$SITE
 
         # Build the site, at the same time checking the docs
-        echo "Building $SITE ..."
-        forrest -Dforrest.jvmargs=-Djava.awt.headless=true
+        echo "Validating $SITE ..."
+        forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
 
         # $? is the status of the last executed program.
         # 0 is success, anything else indicates some kind of error
         if [ "$?"  == "0" ]
         then
+            echo "Building site ..."
+            forrest -Dforrest.jvmargs=-Djava.awt.headless=true
             cd build/site
-            scp -r * $SITE@giellatekno.uit.no:~/public_html/.
+            echo "Copying file to $SITE..."
+            scp -r * $SITE@giellatekno.uit.no:public_html/.
             if [ "$?"  != "0" ]
             then
                 (
