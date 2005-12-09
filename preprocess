@@ -112,8 +112,7 @@ while (<>) {
 		my @tokens;
 		
 		# Move forward if the word is nothing special. 
-        # This is for making preprocessing faster, however the
-        # test_idiom part is the most time consuming.                                               
+        # This is for making preprocessing faster.
 		if ($word =~ /^[^\W\d\s\n]*$/) {
 			if (! $idioms{lcfirst($word)}) {
 				print "$word\n";
@@ -253,13 +252,13 @@ sub test_abbr {
 		push (@{$tokens_aref}, $word);
 		return 1;
 	}
-	# There is a sentence boundary if the abbreviation
-	# is followed by other than number or non-alphabetic char.
-	# Is this necessary? 
+	# There is CLB after TRNUMAB only for the capital+small combinations
+	# and all small-initial strings that consist of more than one letter.
+	# For all other strings (one small letter, one or several capital letters) we
+	# want no CLB after TRNUMAB.
 	elsif ($abbrs{$abbr} eq $TRNUMAB) {
 		push (@{$tokens_aref}, $word);
-#		if ($next_word !~ /^[0-9]/ ) {
-		if (	$next_word =~ /^[A-ZÁŠŦŊĐČŽ][a-z]*/ ) {
+		if ($next_word =~ /^[[:upper:]]?[[:lower:]]{2,}/) {
 			push (@{$tokens_aref}, ".");
 		}
 		return 1;
@@ -379,7 +378,6 @@ sub process_numeral {
 		if ($end_word) {
 			my $abbr = $end_word;
 			if (( $abbr =~ s/\.$//)  && $abbrs{$abbr}) {
-#		print "JEE $word\n";
 				test_abbr($end_word, $words_aref->[0], $tokens_aref);
 				last NUM_TEST;
 			}
