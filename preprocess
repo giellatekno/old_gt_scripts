@@ -258,7 +258,8 @@ sub test_abbr {
 	# Is this necessary? 
 	elsif ($abbrs{$abbr} eq $TRNUMAB) {
 		push (@{$tokens_aref}, $word);
-		if ($next_word !~ /^[0-9]/ ) {
+#		if ($next_word !~ /^[0-9]/ ) {
+		if (	$next_word =~ /^[A-Z][a-z]*/ ) {
 			push (@{$tokens_aref}, ".");
 		}
 		return 1;
