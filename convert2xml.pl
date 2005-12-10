@@ -32,6 +32,7 @@ sub print_help {
     print"    --dir=<dir>     The directory where to search for converted files.\n";
     print"                    If not given, only FILE is processed.\n";
     print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
+    print"    --nolog         Print error messages to STDERR, not to log files.\n";
     print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
     print"    --use-decode    Whether the character decoding is used or not.\n";
     print"                    This option is for testing.\n";
@@ -39,6 +40,7 @@ sub print_help {
 };
 
 my $use_decode = 1;
+my $nolog = 0; 
 my $xsl_file = '';
 my $dir = '';
 my $tmpdir = ''; 
@@ -46,17 +48,22 @@ my $corpdir = "/usr/local/share/corp";
 my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
 my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
 
+# Some securing operations
+$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
 my $xsltproc="/usr/bin/xsltproc";
 my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
 
 my $language = "sme";
 my $help;
 
-dGetOptions ("use-decode" => \$use_decode,
+GetOptions ("use-decode" => \$use_decode,
 			"xsl=s" => \$xsl_file,
 			"dir=s" => \$dir,
 			"tmpdir=s" => \$tmpdir,
 			"corpdir=s" => \$corpdir,
+			"nolog" => \$nolog,
 			"lang=s" => \$language,
 			"help" => \$help);
 
@@ -88,6 +95,13 @@ sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
 
+	# Check the file name for taintedness
+	# This is actually already done in upload.cgi
+	if ($file =~ /^([\/-\@\w.]+)$/) {
+		$file = $1; # $data now untainted
+    } else {
+		die "Bad data in '$file'"; # log this somewhere
+    }
     return unless ($file =~ m/\.(doc|pdf|html)$/);
     return if (__FILE__ =~ $file);
     return if ($file =~ /[\~]$/);
@@ -97,10 +111,12 @@ sub process_file {
     (my $int = $orig) =~ s/orig/gt/;
 	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
 
-	# Redirect STDERR to log files.
 	$file =~ s/.*[\/\\](.*)/$1/;
-	my $log_file = $tmpdir . "/" . $file . ".log";
-	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
+	# Redirect STDERR to log files.	
+	if (! $nolog) {
+		my $log_file = $tmpdir . "/" . $file . ".log";
+		open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
+	}
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
