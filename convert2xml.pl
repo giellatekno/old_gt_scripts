@@ -48,6 +48,8 @@ my $corpdir = "/usr/local/share/corp";
 my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
 my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
 
+my $log_file;
+
 # Some securing operations
 $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
@@ -85,23 +87,34 @@ if(! $tmpdir || ! -d $tmpdir) {
     }
 }
 
+# Redirect STDERR to log files.	
+if (! $nolog) {
+	my ($sec,$min,$hour,$mday,$mon,@rest) = localtime(time);
+	$log_file = $tmpdir . "/" . $mon . "-" . $mday . "-" . $hour . "-" . $min . ".log";
+	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
+}
+
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
 	find (\&process_file, $dir) if -d $dir;
 }
 process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
 
+close STDERR;
+
 sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
-
+	
 	# Check the file name for taintedness
 	# This is actually already done in upload.cgi
 	if ($file =~ /^([\/-\@\w.]+)$/) {
 		$file = $1; # $data now untainted
-    } else {
-		die "Bad data in '$file'"; # log this somewhere
-    }
+    } 
+#	else {
+#		die "Bad data in '$file'"; # log this somewhere
+#    }
+
     return unless ($file =~ m/\.(doc|pdf|html)$/);
     return if (__FILE__ =~ $file);
     return if ($file =~ /[\~]$/);
@@ -111,34 +124,34 @@ sub process_file {
     (my $int = $orig) =~ s/orig/gt/;
 	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
 
+	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
-	# Redirect STDERR to log files.	
-	if (! $nolog) {
-		my $log_file = $tmpdir . "/" . $file . ".log";
-		open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
-	}
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
+
+	my $command;
 
 	# Conversion of word documents
 	if ($file =~ /\.doc$/) {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $docxsl; }
-		print STDERR "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"\n";
-		system("/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"") == 0 
-			or die "system failed: $?";
+		$command = "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"";
+		print STDERR "$command\n"; 
+		system($command) == 0 
+			or print "$file: ERROR system failed\n";
 	}
-
+	
 	# Conversion of xhtml documents
 	if ($file =~ /\.html$/) {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		print STDERR "$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"\n";
-		system("$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"") == 0
-			or die "system failed: $?";
+		$command = "$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"";
+		print STDERR "$command\n";
+		system($command) == 0
+			or print STDERR "$file: ERROR system failed\n";
 	}
 
 	# Conversion of pdf documents	
@@ -147,23 +160,33 @@ sub process_file {
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
 		my $html = $tmpdir . "/" . $file . ".tmp";
-		print STDERR "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"\n";
-		system("pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"") == 0 
-			or die "system failed: $?";
+		$command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
+		print STDERR $command, "\n";
+		system($command) == 0 
+			or print STDERR "$file: ERROR system failed \n";
 		&pdfclean($html);
-		print STDERR "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"\n";
-		system("$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"") == 0
-			or die "system failed: $?";
+		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
+		print STDERR $command;
+		system($command) == 0
+			or print STDERR "$file: ERROR system failed\n";
 	}
 
+	if (! $nolog) {
+		open FH, $log_file;
+		while (<FH>) {
+			print "$_\n" if (/system/ && /$file/);
+		}
+	}
+	
+	
 # Check if the file contains characters that are wrongly
 # utf-8 encoded and decode them.
-		if ($use_decode) {
-			my $coding = &guess_encoding($int, $language);
-			&decode_file($int, $coding, $int);
-        }
-	close STDERR;
+	if ($use_decode) {
+		my $coding = &guess_encoding($int, $language);
+		&decode_file($int, $coding, $int);
+	}
 }
+
 
 
 
@@ -171,7 +194,10 @@ sub pdfclean {
 
 		my $file = shift @_;
 		
-		open (INFH, "$file") or die "Cannot open file $file: $!";
+		if (! open (INFH, "$file")) {
+			print STDERR "$file: ERROR system failed $!";
+			return;
+			}
 
 		my $number=0;
 		my $string;
