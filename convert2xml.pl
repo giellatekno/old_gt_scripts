@@ -1,4 +1,17 @@
 #!/usr/bin/perl -w
+#
+# convert2xml.pl
+# Perl script for converting doc-, html- and pdf-files to xml-format
+# The default directory for searching the files and storing the converted
+# xml-files is /usr/local/share/corp. The file that is given to the script
+# is expected to be in the corpus hierarchy, under subdirectory orig. 
+# The converted file is created to the corresponding subdirectory gt.
+#
+# Log files are generated to subdirectory tmp, and the xsl-files are by default
+# found under the subdirectory bin. It is possible to change the corpus directory
+# but the underlying hierarchy should exists.
+#
+#
 # Version $Id$
 
 use strict;
@@ -12,13 +25,14 @@ use Cwd;
 use samiChar::Decode;
 
 sub print_help {
-	print"Usage: convert2xml.pl --dir=<dir> [OPTIONS] [FILE]\n";
+	print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
 	print "The available options:\n";
 	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
     print"                    If not specified, the default values are used.\n";
     print"    --dir=<dir>     The directory where to search for converted files.\n";
     print"                    If not given, only FILE is processed.\n";
-    print"    --logdir=<dir>  The directory where the log-files are stored.\n";
+    print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
+    print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
     print"    --use-decode    Whether the character decoding is used or not.\n";
     print"                    This option is for testing.\n";
     print"    --help          Print this message and exit.\n";
@@ -27,13 +41,23 @@ sub print_help {
 my $use_decode = 1;
 my $xsl_file = '';
 my $dir = '';
-my $log_dir = ''; 
+my $tmpdir = ''; 
+my $corpdir = "/usr/local/share/corp";
+my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
+my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
+
+my $xsltproc="/usr/bin/xsltproc";
+my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
+
+my $language = "sme";
 my $help;
 
-GetOptions ("use-decode" => \$use_decode,
+dGetOptions ("use-decode" => \$use_decode,
 			"xsl=s" => \$xsl_file,
 			"dir=s" => \$dir,
-			"logdir=s" => \$log_dir,
+			"tmpdir=s" => \$tmpdir,
+			"corpdir=s" => \$corpdir,
+			"lang=s" => \$language,
 			"help" => \$help);
 
 if ($help) {
@@ -41,37 +65,23 @@ if ($help) {
 	exit 1;
 }
 
-my $xsltproc="/usr/bin/xsltproc";
-my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
-
-# Find the directory where the xsl-files are.
-# (The same where this script is)
-# This should be changed when the script is installed somewhere
-# and the xsl-files get their permanent location.
-my $script_dir = dirname __FILE__;
-$script_dir = File::Spec->rel2abs($script_dir);
-my $docxsl = $script_dir . "/docbook2corpus.xsl";
-my $htmlxsl = $script_dir . "/xhtml2corpus.xsl";
-
-# If the directory is not specified, the search is not done.
-if (! $dir) { 
-#	print "Warning: the input directory (--dir) is not specified.\n"; 
-	# With getcwd we have problems, because it will try to process the working
-	# directory even when we want just to process one file.
-#	$dir = getcwd;
-	$dir = $ARGV[$#ARGV];
+if (! $corpdir || ! -d $corpdir) {
+	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
 }
 
 # A log file is created for each file, it contains the executed commands
 # and redirected STDERR of these commands.
-# The log file is created to the same directory as the other files,
-# the directory should perhaps be changed.
-if(! $log_dir || ! -d $log_dir) {
-	$log_dir = $dir;
+if(! $tmpdir || ! -d $tmpdir) {
+	$tmpdir = $corpdir . "/tmp";
+    if (! -d $tmpdir) {
+        die "Error: could find directory for log files.\nSpecify tmpdir as command line.\n";
+    }
 }
 
 # Search the files in the directory $dir and process each one of them.
-#find (\&process_file, $dir) if -d $dir;
+if ($dir) {
+	find (\&process_file, $dir) if -d $dir;
+}
 process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
 
 sub process_file {
@@ -84,13 +94,13 @@ sub process_file {
 	return if (-z $file);
     
     my $orig = File::Spec->rel2abs($file);
-    my $int = $orig;
+    (my $int = $orig) =~ s/orig/gt/;
 	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
 
 	# Redirect STDERR to log files.
 	$file =~ s/.*[\/\\](.*)/$1/;
-#	my $log_file = $log_dir . "/" . $file . ".log";
-#	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
+	my $log_file = $tmpdir . "/" . $file . ".log";
+	open STDERR, '>>', "$log_file" or die "Can't redirect STDERR: $!";
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
@@ -120,7 +130,7 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		my $html = $dir . "-temporary.out";
+		my $html = $tmpdir . "/" . $file . ".tmp";
 		print STDERR "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"\n";
 		system("pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"") == 0 
 			or die "system failed: $?";
@@ -133,7 +143,7 @@ sub process_file {
 # Check if the file contains characters that are wrongly
 # utf-8 encoded and decode them.
 		if ($use_decode) {
-			my $coding = &guess_encoding($int, "sme");
+			my $coding = &guess_encoding($int, $language);
 			&decode_file($int, $coding, $int);
         }
 	close STDERR;
