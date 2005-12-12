@@ -9,6 +9,10 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 # File copying and xml-processing
 use XML::Twig;
 
+# Some securing operations. -sh
+$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
 
@@ -66,7 +70,7 @@ for my $i (@md5sum) {
 
 # Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
-system "/home/tomi/gt/script/convert2xml.pl --logdir=/usr/local/share/corp/tmp --xsl=/home/tomi/gt/script/docbook2corpus.xsl \"$upload_dir/$fname\"";
+system "/usr/local/share/corp/bin/convert2xml.pl --tmpdir=/usr/local/share/corp/tmp \"$upload_dir/$fname\"";
 	# or die "Couldn't call system";
 
 # Define variables for XSL-template
