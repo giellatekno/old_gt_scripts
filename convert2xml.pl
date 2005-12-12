@@ -32,14 +32,13 @@ sub print_help {
     print"    --dir=<dir>     The directory where to search for converted files.\n";
     print"                    If not given, only FILE is processed.\n";
     print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
-    print"    --nolog         Print error messages to STDERR, not to log files.\n";
+    print"    --nolog         Print error messages to screen, not to log files.\n";
     print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
-    print"    --use-decode    Whether the character decoding is used or not.\n";
-    print"                    This option is for testing.\n";
+    print"    --no-decode     Do not decode the characters.\n";
     print"    --help          Print this message and exit.\n";
 };
 
-my $use_decode = 1;
+my $no_decode = 0;
 my $nolog = 0; 
 my $xsl_file = '';
 my $dir = '';
@@ -50,7 +49,7 @@ my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
 
 my $log_file;
 
-# Some securing operations
+# Some securing operations, add these to upload.cgi!
 $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
@@ -60,7 +59,7 @@ my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -as
 my $language = "sme";
 my $help;
 
-GetOptions ("use-decode" => \$use_decode,
+GetOptions ("no-decode" => \$no_decode,
 			"xsl=s" => \$xsl_file,
 			"dir=s" => \$dir,
 			"tmpdir=s" => \$tmpdir,
@@ -83,7 +82,7 @@ if (! $corpdir || ! -d $corpdir) {
 if(! $tmpdir || ! -d $tmpdir) {
 	$tmpdir = $corpdir . "/tmp";
     if (! -d $tmpdir) {
-        die "Error: could find directory for log files.\nSpecify tmpdir as command line.\n";
+        die "Error: could find directory for temporary and log files.\nSpecify tmpdir as command line.\n";
     }
 }
 
@@ -96,9 +95,13 @@ if (! $nolog) {
 
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
-	find (\&process_file, $dir) if -d $dir;
+	if (-d $dir) { find (\&process_file, $dir) }
+	else { print "$dir ERROR: Directory did not exist.\n"; }
 }
+
+# Process the file given in command line.
 process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+
 
 close STDERR;
 
@@ -111,15 +114,17 @@ sub process_file {
 	if ($file =~ /^([\/-\@\w.]+)$/) {
 		$file = $1; # $data now untainted
     } 
-#	else {
-#		die "Bad data in '$file'"; # log this somewhere
-#    }
-
+	else {
+		print STDERR "$file: ERROR: Bad data in file name.\n";
+		return;
+	}
+	# Search with find gives some unwanted files which are silently
+	# returned here.
     return unless ($file =~ m/\.(doc|pdf|html)$/);
-    return if (__FILE__ =~ $file);
     return if ($file =~ /[\~]$/);
+    return if (__FILE__ =~ $file);
 	return if (-z $file);
-    
+
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/orig/gt/;
 	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
@@ -140,7 +145,7 @@ sub process_file {
 		$command = "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"";
 		print STDERR "$command\n"; 
 		system($command) == 0 
-			or print "$file: ERROR system failed\n";
+			or print STDERR "$file: ERROR system failed\n";
 	}
 	
 	# Conversion of xhtml documents
@@ -174,14 +179,14 @@ sub process_file {
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
-			print "$_\n" if (/system/ && /$file/);
+			print "$_\n" if (/ERROR/ && /$file/);
 		}
 	}
 	
 	
 # Check if the file contains characters that are wrongly
 # utf-8 encoded and decode them.
-	if ($use_decode) {
+	if (! $no_decode) {
 		my $coding = &guess_encoding($int, $language);
 		&decode_file($int, $coding, $int);
 	}
