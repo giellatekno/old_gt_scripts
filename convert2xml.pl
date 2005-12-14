@@ -24,87 +24,6 @@ use Getopt::Long;
 use Cwd;
 use samiChar::Decode;
 
-sub print_help {
-	print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
-	print "The available options:\n";
-	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
-    print"                    If not specified, the default values are used.\n";
-    print"    --dir=<dir>     The directory where to search for converted files.\n";
-    print"                    If not given, only FILE is processed.\n";
-    print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
-    print"    --nolog         Print error messages to screen, not to log files.\n";
-    print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
-    print"    --no-decode     Do not decode the characters.\n";
-    print"    --help          Print this message and exit.\n";
-};
-
-my $no_decode = 0;
-my $nolog = 0; 
-my $xsl_file = '';
-my $dir = '';
-my $tmpdir = ''; 
-my $corpdir = "/usr/local/share/corp";
-my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
-my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
-
-my $log_file;
-
-# Some securing operations, add these to upload.cgi!
-$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
-delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
-
-my $xsltproc="/usr/bin/xsltproc";
-my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
-
-my $language = "sme";
-my $help;
-
-GetOptions ("no-decode" => \$no_decode,
-			"xsl=s" => \$xsl_file,
-			"dir=s" => \$dir,
-			"tmpdir=s" => \$tmpdir,
-			"corpdir=s" => \$corpdir,
-			"nolog" => \$nolog,
-			"lang=s" => \$language,
-			"help" => \$help);
-
-if ($help) {
-	&print_help;
-	exit 1;
-}
-
-if (! $corpdir || ! -d $corpdir) {
-	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
-}
-
-# A log file is created for each file, it contains the executed commands
-# and redirected STDERR of these commands.
-if(! $tmpdir || ! -d $tmpdir) {
-	$tmpdir = $corpdir . "/tmp";
-    if (! -d $tmpdir) {
-        die "Error: could find directory for temporary and log files.\nSpecify tmpdir as command line.\n";
-    }
-}
-
-# Redirect STDERR to log files.	
-if (! $nolog) {
-	my ($sec,$min,$hour,$mday,$mon,@rest) = localtime(time);
-	$log_file = $tmpdir . "/" . $mon . "-" . $mday . "-" . $hour . "-" . $min . ".log";
-	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
-}
-
-# Search the files in the directory $dir and process each one of them.
-if ($dir) {
-	if (-d $dir) { find (\&process_file, $dir) }
-	else { print "$dir ERROR: Directory did not exist.\n"; }
-}
-
-# Process the file given in command line.
-process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
-
-
-close STDERR;
-
 sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
@@ -192,9 +111,6 @@ sub process_file {
 	}
 }
 
-
-
-
 sub pdfclean {
 
 		my $file = shift @_;
@@ -248,3 +164,88 @@ sub pdfclean {
 		print(OUTFH @text_array); 
 		close (OUTFH);
 }
+
+sub print_help {
+	print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
+	print "The available options:\n";
+	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
+    print"                    If not specified, the default values are used.\n";
+    print"    --dir=<dir>     The directory where to search for converted files.\n";
+    print"                    If not given, only FILE is processed.\n";
+    print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
+    print"    --nolog         Print error messages to screen, not to log files.\n";
+    print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
+    print"    --no-decode     Do not decode the characters.\n";
+    print"    --help          Print this message and exit.\n";
+};
+
+my $no_decode = 0;
+my $nolog = 0; 
+my $xsl_file = '';
+my $dir = '';
+my $tmpdir = ''; 
+my $corpdir = "/usr/local/share/corp";
+my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
+my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
+
+my $log_file;
+
+# Some securing operations, add these to upload.cgi!
+$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
+my $xsltproc="/usr/bin/xsltproc";
+my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
+
+my $language = "sme";
+my $help;
+
+GetOptions ("no-decode" => \$no_decode,
+			"xsl=s" => \$xsl_file,
+			"dir=s" => \$dir,
+			"tmpdir=s" => \$tmpdir,
+			"corpdir=s" => \$corpdir,
+			"nolog" => \$nolog,
+			"lang=s" => \$language,
+			"help" => \$help);
+
+if ($help) {
+	&print_help;
+	exit 1;
+}
+
+if (! $corpdir || ! -d $corpdir) {
+	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
+}
+
+# A log file is created for each file, it contains the executed commands
+# and redirected STDERR of these commands.
+if(! $tmpdir || ! -d $tmpdir) {
+	$tmpdir = $corpdir . "/tmp";
+    if (! -d $tmpdir) {
+        die "Error: could find directory for temporary and log files.\nSpecify tmpdir as command line.\n";
+    }
+}
+
+# Redirect STDERR to log files.	
+if (! $nolog) {
+	my ($sec,$min,$hour,$mday,$mon,@rest) = localtime(time);
+	$log_file = $tmpdir . "/" . $mon . "-" . $mday . "-" . $hour . "-" . $min . ".log";
+	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
+}
+
+# Search the files in the directory $dir and process each one of them.
+if ($dir) {
+	if (-d $dir) { find (\&process_file, $dir) }
+	else { print "$dir ERROR: Directory did not exist.\n"; }
+}
+
+# Process the file given in command line.
+process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+
+
+close STDERR;
+
+
+
+
