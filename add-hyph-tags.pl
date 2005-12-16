@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 use strict;
 use encoding 'utf-8';
 use open ':utf8';
@@ -12,6 +12,11 @@ use open ':utf8';
 # Option --all will look for the hyphenation points from the whole text,
 # there is still some heuristics used to recognize the "real" hyphens.
 #
+# The script is made for processing corpus files in xml-format. The xml
+# processing is done by basic perl operations. header field is skipped.
+# Some files may have hyphenation points divided between two paragraphs,
+# they are taken into account as well.
+#
 # $Id$
 
 # permit named arguments
@@ -19,8 +24,17 @@ use Getopt::Long;
 
 my $help;
 my $all_hyphens = 0;
+my $infile;
+my $outfile;
+
+if ( -f $ARGV[$#ARGV] ) {
+	 $infile = $ARGV[$#ARGV]; 
+	 $outfile = $infile . ".out";
+ }
 
 GetOptions ("all" => \$all_hyphens,
+			"infile=s" => \$infile,
+			"outfile=s" => \$outfile,
 			"help" => \$help);
 
 if ($help) {
@@ -28,37 +42,72 @@ if ($help) {
 	exit;
 }
 
-
+# Words that follow a hyphen without being hyphenated parts of a word.
+# Add different languages here!
 my %jadahje = ("ja" => 1,
 			   "dahje" => 1,
 			   "vai" => 1
 			   );
 
-my $HYPH = "<hyph\>";
-
-# read one paragraph at the time:
+my $HYPH = "<hyph/>";
 
 my $end_hyphen = 0;
 my $start_hyphen = 0;
 my $previous_word = 0;
+my $continue_para = 0;
 
 my @output;
 my @final_output;
+my $header=0;
+
+my @text_array;
+open INFH, "$infile" or die "Could not open file $infile: $!" ;
+while (<INFH>) {
+	push (@text_array, $_);
+}
+close INFH;
+
+open OUTFH, ">$outfile" or die "Could not open file $infile: $!" ;
 
 # Read line by line
-while (<>) {
+for (@text_array) {
+
+	# skip header field
+	if (?<header>?){ $header = 1; }
+	if (?</header>?) {
+		$header=0;
+	}
+	if ($header) { 
+		print OUTFH;
+		next;
+	}
 
 	chomp;
 	# If empty line, print everything processed this far and
 	# move to the next line.
-	if (/^$/) {
+	if (/^$/ && ! $continue_para) {
 		if (@final_output) {
-			print "@final_output\n";
+			print OUTFH "@final_output\n";
 		}
 		@final_output = "";
 		@output = "";
 		pop @output;
 		next;
+	}
+
+	# If the paragraph ends to a hyphen, search the next paragraph
+	# for the rest of the word.
+	if ( /<\/p>/) {
+		if ($end_hyphen) {
+			$continue_para = 1;
+			next;
+		}
+		else { $continue_para = 0; }
+	}
+	next if (/^\s*<p>\s*$/ && $continue_para);
+	if (/^\s*<p>\w+/ && $continue_para) {
+		print OUTFH "<p>\n";
+		s/^<p>//;
 	}
 
 	# split the line by space
@@ -70,9 +119,9 @@ while (<>) {
 		my $word = shift @words;
 
 		# Skip expressions which contain non-alphabetic chars or digits.
-		# Skip also some other cases: Oarje-Finnmárkkus, pla-, ple- ja plipli,
-		# "-pla  and other proper names.
-		if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ || $word =~ /^\p{IsUpper}/ ) {
+		# cases like pla-, ple- ja plipli, "-pla
+		# Proper names would be one class to be skipped, but not included here.
+		if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ ) {
 			if ($end_hyphen) {
 				$previous_word .= "-";
 				push (@output, $previous_word);
@@ -101,7 +150,6 @@ while (<>) {
 			}
 		}
 
-
 		# If the word ends to a hyphen, remember it.
 		if ($word =~ s/-+$//) { $end_hyphen = 1; }
 		else { $end_hyphen = 0; }
@@ -112,10 +160,9 @@ while (<>) {
 			else { $start_hyphen = 0; }
 			
 			# If the option --all is specified, mark all the hyphens with a tag 
-			# Replace all the other instances of hyphens 
+			# Replace all the other instances of hyphens
 			$word = join ($HYPH,  split(/-/, $word));
-		
-		
+ 		
 			# put back the start hyphen.
 			if ($start_hyphen) {
 				$word = "-" . $word;
@@ -131,20 +178,22 @@ while (<>) {
 	}
 		
 	if (@final_output) {
-		print "@final_output\n";
+		print OUTFH "@final_output\n";
 	}
 	@final_output = @output;
 	@output = "";
 	pop @output;
 }
 
-
+close OUTFH;
 
 sub print_usage {
 	print "Usage: perl add_hyph_tags.pl [OPTIONS] FILES\n";
 	print "Tag the hyphenation marks.\n";
 	print "Options\n";
-	print "--all     search the whole text for hyphenation points.\n";
-    print "          The default is to search only the end of the lines.\n";
-    print "--help    prints the help text and exit.\n";
+	print "--all            search the whole text for hyphenation points.\n";
+    print "                 The default is to search only the end of the lines.\n";
+    print "--infile=<file>  the input file.\n";
+    print "--outfile=<file> output file.\n";
+    print "--help           prints the help text and exit.\n";
 }
