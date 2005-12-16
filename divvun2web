@@ -1,7 +1,8 @@
 #!/bin/bash
 # $Id$
-# This script is written by Børre Gaup, and is licensed under the
-# GPL, version 2 or later.
+# This script is written by Børre Gaup <boerre@skolelinux.no> and
+# Tomi Pieski <tomi.pieski@hum.uit.no>
+# It is licensed under the GPL, version 2 or later.
 #
 # Shell script for exporting divvun.no and giellaktekno www-pages from cvs 
 # to the official www-directory
@@ -30,6 +31,7 @@ checkout()
     else
         cd $TEMPDIR
         cvs -z4 up -dP
+        cd
     fi
     if [ "$?" != "0" ]; then
             echo "cvs up failed in $TEMPDIR ..."
@@ -67,8 +69,15 @@ build_and_copy_sites()
     do
         cd $HOME/xtdoc/$SITE
 
+        if [ "$SITE" == "sd" ]; then
+            sed -i 's/<search provider="lucene" name="Divvun" \/>/<search provider="google" domain="www.divvun.no" name="Divvun" \/>/g' src/documentation/skinconf.xml
+        else
+            sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
+        fi
+
         # Build the site, at the same time checking the docs
         echo "Validating $SITE ..."
+        echo "Now in `pwd`"
         forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
 
         # $? is the status of the last executed program.
@@ -77,11 +86,10 @@ build_and_copy_sites()
         then
             echo "Building site ..."
             forrest -Dforrest.jvmargs=-Djava.awt.headless=true
-            cd build/site
-            if [ $SITE == "sd" ]
-                cp sami.html index.html
-            fi
             echo "Copying file to $SITE..."
+            cd build/site
+            echo "And now in `pwd`"
+            echo "   $SITE@giellatekno.uit.no:public_html/.   "
             scp -r * $SITE@giellatekno.uit.no:public_html/.
             if [ "$?"  != "0" ]
             then
@@ -100,13 +108,13 @@ build_and_copy_sites()
             echo "Subject: Error validating files in $SITE"
             echo "TO:$MAIL_TO"
             echo ""
-            cat $ERROR_FILE
+            #cat $ERROR_FILE
             )|/usr/lib/sendmail -t
         fi
     done
 }
 
-fetch_giella_and_divvun
+#fetch_giella_and_divvun
 build_and_copy_sites
 
 echo "Done updating giellatekno and divvun:-)!"
