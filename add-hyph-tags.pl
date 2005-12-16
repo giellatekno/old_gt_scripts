@@ -188,7 +188,7 @@ for (@text_array) {
 close OUTFH;
 
 sub print_usage {
-	print "Usage: perl add_hyph_tags.pl [OPTIONS] FILES\n";
+	print "Usage: add-hyph-tags.pl [OPTIONS] FILES\n";
 	print "Tag the hyphenation marks.\n";
 	print "Options\n";
 	print "--all            search the whole text for hyphenation points.\n";
