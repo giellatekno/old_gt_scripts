@@ -78,6 +78,9 @@ build_and_copy_sites()
             echo "Building site ..."
             forrest -Dforrest.jvmargs=-Djava.awt.headless=true
             cd build/site
+            if [ $SITE == "sd" ]
+                cp sami.html index.html
+            fi
             echo "Copying file to $SITE..."
             scp -r * $SITE@giellatekno.uit.no:public_html/.
             if [ "$?"  != "0" ]
