@@ -29,13 +29,17 @@ my $nolog = 0;
 my $xsl_file = '';
 my $dir = '';
 my $tmpdir = ''; 
-my $no_hyphen = 0; 
-my $all_hyphen = 0; 
+my $no_hyph = 0; 
+my $all_hyph = 0; 
 my $corpdir = "/usr/local/share/corp";
+my $bindir = "/usr/local/share/bin";
 my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
 my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
 
 my $log_file;
+
+# set the permissions for created files: -rw-rw-r--
+umask 0112;
 
 # Some securing operations, add these to upload.cgi!
 $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
@@ -43,6 +47,8 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $xsltproc="/usr/bin/xsltproc";
 my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
+my $hyphenate = "/home/saara/gt/script/add-hyph-tags.pl";
+#my $hyphenate = $corpdir . "/bin/add-hyph-tags.pl";
 
 my $language = "sme";
 my $help;
@@ -54,8 +60,8 @@ GetOptions ("no-decode" => \$no_decode,
 			"corpdir=s" => \$corpdir,
 			"nolog" => \$nolog,
 			"lang=s" => \$language,
-			"no-hyphen=s" => \$no_hyphen,
-			"all-hyphen=s" => \$all_hyphen,
+			"no-hyph" => \$no_hyph,
+			"all-hyph" => \$all_hyph,
 			"help" => \$help);
 
 if ($help) {
@@ -153,24 +159,41 @@ sub process_file {
 			or print STDERR "$file: ERROR system failed \n";
 		&pdfclean($html);
 		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-		print STDERR $command;
+		print STDERR "$command\n";
 		system($command) == 0
 			or print STDERR "$file: ERROR system failed\n";
 	}
-
+	# hyphenate the file
+	if (! $no_hyph && $file !~/\.pdf/ ) {
+		if ($all_hyph) {
+			$command = "$hyphenate --all --infile=\"$int\" --outfile=\"$int\"";
+		}
+		else {
+			$command = "$hyphenate --infile=\"$int\" --outfile=\"$int\"";
+		}
+		print STDERR "$command\n";
+		system($command) == 0
+			or print STDERR "$file: ERROR system failed\n";
+	}
+	# Print log message in case of fatal ERROR
 	if (! $nolog) {
+		$command = "chgrp cvs \"$log_file\"";
+		system($command) == 0
+			or print STDERR "$file: ERROR system failed\n";
 		open FH, $log_file;
 		while (<FH>) {
 			print "$_\n" if (/ERROR/ && /$file/);
 		}
 	}
-
-# Check if the file contains characters that are wrongly
-# utf-8 encoded and decode them.
+    # Check if the file contains characters that are wrongly
+    # utf-8 encoded and decode them.
 	if (! $no_decode) {
 		my $coding = &guess_encoding($int, $language);
 		&decode_file($int, $coding, $int);
 	}
+	$command = "chgrp cvs \"$int\"";
+	system($command) == 0
+		or print STDERR "$file: ERROR system failed\n";	
 }
 
 sub pdfclean {
@@ -238,8 +261,8 @@ sub print_help {
     print"    --nolog         Print error messages to screen, not to log files.\n";
     print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
     print"    --no-decode     Do not decode the characters.\n";
-    print"    --no-hyphen     Do not add hyphen tags.\n";
-    print"    --all-hyphen    Add hyphen tags everywhere (default is at the end of the lines).\n";
+    print"    --no-hyph       Do not add hyphen tags.\n";
+    print"    --all-hyph      Add hyphen tags everywhere (default is at the end of the lines).\n";
     print"    --help          Print this message and exit.\n";
 };
 
