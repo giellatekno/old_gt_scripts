@@ -57,6 +57,7 @@ while (<>) {
 		}
 		@final_output = "";
 		@output = "";
+		pop @output;
 		next;
 	}
 
@@ -133,7 +134,8 @@ while (<>) {
 		print "@final_output\n";
 	}
 	@final_output = @output;
-	@output = ""; 
+	@output = "";
+	pop @output;
 }
 
 
