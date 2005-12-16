@@ -28,15 +28,6 @@ sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
 	
-	# Check the file name for taintedness
-	# This is actually already done in upload.cgi
-	if ($file =~ /^([\/-\@\w.]+)$/) {
-		$file = $1; # $data now untainted
-    } 
-	else {
-		print STDERR "$file: ERROR: Bad data in file name.\n";
-		return;
-	}
 	# Search with find gives some unwanted files which are silently
 	# returned here.
     return unless ($file =~ m/\.(doc|pdf|html)$/);
@@ -101,8 +92,7 @@ sub process_file {
 			print "$_\n" if (/ERROR/ && /$file/);
 		}
 	}
-	
-	
+
 # Check if the file contains characters that are wrongly
 # utf-8 encoded and decode them.
 	if (! $no_decode) {
