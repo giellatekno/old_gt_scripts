@@ -9,6 +9,9 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 
 use XML::Twig;
 
+# Set the file permissions of the newly created files to -rw-rw-r--
+umask 0112;
+
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html\n\n" ;
 
@@ -81,6 +84,14 @@ $document->print( \*FH);
 $finaldir = $upload_dir;
 $finaldir =~ s/\/corp\/orig/\/corp\/gt/;
 system "xsltproc --novalid $upload_dir/$fname.xsl $upload_dir/$fname.xml > $finaldir/$fname.xml";
+
+#Change the group of the xsl-file to cvs.
+#RCS command for initial checkin of the xsl-file.
+#my $command = "chgrp cvs $upload_dir/$fname";
+#system $command or die "System failed: $!";
+#$command = "ci -t-\"xsl file, created in xsl-process.cgi\" -q -i $upload_dir/$fname";
+#system $command or die "System failed: $!";
+
 
 # The html-part starts here
 print <<END_HTML;
