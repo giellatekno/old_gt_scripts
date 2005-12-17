@@ -56,8 +56,10 @@ my $help=0;
 my $verbose=0;
 my $hyph=0;
 my $use_hyph_tag=0;
+my $fst;
 
 GetOptions ("abbr=s" => \$abbr_file,
+			"fst=s" => \$fst,
 			"help" => \$help,
 			"v" => \$verbose,
 			"hyph" => \$hyph,
@@ -114,7 +116,7 @@ while (<>) {
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster.
 		if ($word =~ /^[^\W\d\s\n]*$/) {
-			if (! $idioms{lcfirst($word)}) {
+			if (! $idioms{($word)} && ! $idioms{lcfirst($word)}) {
 				print "$word\n";
 				next;
 			}
@@ -153,7 +155,7 @@ sub process_word {
 	my $rest_punct;
 
     # Test for multiword expression.
-	if ($idioms{lcfirst($word)}) {
+	if ($idioms{$word} || $idioms{lcfirst($word)}) {
 		test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
 	}
 
@@ -281,7 +283,7 @@ sub test_abbr {
 
 sub test_idiom {
 	my ($word_ref, $words_aref, $size) = @_;
-
+	
 	my $word = lcfirst($$word_ref);
 	# Test for multiword expressions by growing the token
 	# one word at a time
@@ -291,9 +293,13 @@ sub test_idiom {
 
 		# Remove the punctuation at the end of the expression.
 		(my $token_2 = $token) =~ s/[^\w]*$//;
+		
+		# If the expressions contains punctuation in the middle, return.
+		return if ($token_2 =~ /\W/);
+
 		# Test if the formed multiword expression exists in the
 		# idiom list. Test also lower case version.
-		if ($idioms{$word} eq $token_2) {
+		if ($idioms{$word} eq $token_2 || $idioms{lcfirst($word)} eq lcfirst($token_2)) {
 			for (my $j=0; $j <= $i; $j++) {
 				# Construct the new multiword processing unit.
 				# Remove the parts of the multiword expression from
@@ -301,12 +307,39 @@ sub test_idiom {
 				$$word_ref = $$word_ref . " " . $words_aref->[0];
 				shift @{$words_aref};
 			}
+			return 1;
+		}
+		my $output ="";
+		# If fst is given, the analysator is called for the base form of
+		# the multiword expression.
+		if ($fst) {
+			$output = `echo \"$word $token_2\" | lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null`;
+			if ($output && $output !~ /\?/) {
+				my @readings = split (/\n/, $output);
+				for my $reading (@readings) {
+					my ($form, $analysis) = split(/\t/, $reading, 2);
+					$analysis =~ tr/\t//d;
+					my ($base, $tags) = split(/\+/, $analysis, 2);
+				($word, $token_2) = split(/ /, $base, 2);
+					# Test if the formed multiword expression exists in the
+					# idiom list, test also the lower case version.
+					if ($idioms{$word} eq $token_2 || $idioms{lcfirst($word)} eq lcfirst($token_2)) {
+						for (my $j=0; $j <= $i; $j++) {
+							# Construct the new multiword processing unit.
+							# Remove the parts of the multiword expression from
+							# the word array.
+							$$word_ref = $$word_ref . " " . $words_aref->[0];
+							shift @{$words_aref};
+						}
+						return 1;
+					}
+				}
+			}
 		}
 		$i++;
 		$token = $token . " " . $words_aref->[$i];
 	}
 }
-
 
 sub process_numeral {
 	my ($word, $words_aref, $tokens_aref) = @_;
@@ -440,7 +473,7 @@ sub read_abbr {
 	}
 	while (<LEX>) {
 		chomp;
-		my ($first, $last) = split(/ /, $_);
+		my ($first, $last) = split(/ /, $_, 2);
 		$$idiom_href{$first} = $last;
 	}
 	close LEX;	
@@ -456,6 +489,8 @@ sub print_usage {
     print "--use-hyph-tags leave the <hyph> tags untouched\n";
     print "--help          prints the help text and exit.\n";
     print " --v            prints information of the execution of the script\n";
+	print " --fst=<file>   analysator file (e.g. sme.fst) for recognizing\n";
+	print "                multiword expressions.\n";
 
 }
 
