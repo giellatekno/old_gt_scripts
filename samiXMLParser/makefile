@@ -1,11 +1,10 @@
-makefile:
-all: catxml
+all: ccat
 
 clean:
 	-rm *.o *.gch
 
-catxml: main.o tagfile.o basic.o
-	g++ -g -o catxml main.o tagfile.o basic.o tmplcoll.h
+ccat: main.o tagfile.o basic.o
+	g++ -g -o ccat main.o tagfile.o basic.o tmplcoll.h
 
 main.o: main.cpp
 	g++ -c -g main.cpp
