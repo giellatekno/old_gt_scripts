@@ -111,7 +111,7 @@ build_and_copy_sites()
     done
 }
 
-#fetch_giella_and_divvun
+fetch_giella_and_divvun
 build_and_copy_sites
 
 echo "Done updating giellatekno and divvun:-)!"
