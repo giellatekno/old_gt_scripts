@@ -68,7 +68,7 @@ build_and_copy_sites()
     for SITE in sd gtuit
     do
         cd $HOME/xtdoc/$SITE
-
+        rm -rf build/site
         if [ "$SITE" == "sd" ]; then
             sed -i 's/<search provider="lucene" name="Divvun" \/>/<search provider="google" domain="www.divvun.no" name="Divvun" \/>/g' src/documentation/skinconf.xml
         else
