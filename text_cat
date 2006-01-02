@@ -6,6 +6,8 @@ use strict;
 use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a);
 use Getopt::Std;
 use Benchmark;
+use encoding 'utf-8';
+use open ':utf8';
 
 my $non_word_characters='0-9\s';
 

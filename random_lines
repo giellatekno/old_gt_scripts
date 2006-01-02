@@ -3,6 +3,8 @@
 # mailto:vannoord@let.rug.nl
 
 use strict;
+use encoding 'utf-8';
+use open ':utf8';
 use vars qw($opt_h $opt_n);
 use Getopt::Std;
 $opt_n=5000;
