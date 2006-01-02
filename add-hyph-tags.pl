@@ -73,7 +73,12 @@ open OUTFH, ">$outfile" or die "Could not open file $infile: $!" ;
 for (@text_array) {
 
 	# skip header field
-	if (?<header>?){ $header = 1; }
+	if (?<header>?){ 
+		print OUTFH "@final_output\n"; 
+		@final_output = "";
+		@output = "";
+		pop @output;
+		$header = 1; }
 	if (?</header>?) {
 		$header=0;
 	}
@@ -183,6 +188,10 @@ for (@text_array) {
 	@final_output = @output;
 	@output = "";
 	pop @output;
+}
+
+if (@final_output) {
+	print OUTFH "@final_output\n";
 }
 
 close OUTFH;
