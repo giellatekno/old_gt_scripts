@@ -85,7 +85,6 @@ main (int argc, char *argv[])
             return 0;
         }
     }
-    
     return 0;
 }
 
@@ -146,12 +145,14 @@ void ProcessFile(const char *pFile)
 void ProcessWord (TagParser &parse)
 {
    string word = parse.Value();
-   
-   if ((bDocLang || bElementLang) &&
-       ((bPrintPara && bInPara)   ||
+
+// Commented out the test for language, since the language is
+// still missing in many corpus files. -- sh
+//   if ((bDocLang || bElementLang) &&
+     if ((bPrintPara && bInPara)   ||
        (bPrintTitle && bInTitle) ||
        (bPrintList && bInList)   ||
-       (bPrintTable && bInTable)))
+       (bPrintTable && bInTable))
    {
      bPrintEndTag = true;
      cout << word << " ";
@@ -222,10 +223,13 @@ void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
 
 void print_help()
 {
-    cout << "\nUsage: catxml <options> [FileName | Directory]\n";
-    cout << "where possible options include:\n";
+    cout << "\nUsage: ccat <options> [FileName | Directory]\n";
+	cout << "Print the contents of a corpus file in XML format.\n";
+	cout << "The default is to print paragraphs with no type (=text type).\n";
+    cout << "The possible options include:\n";
 
-    cout << "\t-l <lang>\tProcess elements in language <lang>.\n";
+// Commented out the language option so far --sh
+//    cout << "\t-l <lang>\tProcess elements in language <lang>.\n";
     cout << "\t-a\t\tPrint all text elements.\n";
     cout << "\t-T\t\tPrint paragraphs with title type.\n";
     cout << "\t-L\t\tPrint paragraphs with list type.\n";
