@@ -72,13 +72,14 @@ our $NO_ENCODING = -1;
 our $MIN_AMOUNT = 0.03;
 
 # Printing some test data, chars and their amounts
-our $Test=0;
+our $Test=1;
 
 sub guess_encoding () {
     my ($file, $lang) = @_;
     
     if (!$lang || ! $Char_Tables{$lang}) {
-		die "guess_encoding: language is not specified or $lang is not supported\n";
+		print "guess_encoding: language is not specified or language $lang is not supported\n";
+		return $NO_ENCODING;
     }
 
     # Read the corpus file
