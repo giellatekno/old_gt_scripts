@@ -198,7 +198,6 @@ void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
   if (parse.Type() == TagParser::TAG_END_TAG)
     cout << "/";
   cout << parse.Value();
-
   const list<TagAttribute*> &lst = parse.GetAttribs();
   if (lst.size())
   {
@@ -223,7 +222,7 @@ void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
 
 void print_help()
 {
-    cout << "\nUsage: ccat <options> [FileName | Directory]\n";
+    cout << "\nUsage: ccat <options> [FileName]\n";
 	cout << "Print the contents of a corpus file in XML format.\n";
 	cout << "The default is to print paragraphs with no type (=text type).\n";
     cout << "The possible options include:\n";
@@ -234,7 +233,7 @@ void print_help()
     cout << "\t-T\t\tPrint paragraphs with title type.\n";
     cout << "\t-L\t\tPrint paragraphs with list type.\n";
     cout << "\t-t\t\tPrint paragraphs with table type.\n";
-    cout << "\t-r\t\tRecursively process subdirectories encountered.\n";
+    cout << "\t-r <dir>\tRecursively process directory dir and subdirs enountered.\n";
     cout << "\t-h\t\tPrint this help message.\n";
 
     cout << endl;
