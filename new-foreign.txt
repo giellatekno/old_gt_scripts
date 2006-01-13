@@ -350,6 +350,7 @@ Kvinnorepresentation
 Kyper
 L.c
 Lakseelver
+Landbrukskontorets
 Lapmarkiske
 Lappalaisten
 Lappar
@@ -397,6 +398,7 @@ Maktutredingen
 Malmagen
 Mangfold
 Manuale
+Maras
 Med-fak
 Medisinalinnberetninger
 Menneskerettighederne
@@ -708,6 +710,7 @@ aistopäinen
 akseanta-a
 aliasque
 alkene-
+alle
 allemannsrettigheter
 allene
 allmennstandardisering
@@ -796,6 +799,7 @@ bygdebok
 bygderet
 bygeret
 byggstandardiseringsråd
+bygningslova
 byog
 båttermer
 bøndenes
@@ -1212,6 +1216,7 @@ kåårðtiet
 l.c
 labben
 laektedh
+lagerrom
 laksefisk
 laksefiske
 laksefiskeinteressentskap
@@ -1323,6 +1328,7 @@ naimaikäinen
 nasjonaldag
 nasjonalparker
 nativization
+nattklubb
 natu-kultur
 natura-resource
 naturforvaltning
@@ -1364,6 +1370,7 @@ occupatio
 ock
 offene
 ofuer
+også
 oittaa
 oktroanene
 oluenpanosammio
@@ -1420,6 +1427,7 @@ pipende
 pirstoutuminen
 piscatum
 pitää
+plangruppas
 ploughed
 plurale
 poiss
@@ -1447,6 +1455,7 @@ præter
 pt
 publisering
 puolivalveille
+på
 quartam
 quidem
 quinque
@@ -1532,6 +1541,7 @@ saadanne
 saaki-
 saamee
 saaredh
+sabaktani
 sacellum
 safeguarded
 sakrätt
@@ -1560,6 +1570,7 @@ samfunnsvitenskapelig
 samfunnsvitenskapelige
 samhandling
 samisk-etnografiske
+samiskspråklige
 samisktalende
 samlinger:s
 sammenliggende
@@ -1623,8 +1634,10 @@ skyddsväsen
 skyte-
 skánner
 slic
+sluttføres
 smaler
 snorking
+snøhule
 sockenlapparna
 socknar
 solens
@@ -1662,6 +1675,7 @@ streiftog
 strømledning
 studier:s
 stää
+største
 suam
 suasque
 subsitence
@@ -1721,6 +1735,7 @@ tilhrøre
 tilhørighet
 tillstånd
 tillägnade
+tiltres
 tilägnade
 tiläpäinen
 tingsrett
@@ -1741,6 +1756,7 @@ trampning
 transformahtor-
 treffen
 troværdige
+trygdeverket
 trøss
 tsaapðmiet
 tsaepmedh
@@ -1782,6 +1798,7 @@ usvainen
 utarming
 utbredning
 utdanningskadelidde
+utifra
 utmaninig
 utmarkskommisjon
 utmarksressursene
@@ -1842,6 +1859,7 @@ vuosta
 vágrek
 välly
 värden
+vår
 vårfeller
 weben
 weichgemachte
@@ -1875,9 +1893,11 @@ zerchlagen
 ØFFØst-Finmarkens
 Ødeleggelsene
 Økonomiske
+Øl
 Ønsket
 Østlandsforskning
 Østsamene
+økonomiplan
 økonomisk
 ánden
 áššejođih
@@ -2068,6 +2088,7 @@ auget
 vedtaksmyndighet
 forenhet
 kuenhet
+puterom
 Puterommet
 satinet
 ubemannet
@@ -2086,6 +2107,7 @@ mobiltelefonbruken
 iTet
 plankartet
 Plankartet
+driftsbudsjett
 kapitalbudsjettet
 
 RESTAURANDRIFT
@@ -2095,6 +2117,7 @@ SÆRUTSKRIFT
 språkkonsulent
 budsjettreglement
 volumprosent
+musikkfestival
 musikkfestivalen
 branndepot
 berrept
