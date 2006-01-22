@@ -72,13 +72,15 @@ our $NO_ENCODING = -1;
 our $MIN_AMOUNT = 0.03;
 
 # Printing some test data, chars and their amounts
-our $Test=1;
+our $Test=0;
 
 sub guess_encoding () {
     my ($file, $lang) = @_;
     
     if (!$lang || ! $Char_Tables{$lang}) {
-		print "guess_encoding: language is not specified or language $lang is not supported\n";
+		if ($Test) {
+			print "guess_encoding: language is not specified or language $lang is not supported\n";
+		}
 		return $NO_ENCODING;
     }
 
@@ -174,9 +176,10 @@ sub guess_encoding () {
     if ($statistics{$last_val}->[$UNCONVERTED] > $MIN_AMOUNT ) {
 		$encoding = $last_val;
     }
-    if ($encoding eq $NO_ENCODING) { print "$file: no_encoding \n"; }
-    else { print "$file: $encoding \n"; }
-	
+	if($Test) {
+		if ($encoding eq $NO_ENCODING ) { print "$file: no_encoding \n"; }
+		else { print "$file: $encoding \n"; }
+	}
     return $encoding;
 }
 
@@ -194,7 +197,9 @@ sub decode_file (){
 		die "convert_file: Encoding is not specified or encoding $encoding is not supported: $!\n";
     }
 	
-    print "Converting $file -> $outfile\n";
+	if($Test) {
+		print "Converting $file -> $outfile\n";
+	}
     my $charfile = $Char_Files{$encoding};
     
     my %convert_table = &read_char_table($charfile);
