@@ -3,6 +3,7 @@
 # Importing CGI libraries
 use CGI;
 use File::Copy;
+use strict;
 
 # Forwarding warnings and fatal errors to browser window
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
@@ -15,81 +16,94 @@ umask 0112;
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html\n\n" ;
 
-$query = new CGI;
+my $query = new CGI;
 
-$title = $query->param("title");
-$author = $query->param("author");
-$gender = $query->param("gender");
-$author2 = $query->param("author2");
-$gender2 = $query->param("gender2");
-$author3 = $query->param("author3");
-$gender3 = $query->param("gender3");
-$author4 = $query->param("author4");
-$gender4 = $query->param("gender4");
-$pub = $query->param("pub");
-$isbn = $query->param("isbn");
-$issn = $query->param("issn");
-$year = $query->param("year");
-$lang = $query->param("lang");
-$genre = $query->param("genre");
-$filename = $query->param("filename");
+my %bookinfo;
+my @names = $query->param;
+for my $name (@names) {
+	$bookinfo{$name} = $query->param($name);
+}
 
-# Define upload directory
-if ($genre eq "news" || $genre eq "admin") {
+my $corpdir = "/usr/local/share/corp";
+my $tmp_dir = "$corpdir/tmp";
+my $xsltemplate = "$corpdir/bin/XSL-template.xsl";
+my $orig_dir;
+my $langgenre ="";
+
+if ($bookinfo{mainlang} && $bookinfo{genre}) {
+	$langgenre = $bookinfo{'mainlang'} . "/" . $bookinfo{'genre'};
+	$orig_dir = "$corpdir/orig/$langgenre";
+}
+else {
+	print "Warning: main language and genre were not specified.\n";
+	$orig_dir = $tmp_dir;
+}
+
+my $finaldir = $orig_dir;
+$finaldir =~ s/orig/gt/;
+
+# Define the directory in the orig-hierarchy
+if ($langgenre && ( $bookinfo{'genre'} eq "news" || $bookinfo{'genre'} eq "admin")) {
 	# Kautokeino hack
-	if ($pub == Kautokeino) {
-		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/guovda";
+	if ($bookinfo{'publisher'} eq "Kautokeino") {
+		$orig_dir = "/usr/local/share/corp/orig/$langgenre/guovda";
 	}
 	# Karasjok hack
-	elsif ($pub == Karasjok) {
-		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/karas";
+	elsif ($bookinfo{'publisher'} eq "Karasjok") {
+		$orig_dir = "/usr/local/share/corp/orig/$langgenre/karas";
 	}
 	
 	else {
-		$upload_dir = "/usr/local/share/corp/orig/$lang/$genre/$pub";
+		$orig_dir = "/usr/local/share/corp/orig/$langgenre/$bookinfo{'publisher'}";
 	}
-}
-else {
-	$upload_dir = "/usr/local/share/corp/orig/$lang/$genre";
 }
 
 # Strip path
+if(!$bookinfo{filename}) {
+	die "File not specified\n";
+}
+my $filename = $bookinfo{filename};
 my $fname = $filename;
 $fname =~ s/.*[\/\\](.*)/$1/;
 
-# The principles
-if (-e "$upload_dir/$fname") {
-	$fname = $title;
-	$fname =~ tr/\.A-Za-z0-9/_/c;
-}
-
 $i = 1;
-
-while (-e "$upload_dir/$fname") {
+while (-e "$orig_dir/$fname") {
 	$fname = "$fname-$i";
 	$i++;
 }
 
-copy ("/home/tomi/gt/script/XSL-template.xsl", "$upload_dir/$fname.xsl") or die "Copy failed ($upload_dir/$fname.xsl): $!";
-move ("$filename", "$upload_dir/$fname");
-move ("$filename.xml", "$upload_dir/$fname.xml");
+# Create the xsl-file and add the form data
+copy ("$xsltemplate", "$orig_dir/$fname.xsl") or die "Copy failed ($orig_dir/$fname.xsl): $!";
 
 my $document = XML::Twig->new(twig_handlers => {'xsl:variable' => \&process });
 
-$document->parsefile ("$upload_dir/$fname.xsl");
+$document->parsefile ("$orig_dir/$fname.xsl");
+$document->set_pretty_print('record');
 
-open (FH, ">$upload_dir/$fname.xsl") or die "Cannot open file $upload_dir/$fname.xsl for output: $!";
+open (FH, ">$orig_dir/$fname.xsl") or die "Cannot open file $orig_dir/$fname.xsl for output: $!";
 $document->print( \*FH);
 
-$finaldir = $upload_dir;
-$finaldir =~ s/\/corp\/orig/\/corp\/gt/;
-system "xsltproc --novalid $upload_dir/$fname.xsl $upload_dir/$fname.xml > $finaldir/$fname.xml";
+# Convert the document
+my $command;
+if ($orig_dir eq $finaldir) {
+	my $new_filename = $filename . "1";
+	move ("$filename.xml", "$new_filename.xml") or die "Could not move the file $filename. $!";
+	$filename = $new_filename;
+	$command = "xsltproc --novalid $orig_dir/$fname.xsl $filename.xml > $finaldir/$fname.xml";
+}
+else {
+	move ("$filename", "$orig_dir/$fname");
+	$command = "xsltproc --novalid $orig_dir/$fname.xsl $filename.xml > $finaldir/$fname.xml";
+}
+system($command)  == 0 
+	or die "$command failed: $! \n";
+
 
 #Change the group of the xsl-file to cvs.
 #RCS command for initial checkin of the xsl-file.
-#my $command = "chgrp cvs $upload_dir/$fname";
+#my $command = "chgrp cvs $orig_dir/$fname";
 #system $command or die "System failed: $!";
-#$command = "ci -t-\"xsl file, created in xsl-process.cgi\" -q -i $upload_dir/$fname";
+#$command = "ci -t-\"xsl file, created in xsl-process.cgi\" -q -i $orig_dir/$fname";
 #system $command or die "System failed: $!";
 
 
@@ -102,7 +116,7 @@ print <<END_HTML;
   </head>
   
   <body>
-    <p>$finaldir</p>
+    <p>$finaldir/$fname.xml</p>
   </body>
 </html>
 
@@ -110,50 +124,9 @@ END_HTML
 
 sub process {
     my ( $t, $var) = @_;
-    
-    if ("title" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $title . "'");
-    }
-    if ("author" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $author . "'");
-    }
-    if ("author-gender" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $gender . "'");
-    }
-    if ("author2" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $author2 . "'");
-    }
-    if ("author-gender2" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $gender2 . "'");
-    }
-    if ("author3" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $author3 . "'");
-    }
-    if ("author-gender3" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $gender3 . "'");
-    }
-    if ("author4" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $author4 . "'");
-    }
-    if ("author-gender4" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $gender4 . "'");
-    }
-    if ("publisher" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $pub . "'");
-    }
-    if ("ISBN" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $isbn . "'");
-    }
-    if ("ISSN" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $issn . "'");
-    }
-    if ("year" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $year . "'");
-    }
-    if ("genre" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $genre . "'");
-    }
-    if ("mainlang" eq $var->{'att'}->{'name'}) {
-        $var->set_att( 'select' => "'" . $lang . "'");
-    }
+
+	my $attribute = $var->{'att'}->{'name'};
+	if ($attribute && $bookinfo{$attribute} ) {
+		$var->set_att( 'select' => "'" . $bookinfo{$attribute}  . "'");
+	}
 }
