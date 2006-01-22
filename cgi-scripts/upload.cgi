@@ -18,7 +18,7 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
 
 my $convert = "/usr/local/share/corp/bin/convert2xml.pl";
-my $tmppdir = "/usr/local/share/corp/tmp" ;
+my $tmpdir = "/usr/local/share/corp/tmp" ;
 
 # Define upload directory and mkdir it, if necessary
 my $upload_dir = "/usr/local/share/corp/tmp";
@@ -159,6 +159,7 @@ print <<END_HTML;
     <tr>
      <td> Genre: </td><td>
              <select name="genre">
+	           <option value="">--none--</option>
                <option value="news">Newstext</option>
                <option value="laws">Lawtext</option>
                <option value="ficti">Fiction</option>
