@@ -18,11 +18,13 @@ use strict;
 use encoding 'utf-8';
 use open ':utf8';
 use File::Find;
+use File::Copy;
 use IO::File;
 use File::Basename;
 use Getopt::Long;
 use Cwd;
 use samiChar::Decode;
+use XML::Twig;
 
 my $no_decode = 0;
 my $nolog = 0; 
@@ -31,12 +33,15 @@ my $dir = '';
 my $tmpdir = ''; 
 my $no_hyph = 0; 
 my $all_hyph = 0; 
+my $noxsl = 0;
 my $corpdir = "/usr/local/share/corp";
-my $bindir = "/usr/local/share/bin";
-my $docxsl = "/usr/local/share/corp/bin/docbook2corpus.xsl";
-my $htmlxsl = "/usr/local/share/corp/bin/xhtml2corpus.xsl";
+my $bindir = "/usr/local/share/corp/bin";
+my $docxsl = $bindir . "/docbook2corpus2.xsl";
+my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
+my $xsltemplate = $bindir . "/XSL-template.xsl";
 
 my $log_file;
+my $language;
 
 # set the permissions for created files: -rw-rw-r--
 umask 0112;
@@ -47,14 +52,14 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $xsltproc="/usr/bin/xsltproc";
 my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
-my $hyphenate = "/home/saara/gt/script/add-hyph-tags.pl";
-#my $hyphenate = $corpdir . "/bin/add-hyph-tags.pl";
+my $hyphenate = $bindir . "/add-hyph-tags.pl";
+my $text_cat = $bindir . "/text_cat";
 
-my $language = "sme";
 my $help;
 
 GetOptions ("no-decode" => \$no_decode,
 			"xsl=s" => \$xsl_file,
+			"noxsl" => \$noxsl,
 			"dir=s" => \$dir,
 			"tmpdir=s" => \$tmpdir,
 			"corpdir=s" => \$corpdir,
@@ -68,6 +73,11 @@ if ($help) {
 	&print_help;
 	exit 1;
 }
+
+my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, swe => 1,
+				 eng => 1, oth => 1, );
+# todo: This should create an error message.
+if (! $language || ! $languages{$language}) { $language = "sme"; }
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -98,14 +108,14 @@ if ($dir) {
 # Process the file given in command line.
 process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
 
-
 close STDERR;
-
 
 sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
-	
+
+	print STDERR "$file: $language\n";
+
 	# Search with find gives some unwanted files which are silently
 	# returned here.
     return unless ($file =~ m/\.(doc|pdf|html)$/);
@@ -169,12 +179,51 @@ sub process_file {
 			$command = "$hyphenate --all --infile=\"$int\" --outfile=\"$int\"";
 		}
 		else {
-			$command = "$hyphenate --infile=\"$int\" --outfile=\"$int\"";
-		}
+			$command = "$hyphenate --infile=\"$int\" --outfile=\"$int\"";		}
 		print STDERR "$command\n";
 		system($command) == 0
 			or print STDERR "$file: ERROR system failed\n";
 	}
+	# Check if the file contains characters that are wrongly
+	# utf-8 encoded and decode them.
+	if (! $no_decode) {
+		my $coding = &guess_encoding($int, $language);
+		if ($coding == -1) { print STDERR "No character encoding.\n"; }
+		else { 
+			print STDERR "Character decoding: $coding\n";
+			&decode_file($int, $coding, $int);
+		}
+	}
+	$command = "chgrp cvs \"$int\"";
+	system($command) == 0
+		or print STDERR "$file: ERROR system failed\n";
+	
+	if (! $noxsl) {
+		# Execute the file specific .xsl-script.
+		# Copy it from template, if not exist.
+		my $xsl_file = $orig . ".xsl";
+		if(! -f $xsl_file ) {
+			copy ($xsltemplate, $xsl_file) 
+				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+		}
+		my $tmp = $tmpdir . "/" . $file . ".tmp";
+		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+		print STDERR $command, "\n";
+		system($command) == 0 
+			or print STDERR "$file: ERROR system failed \n";
+		copy ($tmp, $int) 
+			or print STDERR "ERROR: copy failed ($tmp $int)\n";
+	}
+#  LANGDETECT: {
+#	  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
+#	  if ($document->safe_parsefile ("$int") == 0) {
+#		  print STDERR "$file: ERROR parsing the XML-file failed.\n";
+#		  last LANGDETECT;
+#	  }
+#	  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+#	  $document->set_pretty_print('record');
+#	  $document->print( \*FH);
+#	}
 	# Print log message in case of fatal ERROR
 	if (! $nolog) {
 		$command = "chgrp cvs \"$log_file\"";
@@ -185,15 +234,47 @@ sub process_file {
 			print "$_\n" if (/ERROR/ && /$file/);
 		}
 	}
-    # Check if the file contains characters that are wrongly
-    # utf-8 encoded and decode them.
-	if (! $no_decode) {
-		my $coding = &guess_encoding($int, $language);
-		&decode_file($int, $coding, $int);
+}
+
+
+sub langdetect {
+	my ( $twig, $para, $language ) = @_;
+
+	my $MINCHAR = 20;
+	my $MAXCHAR = 100;
+	my $lmdir = $bindir . "/LM";
+	my $bestlang="";
+
+	my $text = $para->text;
+	my $count = length($text);
+	if ($count < $MINCHAR) {
+		$bestlang = $language;
 	}
-	$command = "chgrp cvs \"$int\"";
-	system($command) == 0
-		or print STDERR "$file: ERROR system failed\n";	
+	else {
+		# take only a subset of the paragraph
+		my $subtext = substr( $text, 0, $MAXCHAR);
+		$subtext =~ s/\`//g;
+		my $lang = `$text_cat -l -d $lmdir \"$subtext\"`;
+		my $rest;
+		($bestlang, $rest) = split (/ or /, $lang, 2);
+		$bestlang =~ s/\n//;
+		# Heuristics for deciding between different sami languges.
+		# The default language is selected if none of the distinctive 
+		# chars is found from the text.
+		if ($bestlang =~/sm[aej]/) {
+			$bestlang = $language;
+			if ($text =~ /[áÁåÅäÄ]+/) {
+				$bestlang = "smj";
+			}
+			if ($text =~ /[öÖï]+/) {
+				$bestlang = "sma";
+			}
+			if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
+				$bestlang = "sme";
+			}
+		}
+	}
+	$para->set_att( "xml:lang" => $bestlang );
 }
 
 sub pdfclean {
@@ -261,6 +342,7 @@ sub print_help {
     print"    --nolog         Print error messages to screen, not to log files.\n";
     print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
     print"    --no-decode     Do not decode the characters.\n";
+    print"    --noxsl         Do not use file-specific xsl-template.\n";
     print"    --no-hyph       Do not add hyphen tags.\n";
     print"    --all-hyph      Add hyphen tags everywhere (default is at the end of the lines).\n";
     print"    --help          Print this message and exit.\n";
