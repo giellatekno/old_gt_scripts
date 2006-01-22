@@ -143,7 +143,7 @@ sub process_file {
 		$command = "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"";
 		print STDERR "$command\n"; 
 		system($command) == 0 
-			or print STDERR "$file: ERROR system failed\n";
+			or print STDERR "$file: ERROR antiword failed\n";
 	}
 	
 	# Conversion of xhtml documents
@@ -154,7 +154,7 @@ sub process_file {
 		$command = "$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"";
 		print STDERR "$command\n";
 		system($command) == 0
-			or print STDERR "$file: ERROR system failed\n";
+			or print STDERR "$file: ERROR tidy failed\n";
 	}
 	
 	# Conversion of pdf documents	
@@ -166,12 +166,12 @@ sub process_file {
 		$command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
 		print STDERR $command, "\n";
 		system($command) == 0 
-			or print STDERR "$file: ERROR system failed \n";
+			or print STDERR "$file: ERROR pdftotext failed \n";
 		&pdfclean($html);
 		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
 		print STDERR "$command\n";
 		system($command) == 0
-			or print STDERR "$file: ERROR system failed\n";
+			or print STDERR "$file: ERROR tidy failed\n";
 	}
 	# hyphenate the file
 	if (! $no_hyph && $file !~/\.pdf/ ) {
@@ -182,7 +182,7 @@ sub process_file {
 			$command = "$hyphenate --infile=\"$int\" --outfile=\"$int\"";		}
 		print STDERR "$command\n";
 		system($command) == 0
-			or print STDERR "$file: ERROR system failed\n";
+			or print STDERR "$file: ERROR hyphenate failed\n";
 	}
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
@@ -196,7 +196,7 @@ sub process_file {
 	}
 	$command = "chgrp cvs \"$int\"";
 	system($command) == 0
-		or print STDERR "$file: ERROR system failed\n";
+		or print STDERR "$file: ERROR chgrp failed\n";
 	
 	if (! $noxsl) {
 		# Execute the file specific .xsl-script.
@@ -210,7 +210,7 @@ sub process_file {
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
 		print STDERR $command, "\n";
 		system($command) == 0 
-			or print STDERR "$file: ERROR system failed \n";
+			or print STDERR "$file: ERROR xsltproc failed \n";
 		copy ($tmp, $int) 
 			or print STDERR "ERROR: copy failed ($tmp $int)\n";
 	}
@@ -228,7 +228,7 @@ sub process_file {
 	if (! $nolog) {
 		$command = "chgrp cvs \"$log_file\"";
 		system($command) == 0
-			or print STDERR "$file: ERROR system failed\n";
+			or print STDERR "$file: ERROR chgrp failed\n";
 		open FH, $log_file;
 		while (<FH>) {
 			print "$_\n" if (/ERROR/ && /$file/);
@@ -282,7 +282,7 @@ sub pdfclean {
 		my $file = shift @_;
 		
 		if (! open (INFH, "$file")) {
-			print STDERR "$file: ERROR system failed $!";
+			print STDERR "$file: ERROR open failed $!";
 			return;
 			}
 
