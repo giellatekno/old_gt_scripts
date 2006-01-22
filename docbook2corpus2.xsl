@@ -67,6 +67,8 @@ Find the book element, which then is converted to the "document" tag
 
 <!-- Author -->
 <xsl:template match="bookinfo/author">
+<xsl:choose>
+<xsl:when test="count(bookinfo/author) > 0">
 	<xsl:element name="author">
         <xsl:element name="person">
             <xsl:attribute name="firstname">
@@ -75,11 +77,13 @@ Find the book element, which then is converted to the "document" tag
             <xsl:attribute name="lastname">
                 <xsl:value-of select="surname"/>
             </xsl:attribute>
-            <xsl:attribute name="sex">m</xsl:attribute>
-            <xsl:attribute name="age" />
+            <xsl:attribute name="sex">unknown</xsl:attribute>
+            <xsl:attribute name="born" />
             <xsl:attribute name="nationality"><xsl:value-of select="ancestor::book/@lang" /></xsl:attribute>
         </xsl:element>
     </xsl:element>
+</xsl:when>
+</xsl:choose>
 </xsl:template>
 
 <!-- Date -->
@@ -91,28 +95,24 @@ Find the book element, which then is converted to the "document" tag
 
 <!-- Publisher -->
 <xsl:template match="bookinfo/corpname">
+<xsl:choose>
+<xsl:when test="count(bookinfo/corpname) > 0">
 	<xsl:element name="publChannel">
         <xsl:element name="publisher">
             <xsl:value-of select="."/>
         </xsl:element>
-        <xsl:element name="ISBN"/>
-        <xsl:element name="ISSN"/>
     </xsl:element>
+</xsl:when>
+</xsl:choose>
 </xsl:template>
 
 <!-- Some additional info -->
 <xsl:template match="bookinfo">
-    <xsl:element name="translated-from" />
-	<xsl:element name="translator" />
-    <xsl:element name="genre" />
-    
     <!-- wordcount, availability, completeness -->
-    <xsl:element name="availability">free</xsl:element>
     <xsl:element name="wordcount">
     		<!-- ancestor::book/bookinfo/following-sibling::*/text() following::* ancestor::*-->
     		<xsl:value-of select="count(str:tokenize(string(ancestor::*))) - count(str:tokenize(string(self::*)))" />
     </xsl:element>
-    <xsl:element name="metadata">uncomplete</xsl:element>
 
 <!-- Close the "header" tag -->
 </xsl:template>
