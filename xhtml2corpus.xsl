@@ -39,21 +39,6 @@ xsltproc /Users/tomi/Documents/eclipse/workspace/gt/script/xhtml2corpus.xsl - > 
    						|../html:body//html:h2[1]
    						|../html:body//html:h3[1]"/>
   </title>
-  <translated-from/>
-  <genre>
-  </genre>
-  <author>
-   <person>
-    <xsl:attribute name="name">
-    </xsl:attribute>
-    <xsl:attribute name="sex">
-    </xsl:attribute>
-   </person>
-  </author>
-  <year>
-  </year>
-  <publChannel>
-  </publChannel>
  </header>
 </xsl:template>
 
