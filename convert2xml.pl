@@ -93,11 +93,15 @@ if(! $tmpdir || ! -d $tmpdir) {
     }
 }
 
+my $command;
 # Redirect STDERR to log files.	
 if (! $nolog) {
 	my ($sec,$min,$hour,$mday,$mon,@rest) = localtime(time);
 	$log_file = $tmpdir . "/" . $mon . "-" . $mday . "-" . $hour . "-" . $min . ".log";
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
+	$command = "chgrp cvs \"$log_file\"";
+	system($command) == 0
+		or print STDERR "$log_file: ERROR chgrp failed\n";
 }
 
 # Search the files in the directory $dir and process each one of them.
@@ -133,8 +137,6 @@ sub process_file {
 	
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
-
-	my $command;
 
 	# Conversion of word documents
 	if ($file =~ /\.doc$/) {
@@ -232,9 +234,6 @@ sub process_file {
 #	}
 	# Print log message in case of fatal ERROR
 	if (! $nolog) {
-		$command = "chgrp cvs \"$log_file\"";
-		system($command) == 0
-			or print STDERR "$file: ERROR chgrp failed\n";
 		open FH, $log_file;
 		while (<FH>) {
 			print "$_\n" if (/ERROR/ && /$file/);
