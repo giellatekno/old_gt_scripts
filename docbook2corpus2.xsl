@@ -67,8 +67,6 @@ Find the book element, which then is converted to the "document" tag
 
 <!-- Author -->
 <xsl:template match="bookinfo/author">
-<xsl:choose>
-<xsl:when test="count(bookinfo/author) > 0">
 	<xsl:element name="author">
         <xsl:element name="person">
             <xsl:attribute name="firstname">
@@ -82,8 +80,6 @@ Find the book element, which then is converted to the "document" tag
             <xsl:attribute name="nationality"><xsl:value-of select="ancestor::book/@lang" /></xsl:attribute>
         </xsl:element>
     </xsl:element>
-</xsl:when>
-</xsl:choose>
 </xsl:template>
 
 <!-- Date -->
