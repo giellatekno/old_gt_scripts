@@ -211,6 +211,9 @@ sub process_file {
 		}
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+		$command = "chgrp cvs \"$xsl_file\" \"$tmp\"";
+		system($command) == 0 
+			or print STDERR "$file: ERROR chgrp failed \n";
 		print STDERR $command, "\n";
 		system($command) == 0 
 			or print STDERR "$file: ERROR xsltproc failed \n";
