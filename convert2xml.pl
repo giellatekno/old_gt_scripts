@@ -51,9 +51,6 @@ $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $xsltproc="/usr/bin/xsltproc";
-my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language sme";
-my $hyphenate = $bindir . "/add-hyph-tags.pl";
-my $text_cat = $bindir . "/text_cat";
 
 my $help;
 
@@ -78,6 +75,10 @@ my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, swe
 				 eng => 1, oth => 1, );
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
+
+my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language $language";
+my $hyphenate = $bindir . "/add-hyph-tags.pl";
+my $text_cat = $bindir . "/text_cat";
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -144,6 +145,8 @@ sub process_file {
 		print STDERR "$command\n"; 
 		system($command) == 0 
 			or print STDERR "$file: ERROR antiword failed\n";
+		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+		copy ($int, $tmp1) ;
 	}
 	
 	# Conversion of xhtml documents
