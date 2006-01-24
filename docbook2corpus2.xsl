@@ -43,6 +43,7 @@ Find the book element, which then is converted to the "document" tag
             <!-- Apply the following functions -->
             <xsl:apply-templates select="title"/>
             <xsl:apply-templates select="chapter"/>
+            <xsl:apply-templates select="sect1"/>
             <xsl:apply-templates select="para"/>
             <xsl:apply-templates select="table"/>
             <xsl:apply-templates select="orderedlist"/>
@@ -125,10 +126,21 @@ Find the book element, which then is converted to the "document" tag
 	<xsl:element name="chapter">
         <xsl:apply-templates select="title"/>
         <xsl:apply-templates select="chapter"/>
+        <xsl:apply-templates select="sect1"/>
         <xsl:apply-templates select="para"/>
         <xsl:apply-templates select="table"/>
         <xsl:apply-templates select="orderedlist"/>
     </xsl:element>
+ </xsl:template>
+
+<!-- Sect1 -->
+<xsl:template match="sect1">
+    <xsl:apply-templates select="title"/>
+    <xsl:apply-templates select="chapter"/>
+    <xsl:apply-templates select="para"/>
+    <xsl:apply-templates select="sect1"/>
+    <xsl:apply-templates select="table"/>
+    <xsl:apply-templates select="orderedlist"/>
  </xsl:template>
 
 <!-- Title -->
@@ -235,5 +247,18 @@ Find the book element, which then is converted to the "document" tag
         </xsl:element>
     </xsl:if>
 </xsl:template>
+
+<xsl:template match="*">
+ <xsl:message>No template for <xsl:value-of select="name()"/>
+ </xsl:message>
+ <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="@*">
+ <xsl:message>No template for <xsl:value-of select="name()"/>
+ </xsl:message>
+ <xsl:apply-templates/>
+</xsl:template>
+
 
 </xsl:stylesheet>
