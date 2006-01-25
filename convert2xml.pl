@@ -213,6 +213,8 @@ sub process_file {
 		}
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+		system($command) == 0 
+			or print STDERR "$file: ERROR xsltproc failed \n";
 		$command = "chgrp cvs \"$xsl_file\" \"$tmp\"";
 		system($command) == 0 
 			or print STDERR "$file: ERROR chgrp failed \n";
@@ -279,7 +281,9 @@ sub langdetect {
 			}
 		}
 	}
-	$para->set_att( "xml:lang" => $bestlang );
+	if ($bestlang ne $language) {
+		$para->set_att( "xml:lang" => $bestlang );
+	}
 }
 
 sub pdfclean {
