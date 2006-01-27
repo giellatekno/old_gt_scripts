@@ -49,21 +49,29 @@ main (int argc, char *argv[])
         }
  
         else if (strcmp(argv[i], "-a") == 0) {
+            bPrintPara = true;
             bPrintTitle = true;
             bPrintList = true;
             bPrintTable = true;
+        }
+        
+        else if (strcmp(argv[i], "-p") == 0) {
+            bPrintPara = true;
         }
 
         else if (strcmp(argv[i], "-T") == 0) {
             bPrintTitle = true;
+            bPrintPara = false;
         }
  
         else if (strcmp(argv[i], "-L") == 0) {
             bPrintList = true;
+            bPrintPara = false;
         }
 
         else if (strcmp(argv[i], "-t") == 0) {
             bPrintTable = true;
+            bPrintPara = false;
         }
 
         else if (strstr(argv[i], ".xml\0") != NULL) ProcessFile (argv[i]);
@@ -147,9 +155,9 @@ void ProcessWord (TagParser &parse)
    string word = parse.Value();
 
 // Commented out the test for language, since the language is
-// still missing in many corpus files. -- sh
-//   if ((bDocLang || bElementLang) &&
-     if ((bPrintPara && bInPara)   ||
+// still missing or incorrect in many corpus files. -- sh
+//   if ((bDocLang && bElementLang) &&
+   if   ((bPrintPara && bInPara)   ||
        (bPrintTitle && bInTitle) ||
        (bPrintList && bInList)   ||
        (bPrintTable && bInTable))
@@ -230,6 +238,7 @@ void print_help()
 // Commented out the language option so far --sh
 //    cout << "\t-l <lang>\tProcess elements in language <lang>.\n";
     cout << "\t-a\t\tPrint all text elements.\n";
+    cout << "\t-p\t\tPrint plain paragraphs. (default)\n";
     cout << "\t-T\t\tPrint paragraphs with title type.\n";
     cout << "\t-L\t\tPrint paragraphs with list type.\n";
     cout << "\t-t\t\tPrint paragraphs with table type.\n";
