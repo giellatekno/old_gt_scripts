@@ -26,8 +26,7 @@ our %Char_Files = (
                  "iso_ir_197" => "iso_ir_197.txt",
                  "samimac_roman" => "samimac_roman.txt",
                  "levi_winsam" => "levi_CP1258.txt",
-                 "8859-4" => "8859-4.txt",
-				 "keyboard" => "sami_keyboard.txt"
+                 "8859-4" => "8859-4.txt"
 		   );
 
 our %Char_Tables;
@@ -35,7 +34,7 @@ our %Char_Tables;
 our %Sami_Chars = (
 			"sme" =>  {
 #		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
-		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
+#		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 #		   0x010C => 1, #"LATIN CAPITAL LETTER C WITH CARON"
 			0x010D => 1, #"LATIN SMALL LETTER C WITH CARON"
 #		   0x0110 => 1, #"LATIN CAPITAL LETTER D WITH STROKE"
@@ -184,10 +183,10 @@ sub guess_encoding () {
     if ($statistics{$last_val}->[$UNCONVERTED] > $MIN_AMOUNT ) {
 		$encoding = $last_val;
     }
-	if($Test) {
+#	if($Test) {
 		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
 		else { print "$encoding \n"; }
-	}
+#	}
     return $encoding;
 }
 
@@ -269,7 +268,8 @@ sub read_char_table{
     
     my $data_dir = dirname __FILE__;
     
-    open (CHARFILE, $data_dir."/data/".$charfile) or die "Cannot open file $charfile: $!";
+    open (CHARFILE, $data_dir."/data/".$charfile) or 
+		die "Cannot open file $data_dir/data/$charfile : $!";
     my %convert_table;
     
     while (my $line = <CHARFILE>) {
