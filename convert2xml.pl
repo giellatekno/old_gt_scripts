@@ -238,7 +238,7 @@ sub process_file {
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
-			print "$_\n" if (/ERROR/ && /$file/);
+			print "See logfile $log_file: $_\n" if (/ERROR/ && /$file/);
 		}
 	}
 }
