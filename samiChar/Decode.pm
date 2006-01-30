@@ -14,8 +14,8 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&decode_file &guess_encoding &find_dec &combine_two_codings);
-@EXPORT_OK   = qw(%convertTable);
+@EXPORT = qw(&decode_file &guess_encoding &read_char_tables &decode_para %Char_Tables);
+@EXPORT_OK   = qw(&find_dec &combine_two_codings %Sami_Chars);
 
 our %Char_Files = (
                  "latin6" => "iso8859-10-1.txt",
@@ -26,14 +26,16 @@ our %Char_Files = (
                  "iso_ir_197" => "iso_ir_197.txt",
                  "samimac_roman" => "samimac_roman.txt",
                  "levi_winsam" => "levi_CP1258.txt",
-                 "8859-4" => "8859-4.txt"
+                 "8859-4" => "8859-4.txt",
+				 "keyboard" => "sami_keyboard.txt"
 		   );
 
+our %Char_Tables;
 
-our %Char_Tables = (
-		    "sme" =>  {
+our %Sami_Chars = (
+			"sme" =>  {
 #		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
-#		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
+		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 #		   0x010C => 1, #"LATIN CAPITAL LETTER C WITH CARON"
 			0x010D => 1, #"LATIN SMALL LETTER C WITH CARON"
 #		   0x0110 => 1, #"LATIN CAPITAL LETTER D WITH STROKE"
@@ -61,31 +63,36 @@ our %Char_Tables = (
 # sma => {},
 # sms => {},
 # smn => {},
-		    );
+			);
+
 
 our $UNCONVERTED = 0;
 our $CORRECT = 1;
-our $NO_ENCODING = -1;
+our $NO_ENCODING = 0;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 0.03;
+our $MIN_AMOUNT = 0.02;
 
 # Printing some test data, chars and their amounts
 our $Test=0;
 
 sub guess_encoding () {
-    my ($file, $lang) = @_;
-    
-    if (!$lang || ! $Char_Tables{$lang}) {
+    my ($file, $lang, $para_ref) = @_;
+
+    if (!$lang || ! $Sami_Chars{$lang}) {
 		if ($Test) {
 			print "guess_encoding: language is not specified or language $lang is not supported\n";
 		}
 		return $NO_ENCODING;
     }
 
+	my @text_array;
     # Read the corpus file
-    my @text_array = &read_file($file);
+	if ($file) {
+		@text_array = &read_file($file);
+	} 
+	else { @text_array = split("\n", $$para_ref); }
     
     # Store the statistics here
     my %statistics = ();
@@ -93,15 +100,16 @@ sub guess_encoding () {
     for my $encoding (keys %Char_Files) {
 
 		# Read the encoding table
-		my %convert_table = &read_char_table($Char_Files{$encoding});
-		
+		#my %convert_table = &read_char_table($Char_Files{$encoding});
+		my %convert_table = %{ $Char_Tables{$encoding} };
+
 		# test_table contains the tested sámi chars in both utf and tested encoding.
 		# count_table is for counting the occurences of sámi chars,
 		# both those in tested encoding and already correct ones.
 		my %test_table; 
 		my %count_table;
       CHAR_TABLE:
-		for my $char (keys % { $Char_Tables{$lang}}){
+		for my $char (keys % { $Sami_Chars{$lang}}){
 			$count_table{$char}->[$UNCONVERTED] = 0;
 			$count_table{$char}->[$CORRECT] = 0;
 		  CONVERT_TABLE:
@@ -177,12 +185,27 @@ sub guess_encoding () {
 		$encoding = $last_val;
     }
 	if($Test) {
-		if ($encoding eq $NO_ENCODING ) { print "$file: no_encoding \n"; }
-		else { print "$file: $encoding \n"; }
+		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
+		else { print "$encoding \n"; }
 	}
     return $encoding;
 }
 
+sub decode_para (){
+	my ($lang, $para_ref) = @_;
+
+	my $encoding = &guess_encoding("", $lang, $para_ref);
+	if ($encoding eq $NO_ENCODING) { return; }
+	print "$encoding\n";
+	my %convert_table = %{ $Char_Tables{$encoding} };
+	my @unpacked = unpack("U*", $$para_ref);
+	for my $byte (@unpacked) {
+		if ($convert_table{$byte}) {
+			$byte = $convert_table{$byte};
+		}
+	}
+	$$para_ref = pack("U*", @unpacked);
+}
 
 sub decode_file (){
     my ($file, $encoding, $outfile) =  @_;
@@ -230,6 +253,14 @@ sub read_file {
     }
     close (FH);
     return @text_array;
+}
+
+sub read_char_tables {
+
+	for my $encoding (keys %Char_Files) {
+		my $file = $Char_Files{$encoding};
+		$Char_Tables{$encoding} = { read_char_table($file) };
+	}
 }
 
 
@@ -329,6 +360,7 @@ sub combine_two_codings {
     close (OUTFILE);
 }
 
+
 1;
 
 __END__
@@ -346,7 +378,7 @@ samiChar::Decode.pm -- convert characters byte-wise to other characters.
     my $encoding;
     my $lang = "sme";
 
-    $encoding = &guess_encoding($file, $lang);
+    $encoding = &guess_encoding($file, $lang, $para_ref);
     &decode_file($file, $encoding, $outfile);
 
 
@@ -419,7 +451,7 @@ These encodings are available:
 
 The original input encoding is guessed by examining the text and
 searching the most common characters. The unicode 
-characters in hex are listed in hash C<%Char_Tables> for Northern Sámi
+characters in hex are listed in hash C<%Sami_Chars> for Northern Sámi
 for example. The uncommented characters are the ones that take
 part into guessing the encoding.
 

@@ -42,6 +42,7 @@ my $xsltemplate = $bindir . "/XSL-template.xsl";
 
 my $log_file;
 my $language;
+my $multi_coding=0;
 
 # set the permissions for created files: -rw-rw-r--
 umask 0112;
@@ -64,6 +65,7 @@ GetOptions ("no-decode" => \$no_decode,
 			"lang=s" => \$language,
 			"no-hyph" => \$no_hyph,
 			"all-hyph" => \$all_hyph,
+			"multi-coding" => \$multi_coding,
 			"help" => \$help);
 
 if ($help) {
@@ -147,8 +149,6 @@ sub process_file {
 		print STDERR "$command\n"; 
 		system($command) == 0 
 			or print STDERR "$file: ERROR antiword failed\n";
-		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-		copy ($int, $tmp1) ;
 	}
 	
 	# Conversion of xhtml documents
@@ -178,6 +178,10 @@ sub process_file {
 		system($command) == 0
 			or print STDERR "$file: ERROR tidy failed\n";
 	}
+# Intermediate temporary file for testing.
+#	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+#	copy ($int, $tmp1) ;
+
 	# hyphenate the file
 	if (! $no_hyph && $file !~/\.pdf/ ) {
 		if ($all_hyph) {
@@ -191,14 +195,30 @@ sub process_file {
 	}
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
-	if (! $no_decode) {
-		my $coding = &guess_encoding($int, $language);
-		if ($coding == -1) { print STDERR "No character encoding.\n"; }
-		else { 
-			print STDERR "Character decoding: $coding\n";
-			&decode_file($int, $coding, $int);
-		}
-	}
+  ENCODING: {
+	  if (! $no_decode) {
+		  &read_char_tables;
+		  # guess encoding and decode each paragraph at the time.
+		  if( $multi_coding ) {
+			  my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode(@_); } });
+			  if ($document->safe_parsefile ("$int") == 0 ) {
+				  print STDERR "$file: ERROR parsing the XML-file failed.\n";
+				  last ENCODING;
+			  }
+			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+			  $document->set_pretty_print('record');
+			  $document->print( \*FH);
+		  } else {
+			  # assume same encoding for the whole file.
+			  my $coding = &guess_encoding($int, $language, 0);
+			  if ($coding == 0) { print STDERR "Correct character encoding.\n"; }
+			  else { 
+				  print STDERR "Character decoding: $coding\n";
+				  &decode_file($int, $coding, $int);
+			  }
+		  }
+	  }
+  }
 	$command = "chgrp cvs \"$int\"";
 	system($command) == 0
 		or print STDERR "$file: ERROR chgrp failed\n";
@@ -238,11 +258,18 @@ sub process_file {
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
-			print "See logfile $log_file: $_\n" if (/ERROR/ && /$file/);
+			print "See file $log_file: $_\n" if (/ERROR/ && /$file/);
 		}
 	}
 }
 
+sub call_decode {
+	my ( $twig, $para ) = @_;
+
+	my $text = $para->text;
+	&decode_para($language, \$text);
+	$para->set_text($text);
+}
 
 sub langdetect {
 	my ( $twig, $para, $language ) = @_;
@@ -354,6 +381,8 @@ sub print_help {
     print"    --noxsl         Do not use file-specific xsl-template.\n";
     print"    --no-hyph       Do not add hyphen tags.\n";
     print"    --all-hyph      Add hyphen tags everywhere (default is at the end of the lines).\n";
+    print"    --multi-coding  Document contains more than one different encodings, character \n";
+    print"                    decoding is done paragraph-wise.\n";
     print"    --help          Print this message and exit.\n";
 };
 
