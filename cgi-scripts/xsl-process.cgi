@@ -25,98 +25,63 @@ for my $name (@names) {
 }
 
 my $corpdir = "/usr/local/share/corp";
-my $tmp_dir = "$corpdir/tmp";
+my $tmp_dir = "$corpdir/upload";
+my $upload_dir = "$corpdir/upload";
 my $xsltemplate = "$corpdir/bin/XSL-template.xsl";
-my $orig_dir;
-my $langgenre ="";
 
-if ($bookinfo{mainlang} && $bookinfo{genre}) {
-	$langgenre = $bookinfo{'mainlang'} . "/" . $bookinfo{'genre'};
-	$orig_dir = "$corpdir/orig/$langgenre";
-}
-else {
-	print "Warning: main language and genre were not specified.\n";
-	$orig_dir = $tmp_dir;
-}
+#if ($bookinfo{mainlang} && $bookinfo{genre}) {
+#	$langgenre = $bookinfo{'mainlang'} . "/" . $bookinfo{'genre'};
+#	$orig_dir = "$corpdir/orig/$langgenre";
+#}
+#else {
+#	print "Warning: main language and genre were not specified.\n";
+#	$orig_dir = $tmp_dir;
+#}
 
-my $finaldir = $orig_dir;
-$finaldir =~ s/orig/gt/;
 
-# Define the directory in the orig-hierarchy
-if ($langgenre && ( $bookinfo{'genre'} eq "news" || $bookinfo{'genre'} eq "admin")) {
-	# Kautokeino hack
-	if ($bookinfo{'publisher'} eq "Kautokeino") {
-		$orig_dir = "/usr/local/share/corp/orig/$langgenre/guovda";
-	}
-	# Karasjok hack
-	elsif ($bookinfo{'publisher'} eq "Karasjok") {
-		$orig_dir = "/usr/local/share/corp/orig/$langgenre/karas";
-	}
-	
-	else {
-		$orig_dir = "/usr/local/share/corp/orig/$langgenre/$bookinfo{'publisher'}";
-	}
-}
+if(!$bookinfo{filename}) { die "File not specified\n"; }
 
-# Strip path
-if(!$bookinfo{filename}) {
-	die "File not specified\n";
-}
-my $filename = $bookinfo{filename};
-my $fname = $filename;
+# Parse the filename once more, once for security
+# and second for to take away the path.
+my $fname = $bookinfo{filename};
 $fname =~ s/.*[\/\\](.*)/$1/;
-
-$i = 1;
-while (-e "$orig_dir/$fname") {
-	$fname = "$fname-$i";
-	$i++;
-}
+$fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
+my $upload_file = "$upload_dir/$fname";
 
 # Create the xsl-file and add the form data
-copy ("$xsltemplate", "$orig_dir/$fname.xsl") or die "Copy failed ($orig_dir/$fname.xsl): $!";
+copy ("$xsltemplate", "$upload_file.xsl") or die "Copy failed ($upload_file.xsl): $!";
 
 my $document = XML::Twig->new(twig_handlers => {'xsl:variable' => \&process });
 
-$document->parsefile ("$orig_dir/$fname.xsl");
+$document->parsefile ("$upload_file.xsl");
 $document->set_pretty_print('record');
 
-open (FH, ">$orig_dir/$fname.xsl") or die "Cannot open file $orig_dir/$fname.xsl for output: $!";
+open (FH, ">$upload_file.xsl") or die "Cannot open file $upload_file.xsl for output: $!";
 $document->print( \*FH);
+
+# Create a temporary file for conversion.
+my $tmpfile = $upload_file . "1";
+move ("$upload_file.xml", "$tmpfile.xml") or die "Could not move the file $upload_file.xml. $!";
 
 # Convert the document
 my $command;
-if ($orig_dir eq $finaldir) {
-	my $new_filename = $filename . "1";
-	move ("$filename.xml", "$new_filename.xml") or die "Could not move the file $filename. $!";
-	$filename = $new_filename;
-	$command = "xsltproc --novalid $orig_dir/$fname.xsl $filename.xml > $finaldir/$fname.xml";
-}
-else {
-	move ("$filename", "$orig_dir/$fname");
-	$command = "xsltproc --novalid $orig_dir/$fname.xsl $filename.xml > $finaldir/$fname.xml";
-}
+$command = "xsltproc --novalid $upload_file.xsl $tmpfile.xml > $upload_file.xml";
 system($command)  == 0 
 	or die "$command failed: $! \n";
-
-
-#Change the group of the xsl-file to cvs.
-#RCS command for initial checkin of the xsl-file.
-#my $command = "chgrp cvs $orig_dir/$fname";
-#system $command or die "System failed: $!";
-#$command = "ci -t-\"xsl file, created in xsl-process.cgi\" -q -i $orig_dir/$fname";
-#system $command or die "System failed: $!";
-
 
 # The html-part starts here
 print <<END_HTML;
 
 <html>
   <head>
-  	<title>XSL-Processing</title>
+  	<title>Document information updated</title>
   </head>
   
   <body>
-    <p>$finaldir/$fname.xml</p>
+    <h1>Document information updated</h1> 
+	<p>Information updated to file $fname.xml.</p>
+    <p><a href="http://www.divvun.no/upload/upload-corpus-file.html"> Upload more files</a> </p>
+	<p><a href="http://www.divvun.no/"> Divvun main page</a></p>
   </body>
 </html>
 

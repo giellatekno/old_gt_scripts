@@ -18,10 +18,10 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
 
 my $convert = "/usr/local/share/corp/bin/convert2xml.pl";
-my $tmpdir = "/usr/local/share/corp/tmp" ;
+my $tmpdir = "/usr/local/share/corp/upload" ;
 
 # Define upload directory and mkdir it, if necessary
-my $upload_dir = "/usr/local/share/corp/tmp";
+my $upload_dir = "/usr/local/share/corp/upload";
 mkdir ($upload_dir, 0755) unless -d $upload_dir;
 
 my $query = new CGI;
@@ -35,6 +35,15 @@ $filename =~ s/.*[\/\\](.*)/$1/;
 # Replace space with underscore - c = complement the search list
 my $fname = $filename;
 $fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
+
+# Generate a new file name 
+# if there exists a file with the same name.
+$fname =~ s/.*[\/\\](.*)/$1/;
+my $i = 1;
+while (-e "$upload_dir/$fname") {
+	$fname = "$fname-$i";
+	$i++;
+}
 
 # a hash where we will store the md5sums
 my @md5sum;
@@ -76,7 +85,7 @@ for my $i (@md5sum) {
 
 # Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
-system "\"$convert\" --lang=\"$mainlang\" --tmpdir=\"$tmpdir\" --noxsl \"$upload_dir/$fname\"";
+system "\"$convert\" --lang=\"$mainlang\" --tmpdir=\"$tmpdir\" --noxsl --upload \"$upload_dir/$fname\"";
 #	 or die "Error in conversion";
 
 
@@ -110,7 +119,7 @@ print <<END_HTML;
   <body>
 
 <h1>File uploaded</h1>
-    <p>Thank you for uploading the file <a href="$upload_dir/$filename"> $filename </a>.</p>
+    <p>Thank you for uploading the file $filename </a>.</p>
 	<p>Please fill in the following form.</p>
 
 <h1>The document information</h1>
