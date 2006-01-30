@@ -242,7 +242,7 @@ void print_help()
     cout << "\t-T\t\tPrint paragraphs with title type.\n";
     cout << "\t-L\t\tPrint paragraphs with list type.\n";
     cout << "\t-t\t\tPrint paragraphs with table type.\n";
-    cout << "\t-r <dir>\tRecursively process directory dir and subdirs enountered.\n";
+    cout << "\t-r <dir>\tRecursively process directory dir and subdirs encountered.\n";
     cout << "\t-h\t\tPrint this help message.\n";
 
     cout << endl;
