@@ -30,9 +30,11 @@ Output the header information
 </xsl:template>
 
 <xsl:template match="row">
+	<xsl:if test="normalize-space(child::p[3])">
 	<xsl:element name="section">
 		<xsl:apply-templates />
 	</xsl:element>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="row/p[1]">
@@ -40,13 +42,17 @@ Output the header information
 
 <xsl:template match="row/p[2]">
 	<xsl:element name="p">
-		<xsl:attribute name="type">title</xsl:attribute>
-		<xsl:apply-templates />
+		<xsl:attribute name="counter">
+			<xsl:value-of select='text()' />
+		</xsl:attribute>
 	</xsl:element>
 </xsl:template>
 
 <xsl:template match="row/p[3]">
 	<xsl:element name="p">
+		<xsl:if test="contains(preceding-sibling::p[2], '3') ">
+			<xsl:attribute name="type">title</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates />
 	</xsl:element>
 </xsl:template>
