@@ -41,7 +41,10 @@ $fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
 $fname =~ s/.*[\/\\](.*)/$1/;
 my $i = 1;
 while (-e "$upload_dir/$fname") {
-	$fname = "$fname-$i";
+	my $tmp = $fname;
+	$tmp =~ s/(\.(.*))$//;
+	$tmp = $tmp . "_" . $i;
+	$fname = $tmp.$1;
 	$i++;
 }
 
@@ -110,21 +113,30 @@ if ($document->safe_parsefile ("$upload_dir/$fname.xml") == 0) {
  }
 
 # The html-part starts here                                                                                 
-print <<END_HTML;
+print <<END_HEADER
 <html>
-  <head>
-        <title>File uploaded</title>
-  </head>
+	<head>
+END_HEADER
+	;
+	&write_js;
 
+print <<END_HTML
+	<title>File uploaded</title>
+  </head>
   <body>
 
 <h1>File uploaded</h1>
     <p>Thank you for uploading the file $filename </a>.</p>
-	<p>Please fill in the following form.</p>
+	<p>Please fill in the following form with the available
+    information of the document. The fields submitter name
+    and email are mandatory.</p>
 
 <h1>The document information</h1>
 
-    <form TYPE="text" ACTION="xsl-process.cgi" METHOD="post" enctype="multipart/form-data">
+    <form name="metainfo" TYPE="text" ACTION="xsl-process.cgi"
+	METHOD="post" enctype="multipart/form-data" >
+
+<!--  onsubmit="return checkWholeForm(this)"> -->
   Title: <input type="text" name="title" value="$title" size="50"> <br/>
       Author(s):
     <ol>
@@ -137,6 +149,7 @@ print <<END_HTML;
   Born: <input type="text" name="author1_born" value="" size="4"><br/>
   Nationality:
     <select name="author1_nat">
+	<option value="">--none--</option>
     <option value="fin">Finnish</option>
     <option value="nor">Norwegian</option>
                <option value="swe">Swedish</option>
@@ -200,16 +213,70 @@ print <<END_HTML;
 </tr>
 <tr>
 <td>Submitter:</td>
-<td>  Name: <input type="text" name="sub_name" value="" size="30"><br/>
-  Email: <input type="text" name="sub_email" value="" size="40"></td>
+<td>  Name: <img src="star.gif" width="8" height="16" border="0" alt="star">
+ <input type="text" name="sub_name" value="" size="30"><br/>
+  Email: <img src="star.gif" width="8" height="16" border="0" alt="star">
+<input type="text" name="sub_email" value="" size="40"></td>
 </tr>
 </table>
       <input type="hidden" name="filename" value="$upload_dir/$fname">
       <input type="hidden" name="license_type" value="$license_type">
       <input type="hidden" name="mainlang" value="$mainlang">
       <input type="submit" name="Submit" value="submit form">
+
     </form>
   </body>
 </html>
 
 END_HTML
+	;
+
+sub write_js {
+	print <<END_OF_JS
+<script>
+
+// check form
+function checkWholeForm(theForm) {
+	var why = "";
+	why += checkEmail(theForm.sub_email.value);
+	why += isEmpty(theForm.sub_name.value);
+	if (why != "") {
+		alert(why);
+		return false;
+	}
+	return true;
+}
+// email
+	function checkEmail (strng) {
+		var error="";
+		if (strng == "") {
+			error = "You didn't enter an email address.\n";
+		}
+		
+		var emailFilter=/^.+@.+\..{2,3}$/;
+		if (!(emailFilter.test(strng))) {
+			error = "Please enter a valid email address.\n";
+		}
+		else {
+			//test email for illegal characters
+				var illegalChars= /[\(\)\<\>\,\;\:\\\"\[\]]/
+				if (strng.match(illegalChars)) {
+					error = "The email address contains illegal characters.\n";
+				}
+		}
+		return error;
+	}
+	
+// non-empty submitter
+	function isEmpty(strng) {
+		var error = "";
+		if (strng.length == 0) {
+			error = "The name of the submitter has not been filled in.\n"
+			}
+		return error;
+	}
+</script>
+
+END_OF_JS
+;
+}
