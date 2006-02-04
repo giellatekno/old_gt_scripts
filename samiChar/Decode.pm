@@ -180,13 +180,13 @@ sub guess_encoding () {
 		}
 		$last_val = $key;
 	}
-    if ($statistics{$last_val}->[$UNCONVERTED] > $MIN_AMOUNT ) {
+    if ($statistics{$last_val}->[$UNCONVERTED] && $statistics{$last_val}->[$UNCONVERTED] > $MIN_AMOUNT ) {
 		$encoding = $last_val;
     }
-#	if($Test) {
+	if($Test) {
 		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
 		else { print "$encoding \n"; }
-#	}
+	}
     return $encoding;
 }
 
