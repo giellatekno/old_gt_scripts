@@ -68,7 +68,7 @@
 <xsl:variable name="sweid" select="''"/>
 <xsl:variable name="finid" select="''"/>
 
-<xsl:include href="/usr/local/share/corpus/bin/common.xsl"/>
+<xsl:include href="/usr/local/share/corp/bin/common.xsl"/>
 
 <!-- Tag the specified elements with the specified language: -->
 <!-- Change the language to what is needed. -->
