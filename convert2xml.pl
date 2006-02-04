@@ -43,6 +43,7 @@ my $xsltemplate = $bindir . "/XSL-template.xsl";
 my $log_file;
 my $language;
 my $multi_coding=0;
+my $upload=0;
 
 # set the permissions for created files: -rw-rw-r--
 umask 0112;
@@ -66,6 +67,7 @@ GetOptions ("no-decode" => \$no_decode,
 			"no-hyph" => \$no_hyph,
 			"all-hyph" => \$all_hyph,
 			"multi-coding" => \$multi_coding,
+			"upload" => \$upload,
 			"help" => \$help);
 
 if ($help) {
@@ -101,9 +103,11 @@ if (! $nolog) {
 	my ($sec,$min,$hour,$mday,$mon,@rest) = localtime(time);
 	$log_file = $tmpdir . "/" . $mon . "-" . $mday . "-" . $hour . "-" . $min . ".log";
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
-	$command = "chgrp cvs \"$log_file\"";
-	system($command) == 0
-		or print STDERR "$log_file: ERROR chgrp failed\n";
+	if (! $upload) {
+		$command = "chgrp cvs \"$log_file\"";
+		system($command) == 0
+			or print STDERR "$log_file: ERROR chgrp failed\n";
+	}
 }
 
 # Search the files in the directory $dir and process each one of them.
@@ -177,10 +181,11 @@ sub process_file {
 		print STDERR "$command\n";
 		system($command) == 0
 			or print STDERR "$file: ERROR tidy failed\n";
+
 	}
 # Intermediate temporary file for testing.
-#	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-#	copy ($int, $tmp1) ;
+	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+	copy ($int, $tmp1) ;
 
 	# hyphenate the file
 	if (! $no_hyph && $file !~/\.pdf/ ) {
@@ -193,6 +198,7 @@ sub process_file {
 		system($command) == 0
 			or print STDERR "$file: ERROR hyphenate failed\n";
 	}
+
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
@@ -211,7 +217,7 @@ sub process_file {
 		  } else {
 			  # assume same encoding for the whole file.
 			  my $coding = &guess_encoding($int, $language, 0);
-			  if ($coding == 0) { print STDERR "Correct character encoding.\n"; }
+			  if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
 			  else { 
 				  print STDERR "Character decoding: $coding\n";
 				  &decode_file($int, $coding, $int);
@@ -219,10 +225,11 @@ sub process_file {
 		  }
 	  }
   }
-	$command = "chgrp cvs \"$int\"";
-	system($command) == 0
-		or print STDERR "$file: ERROR chgrp failed\n";
-	
+	if(! $upload) {
+		$command = "chgrp cvs \"$int\"";
+		system($command) == 0
+			or print STDERR "$file: ERROR chgrp failed\n";
+	}
 	if (! $noxsl) {
 		# Execute the file specific .xsl-script.
 		# Copy it from template, if not exist.
@@ -233,6 +240,7 @@ sub process_file {
 		}
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+		print STDERR "$command\n";
 		system($command) == 0 
 			or print STDERR "$file: ERROR xsltproc failed \n";
 		$command = "chgrp cvs \"$xsl_file\" \"$tmp\"";
@@ -383,6 +391,7 @@ sub print_help {
     print"    --all-hyph      Add hyphen tags everywhere (default is at the end of the lines).\n";
     print"    --multi-coding  Document contains more than one different encodings, character \n";
     print"                    decoding is done paragraph-wise.\n";
+    print"    --upload        Do conversion in the upload-directory. \n";
     print"    --help          Print this message and exit.\n";
 };
 
