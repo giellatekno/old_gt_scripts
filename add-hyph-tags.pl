@@ -126,7 +126,7 @@ for (@text_array) {
 		# Skip expressions which contain non-alphabetic chars or digits.
 		# cases like pla-, ple- ja plipli, "-pla
 		# Proper names would be one class to be skipped, but not included here.
-		if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ ) {
+		if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ || $word =~ /<.*?>/) {
 			if ($end_hyphen) {
 				$previous_word .= "-";
 				push (@output, $previous_word);
