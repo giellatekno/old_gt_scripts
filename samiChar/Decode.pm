@@ -19,14 +19,15 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 our %Char_Files = (
                  "latin6" => "iso8859-10-1.txt",
-#                "levi" => "levi.txt",
+#                 "levi" => "levi.txt",
 #                "macroman" => "macroman.txt",
 				 "plainroman" => "ROMAN.txt",
 				 "CP1258" => "CP1258.txt",
                  "iso_ir_197" => "iso_ir_197.txt",
                  "samimac_roman" => "samimac_roman.txt",
                  "levi_winsam" => "levi_CP1258.txt",
-                 "8859-4" => "8859-4.txt"
+                 "8859-4" => "8859-4.txt",
+#                 "8859-2" => "8859-2.txt",
 		   );
 
 our %Char_Tables;
@@ -99,7 +100,6 @@ sub guess_encoding () {
     for my $encoding (keys %Char_Files) {
 
 		# Read the encoding table
-		#my %convert_table = &read_char_table($Char_Files{$encoding});
 		my %convert_table = %{ $Char_Tables{$encoding} };
 
 		# test_table contains the tested sámi chars in both utf and tested encoding.
@@ -288,7 +288,7 @@ sub read_char_table{
 }
 
 sub find_dec {
-
+		
     my ($dec, $file) =  @_;
     my $count = 0;
 
@@ -333,11 +333,9 @@ sub combine_two_codings {
     my %second_coding;
     while (my $line = <CHARFILE>) {
 		next if ($line =~ /^\#/);
-		
 		chomp $line;
 		my ($hex, $utf, $desc) = split (/\s+/, $line, 3);
-		$hex =~ s/0x(.*)/0x00$1/;
-		$second_coding{$hex} = $utf;		
+		$second_coding{$hex} = $utf;
     }
     
     my %combined;
