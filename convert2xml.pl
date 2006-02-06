@@ -44,6 +44,7 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
+my $cur_id=0; #variable is used in giving paragraphs their ids.
 
 # set the permissions for created files: -rw-rw-r--
 umask 0112;
@@ -184,8 +185,8 @@ sub process_file {
 
 	}
 # Intermediate temporary file for testing.
-	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-	copy ($int, $tmp1) ;
+#	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+#	copy ($int, $tmp1) ;
 
 	# hyphenate the file
 	if (! $no_hyph && $file !~/\.pdf/ ) {
@@ -234,28 +235,49 @@ sub process_file {
 		# Execute the file specific .xsl-script.
 		# Copy it from template, if not exist.
 		my $xsl_file = $orig . ".xsl";
-		if(! -f $xsl_file ) {
+		my $xsl_vfile = $orig . ".xsl,v";
+		if(! -f $xsl_file && ! -f $xsl_vfile ) {
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+
+			$command = "chgrp cvs \"$xsl_file\" ";
+			print STDERR "$command\n";
+			system($command) == 0 
+				or print STDERR "$file: ERROR chgrp failed \n";
+
+			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
+			print STDERR "$command\n";
+			system($command) == 0
+				or print STDERR "$file: ERROR version control failed \n";
 		}
+		$command = "co -q $xsl_file";
+		print STDERR "$command\n";
+		system($command) == 0
+			or print STDERR "$file: ERROR checkout for the file $xsl_file failed. \n";
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
+
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
 		print STDERR "$command\n";
 		system($command) == 0 
 			or print STDERR "$file: ERROR xsltproc failed \n";
-		$command = "chgrp cvs \"$xsl_file\" \"$tmp\"";
-		system($command) == 0 
-			or print STDERR "$file: ERROR chgrp failed \n";
-		print STDERR $command, "\n";
-		system($command) == 0 
-			or print STDERR "$file: ERROR xsltproc failed \n";
+
 		copy ($tmp, $int) 
 			or print STDERR "ERROR: copy failed ($tmp $int)\n";
+		$command = "chgrp cvs \"$tmp\" ";
+		print STDERR "$command\n";
+		system($command) == 0 
+			or print STDERR "$file: ERROR chgrp failed \n";
+		if ( -f $xsl_vfile) {
+			$command = "rm -rf \"$xsl_file\" ";
+			print STDERR "$command\n";
+			system($command) == 0
+				or print STDERR "$file: ERROR removal of working copy of $xsl_file failed \n";
+		}
 	}
 #  LANGDETECT: {
 #	  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
 #	  if ($document->safe_parsefile ("$int") == 0) {
-#		  print STDERR "$file: ERROR parsing the XML-file failed.\n";
+#		  print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
 #		  last LANGDETECT;
 #	  }
 #	  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
@@ -286,6 +308,7 @@ sub langdetect {
 	my $MAXCHAR = 100;
 	my $lmdir = $bindir . "/LM";
 	my $bestlang="";
+	$cur_id++;
 
 	my $text = $para->text;
 	my $count = length($text);
@@ -319,6 +342,7 @@ sub langdetect {
 	if ($bestlang ne $language) {
 		$para->set_att( "xml:lang" => $bestlang );
 	}
+	$para->set_att( "id" => $cur_id );
 }
 
 sub pdfclean {
