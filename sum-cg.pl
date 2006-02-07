@@ -81,22 +81,22 @@ if ($grammar) {
 	my $count_an=0;
 	for my $cohort (keys %cohorts) {
 		for my $base (keys % {$cohorts{$cohort}}) {
-			for my $anal ( keys %{ $cohorts{$cohort}{$base} }){
+			for my $anal (keys %{ $cohorts{$cohort}{$base} }){
 				$amb .= "\n$anal";
 				$count_an += 1;
 			}
 # The statistics are count for different cohorts.
 			if ($count_an > 1) {
-				$tags{$amb}{'number'} += 1;
+				$tags{$amb}{'number'} += $count{$cohort};
 				my $word = $cohort;
 				$word =~ s/^\"<(.*?)>\".*$/$1/s;
-				$tags{$amb}{$word} += 1;
-				$amb = "";
+				$tags{$amb}{$word} += $count{$cohort};
 			}
 			$count_an = 0;
+			$amb = "";
 		}
 	}
-	for my $gram (sort { $tags{$b}{'number'} <=> $tags{$a}{"number"} } keys %tags) {
+	for my $gram (sort { $tags{$b}{'number'} <=> $tags{$a}{'number'} } keys %tags) {
 		print "$tags{$gram}{'number'}: ";
 		if( $print_words) {
 			for my $word (keys % { $tags{$gram} } ) {
@@ -111,8 +111,14 @@ if ($grammar) {
 else {
 	for my $cohort (sort { $count{$b} <=> $count{$a} } keys %count) {
 		print "$count{$cohort}\n";
+		my $word = $cohort;
+		$word =~ s/^(\"<.*?>\").*$/$1/s;
+		print "$word\n";
 		for my $base (keys % {$cohorts{$cohort}}) {
-			print "$base\n";
+			for my $anal (sort { $cohorts{$cohort}{$base}{$a} <=> $cohorts{$cohort}{$base}{$b} } keys %{ $cohorts{$cohort}{$base} }){
+				print "\t$base";
+				print "$anal\n";
+			}
 		}
 	}
 }
