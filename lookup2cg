@@ -44,10 +44,6 @@ while(<>) {
 	# Empty line means that the whole cohort has been read,
 	# format the output and print
 	else {
-		# Rate compounds accoring to word boundaries
-		if ($max_comp_rate > 0) { 
-			rate_compounds(\@Analyses); 
-		}
 		# Format each analysis
 		for my $line (@Analyses) {
 			# Separate the base form from the analysis
@@ -67,6 +63,10 @@ while(<>) {
 			# Store the analysis to a hash
 			$forms{$line} = 1;
 		} 
+		# Rate compounds accoring to word boundaries
+		if ($max_comp_rate > 0) { 
+			rate_compounds(\%forms); 
+		}
 		
 		# Print output
 		print "\"<$word>\"\n";
@@ -84,26 +84,23 @@ while(<>) {
 
 
 sub rate_compounds {
-	my $aref = shift @_;
+	my $href = shift @_;
 	
 	# Rate compounds and remove extra readings.
 	my $min_boundary_count=5;
 	my $boundary_count=0;
-	foreach (@$aref) {
+	for (keys %$href) {
 		$boundary_count = tr/#//;
 		if ( $boundary_count < $min_boundary_count )
 		{ $min_boundary_count = $boundary_count; }
 	}
 	my $i=0;
 	$boundary_count = 0;
-	my @temp;
-	foreach (@$aref) {
+	for (keys %$href) {
 		$boundary_count = tr/#//;
-		if ( $boundary_count <= $min_boundary_count )
-		{ push @temp, $_; }
-		$i++;
+		if ( $boundary_count > $min_boundary_count )
+			{ delete($$href{$_}); }
 	}
-	@$aref = @temp;
 }
 
 sub format_compound {
