@@ -46,6 +46,8 @@ my $multi_coding=0;
 my $upload=0;
 my $cur_id=0; #variable is used in giving paragraphs their ids.
 
+my $test=0; #preserves temporary files.
+
 # set the permissions for created files: -rw-rw-r--
 umask 0112;
 
@@ -101,8 +103,9 @@ if(! $tmpdir || ! -d $tmpdir) {
 my $command;
 # Redirect STDERR to log files.	
 if (! $nolog) {
-	my ($sec,$min,$hour,$mday,$mon,@rest) = localtime(time);
-	$log_file = $tmpdir . "/" . $mon . "-" . $mday . "-" . $hour . "-" . $min . ".log";
+	my $time = `date +%b-%d-%H-%M`;
+	chomp $time;
+	$log_file = $tmpdir . "/" . $time . ".log";
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	if (! $upload) {
 		$command = "chgrp cvs \"$log_file\"";
@@ -182,11 +185,20 @@ sub process_file {
 		print STDERR "$command\n";
 		system($command) == 0
 			or print STDERR "$file: ERROR tidy failed\n";
+		# remove temporary files unless testing.
+		if (! $test) {
+			$command = "rm -rf \"$html\"";
+			print STDERR "$command\n";
+			system($command) == 0
+				or print STDERR "$file: ERROR rm failed\n";
+		}
 
 	}
-# Intermediate temporary file for testing.
-#	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-#	copy ($int, $tmp1) ;
+	if ($test) {
+        # Intermediate temporary file for testing.
+		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+		copy ($int, $tmp1) ;
+	}
 
 	# hyphenate the file
 	if (! $no_hyph && $file !~/\.pdf/ ) {
@@ -263,10 +275,15 @@ sub process_file {
 
 		copy ($tmp, $int) 
 			or print STDERR "ERROR: copy failed ($tmp $int)\n";
-		$command = "chgrp cvs \"$tmp\" ";
-		print STDERR "$command\n";
-		system($command) == 0 
-			or print STDERR "$file: ERROR chgrp failed \n";
+
+		# Remove temporary file unless testing.
+		if (! $test) {
+			$command = "rm -rf \"$tmp\"";
+			print STDERR "$command\n";
+			system($command) == 0
+				or print STDERR "$tmp: ERROR rm failed\n";
+		}
+
 		if ( -f $xsl_vfile) {
 			$command = "rm -rf \"$xsl_file\" ";
 			print STDERR "$command\n";
