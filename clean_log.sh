@@ -29,13 +29,13 @@ create_tar ()
 	do 
 
 	  log_files=`ls -C $dir/$month_day-*`
-	  tar_file=$dir/old/$year_month/$month_day.tar
+	  tar_file=$dir/log/$year_month/$month_day.tar
 
 	  if [ -z "$log_files" ]; then
 		  exit 0
 	  fi
 
-	  mkdir -p $dir/old/$year_month
+	  mkdir -p $dir/log/$year_month
 
 	  if [ ! -e $tar_file.gz ]
 	  then 
@@ -46,7 +46,7 @@ create_tar ()
 	  fi
 
 	  gzip -f $tar_file
-	  chgrp -R cvs $dir/old/$year_month
+	  chgrp -R cvs $dir/log/$year_month
 	  rm -rf $log_files
 
 	done
