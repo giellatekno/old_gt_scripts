@@ -10,8 +10,7 @@
 # $Id$
 #****************************************************************
 
-#corpdir=/usr/local/share/corp
-corpdir=/home/saara/samipdf
+corpdir=/usr/local/share/corp
 log_dirs="$corpdir/tmp
 $corpdir/upload"
 
