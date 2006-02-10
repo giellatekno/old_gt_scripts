@@ -6,15 +6,15 @@
 #			Feb 10, 2006
 #
 #           Analyze the files in corpus hierarchy
+#
 # $Id$
 #****************************************************************
 
 PATH=$PATH:/opt/xerox/bin
 
 # add the analyzed languages here
-languages=sme
+languages="sme"
 tmpdir="/usr/tmp"
-genre_dirs=`ls -C /usr/local/share/corp/gt/sme`
 gadir=/usr/local/share/corp/ga
 
 # Build an up-to-date analyzator and cg and
@@ -23,14 +23,14 @@ gadir=/usr/local/share/corp/ga
 
 analyze_gt ()
 {
-	for lang in $1
+	for lang in "$@"
 	do 
-		cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt		
+		cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
 		cd $tmpdir/gt && make TARGET=$lang 
 
 		mkdir -p $gadir/$lang
-
-		for dir in $genre_dirs
+		echo "processing directory $lang/..."
+		for dir in `ls -C /usr/local/share/corp/gt/$lang`
 		do
 			mkdir -p $gadir/$lang/$dir;
 			echo "processing directory $lang/$dir..."
@@ -39,8 +39,8 @@ analyze_gt ()
 			-flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg \
 			| vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
 		done
+		chgrp -R cvs $gadir/$lang
 	done
-	chgrp -R cvs $gadir
 	return 0
 }
 
