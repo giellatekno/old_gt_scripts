@@ -195,16 +195,16 @@ print <<END_HTML
        <td>If the document is multilingual,<br/> 
   select the other languages:</td>
 	<td>
-	<INPUT TYPE="checkbox" NAME="mlang-sme">North S&aacute;mi
-	<INPUT TYPE="checkbox" NAME="mlang-smj">Julev S&aacute;mi
-	<INPUT TYPE="checkbox" NAME="mlang-sma">South S&aacute;mi<BR/> 
-	<INPUT TYPE="checkbox" NAME="mlang-nno">Nynorsk
-	<INPUT TYPE="checkbox" NAME="mlang-nob">Bokm&aring;l<BR/> 
-	<INPUT TYPE="checkbox" NAME="mlang-fin">Finnish
-	<INPUT TYPE="checkbox" NAME="mlang-swe">Swedish
-	<INPUT TYPE="checkbox" NAME="mlang-eng">English
-	<INPUT TYPE="checkbox" NAME="mlang-ger">German
-	<INPUT TYPE="checkbox" NAME="mlang-oth">other
+	<INPUT TYPE="checkbox" NAME="mlang_sme">North S&aacute;mi
+	<INPUT TYPE="checkbox" NAME="mlang_smj">Julev S&aacute;mi
+	<INPUT TYPE="checkbox" NAME="mlang_sma">South S&aacute;mi<BR/> 
+	<INPUT TYPE="checkbox" NAME="mlang_nno">Nynorsk
+	<INPUT TYPE="checkbox" NAME="mlang_nob">Bokm&aring;l<BR/> 
+	<INPUT TYPE="checkbox" NAME="mlang_fin">Finnish
+	<INPUT TYPE="checkbox" NAME="mlang_swe">Swedish
+	<INPUT TYPE="checkbox" NAME="mlang_eng">English
+	<INPUT TYPE="checkbox" NAME="mlang_ger">German
+	<INPUT TYPE="checkbox" NAME="mlang_oth">other
 	</td>
 	</tr>
     <tr>
