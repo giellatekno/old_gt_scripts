@@ -5,7 +5,7 @@
 #			written by Saara Huhmarniemi
 #			Feb 10, 2006
 #
-#           Clean the corpus log
+#           Clean the corpus tmp directory
 #
 # $Id$
 #****************************************************************
@@ -21,6 +21,7 @@ month_day=`date +%b-%d`
 # and store it under subdirectory old/
 # The script is supposed to be run each day before midnight.
 # one tarball contains the log files of that day.
+# Remove .tmp.xml -files altogether.
 
 create_tar () 
 {
@@ -29,6 +30,9 @@ create_tar ()
 
 	  log_files=`ls -C $dir/$month_day-*`
 	  tar_file=$dir/log/$year_month/$month_day.tar
+
+	  tmp_files=`ls -C $dir/*.tmp.xml`
+	  rm -rf $tmp_files
 
 	  if [ -z "$log_files" ]; then
 		  exit 0
