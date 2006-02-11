@@ -15,18 +15,6 @@
 			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/> 
 
 
-<!-- What about sections/paragraphs/etc. that are not correctly identified for
-     language? -->
-<!-- Idea: Xpath that uniquely identifies the node, and adds the language info. -->
-
-<xsl:variable name="smelang" select="'sme'"/>
-<xsl:variable name="smjlang" select="'smj'"/>
-<xsl:variable name="smalang" select="'sma'"/>
-<xsl:variable name="noblang" select="'nob'"/>
-<xsl:variable name="nnolang" select="'nno'"/>
-<xsl:variable name="swelang" select="'swe'"/>
-<xsl:variable name="finlang" select="'fin'"/>
-
  <xsl:template match="node()|@*">
      <xsl:copy>
          <xsl:apply-templates select="node()|@*" />
@@ -39,7 +27,7 @@
     <xsl:element name="document">
     <xsl:attribute name="xml:lang">
 	<xsl:choose>
-    <xsl:when test="string-length($mainlang) > 0">
+    <xsl:when test="$mainlang">
             <xsl:value-of select="$mainlang"/>
 	</xsl:when>
 	<xsl:otherwise>
@@ -51,7 +39,7 @@
 	<xsl:element name="header">
     <xsl:element name="title">
     <xsl:choose>
-        <xsl:when test="string-length($title) > 0">
+        <xsl:when test="$title">
                 <xsl:value-of select="$title"/>
         </xsl:when>
 		<xsl:when test="header/title">
@@ -61,7 +49,7 @@
      </xsl:element>
 
 	<xsl:choose>
-		<xsl:when test="string-length($genre) > 0">
+		<xsl:when test="$genre">
 			<xsl:element name="genre">
 				<xsl:attribute name="code">
 					<xsl:value-of select="$genre"/>
@@ -80,7 +68,7 @@
 	<!-- Only first author is tested from the original documents, others -->
 	<!-- are just added -->
 		<xsl:choose>
-        <xsl:when test="string-length($author1_ln) > 0">
+        <xsl:when test="$author1_ln">
 			 <xsl:element name="author">
 				<xsl:element name="person">
                 <xsl:attribute name="firstname">
@@ -113,7 +101,7 @@
 		</xsl:choose>
 
 		<xsl:choose>
-        <xsl:when test="string-length($author2_ln) > 0">
+        <xsl:when test="$author2_ln">
             <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author2_fn"/>
@@ -134,7 +122,7 @@
         </xsl:when>
 	    </xsl:choose>
 	    <xsl:choose>
-        <xsl:when test="string-length($author3_ln) > 0">
+        <xsl:when test="$author3_ln">
             <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author3_fn"/>
@@ -155,7 +143,7 @@
         </xsl:when>
 		</xsl:choose>
 		<xsl:choose>
-        <xsl:when test="string-length($author4_ln) > 0">
+        <xsl:when test="$author4_ln">
             <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author4_fn"/>
@@ -181,7 +169,7 @@
 		<!-- There is a problem: how to test the existence of a
 		translator that is not given here? -->
 		<xsl:choose>
-        <xsl:when test="string-length($translator_ln) > 0">
+        <xsl:when test="$translator_ln">
 			 <xsl:element name="translator">
 				<xsl:element name="person">
                 <xsl:attribute name="firstname">
@@ -214,7 +202,7 @@
 		</xsl:choose>
 
     <xsl:choose>
-        <xsl:when test="string-length($year) > 0">
+        <xsl:when test="$year">
     <xsl:element name="year">	
                 <xsl:value-of select="$year"/>
      </xsl:element>
@@ -226,14 +214,14 @@
 
 
 	 <xsl:choose>
-		<xsl:when test="string-length($publisher) > 0">
+		<xsl:when test="$publisher">
 	<xsl:element name="publChannel">
 			<xsl:element name="publication">
 				<xsl:element name="publisher">
 					 <xsl:value-of select="$publisher"/>
 	            </xsl:element>
 			    <xsl:choose>
-				<xsl:when test="string-length($ISSN) > 0">
+				<xsl:when test="$ISSN">
 				<xsl:element name="ISSN">
 					 <xsl:value-of select="$ISSN"/>
 	            </xsl:element>
@@ -243,7 +231,7 @@
 				</xsl:otherwise>
 				</xsl:choose>
 				<xsl:choose>
-				     <xsl:when test="string-length($ISBN) > 0">
+				     <xsl:when test="$ISBN">
 				<xsl:element name="ISBN">
 					 <xsl:value-of select="$ISBN"/>
 	            </xsl:element>
@@ -267,7 +255,7 @@
 	</xsl:choose>
 
     <xsl:choose>
-        <xsl:when test="string-length($translated_from) > 0">
+        <xsl:when test="$translated_from">
             <xsl:element name="translated_from">
                 <xsl:value-of select="$translated_from"/>
             </xsl:element>
@@ -278,7 +266,7 @@
     </xsl:choose>
 
 				<xsl:choose>
-				<xsl:when test="string-length($place) > 0">
+				<xsl:when test="$place">
 				<xsl:element name="place">
 					 <xsl:value-of select="$place"/>
 	            </xsl:element>
@@ -289,7 +277,7 @@
 				</xsl:choose>
 
 		    <xsl:choose>
-			<xsl:when test="string-length($collection) > 0">
+			<xsl:when test="$collection">
 				<xsl:element name="collection">
 					 <xsl:value-of select="$collection"/>
 	            </xsl:element>
@@ -299,7 +287,7 @@
 			</xsl:otherwise>
 			</xsl:choose>
 		    <xsl:choose>
-			<xsl:when test="string-length($wordcount) > 0">
+			<xsl:when test="$wordcount">
 				<xsl:element name="wordcount">
 					 <xsl:value-of select="$wordcount"/>
 	            </xsl:element>
@@ -310,7 +298,7 @@
 			</xsl:choose>
 
 		    <xsl:choose>
-			<xsl:when test="string-length($license_type) > 0">
+			<xsl:when test="$license_type">
 				<xsl:element name="availability">
 			<xsl:choose>
 			<xsl:when test="contains($license_type, 'free')">
@@ -339,7 +327,7 @@
 			</xsl:choose>
 
 		    <xsl:choose>
-			<xsl:when test="string-length($sub_name) > 0">
+			<xsl:when test="$sub_name">
 				<xsl:element name="sub_name">
 					 <xsl:value-of select="$sub_name"/>
 	            </xsl:element>
@@ -350,7 +338,7 @@
 			</xsl:choose>
 
 		    <xsl:choose>
-			<xsl:when test="string-length($sub_email) > 0">
+			<xsl:when test="$sub_email">
 				<xsl:element name="sub_email">
 					 <xsl:value-of select="$sub_email"/>
 	            </xsl:element>
@@ -360,8 +348,83 @@
 			</xsl:otherwise>
 			</xsl:choose>
 
+			<xsl:if test="$multilingual">
+				<xsl:element name="multilingual">
+				<xsl:if test="$mlang_sme">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$smelang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_smj">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$smjlang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_sma">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$smalang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_nno">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$nnolang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_nob">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$noblang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_fin">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$finlang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_swe">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$swelang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_eng">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$englang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_ger">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$gerlang"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				
+				</xsl:element>
+			</xsl:if>
+
+			<xsl:if test="$filename">
+				<xsl:element name="origFileName">
+					<xsl:value-of select="$filename"/>
+				</xsl:element>
+			</xsl:if>
+
 		    <xsl:choose>
-			<xsl:when test="string-length($metadata) > 0">
+			<xsl:when test="$metadata">
 				<xsl:element name="metadata">
 				<xsl:choose>
 					<xsl:when test="contains($metadata, 'uncomplete')">
@@ -383,6 +446,5 @@
 <xsl:apply-templates select="body"/>
   </xsl:element>
 </xsl:template>
-
 
 </xsl:stylesheet>
