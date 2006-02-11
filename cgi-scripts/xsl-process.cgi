@@ -7,7 +7,6 @@ use strict;
 
 # Forwarding warnings and fatal errors to browser window
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
-
 use XML::Twig;
 
 # Set the file permissions of the newly created files to -rw-rw-r--
@@ -23,21 +22,19 @@ my @names = $query->param;
 for my $name (@names) {
 	$bookinfo{$name} = $query->param($name);
 }
+# In case of multilingual document, there should be at least one
+# mlang-attribute specified.
+for my $key (keys %bookinfo) {
+	if ( $key =~ /mlang/) {
+		$bookinfo{'multilingual'} = 1;
+		last;
+	}
+}
 
 my $corpdir = "/usr/local/share/corp";
 my $tmp_dir = "$corpdir/upload";
 my $upload_dir = "$corpdir/upload";
 my $xsltemplate = "$corpdir/bin/XSL-template.xsl";
-
-#if ($bookinfo{mainlang} && $bookinfo{genre}) {
-#	$langgenre = $bookinfo{'mainlang'} . "/" . $bookinfo{'genre'};
-#	$orig_dir = "$corpdir/orig/$langgenre";
-#}
-#else {
-#	print "Warning: main language and genre were not specified.\n";
-#	$orig_dir = $tmp_dir;
-#}
-
 
 if(!$bookinfo{filename}) { die "File not specified\n"; }
 
@@ -60,13 +57,13 @@ open (FH, ">$upload_file.xsl") or die "Cannot open file $upload_file.xsl for out
 $document->print( \*FH);
 
 # Create a temporary file for conversion.
-my $tmpfile = $upload_file . "1";
+my $tmpfile = $upload_file . ".tmp";
 move ("$upload_file.xml", "$tmpfile.xml") or die "Could not move the file $upload_file.xml. $!";
 
 # Convert the document
 my $command;
 $command = "xsltproc --novalid $upload_file.xsl $tmpfile.xml > $upload_file.xml";
-system($command)  == 0 
+system($command)  == 0
 	or die "$command failed: $! \n";
 
 # The html-part starts here
@@ -92,6 +89,11 @@ sub process {
 
 	my $attribute = $var->{'att'}->{'name'};
 	if ($attribute && $bookinfo{$attribute} ) {
-		$var->set_att( 'select' => "'" . $bookinfo{$attribute}  . "'");
+		if ($attribute eq "filename") {
+			$var->set_att( 'select' => "'" . $fname  . "'");
+		}
+		else {
+			$var->set_att( 'select' => "'" . $bookinfo{$attribute}  . "'");
+		}
 	}
 }
