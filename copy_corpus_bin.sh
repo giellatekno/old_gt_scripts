@@ -10,8 +10,7 @@
 # $Id$
 #****************************************************************
 
-#bindir=/usr/local/share/corp/bin
-bindir=/home/saara/samipdf/bin
+bindir=/usr/local/share/corp/bin
 tmpdir="/usr/tmp"
 
 scripts="convert2xml.pl
