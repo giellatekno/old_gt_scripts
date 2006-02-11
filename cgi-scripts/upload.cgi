@@ -88,7 +88,8 @@ for my $i (@md5sum) {
 
 # Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
-system "\"$convert\" --lang=\"$mainlang\" --tmpdir=\"$tmpdir\" --noxsl --upload \"$upload_dir/$fname\"";
+my @args = ("$convert", "--lang=$mainlang", "--tmpdir=$tmpdir", "--noxsl", "--upload", "$upload_dir/$fname");
+system (@args);
 #	 or die "Error in conversion";
 
 
@@ -134,10 +135,10 @@ print <<END_HTML
 <h1>The document information</h1>
 
     <form name="metainfo" TYPE="text" ACTION="xsl-process.cgi"
-	METHOD="post" enctype="multipart/form-data" >
+	METHOD="post" enctype="multipart/form-data" onsubmit="return checkWholeForm(this)">
 
 <!--  onsubmit="return checkWholeForm(this)"> -->
-  Title: <input type="text" name="title" value="$title" size="50"> <br/>
+  Document title: <input type="text" name="title" value="$title" size="50"> <br/>
       Author(s):
     <ol>
     <li id="order">
@@ -191,6 +192,22 @@ print <<END_HTML
 	</select> </td>
     </tr>
     <tr>
+       <td>If the document is multilingual,<br/> 
+  select the other languages:</td>
+	<td>
+	<INPUT TYPE="checkbox" NAME="mlang-sme">North S&aacute;mi
+	<INPUT TYPE="checkbox" NAME="mlang-smj">Julev S&aacute;mi
+	<INPUT TYPE="checkbox" NAME="mlang-sma">South S&aacute;mi<BR/> 
+	<INPUT TYPE="checkbox" NAME="mlang-nno">Nynorsk
+	<INPUT TYPE="checkbox" NAME="mlang-nob">Bokm&aring;l<BR/> 
+	<INPUT TYPE="checkbox" NAME="mlang-fin">Finnish
+	<INPUT TYPE="checkbox" NAME="mlang-swe">Swedish
+	<INPUT TYPE="checkbox" NAME="mlang-eng">English
+	<INPUT TYPE="checkbox" NAME="mlang-ger">German
+	<INPUT TYPE="checkbox" NAME="mlang-oth">other
+	</td>
+	</tr>
+    <tr>
        <td> Translated from: </td><td>
              <select name="translated_from">
 	<option value="">--none--</option>
@@ -233,50 +250,49 @@ END_HTML
 
 sub write_js {
 	print <<END_OF_JS
-<script>
+<script language="JavaScript">
 
 // check form
-function checkWholeForm(theForm) {
-	var why = "";
-	why += checkEmail(theForm.sub_email.value);
-	why += isEmpty(theForm.sub_name.value);
-	if (why != "") {
-		alert(why);
-		return false;
+   	function checkWholeForm(theForm) {
+		var why = "";
+		why += checkEmail(theForm.sub_email.value);
+		why += isEmpty(theForm.sub_name.value);
+		if (why != "") {
+			alert(why);
+			return false;
+		}
+		return true;
 	}
-	return true;
-}
-// email
+// email	
 	function checkEmail (strng) {
 		var error="";
 		if (strng == "") {
-			error = "You didn't enter an email address.\n";
+			error = "You didn't enter an email address.\\n";
 		}
 		
-		var emailFilter=/^.+@.+\..{2,3}$/;
-		if (!(emailFilter.test(strng))) {
-			error = "Please enter a valid email address.\n";
+		var emailFilter=/^.+@.+\\..{2,3}\$\/;
+		if (!(emailFilter.test(strng))) { 
+			error = "Please enter a valid email address.\\n";
 		}
 		else {
 			//test email for illegal characters
-				var illegalChars= /[\(\)\<\>\,\;\:\\\"\[\]]/
+				var illegalChars= /[\\(\\)\\<\\>\\,\\;\\:\\"\\[\\]]/
 				if (strng.match(illegalChars)) {
-					error = "The email address contains illegal characters.\n";
+					error = "The email address contains illegal characters.\\n";
 				}
 		}
 		return error;
 	}
-	
-// non-empty submitter
+
+// non-empty submitter	
 	function isEmpty(strng) {
 		var error = "";
 		if (strng.length == 0) {
-			error = "The name of the submitter has not been filled in.\n"
+			error = "The mandatory text area has not been filled in.\\n"
 			}
 		return error;
-	}
+		}
 </script>
-
 END_OF_JS
 ;
 }
