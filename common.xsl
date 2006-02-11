@@ -326,27 +326,20 @@
 			</xsl:otherwise>
 			</xsl:choose>
 
-		    <xsl:choose>
-			<xsl:when test="$sub_name">
-				<xsl:element name="sub_name">
-					 <xsl:value-of select="$sub_name"/>
-	            </xsl:element>
-			</xsl:when>
-			<xsl:otherwise>
-		        <xsl:apply-templates select="header/sub_name"/>
-			</xsl:otherwise>
-			</xsl:choose>
-
-		    <xsl:choose>
-			<xsl:when test="$sub_email">
-				<xsl:element name="sub_email">
-					 <xsl:value-of select="$sub_email"/>
-	            </xsl:element>
-			</xsl:when>
-			<xsl:otherwise>
-		        <xsl:apply-templates select="sub_email"/>
-			</xsl:otherwise>
-			</xsl:choose>
+			<xsl:if test="$sub_name or $sub_email">
+				<xsl:element name="submitter">
+					<xsl:if test="$sub_email">
+						<xsl:attribute name="name">
+						<xsl:value-of select="$sub_name"/>
+						</xsl:attribute>
+					</xsl:if>
+					<xsl:if test="$sub_email">
+						<xsl:attribute name="email">
+						<xsl:value-of select="$sub_email"/>
+						</xsl:attribute>
+					</xsl:if>
+				</xsl:element>
+			</xsl:if>
 
 			<xsl:if test="$multilingual">
 				<xsl:element name="multilingual">
