@@ -195,16 +195,16 @@ print <<END_HTML
        <td>If the document is multilingual,<br/> 
   select the other languages:</td>
 	<td>
-	<INPUT TYPE="checkbox" NAME="mlang_sme">North S&aacute;mi
-	<INPUT TYPE="checkbox" NAME="mlang_smj">Julev S&aacute;mi
-	<INPUT TYPE="checkbox" NAME="mlang_sma">South S&aacute;mi<BR/> 
-	<INPUT TYPE="checkbox" NAME="mlang_nno">Nynorsk
-	<INPUT TYPE="checkbox" NAME="mlang_nob">Bokm&aring;l<BR/> 
-	<INPUT TYPE="checkbox" NAME="mlang_fin">Finnish
-	<INPUT TYPE="checkbox" NAME="mlang_swe">Swedish
-	<INPUT TYPE="checkbox" NAME="mlang_eng">English
-	<INPUT TYPE="checkbox" NAME="mlang_ger">German
-	<INPUT TYPE="checkbox" NAME="mlang_oth">other
+	<INPUT TYPE="checkbox" NAME="mlang_sme" value="1">North S&aacute;mi
+	<INPUT TYPE="checkbox" NAME="mlang_smj" value="1">Julev S&aacute;mi
+	<INPUT TYPE="checkbox" NAME="mlang_sma" value="1">South S&aacute;mi<BR/> 
+	<INPUT TYPE="checkbox" NAME="mlang_nno" value="1">Nynorsk
+	<INPUT TYPE="checkbox" NAME="mlang_nob" value="1">Bokm&aring;l<BR/> 
+	<INPUT TYPE="checkbox" NAME="mlang_fin" value="1">Finnish
+	<INPUT TYPE="checkbox" NAME="mlang_swe" value="1">Swedish
+	<INPUT TYPE="checkbox" NAME="mlang_eng" value="1">English
+	<INPUT TYPE="checkbox" NAME="mlang_ger" value="1">German
+	<INPUT TYPE="checkbox" NAME="mlang_oth" value="1">other
 	</td>
 	</tr>
     <tr>
