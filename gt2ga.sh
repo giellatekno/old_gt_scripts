@@ -10,7 +10,7 @@
 # $Id$
 #****************************************************************
 
-PATH=$PATH:/opt/xerox/bin
+PATH=$PATH:/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin
 
 # add the analyzed languages here
 languages="sme"
@@ -36,12 +36,8 @@ analyze_gt ()
 		do
 			mkdir -p $gadir/$lang/$dir;
 			echo "processing directory $lang/$dir..."
-			/usr/local/bin/ccat -r /usr/local/share/corp/gt/$lang/$dir | \
-			$tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt | lookup \
-			-flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg \
-			| vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
+			/usr/local/bin/ccat -r /usr/local/share/corp/gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
 		done
-		chgrp -R cvs $gadir/$lang
 		chgrp -R cvs $gadir/$lang
 	done
 	return 0
