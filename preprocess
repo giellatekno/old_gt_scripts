@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 use strict;
-#use encoding 'utf-8';
-use open ':std', ':utf8';
+use open ':locale';
 
 # preprocess
 # Perl-script for text preprocessing 
