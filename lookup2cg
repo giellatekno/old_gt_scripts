@@ -20,6 +20,7 @@ use strict;
 
 my @Analyses;
 my %forms;
+my %rated;
 my $word;
 my $tmp;
 my $compound = 0;
@@ -44,6 +45,17 @@ while(<>) {
 	# Empty line means that the whole cohort has been read,
 	# format the output and print
 	else {
+		if ($max_comp_rate > 0) { 
+			while (@Analyses) {
+				my $line = pop @Analyses;
+				$rated{$line} = 1;
+			}
+			pop @Analyses;
+			rate_compounds(\%rated); 
+			for my $key (keys %rated) {
+				push @Analyses, $key;
+			}
+		}
 		# Format each analysis
 		for my $line (@Analyses) {
 			# Separate the base form from the analysis
@@ -52,29 +64,31 @@ while(<>) {
 
 			# If line contains a compound
 			if ( $max_comp_rate > 0 ) {
-				 format_compound(\$base, \$line2, \$word); 
-			 }
+				format_compound(\$base, \$line2, \$word); 
+			}
 			# Mark derivational tags
 			1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
-
-			# Format output
-			$line =  "\t" . " \"$base\" " . $line2 . "\n";
-			
+            
+            #Format output
+            $line =  "\t" . " \"$base\" " . $line2 . "\n";
+ 			
 			# Store the analysis to a hash
 			$forms{$line} = 1;
-		} 
+        } 
 		# Rate compounds accoring to word boundaries
 		if ($max_comp_rate > 0) { 
 			rate_compounds(\%forms); 
 		}
 		
 		# Print output
+        if (@Analyses) {
 		print "\"<$word>\"\n";
 		for my $line (keys %forms)
 		{ print "$line"; }
-		
+		}
 		@Analyses = ();
 		%forms = ();
+		%rated = ();
 		$comp_rate = 0;
 		$max_comp_rate = 0;
 
