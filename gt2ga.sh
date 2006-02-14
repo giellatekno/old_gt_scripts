@@ -10,7 +10,7 @@
 # $Id$
 #****************************************************************
 
-PATH=$PATH:/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin
+PATH=$PATH:/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin:/opt/xerox/bin/
 
 # add the analyzed languages here
 languages="sme"
