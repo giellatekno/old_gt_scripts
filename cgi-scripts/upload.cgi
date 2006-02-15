@@ -5,7 +5,16 @@ use CGI;
 use strict;
 
 # Forwarding warnings and fatal errors to browser window
-use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
+use CGI::Alert 'saara';
+
+# Show custom text to remote viewer
+CGI::Alert::custom_browser_text << '-END-';
+<h1>Error in uploading the file.</h1>
+<p>Our maintainers have been informed.</p>
+<p>Send feedback and questions to <a href="mailto:corpus@giellatekno.uit.no?subject=Feedback%C2%A0upload.cgi">corpus@giellatekno.uit.no</mail></p>
+<p><a href="http://www.divvun.no/upload/upload-corpus-file.html">Upload more files</a> </p>
+<p><a href="http://www.divvun.no/"> Divvun main page</a></p>
+-END-
 
 # File copying and xml-processing
 use XML::Twig;
@@ -53,10 +62,6 @@ my @md5sum;
 
 # Calculate md5sums of files in orig/ dir
 @md5sum = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
-
-# Resolving filetype
-# MS Word = application/msword
-my $filetype = $query->uploadInfo($filename)->{'Content-Type'};
 
 # TODO: Check the file
 # This includes: type, sámi characters (how?), ...
@@ -240,7 +245,6 @@ print <<END_HTML
       <input type="hidden" name="license_type" value="$license_type">
       <input type="hidden" name="mainlang" value="$mainlang">
       <input type="submit" name="Submit" value="submit form">
-
     </form>
   </body>
 </html>
