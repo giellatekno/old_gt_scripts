@@ -15,6 +15,10 @@
 			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/> 
 
 
+<xsl:variable name="common_version" select="'$Revision$'"/>
+<xsl:variable name="convert2xml_version" select="''"/>
+<xsl:variable name="hyph_version" select="''"/>
+
  <xsl:template match="node()|@*">
      <xsl:copy>
          <xsl:apply-templates select="node()|@*" />
@@ -89,8 +93,8 @@
 				</xsl:element>
 			</xsl:element>
         </xsl:when>
-		<xsl:when test="header/author/person">
-            <xsl:apply-templates select="header/author/person"/>
+		<xsl:when test="header/author">
+            <xsl:apply-templates select="header/author"/>
 		</xsl:when>
         <xsl:otherwise>
 			 <xsl:element name="author">
@@ -190,8 +194,8 @@
 				</xsl:element>
 			</xsl:element>
         </xsl:when>
-		<xsl:when test="header/translator/person">
-            <xsl:apply-templates select="translator/person"/>
+		<xsl:when test="header/translator">
+	           <xsl:apply-templates select="translator"/>
 		</xsl:when>
         <xsl:when test="$translated_from or header/translated_from">
 			 <xsl:element name="translator">
@@ -435,6 +439,34 @@
 		        <xsl:apply-templates select="header/metadata"/>
 			</xsl:otherwise>
 			</xsl:choose>
+
+			<xsl:element name="version">
+			<xsl:if test="$template_version">
+					<xsl:element name="XSLtemplate">
+					<xsl:value-of select="$template_version"/>			
+					</xsl:element>
+			</xsl:if>
+			<xsl:if test="$current_version">
+					<xsl:element name="XSL">		
+					<xsl:value-of select="$current_version"/>
+					</xsl:element>
+			</xsl:if>
+			<xsl:if test="$common_version">
+					<xsl:element name="commonXSL">
+					<xsl:value-of select="$common_version"/>			
+					</xsl:element>
+			</xsl:if>
+			<xsl:if test="$convert2xml_version">
+					<xsl:element name="convert2xml">		
+					<xsl:value-of select="$convert2xml_version"/>
+					</xsl:element>
+			</xsl:if>
+			<xsl:if test="$hyph_version">
+					<xsl:element name="add_hyph_tags">		
+					<xsl:value-of select="$hyph_version"/>
+					</xsl:element>
+			</xsl:if>
+			</xsl:element>
   </xsl:element>
 <xsl:apply-templates select="body"/>
   </xsl:element>
