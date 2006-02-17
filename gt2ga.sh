@@ -11,6 +11,8 @@
 #****************************************************************
 
 PATH=$PATH:/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin:/opt/xerox/bin/
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
 
 # add the analyzed languages here
 languages="sme"
