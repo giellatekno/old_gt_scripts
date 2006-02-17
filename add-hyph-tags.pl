@@ -18,6 +18,7 @@ use open ':utf8';
 # they are taken into account as well.
 #
 # $Id$
+# $Revision$
 
 # permit named arguments
 use Getopt::Long;
