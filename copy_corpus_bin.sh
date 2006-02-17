@@ -27,8 +27,10 @@ cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
 for file in $scripts
 do
   cp -R $tmpdir/gt/script/$file $bindir/$file
+  echo "copying file $bindir/$file"
 done
 
+cd $bindir && perl $tmpdir/gt/script/reformat_commonxsl.pl
 chgrp cvs $bindir/*
 
 exit 0
