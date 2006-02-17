@@ -13,6 +13,7 @@
 #
 #
 # Version $Id$
+# $Revision$
 
 use strict;
 use encoding 'utf-8';
@@ -251,6 +252,20 @@ sub process_file {
 		if(! -f $xsl_file && ! -f $xsl_vfile ) {
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+
+			# Reformat the version information in the new xsl-file.
+			open (FH, "+<$xsl_file");
+			my @text_array = <FH> ;
+			my @result_array;
+			foreach my $line (@text_array){
+				if ($line =~ /name\=\"current_version/) { $line =~ s/Revision/\$Revision\$/; }
+				if ($line =~ /name\=\"template_version/) { $line =~ s/\$Revision(.*?)\$/$1/g; }
+				push @result_array, $line;
+			}
+			seek (FH,0,0);
+			print FH @result_array;
+			truncate(FH, tell(FH));
+			close(FH);
 
 			$command = "chgrp cvs \"$xsl_file\" ";
 			print STDERR "$command\n";
