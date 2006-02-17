@@ -56,6 +56,9 @@
 <xsl:variable name="sub_email" select="''"/>
 <xsl:variable name="wordcount" select="''"/>
 <xsl:variable name="metadata" select="'uncomplete'"/>
+<xsl:variable name="template_version" select="'$Revision$'"/>
+<xsl:variable name="current_version" select="'Revision'"/>
+
 
 <!-- The main language of the document -->
 <xsl:variable name="mainlang" select="''"/>
@@ -102,5 +105,6 @@
 -->
 
 <xsl:include href="/usr/local/share/corp/bin/common.xsl"/>
+
 
 </xsl:stylesheet>
