@@ -14,7 +14,7 @@ use CGI::Alert 'saara';
 CGI::Alert::custom_browser_text << '-END-';
 <h1>Error in updating the information to the file.</h1>
 <p>Our maintainers have been informed.</p>
-<p>Send feedback and questions to <a href="mailto:corpus@giellatekno.uit.no?subject=Feedback%C2%A0upload.cgi">corpus\@giellatekno.uit.no</mail></p>
+<p>Send feedback and questions to <a href="mailto:corpus@giellatekno.uit.no?subject=Feedback%C2%A0upload.cgi">corpus@giellatekno.uit.no</mail></p>
 <p><a href="http://www.divvun.no/upload/upload-corpus-file.html">Upload more files</a> </p>
 <p><a href="http://www.divvun.no/"> Divvun main page</a></p>
 
