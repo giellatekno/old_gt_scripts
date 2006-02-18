@@ -27,15 +27,16 @@ create_tar ()
 {
 	for dir in "$@"
 	do 
+	  echo "cleaning dir $dir..."
 
-	  log_files=`ls -C $dir/$month_day-*`
+	  log_files=`find $dir -maxdepth 1 -name "$month_day-*"`
 	  tar_file=$dir/log/$year_month/$month_day.tar
 
-	  tmp_files=`ls -C $dir/*.tmp.xml`
+	  tmp_files=`find $dir -maxdepth 1 -name "*.tmp.xml"`
 	  rm -rf $tmp_files
 
 	  if [ -z "$log_files" ]; then
-		  exit 0
+		  continue
 	  fi
 
 	  mkdir -p $dir/log/$year_month
