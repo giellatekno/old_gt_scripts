@@ -1,8 +1,11 @@
 #!/usr/bin/perl -w
 
+use strict;
+
 # Importing CGI libraries
 use CGI;
-use strict;
+$CGI::DISABLE_UPLOADS = 0;
+$CGI::POST_MAX        = 1_024 * 1_024; # limit posts to 1 meg max
 
 # Forwarding warnings and fatal errors to browser window
 use CGI::Alert 'saara';
@@ -19,9 +22,7 @@ CGI::Alert::custom_browser_text << '-END-';
 # File copying and xml-processing
 use XML::Twig;
 
-# Some securing operations. -sh
-$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
-delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+my $query = new CGI;
 
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
@@ -33,12 +34,16 @@ my $tmpdir = "/usr/local/share/corp/upload" ;
 my $upload_dir = "/usr/local/share/corp/upload";
 mkdir ($upload_dir, 0755) unless -d $upload_dir;
 
-my $query = new CGI;
+# Some securing operations. -sh
+$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
+delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
+
 my $license_type = $query->param("license_type");
 my $mainlang = $query->param("mainlang");
 
 # Getting the filename and parsing the path away
 my $filename = $query->param("document");
+if (! $filename ) { die "No file was selected for upload.\n" }
 $filename =~ s/.*[\/\\](.*)/$1/;
 
 # Replace space with underscore - c = complement the search list
@@ -98,12 +103,12 @@ system (@args);
 #	 or die "Error in conversion";
 
 
-my $author1_ln;
-my $publisher;
-my $year;
-my $isbn;
-my $issn;
-my $title;
+my $author1_ln="";
+my $publisher="";
+my $year="";
+my $isbn="";
+my $issn="";
+my $title="";
 my $document = XML::Twig->new(twig_handlers => 
 							  { 'header/author/person' => sub { $author1_ln = $_->{'att'}->{'lastname'} },
 								'header/publChannel/publisher' => sub { $publisher = $_->text },
@@ -142,7 +147,6 @@ print <<END_HTML
     <form name="metainfo" TYPE="text" ACTION="xsl-process.cgi"
 	METHOD="post" enctype="multipart/form-data" onsubmit="return checkWholeForm(this)">
 
-<!--  onsubmit="return checkWholeForm(this)"> -->
   Document title: <input type="text" name="title" value="$title" size="50"> <br/>
       Author(s):
     <ol>
@@ -292,7 +296,7 @@ sub write_js {
 	function isEmpty(strng) {
 		var error = "";
 		if (strng.length == 0) {
-			error = "The mandatory text area has not been filled in.\\n"
+			error = "Please fill in the submitter name field.\\n"
 			}
 		return error;
 		}
