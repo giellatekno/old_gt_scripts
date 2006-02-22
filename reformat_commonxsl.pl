@@ -52,7 +52,6 @@ close(FH);
 
 my $xsl_template="XSL-template.xsl";
 
-print "ok";
 open (FH, "+<$xsl_template");
 my @text_array = <FH> ;
 my @result_array;
