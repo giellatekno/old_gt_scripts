@@ -10,9 +10,7 @@
 # $Id$
 #****************************************************************
 
-PATH=$PATH:/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin:/opt/xerox/bin/
-LANG=en_US.UTF-8
-LC_ALL=en_US.UTF-8
+source /Users/saara/.profile
 
 # add the analyzed languages here
 languages="sme"
@@ -32,7 +30,6 @@ copy_gt ()
 {
     for lang in "$@"
       do 
-      echo "jee"
       scp -r saara@cochise.uit.no:/usr/local/share/corp/gt/$lang /Users/hoavda/Public/corp/gt
     done
     return 0
@@ -67,7 +64,6 @@ analyze_gt ()
 	  
       let divd=element_count/3
       let modd=element_count%3
-      echo "$divd $modd"
       j=0
       for (( i = 0 ; i < divd ; i++ ))
 	do
@@ -82,7 +78,7 @@ analyze_gt ()
 	process $lang ${dir[$j]}
 	let j=j+1
       done
-      
+      echo "Ready!"
     done
     return 0
 }
