@@ -126,6 +126,7 @@ Abrek
 Ad-Hoc
 Adevehr
 Agderforskning
+Alle
 Almenningers
 Altens
 Amft
@@ -549,11 +550,13 @@ Reenbete
 Regeringsrättens
 Regionalstatistikk
 Regionforskning
+Regionsykehuset
 Reimers
 Reindeer
 Reindeerherders
 Reindriftens
 Reinhjordene
+Reinbeitenemnden
 Renbeitespørsmålet
 Repatriation
 Rescripter
@@ -570,6 +573,7 @@ Rettsreglers
 Rettstenking
 Rettstenkning
 Rettstidende
+Revmatikerforbund
 Rigs-Registranter
 Rogen
 Rubus
@@ -1003,6 +1007,7 @@ fre$amh
 fremtrædende
 frilufslivet
 frischgefallener
+fristbrudd
 fructum
 främjande
 funksjonshemmende
@@ -1470,7 +1475,9 @@ partam
 partens
 partiprogrammer
 pasientjournal
+pasientombud
 pasientskadeerstatning
+pasientrettighetsloven
 passlig
 pastoralisme
 patens
@@ -1569,6 +1576,8 @@ ressurskartlegging
 retfærdighet
 retsam
 retssforhold
+rettighetspasient
+rettighetspasienter
 rettighetsvern
 rettsanvendelse
 rettsforhold
@@ -1877,6 +1886,7 @@ vegitasjonen
 vegvesens
 venligen
 venner:s
+ventetider
 vepse-
 vepsskogo
 verbesserte
@@ -2230,6 +2240,7 @@ kommunalteknisk
 Statlstlsk
 hagebruk
 medikamentene
+medikamenter
 medikamentet
 
 
@@ -4115,6 +4126,7 @@ tragiskt
 trafikolyckor
 tospråklige
 torrlagda
+tolking
 tolkenes
 tolkar
 tokulturelle
@@ -4905,6 +4917,7 @@ mottagit
 mottagare
 mottagandet
 mottagande
+mottas
 motsvarade
 motsats
 motorferdsel
@@ -5734,6 +5747,7 @@ dommeryrket
 dommergjerning
 domarförsäkran
 domared
+dokumentasjonssenter
 dokumenterade
 dokumenterad
 dobbeltbeiting
@@ -6102,6 +6116,7 @@ barflekkene
 Flokkene
 virkemidlene
 hjelpemidlene
+hjelpestønad
 Språkreglene
 språkreglene
 Konvensjonsreglene
@@ -6142,6 +6157,7 @@ lokalsykehusene
 kunnskapskravene
 kalvene
 Helselovene
+Helsetilsynet
 Samebyene
 Fjellsamebyene
 fagmiljøene
