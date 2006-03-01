@@ -15,8 +15,8 @@ source /Users/saara/.profile
 # add the analyzed languages here
 languages="sme"
 
-#tmpdir="/Users/saara/tmp"
-tmpdir="/tmp"
+tmpdir="/Users/saara/cron"
+#tmpdir="/tmp"
 
 corproot="/Users/hoavda/Public/corp"
 
