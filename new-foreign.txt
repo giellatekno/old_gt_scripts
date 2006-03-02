@@ -361,6 +361,7 @@ Jordbrugere
 Jordbrugerens
 Jordebok
 Jordsalgskommisjon
+Jorms
 Journalbilag
 Journalsaker
 Jovkuj
@@ -375,6 +376,7 @@ Jössz
 Karasjokfolkets
 Karelischen
 Karjalassakin
+Kartbilaga
 Kartofler
 Kautokeino-Fielde
 Kautokeinolappene
@@ -527,6 +529,10 @@ Ovle-vuelie
 PUBLIC
 Palmstierna
 Pantebok
+Pas.Postnrsted
+Pas.Fornavn
+Pas.Etternavn
+Pas.Adresse
 Pastoralits
 Pasvig
 Peahccam
@@ -671,6 +677,7 @@ Sver
 Sydsamisk
 Sydsamisk-norsk
 Symposio
+Sys.Dato
 Sårene
 Såvits
 Sæteiere
@@ -723,6 +730,7 @@ Urschöpfung
 Utbildningsdepartementet
 Utviklingene
 Ut
+Utöver
 Vaekie
 Valgdeltakelse
 Valgstatistikk
@@ -738,6 +746,7 @@ Vilkaar
 Vinterfšring
 Vitenskapsspørsmålet
 Vorträge
+Västre
 Wahrnehmungsvermögen
 Waldlappendialekts
 Wasare
@@ -1199,6 +1208,7 @@ kjønnsforskning
 kjønnsgapet
 kjønnskvotering
 kjøresporene
+klagerett
 klasskaraktär
 klover
 koar$dad
@@ -1865,6 +1875,7 @@ usvainen
 utarming
 utbredning
 utdanningskadelidde
+utenlandsbehandling
 utifra
 utmaninig
 utmarkskommisjon
@@ -3234,6 +3245,7 @@ reinbeiter
 reinbeitekonvensjonen
 psykososiale
 premissleverandør
+prosjekt
 populearadieđalaš
 pleie-
 plan-
