@@ -4,6 +4,7 @@ use strict;
 use encoding 'utf-8';
 use open ':utf8';
 
+use locale;
 # sum-cg.pl
 #
 # Perl script for summarizing ambiguous analyzes.
@@ -18,10 +19,12 @@ use Getopt::Long;
 my $help;
 my $grammar;
 my $print_words;
+my $string="";
 
 GetOptions ("help" => \$help,
 			"grammar" => \$grammar,
 			"words" => \$print_words,
+			"string=s" => \$string,
 			) ;
 
 if ($help) {
@@ -31,7 +34,7 @@ if ($help) {
 
 my $anal_count = 0;
 
-# hash of hashes word -> base -> analyses
+# hash of hashes base -> analyses
 my %analyses;
 
 my %cohorts;
@@ -42,14 +45,14 @@ my %count;
 # Read while not eol
 my $word;
 my $whole;
+	my $base;
 
 LINE : while(<>) {	
 	next if (/^\s*$/);
 	READING : {
 		last READING if (/^\"</);
 		if(/(\".*?\")(\s+.*)$/) {
-			$whole .= $_;
-			my $base = $1;
+			$base = $1;
 			my $analysis = $2;
 			$anal_count += 1;
 			$analyses{$base}{$analysis} = 1;
@@ -58,8 +61,16 @@ LINE : while(<>) {
 		next LINE;
 	} # READING
 
+	my %analyses_2;
+	for my $ba (keys %analyses) {
+		foreach my $key (sort keys %{$analyses{$ba}}) {
+			$analyses_2{$ba}{$key} = 1;
+			$whole .= $key;
+		}
+	}
+
 	$count{$whole} += 1;
-	$cohorts{$whole} = { %analyses };
+	$cohorts{$whole} = { %analyses_2 };
 	
 	if ($whole && $anal_count == 1) {
 		delete($cohorts{$whole});
@@ -73,7 +84,6 @@ LINE : while(<>) {
 		$anal_count = 0;
 	}
 } # LINE
-
 
 if ($grammar) {
 	my %tags;
@@ -108,6 +118,21 @@ if ($grammar) {
 		print "$gram\n\n";
 	}
 }
+elsif ($string) {
+	for my $cohort (sort { $count{$b} <=> $count{$a} } keys %count) {
+		next if ($cohort !~ /$string/);
+		print "$count{$cohort}\n";
+		my $word = $cohort;
+		$word =~ s/^(\"<.*?>\").*$/$1/s;
+		print "$word\n";
+		for my $base (keys % {$cohorts{$cohort}}) {
+			for my $anal (keys %{ $cohorts{$cohort}{$base} }){
+				print "\t$base";
+				print "$anal\n";
+			}
+		}
+	}
+}
 else {
 	for my $cohort (sort { $count{$b} <=> $count{$a} } keys %count) {
 		print "$count{$cohort}\n";
@@ -115,7 +140,7 @@ else {
 		$word =~ s/^(\"<.*?>\").*$/$1/s;
 		print "$word\n";
 		for my $base (keys % {$cohorts{$cohort}}) {
-			for my $anal (sort { $cohorts{$cohort}{$base}{$a} <=> $cohorts{$cohort}{$base}{$b} } keys %{ $cohorts{$cohort}{$base} }){
+			for my $anal (keys %{ $cohorts{$cohort}{$base} }){
 				print "\t$base";
 				print "$anal\n";
 			}
