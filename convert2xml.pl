@@ -16,8 +16,8 @@
 # $Revision$
 
 use strict;
-use encoding 'utf-8';
-use open ':utf8';
+use open ':locale';
+binmode STDOUT, ":utf8";
 use File::Find;
 use File::Copy;
 use IO::File;
@@ -221,7 +221,7 @@ sub process_file {
 		  # guess encoding and decode each paragraph at the time.
 		  if( $multi_coding ) {
 			  my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode(@_); } });
-			  if ($document->safe_parsefile ("$int") == 0 ) {
+			  if (! $document->safe_parsefile ("$int") ) {
 				  print STDERR "$file: ERROR parsing the XML-file failed.\n";
 				  last ENCODING;
 			  }
@@ -236,9 +236,27 @@ sub process_file {
 				  print STDERR "Character decoding: $coding\n";
 				  &decode_file($int, $coding, $int);
 			  }
+
+			  # Document title is generally wrongly encoded, check that separately.
+			  # Not in use.
+			  my $notitle = 1;
+			  if (! $notitle) {
+				PARSE_TITLE: {
+					my $document = XML::Twig->new(twig_handlers => {title => sub { call_decode_title(@_); }}
+												  );
+					if (! $document->safe_parsefile ("$int")) {
+						print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
+						last PARSE_TITLE;
+					}
+					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+					$document->set_pretty_print('record');
+					$document->print( \*FH);
+
+				} # PARSE_TITLE
+			  }
 		  }
 	  }
-  }
+  } # ENCODING
 	if(! $upload) {
 		$command = "chgrp cvs \"$int\"";
 		system($command) == 0
@@ -274,6 +292,11 @@ sub process_file {
 		system($command) == 0 
 			or print STDERR "$file: ERROR xsltproc failed \n";
 
+#		$command = "xmllint --valid --noout \"$tmp\"";
+#		print STDERR "$command\n";
+#		system($command) == 0 
+#			or print STDERR "$file: ERROR errors in xml-validation. \n";
+
 		copy ($tmp, $int) 
 			or print STDERR "ERROR: copy failed ($tmp $int)\n";
 
@@ -292,9 +315,10 @@ sub process_file {
 				or print STDERR "$file: ERROR removal of working copy of $xsl_file failed \n";
 		}
 	}
+	
 #  LANGDETECT: {
 #	  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
-#	  if ($document->safe_parsefile ("$int") == 0) {
+#	  if (! $document->safe_parsefile ("$int")) {
 #		  print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
 #		  last LANGDETECT;
 #	  }
@@ -311,12 +335,23 @@ sub process_file {
 	}
 }
 
+# Decode false utf8-encoding for text paragraph.
 sub call_decode {
 	my ( $twig, $para ) = @_;
 
 	my $text = $para->text;
 	&decode_para($language, \$text);
 	$para->set_text($text);
+}
+
+# Decode false utf8-encoding for titles.
+# Not in use.
+sub call_decode_title {
+	my ( $twig, $title ) = @_;
+
+	my $text = $title->text;
+	&decode_title($language, \$text);
+	$title->set_text($text);
 }
 
 sub langdetect {
@@ -368,7 +403,7 @@ sub pdfclean {
 		my $file = shift @_;
 		
 		if (! open (INFH, "$file")) {
-			print STDERR "$file: ERROR open failed $!";
+			print STDERR "$file: ERROR open failed: $!. ";
 			return;
 			}
 
