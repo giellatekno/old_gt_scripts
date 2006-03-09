@@ -357,14 +357,14 @@ xsltproc /Users/tomi/Documents/eclipse/workspace/gt/script/xhtml2corpus.xsl - > 
         
 <!-- inline formatting -->
 <xsl:template match="html:b">
- <emphasis role="bold">
+ <em type="bold">
   <xsl:apply-templates/>
- </emphasis>
+ </em>
 </xsl:template>
 <xsl:template match="html:i">
- <emphasis>
+ <em>
   <xsl:apply-templates/>
- </emphasis>
+ </em>
 </xsl:template>
 <xsl:template match="html:u">
  <citetitle>
