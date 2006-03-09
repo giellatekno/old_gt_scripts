@@ -115,9 +115,9 @@ xsltproc /Users/tomi/Documents/eclipse/workspace/gt/script/xhtml2corpus.xsl - > 
  </xsl:choose>
 </xsl:template>
 <xsl:template match="html:pre">
- <programlisting>
+ <pre>
   <xsl:apply-templates/>
- </programlisting>
+ </pre>
 </xsl:template>
 
 <!-- Hyperlinks -->
