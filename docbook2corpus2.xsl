@@ -123,14 +123,12 @@ Find the book element, which then is converted to the "document" tag
 
 <!-- Chapter -->
 <xsl:template match="chapter">
-	<xsl:element name="chapter">
         <xsl:apply-templates select="title"/>
         <xsl:apply-templates select="chapter"/>
         <xsl:apply-templates select="sect1"/>
         <xsl:apply-templates select="para"/>
         <xsl:apply-templates select="table"/>
         <xsl:apply-templates select="orderedlist"/>
-    </xsl:element>
  </xsl:template>
 
 <!-- Sect1 -->
@@ -178,9 +176,9 @@ Find the book element, which then is converted to the "document" tag
     				</xsl:element>
     			</xsl:when>
     			<xsl:otherwise>
-		        <xsl:element name="p">
-		            <xsl:apply-templates />
-		        </xsl:element>
+				<xsl:element name="p">
+		            <xsl:apply-templates/>
+				</xsl:element>
 		    </xsl:otherwise>
         </xsl:choose>
     </xsl:if>
