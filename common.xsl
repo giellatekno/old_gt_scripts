@@ -19,6 +19,38 @@
 <xsl:variable name="convert2xml_version" select="''"/>
 <xsl:variable name="hyph_version" select="''"/>
 
+<!-- Fix empty em-type according to the dtd -->
+<xsl:template match="em">
+	<xsl:choose>
+	<xsl:when test="string-length(@type) = 0">
+		<xsl:element name="em">
+		<xsl:attribute name="type">
+			<xsl:text>italic</xsl:text>
+		</xsl:attribute>
+		<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:when>
+	<xsl:otherwise>
+		<xsl:apply-templates/>
+	</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<!-- Fix empty p-type according to the dtd -->
+<xsl:template match="p">
+    <xsl:element name="p">	
+	<xsl:if test="@type">
+		<xsl:if test="string-length(@type) = 0">
+			  <xsl:attribute name="type">
+					<xsl:text>text</xsl:text>
+			  </xsl:attribute>
+		</xsl:if>
+	</xsl:if>
+<xsl:apply-templates/>
+</xsl:element>
+</xsl:template>
+
+
  <xsl:template match="node()|@*">
      <xsl:copy>
          <xsl:apply-templates select="node()|@*" />
@@ -34,6 +66,9 @@
     <xsl:when test="$mainlang">
             <xsl:value-of select="$mainlang"/>
 	</xsl:when>
+    <xsl:when test="string-length(@xml:lang) = 0">
+            <xsl:value-of select="$smelang"/>
+	</xsl:when>
 	<xsl:otherwise>
             <xsl:value-of select="@xml:lang"/>
 	</xsl:otherwise>
@@ -41,16 +76,16 @@
     </xsl:attribute>
 
 	<xsl:element name="header">
-    <xsl:element name="title">
     <xsl:choose>
         <xsl:when test="$title">
+		    <xsl:element name="title">
                 <xsl:value-of select="$title"/>
+		     </xsl:element>
         </xsl:when>
 		<xsl:when test="header/title">
               <xsl:apply-templates select="header/title"/>
 		</xsl:when>
 	    </xsl:choose>
-     </xsl:element>
 
 	<xsl:choose>
 		<xsl:when test="$genre">
@@ -206,6 +241,19 @@
 		</xsl:choose>
 
     <xsl:choose>
+        <xsl:when test="$translated_from">
+            <xsl:element name="translated_from">
+            <xsl:attribute name="xml:lang">
+                <xsl:value-of select="$translated_from"/>
+            </xsl:attribute>
+            </xsl:element>
+        </xsl:when>
+        <xsl:otherwise>
+                <xsl:apply-templates select="header/translated_from"/>
+        </xsl:otherwise>
+    </xsl:choose>
+
+    <xsl:choose>
         <xsl:when test="$year">
     <xsl:element name="year">	
                 <xsl:value-of select="$year"/>
@@ -216,6 +264,17 @@
         </xsl:otherwise>
     </xsl:choose>
 
+
+				<xsl:choose>
+				<xsl:when test="$place">
+				<xsl:element name="place">
+					 <xsl:value-of select="$place"/>
+	            </xsl:element>
+				</xsl:when>
+				<xsl:otherwise>
+            <xsl:apply-templates select="header/place"/>
+				</xsl:otherwise>
+				</xsl:choose>
 
 	 <xsl:choose>
 		<xsl:when test="$publisher">
@@ -258,27 +317,6 @@
         </xsl:otherwise>
 	</xsl:choose>
 
-    <xsl:choose>
-        <xsl:when test="$translated_from">
-            <xsl:element name="translated_from">
-                <xsl:value-of select="$translated_from"/>
-            </xsl:element>
-        </xsl:when>
-        <xsl:otherwise>
-                <xsl:apply-templates select="header/translated_from"/>
-        </xsl:otherwise>
-    </xsl:choose>
-
-				<xsl:choose>
-				<xsl:when test="$place">
-				<xsl:element name="place">
-					 <xsl:value-of select="$place"/>
-	            </xsl:element>
-				</xsl:when>
-				<xsl:otherwise>
-            <xsl:apply-templates select="header/place"/>
-				</xsl:otherwise>
-				</xsl:choose>
 
 		    <xsl:choose>
 			<xsl:when test="$collection">
