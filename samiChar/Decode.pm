@@ -14,7 +14,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&decode_file &guess_encoding &read_char_tables &decode_para %Char_Tables);
+@EXPORT = qw(&decode_file &guess_encoding &read_char_tables &decode_para &decode_title %Char_Tables);
 @EXPORT_OK   = qw(&find_dec &combine_two_codings %Sami_Chars);
 
 our %Char_Files = (
@@ -26,6 +26,7 @@ our %Char_Files = (
                  "iso_ir_197" => "iso_ir_197.txt",
                  "samimac_roman" => "samimac_roman.txt",
                  "levi_winsam" => "levi_CP1258.txt",
+                 "utf8_utf8" => "utf8_utf8.txt",
                  "8859-4" => "8859-4.txt",
 #                 "8859-2" => "8859-2.txt",
 		   );
@@ -206,6 +207,20 @@ sub decode_para (){
 	$$para_ref = pack("U*", @unpacked);
 }
 
+sub decode_title (){
+	my ($lang, $para_ref) = @_;
+
+	my $encoding = "utf8_utf8";
+	my %convert_table = %{ $Char_Tables{$encoding} };
+	my @unpacked = unpack("U*", $$para_ref);
+	for my $byte (@unpacked) {
+		if ($convert_table{$byte}) {
+			$byte = $convert_table{$byte};
+		}
+	}
+	$$para_ref = pack("U*", @unpacked);
+}
+
 sub decode_file (){
     my ($file, $encoding, $outfile) =  @_;
 
@@ -276,11 +291,12 @@ sub read_char_table{
 
 		next if ($line =~ /^\#/);
 		my  @convertLine = split (/\s+/, $line);
-		
-		my $byte1 = hex($convertLine[0]);
-		my $byte2 = hex($convertLine[1]);
-		unless ($byte1 == $byte2) {
-			$convert_table{$byte1} = $byte2;
+		if ($convertLine[0] && $convertLine[1]) {
+			my $byte1 = hex($convertLine[0]);
+			my $byte2 = hex($convertLine[1]);
+			unless ($byte1 == $byte2) {
+				$convert_table{$byte1} = $byte2;
+			}
 		}
     }
     close (CHARFILE);
