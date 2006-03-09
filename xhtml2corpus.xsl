@@ -92,7 +92,6 @@ xsltproc /Users/tomi/Documents/eclipse/workspace/gt/script/xhtml2corpus.xsl - > 
   -->
   <xsl:apply-templates/>
  </p>
- <xsl:apply-templates />
  </section>
 </xsl:template>
         
