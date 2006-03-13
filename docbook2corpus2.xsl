@@ -3,6 +3,8 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
 	xmlns:str="http://exslt.org/strings" >
 
+<!--$Revision$ -->
+
 <!--
 Output the header information
 -->
@@ -11,7 +13,7 @@ Output the header information
             encoding="UTF-8"
             indent="yes"
             doctype-public="-//UIT//DTD Corpus V1.0//EN"
-            doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/>
+            doctype-system="/home/saara/gt/dtd/corpus.dtd"/>
 
 <!--
    Root element
