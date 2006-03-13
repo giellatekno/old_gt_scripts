@@ -18,6 +18,8 @@
 <xsl:variable name="common_version" select="'$Revision$'"/>
 <xsl:variable name="convert2xml_version" select="''"/>
 <xsl:variable name="hyph_version" select="''"/>
+<xsl:variable name="xhtml2corpus_version" select="''"/>
+<xsl:variable name="docbook2corpus2_version" select="''"/>
 
 <!-- Fix empty em-type according to the dtd -->
 <xsl:template match="em">
@@ -504,6 +506,17 @@
 					<xsl:value-of select="$hyph_version"/>
 					</xsl:element>
 			</xsl:if>
+            <xsl:if test="$docbook2corpus2_version">
+                    <xsl:element name="docbook2corpus2">
+                    <xsl:value-of select="$docbook2corpus2_version"/>
+                    </xsl:element>
+            </xsl:if>
+            <xsl:if test="$xhtml2corpus_version">
+                    <xsl:element name="xhtml2corpus">
+                    <xsl:value-of select="$xhtml2corpus_version"/>
+                    </xsl:element>
+            </xsl:if>
+
 			</xsl:element>
   </xsl:element>
 <xsl:apply-templates select="body"/>
