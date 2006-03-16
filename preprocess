@@ -317,7 +317,6 @@ sub test_idiom {
 		# If fst is given, the analysator is called for the base form of
 		# the multiword expression.
 		if ($fst) {
-			print "FST: $$word_ref $token\n";
 			$output = `echo \"$$word_ref $token_2\" | lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null`;
 			if ($output && $output !~ /\?/) {
 				my @readings = split (/\n/, $output);
