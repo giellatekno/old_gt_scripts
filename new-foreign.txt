@@ -25,6 +25,7 @@ arbeidsmiljøforhold
 öfvervåld
 forhand
 innland
+Kalls
 Kalvningsland
 Kalvingsland
 kalvingsland
@@ -50,6 +51,7 @@ mikroberna
 Skillnaderna
 Nederbördsmängderna
 Följderna
+Nämnden
 Nämnderna
 Myrmarkerna
 Priserna
@@ -99,6 +101,7 @@ utgåve
 16-bits
 1600-tallet
 16bits
+1980-talet
 1700-tallet
 1800-tallet
 1900-tallet
@@ -145,6 +148,7 @@ Automobil-Forbund
 Avhendelse
 Balkenwerk
 Bankwatch
+Barn-
 Barnevernets
 Beahcam
 Befolkningssammensetning
@@ -184,12 +188,14 @@ Datatjeneste
 Decolonizing
 Deele
 Denderen
+Dessutom
 Deutschen
 Diakonhjemmets
 Diehtie
 Diek
 Domstolens
 Dåjmalasj
+Därefter
 ECOSOC
 Editio
 Education-
@@ -204,6 +210,7 @@ Ekspress
 Emneregister
 Emulation
 Enbusk
+Erfarenheterna
 Erhvervsmaade
 Ethnographie
 Ethnographiske
@@ -280,6 +287,7 @@ Flechte
 Flytlapperne
 Flyttlappernes
 Folkerettens
+Folkrätten
 Forelæsninger
 Forerindring
 Forordning
@@ -383,6 +391,7 @@ Kautokeinolappene
 Kielingh
 Kircke
 Kjønnsrepresentasjon
+Klagenemnda
 Klemet-type
 Klunde
 Knochen
@@ -393,6 +402,7 @@ Kongerigerne
 Kontaktilähtöinen
 Kontorsystemer
 Konung
+Konungariket
 Kopibog
 Kopibok
 Korddok
@@ -452,6 +462,7 @@ Lullisámig
 Luopioinen
 Lyydiläismurteiden
 Læringssenterets
+Länsstyrelserna
 Lögdeälvens
 Magistergradsavhandling
 Majestæts
@@ -507,6 +518,7 @@ Næringskombinasjoner
 Næringskomite
 Nærings-
 Næringsveie
+Nämndernas
 Odelsbaarne
 Odelstingsproposisjon
 Oeconomie
@@ -545,6 +557,7 @@ Pohjansäde
 Postog
 Produksjonsstøtte
 Profinske
+Protokollet
 Protolappisch
 Q-meieriene
 Quellblume
@@ -561,6 +574,7 @@ Reimers
 Reindeer
 Reindeerherders
 Reindriftens
+Reindriftsamers
 Reinhjordene
 Reinbeitenemnden
 Renbeitespørsmålet
@@ -582,6 +596,7 @@ Rettstidende
 Revmatikerforbund
 Rigs-Registranter
 Rogen
+Rommetveit
 Rubus
 Ruo¸a
 Russefinnerne
@@ -632,6 +647,7 @@ Skogret
 Skolt-lapparna
 Skolts
 Skolöverstyrelsen
+Skoren
 Skovforholdene
 Skriftsserie
 Skriveregler
@@ -644,6 +660,7 @@ Småbrännorna
 Snosaa
 Snosaa
 Sogns
+Sommarbetesområden
 Sorenskriveri
 Spesialanalyse
 Sprachen
@@ -734,6 +751,7 @@ Utöver
 Vaekie
 Valgdeltakelse
 Valgstatistikk
+Vapstens
 Vegfolk
 Vegfolk
 Veibok
@@ -744,6 +762,7 @@ Vierenhalben
 Vigenss
 Vilkaar
 Vinterfšring
+Vinterbetesområden
 Vitenskapsspørsmålet
 Vorträge
 Västre
@@ -826,6 +845,7 @@ baccek
 badjelmeare
 barmark
 barne-
+barneleddgikt
 bedækket
 beetween
 beitegrunnlag
@@ -1488,6 +1508,7 @@ pasientjournal
 pasientombud
 pasientskadeerstatning
 pasientrettighetsloven
+pasientrettighetslovens
 passlig
 pastoralisme
 patens
@@ -1704,6 +1725,7 @@ skogret
 skogrett
 skoleforhold
 skolehelsetjenesten
+skoren
 skridfinner
 skriftserie
 skråle
@@ -1978,6 +2000,7 @@ zerchlagen
 Østsamene
 økonomiplan
 økonomisk
+østligste
 ánden
 áššejođih
 ältesten
@@ -2287,6 +2310,7 @@ samiska
 bl.a
 Sirkas
 Betestid
+Betestiden
 därifrån
 förslag
 bestämmelser
@@ -2303,6 +2327,8 @@ gällande
 gränsbetesområde
 förhållanden
 Konventionen
+Konventionens
+Konventionsområdena
 renantalet
 nämnden
 gemensamt
@@ -2338,6 +2364,8 @@ omfattande
 grundläggande
 ekonomiska
 betestillgångarna
+Renbetestrikt
+Renbeteskommissionen
 Renbetesnämnden
 samers
 stycket
@@ -2560,6 +2588,7 @@ bedriva
 avgränsning
 tjenestetilbudet
 Renskötseln
+Renskötselns
 Overprøvingsnemnden
 Avtalet
 1972-konvensjonen
@@ -2645,6 +2674,7 @@ helseforetakene
 ökat
 ökad
 ändamålsenligt
+äganderätt
 äger
 yttrande
 vinterbetesområdena
@@ -5558,6 +5588,7 @@ följde
 följas
 föder
 födelsedatum
+fåleddssykdom
 fårbete
 fångstsamhällets
 fångstmetoderna
@@ -5871,6 +5902,8 @@ beitearealene
 behörig
 behandlades
 behandlade
+beahndlingsnivå
+behandlingssted
 begränsades
 befrämjar
 befrämjandet
@@ -5994,6 +6027,7 @@ alltigenom
 allmennlegers
 allenarådande
 sykdomsbilde
+sykdomsaktivitet
 selvbilde
 einskilde
 överskridande
@@ -6395,6 +6429,7 @@ omgjøring
 hundekjøring
 nedising
 Parsing
+Parterna
 oppgraving
 undergraving
 heving
@@ -6890,6 +6925,7 @@ deklarasjoner
 siidaorganisasjoner
 brukerorganisasjoner
 Barneobsevasjoner
+Barneombudet
 sorgreaksjoner
 hormoner
 fagpersoner
