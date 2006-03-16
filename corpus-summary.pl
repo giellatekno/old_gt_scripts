@@ -129,7 +129,8 @@ sub process_file {
 			$lang_elt->DESTROY;
 			
 		}
-		$lang_elt = XML::Twig::Elt->new($lang);
+		$lang_elt = XML::Twig::Elt->new('language');
+		$lang_elt->set_att('xml:lang', $lang);
 	}
 	
 	if($count{$root}{$lang}{$genre}{'count'} == 1) {
@@ -137,7 +138,8 @@ sub process_file {
 			$langgenre_elt->DESTROY;
 		}
 		
-		$langgenre_elt = XML::Twig::Elt->new($genre);
+		$langgenre_elt = XML::Twig::Elt->new('genre');
+		$langgenre_elt->set_att('name', $genre);
 		$langgenre_elt->paste( 'last_child', $lang_elt);
 	}
 	$file_elt->paste( 'last_child', $langgenre_elt);
