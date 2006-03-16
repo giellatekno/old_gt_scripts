@@ -3,7 +3,9 @@
 use strict;
 use open ':locale';
 use encoding 'utf8';
-binmode STDOUT, ":utf8";
+#binmode STDOUT, ":utf8";
+
+use bytes;
 
 use File::Find;
 use IO::File;
@@ -14,7 +16,7 @@ use XML::Twig;
 my %summary;
 my %count;
 
-my $corpdir = "/home/saara/samipdf";
+my $corpdir = "/usr/local/share/corp";
 
 my $dir;
 my $language;
@@ -40,6 +42,7 @@ open($FH1,  ">$outfile");
 my $out_twig = XML::Twig->new();
 $out_twig->set_pretty_print('record');
 
+
 my $lang_elt;
 my $langgenre_elt;
 my $file_elt;
@@ -47,8 +50,8 @@ my $size;
 
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.1'  encoding="UTF-8"?>|;
-print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
-print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
+#print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
+#print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
 print $FH1 qq|\n<summary>|;
 
 
@@ -200,8 +203,6 @@ for my $root (keys %count) {
 
 $count_elt->print($FH1);
 $count_elt->DESTROY;
-
-
 
 print $FH1 qq|\n</summary>|;
 close $FH1;
