@@ -58,7 +58,8 @@ open (FH, "+<$common_xsl");
 my @text_array = <FH> ;
 my @result_array;
 foreach my $line (@text_array){
-	if ($line =~ /name\=\"common_version/) { $line =~ s/\$Revision$/$1/g; }
+	if ($line =~ /name\=\"common_version/) { $line =~ s/Revision://; }
+	if ($line =~ /name\=\"common_version/) { $line =~ s/\$//g; }
 	if ($line =~ /name\=\"convert2xml_version/) { $line =~ s/(select=\"\').*?(\'\")/$1$convert_version$2/ };
 	if ($line =~ /name\=\"hyph_version/) { $line =~ s/(select=\"\').*?(\'\")/$1$hyph_version$2/ };
 	if ($line =~ /name\=\"xhtml2corpus_version/) { $line =~ s/(select=\"\').*?(\'\")/$1$xhtml_version$2/ };
