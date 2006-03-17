@@ -90,7 +90,7 @@ process ()
     dir="$2"
     echo "processing $lang directory $dir"
     echo "/usr/local/bin/ccat -r $corproot/gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed"
-    time /usr/local/bin/ccat -r $corproot/gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed > /Users/saara/cron.tmp
+    /usr/local/bin/ccat -r $corproot/gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
     
     return 0
 }
