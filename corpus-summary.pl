@@ -21,7 +21,7 @@ my $corpdir = "/usr/local/share/corp";
 my $dir;
 my $language;
 my $help;
-my $outfile="summary.tmp";
+my $outfile="summary.xml"; 
 
 GetOptions ("dir=s" => \$dir,
 			"corpdir=s" => \$corpdir,
@@ -89,6 +89,7 @@ sub process_file {
 	my $root = $levels[1];
 	my $lang = $levels[2];
 	my $genre = $levels[3];
+	print "$lang, $genre";
 	my $langgenre = $lang . "/" . $genre;
 
 	$count{$root}{'count'} += 1;
@@ -106,6 +107,8 @@ sub process_file {
 								section  => sub { $section_count += 1; },
 							});
 	if (! $twig->safe_parsefile("$file")) {
+		my $nonvalid = XML::Twig::Elt->new('nonvalid'); 
+		$nonvalid->paste( 'last_child', $file_elt);
 		print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
 	}
 	
@@ -211,9 +214,12 @@ close $FH1;
 
 
 sub print_help {
-	print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
+	print"Usage: corpus-summary.pl [OPTIONS] [FILE]\n";
 	print "The available options:\n";
     print"    --dir=<dir>     The directory where to search for files.\n";
     print"                    If not given, only FILE is processed.\n";
+    print"    --out=<outfile> The output file. The default is summary.xml.\n";
+	print"    --corpdir=<dir> The directory which roots the corpus dir.\n";
+    print"                    the default is /usr/local/share/corp\n";
 
 }
