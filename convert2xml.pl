@@ -45,7 +45,6 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-my $cur_id=0; #variable is used in giving paragraphs their ids.
 
 my $test=0; #preserves temporary files.
 
@@ -87,6 +86,7 @@ if (! $language || ! $languages{$language}) { $language = "sme"; }
 my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
+my $convert_eol = $bindir . "/convert_eol.pl";
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -110,8 +110,7 @@ if (! $nolog) {
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	if (! $upload) {
 		$command = "chgrp cvs \"$log_file\"";
-		system($command) == 0
-			or print STDERR "$log_file: ERROR chgrp failed\n";
+		exec_com($command, $log_file);
 	}
 }
 
@@ -155,9 +154,7 @@ sub process_file {
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $docxsl; }
 		$command = "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"";
-		print STDERR "$command\n"; 
-		system($command) == 0 
-			or print STDERR "$file: ERROR antiword failed\n";
+		exec_com($command, $file);
 	}
 	
 	# Conversion of xhtml documents
@@ -165,10 +162,12 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		$command = "$tidy \"$orig\" | xsltproc \"$xsl\" - > \"$int\"";
-		print STDERR "$command\n";
-		system($command) == 0
-			or print STDERR "$file: ERROR tidy failed\n";
+		my $tmp3 = $tmpdir . "/" . $file . "tmp3";
+		$command = "$tidy \"$orig\" > $tmp3";
+		exec_com($command, $file);
+
+		$command = "xsltproc \"$xsl\" $tmp3 > \"$int\"";
+		exec_com($command, $file);
 	}
 	
 	# Conversion of pdf documents	
@@ -178,29 +177,30 @@ sub process_file {
 		else { $xsl = $htmlxsl; }
 		my $html = $tmpdir . "/" . $file . ".tmp";
 		$command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
-		print STDERR $command, "\n";
-		system($command) == 0 
-			or print STDERR "$file: ERROR pdftotext failed \n";
+		exec_com($command, $file);
+
 		&pdfclean($html);
 		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-		print STDERR "$command\n";
-		system($command) == 0
-			or print STDERR "$file: ERROR tidy failed\n";
+		exec_com($command, $file);
+
 		# remove temporary files unless testing.
 		if (! $test) {
 			$command = "rm -rf \"$html\"";
-			print STDERR "$command\n";
-			system($command) == 0
-				or print STDERR "$file: ERROR rm failed\n";
+			exec_com($command, $file);
 		}
 
 	}
-	if ($test) {
-        # Intermediate temporary file for testing.
-		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-		copy ($int, $tmp1) ;
-	}
+	# end of line conversion.
+	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+	my $command = "$convert_eol $int > $tmp1";
+	exec_com($command, $file);
 
+	copy ($tmp1, $int) ;
+	# Remove temporary file unless testing.
+	if (! $test) {
+		exec_com("rm -rf", $tmp1, $file);
+	}
+	
 	# hyphenate the file
 	if (! $no_hyph && $file !~/\.pdf/ ) {
 		if ($all_hyph) {
@@ -208,9 +208,7 @@ sub process_file {
 		}
 		else {
 			$command = "$hyphenate --infile=\"$int\" --outfile=\"$int\"";		}
-		print STDERR "$command\n";
-		system($command) == 0
-			or print STDERR "$file: ERROR hyphenate failed\n";
+		exec_com($command, $file);
 	}
 
 	# Check if the file contains characters that are wrongly
@@ -259,9 +257,14 @@ sub process_file {
   } # ENCODING
 	if(! $upload) {
 		$command = "chgrp cvs \"$int\"";
-		system($command) == 0
-			or print STDERR "$file: ERROR chgrp failed\n";
+		exec_com($command, $file);
+
+		$command = "chmod 0660 \"$int\"";
+		exec_com($command, $file);
+
 	}
+
+
 	if (! $noxsl) {
 		# Execute the file specific .xsl-script.
 		# Copy it from template, if not exist.
@@ -271,48 +274,39 @@ sub process_file {
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 
-			$command = "chgrp cvs \"$xsl_file\" ";
-			print STDERR "$command\n";
-			system($command) == 0 
-				or print STDERR "$file: ERROR chgrp failed \n";
+			$command = "chgrp corpus \"$xsl_file\" ";
+			exec_com($command, $file);
 
 			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
-			print STDERR "$command\n";
-			system($command) == 0
-				or print STDERR "$file: ERROR version control failed \n";
+			exec_com($command, $file);
+
 		}
 		$command = "co -q $xsl_file";
-		print STDERR "$command\n";
-		system($command) == 0
-			or print STDERR "$file: ERROR checkout for the file $xsl_file failed. \n";
+		exec_com($command, $file);
+
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
 
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
-		print STDERR "$command\n";
-		system($command) == 0 
-			or print STDERR "$file: ERROR xsltproc failed \n";
+		exec_com($command, $file);
 
-#		$command = "xmllint --valid --noout \"$tmp\"";
-#		print STDERR "$command\n";
-#		system($command) == 0 
-#			or print STDERR "$file: ERROR errors in xml-validation. \n";
+		# Validate the xml-file unless web upload.
 
+		if(! $upload) {
+			$command = "xmllint --valid --noout \"$tmp\"";
+			exec_com($command, $file);
+		}
 		copy ($tmp, $int) 
 			or print STDERR "ERROR: copy failed ($tmp $int)\n";
 
 		# Remove temporary file unless testing.
 		if (! $test) {
 			$command = "rm -rf \"$tmp\"";
-			print STDERR "$command\n";
-			system($command) == 0
-				or print STDERR "$tmp: ERROR rm failed\n";
+			exec_com($command, $file);
 		}
 
 		if ( -f $xsl_vfile) {
 			$command = "rm -rf \"$xsl_file\" ";
-			print STDERR "$command\n";
-			system($command) == 0
-				or print STDERR "$file: ERROR removal of working copy of $xsl_file failed \n";
+			exec_com($command, $file);
 		}
 	}
 	
@@ -326,6 +320,7 @@ sub process_file {
 #	  $document->set_pretty_print('record');
 #	  $document->print( \*FH);
 #	}
+	
 	# Print log message in case of fatal ERROR
 	if (! $nolog) {
 		open FH, $log_file;
@@ -334,6 +329,16 @@ sub process_file {
 		}
 	}
 }
+
+sub exec_com {
+	my ($com, $file) = @_;
+
+	print STDERR "$com\n";
+	system($com) == 0 
+		or print STDERR "$file: ERROR errors in $com. \n";
+	
+}
+
 
 # Decode false utf8-encoding for text paragraph.
 sub call_decode {
@@ -361,7 +366,6 @@ sub langdetect {
 	my $MAXCHAR = 100;
 	my $lmdir = $bindir . "/LM";
 	my $bestlang="";
-	$cur_id++;
 
 	my $text = $para->text;
 	my $count = length($text);
@@ -395,7 +399,6 @@ sub langdetect {
 	if ($bestlang ne $language) {
 		$para->set_att( "xml:lang" => $bestlang );
 	}
-	$para->set_att( "id" => $cur_id );
 }
 
 sub pdfclean {
