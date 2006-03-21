@@ -109,7 +109,7 @@ if (! $nolog) {
 	$log_file = $tmpdir . "/" . $time . ".log";
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	if (! $upload) {
-		$command = "chgrp cvs \"$log_file\"";
+		$command = "chgrp corpus \"$log_file\"";
 		exec_com($command, $log_file);
 	}
 }
@@ -141,10 +141,12 @@ sub process_file {
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/orig/gt/;
 	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
+    (my $intfree = $int) =~ s/\/gt/\/gtfree/;
 
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
 	
+	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
 
@@ -153,7 +155,9 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $docxsl; }
-		$command = "/usr/local/bin/antiword -s -x db \"$orig\" | /usr/bin/xsltproc \"$xsl\" - > \"$int\"";
+		$command = "/usr/local/bin/antiword -s -x db \"$orig\" > $tmp3";
+		exec_com($command, $file);
+		$command = "/usr/bin/xsltproc \"$xsl\" $tmp3 > \"$int\"";
 		exec_com($command, $file);
 	}
 	
@@ -162,7 +166,6 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		my $tmp3 = $tmpdir . "/" . $file . "tmp3";
 		$command = "$tidy \"$orig\" > $tmp3";
 		exec_com($command, $file);
 
@@ -199,6 +202,7 @@ sub process_file {
 	# Remove temporary file unless testing.
 	if (! $test) {
 		exec_com("rm -rf", $tmp1, $file);
+		exec_com("rm -rf", $tmp3, $file);
 	}
 	
 	# hyphenate the file
@@ -321,6 +325,37 @@ sub process_file {
 #	  $document->print( \*FH);
 #	}
 	
+	COPYFREE: {
+		# Copy file with free license to gtfree.
+		my $document = XML::Twig->new;
+		if (! $document->safe_parsefile("$int")) {
+			print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
+			last COPYFREE;
+		}
+		
+		my $license = "free";
+		my $root = $document->root;
+		my $header = $root->first_child('header');
+		my $avail = $header->first_child('availability');
+		$license = $avail->first_child->local_name;
+
+		if ( $license =~ /free/ ) {
+			copy ($int, $intfree) 
+				or print STDERR "ERROR: copy failed ($int $intfree)\n";
+			$command = "chgrp cvs \"$intfree\"";
+			exec_com($command, $file);
+			
+			$command = "chmod 0664 \"$intfree\"";
+			exec_com($command, $file);
+
+		}
+		else {
+			$command = "rm -rf \"$intfree\"";
+			exec_com($command, $file);
+		}
+		$document->purge;
+	}
+
 	# Print log message in case of fatal ERROR
 	if (! $nolog) {
 		open FH, $log_file;
