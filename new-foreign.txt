@@ -149,6 +149,7 @@ Avhendelse
 Balkenwerk
 Bankwatch
 Barn-
+Barne-
 Barnevernets
 Beahcam
 Befolkningssammensetning
@@ -2364,6 +2365,7 @@ omfattande
 grundläggande
 ekonomiska
 betestillgångarna
+Renbetesdistrikt
 Renbetestrikt
 Renbeteskommissionen
 Renbetesnämnden
