@@ -12,7 +12,7 @@
 # <just type enter to all questions>ll
 # chmod 0644 .ssh/id_rsa.pub
 # scp id_rsa.pub <user>@cochise.uit.no:.ssh/authorized_keys2
-
+export LC_ALL=no_NO.UTF-8
 FORREST_HOME=$HOME/forrest
 PATH=$PATH:$FORREST_HOME/bin
 CVS_RSH=ssh
