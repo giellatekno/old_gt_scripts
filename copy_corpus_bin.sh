@@ -17,6 +17,7 @@ scripts="convert2xml.pl
 text_cat
 LM
 add-hyph-tags.pl
+convert_eol.pl
 XSL-template.xsl
 common.xsl
 xhtml2corpus.xsl
