@@ -33,7 +33,7 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 # The script uses Perl module CGI.pm to retrieve and handle 
 # information from HTML form and generating new HTML pages.
 
-my $wordlimit = 50 ;       # adjust as appropriate; prevent large-scale (ab)use
+my $wordlimit = 150 ;       # adjust as appropriate; prevent large-scale (ab)use
 
 # GET THE INPUT
 
