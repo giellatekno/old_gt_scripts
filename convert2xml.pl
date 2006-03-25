@@ -36,7 +36,9 @@ my $no_hyph = 0;
 my $all_hyph = 0; 
 my $noxsl = 0;
 my $corpdir = "/usr/local/share/corp";
+#my $corpdir = "/home/saara/samipdf";
 my $bindir = "/usr/local/share/corp/bin";
+#my $bindir = "/home/saara/gt/script";
 my $docxsl = $bindir . "/docbook2corpus2.xsl";
 my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
 my $xsltemplate = $bindir . "/XSL-template.xsl";
@@ -87,6 +89,7 @@ my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -as
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
 my $convert_eol = $bindir . "/convert_eol.pl";
+my $paratext2xml = $bindir . "/paratext2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -133,14 +136,14 @@ sub process_file {
 
 	# Search with find gives some unwanted files which are silently
 	# returned here.
-    return unless ($file =~ m/\.(doc|pdf|html)$/);
+    return unless ($file =~ m/\.(doc|pdf|html|ptx)$/);
     return if ($file =~ /[\~]$/);
     return if (__FILE__ =~ $file);
 	return if (-z $file);
 
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/orig/gt/;
-	$int =~ s/\.(doc|pdf|html)$/\.\L$1\.xml/i;
+	$int =~ s/\.(doc|pdf|html|ptx)$/\.\L$1\.xml/i;
     (my $intfree = $int) =~ s/\/gt/\/gtfree/;
 
 	# Take only the file name without path.
@@ -169,8 +172,9 @@ sub process_file {
 		$command = "$tidy \"$orig\" > $tmp3";
 		exec_com($command, $file);
 
-		$command = "xsltproc \"$xsl\" $tmp3 > \"$int\"";
+		$command = "/usr/bin/xsltproc \"$xsl\" $tmp3 > \"$int\"";
 		exec_com($command, $file);
+
 	}
 	
 	# Conversion of pdf documents	
@@ -191,8 +195,14 @@ sub process_file {
 			$command = "rm -rf \"$html\"";
 			exec_com($command, $file);
 		}
-
 	}
+
+	# Conversion of paratext documents
+	if ($file =~ /\.ptx$/) {
+		$command = "$paratext2xml $orig --out=$int";
+		exec_com($command, $file);
+	}
+
 	# end of line conversion.
 	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 	my $command = "$convert_eol $int > $tmp1";
@@ -285,6 +295,7 @@ sub process_file {
 			exec_com($command, $file);
 
 		}
+
 		$command = "co -q $xsl_file";
 		exec_com($command, $file);
 
@@ -324,7 +335,7 @@ sub process_file {
 #	  $document->set_pretty_print('record');
 #	  $document->print( \*FH);
 #	}
-	
+
 	COPYFREE: {
 		# Copy file with free license to gtfree.
 		my $document = XML::Twig->new;
