@@ -14,14 +14,13 @@ cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/gt gt
 for lang in "sme" "smj" "sma"
 do
 		cd /usr/tmp/gt/ && make TARGET=$lang
+
+		cp /usr/tmp/gt/sme/bin/$lang.fst /opt/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/abbr.txt /opt/smi/$lang/bin/
+
+		chgrp cvs /opt/smi/$lang/bin/*
+		chmod a+x /opt/smi/$lang/bin/*
 done
-
-cp /usr/tmp/gt/sme/bin/sme.fst /opt/smi/sme/bin/
-cp /usr/tmp/gt/sme/bin/isme.fst /opt/smi/sme/bin/
-cp /usr/tmp/gt/sme/src/sme-dis.rle /opt/smi/sme/bin/
-cp /usr/tmp/gt/sme/bin/abbr.txt /opt/smi/sme/bin/
-
-cp /usr/tmp/gt/sma/bin/sma.fst /opt/smi/sma/bin/
-cp /usr/tmp/gt/sma/bin/isma.fst /opt/smi/sma/bin/
-cp /usr/tmp/gt/smj/bin/smj.fst /opt/smi/smj/bin/
-cp /usr/tmp/gt/smj/bin/ismj.fst /opt/smi/smj/bin/
