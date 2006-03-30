@@ -17,7 +17,7 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 #
 #smi-cg.cgi
 #
-# resides:  Web Folder:cgi-bin:smi:smi-cg.cgi
+# resides:  Web Folder:cgi-bin:smi:smi.cgi
 #
 #       called from HTML; output HTML
 #
@@ -38,7 +38,6 @@ my $wordlimit = 150 ;       # adjust as appropriate; prevent large-scale (ab)use
 # GET THE INPUT
 
 my $text="";  #The text to be analysed
-#my $action; #Variable contains 'disamb' or 'analyze' from radio button
 
 my $query = new CGI;
 $text = $query->param('text');
