@@ -12,7 +12,7 @@
             encoding="UTF-8" 
             indent="yes"
             doctype-public="-//UIT//DTD Corpus V1.0//EN"
-			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/> 
+			doctype-system="/home/saara/gt/dtd/corpus.dtd"/> 
 
 
 <xsl:variable name="common_version" select="'$Revision$'"/>
@@ -23,35 +23,31 @@
 
 <!-- Fix empty em-type according to the dtd -->
 <xsl:template match="em">
+	<xsl:element name="em">
 	<xsl:choose>
-	<xsl:when test="string-length(@type) = 0">
-		<xsl:element name="em">
+	<xsl:when test="not(@type)">
 		<xsl:attribute name="type">
 			<xsl:text>italic</xsl:text>
 		</xsl:attribute>
 		<xsl:apply-templates/>
-		</xsl:element>
 	</xsl:when>
 	<xsl:otherwise>
+		<xsl:attribute name="type">
+			<xsl:value-of select="@type"/>
+		</xsl:attribute>
 		<xsl:apply-templates/>
 	</xsl:otherwise>
 	</xsl:choose>
+	</xsl:element>
 </xsl:template>
 
-<!-- Fix empty p-type according to the dtd -->
+<!--
 <xsl:template match="p">
-    <xsl:element name="p">	
-	<xsl:if test="@type">
-		<xsl:if test="string-length(@type) = 0">
-			  <xsl:attribute name="type">
-					<xsl:text>text</xsl:text>
-			  </xsl:attribute>
-		</xsl:if>
-	</xsl:if>
-<xsl:apply-templates/>
-</xsl:element>
+<xsl:if test="string-length(normalize-space(.)) > 0">
+ <xsl:apply-templates />
+</xsl:if>
 </xsl:template>
-
+-->
 
  <xsl:template match="node()|@*">
      <xsl:copy>
@@ -87,6 +83,10 @@
 		<xsl:when test="header/title">
               <xsl:apply-templates select="header/title"/>
 		</xsl:when>
+		<xsl:otherwise>
+		    <xsl:element name="title">
+		     </xsl:element>
+		</xsl:otherwise>
 	    </xsl:choose>
 
 	<xsl:choose>
@@ -143,7 +143,8 @@
 
 		<xsl:choose>
         <xsl:when test="$author2_ln">
-            <xsl:element name="person">
+			 <xsl:element name="author">
+              <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author2_fn"/>
                 </xsl:attribute>
@@ -160,10 +161,12 @@
             		<xsl:value-of select="$author2_nat"/>
             	</xsl:attribute>
             </xsl:element>
+            </xsl:element>
         </xsl:when>
 	    </xsl:choose>
 	    <xsl:choose>
         <xsl:when test="$author3_ln">
+			 <xsl:element name="author"> 
             <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author3_fn"/>
@@ -181,10 +184,12 @@
             		<xsl:value-of select="$author3_nat"/>
             	</xsl:attribute>
             </xsl:element>
+            </xsl:element>
         </xsl:when>
 		</xsl:choose>
 		<xsl:choose>
         <xsl:when test="$author4_ln">
+			 <xsl:element name="author">
             <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author4_fn"/>
@@ -201,6 +206,7 @@
             	<xsl:attribute name="nationality">
             		<xsl:value-of select="$author4_nat"/>
             	</xsl:attribute>
+            </xsl:element>
             </xsl:element>
         </xsl:when>
 		</xsl:choose>
