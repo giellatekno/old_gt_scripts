@@ -190,7 +190,7 @@ print <<END_HTML
 
 2. Author:<br>
   Firstname: <input type="text" name="author1_fn" value="" size="30"><br/>
-  Lastname: <input type="text" name="author1_ln" value="$author1_ln" size="30"><br/>
+  Lastname: <input type="text" name="author1_ln" value="" size="30"><br/>
   Gender: <input type="radio" name="author1_gender" value="m"> Male
     <input type="radio" name="author1_gender" value="f"> Female <br/>
   Born: <input type="text" name="author1_born" value="" size="4"><br/>
