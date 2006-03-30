@@ -171,13 +171,13 @@ print <<END_HTML
 </td>
 <td>
 3. Author:<br>
-  Firstname: <input type="text" name="author2_fn" value="" size="30"><br/>
-  Lastname: <input type="text" name="author2_ln" value="" size="30"><br/>
-  Gender: <input type="radio" name="author2_gender" value="m"> Male
-    <input type="radio" name="author2_gender" value="f"> Female <br/>
-  Born: <input type="text" name="author2_born" value="" size="4"><br/>
+  Firstname: <input type="text" name="author3_fn" value="" size="30"><br/>
+  Lastname: <input type="text" name="author3_ln" value="" size="30"><br/>
+  Gender: <input type="radio" name="author3_gender" value="m"> Male
+    <input type="radio" name="author3_gender" value="f"> Female <br/>
+  Born: <input type="text" name="author3_born" value="" size="4"><br/>
   Nationality:
-    <select name="author2_nat">
+    <select name="author3_nat">
 	<option value="">--none--</option>
     <option value="fin">Finnish</option>
     <option value="nor">Norwegian</option>
@@ -189,13 +189,13 @@ print <<END_HTML
 <tr><td>
 
 2. Author:<br>
-  Firstname: <input type="text" name="author1_fn" value="" size="30"><br/>
-  Lastname: <input type="text" name="author1_ln" value="" size="30"><br/>
-  Gender: <input type="radio" name="author1_gender" value="m"> Male
-    <input type="radio" name="author1_gender" value="f"> Female <br/>
-  Born: <input type="text" name="author1_born" value="" size="4"><br/>
+  Firstname: <input type="text" name="author2_fn" value="" size="30"><br/>
+  Lastname: <input type="text" name="author2_ln" value="" size="30"><br/>
+  Gender: <input type="radio" name="author2_gender" value="m"> Male
+    <input type="radio" name="author2_gender" value="f"> Female <br/>
+  Born: <input type="text" name="author2_born" value="" size="4"><br/>
   Nationality:
-    <select name="author1_nat">
+    <select name="author2_nat">
 	<option value="">--none--</option>
     <option value="fin">Finnish</option>
     <option value="nor">Norwegian</option>
@@ -205,13 +205,13 @@ print <<END_HTML
 </td>
 <td>
 4. Author:<br>
-  Firstname: <input type="text" name="author2_fn" value="" size="30"><br/>
-  Lastname: <input type="text" name="author2_ln" value="" size="30"><br/>
-  Gender: <input type="radio" name="author2_gender" value="m"> Male
-    <input type="radio" name="author2_gender" value="f"> Female <br/>
-  Born: <input type="text" name="author2_born" value="" size="4"><br/>
+  Firstname: <input type="text" name="author4_fn" value="" size="30"><br/>
+  Lastname: <input type="text" name="author4_ln" value="" size="30"><br/>
+  Gender: <input type="radio" name="author4_gender" value="m"> Male
+    <input type="radio" name="author4_gender" value="f"> Female <br/>
+  Born: <input type="text" name="author4_born" value="" size="4"><br/>
   Nationality:
-    <select name="author2_nat">
+    <select name="author4_nat">
 	<option value="">--none--</option>
     <option value="fin">Finnish</option>
     <option value="nor">Norwegian</option>
