@@ -49,12 +49,12 @@ my $lang = $query->param('language');
 my $action = $query->param('action');
 
 # Testing
-#$text = "viessu+N+Sg+Loc viessu+N+Sg+Loc";
+#$text = "Divvun lea";
 #$text = qq("Nissun St&aacute;jgos lij B&aring;d&oslash;djon ja man&aacute;j");
 #$lang = "sme";
-#$cg = "disamb";
+#$cg = "hyphenate";
 #$charset = "utf8";
-#$action = "generate";
+#$action = "analyze";
 
 if(! $lang) { die "No language specified.\n"; }
 if(! $text) { die "No text to be analyzed.\n"; }
@@ -108,19 +108,24 @@ if (@words) {
 my $result;
 
 if ($action =~ /generate/) {
-$result = `echo $text | tr " " "\n" | $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $fstdir/i$lang.fst` ;
+   $result = `echo $text | tr " " "\n" | \
+			$utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $fstdir/i$lang.fst` ;
 }
 else {
-if ($cg =~ /disamb/) {
+   if ($cg =~ /disamb/) {
      $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
-			$bindir/lookup2cg | $bindir/vislcg --grammar=$fstdir/$lang-dis.rle`; }
-else {
-	$result = `echo $text | $bindir/preprocess | \
+			$bindir/lookup2cg | $bindir/vislcg --grammar=$fstdir/$lang-dis.rle`;  }
+  elsif ($cg =~ /hyphenate/) {
+   $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
+			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | cut -f2 | tr '\012' ' '`;
+		}
+   else {
+	 $result = `echo $text | $bindir/preprocess | \
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
-			$bindir/lookup2cg`;
+			$bindir/lookup2cg`; }
 }
-}
+
 
 # first split the $result into solutiongroups 
 # (one solutiongroup for each input word)
@@ -130,12 +135,17 @@ else {
     # splits the result using "< as a delimiter between the groups
     # removes "<
 	my @solutiongroups;
+
 if( $action =~ /analyze/) {
     @solutiongroups = split(/\"</, $result) ;
 }
 elsif($action =~ /generate/){
     @solutiongroups = split(/\n\n/, $result) ;
 }
+else {
+    @solutiongroups = $result ;
+}
+
 
 # the following is basically a loop over the original input words, now 
 # associated with their solutions
