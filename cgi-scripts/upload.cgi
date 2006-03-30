@@ -152,9 +152,9 @@ print <<END_HTML
 
   Document title: <input type="text" name="title" value="$title" size="50"> <br/>
       Author(s):
-    <ol>
-    <li>
-<label> First Author: </label><br>
+<table BORDER=0 CELLPADDING=10>
+<tr><td>
+1. Author:<br>
   Firstname: <input type="text" name="author1_fn" value="" size="30"><br/>
   Lastname: <input type="text" name="author1_ln" value="$author1_ln" size="30"><br/>
   Gender: <input type="radio" name="author1_gender" value="m"> Male
@@ -168,9 +168,9 @@ print <<END_HTML
                <option value="swe">Swedish</option>
     <option value="oth">other</option>
     </select> <br/>
-    </li>
-    <li>
-<label> Second Author: </label><br>
+</td>
+<td>
+3. Author:<br>
   Firstname: <input type="text" name="author2_fn" value="" size="30"><br/>
   Lastname: <input type="text" name="author2_ln" value="" size="30"><br/>
   Gender: <input type="radio" name="author2_gender" value="m"> Male
@@ -184,9 +184,42 @@ print <<END_HTML
                <option value="swe">Swedish</option>
     <option value="oth">other</option>
     </select> <br/>
-    </li>
-    </ol>
 
+</td></tr>
+<tr><td>
+
+2. Author:<br>
+  Firstname: <input type="text" name="author1_fn" value="" size="30"><br/>
+  Lastname: <input type="text" name="author1_ln" value="$author1_ln" size="30"><br/>
+  Gender: <input type="radio" name="author1_gender" value="m"> Male
+    <input type="radio" name="author1_gender" value="f"> Female <br/>
+  Born: <input type="text" name="author1_born" value="" size="4"><br/>
+  Nationality:
+    <select name="author1_nat">
+	<option value="">--none--</option>
+    <option value="fin">Finnish</option>
+    <option value="nor">Norwegian</option>
+               <option value="swe">Swedish</option>
+    <option value="oth">other</option>
+    </select> <br/>
+</td>
+<td>
+4. Author:<br>
+  Firstname: <input type="text" name="author2_fn" value="" size="30"><br/>
+  Lastname: <input type="text" name="author2_ln" value="" size="30"><br/>
+  Gender: <input type="radio" name="author2_gender" value="m"> Male
+    <input type="radio" name="author2_gender" value="f"> Female <br/>
+  Born: <input type="text" name="author2_born" value="" size="4"><br/>
+  Nationality:
+    <select name="author2_nat">
+	<option value="">--none--</option>
+    <option value="fin">Finnish</option>
+    <option value="nor">Norwegian</option>
+               <option value="swe">Swedish</option>
+    <option value="oth">other</option>
+    </select> <br/>
+</td></tr>
+</table>
 <table>
     <tr>
     <td>Publishing year:</td><td> <input type="text" name="year" value="$year"> </td>
