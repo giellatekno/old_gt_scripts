@@ -8,6 +8,7 @@ innovasjonsarbeid
 kroppsarbeid
 dreid
 Särskild
+Särskilda
 røykild
 hovedinnhold
 Behandlingsopphold
@@ -46,6 +47,7 @@ Renägarna
 Nackdelarna
 Byarna
 Samebyarna
+Sameskisse
 Fjällsamebyarna
 mikroberna
 Skillnaderna
@@ -162,6 +164,7 @@ Beschrifuelse
 Biomangfoldslovutvalget
 Blutader
 Bomændene
+Bredtvet
 Brudstykker
 Bruksmåte
 Brønnøysundregistrene
@@ -387,6 +390,7 @@ Karelischen
 Karjalassakin
 Kartbilaga
 Kartofler
+Kartvedlegg
 Kautokeino-Fielde
 Kautokeinolappene
 Kielingh
@@ -1702,6 +1706,7 @@ sierralagásj
 signationem
 sirkumferens
 siterna
+sittestilling
 sjanblonmessig
 sjefsforhandler
 självägande
@@ -1990,7 +1995,9 @@ zerchlagen
 Åpenhet
 Åpningsforedrag
 Ældste
+Ö
 Östen
+Överbygd
 ØFFSØst-Finmarkens
 ØFFØst-Finmarkens
 Ødeleggelsene
@@ -2138,7 +2145,9 @@ røykdykkerer
 -leiligheter
 VARESENTER
 Varesenter
+helseinstitusjon
 helsesenter
+helsetjenester
 villmarkssenter
 Ressurssenter
 turistsenter
@@ -2582,6 +2591,7 @@ gränsbetesområden
 förpliktelser
 förhandlingar
 familiedepartementet
+distriktgrensen
 distriktsgränsen
 distrikten
 betena
