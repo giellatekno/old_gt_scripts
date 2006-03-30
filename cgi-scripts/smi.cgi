@@ -46,12 +46,16 @@ my $cg = $query->param('cg');
 my $charset = $query->param('charset');
 my $lang = $query->param('language');
 
+# Action is either "generate" or "analyze"
+my $action = $query->param('action');
+
 # Testing
-$text = "Máná ietjá";
+#$text = "viessu+N+Sg+Loc viessu+N+Sg+Loc";
 #$text = qq("Nissun St&aacute;jgos lij B&aring;d&oslash;djon ja man&aacute;j");
-$lang = "smj";
-$cg = "disamb";
-#$charset = "latin1";
+#$lang = "sme";
+#$cg = "disamb";
+#$charset = "utf8";
+#$action = "generate";
 
 if(! $lang) { die "No language specified.\n"; }
 if(! $text) { die "No text to be analyzed.\n"; }
@@ -92,7 +96,7 @@ $text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g;
 my @words = split(/[\s]+/, $text);
 $text = join(' ', splice(@words,0,$wordlimit));
 if (@words) {
-    &printwordlimit;
+     &printwordlimit;
 }
 
 # And here is where the actual lookup gets done:
@@ -104,6 +108,10 @@ if (@words) {
 
 my $result;
 
+if ($action =~ /generate/) {
+$result = `echo $text | tr " " "\n" | $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $fstdir/i$lang.fst` ;
+}
+else {
 if ($cg =~ /disamb/) {
      $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
@@ -113,7 +121,7 @@ else {
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
 			$bindir/lookup2cg`;
 }
-
+}
 
 # first split the $result into solutiongroups 
 # (one solutiongroup for each input word)
@@ -123,7 +131,12 @@ else {
     # splits the result using "< as a delimiter between the groups
     # removes "<
 	my @solutiongroups;
+if( $action =~ /analyze/) {
     @solutiongroups = split(/\"</, $result) ;
+}
+elsif($action =~ /generate/){
+    @solutiongroups = split(/\n\n/, $result) ;
+}
 
 # the following is basically a loop over the original input words, now 
 # associated with their solutions
