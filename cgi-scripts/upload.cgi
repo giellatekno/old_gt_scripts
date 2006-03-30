@@ -96,12 +96,15 @@ for my $i (@md5sum) {
 	}
 }
 
+
 # Calling convert2xml -script with hardcoded execution path
 # The 'or die' part doesn't work, it dies everytime...
 my @args = ("$convert", "--lang=$mainlang", "--tmpdir=$tmpdir", "--noxsl", "--upload", "$upload_dir/$fname");
 system (@args);
 #	 or die "Error in conversion";
 
+# Send an email message of the upload.
+mailit("corpus\@giellatekno.uit.no", "upload.cgi", "File uploaded", "File uploaded to $upload_dir\nName: $fname\nlanguage: $mainlang\nlicense: $license_type\n---\nThis is automatic notification email from web upload script upload.cgi.");
 
 my $author1_ln="";
 my $publisher="";
@@ -169,7 +172,7 @@ print <<END_HTML
     <li>
 <label> Second Author: </label><br>
   Firstname: <input type="text" name="author2_fn" value="" size="30"><br/>
-  Lastname: <input type="text" name="author2_ln" value="$author2_ln" size="30"><br/>
+  Lastname: <input type="text" name="author2_ln" value="" size="30"><br/>
   Gender: <input type="radio" name="author2_gender" value="m"> Male
     <input type="radio" name="author2_gender" value="f"> Female <br/>
   Born: <input type="text" name="author2_born" value="" size="4"><br/>
@@ -269,6 +272,18 @@ print <<END_HTML
 
 END_HTML
 	;
+
+# send an email notification.
+sub mailit {
+	my ($recipient, $sender, $subject, $message) = @_;
+
+	open(MAIL, "|/usr/lib/sendmail -t");
+	print MAIL "To: $recipient\n";
+	print MAIL "From: $sender\n";
+	print MAIL "Subject: $subject\n\n";
+	print MAIL "$message";
+	close (MAIL);
+}
 
 sub write_js {
 	print <<END_OF_JS
