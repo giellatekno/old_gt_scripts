@@ -33,7 +33,7 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 # The script uses Perl module CGI.pm to retrieve and handle 
 # information from HTML form and generating new HTML pages.
 
-my $wordlimit = 150 ;       # adjust as appropriate; prevent large-scale (ab)use
+my $wordlimit = 250 ;       # adjust as appropriate; prevent large-scale (ab)use
 
 # GET THE INPUT
 
@@ -116,6 +116,10 @@ else {
      $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
 			$bindir/lookup2cg | $bindir/vislcg --grammar=$fstdir/$lang-dis.rle`;  }
+  elsif ($cg =~ /analyse/) {
+  	$result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
+			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
+			$bindir/lookup2cg`; }
   elsif ($cg =~ /hyphenate/) {
    $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
 			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | cut -f2 | tr '\012' ' '`;
