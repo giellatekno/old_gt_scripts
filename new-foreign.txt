@@ -482,6 +482,7 @@ Menneskerettighederne
 Mennesterettighetene
 Mennneskerettigheter
 Michelsens
+Middagsfjellområdet
 Milj-og
 Minneskrift
 Mordvalaiskielten
@@ -539,7 +540,9 @@ Opkomst
 Oppgaveregistera
 Oppiaine
 Opplæringsavdeling
+Ordföranden
 Organisasjonsteoretiske
+Orsaken
 Ostseefinnisch
 Ostseeraum
 Ovle-vuelie
@@ -635,6 +638,7 @@ Samojedisch
 Samojedischer
 Samorganisasjon
 Samtak
+Samtidigt
 Sandemark
 Schamleiste
 Schnitlers
@@ -683,6 +687,7 @@ Statpipeledningene
 Ste-eller
 Steinsliperiet
 Stensliperiet
+Stor-
 Storjunkkare
 Storog
 Stortingstidende
@@ -690,6 +695,7 @@ Strabadser
 Strandtindene
 Strækninger
 Stålhane
+Stängsel
 Sub-Commission
 Suomalais-ugrilainen
 Suomalais-ugrilaisten
@@ -2336,9 +2342,12 @@ renbetning
 gällande
 gränsbetesområde
 förhållanden
+Karlstadskonventionen
+Kirke-
 Konventionen
 Konventionens
 Konventionsområdena
+Kostnaderna
 renantalet
 nämnden
 gemensamt
@@ -2379,6 +2388,7 @@ Renbetestrikt
 Renbeteskommissionen
 Renbetesnämnden
 samers
+stivhet
 stycket
 punkten
 näringen
@@ -2599,6 +2609,7 @@ beitetiden
 bedriva
 avgränsning
 tjenestetilbudet
+Renskötsel
 Renskötseln
 Renskötselns
 Overprøvingsnemnden
@@ -5066,6 +5077,7 @@ likestillingsspørsmål
 lema
 leds
 leddes
+leddsymptomer
 ledamots
 lavområden
 lavmarksområde
@@ -6308,6 +6320,7 @@ grunnløse
 bevisoppgave
 ilag
 Skilag
+Skjomens
 omlag
 verdigrunnlag
 befolkningsgrunnlag
@@ -6695,6 +6708,7 @@ fjellregionen
 NorgeKommissionen
 Riodeklarasjonen
 næringsorganisasjonen
+ILO-konventionen
 ILOkonvensjonen
 Europakonvensjonen
 samekommunen
@@ -7076,8 +7090,10 @@ Sammenligningsvis
 Overprøvingsnemndens
 overprøvingsnemndens
 Överprövningsnämndens
+PARAGRAF
 Paragrafens
 Lagens
+Riksdag
 Riksdagens
 Barnehagens
 nomadebefolkningens
