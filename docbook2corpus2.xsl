@@ -37,6 +37,12 @@ Find the book element, which then is converted to the "document" tag
             <xsl:apply-templates select="bookinfo/date"/>
             <xsl:apply-templates select="bookinfo/corpname"/>
             <xsl:apply-templates select="bookinfo"/>
+            <!-- Use the function "info, DocBook V5.0" -->
+            <xsl:apply-templates select="info/title"/>
+            <xsl:apply-templates select="info/author"/>
+            <xsl:apply-templates select="info/date"/>
+            <xsl:apply-templates select="info/corpname"/>
+            <xsl:apply-templates select="info"/>
         <!-- Close the "header" tag -->
         </xsl:element>
 
@@ -45,10 +51,17 @@ Find the book element, which then is converted to the "document" tag
             <!-- Apply the following functions -->
             <xsl:apply-templates select="title"/>
             <xsl:apply-templates select="chapter"/>
+            <xsl:apply-templates select="section"/>
             <xsl:apply-templates select="sect1"/>
-            <xsl:apply-templates select="para"/>
+            <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
+            <xsl:apply-templates select="para//tbody"/>
+            <xsl:apply-templates select="para//table"/>
+            <xsl:apply-templates select="para//informaltable"/>
             <xsl:apply-templates select="table"/>
             <xsl:apply-templates select="orderedlist"/>
+            <xsl:apply-templates select="itemizedlist"/>
+            <xsl:apply-templates select="para//orderedlist"/>
+            <xsl:apply-templates select="para//itemizedlist"/>
         <!-- Close the "body" tag -->
         </xsl:element>
 
@@ -62,14 +75,14 @@ Find the book element, which then is converted to the "document" tag
 -->
 
 <!-- Title -->
-<xsl:template match="bookinfo/title">
+<xsl:template match="bookinfo/title|info/title">
 	<xsl:element name="title">
 		<xsl:value-of select="text()"/>
 	</xsl:element>
 </xsl:template>
 
 <!-- Author -->
-<xsl:template match="bookinfo/author">
+<xsl:template match="bookinfo/author|info/author">
 	<xsl:element name="author">
         <xsl:element name="person">
             <xsl:attribute name="firstname">
@@ -86,27 +99,14 @@ Find the book element, which then is converted to the "document" tag
 </xsl:template>
 
 <!-- Date -->
-<xsl:template match="bookinfo/date">
+<xsl:template match="bookinfo/date|info/data">
 	<xsl:element name="year">
         <xsl:value-of select="number(substring-before(., '-'))"/>
     </xsl:element>
 </xsl:template>
 
-<!-- Publisher -->
-<xsl:template match="bookinfo/corpname">
-<xsl:choose>
-<xsl:when test="count(bookinfo/corpname) > 0">
-	<xsl:element name="publChannel">
-        <xsl:element name="publisher">
-            <xsl:value-of select="."/>
-        </xsl:element>
-    </xsl:element>
-</xsl:when>
-</xsl:choose>
-</xsl:template>
-
 <!-- Some additional info -->
-<xsl:template match="bookinfo">
+<xsl:template match="bookinfo|info">
     <!-- wordcount, availability, completeness -->
     <xsl:element name="wordcount">
     		<!-- ancestor::book/bookinfo/following-sibling::*/text() following::* ancestor::*-->
@@ -128,20 +128,60 @@ Find the book element, which then is converted to the "document" tag
         <xsl:apply-templates select="title"/>
         <xsl:apply-templates select="chapter"/>
         <xsl:apply-templates select="sect1"/>
-        <xsl:apply-templates select="para"/>
+        <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
+        <xsl:apply-templates select="para//tbody"/>
+	    <xsl:apply-templates select="para//informaltable"/>
+	    <xsl:apply-templates select="para//table"/>
         <xsl:apply-templates select="table"/>
+        <xsl:apply-templates select="para//orderedlist"/>
+        <xsl:apply-templates select="para//itemizedlist"/>
         <xsl:apply-templates select="orderedlist"/>
+        <xsl:apply-templates select="itemizedlist"/>
  </xsl:template>
 
 <!-- Sect1 -->
 <xsl:template match="sect1">
     <xsl:apply-templates select="title"/>
-    <xsl:apply-templates select="chapter"/>
-    <xsl:apply-templates select="para"/>
-    <xsl:apply-templates select="sect1"/>
-    <xsl:apply-templates select="table"/>
-    <xsl:apply-templates select="orderedlist"/>
+    <xsl:apply-templates select="sect2"/>
+	<xsl:call-template name="sect"/>
  </xsl:template>
+
+<!-- Sect2 -->
+<xsl:template match="sect2">
+    <xsl:apply-templates select="title"/>
+    <xsl:apply-templates select="sect3"/>
+	<xsl:call-template name="sect"/>
+ </xsl:template>
+
+<!-- Sect3 -->
+<xsl:template match="sect3">
+    <xsl:apply-templates select="title"/>
+    <xsl:apply-templates select="sect4"/>
+	<xsl:call-template name="sect"/>
+ </xsl:template>
+
+<!-- Sect4 -->
+<xsl:template match="sect3">
+    <xsl:apply-templates select="title"/>
+    <xsl:apply-templates select="sect5"/>
+	<xsl:call-template name="sect"/>
+ </xsl:template>
+
+<!-- Sect5 -->
+<xsl:template match="sect3">
+    <xsl:apply-templates select="title"/>
+	<xsl:call-template name="sect"/>
+ </xsl:template>
+
+<xsl:template name="sect">
+    <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
+    <xsl:apply-templates select="para//tbody"/>
+    <xsl:apply-templates select="para//table"/>
+    <xsl:apply-templates select="para//informaltable"/>
+    <xsl:apply-templates select="table"/>
+    <xsl:apply-templates select="para//orderedlist"/>
+    <xsl:apply-templates select="para//itemizedlist"/>
+</xsl:template>
 
 <!-- Title -->
 <xsl:template match="title">
@@ -190,9 +230,11 @@ Find the book element, which then is converted to the "document" tag
 <!-- Emphasis -->
 <xsl:template match="emphasis">
     <xsl:element name="em">
-        <xsl:attribute name="type">
+			<xsl:if test="@role">
+            <xsl:attribute name="type">
             <xsl:value-of select="@role"/>
-        </xsl:attribute>
+            </xsl:attribute>
+			</xsl:if>
         <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
@@ -202,6 +244,7 @@ Find the book element, which then is converted to the "document" tag
 </xsl:template>
 
 <!-- Table -->
+
 <xsl:template match="tbody">
     <xsl:element name="table">
         <xsl:apply-templates select="row" />
@@ -214,7 +257,20 @@ Find the book element, which then is converted to the "document" tag
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="entry">
+<xsl:template match="row/entry">
+    <xsl:element name="p">
+        <xsl:attribute name="type">tablecell</xsl:attribute>
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="tr">
+    <xsl:element name="row">
+        <xsl:apply-templates select="td" />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="td">
     <xsl:element name="p">
         <xsl:attribute name="type">tablecell</xsl:attribute>
         <xsl:apply-templates />
