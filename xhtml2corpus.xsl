@@ -5,7 +5,6 @@
                 xmlns:html="http://www.w3.org/1999/xhtml" 
                 xmlns:saxon="http://icl.com/saxon"
                 exclude-result-prefixes="xsl fo html saxon">
-
 <!--$Revision$ -->
 
 <!-- 
@@ -14,6 +13,8 @@ Usage: ~/Desktop/bin/tidy - -quote-nbsp no - -add-xml-decl yes
 						file.html | 
 xsltproc xhtml2corpus.xsl - > file.xml
 -->
+
+<xsl:strip-space elements="*"/>
 
 <xsl:output method="xml"
 		   version="1.0"
@@ -40,8 +41,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
  </header>
 </xsl:template>
 
-<!-- This template converts each HTML file encountered.
-     For a title, it selects the first h1 element -->
+
+<!--     For a title, it selects the first h1 element -->
 <xsl:template match="html:body">
  <body>
   <p type="title">
@@ -49,7 +50,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
    						|.//html:h2[1]
    						|.//html:h3[1]"/>
   </p>
-
   <xsl:apply-templates />
  </body>
 </xsl:template>
@@ -74,9 +74,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 
 <xsl:template match="html:p">
-<xsl:if test="string-length(normalize-space(.)) > 1"> 
+<xsl:if test="string-length(normalize-space(.)) > 1">
 <xsl:choose>
-<xsl:when test="ancestor::i|ancestor::u|ancestor::b|ancestor::p">
+<xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p">
   <xsl:apply-templates />
 </xsl:when>
 <xsl:otherwise>
@@ -150,13 +150,15 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- inline formatting -->
 <xsl:template match="html:b">
 <xsl:choose>
-<xsl:when test="ancestor::b|ancestor::i|ancestor::u">
+<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em">
   <xsl:apply-templates/>
 </xsl:when>
-<xsl:when test="not(ancestor::p)">
-<p> <em type="bold"> 
-<xsl:apply-templates/>
-</em> </p>
+<xsl:when test="not(ancestor::html:p)">
+<p>
+ <em type="bold">
+  <xsl:apply-templates/>
+ </em>
+</p>
 </xsl:when>
 <xsl:otherwise>
  <em type="bold">
@@ -166,9 +168,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:i">
+<xsl:template match="html:i|html:em">
 <xsl:choose>
-<xsl:when test="ancestor::b|ancestor::i|ancestor::u">
+<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em">
   <xsl:apply-templates/>
 </xsl:when>
 <xsl:otherwise>
@@ -179,55 +181,43 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:em">
-<xsl:choose>
-<xsl:when test="ancestor::b|ancestor::i|ancestor::u">
-  <xsl:apply-templates/>
-</xsl:when>
-<xsl:otherwise>
- <em type="italic">
-  <xsl:apply-templates/>
- </em>
-</xsl:otherwise>
-</xsl:choose>
-</xsl:template>
-
-<!-- Table conversion -->
-
-<xsl:template match="html:p/html:table">
-  <xsl:apply-templates select="html:table"/>
+<!-- Table formatting -->
+<xsl:template match="html:tbody">
+<xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="html:table">
-<xsl:if test="string-length(normalize-space(descendant::html:td/text())) > 1">
-<xsl:message>in table</xsl:message>
-<table>
-<xsl:apply-templates select="html:tr"/>
-</table>
-<xsl:message>out table</xsl:message>
-</xsl:if>
+<xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:table/html:tr">
-<xsl:if test="string-length(normalize-space(descendant::html:td/text())) > 1">
-<row>
- <p type="tablecell">
-  <xsl:apply-templates select="html:td/text()"/>
- </p>
- </row>
-</xsl:if>
+<xsl:template match="html:td">
+  <xsl:apply-templates/>
 </xsl:template>
 
+<xsl:template match="html:tr">
+<xsl:apply-templates />
+</xsl:template>
+
+<!-- references -->
 <xsl:template match="html:a">
 <xsl:choose>
- <xsl:when test="ancestor::p">
-  <xsl:apply-templates select="text()"/>
+ <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u">
+  <xsl:apply-templates/>
  </xsl:when>
  <xsl:otherwise>
-  <p><xsl:apply-templates select="text()"/></p>
+  <p><xsl:apply-templates/></p>
  </xsl:otherwise>
 </xsl:choose>
 </xsl:template>
+
+<xsl:template match="html:div">
+<xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="html:blockquote">
+<xsl:apply-templates />
+</xsl:template>
+
 
 <xsl:template match="*">
  <xsl:message>No template for <xsl:value-of select="name()"/>
@@ -249,6 +239,5 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:br"/>
 <xsl:template match="html:script"/>
 <xsl:template match="html:img"/>
-<xsl:template match="html:div"/>
 
 </xsl:stylesheet>
