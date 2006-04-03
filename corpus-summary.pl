@@ -83,13 +83,13 @@ sub process_file {
 	(my $relpath = $absfile ) =~ s/$corpdir//;
 	$relpath =~ s/$file//;
 
-	print "$absfile\n";
+#	print "$absfile\n";
 
 	my @levels = split ("/", $relpath);
 	my $root = $levels[1];
 	my $lang = $levels[2];
 	my $genre = $levels[3];
-	print "$lang, $genre";
+#	print "$lang, $genre";
 	my $langgenre = $lang . "/" . $genre;
 
 	$count{$root}{'count'} += 1;
@@ -180,8 +180,10 @@ sub header {
 					}
 
 }
-$lang_elt->print($FH1);
-$lang_elt->DESTROY;
+if($lang_elt){
+	$lang_elt->print($FH1);
+	$lang_elt->DESTROY;
+}
 
 my $count_elt = XML::Twig::Elt->new('count');
 for my $root (keys %count) {
