@@ -211,8 +211,8 @@ sub process_file {
 	copy ($tmp1, $int) ;
 	# Remove temporary file unless testing.
 	if (! $test) {
-		exec_com("rm -rf", $tmp1, $file);
-		exec_com("rm -rf", $tmp3, $file);
+		exec_com("rm -rf $tmp1", $file);
+		exec_com("rm -rf $tmp3", $file);
 	}
 	
 	# hyphenate the file
@@ -234,7 +234,7 @@ sub process_file {
 		  if( $multi_coding ) {
 			  my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode(@_); } });
 			  if (! $document->safe_parsefile ("$int") ) {
-				  print STDERR "$file: ERROR parsing the XML-file failed.\n";
+				  print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
 				  last ENCODING;
 			  }
 			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
@@ -257,7 +257,7 @@ sub process_file {
 					my $document = XML::Twig->new(twig_handlers => {title => sub { call_decode_title(@_); }}
 												  );
 					if (! $document->safe_parsefile ("$int")) {
-						print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
+						print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";		  
 						last PARSE_TITLE;
 					}
 					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
@@ -275,9 +275,7 @@ sub process_file {
 
 		$command = "chmod 0660 \"$int\"";
 		exec_com($command, $file);
-
 	}
-
 
 	if (! $noxsl) {
 		# Execute the file specific .xsl-script.
@@ -293,14 +291,12 @@ sub process_file {
 
 			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
 			exec_com($command, $file);
-
 		}
 
 		$command = "co -q $xsl_file";
 		exec_com($command, $file);
 
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
-
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
 		exec_com($command, $file);
 
@@ -324,23 +320,25 @@ sub process_file {
 			exec_com($command, $file);
 		}
 	}
-	
-#  LANGDETECT: {
-#	  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
-#	  if (! $document->safe_parsefile ("$int")) {
-#		  print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
-#		  last LANGDETECT;
-#	  }
-#	  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-#	  $document->set_pretty_print('record');
-#	  $document->print( \*FH);
-#	}
+
+  LANGDETECT: {
+	  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
+	  if (! $document->safe_parsefile ("$int")) {
+		  print STDERR "Langdetect: $int: ERROR parsing the XML-file failed: $@\n";		  
+		  last LANGDETECT;
+	  }
+	  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+	  $document->set_pretty_print('record');
+	  $document->print( \*FH);
+	  $document->purge;
+	  close(FH);
+	}
 
 	COPYFREE: {
 		# Copy file with free license to gtfree.
 		my $document = XML::Twig->new;
 		if (! $document->safe_parsefile("$int")) {
-			print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
+			print STDERR "Copyfree: $int: ERROR parsing the XML-file failed: $@\n";		  
 			last COPYFREE;
 		}
 		
@@ -421,7 +419,7 @@ sub langdetect {
 	else {
 		# take only a subset of the paragraph
 		my $subtext = substr( $text, 0, $MAXCHAR);
-		$subtext =~ s/\`//g;
+		$subtext =~ s/[\`\"]//g;
 		my $lang = `$text_cat -l -d $lmdir \"$subtext\"`;
 		my $rest;
 		($bestlang, $rest) = split (/ or /, $lang, 2);
@@ -441,8 +439,12 @@ sub langdetect {
 				$bestlang = "sme";
 			}
 		}
+		# Until the langdetect is better, the north sami characters decide.
+		if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
+			$bestlang = "sme";
+		}
 	}
-	if ($bestlang ne $language) {
+	if ($bestlang ne $language && $bestlang ne "fin") {
 		$para->set_att( "xml:lang" => $bestlang );
 	}
 }
