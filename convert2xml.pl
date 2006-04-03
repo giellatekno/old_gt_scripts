@@ -142,9 +142,9 @@ sub process_file {
 	return if (-z $file);
 
     my $orig = File::Spec->rel2abs($file);
-    (my $int = $orig) =~ s/orig/gt/;
+    (my $int = $orig) =~ s/orig/gtbound/;
 	$int =~ s/\.(doc|pdf|html|ptx)$/\.\L$1\.xml/i;
-    (my $intfree = $int) =~ s/\/gt/\/gtfree/;
+    (my $intfree = $int) =~ s/\/gtbound/\/gtfree/;
 
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
