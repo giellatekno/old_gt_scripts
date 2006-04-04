@@ -335,36 +335,37 @@ sub process_file {
 		  close(FH);
 	  }
 	}
-
-	COPYFREE: {
-		# Copy file with free license to gtfree.
-		my $document = XML::Twig->new;
-		if (! $document->safe_parsefile("$int")) {
-			print STDERR "Copyfree: $int: ERROR parsing the XML-file failed: $@\n";		  
-			last COPYFREE;
-		}
-		
-		my $license = "free";
-		my $root = $document->root;
-		my $header = $root->first_child('header');
-		my $avail = $header->first_child('availability');
-		$license = $avail->first_child->local_name;
-
-		if ( $license =~ /free/ ) {
-			copy ($int, $intfree) 
-				or print STDERR "ERROR: copy failed ($int $intfree)\n";
-			$command = "chgrp cvs \"$intfree\"";
-			exec_com($command, $file);
-			
-			$command = "chmod 0664 \"$intfree\"";
-			exec_com($command, $file);
-
-		}
-		else {
-			$command = "rm -rf \"$intfree\"";
-			exec_com($command, $file);
-		}
-		$document->purge;
+	if (! $upload) {
+	  COPYFREE: {
+		  # Copy file with free license to gtfree.
+		  my $document = XML::Twig->new;
+		  if (! $document->safe_parsefile("$int")) {
+			  print STDERR "Copyfree: $int: ERROR parsing the XML-file failed: $@\n";		  
+			  last COPYFREE;
+		  }
+		  
+		  my $license = "free";
+		  my $root = $document->root;
+		  my $header = $root->first_child('header');
+		  my $avail = $header->first_child('availability');
+		  $license = $avail->first_child->local_name;
+		  
+		  if ( $license =~ /free/ ) {
+			  copy ($int, $intfree) 
+				  or print STDERR "ERROR: copy failed ($int $intfree)\n";
+			  $command = "chgrp cvs \"$intfree\"";
+			  exec_com($command, $file);
+			  
+			  $command = "chmod 0664 \"$intfree\"";
+			  exec_com($command, $file);
+			  
+		  }
+		  else {
+			  $command = "rm -rf \"$intfree\"";
+			  exec_com($command, $file);
+		  }
+		  $document->purge;
+	  }
 	}
 
 	# Print log message in case of fatal ERROR
