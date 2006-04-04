@@ -321,17 +321,19 @@ sub process_file {
 		}
 	}
 
-  LANGDETECT: {
-	  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
-	  if (! $document->safe_parsefile ("$int")) {
-		  print STDERR "Langdetect: $int: ERROR parsing the XML-file failed: $@\n";		  
-		  last LANGDETECT;
+	if (! $upload) {
+	  LANGDETECT: {
+		  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
+		  if (! $document->safe_parsefile ("$int")) {
+			  print STDERR "Langdetect: $int: ERROR parsing the XML-file failed: $@\n";		  
+			  last LANGDETECT;
+		  }
+		  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+		  $document->set_pretty_print('record');
+		  $document->print( \*FH);
+		  $document->purge;
+		  close(FH);
 	  }
-	  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-	  $document->set_pretty_print('record');
-	  $document->print( \*FH);
-	  $document->purge;
-	  close(FH);
 	}
 
 	COPYFREE: {
