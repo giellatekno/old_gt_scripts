@@ -101,8 +101,10 @@ utgåve
 ...[N]aar
 10-årige
 16-bits
+1600-talet
 1600-tallet
 16bits
+1960-talet
 1980-talet
 1700-tallet
 1800-tallet
@@ -163,6 +165,7 @@ Bergret
 Beschrifuelse
 Biomangfoldslovutvalget
 Blutader
+Blåsjöns
 Bomændene
 Bredtvet
 Brudstykker
@@ -222,6 +225,7 @@ Etterkrigshistorie
 Etymologinen
 Europatak
 Explanationes
+F.eks
 FABFinmarkens
 FAFinmarkens
 FALKANGER
@@ -286,6 +290,7 @@ Fjeldfinnerne
 Fjeldlapper
 Fjellstyresamband
 Fjordfolket
+Fjäll-
 Fjällog
 Flechte
 Flytlapperne
@@ -349,6 +354,7 @@ Havnegangene
 Hebraerens
 Herreders
 Hjelmsøystayrena
+Hjelpestønad
 Hjemmehavnene
 Holt-Takamine
 Husdyrene
@@ -363,6 +369,7 @@ Imigrants
 Indfjordene
 Indkomne
 Indledning
+Innehållsmässigt
 Innlandsfiske
 Irlbacher
 Ishafvet
@@ -1142,6 +1149,7 @@ historie-
 historieforskningens
 historikerkongres
 hoone
+hospitering
 hotade
 hullunkurinen
 hunde
@@ -1278,6 +1286,7 @@ kuijper
 kulturens
 kulturfaktor
 kulturforskning
+kulturminner
 kulturminneråd
 kulturminnevernavdeling
 kulturogr
@@ -2301,6 +2310,7 @@ riksgränsen
 renbetesdistrikt
 rennäringen
 konventionen
+Beträffande
 Betänkande
 riksgrensen
 vidare
@@ -2763,12 +2773,14 @@ föregående
 folkrättsliga
 folkgrupp
 fattar
+fastlege
 fastslagna
 etablerade
 eara
 därmed
 driftsmönster
 driftsmässiga
+driftsmessige
 domineras
 byarna
 brukeres
@@ -3808,6 +3820,7 @@ by-
 brukermedvirkning
 bristerna
 branta
+boinstitusjoner
 bosättningsområdet
 bosättningsområden
 bosättningen
@@ -3815,6 +3828,7 @@ boarraseamos
 bo-
 bildades
 bidragen
+beiteland
 bevarandet
 bevakningsregler
 betningen
@@ -3830,6 +3844,7 @@ betesmark
 betesavgifter
 betesarealerna
 beslutanderätt
+beslutningsmyndighet
 beskrivas
 berörde
 bergsformer
@@ -3848,6 +3863,8 @@ begränsande
 begrensende
 bebott
 barnevernets
+barneventjenester
+barneventjenesten
 bakgrundsmaterialet
 b.13.06
 avslutats
@@ -3900,6 +3917,7 @@ sameting
 samebygrensen
 same-
 samdriften
+smerter
 rådgivningen
 riksforbund
 riksdelen
@@ -4368,6 +4386,7 @@ storleken
 storfurstendömet
 storfurstendöme
 storfursten
+stimulering
 stipulerades
 stipender
 stiftades
@@ -4831,6 +4850,7 @@ ordförandeskapet
 opåverkade
 oppvekstvilkår
 oppvekstmiljø
+opptjeningstid
 opptreningssenter
 oppsettende
 opprettholdelse
@@ -5249,6 +5269,7 @@ jordart
 ishavskysten
 isförhållanden
 isbark
+istiden
 irritationsmoment
 involverte
 involverade
@@ -5457,6 +5478,7 @@ grensefjellene
 grensedragning
 grensebestemt
 grensebeiteområdene
+grensebeitområder
 granskat
 grannbyar
 godtagit
@@ -5483,8 +5505,11 @@ garanteras
 garanterades
 garanterade
 gagnar
+flerkulturelt
+forventes
 føringer
 før-kristen
+førstelinje
 förändrats
 förvittrar
 förvittra
@@ -6216,6 +6241,7 @@ nyrene
 binyrene
 Reisene
 oksene
+Hedmarks
 Hendelsene
 beskrivelsene
 landegrensene
@@ -6711,6 +6737,7 @@ næringsorganisasjonen
 ILO-konventionen
 ILOkonvensjonen
 Europakonvensjonen
+Europakonventionens
 samekommunen
 hjemkommunen
 funksjonsevnen
@@ -6732,6 +6759,7 @@ sørgrensen
 eiendomsgrensen
 Konkurrensen
 Gränsen
+Gränsområdet
 Sydgränsen
 Områdesgränsen
 bygränsen
@@ -6886,6 +6914,7 @@ Skogsbilveier
 skogsbilveier
 biopsier
 väljer
+Följden
 Följer
 Sker
 Språkleker
