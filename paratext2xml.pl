@@ -218,7 +218,7 @@ while($i < $size && $text_array[$i]) {
 			next;
 		}
 	}
-	print "Line not matched: $line\n";
+	print "paratext2xml.pl: Line not included: $line\n";
 	$i++;
 }
 
