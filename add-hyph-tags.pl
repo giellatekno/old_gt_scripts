@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
-use encoding 'utf-8';
+use encoding 'utf8';
 use open ':utf8';
+
 
 # add_hyph_tags.pl
 #

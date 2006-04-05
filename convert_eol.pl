@@ -6,6 +6,7 @@
 
 use strict;
 use open ':utf8';
+use encoding 'utf8';
 
 my $fdata;
 
