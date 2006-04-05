@@ -243,7 +243,21 @@ Find the book element, which then is converted to the "document" tag
 	<xsl:apply-templates />
 </xsl:template>
 
+<xsl:template match="subscript">
+    <xsl:element name="em">
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="subscript" mode="para">
+	<xsl:apply-templates />
+</xsl:template>
+
 <!-- Table -->
+
+<xsl:template match="informaltable|tgroup|colspec">
+    <xsl:apply-templates />
+</xsl:template>
 
 <xsl:template match="tbody">
     <xsl:element name="table">
@@ -316,5 +330,7 @@ Find the book element, which then is converted to the "document" tag
  <xsl:apply-templates/>
 </xsl:template>
 
+<!-- Ignored elements -->
+<xsl:template match="corpname"/>
 
 </xsl:stylesheet>
