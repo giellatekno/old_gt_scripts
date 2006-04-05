@@ -153,7 +153,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em">
   <xsl:apply-templates/>
 </xsl:when>
-<xsl:when test="not(ancestor::html:p)">
+<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
 <p>
  <em type="bold">
   <xsl:apply-templates/>
@@ -172,6 +172,13 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:choose>
 <xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em">
   <xsl:apply-templates/>
+</xsl:when>
+<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
+<p>
+ <em type="bold">
+  <xsl:apply-templates/>
+ </em>
+</p>
 </xsl:when>
 <xsl:otherwise>
  <em type="italic">
@@ -211,10 +218,21 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="html:div">
+  <xsl:apply-templates/>
+</xsl:template>
+
+<!-- quotations -->
+<xsl:template match="html:blockquote|html:q">
 <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:blockquote">
+<!-- superscripts and subscripts are dropped to text -->
+<xsl:template match="html:big|html:small|html:sub|html:sup">
+<xsl:apply-templates />
+</xsl:template>
+
+<!-- other formatting -->
+<xsl:template match="html:span|html:font">
 <xsl:apply-templates />
 </xsl:template>
 
