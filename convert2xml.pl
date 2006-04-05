@@ -39,6 +39,10 @@ my $corpdir = "/usr/local/share/corp";
 #my $corpdir = "/home/saara/samipdf";
 my $bindir = "/usr/local/share/corp/bin";
 #my $bindir = "/home/saara/gt/script";
+my $gtbound_dir = "gtbound";
+my $gtfree_dir = "gtfree";
+my $orig_dir = "orig";
+
 my $docxsl = $bindir . "/docbook2corpus2.xsl";
 my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
 my $xsltemplate = $bindir . "/XSL-template.xsl";
@@ -142,9 +146,9 @@ sub process_file {
 	return if (-z $file);
 
     my $orig = File::Spec->rel2abs($file);
-    (my $int = $orig) =~ s/orig/gtbound/;
+    (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx)$/\.\L$1\.xml/i;
-    (my $intfree = $int) =~ s/\/gtbound/\/gtfree/;
+    (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
 
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
@@ -207,8 +211,8 @@ sub process_file {
 	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 	my $command = "$convert_eol $int > $tmp1";
 	exec_com($command, $file);
-
 	copy ($tmp1, $int) ;
+
 	# Remove temporary file unless testing.
 	if (! $test) {
 		exec_com("rm -rf $tmp1", $file);
@@ -257,7 +261,7 @@ sub process_file {
 					my $document = XML::Twig->new(twig_handlers => {title => sub { call_decode_title(@_); }}
 												  );
 					if (! $document->safe_parsefile ("$int")) {
-						print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";		  
+						print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";
 						last PARSE_TITLE;
 					}
 					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
@@ -300,10 +304,10 @@ sub process_file {
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
 		exec_com($command, $file);
 
+		my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 		# Validate the xml-file unless web upload.
-
 		if(! $upload) {
-			$command = "xmllint --valid --noout \"$tmp\"";
+			$command = "xmllint --valid --encode UTF-8 --format \"$tmp\" > $tmp4";
 			exec_com($command, $file);
 		}
 		copy ($tmp, $int) 
@@ -322,19 +326,11 @@ sub process_file {
 	}
 
 	if (! $upload) {
-	  LANGDETECT: {
-		  my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
-		  if (! $document->safe_parsefile ("$int")) {
-			  print STDERR "Langdetect: $int: ERROR parsing the XML-file failed: $@\n";		  
-			  last LANGDETECT;
-		  }
-		  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-		  $document->set_pretty_print('record');
-		  $document->print( \*FH);
-		  $document->purge;
-		  close(FH);
-	  }
+		my $lmdir = $bindir . "/LM";
+		my $command = "$text_cat -l -d $lmdir $int";
+		exec_com($command, $file);
 	}
+
 	if (! $upload) {
 	  COPYFREE: {
 		  # Copy file with free license to gtfree.
@@ -372,7 +368,9 @@ sub process_file {
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
-			print "See file $log_file: $_\n" if (/ERROR/ && /$file/);
+			if ($_ =~ /ERROR/ && $_ =~ /$file/ && $_ !~ /tidy/) {
+				print "See file $log_file: $_\n" 
+				}
 		}
 	}
 }
@@ -382,8 +380,7 @@ sub exec_com {
 
 	print STDERR "$com\n";
 	system($com) == 0 
-		or print STDERR "$file: ERROR errors in $com. \n";
-	
+			or print STDERR "$file: ERROR errors in $com. \n";
 }
 
 
@@ -404,52 +401,6 @@ sub call_decode_title {
 	my $text = $title->text;
 	&decode_title($language, \$text);
 	$title->set_text($text);
-}
-
-sub langdetect {
-	my ( $twig, $para, $language ) = @_;
-
-	my $MINCHAR = 20;
-	my $MAXCHAR = 100;
-	my $lmdir = $bindir . "/LM";
-	my $bestlang="";
-
-	my $text = $para->text;
-	my $count = length($text);
-	if ($count < $MINCHAR) {
-		$bestlang = $language;
-	}
-	else {
-		# take only a subset of the paragraph
-		my $subtext = substr( $text, 0, $MAXCHAR);
-		$subtext =~ s/[\`\"]//g;
-		my $lang = `$text_cat -l -d $lmdir \"$subtext\"`;
-		my $rest;
-		($bestlang, $rest) = split (/ or /, $lang, 2);
-		$bestlang =~ s/\n//;
-		# Heuristics for deciding between different sami languges.
-		# The default language is selected if none of the distinctive 
-		# chars is found from the text.
-		if ($bestlang =~/sm[aej]/) {
-			$bestlang = $language;
-			if ($text =~ /[áÁåÅäÄ]+/) {
-				$bestlang = "smj";
-			}
-			if ($text =~ /[öÖï]+/) {
-				$bestlang = "sma";
-			}
-			if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
-				$bestlang = "sme";
-			}
-		}
-		# Until the langdetect is better, the north sami characters decide.
-		if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
-			$bestlang = "sme";
-		}
-	}
-	if ($bestlang ne $language && $bestlang ne "fin") {
-		$para->set_att( "xml:lang" => $bestlang );
-	}
 }
 
 sub pdfclean {
