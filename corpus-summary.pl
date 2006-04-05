@@ -49,7 +49,7 @@ my $file_elt;
 my $size;
 
 # The xml specifications, name of dtd-file and root node.
-print $FH1 qq|<?xml version='1.1'  encoding="UTF-8"?>|;
+print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 #print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
 #print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
 print $FH1 qq|\n<summary>|;
