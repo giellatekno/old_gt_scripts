@@ -15,7 +15,7 @@ for lang in "sme" "smj" "sma"
 do
 		cd /usr/tmp/gt/ && make TARGET=$lang
 
-		cp /usr/tmp/gt/sme/bin/$lang.fst /opt/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/$lang.fst /opt/smi/$lang/bin/
 		cp /usr/tmp/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
 		cp /usr/tmp/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
 		cp /usr/tmp/gt/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
