@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# � Gertjan van Noord, 1997.
+# © Gertjan van Noord, 1997.
 # mailto:vannoord@let.rug.nl
 
 use strict;
@@ -8,6 +8,7 @@ use Getopt::Std;
 use Benchmark;
 use encoding 'utf-8';
 use open ':utf8';
+use XML::Twig;
 
 my $non_word_characters='0-9\s';
 
@@ -84,7 +85,8 @@ if ($opt_n) {
     my @result = create_lm(input(),\%ngram);
     print join("\n",map { "$_\t $ngram{$_}" ; } @result),"\n";
 } elsif ($opt_l) {
-    classify($ARGV[0]);
+#    classify($ARGV[0]);
+    read_xml($ARGV[0], $ARGV[1]);
 } elsif ($opt_s) {
     while (<>) {
 	chomp;
@@ -94,9 +96,75 @@ if ($opt_n) {
     classify(input()); 
 }
 
+sub read_xml {
+	my $file = shift @_;
+
+	my $language = "sme";
+
+	my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
+	if (! $document->safe_parsefile ("$file")) {
+		die "Langdetect: ERROR parsing the XML-file failed: $@\n";		  
+		last LANGDETECT;
+	}
+	open (FH, ">$file") or die "ERROR cannot open file $!";
+	$document->set_pretty_print('record');
+	$document->print( \*FH);
+	$document->purge;
+	close(FH);
+}
+
+sub langdetect {
+	my ( $twig, $para, $language ) = @_;
+
+	my $MINCHAR = 20;
+	my $MAXCHAR = 100;
+	my $bestlang="";
+
+	my $text = $para->text;
+	my $count = length($text);
+	if ($count < $MINCHAR) {
+		$bestlang = $language;
+	}
+	else {
+		# take only a subset of the paragraph
+		my $subtext = substr( $text, 0, $MAXCHAR);
+
+		my $lang = classify($subtext);
+
+		my $rest;
+		($bestlang, $rest) = split (/ or /, $lang, 2);
+		$bestlang =~ s/\n//;
+		# Heuristics for deciding between different sami languges.
+		# The default language is selected if none of the distinctive 
+		# chars is found from the text.
+		if ($bestlang =~/sm[aej]/) {
+			$bestlang = $language;
+			if ($text =~ /[áÁåÅäÄ]+/) {
+				$bestlang = "smj";
+			}
+			if ($text =~ /[öÖï]+/) {
+				$bestlang = "sma";
+			}
+			if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
+				$bestlang = "sme";
+			}
+		}
+		# Until the langdetect is better, the north sami characters decide.
+		if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
+			$bestlang = "sme";
+		}
+	}
+
+	if ($bestlang ne $language && $bestlang ne "fin") {
+		$para->set_att( "xml:lang" => $bestlang );
+	}
+}
+
+
 # CLASSIFICATION
 sub classify {
   my ($input)=@_;
+
   my %results=();
   my $maxp = $opt_t;
   # open directory to find which languages are supported
@@ -149,7 +217,8 @@ sub classify {
       ".\n" if $opt_v;
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
   
-  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
+#  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
+  return join("\n",map { "$_\t $results{$_}"; } @results) if $opt_v;
   my $a = $results{$results[0]};
   
   my @answers=(shift(@results));
@@ -160,7 +229,8 @@ sub classify {
     print "I don't know; " .
       "Perhaps this is a language I haven't seen before?\n";
   } else {
-    print join(" or ", @answers), "\n";
+#    print join(" or ", @answers), "\n";
+    return join(" or ", @answers);
   }
 }
 
