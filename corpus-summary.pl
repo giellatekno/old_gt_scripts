@@ -21,12 +21,12 @@ my $corpdir = "/usr/local/share/corp";
 my $dir;
 my $language;
 my $help;
-my $outfile="summary.xml"; 
+my $outdir ="";
 
 GetOptions ("dir=s" => \$dir,
 			"corpdir=s" => \$corpdir,
 			"lang=s" => \$language,
-			"out=s" => \$outfile,
+			"outdir=s" => \$outdir,
 			"help" => \$help);
 
 if ($help) {
@@ -34,10 +34,17 @@ if ($help) {
 	exit 1;
 }
 
+my $time = `date +%F`;
+chomp $time;
+my $outfile = $outdir . "corpus-summary.xml"; 
+my $outfile_count = $outdir . "corpus-summary-" . $time . ".xml";
 
 # Open file for printing out the summary.
 my $FH1;
 open($FH1,  ">$outfile");
+
+my $FH2;
+open($FH2,  ">$outfile_count");
 
 my $out_twig = XML::Twig->new();
 $out_twig->set_pretty_print('record');
@@ -50,9 +57,14 @@ my $size;
 
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
-#print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
-#print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
+#print $FH1 qq|<!DOCTYPE summary PUBLIC "-//DIVVUN//DTD Corpus Summary V1.0//EN" |;
+#print $FH1 qq|"/home/saara/gt/dtd/corpus-summary.dtd">|;
 print $FH1 qq|\n<summary>|;
+
+# The xml specifications, name of dtd-file and root node.
+print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+#print $FH2 qq|<!DOCTYPE count PUBLIC "-//DIVVUN//DTD Corpus Summary Count V1.0//EN" |;
+#print $FH2 qq|"/home/saara/gt/dtd/corpus-summary-count.dtd">|;
 
 
 if ($language) { $dir = $corpdir . "/$language"; }
@@ -185,6 +197,10 @@ if($lang_elt){
 	$lang_elt->DESTROY;
 }
 
+print $FH1 qq|\n</summary>|;
+close $FH1;
+
+# Print count
 my $count_elt = XML::Twig::Elt->new('count');
 for my $root (keys %count) {
 	my $relt = XML::Twig::Elt->new('total');
@@ -208,12 +224,9 @@ for my $root (keys %count) {
 	$relt->paste('last_child', $count_elt);
 }
 
-$count_elt->print($FH1);
+$count_elt->print($FH2);
 $count_elt->DESTROY;
-
-print $FH1 qq|\n</summary>|;
-close $FH1;
-
+close $FH2;
 
 sub print_help {
 	print"Usage: corpus-summary.pl [OPTIONS] [FILE]\n";
