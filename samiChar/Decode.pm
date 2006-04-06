@@ -26,7 +26,7 @@ our %Char_Files = (
                  "iso_ir_197" => "iso_ir_197.txt",
                  "samimac_roman" => "samimac_roman.txt",
                  "levi_winsam" => "levi_CP1258.txt",
-                 "utf8_utf8" => "utf8_utf8.txt",
+#                 "utf8_utf8" => "utf8_utf8.txt",
                  "8859-4" => "8859-4.txt",
 #                 "8859-2" => "8859-2.txt",
 		   );
