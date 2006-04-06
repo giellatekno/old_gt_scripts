@@ -250,7 +250,8 @@ sub process_file {
 			  if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
 			  else { 
 				  print STDERR "Character decoding: $coding\n";
-				  &decode_file($int, $coding, $int);
+				  my $error = &decode_file($int, $coding, $int);
+				  if ($error){ print STDERR $error; }
 			  }
 
 			  # Document title is generally wrongly encoded, check that separately.
@@ -304,10 +305,9 @@ sub process_file {
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
 		exec_com($command, $file);
 
-		my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 		# Validate the xml-file unless web upload.
 		if(! $upload) {
-			$command = "xmllint --valid --encode UTF-8 --format \"$tmp\" > $tmp4";
+			$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
 			exec_com($command, $file);
 		}
 		copy ($tmp, $int) 
