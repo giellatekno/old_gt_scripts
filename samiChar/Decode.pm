@@ -205,6 +205,7 @@ sub decode_para (){
 		}
 	}
 	$$para_ref = pack("U*", @unpacked);
+	return 0;
 }
 
 sub decode_title (){
@@ -219,6 +220,7 @@ sub decode_title (){
 		}
 	}
 	$$para_ref = pack("U*", @unpacked);
+	return 0;
 }
 
 sub decode_file (){
@@ -228,10 +230,10 @@ sub decode_file (){
 		$outfile = $file . ".out";
 	}
 	
-    if ($encoding eq $NO_ENCODING) { return; }
+    if ($encoding eq $NO_ENCODING) { return 0; }
 	
     if (! $encoding || !$Char_Files{$encoding}) {
-		die "convert_file: Encoding is not specified or encoding $encoding is not supported: $!\n";
+		return "convert_file: Encoding is not specified or encoding $encoding is not supported: $!\n";
     }
 	
 	if($Test) {
@@ -252,16 +254,17 @@ sub decode_file (){
 		$line = pack("U*", @unpacked);
 	}
 	
-    open (FH, ">$outfile") or die "Cannot open file $outfile: $!";
+    open (FH, ">$outfile") or return "Cannot open file $outfile: $!";
     print(FH @text_array); 
     close (FH);
+	return 0;
 }
 
 sub read_file {
     my $file = shift @_;
     my @text_array;
 
-    open (FH, $file) or die "Cannot open file $file: $!";
+    open (FH, $file) or return "Cannot open file $file: $!";
     while (<FH>) {
 	push (@text_array, $_);
     }
@@ -275,6 +278,7 @@ sub read_char_tables {
 		my $file = $Char_Files{$encoding};
 		$Char_Tables{$encoding} = { read_char_table($file) };
 	}
+	return 0;
 }
 
 
