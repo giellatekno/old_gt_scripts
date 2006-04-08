@@ -42,6 +42,8 @@ my $bindir = "/usr/local/share/corp/bin";
 my $gtbound_dir = "gtbound";
 my $gtfree_dir = "gtfree";
 my $orig_dir = "orig";
+my $gt_gid = 503; # group: cvs
+my $orig_gid = 50779; #group: corpus
 
 my $docxsl = $bindir . "/docbook2corpus2.xsl";
 my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
@@ -116,8 +118,8 @@ if (! $nolog) {
 	$log_file = $tmpdir . "/" . $time . ".log";
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	if (! $upload) {
-		$command = "chgrp corpus \"$log_file\"";
-		exec_com($command, $log_file);
+		my $cnt = chown -1, $orig_gid, $log_file;	
+		if ($cnt == 0) { print "ERROR: chgrp failed for $log_file.\n"};
 	}
 }
 
@@ -140,7 +142,7 @@ sub process_file {
 
 	# Search with find gives some unwanted files which are silently
 	# returned here.
-    return unless ($file =~ m/\.(doc|pdf|html|ptx)$/);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx)$/);
     return if ($file =~ /[\~]$/);
     return if (__FILE__ =~ $file);
 	return if (-z $file);
@@ -152,6 +154,12 @@ sub process_file {
 
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
+
+	if(! -w $int) {
+		print "$file: ERROR: permission denied to $int. STOP.\n";
+		print STDERR "$file: ERROR: permission denied to $int. STOP.\n";
+		return;
+	}
 	
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	IO::File->new($int, O_RDWR|O_CREAT) 
@@ -275,11 +283,9 @@ sub process_file {
 	  }
   } # ENCODING
 	if(! $upload) {
-		$command = "chgrp cvs \"$int\"";
-		exec_com($command, $file);
-
-		$command = "chmod 0660 \"$int\"";
-		exec_com($command, $file);
+		my $cnt = chown -1, $gt_gid, $int;
+		if ($cnt == 0) { print "$file: ERROR: chgrp failed for $int.\n"};
+		chmod 0660, $int;
 	}
 
 	if (! $noxsl) {
@@ -291,8 +297,8 @@ sub process_file {
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 
-			$command = "chgrp corpus \"$xsl_file\" ";
-			exec_com($command, $file);
+			my $cnt = chown -1, $orig_gid, $xsl_file;
+			if ($cnt == 0) { print "$file: ERROR: chgrp failed for $xsl_file.\n"};
 
 			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
 			exec_com($command, $file);
@@ -323,6 +329,10 @@ sub process_file {
 			$command = "rm -rf \"$xsl_file\" ";
 			exec_com($command, $file);
 		}
+		else {
+			$command = "ci -t-\"xsl-script commit by convert2xml.pl\" -q \"$xsl_file\" \"$xsl_vfile\" ";
+			exec_com($command, $file);
+		}
 	}
 
 	if (! $upload) {
@@ -347,13 +357,17 @@ sub process_file {
 		  $license = $avail->first_child->local_name;
 		  
 		  if ( $license =~ /free/ ) {
+			  if(! -w $intfree) {
+				  print STDERR "$file: ERROR permission denied $intfree.\n Permission denied.\n";
+				  last COPYFREE;
+			  }
 			  copy ($int, $intfree) 
 				  or print STDERR "ERROR: copy failed ($int $intfree)\n";
-			  $command = "chgrp cvs \"$intfree\"";
-			  exec_com($command, $file);
-			  
-			  $command = "chmod 0664 \"$intfree\"";
-			  exec_com($command, $file);
+
+			  my $cnt = chown -1, $gt_gid, $intfree;
+			  if ($cnt == 0) { print "$file: ERROR: chgrp failed for $intfree.\n"};
+
+			  chmod 0664, $intfree;
 			  
 		  }
 		  else {
@@ -361,7 +375,7 @@ sub process_file {
 			  exec_com($command, $file);
 		  }
 		  $document->purge;
-	  }
+	  } # COPYFREE
 	}
 
 	# Print log message in case of fatal ERROR
