@@ -284,7 +284,7 @@ sub process_file {
   } # ENCODING
 	if(! $upload) {
 		my $cnt = chown -1, $gt_gid, $int;
-		if ($cnt == 0) { print "$file: ERROR: chgrp failed for $int.\n"};
+		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
 		chmod 0660, $int;
 	}
 
@@ -298,7 +298,7 @@ sub process_file {
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 
 			my $cnt = chown -1, $orig_gid, $xsl_file;
-			if ($cnt == 0) { print "$file: ERROR: chgrp failed for $xsl_file.\n"};
+			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
 
 			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
 			exec_com($command, $file);
@@ -365,7 +365,7 @@ sub process_file {
 				  or print STDERR "ERROR: copy failed ($int $intfree)\n";
 
 			  my $cnt = chown -1, $gt_gid, $intfree;
-			  if ($cnt == 0) { print "$file: ERROR: chgrp failed for $intfree.\n"};
+			  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $intfree.\n"};
 
 			  chmod 0664, $intfree;
 			  
@@ -382,7 +382,7 @@ sub process_file {
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
-			if ($_ =~ /ERROR/ && $_ =~ /$file/ && $_ !~ /tidy/) {
+			if ($_ =~ /ERROR/ && $_ =~ /$file/ && $_ !~ /tidy/ && $_ !~ /chgrp/ ) {
 				print "See file $log_file: $_\n" 
 				}
 		}
@@ -392,7 +392,7 @@ sub process_file {
 sub exec_com {
 	my ($com, $file) = @_;
 
-	print STDERR "$com\n";
+#	print STDERR "$com\n";
 	system($com) == 0 
 			or print STDERR "$file: ERROR errors in $com. \n";
 }
