@@ -155,7 +155,7 @@ sub process_file {
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
 
-	if(! -w $int) {
+	if(-f $int && ! -w $int) {
 		print "$file: ERROR: permission denied to $int. STOP.\n";
 		print STDERR "$file: ERROR: permission denied to $int. STOP.\n";
 		return;
@@ -357,8 +357,8 @@ sub process_file {
 		  $license = $avail->first_child->local_name;
 		  
 		  if ( $license =~ /free/ ) {
-			  if(! -w $intfree) {
-				  print STDERR "$file: ERROR permission denied $intfree.\n Permission denied.\n";
+			  if(-f $intfree && ! -w $intfree) {
+				  print STDERR "$file: ERROR permission denied $intfree.\n";
 				  last COPYFREE;
 			  }
 			  copy ($int, $intfree) 
