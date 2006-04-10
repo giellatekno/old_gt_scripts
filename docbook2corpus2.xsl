@@ -228,7 +228,7 @@ Find the book element, which then is converted to the "document" tag
 
 
 <!-- Emphasis -->
-<xsl:template match="emphasis">
+<xsl:template match="emphasis|em">
     <xsl:element name="em">
 			<xsl:if test="@role">
             <xsl:attribute name="type">
@@ -239,17 +239,7 @@ Find the book element, which then is converted to the "document" tag
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="emphasis" mode="para">
-	<xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="subscript">
-    <xsl:element name="em">
-        <xsl:apply-templates />
-    </xsl:element>
-</xsl:template>
-
-<xsl:template match="subscript" mode="para">
+<xsl:template match="emphasis|em" mode="para">
 	<xsl:apply-templates />
 </xsl:template>
 
@@ -332,5 +322,7 @@ Find the book element, which then is converted to the "document" tag
 
 <!-- Ignored elements -->
 <xsl:template match="corpname"/>
+<xsl:template match="subscript|superscript"/>
+<xsl:template match="beginpage"/>
 
 </xsl:stylesheet>
