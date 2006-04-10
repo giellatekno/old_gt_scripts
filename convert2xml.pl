@@ -194,10 +194,15 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		my $html = $tmpdir . "/" . $file . ".tmp";
+		my $html = $tmpdir . "/" . $file . ".tmp3";
 		$command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
 		exec_com($command, $file);
 
+		# If there were severe errors in pdftotext, the html file is not created.
+		if(! -f $html) {
+			print "$file: no pdftotext output. STOP.\n";
+			return;			
+		}
 		&pdfclean($html);
 		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
 		exec_com($command, $file);
@@ -213,6 +218,12 @@ sub process_file {
 	if ($file =~ /\.ptx$/) {
 		$command = "$paratext2xml $orig --out=$int";
 		exec_com($command, $file);
+	}
+
+	if(! -f $int || -z $int ) {
+		print "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\nSee $log_file for details.\n";
+		print STDERR "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\n";
+		return;
 	}
 
 	# end of line conversion.
@@ -392,7 +403,9 @@ sub process_file {
 sub exec_com {
 	my ($com, $file) = @_;
 
-#	print STDERR "$com\n";
+	if ($test) {
+		print STDERR "$com\n";
+	}
 	system($com) == 0 
 			or print STDERR "$file: ERROR errors in $com. \n";
 }
