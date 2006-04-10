@@ -3,7 +3,7 @@
 # mailto:vannoord@let.rug.nl
 
 use strict;
-use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a);
+use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x);
 use Getopt::Std;
 use Benchmark;
 use encoding 'utf-8';
@@ -13,7 +13,7 @@ use XML::Twig;
 my $non_word_characters='0-9\s';
 
 # OPTIONS
-getopts('a:d:f:hi:lnst:u:v');
+getopts('a:d:f:hi:lnst:u:v:x');
 
 # defaults: set $opt_X unless already defined (Perl Cookbook p. 6):
 $opt_a ||= 10;
@@ -36,7 +36,7 @@ $0 -h
 
 * for guessing: 
 
-$0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v]
+$0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File]
 
     -a    the program returns the best-scoring language together
           with all languages which are $opt_u times worse (cf option -u). 
@@ -58,6 +58,8 @@ $0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v]
           Cannot be used in combination with -n.
     -s    Determine language of each line of input. Not very efficient yet,
           because language models are re-loaded after each line.
+    -x    The input is given as xml (corpus.dtd) and output is written to 
+	      the same file.
     -t    indicates the topmost number of ngrams that should be used. 
           If used in combination with -n this determines the size of the 
           output. If used with categorization this determines
@@ -85,7 +87,8 @@ if ($opt_n) {
     my @result = create_lm(input(),\%ngram);
     print join("\n",map { "$_\t $ngram{$_}" ; } @result),"\n";
 } elsif ($opt_l) {
-#    classify($ARGV[0]);
+    classify($ARGV[0]);
+} elsif ($opt_x) {
     read_xml($ARGV[0], $ARGV[1]);
 } elsif ($opt_s) {
     while (<>) {
@@ -216,9 +219,12 @@ sub classify {
     timestr(timediff(new Benchmark, $t1)) . 
       ".\n" if $opt_v;
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
-  
-#  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
-  return join("\n",map { "$_\t $results{$_}"; } @results) if $opt_v;
+
+  if ($opt_x) { 
+	  return join("\n",map { "$_\t $results{$_}"; } @results) if $opt_v;
+  } else {
+	  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
+  }
   my $a = $results{$results[0]};
   
   my @answers=(shift(@results));
@@ -229,8 +235,8 @@ sub classify {
     print "I don't know; " .
       "Perhaps this is a language I haven't seen before?\n";
   } else {
-#    print join(" or ", @answers), "\n";
-    return join(" or ", @answers);
+	  if($opt_x) { return join(" or ", @answers); }
+	  else { print join(" or ", @answers), "\n"; }
   }
 }
 
