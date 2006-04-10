@@ -22,6 +22,7 @@ corproot="/Users/hoavda/Public/corp"
 
 #gadir=/Users/saara/tmp/ga
 gadir="$corproot/ga"
+gt="gtbound"
 
 umask=0112
 
@@ -30,7 +31,7 @@ copy_gt ()
 {
     for lang in "$@"
       do 
-      scp -r saara@cochise.uit.no:/usr/local/share/corp/gt/$lang /Users/hoavda/Public/corp/gt
+      scp -r saara@cochise.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
     done
     return 0
 }
@@ -48,7 +49,7 @@ analyze_gt ()
       
       mkdir -p $gadir/$lang
       echo "processing language $lang..."
-      directories=`find $corproot/gt/$lang -maxdepth 1 -mindepth 1 -type d`
+      directories=`find $corproot/$gt/$lang -maxdepth 1 -mindepth 1 -type d`
       i=0
       for dir in $directories
 	do
@@ -89,8 +90,8 @@ process ()
     lang="$1"
     dir="$2"
     echo "processing $lang directory $dir"
-    echo "/usr/local/bin/ccat -r $corproot/gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed"
-    /usr/local/bin/ccat -r $corproot/gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
+    echo "/usr/local/bin/ccat -r $corproot/$gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed"
+    /usr/local/bin/ccat -r $corproot/$gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/src/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
     
     return 0
 }
