@@ -134,7 +134,6 @@ void ProcessFile(const char *pFile)
     // Create parse object
     TagParser parse(&in,true,false);
     
-    cout << sLang << endl;
     
     while (parse.GetNextToken())
     {
@@ -156,8 +155,8 @@ void ProcessWord (TagParser &parse)
 
 // Commented out the test for language, since the language is
 // still missing or incorrect in many corpus files. -- sh
-//   if ((bDocLang && bElementLang) &&
-   if   ((bPrintPara && bInPara)   ||
+   if (( bElementLang) &&
+	   (bPrintPara && bInPara)   ||
        (bPrintTitle && bInTitle) ||
        (bPrintList && bInList)   ||
        (bPrintTable && bInTable))
@@ -169,12 +168,19 @@ void ProcessWord (TagParser &parse)
 
 void ProcessTag (TagParser &parse)
 {
-    if (parse.Value() == "p")
+  if (parse.Value() == "document")
+    {
+	  bDocLang = parse.sGetValue("xml:lang") == sLang ? true : false;
+    }
+  else if (parse.Value() == "p")
     {
 //        list<TagAttribute*> &attr = parse.GetAttribs();
 //        for (list<TagAttribute*>::const_iterator i = attr.begin(); i != attr.end(), ++i)
 //        {
             bElementLang = parse.sGetValue("xml:lang") == sLang ? true : false;
+			if( bDocLang ) {
+			  bElementLang = parse.sGetValue("xml:lang") == "" ? true : false;
+			}
             bInPara = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "" ? true : false;
             bInTitle = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "title" ? true : false;
             bInList = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "listitem" ? true : false;
@@ -186,12 +192,7 @@ void ProcessTag (TagParser &parse)
             cout << "¶\n";
             bPrintEndTag = false;
         }
-    }
-    
-    else if (parse.Value() == "document")
-    {
-        bDocLang = parse.sGetValue("xml:lang") == sLang ? true : false;
-    }
+    }  
 }
 
 void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
