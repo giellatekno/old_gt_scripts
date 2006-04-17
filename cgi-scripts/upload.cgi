@@ -4,6 +4,7 @@ use strict;
 
 # Importing CGI libraries
 use CGI;
+use CGI::Upload;
 $CGI::DISABLE_UPLOADS = 0;
 $CGI::POST_MAX        = 1_024 * 1_024; # limit posts to 1 meg max
 
@@ -13,6 +14,7 @@ use CGI::Alert 'saara';
 # Show custom text to remote viewer
 CGI::Alert::custom_browser_text << '-END-';
 <h1>Error in uploading the file.</h1>
+<p>[MSG]</p>
 <p>Our maintainers have been informed.</p>
 <p>Send feedback and questions to <a href="mailto:corpus@giellatekno.uit.no?subject=Feedback%C2%A0upload.cgi">corpus@giellatekno.uit.no</mail></p>
 <p><a href="http://www.divvun.no/upload/upload-corpus-file.html">Upload more files</a> </p>
@@ -21,6 +23,13 @@ CGI::Alert::custom_browser_text << '-END-';
 
 # File copying and xml-processing
 use XML::Twig;
+
+# Allowed mime-headers.
+# http://www.iana.org/assignments/media-types/
+my %mime_types = ( "text/html" => 1,
+				   "application/msword" => 1,
+				   "application/pdf" => 1,
+				   "text/plain" => 1 );
 
 my $query = new CGI;
 
@@ -41,14 +50,20 @@ delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 my $license_type = $query->param("license_type");
 my $mainlang = $query->param("mainlang");
 
-# Getting the filename and parsing the path away
-my $filename = $query->param("document");
+# Getting the filename and contet type check.
+my $upload = CGI::Upload->new({ query => $query });
+my $filename = $upload->file_name('document');
 if (! $filename ) { die "No file was selected for upload.\n" }
-$filename =~ s/.*[\/\\](.*)/$1/;
+my $filetype = $upload->mime_type('document');
+if (! $mime_types{$filetype}) { die "Upload only msword, pdf and html-files.\n" }
 
+# Parsing the path away
+$filename =~ s/.*[\/\\](.*)/$1/;
 # Replace space with underscore - c = complement the search list
 my $fname = $filename;
 $fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
+# change windows-type htm -extension to html.
+$fname =~ tr/\.htm/\.html/c;
 
 # Generate a new file name 
 # if there exists a file with the same name.
