@@ -20,6 +20,7 @@ bool bPrintList = false;
 bool bPrintTable = false;
 
 char sLang[4];
+static string const version = "$Revision$";
 
 void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
@@ -27,6 +28,8 @@ void ProcessWord (TagParser &parse);
 void ProcessTag (TagParser &parse);
 void DumpTag (int Spaces, TagParser &parse, bool bEofLine = true);
 void print_help();
+//const string& Version() const;
+void print_version();
 
 using namespace std;
 
@@ -87,12 +90,18 @@ main (int argc, char *argv[])
             return 0;
         }
         
+        else if (strcmp(argv[i], "-v") == 0) {
+            print_version();
+            return 0;
+        }
+        
         else {
             cout << "\nOption " << argv [i] << " is not supported.\n";
             print_help();
             return 0;
         }
     }
+    
     return 0;
 }
 
@@ -192,7 +201,7 @@ void ProcessTag (TagParser &parse)
             cout << "¶\n";
             bPrintEndTag = false;
         }
-    }  
+    }
 }
 
 void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
@@ -238,13 +247,26 @@ void print_help()
 
 // Commented out the language option so far --sh
 //    cout << "\t-l <lang>\tProcess elements in language <lang>.\n";
-    cout << "\t-a\t\tPrint all text elements.\n";
-    cout << "\t-p\t\tPrint plain paragraphs. (default)\n";
-    cout << "\t-T\t\tPrint paragraphs with title type.\n";
-    cout << "\t-L\t\tPrint paragraphs with list type.\n";
-    cout << "\t-t\t\tPrint paragraphs with table type.\n";
-    cout << "\t-r <dir>\tRecursively process directory dir and subdirs encountered.\n";
-    cout << "\t-h\t\tPrint this help message.\n";
+    cout << "\t-a\t Print all text elements.\n";
+    cout << "\t-p\t Print plain paragraphs. (default)\n";
+    cout << "\t-T\t Print paragraphs with title type.\n";
+    cout << "\t-L\t Print paragraphs with list type.\n";
+    cout << "\t-t\t Print paragraphs with table type.\n";
+    cout << "\t-r <dir> Recursively process directory dir and subdirs encountered.\n";
+    cout << "\t-h\t Print this help message.\n";
 
     cout << endl;
+}
+
+/*
+const string& Version() const
+{
+    static string const my_version = "$Revision$";
+    return my_version;
+}
+*/
+
+void print_version()
+{
+    cout << "ccat version " << version << endl;
 }
