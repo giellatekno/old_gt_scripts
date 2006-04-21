@@ -89,7 +89,7 @@ if ($opt_n) {
 } elsif ($opt_l) {
     classify($ARGV[0]);
 } elsif ($opt_x) {
-    read_xml($ARGV[0], $ARGV[1]);
+    read_xml($ARGV[0]);
 } elsif ($opt_s) {
     while (<>) {
 	chomp;
@@ -131,7 +131,7 @@ sub langdetect {
 	else {
 		# take only a subset of the paragraph
 		my $subtext = substr( $text, 0, $MAXCHAR);
-
+		return if ($subtext =~ /^\s+$/);
 		my $lang = classify($subtext);
 
 		my $rest;
@@ -140,25 +140,25 @@ sub langdetect {
 		# Heuristics for deciding between different sami languges.
 		# The default language is selected if none of the distinctive 
 		# chars is found from the text.
-		if ($bestlang =~/sm[aej]/) {
-			$bestlang = $language;
-			if ($text =~ /[áÁåÅäÄ]+/) {
-				$bestlang = "smj";
-			}
-			if ($text =~ /[öÖï]+/) {
-				$bestlang = "sma";
-			}
-			if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
-				$bestlang = "sme";
-			}
-		}
+#		if ($bestlang =~/sm[aej]/) {
+#			$bestlang = $language;
+#			if ($text =~ /[áÁåÅäÄ]+/) {
+#				$bestlang = "smj";
+#			}
+#			if ($text =~ /[öÖï]+/) {
+#				$bestlang = "sma";
+#			}
+#			if ($text =~ /[šŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
+#				$bestlang = "sme";
+#			}
+#		}
 		# Until the langdetect is better, the north sami characters decide.
-		if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
-			$bestlang = "sme";
-		}
+#		if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
+#			$bestlang = "sme";
+#		}
 	}
 
-	if ($bestlang ne $language && $bestlang ne "fin") {
+	if ($bestlang ne $language ) {
 		$para->set_att( "xml:lang" => $bestlang );
 	}
 }
