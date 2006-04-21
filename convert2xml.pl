@@ -348,7 +348,7 @@ sub process_file {
 
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
-		my $command = "$text_cat -l -d $lmdir $int";
+		my $command = "$text_cat -x -d $lmdir $int";
 		exec_com($command, $file);
 	}
 
