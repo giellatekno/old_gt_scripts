@@ -134,6 +134,8 @@ sub langdetect {
 		return if ($subtext =~ /^\s+$/);
 		my $lang = classify($subtext);
 
+		return if ($lang =~ /Perhaps/);
+
 		my $rest;
 		($bestlang, $rest) = split (/ or /, $lang, 2);
 		$bestlang =~ s/\n//;
@@ -232,8 +234,11 @@ sub classify {
     @answers=(@answers,shift(@results));
   }
   if (@answers > $opt_a) {
-    print "I don't know; " .
-      "Perhaps this is a language I haven't seen before?\n";
+	  if($opt_x) { return "Perhaps"; }
+	  else {
+		  print "I don't know; " .
+			  "Perhaps this is a language I haven't seen before?\n";
+	  }
   } else {
 	  if($opt_x) { return join(" or ", @answers); }
 	  else { print join(" or ", @answers), "\n"; }
