@@ -246,7 +246,7 @@ void print_help()
     cout << "The possible options include:\n";
 
 // Commented out the language option so far --sh
-//    cout << "\t-l <lang>\tProcess elements in language <lang>.\n";
+    cout << "\t-l <lang>\tProcess elements in language <lang>.\n";
     cout << "\t-a\t Print all text elements.\n";
     cout << "\t-p\t Print plain paragraphs. (default)\n";
     cout << "\t-T\t Print paragraphs with title type.\n";
