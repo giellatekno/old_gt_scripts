@@ -125,7 +125,7 @@ void TraverseDir(DIR* dirp, string path) {
         
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             char *pFile;
-            pFile = (char*)malloc(PATH_MAX + 1);
+            pFile = (char*)malloc(2*PATH_MAX); // to be safe
             strcpy(pFile, fullpath.c_str());
             strcat(pFile, direntp->d_name);
             ProcessFile (pFile);
