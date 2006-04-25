@@ -26,10 +26,10 @@ use XML::Twig;
 
 # Allowed mime-headers.
 # http://www.iana.org/assignments/media-types/
-my %mime_types = ( "text/html" => 1,
-				   "application/msword" => 1,
-				   "application/pdf" => 1,
-				   "text/plain" => 1 );
+my %mime_types = ( "text/html" => "html",
+				   "application/msword" => "doc",
+				   "application/pdf" => "pdf",
+				   "text/plain" => "txt" );
 
 my $query = new CGI;
 
@@ -55,15 +55,20 @@ my $upload = CGI::Upload->new({ query => $query });
 my $filename = $upload->file_name('document');
 if (! $filename ) { die "No file was selected for upload.\n" }
 my $filetype = $upload->mime_type('document');
-if (! $mime_types{$filetype}) { die "Upload only msword, pdf and html-files.\n" }
+if (! $mime_types{$filetype}) {
+	die "Upload only msword, pdf and html-files.\n" 
+	}
+else {
+	if ($filename !~ m/\.(doc|pdf|html|txt|ptx)$/) {
+		$filename = $filename . "." . $mime_types{$filetype};
+	}
+}
 
 # Parsing the path away
 $filename =~ s/.*[\/\\](.*)/$1/;
 # Replace space with underscore - c = complement the search list
 my $fname = $filename;
 $fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
-# change windows-type htm -extension to html.
-$fname =~ tr/\.htm/\.html/c;
 
 # Generate a new file name 
 # if there exists a file with the same name.
@@ -77,17 +82,12 @@ while (-e "$upload_dir/$fname") {
 	$i++;
 }
 
-# a hash where we will store the md5sums
-my @md5sum;
-
 # Calculate md5sums of files in orig/ dir
-@md5sum = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
+my @md5sums = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
 
-# TODO: Check the file
-# This includes: type, sámi characters (how?), ...
 
 # Handle to the file
-my $upload_filehandle = $query->upload("document");
+my $upload_filehandle = $upload->file_handle('document');
 
 if (!$upload_filehandle) {
     die "FILE NOT FOUND!";
@@ -101,10 +101,10 @@ while (<$upload_filehandle>) {
 }
 close UPLOADFILE;
 
-my $md5 = (`md5sum $upload_dir/$fname | cut -c 1-32`);
 
+my $md5 = (`md5sum $upload_dir/$fname | cut -c 1-32`);
 # Check that file doesn't already exist
-for my $i (@md5sum) {
+for my $i (@md5sums) {
 	if ($i eq $md5) {
 #		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
 		die "File already exists in our corpus base!";
