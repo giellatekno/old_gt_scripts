@@ -16,22 +16,29 @@
 corpdir=/usr/local/share/corp
 tmpdir=/home/saara/cron
 outdir=$tmpdir/gt/doc/lang/corp
-time_suffix=`date +%F`;
-summary_file=corpus-summary-$time_suffix.xml
 
 cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
 
-perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir --sumfile=$summary_file
+time_suffix=`stat -c "%y" "$outdir/corpus-summary.xml" |sed -e "s/ .*//"`;
+old_summary=corpus-summary-$time_suffix.xml
 
-if [! -z $outdir/corpus-summary.xml ]
+cp $outdir/corpus-summary.xml $outdir/$old_summary
+
+echo "perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir"
+perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir
+
+if [ -s "$outdir/corpus-summary.xml" ]
 then
-	echo "checkin $outdir/corpus-summary.xml
+	echo "checkin $outdir/corpus-summary.xml"
 	cvs ci -m"cron checkin of generated summary" $outdir/corpus-summary.xml
+	echo "adding $outdir/$old_summary"
+	cvs add -m"cron moving old summary to a new name" $outdir/$old_summary
+	cvs ci -m"cron moving old summary to a new name" $outdir/$old_summary
 fi
 
-if [! -z $outdir/$summary_file ]
+if [ -s "$outdir/corpus-content.xml" ]
 then
-	echo "checkin $outdir/$summary_file
-	cvs ci -m"cron checkin of generated summary" $outdir/$summary_file
+	echo "checkin $outdir/corpus-content.xml"
+	cvs ci -m"cron checkin of generated summary" $outdir/corpus-content.xml
 fi
 
