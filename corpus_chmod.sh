@@ -13,6 +13,7 @@
 # Change file group and permissions for different corpus directories.
 
 corpdir=/usr/local/share/corp
+#corpdir=/home/saara/samipdf
 
 # Add different languages here, separated by newline.
 langdirs="sme"
@@ -31,6 +32,12 @@ orig ()
 		chgrp corpus $file
 		chmod 0660 $file
 	  done
+	  subdirs=`find $corpdir/orig/$dir -type d`
+	  for subdir in "$subdirs"
+
+		chgrp corpus $subdir
+		chmod 0770 $subdir
+	  done
 	done
 }
 
@@ -46,6 +53,12 @@ gtbound ()
 		chgrp cvs $file
 		chmod 0660 $file
 	  done
+	  subdirs=`find $corpdir/gtbound/$dir -type d`
+	  for subdir in "$subdirs"
+	  do 
+		chgrp cvs $subdir
+		chmod 0770 $subdir
+	  done
 	 done
 }
 
@@ -60,6 +73,12 @@ gtfree ()
 	  do
 		chgrp cvs $file
 		chmod 0664 $file
+	  done
+	  subdirs=`find $corpdir/gtfree/$dir -type d`
+	  for subdir in "$subdirs"
+	  do 
+		chgrp cvs $subdir
+		chmod 0775 $subdir
 	  done
 	done
 }
