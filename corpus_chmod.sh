@@ -34,7 +34,7 @@ orig ()
 	  done
 	  subdirs=`find $corpdir/orig/$dir -type d`
 	  for subdir in "$subdirs"
-
+	  do
 		chgrp corpus $subdir
 		chmod 0770 $subdir
 	  done
