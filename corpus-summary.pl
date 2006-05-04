@@ -21,12 +21,16 @@ my $corpdir = "/usr/local/share/corp";
 my $dir;
 my $language;
 my $help;
-my $outdir ="";
+my $outdir =".";
+my $time = `date +%F`;
+chomp $time;
+my $outfile_count = "corpus-summary-" . $time . ".xml";
 
 GetOptions ("dir=s" => \$dir,
-			"corpdir=s" => \$corpdir,
+            "corpdir=s" => \$corpdir,
 			"lang=s" => \$language,
 			"outdir=s" => \$outdir,
+			"sumfile=s" => \$outfile_count,
 			"help" => \$help);
 
 if ($help) {
@@ -34,10 +38,8 @@ if ($help) {
 	exit 1;
 }
 
-my $time = `date +%F`;
-chomp $time;
-my $outfile = $outdir . "corpus-summary.xml"; 
-my $outfile_count = $outdir . "corpus-summary-" . $time . ".xml";
+my $outfile = $outdir . "/" . "corpus-summary.xml"; 
+$outfile_count = $outdir . "/" . $outfile_count;
 
 # Open file for printing out the summary.
 my $FH1;
@@ -48,7 +50,6 @@ open($FH2,  ">$outfile_count");
 
 my $out_twig = XML::Twig->new();
 $out_twig->set_pretty_print('record');
-
 
 my $lang_elt;
 my $langgenre_elt;
@@ -102,6 +103,10 @@ sub process_file {
 	my $lang = $levels[2];
 	my $genre = $levels[3];
 #	print "$lang, $genre";
+	if(!$root || !$lang || !$genre) {
+		print "File $absfile: not able to define language or genre.\n";
+		next;
+		}
 	my $langgenre = $lang . "/" . $genre;
 
 	$count{$root}{'count'} += 1;
@@ -229,12 +234,18 @@ $count_elt->DESTROY;
 close $FH2;
 
 sub print_help {
-	print"Usage: corpus-summary.pl [OPTIONS] [FILE]\n";
-	print "The available options:\n";
-    print"    --dir=<dir>     The directory where to search for files.\n";
-    print"                    If not given, only FILE is processed.\n";
-    print"    --out=<outfile> The output file. The default is summary.xml.\n";
-	print"    --corpdir=<dir> The directory which roots the corpus dir.\n";
-    print"                    the default is /usr/local/share/corp\n";
-
+	print <<END;
+Usage: corpus-summary.pl [OPTIONS] [FILE]
+The available options:
+    --help           Print this help text and exit.
+    --dir=<dir>      The directory where to search for files,
+                     if not given, only FILE is processed.
+    --outdir=<dir>   The output directory. Two files are created: corpus-summary.xml,
+                     which contains the information of all the files and
+                     corpus-summary-YYYY-MM-DD.xml, which contains the summary.
+    --sumfile=<file> The summary file name without directory path, 
+                     if not the default with the date.
+    --corpdir=<dir>  The directory which roots the corpus dir.
+                     the default is /usr/local/share/corp
+END
 }
