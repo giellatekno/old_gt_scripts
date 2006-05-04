@@ -24,7 +24,8 @@ my $help;
 my $outdir =".";
 my $time = `date +%F`;
 chomp $time;
-my $outfile_count = "corpus-summary-" . $time . ".xml";
+#my $outfile_count = "corpus-summary-" . $time . ".xml";
+my $outfile_count = "corpus-summary.xml";
 
 GetOptions ("dir=s" => \$dir,
             "corpdir=s" => \$corpdir,
@@ -38,7 +39,7 @@ if ($help) {
 	exit 1;
 }
 
-my $outfile = $outdir . "/" . "corpus-summary.xml"; 
+my $outfile = $outdir . "/" . "corpus-content.xml"; 
 $outfile_count = $outdir . "/" . $outfile_count;
 
 # Open file for printing out the summary.
@@ -105,7 +106,7 @@ sub process_file {
 #	print "$lang, $genre";
 	if(!$root || !$lang || !$genre) {
 		print "File $absfile: not able to define language or genre.\n";
-		next;
+		return;
 		}
 	my $langgenre = $lang . "/" . $genre;
 
@@ -210,6 +211,7 @@ my $count_elt = XML::Twig::Elt->new('count');
 for my $root (keys %count) {
 	my $relt = XML::Twig::Elt->new('total');
 	$relt->set_att('count', $count{$root}{'count'});
+	$relt->paste('last_child', $count_elt);
 
 	for my $lang (keys %{$count{$root}}) {
 		next if ($lang eq 'count');
@@ -224,9 +226,8 @@ for my $root (keys %count) {
 			$gelt->set_att('count', $count{$root}{$lang}{$genre}{'count'});
 			$gelt->paste('last_child', $lelt);
 		}
-		$lelt->paste('last_child', $relt);
+		$lelt->paste('last_child', $count_elt);
 	}
-	$relt->paste('last_child', $count_elt);
 }
 
 $count_elt->print($FH2);
