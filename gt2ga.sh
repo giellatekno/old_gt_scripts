@@ -26,12 +26,12 @@ gt="gtbound"
 
 umask=0112
 
-# Copy the gt-directory from cochise for each language.
+# Copy the gt-directory from victorio for each language.
 copy_gt ()
 {
     for lang in "$@"
       do 
-      scp -r saara@cochise.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
+      scp -r saara@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
     done
     return 0
 }
@@ -44,7 +44,7 @@ analyze_gt ()
 {
     for lang in "$@"
       do 
-      cd $tmpdir && cvs -d :ext:cochise.uit.no:/usr/local/cvs/repository checkout gt
+      cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
       cd $tmpdir/gt && make TARGET=$lang 
       
       mkdir -p $gadir/$lang
