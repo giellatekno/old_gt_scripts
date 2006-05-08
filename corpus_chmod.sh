@@ -15,6 +15,10 @@
 corpdir=/usr/local/share/corp
 #corpdir=/home/saara/samipdf
 
+orig="$corpdir/orig"
+bound="$corpdir/gtbound"
+free="$corpdir/gtfree"
+
 # Add different languages here, separated by newline.
 langdirs="sme"
 
@@ -25,18 +29,19 @@ orig ()
 {
 	for dir in "$@"
 	do
-	  echo "fixing $corpdir/orig/$dir..."
-	  files=`find $corpdir/orig/$dir -name "*.pdf" -or -name "*.doc" -or -name "*.html" -or -name "*.ptx"` 
+	  echo "fixing $orig/$dir..."
+	  files=`find $orig/$dir -type f ! -name "*.xsl*"` 
 	  for file in $files
 	  do
 		chgrp corpus $file
 		chmod 0660 $file
 	  done
-	  subdirs=`find $corpdir/orig/$dir -type d`
-	  for subdir in "$subdirs"
+
+	  subdirs=$(find $orig/$dir -type d)
+	  for sub in $subdirs
 	  do
-		chgrp corpus $subdir
-		chmod 0770 $subdir
+		chgrp corpus $sub
+		chmod 0770 $sub
 	  done
 	done
 }
@@ -46,18 +51,18 @@ gtbound ()
 {
 	for dir in "$@"
 	do
-	  echo "fixing $corpdir/gtbound/$dir..."
-	  files=`find $corpdir/gtbound/$dir -name "*.xml"`
+	  echo "fixing $bound/$dir..."
+	  files=`find $bound/$dir -name "*.xml"`
 	  for file in $files
 	  do
 		chgrp cvs $file
 		chmod 0660 $file
 	  done
-	  subdirs=`find $corpdir/gtbound/$dir -type d`
-	  for subdir in "$subdirs"
-	  do 
-		chgrp cvs $subdir
-		chmod 0770 $subdir
+	  subdirs=$(find $bound/$dir -type d)
+	  for sub in $subdirs
+	  do
+		chgrp cvs $sub
+		chmod 0770 $sub
 	  done
 	 done
 }
@@ -67,18 +72,19 @@ gtfree ()
 {
 	for dir in "$@"
 	do
-	  echo "fixing $corpdir/gtfree/$dir..."
-	  files=`find $corpdir/gtfree/$dir -name "*.xml"`
+	  echo "fixing $free/$dir..."
+	  files=`find $free/$dir -name "*.xml"`
 	  for file in $files
 	  do
 		chgrp cvs $file
 		chmod 0664 $file
 	  done
-	  subdirs=`find $corpdir/gtfree/$dir -type d`
-	  for subdir in "$subdirs"
-	  do 
-		chgrp cvs $subdir
-		chmod 0775 $subdir
+
+	  subdirs=$(find $free/$dir -type d)
+	  for sub in $subdirs
+	  do
+		chgrp cvs $sub
+		chmod 0775 $sub
 	  done
 	done
 }
