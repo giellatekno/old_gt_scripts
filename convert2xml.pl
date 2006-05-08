@@ -116,7 +116,6 @@ if (! $nolog) {
 	my $time = `date +%m-%d-%H-%M`;
 	chomp $time;
 	$log_file = $tmpdir . "/" . $time . ".log";
-	print $log_file;
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	if (! $upload) {
 		my $cnt = chown -1, $orig_gid, $log_file;	
