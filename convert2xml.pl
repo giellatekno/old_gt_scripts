@@ -120,6 +120,7 @@ if (! $nolog) {
 	if (! $upload) {
 		my $cnt = chown -1, $orig_gid, $log_file;	
 		if ($cnt == 0) { print "ERROR: chgrp failed for $log_file.\n"};
+		chmod 0770,$log_file;
 	}
 }
 
@@ -158,7 +159,8 @@ sub process_file {
 	# Create the directory to gtbound if it does not exist.
 	( my $dir =  $int )  =~ s/(.*)[\/\\].*/$1/;
 	if (! -d $dir ) {
-		mkdir $dir;
+		my $command="mkdir -p \"$dir\"";
+		exec_com($command, $file);
 		my $cnt = chown -1, $gt_gid, $dir;
 		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
 		chmod 0770,$dir;
@@ -400,7 +402,8 @@ sub process_file {
 			  # Create the directory to gtfree if it does not exist.
 			  ( my $dir =  $intfree )  =~ s/(.*)[\/\\].*/$1/;
 			  if (! -d $dir ) {
-				  mkdir $dir;
+				  my $command="mkdir -p \"$dir\"";
+				  exec_com($command, $file);
 				  my $cnt = chown -1, $gt_gid, $dir;
 				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
 				  chmod 0770,$dir;
