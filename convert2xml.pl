@@ -113,9 +113,10 @@ if(! $tmpdir || ! -d $tmpdir) {
 my $command;
 # Redirect STDERR to log files.	
 if (! $nolog) {
-	my $time = `date +%b-%d-%H-%M`;
+	my $time = `date +%m-%d-%H-%M`;
 	chomp $time;
 	$log_file = $tmpdir . "/" . $time . ".log";
+	print $log_file;
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 	if (! $upload) {
 		my $cnt = chown -1, $orig_gid, $log_file;	
@@ -142,24 +143,34 @@ sub process_file {
 
 	# Search with find gives some unwanted files which are silently
 	# returned here.
-	return unless ($file =~ m/\.(doc|pdf|html|ptx)$/);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
     return if ($file =~ /[\~]$/);
     return if (__FILE__ =~ $file);
 	return if (-z $file);
 
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
-	$int =~ s/\.(doc|pdf|html|ptx)$/\.\L$1\.xml/i;
+	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
     (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
 
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
+
+	# Create the directory to gtbound if it does not exist.
+	( my $dir =  $int )  =~ s/(.*)[\/\\].*/$1/;
+	if (! -d $dir ) {
+		mkdir $dir;
+		my $cnt = chown -1, $gt_gid, $dir;
+		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
+		chmod 0770,$dir;
+	}		
 
 	if(-f $int && ! -w $int) {
 		print "$file: ERROR: permission denied to $int. STOP.\n";
 		print STDERR "$file: ERROR: permission denied to $int. STOP.\n";
 		return;
 	}
+
 	
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	IO::File->new($int, O_RDWR|O_CREAT) 
@@ -217,6 +228,20 @@ sub process_file {
 	# Conversion of paratext documents
 	if ($file =~ /\.ptx$/) {
 		$command = "$paratext2xml $orig --out=$int";
+		exec_com($command, $file);
+	}
+
+	# Conversion of text documents
+	# Simple html-tags are added in subroutine pdfclean,
+	# and then converted to confront the corpus structure
+	if ($file =~ /\.txt$/) {
+		my $xsl;
+		if ($xsl_file) { $xsl = $xsl_file; }
+		else { $xsl = $htmlxsl; }
+		my $html = $tmpdir . "/" . $file . ".tmp3";
+		copy($orig, $html);
+		pdfclean($html);
+		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
 		exec_com($command, $file);
 	}
 
@@ -372,6 +397,16 @@ sub process_file {
 				  print STDERR "$file: ERROR permission denied $intfree.\n";
 				  last COPYFREE;
 			  }
+			  
+			  # Create the directory to gtfree if it does not exist.
+			  ( my $dir =  $intfree )  =~ s/(.*)[\/\\].*/$1/;
+			  if (! -d $dir ) {
+				  mkdir $dir;
+				  my $cnt = chown -1, $gt_gid, $dir;
+				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
+				  chmod 0770,$dir;
+			  }		
+
 			  copy ($int, $intfree) 
 				  or print STDERR "ERROR: copy failed ($int $intfree)\n";
 
@@ -430,6 +465,7 @@ sub call_decode_title {
 	$title->set_text($text);
 }
 
+
 sub pdfclean {
 
 		my $file = shift @_;
@@ -452,7 +488,7 @@ sub pdfclean {
 				next;
 			}
 
-			chomp $string;
+			$string =~ s/[\n\r]/ /;
 
 			# This if-construction is for finding the line numbers 
 			# (which generally are in their own line and even separated by empty lines
