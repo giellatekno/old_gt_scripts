@@ -53,7 +53,6 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-
 my $test=0; #preserves temporary files.
 
 # set the permissions for created files: -rw-rw-r--
@@ -236,11 +235,25 @@ sub process_file {
 	# Simple html-tags are added in subroutine pdfclean,
 	# and then converted to confront the corpus structure
 	if ($file =~ /\.txt$/) {
+	  ENCODING:
+		if (! $no_decode) {
+			my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
+			my $coding = &guess_text_encoding($orig, $tmp4, $language);
+			if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
+			else { 
+				copy($orig,$tmp4);
+				print STDERR "Character decoding: $coding\n";
+				my $error = &decode_text_file($tmp4, $coding, $int);
+				if ($error){ print STDERR $error; }
+				if (! $test) { exec_com("rm -rf $tmp4", $file); }
+			}
+			$no_decode = 1;
+		}
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
 		my $html = $tmpdir . "/" . $file . ".tmp3";
-		copy($orig, $html);
+		copy($int, $html);
 		pdfclean($html);
 		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
 		exec_com($command, $file);
