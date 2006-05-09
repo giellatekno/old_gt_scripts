@@ -13,11 +13,12 @@
 
 # Fix directory names
 # - replace spaces with underscores
+# - replace dot with underscore
 
 # Fix the filenames in corpus directory:
 # - replace spaces with underscores
 # - remove space in the end of the file name
-# - replace other "difficult" characters with underscore (not implemented)
+# - replace other "difficult" characters with underscore (implemented: dot)
 # - add correct extensions (.doc, .pdf, .txt, .html) if missing
 
 corpdir=/usr/local/share/corp
@@ -40,9 +41,9 @@ rename ()
 	  echo "fixing $corpdir/$dir"
 
 	  # change directories first
-	  find $corpdir/$dir -type d | while read I; do NEWNAME=$(echo $I | sed -e "s/ /_/g"); if [ "$I" != "$NEWNAME" ]; then mv "$I" "$NEWNAME"; fi; done;
+	  find $corpdir/$dir -type d | while read I; do NEWNAME=$(echo $I | sed -e "s/•/_/g" -e "s/ /_/g"); if [ "$I" != "$NEWNAME" ]; then mv "$I" "$NEWNAME"; fi; done;
 
-	  find $corpdir/$dir -type f | while read I; do NEWNAME=$(echo "$I" | sed -e "s/[ ]*$//" -e "s/ /_/g"); if [ "$I" != "$NEWNAME" ] && [ -f "$I" ]; then mv "$I" "$NEWNAME"; fi; if [ -f "$I " ]; then mv "$I " "$NEWNAME"; fi; done;
+	  find $corpdir/$dir -type f | while read I; do NEWNAME=$(echo "$I" | sed -e "s/•/_/g" -e "s/[ ]*$//" -e "s/ /_/g"); if [ "$I" != "$NEWNAME" ] && [ -f "$I" ]; then mv "$I" "$NEWNAME"; fi; if [ -f "$I " ]; then mv "$I " "$NEWNAME"; fi; done;
 	  files=$(find $corpdir/$dir -type f)
 
 	  for file in $files
