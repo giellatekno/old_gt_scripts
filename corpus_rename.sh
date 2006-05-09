@@ -8,7 +8,7 @@
 #           Fix the malformed filenames in corpus directory
 #           Script is originally designed for MinAigi files.
 #
-# $Id $
+# $Id$
 #****************************************************************
 
 # Fix directory names
