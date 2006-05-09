@@ -14,13 +14,13 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&decode_file &guess_encoding &read_char_tables &decode_para &decode_title %Char_Tables);
+@EXPORT = qw(&decode_text_file &decode_file &guess_text_encoding &guess_encoding &read_char_tables &decode_para &decode_title %Char_Tables);
 @EXPORT_OK   = qw(&find_dec &combine_two_codings %Sami_Chars);
 
 our %Char_Files = (
                  "latin6" => "iso8859-10-1.txt",
 #                 "levi" => "levi.txt",
-#                "macroman" => "macroman.txt",
+#                 "macroman" => "macroman.txt",
 				 "plainroman" => "ROMAN.txt",
 				 "CP1258" => "CP1258.txt",
                  "iso_ir_197" => "iso_ir_197.txt",
@@ -30,6 +30,7 @@ our %Char_Files = (
                  "8859-4" => "8859-4.txt",
 #                 "8859-2" => "8859-2.txt",
 		   );
+
 
 our %Char_Tables;
 
@@ -78,6 +79,93 @@ our $MIN_AMOUNT = 0.02;
 # Printing some test data, chars and their amounts
 our $Test=0;
 
+# Subroutine for determining the correct encoding for text
+# Text is assumed not to be converted to utf-8 earlier.
+sub guess_text_encoding() {
+
+	my ($file, $outfile, $lang) = @_;
+
+	my @encodings = ("MAC-SAMI", "LATIN1");
+	my %results;
+	my %count_table;
+
+    if (!$lang || ! $Sami_Chars{$lang}) {
+		if ($Test) {
+			print "guess_encoding: language is not specified or language $lang is not supported\n";
+		}
+		return $NO_ENCODING;
+    }
+
+	for my $enc (@encodings) {
+		my $command="iconv -f $enc -t UTF-8 -o $outfile $file";
+		system($command) == 0 or return "Guess encoding failed: $!";
+		my %test_table;
+
+		for my $char (keys % { $Sami_Chars{$lang}}){
+			$count_table{$char} = 1;
+		}
+		my @text_array;
+		# Read the output
+		if (-f $outfile) {
+			@text_array = &read_file($outfile);
+		}
+		my $count = 0;
+		my $total_count = 0;
+		for my $line (@text_array) {
+			$total_count += length($line);
+			my @unpacked = unpack("U*", $line);
+			for my $byte (@unpacked) {
+				if( $count_table{$byte} ) { $count++; }				
+			}
+		}
+		if ($total_count != 0 ) {
+			$results{$enc} = 100 * ($count / $total_count);
+		}
+	}			
+    # Select the best encoding by comparing the amount of chars to be converted.
+    my $encoding = $NO_ENCODING;
+    my $last_val;
+    for my $key (sort { $results{$a} cmp $results{$b} } keys %results) {
+		if($Test) {
+			my $rounded_unconv = sprintf("%.3f", $results{$key});
+			my $rounded_correct = sprintf("%.3f", $results{$key});
+			print $file, " ", $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
+		}
+		$last_val = $key;
+	}
+    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT ) {
+		$encoding = $last_val;
+    }
+	if($Test) {
+		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
+		else { print "$encoding \n"; }
+	}
+    return $encoding;
+
+}
+
+# Subroutine for decoding text file. Just iconv call.
+sub decode_text_file() {
+
+    my ($file, $encoding, $outfile) =  @_;
+	
+    unless ($outfile) {
+		$outfile = $file . ".out";
+	}	
+    if ($encoding eq $NO_ENCODING) { return 0; }
+	
+    if (! $encoding ) {
+		return "convert_file: Encoding is not specified.\n";
+	}	
+	if($Test) {
+		print "Converting $file -> $outfile\n";
+	}
+	my $command="iconv -f $encoding -t UTF-8 -o $outfile $file";
+	system($command) == 0 or return "Encoding failed: $!";
+
+	return 0;
+}
+
 sub guess_encoding () {
     my ($file, $lang, $para_ref) = @_;
 
@@ -108,7 +196,7 @@ sub guess_encoding () {
 		# both those in tested encoding and already correct ones.
 		my %test_table; 
 		my %count_table;
-      CHAR_TABLE:
+	  CHAR_TABLE:
 		for my $char (keys % { $Sami_Chars{$lang}}){
 			$count_table{$char}->[$UNCONVERTED] = 0;
 			$count_table{$char}->[$CORRECT] = 0;
@@ -119,8 +207,9 @@ sub guess_encoding () {
 					$test_table{$key} = $char;
 					last CONVERT_TABLE;
 				}
-			}
-		}
+			} #CONVERT_TABLE
+		} #CHAR_TABLE
+		
 		# Count the occurences of the sami characters
 		# in the corpus file line by line
 		my $total_char_count=0;
@@ -138,8 +227,9 @@ sub guess_encoding () {
 					# Already correctly coded sámi char
 					$count_table{$byte}->[$CORRECT]++;
 				}
-			}
-		}
+			} # BYTE
+		} # LINE
+
 		# Count the total
 		# Add the statistical tests here if needed.
 		my $unconv_total = 0;
