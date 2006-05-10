@@ -183,7 +183,7 @@ else {
 				print $out->dd($string);
 			}
 		}
-		print $out->end_table();
+		print $out->end_dl();
 
 		# these subroutines print out suitable HTML codes
 	}
