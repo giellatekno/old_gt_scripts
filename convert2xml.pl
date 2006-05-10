@@ -138,13 +138,14 @@ sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
 
+	my $no_decode_this_time = 0;
 	print STDERR "$file: $language\n";
 
 	# Search with find gives some unwanted files which are silently
 	# returned here.
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
     return if ($file =~ /[\~]$/);
-    return if (__FILE__ =~ $file);
+    return if (__FILE__ =~ /$file/);
 	return if (-z $file);
 
     my $orig = File::Spec->rel2abs($file);
@@ -236,7 +237,7 @@ sub process_file {
 	# and then converted to confront the corpus structure
 	if ($file =~ /\.txt$/) {
 	  ENCODING:
-		if (! $no_decode) {
+		if (! $no_decode && ! $no_decode_this_time ) {
 			my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 			my $coding = &guess_text_encoding($orig, $tmp4, $language);
 			if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
@@ -247,7 +248,7 @@ sub process_file {
 				if ($error){ print STDERR $error; }
 				if (! $test) { exec_com("rm -rf $tmp4", $file); }
 			}
-			$no_decode = 1;
+			$no_decode_this_time = 1;
 		}
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
@@ -290,7 +291,7 @@ sub process_file {
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
-	  if (! $no_decode) {
+	  if (! $no_decode && ! $no_decode_this_time ) {
 		  &read_char_tables;
 		  # guess encoding and decode each paragraph at the time.
 		  if( $multi_coding ) {
