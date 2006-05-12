@@ -15,12 +15,12 @@ for lang in "sme" "smj" "sma"
 do
 		cd /usr/tmp/gt/ && make TARGET=$lang
 
-		cp /usr/tmp/gt/$lang/bin/$lang.fst /opt/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/abbr.txt /opt/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/hyph-$lang.fst /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/src/$lang-dis.rle /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/gt/$lang/bin/abbr.txt /opt/sami/smi/$lang/bin/
 
-		chgrp cvs /opt/smi/$lang/bin/*
-		chmod a+x /opt/smi/$lang/bin/*
+		chgrp cvs /opt/sami/smi/$lang/bin/*
+		chmod a+x /opt/sami/smi/$lang/bin/*
 done
