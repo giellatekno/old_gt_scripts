@@ -1,7 +1,6 @@
 
 package samiChar::Decode;
 
-use encoding 'utf-8';
 use open ':utf8';
 use Getopt::Long;
 use File::Basename;
