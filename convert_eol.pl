@@ -7,6 +7,7 @@
 use strict;
 use open ':utf8';
 use encoding 'utf8';
+use Getopt::Long;
 
 my $fdata;
 
@@ -15,25 +16,30 @@ my $no_break = 160;
 
 # conversion to mac / pc / unix
 my $tostring = "\n";
-if ($ARGV[0] =~ /-unix/i)
-{
-	$tostring = "\n";
-	shift;
-}
-if ($ARGV[0] =~ /-pc/i)
-{
-	$tostring = "\r\n";
-	shift;
-}
-if ($ARGV[0] =~ /-mac/i)
-{
-	$tostring = "\r";
-	shift;
-}
-if ($#ARGV < 0) {
-        die ("Usage  $0  [-unix|-mac|-pc]
-        file [file ....]\n");
+
+my $unix;
+my $mac;
+my $pc;
+my $tostring;
+my $help;
+
+GetOptions("unix" => \$unix,
+		   "mac" => \$mac,
+		   "pc" => \$pc,
+		   "help" => \$help);
+
+if($mac) { 	$tostring = "\r"; }
+if($pc) { $tostring = "\r\n"; }
+if(! $tostring ) { $tostring = "\n"; }
+
+if ($help) {
+        print <<HELP;
+    Usage: convert_eol.pl [--unix|--mac|--pc] file [file ....]
+
+HELP
 	}
+
+
 foreach my $file(@ARGV){
 	if (open (FILE,$file) ) {
 		read (FILE,$fdata,-s $file);
