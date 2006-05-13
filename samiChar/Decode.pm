@@ -19,6 +19,7 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 our %Char_Files = (
                  "latin6" => "iso8859-10-1.txt",
 #                 "levi" => "levi.txt",
+                 "winsam" => "winsam.txt",
 #                 "macroman" => "macroman.txt",
 				 "plainroman" => "ROMAN.txt",
 				 "CP1258" => "CP1258.txt",
@@ -42,7 +43,7 @@ our %Sami_Chars = (
 #		   0x0110 => 1, #"LATIN CAPITAL LETTER D WITH STROKE"
 			0x0111 => 1, #"LATIN SMALL LETTER D WITH STROKE"
 #		   0x014A => 1, #"LATIN CAPITAL LETTER ENG"
-		   0x014B => 1, #"LATIN SMALL LETTER ENG"
+			0x014B => 1, #"LATIN SMALL LETTER ENG"
 #		   0x0160 => 1, #"LATIN CAPITAL LETTER S WITH CARON"
 			0x0161 => 1, #"LATIN SMALL LETTER S WITH CARON"
 #		   0x0166 => 1, #"LATIN CAPITAL LETTER T WITH STROKE"
@@ -426,7 +427,10 @@ sub combine_two_codings {
     open (OUTFILE, ">$outfile");
     print (OUTFILE "# $coding1 $coding2 \n");
 
-    open (CHARFILE, $charfile1) or die "Cannot open file $charfile1: $!";
+    my $data_dir = dirname __FILE__;
+
+    open (CHARFILE, $data_dir."/data/".$charfile1) or 
+		die "Cannot open file $charfile1: $!";
     my %first_coding;
     while (my $line = <CHARFILE>) {
 	next if ($line =~ /^\#/);
@@ -438,7 +442,8 @@ sub combine_two_codings {
     
     close (CHARFILE);    
     
-    open (CHARFILE, $charfile2) or die "Cannot open file $charfile2: $!";
+    open (CHARFILE, $data_dir."/data/".$charfile2) or 
+		die "Cannot open file $charfile2: $!";
     my %second_coding;
     while (my $line = <CHARFILE>) {
 		next if ($line =~ /^\#/);
