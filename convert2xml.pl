@@ -16,7 +16,7 @@
 # $Revision$
 
 use strict;
-use open ':locale';
+#use open ':locale';
 binmode STDOUT, ":utf8";
 use File::Find;
 use File::Copy;
@@ -36,7 +36,6 @@ my $no_hyph = 0;
 my $all_hyph = 0; 
 my $noxsl = 0;
 my $corpdir = "/usr/local/share/corp";
-#my $corpdir = "/home/saara/samipdf";
 my $bindir = "/usr/local/share/corp/bin";
 #my $bindir = "/home/saara/gt/script";
 my $gtbound_dir = "gtbound";
@@ -141,12 +140,17 @@ sub process_file {
 	my $no_decode_this_time = 0;
 	print STDERR "$file: $language\n";
 
+	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
+		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
+		return;
+	}
 	# Search with find gives some unwanted files which are silently
 	# returned here.
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
     return if ($file =~ /[\~]$/);
     return if (__FILE__ =~ /$file/);
 	return if (-z $file);
+	
 
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
@@ -182,9 +186,9 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $docxsl; }
-		$command = "/usr/local/bin/antiword -s -x db \"$orig\" > $tmp3";
+		$command = "/usr/local/bin/antiword -s -x db \"$orig\" > \"$tmp3\"";
 		exec_com($command, $file);
-		$command = "/usr/bin/xsltproc \"$xsl\" $tmp3 > \"$int\"";
+		$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 		exec_com($command, $file);
 	}
 	
@@ -193,10 +197,10 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		$command = "$tidy \"$orig\" > $tmp3";
+		$command = "$tidy \"$orig\" > \"$tmp3\"";
 		exec_com($command, $file);
 
-		$command = "/usr/bin/xsltproc \"$xsl\" $tmp3 > \"$int\"";
+		$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 		exec_com($command, $file);
 
 	}
@@ -228,7 +232,7 @@ sub process_file {
 
 	# Conversion of paratext documents
 	if ($file =~ /\.ptx$/) {
-		$command = "$paratext2xml $orig --out=$int";
+		$command = "$paratext2xml \"$orig\" --out=\"$int\"";
 		exec_com($command, $file);
 	}
 
@@ -240,13 +244,16 @@ sub process_file {
 		if (! $no_decode && ! $no_decode_this_time ) {
 			my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 			my $coding = &guess_text_encoding($orig, $tmp4, $language);
-			if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
+			if ($coding eq 0) { 
+				copy($tmp4,$int);
+				print STDERR "Correct character encoding.\n"; 
+			}
 			else { 
 				copy($orig,$tmp4);
 				print STDERR "Character decoding: $coding\n";
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
-				if (! $test) { exec_com("rm -rf $tmp4", $file); }
+				if (! $test) { exec_com("rm -rf \"$tmp4\"", $file); }
 			}
 			$no_decode_this_time = 1;
 		}
@@ -268,14 +275,14 @@ sub process_file {
 
 	# end of line conversion.
 	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-	my $command = "$convert_eol $int > $tmp1";
+	my $command = "$convert_eol \"$int\" > \"$tmp1\"";
 	exec_com($command, $file);
 	copy ($tmp1, $int) ;
 
 	# Remove temporary file unless testing.
 	if (! $test) {
-		exec_com("rm -rf $tmp1", $file);
-		exec_com("rm -rf $tmp3", $file);
+		exec_com("rm -rf \"$tmp1\"", $file);
+		exec_com("rm -rf \"$tmp3\"", $file);
 	}
 	
 	# hyphenate the file
@@ -355,7 +362,7 @@ sub process_file {
 			exec_com($command, $file);
 		}
 
-		$command = "co -q $xsl_file";
+		$command = "co -q \"$xsl_file\"";
 		exec_com($command, $file);
 
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
@@ -388,7 +395,7 @@ sub process_file {
 
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
-		my $command = "$text_cat -x -d $lmdir $int";
+		my $command = "$text_cat -x -d $lmdir \"$int\"";
 		exec_com($command, $file);
 	}
 
@@ -505,7 +512,7 @@ sub pdfclean {
 			}
 
 			$string =~ s/[\n\r]/ /;
-
+			
 			# This if-construction is for finding the line numbers 
 			# (which generally are in their own line and even separated by empty lines
 			# The text before and after the line number is connected.
