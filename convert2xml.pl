@@ -24,8 +24,8 @@ use IO::File;
 use File::Basename;
 use Getopt::Long;
 use Cwd;
-use samiChar::Decode;
 use XML::Twig;
+use samiChar::Decode;
 
 my $no_decode = 0;
 my $nolog = 0; 
@@ -140,21 +140,19 @@ sub process_file {
 	my $no_decode_this_time = 0;
 	print STDERR "$file: $language\n";
 
-    return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
-    if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
-        print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
-        return;
-    }
-    return if (! -f $file);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
+	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
+		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
+		return;
+	}
+	return if (! -f $file);
 
 	# Search with find gives some unwanted files which are silently
 	# returned here.
-	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
     return if ($file =~ /[\~]$/);
     return if (__FILE__ =~ /$file/);
 	return if (-z $file);
 	
-
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
@@ -169,7 +167,7 @@ sub process_file {
 		my $command="mkdir -p \"$dir\"";
 		exec_com($command, $file);
 		my $cnt = chown -1, $gt_gid, $dir;
-		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
+#		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
 		chmod 0770,$dir;
 	}		
 
@@ -240,7 +238,7 @@ sub process_file {
 	}
 
 	# Conversion of text documents
-	# Simple html-tags are added in subroutine pdfclean,
+	# Simple html-tags are added in subroutine txtclean
 	# and then converted to confront the corpus structure
 	if ($file =~ /\.txt$/) {
 	  ENCODING:
@@ -260,15 +258,10 @@ sub process_file {
 			}
 			$no_decode_this_time = 1;
 		}
-		my $xsl;
-		if ($xsl_file) { $xsl = $xsl_file; }
-		else { $xsl = $htmlxsl; }
-		my $html = $tmpdir . "/" . $file . ".tmp3";
-		copy($int, $html);
-		pdfclean($html);
-		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-		exec_com($command, $file);
+		txtclean($int, $language);
 	}
+
+#	return;
 
 	if(! -f $int || -z $int ) {
 		print "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\nSee $log_file for details.\n";
@@ -319,33 +312,32 @@ sub process_file {
 			  if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
 			  else { 
 				  print STDERR "Character decoding: $coding\n";
-				  my $error = &decode_file($int, $coding, $int);
+				  my $error = &decode_file($int, $coding, $int, $language, 1);
 				  if ($error){ print STDERR $error; }
 			  }
-
-			  # Document title is generally wrongly encoded, check that separately.
-			  # Not in use.
-			  my $notitle = 1;
-			  if (! $notitle) {
-				PARSE_TITLE: {
-					my $document = XML::Twig->new(twig_handlers => {title => sub { call_decode_title(@_); }}
-												  );
-					if (! $document->safe_parsefile ("$int")) {
-						print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";
-						last PARSE_TITLE;
-					}
-					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-					$document->set_pretty_print('record');
-					$document->print( \*FH);
-
-				} # PARSE_TITLE
-			  }
 		  }
+		  # Document title in msword documents is generally wrongly encoded, 
+		  # check that separately.
+		  # Not in use.
+		  my $notitle = 1;
+		PARSE_TITLE:
+		  if ($file =~ /\.doc$/ && ! $notitle) {
+			  my $document = XML::Twig->new(twig_handlers => {title => sub { call_decode_title(@_); }}
+											);
+			  if (! $document->safe_parsefile ("$int")) {
+				  print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";
+					last PARSE_TITLE;
+			  }
+			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+			  $document->set_pretty_print('record');
+			  $document->print( \*FH);
+			  
+		  } # PARSE_TITLE
 	  }
   } # ENCODING
 	if(! $upload) {
 		my $cnt = chown -1, $gt_gid, $int;
-		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
+#		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
 		chmod 0660, $int;
 	}
 
@@ -359,7 +351,7 @@ sub process_file {
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 
 			my $cnt = chown -1, $orig_gid, $xsl_file;
-			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
+#			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
 
 			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
 			exec_com($command, $file);
@@ -429,7 +421,7 @@ sub process_file {
 				  my $command="mkdir -p \"$dir\"";
 				  exec_com($command, $file);
 				  my $cnt = chown -1, $gt_gid, $dir;
-				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
+#				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
 				  chmod 0770,$dir;
 			  }		
 
@@ -437,7 +429,7 @@ sub process_file {
 				  or print STDERR "ERROR: copy failed ($int $intfree)\n";
 
 			  my $cnt = chown -1, $gt_gid, $intfree;
-			  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $intfree.\n"};
+#			  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $intfree.\n"};
 
 			  chmod 0664, $intfree;
 			  
@@ -490,6 +482,117 @@ sub call_decode_title {
 	&decode_title($language, \$text);
 	$title->set_text($text);
 }
+
+sub txtclean {
+
+    my ($file, $lang) = @_;
+
+	my $replaced = qq(>|<|\^\@\;|–&lt;|\!q|&gt);
+
+	# Initialize XML-structure
+	my $twig = XML::Twig->new();
+	$twig->set_pretty_print('record');
+	my $document = XML::Twig::Elt->new('document');
+	$document->set_att('xml:lang', $lang);
+
+	my $header = XML::Twig::Elt->new('header');
+	my $body = XML::Twig::Elt->new('body');
+
+	# Start reading the text
+    local $/;           # enable "slurp" mode
+    if (! open (INFH, "$file")) {
+        print STDERR "$file: ERROR open failed: $!. ";
+        return;
+    }
+    my $string = <INFH>;    # whole file now here
+
+	$string =~ s/($replaced)//g;
+	$string =~ s/\\//g;
+	my @text_array;
+
+	return if (! $string);
+	# The text contains newstext tags:
+	if ($string =~ /\@(.*?)\:/) {
+		while ($string =~ s/(\@(.*?)\:[^\@]*)//) {
+			push @text_array, $1;
+		}
+		for my $line (@text_array) {
+			if ($line =~ /^\@(.*?)\:(.*?)$/) {
+				my $tag = $1;
+				my $text = $2;
+				if ( $tag =~ /tittel/ ) {
+					$text =~ s/[\r\n]+//;
+					my $title = XML::Twig::Elt->new('title');
+					$title->set_text($text);
+					$title->paste( 'last_child', $header);
+					my $p = XML::Twig::Elt->new('p');
+					$p->set_att('type', "title");
+					$p->set_text($text);
+					$p->paste( 'last_child', $body);
+					next;
+				}
+				if ( $tag =~ /(tekst|stikk)/ ) {
+					my $p = XML::Twig::Elt->new('p');
+					$p->set_text($text);
+					$p->paste( 'last_child', $body);
+					next;
+				}
+				my $p = XML::Twig::Elt->new('p');
+				$p->set_text($text);
+				$p->set_att('type', "title");
+				$p->paste( 'last_child', $body);
+				next;
+			}
+			else { 
+				print "Error: line did not match: $line\n"; 
+				next; 
+			}
+		}
+	}
+	# The text does not contain newstext tags:
+	else {
+		my $p_continues=0;
+		my $p;
+		my @text_array = split(/[\n\r]/, $string);
+		for my $line (@text_array) {
+			$line .= "\n";
+			if (! $p ) {
+				$p = XML::Twig::Elt->new('p');
+				$p->set_text($line);
+				$p_continues = 1;
+				next;
+			}
+			if( $line eq "\n"  ) {
+				$p_continues = 0;
+				next;
+			}
+			if($p_continues ) {
+				my $orig_text = $p->text;
+				$line = $orig_text . $line;
+				$p->set_text($line);
+			}
+			else {
+				$p->paste( 'last_child', $body);
+				$p = XML::Twig::Elt->new('p');
+				$p->set_text($line);
+				$p_continues = 1;
+			}
+		}
+		$p->paste( 'last_child', $body);
+	}
+	$header->paste( 'last_child', $document);
+	$body->paste( 'last_child', $document);
+
+# Open file for printing out the summary.
+	my $FH1;
+	open($FH1,  ">$file");
+	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+	$document->print($FH1);
+	$document->DESTROY;
+	close $FH1;
+}
+	
+	
 
 
 sub pdfclean {
