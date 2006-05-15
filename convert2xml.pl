@@ -140,10 +140,13 @@ sub process_file {
 	my $no_decode_this_time = 0;
 	print STDERR "$file: $language\n";
 
-	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
-		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
-		return;
-	}
+    return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
+    if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
+        print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
+        return;
+    }
+    return if (! -f $file);
+
 	# Search with find gives some unwanted files which are silently
 	# returned here.
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
