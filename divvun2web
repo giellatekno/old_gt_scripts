@@ -65,6 +65,8 @@ fetch_giella_and_divvun()
 
 build_and_copy_sites()
 {
+    cd
+    rm gt/doc/lang/corp/corpus-content.xml
     for SITE in sd gtuit
     do
         cd $HOME/xtdoc/$SITE
