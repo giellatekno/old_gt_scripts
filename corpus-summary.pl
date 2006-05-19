@@ -86,6 +86,12 @@ sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
 
+	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
+		print "$file: ERROR Filename contains special characters that cannot be handled. STOP\n";
+		return;
+	}
+	return if (! -f $file);
+
 	# Search with find gives some unwanted files which are silently
 	# returned here.
     return unless ($file =~ m/\.xml$/);
