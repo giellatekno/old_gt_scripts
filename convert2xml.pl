@@ -36,6 +36,7 @@ my $no_hyph = 0;
 my $all_hyph = 0; 
 my $noxsl = 0;
 my $corpdir = "/usr/local/share/corp";
+#my $corpdir = "/home/saara/samipdf";
 my $bindir = "/usr/local/share/corp/bin";
 #my $bindir = "/home/saara/gt/script";
 my $gtbound_dir = "gtbound";
@@ -245,7 +246,7 @@ sub process_file {
 			my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 			my $coding = &guess_text_encoding($orig, $tmp4, $language);
 			if ($coding eq 0) { 
-				copy($tmp4,$int);
+				copy($orig,$int);
 				print STDERR "Correct character encoding.\n"; 
 			}
 			else { 
@@ -253,8 +254,8 @@ sub process_file {
 				print STDERR "Character decoding: $coding\n";
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
-				if (! $test) { exec_com("rm -rf \"$tmp4\"", $file); }
-			}
+			}	
+			if (! $test) { exec_com("rm -rf \"$tmp4\"", $file); }
 			$no_decode_this_time = 1;
 		}
 		txtclean($int, $language);
@@ -484,11 +485,12 @@ sub call_decode_title {
 	$title->set_text($text);
 }
 
+# Add prelimnary xml-structure for the text files.
 sub txtclean {
 
     my ($file, $lang) = @_;
 
-	my $replaced = qq(>|<|\^\@\;|–&lt;|\!q|&gt);
+	my $replaced = qq(\^\@\;|–&lt;|\!q|&gt);
 
 	# Initialize XML-structure
 	my $twig = XML::Twig->new();
@@ -509,7 +511,10 @@ sub txtclean {
 
 	$string =~ s/($replaced)//g;
 	$string =~ s/\\//g;
+	# remove all the xml-tags.
+	$string =~ s/<.*?>//g;
 	my @text_array;
+	my $title;
 
 	return if (! $string);
 	# The text contains newstext tags:
@@ -521,9 +526,9 @@ sub txtclean {
 			if ($line =~ /^\@(.*?)\:(.*?)$/) {
 				my $tag = $1;
 				my $text = $2;
-				if ( $tag =~ /tittel/ ) {
+				if ( $tag =~ /tittel/ && $text && ! $title) {
 					$text =~ s/[\r\n]+//;
-					my $title = XML::Twig::Elt->new('title');
+					$title = XML::Twig::Elt->new('title');
 					$title->set_text($text);
 					$title->paste( 'last_child', $header);
 					my $p = XML::Twig::Elt->new('p');
