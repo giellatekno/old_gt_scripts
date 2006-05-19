@@ -78,8 +78,9 @@ move ("$upload_file.xml", "$tmpfile.xml") or die "Could not move the file $uploa
 # Convert the document
 my $command;
 $command = "xsltproc --novalid $upload_file.xsl $tmpfile.xml > $upload_file.xml";
-system($command)  == 0
-	or die "$command failed: $! \n";
+system($command);
+# The user does not have to know it the command failed, the metainformation is there already.
+#	or die "$command failed: $! \n";
 
 # The html-part starts here
 print <<END_HTML;
