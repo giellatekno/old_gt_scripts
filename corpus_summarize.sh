@@ -27,6 +27,11 @@ cp $outdir/corpus-summary.xml $outdir/$old_summary
 echo "perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir"
 perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir
 
+echo "xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml"
+xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml
+echo "xmllint --dtdvalid $tmpdir/gt/dtd/corpus-summary.dtd --encode UTF-8 --noout $outdir/corpus-summary.xml"
+xmllint --dtdvalid $tmpdir/gt/dtd/corpus-summary.dtd --encode UTF-8 --noout $outdir/corpus-summary.xml
+
 if [ -s "$outdir/corpus-summary.xml" ]
 then
 	echo "checkin $outdir/corpus-summary.xml"
