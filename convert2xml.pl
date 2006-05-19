@@ -177,7 +177,6 @@ sub process_file {
 		return;
 	}
 
-	
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
@@ -216,7 +215,7 @@ sub process_file {
 		exec_com($command, $file);
 
 		# If there were severe errors in pdftotext, the html file is not created.
-		if(! -f $html) {
+		if(! -f $html && ! $upload ) {
 			print "$file: no pdftotext output. STOP.\n";
 			return;			
 		}
@@ -265,7 +264,9 @@ sub process_file {
 
 	if(! -f $int || -z $int ) {
 		print "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\nSee $log_file for details.\n";
-		print STDERR "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\n";
+		if (! $upload) {
+			print STDERR "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\n";
+		}
 		return;
 	}
 
