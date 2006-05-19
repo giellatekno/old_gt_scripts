@@ -137,8 +137,8 @@ my $document = XML::Twig->new(twig_handlers =>
 
 							});
 
-if ($document->safe_parsefile ("$upload_dir/$fname.xml") == 0) {
-	 print STDERR "$fname: ERROR parsing the XML-file failed.\n";
+if (! $document->safe_parsefile ("$upload_dir/$fname.xml")) {
+	 print STDERR "$fname: Warning: parsing the XML-file failed.\n";
  }
 
 # The html-part starts here                                                                                 
