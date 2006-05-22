@@ -491,6 +491,7 @@ sub txtclean {
     my ($file, $lang) = @_;
 
 	my $replaced = qq(\^\@\;|–&lt;|\!q|&gt);
+	my $maxtitle=30;
 
 	# Initialize XML-structure
 	my $twig = XML::Twig->new();
@@ -528,6 +529,15 @@ sub txtclean {
 				my $text = $2;
 				if ( $tag =~ /tittel/ && $text && ! $title) {
 					$text =~ s/[\r\n]+//;
+
+					# If the title is too long, there is probably an error
+					# and the text is treated as normal paragraph.
+					if(length($text) > $maxtitle) {
+						my $p = XML::Twig::Elt->new('p');
+						$p->set_text($text);
+						$p->paste( 'last_child', $body);
+						next;
+					}
 					$title = XML::Twig::Elt->new('title');
 					$title->set_text($text);
 					$title->paste( 'last_child', $header);
