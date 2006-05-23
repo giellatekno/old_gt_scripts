@@ -405,7 +405,7 @@ sub process_file {
 			  last COPYFREE;
 		  }
 		  
-		  my $license = "free";
+		  my $license = "standard";
 		  my $root = $document->root;
 		  my $header = $root->first_child('header');
 		  my $avail = $header->first_child('availability');
