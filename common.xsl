@@ -373,7 +373,7 @@
 				<xsl:element name="availability">
 					<xsl:element name="license">
 					<xsl:attribute name="type">	
-						<xsl:value-of select="standard"/>
+						<text>standard</text>
 					 </xsl:attribute>
 		            </xsl:element>
 	            </xsl:element>
