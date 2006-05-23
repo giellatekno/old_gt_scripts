@@ -21,6 +21,7 @@
 <xsl:variable name="xhtml2corpus_version" select="''"/>
 <xsl:variable name="docbook2corpus2_version" select="''"/>
 
+
 <!-- Fix empty em-type according to the dtd -->
 <xsl:template match="em">
 	<xsl:element name="em">
@@ -357,7 +358,7 @@
 			</xsl:when>
 			<xsl:otherwise>
 					<xsl:element name="license">
-					<xsl:attribute name="type">		
+					<xsl:attribute name="type">	
 						<xsl:value-of select="$license_type"/>
 					 </xsl:attribute>
 					</xsl:element>
@@ -370,7 +371,10 @@
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:element name="availability">
-					<xsl:element name="free">
+					<xsl:element name="license">
+					<xsl:attribute name="type">	
+						<xsl:value-of select="standard"/>
+					 </xsl:attribute>
 		            </xsl:element>
 	            </xsl:element>
 			</xsl:otherwise>
