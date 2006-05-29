@@ -16,8 +16,8 @@ corpdir=/usr/local/share/corp
 #corpdir=/home/saara/samipdf
 
 orig="$corpdir/orig"
-bound="$corpdir/gtbound"
-free="$corpdir/gtfree"
+bound="$corpdir/bound"
+free="$corpdir/free"
 
 # Add different languages here, separated by newline.
 langdirs="sme"
@@ -34,7 +34,7 @@ orig ()
 	  for file in $files
 	  do
 		chgrp corpus $file
-		chmod 0660 $file
+		chmod 0640 $file
 	  done
 
 	  subdirs=$(find $orig/$dir -type d)
@@ -46,7 +46,7 @@ orig ()
 	done
 }
 
-# xml-files in gtbound
+# xml-files in bound
 gtbound () 
 {
 	for dir in "$@"
@@ -67,7 +67,7 @@ gtbound ()
 	 done
 }
 
-# Free xml-files in gtfree
+# Free xml-files in free
 gtfree () 
 {
 	for dir in "$@"
