@@ -22,7 +22,7 @@ corproot="/Users/hoavda/Public/corp"
 
 #gadir=/Users/saara/tmp/ga
 gadir="$corproot/ga"
-gt="gtbound"
+gt="bound"
 
 umask=0112
 
