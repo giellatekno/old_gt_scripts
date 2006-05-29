@@ -24,8 +24,8 @@ old_summary=corpus-summary-$time_suffix.xml
 
 cp $outdir/corpus-summary.xml $outdir/$old_summary
 
-echo "perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir"
-perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/gtbound --outdir=$outdir
+echo "perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/bound --outdir=$outdir"
+perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/bound --outdir=$outdir
 
 echo "xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml"
 xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml
