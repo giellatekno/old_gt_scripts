@@ -359,7 +359,7 @@ sub process_file {
 			exec_com($command, $file);
 		}
 
-		$command = "co -q \"$xsl_file\"";
+		$command = "co -f -q \"$xsl_file\"";
 		exec_com($command, $file);
 
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
@@ -401,11 +401,14 @@ sub process_file {
 		  # Copy file with free license to gtfree.
 		  my $document = XML::Twig->new;
 		  if (! $document->safe_parsefile("$int")) {
+			  $command = "rm -rf \"$intfree\"";
+			  exec_com($command, $file);
+
 			  print STDERR "Copyfree: $int: ERROR parsing the XML-file failed: $@\n";		  
 			  last COPYFREE;
 		  }
 		  
-		  my $license = "standard";
+		  my $license = "license";
 		  my $root = $document->root;
 		  my $header = $root->first_child('header');
 		  my $avail = $header->first_child('availability');
