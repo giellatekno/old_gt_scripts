@@ -34,6 +34,8 @@ our %Char_Files = (
 
 our %Char_Tables;
 
+# Few characters from Norwegian/Swedish are added to North Sámi
+# to ensure the correct encoding for texts with mixed content.
 our %Sami_Chars = (
 			"sme" =>  {
 #		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
@@ -49,7 +51,9 @@ our %Sami_Chars = (
 #		   0x0166 => 1, #"LATIN CAPITAL LETTER T WITH STROKE"
 #		   0x0167 => 1, #"LATIN SMALL LETTER T WITH STROKE"
 #		   0x017D => 1, #"LATIN CAPITAL LETTER Z WITH CARON"
-			0x017E => 1  #"LATIN SMALL LETTER Z WITH CARON"
+			0x017E => 1,  #"LATIN SMALL LETTER Z WITH CARON"
+			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
+			0x00F8 => 1 #"LATIN SMALL LETTER O WITH STROKE"
 			    },
 
 		    "smj" => {
