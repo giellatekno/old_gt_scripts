@@ -20,5 +20,4 @@ USER=`whoami`
 rm -rf $EXPORTDIR/*.cgi
 echo "**** Exporting module $MODULE to directory: $EXPORTDIR"
 cvs -d /usr/local/cvs/repository export -r release -d $EXPORTDIR $MODULE
-chmod 775 $EXPORTDIR
 chmod 755 $EXPORTDIR/*
