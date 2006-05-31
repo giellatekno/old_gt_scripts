@@ -26,7 +26,6 @@ Find the book element, which then is converted to the "document" tag
     <!-- Open the "document" tag, which is the root element of the UIT DTD -->
     <xsl:element name="document">
         <xsl:attribute name="xml:lang">
-            <xsl:value-of select="@lang"/>
         </xsl:attribute>
 
         <!-- Open the "header" tag -->
