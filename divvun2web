@@ -90,7 +90,7 @@ build_and_copy_sites()
             forrest -Dforrest.jvmargs=-Djava.awt.headless=true
             echo "Copying file to $SITE..."
             cd build/site
-            scp -rq * $SITE@giellatekno.uit.no:public_html/.
+            #scp -rq * $SITE@giellatekno.uit.no:public_html/.
             if [ "$?"  != "0" ]
             then
                 (
