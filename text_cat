@@ -276,7 +276,7 @@ sub classify {
   while (@results && $results{$results[0]} < ($opt_u *$ans)) {
     @answers=(@answers,shift(@results));
   }
-  print "Answers are: @answers\n";
+#  print "Answers are: @answers\n";
 
   splice(@answers,3) if (@answers > 3); 
 
@@ -352,7 +352,7 @@ sub classify {
 		 @wanswers=(@wanswers,shift(@wresults_a));
 	 }
 
-	 print "WAnswers are: @wanswers\n";
+#	 print "WAnswers are: @wanswers\n";
  } #TEST_SHORT
 
   if (@wanswers > $opt_a) {
