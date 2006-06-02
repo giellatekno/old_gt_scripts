@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!-- $Id$ -->
 <!-- Format query results for display -->
 
 <xsl:stylesheet 
@@ -351,19 +351,19 @@
 		    <xsl:choose>
 			<xsl:when test="$license_type">
 				<xsl:element name="availability">
-			<xsl:choose>
-			<xsl:when test="contains($license_type, 'free')">
-					<xsl:element name="free">
-		            </xsl:element>
-			</xsl:when>
-			<xsl:otherwise>
-					<xsl:element name="license">
-					<xsl:attribute name="type">	
-						<xsl:value-of select="$license_type"/>
-					 </xsl:attribute>
-					</xsl:element>
-			</xsl:otherwise>
-			</xsl:choose>
+				<xsl:choose>
+						<xsl:when test="contains($license_type, 'free')">
+							 <xsl:element name="free">
+							 </xsl:element>
+						</xsl:when>
+						<xsl:otherwise>
+								<xsl:element name="license">
+								<xsl:attribute name="type">	
+								<xsl:value-of select="$license_type"/>
+								</xsl:attribute>
+								</xsl:element>
+						</xsl:otherwise>
+				</xsl:choose>
 	            </xsl:element>
 			</xsl:when>
 			<xsl:when test="header/availability">
@@ -374,7 +374,7 @@
 					<xsl:element name="license">
 					<xsl:attribute name="type">	
 						<text>standard</text>
-					 </xsl:attribute>
+					</xsl:attribute>
 		            </xsl:element>
 	            </xsl:element>
 			</xsl:otherwise>
@@ -395,7 +395,10 @@
 				</xsl:element>
 			</xsl:if>
 
-			<xsl:if test="$multilingual">
+			<xsl:choose>
+			<xsl:when test="$monolingual">
+			</xsl:when>	
+			<xsl:when test="$multilingual">
 				<xsl:element name="multilingual">
 				<xsl:if test="$mlang_sme">
 					<xsl:element name="language">
@@ -462,7 +465,13 @@
 				</xsl:if>
 				
 				</xsl:element>
-			</xsl:if>
+			</xsl:when>
+
+			<xsl:otherwise>
+				<xsl:element name="multilingual">
+				</xsl:element>
+			</xsl:otherwise>
+			</xsl:choose>
 
 			<xsl:if test="$filename">
 				<xsl:element name="origFileName">
