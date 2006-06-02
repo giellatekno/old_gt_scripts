@@ -3,14 +3,18 @@
 # mailto:vannoord@let.rug.nl
 
 use strict;
-use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x);
+use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x $opt_w);
 use Getopt::Std;
 use Benchmark;
-use encoding 'utf-8';
 use open ':utf8';
 use XML::Twig;
+use utf8;
+binmode STDOUT, ":utf8";
 
-my $non_word_characters='0-9\s';
+my $w_class = qw("A-Za-zÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö_\s");
+my $w_class_no_space = qw("A-Za-zÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö_");
+
+my $non_word_characters='\d';
 
 # OPTIONS
 getopts('a:d:f:hi:lnst:u:v:x');
@@ -19,6 +23,7 @@ getopts('a:d:f:hi:lnst:u:v:x');
 $opt_a ||= 10;
 $opt_d ||= './LM';
 $opt_f ||= 0;
+$opt_w ||= 0;
 $opt_t ||= 400;
 $opt_u ||= 1.05;
 
@@ -36,7 +41,7 @@ $0 -h
 
 * for guessing: 
 
-$0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File]
+$0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File] [-w]
 
     -a    the program returns the best-scoring language together
           with all languages which are $opt_u times worse (cf option -u). 
@@ -68,6 +73,7 @@ $0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File]
     -u    determines how much worse result must be in order not to be 
           mentioned as an alternative. Typical value: 1.05 or 1.1. 
           Default: $opt_u.
+	-w    Use only word lists.
     -v    verbose. Continuation messages are written to standard error.
 
 * for creating new language model, based on text read from standard input:
@@ -84,6 +90,7 @@ if ($opt_h) { help(); exit 0; };
 
 if ($opt_n) { 
     my %ngram=();
+    my %wgram=();
     my @result = create_lm(input(),\%ngram);
     print join("\n",map { "$_\t $ngram{$_}" ; } @result),"\n";
 } elsif ($opt_l) {
@@ -99,76 +106,103 @@ if ($opt_n) {
     classify(input()); 
 }
 
+# prepare the xml-file for language detection
 sub read_xml {
 	my $file = shift @_;
 
-	my $language = "sme";
+	my @languages;
+	my $test=1;
 
-	my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $language); } });
+	# Find out the languages specified for the docu.
+	# Take only the header of the document.
+	my $twig= XML::Twig->new( twig_roots => { header => 1 });
+	$twig->parsefile("$file");
+
+	my $docu=$twig->root;
+	my $mainlang = $docu->{'att'}->{'xml:lang'};
+	
+	my $header = $docu->first_child('header');
+	my $multi;
+	if($multi = $header->first_child('multilingual')) {
+		my @langs = $multi->children;
+		for my $lang (@langs) {
+			push @languages, $lang->{'att'}->{'xml:lang'};
+		}
+		if($test) {
+			if (@languages) { print STDERR "Document is categorized in languages: @languages\n"; }
+			else { print STDERR "text_cat: Document is categorized in languages: all.\n" };
+		}
+	}
+	else {
+		if($test) { print STDERR "text_cat: Document is monolingual.\n"; }
+		return;
+	}
+
+	# open directory to find which languages are supported
+	opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
+	my @lm = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
+	closedir DIR;
+	if (! @lm) { die "text_cat: no language models found in $opt_d"; }
+	
+	my %languages_h;
+	for my $lang (@lm) { $languages_h{$lang}=1;}
+	if(! $languages_h{$mainlang}) { 
+		print STDERR "text_cat: Document language \"$mainlang\" was not recognized.\n"; 
+		return; 
+	}
+	
+	# Process each paragraph at the time.
+	# Function langdetect handles the classification of the paragraph.
+	my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $mainlang, @languages); } });
 	if (! $document->safe_parsefile ("$file")) {
-		die "Langdetect: ERROR parsing the XML-file failed: $@\n";		  
+		print STDERR "Langdetect: ERROR parsing the XML-file failed: $@\n";		  
 		last LANGDETECT;
 	}
-	open (FH, ">$file") or die "ERROR cannot open file $!";
-	$document->set_pretty_print('record');
+	if( ! open (FH, ">$file")) { print STDERR "ERROR cannot open file $!"; return; }
+	$document->set_pretty_print('indented');
 	$document->print( \*FH);
 	$document->purge;
 	close(FH);
 }
 
+# Process each xml-element (paragraph)
 sub langdetect {
-	my ( $twig, $para, $language ) = @_;
+	my ( $twig, $para, $mainlang, @avail_langs ) = @_;
 
 	my $MINCHAR = 20;
-	my $MAXCHAR = 100;
-	my $bestlang="";
 
 	my $text = $para->text;
+
+	# The language of paragraphs shorter than MINCHAR characters is not guessed.
 	my $count = length($text);
-	if ($count < $MINCHAR) {
-		$bestlang = $language;
-	}
-	else {
-		# take only a subset of the paragraph
-		my $subtext = substr( $text, 0, $MAXCHAR);
-		return if ($subtext =~ /^\s+$/);
-		my $lang = classify($subtext);
+	if ($count < $MINCHAR) {  $para->del_att( 'xml:lang'); return; }
 
-		return if ($lang =~ /Perhaps/);
+	# If text contains only non-word characters, it is classified
+	# as the default language.
+	if ($text !~ /[$w_class_no_space]/o) { $para->del_att( 'xml:lang'); return;}
 
-		my $rest;
-		($bestlang, $rest) = split (/ or /, $lang, 2);
-		$bestlang =~ s/\n//;
-		# Heuristics for deciding between different sami languges.
-		# The default language is selected if none of the distinctive 
-		# chars is found from the text.
-#		if ($bestlang =~/sm[aej]/) {
-#			$bestlang = $language;
-#			if ($text =~ /[áÁåÅäÄ]+/) {
-#				$bestlang = "smj";
-#			}
-#			if ($text =~ /[öÖï]+/) {
-#				$bestlang = "sma";
-#			}
-#			if ($text =~ /[šŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
-#				$bestlang = "sme";
-#			}
-#		}
-		# Until the langdetect is better, the north sami characters decide.
-#		if ($text =~ /[áÁšŧžčđŋŊŽŠĐÁŠŦŦŽČ]+/) {
-#			$bestlang = "sme";
-#		}
+	# Classification returns the choices for the text.
+	my @choices = classify($text, @avail_langs, $mainlang);
+	
+	# If the language was not recognized, the document language is selected.
+	if (! @choices) {
+		print "Language was not recognized.\n";
+		$para->del_att( 'xml:lang');
+		return;
 	}
 
-	if ($bestlang ne $language ) {
-		$para->set_att( "xml:lang" => $bestlang );
-	}
+	# The best language is selected.
+	my $bestlang = $choices[0];
+	if ($bestlang ne $mainlang  ) { $para->set_att( "xml:lang" => $bestlang ); }
+	else { $para->del_att( 'xml:lang'); }
 }
-
 
 # CLASSIFICATION
 sub classify {
-  my ($input)=@_;
+  my ($input, @avail_langs, $mainlang) = @_;
+
+  my $all_langs=0;
+  if (!@avail_langs) { $all_langs=1; }
 
   my %results=();
   my $maxp = $opt_t;
@@ -179,7 +213,6 @@ sub classify {
   @languages or die "sorry, can't read any language models from $opt_d\n" .
     "language models must reside in files with .lm ending\n";
 
-
   # create ngrams for input. Note that hash %unknown is not used;
   # it contains the actual counts which are only used under -n: creating
   # new language model (and even then they are not really required).
@@ -187,61 +220,150 @@ sub classify {
   # load model and count for each language.
   my $language;
   my $t1 = new Benchmark;
-  foreach $language (@languages) {
-    # loads the language model into hash %$language.
+
+  # If the set of languages is not restricted, the text is tested
+  # against all lanugage models.
+  my @tested_langs;
+  if($all_langs) { @tested_langs = @languages; }
+  else { @tested_langs = @avail_langs; }
+
+  foreach $language (@tested_langs) {
+    # loads the language model into hash
     my %ngram=();
     my $rang=1;
     open(LM,"$opt_d/$language.lm") || die "cannot open $language.lm: $!\n";
+    print STDERR "creating language model $language\n" if $opt_v;
     while (<LM>) {
       chomp;
       # only use lines starting with appropriate character. Others are
       # ignored.
-      if (/^[^$non_word_characters]+/o) {
-	$ngram{$&} = $rang++;
+	  # remove non-word characters from ngram --sh
+	  s/[^$w_class]//og;
+	  s/\s+//g;
+	  next if(/^_+$/); 
+	  next if(/^\s+$/); 
+      if (/^[$w_class]+/o) {
+		  # The less frequent the string, the more weight it gets.
+		  $ngram{$_} = $rang++;
       } 
     }
     close(LM);
-    #print STDERR "loaded language model $language\n" if $opt_v;
-    
+    print STDERR "loaded language model $language\n" if $opt_v;
+
     # compares the language model with input ngrams list
     my ($i,$p)=(0,0);
     while ($i < @unknown) {
-      if ($ngram{$unknown[$i]}) {
-	$p=$p+abs($ngram{$unknown[$i]}-$i);
-      } else { 
-	$p=$p+$maxp; 
-      }
-      ++$i;
-    }
-    #print STDERR "$language: $p\n" if $opt_v;
+		if ($ngram{$unknown[$i]}) {
+			$p=$p+abs($ngram{$unknown[$i]}-$i);
+		} else { 
+			$p=$p+$maxp; 
+		}
+		++$i;
+	}
     
     $results{$language} = $p;
+
   }
   print STDERR "read language models done (" . 
     timestr(timediff(new Benchmark, $t1)) . 
       ".\n" if $opt_v;
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
+  
+  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
 
-  if ($opt_x) { 
-	  return join("\n",map { "$_\t $results{$_}"; } @results) if $opt_v;
-  } else {
-	  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
-  }
-  my $a = $results{$results[0]};
+  my $ans = $results{$results[0]};
   
   my @answers=(shift(@results));
-  while (@results && $results{$results[0]} < ($opt_u *$a)) {
+  while (@results && $results{$results[0]} < ($opt_u *$ans)) {
     @answers=(@answers,shift(@results));
   }
-  if (@answers > $opt_a) {
-	  if($opt_x) { return "Perhaps"; }
+#  print "Answers are: @answers\n";
+  splice(@answers,3) if (@answers > 3); 
+
+  # SHORT WORD MODEL
+  # Test the rest of the languages with word lists.
+  my @wanswers;
+  my %wresults;
+ TEST_SHORT: {
+	 if(@answers == 1 ) {  @wanswers = @answers;  last TEST_SHORT; }
+
+	 # open directory to find which languages are supported
+	 opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
+	 my @languages = sort(grep { s/\.wm// && -r "$opt_d/$_.wm" } readdir(DIR));
+	 closedir DIR;
+	 if(!@languages) { @wanswers = @answers;  last TEST_SHORT; }
+
+	 # If theres is no short word model for some language,
+	 # the whole test is skipped.
+	 my %languages_h;
+	 for my $lang (@languages) { $languages_h{$lang} = 1; }
+	 for my $ans (@answers) {
+		 if (! $languages_h{$ans}) { @wanswers = @answers;  last TEST_SHORT; }
+	 }
+
+	 # Create short word model.
+	 my @wunknown=create_wm($input);
+	 
+	 foreach $language (@answers) {
+
+		 # loads the language model into hash %$language.
+		 my %wgram=();
+		 my $maxw = 200;
+		 my $wrang=1;
+		 if (! open(LM,"$opt_d/$language.wm")) { 
+			 print STDERR "cannot open $opt_d/$language.txt: $!\n"; 
+			 next; 
+		 } 
+		 print STDERR "creating short word model for $language\n" if $opt_v;
+		 while (<LM>) {
+			 chomp;
+			 if (/^[$w_class]+/o) {
+				 s/[^$w_class]//og;
+				 s/\s+//og;
+				 $wgram{$_} = $wrang++;
+			 } 
+		 }
+		 close(LM);
+		 
+		 print STDERR "loaded short word model $language\n" if $opt_v;
+		 
+		 # compares the language model with input wgrams list
+		 my ($i,$p)=(0,0);
+		 while ($i < @wunknown) {
+			 if ($wgram{$wunknown[$i]}) {
+				 $p=$p+abs($wgram{$wunknown[$i]}-$i);
+			 } else { 
+				 $p=$p+$maxw; 
+			 }
+			 ++$i;
+		 }
+		 print STDERR "short word: $language: $p\n" if $opt_v;
+		 
+		 # The result of the word test is added to the results of
+		 # the trigram test.
+		 $wresults{$language} = $results{$language} + $p;
+	 }
+		
+	 my @wresults_a = sort { $wresults{$a} <=> $wresults{$b} } keys %wresults;
+
+	 my $ans = $wresults{$wresults_a[0]};
+	 @wanswers=(shift(@wresults_a));
+	 while (@wresults_a && $results{$wresults_a[0]} < ($opt_u *$ans)) {
+		 @wanswers=(@wanswers,shift(@wresults_a));
+	 }
+
+#	 print "WAnswers are: @wanswers\n";
+ } #TEST_SHORT
+
+  if (@wanswers > $opt_a) {
+	  if($opt_x) { return undef; }
 	  else {
 		  print "I don't know; " .
 			  "Perhaps this is a language I haven't seen before?\n";
 	  }
   } else {
-	  if($opt_x) { return join(" or ", @answers); }
-	  else { print join(" or ", @answers), "\n"; }
+	  if($opt_x) { return @wanswers; }
+	  else { print join(" or ", @wanswers), "\n"; }
   }
 }
 
@@ -268,14 +390,33 @@ sub input {
 }
 
 
+sub create_wm {
+	my %wgram;
+	my $text = shift @_;
+	
+	$text =~ s/[^$w_class]//og;
+	foreach my $word (split(/\s+/, $text)) {
+		my $len = length($word);
+		if ($len < 6) {
+			$wgram{$word}++;
+		}
+	}
+	my @sorted = sort { $wgram{$b} <=> $wgram{$a} } keys %wgram;
+
+	splice(@sorted,$opt_t) if (@sorted > $opt_t); 
+	return @sorted;
+}
+
 sub create_lm {
   my $t1 = new Benchmark;
   my $ngram;
   ($_,$ngram) = @_;  #$ngram contains reference to the hash we build
     # then add the ngrams found in each word in the hash
-  my $word;
-  foreach $word (split("[$non_word_characters]+")) {
+  # remove non-word characters from input --sh
+  s/[^$w_class]//og;
+  foreach my $word (split(/\s+/)) {
     $word = "_" . $word . "_";
+
     my $len = length($word);
     my $flen=$len;
     my $i;
@@ -288,7 +429,7 @@ sub create_lm {
       $len--;
     }
   }
-  ###print "@{[%$ngram]}";
+  ### print "@{[%$ngram]}";
   my $t2 = new Benchmark;
   print STDERR "count_ngrams done (". 
     timestr(timediff($t2, $t1)) .").\n" if $opt_v;
@@ -299,11 +440,11 @@ sub create_lm {
              { delete $$ngram{$key}; }; } keys %$ngram;
   #however I have very bad results for short inputs, this way
 
-  
   # sort the ngrams, and spit out the $opt_t frequent ones.
   # adding  `or $a cmp $b' in the sort block makes sorting five
   # times slower..., although it would be somewhat nicer (unique result)
   my @sorted = sort { $$ngram{$b} <=> $$ngram{$a} } keys %$ngram;
+
   splice(@sorted,$opt_t) if (@sorted > $opt_t); 
   print STDERR "sorting done (" . 
     timestr(timediff(new Benchmark, $t2)) . 
