@@ -15,6 +15,7 @@
 			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/> 
 
 <!-- Add the metainformation manually -->
+<!-- variable filename contains the original name of the file (from submitter)-->
 <xsl:variable name="filename" select="''"/>
 <xsl:variable name="title" select="''"/>
 <xsl:variable name="author1_fn" select="''"/>
@@ -51,6 +52,7 @@
 <xsl:variable name="translator_gender" select="'unknown'"/>
 <xsl:variable name="translator_born" select="''"/>
 <xsl:variable name="translator_nat" select="''"/>
+<!-- select license type: free, standard or other -->
 <xsl:variable name="license_type" select="''"/>
 <xsl:variable name="sub_name" select="''"/>
 <xsl:variable name="sub_email" select="''"/>
@@ -65,8 +67,12 @@
 
 <!-- Other languages, in case of multilingual document. -->
 <!-- Select "1" for the variable multilingual -->
-<!-- and for the languages present -->
-<xsl:variable name="multilingual" select="''"/>
+<xsl:variable name="monolingual" select="''"/> <!--lg rec is off!-->
+<xsl:variable name="multilingual" select="''"/> <!--this is default-->
+
+<!-- Select the potential langugages by adding the number "1" in the -->
+<!-- selection frame. If no languages are selected, the document is -->
+<!-- checked for all the languages below. -->
 <xsl:variable name="mlang_sme" select="''"/>
 <xsl:variable name="mlang_smj" select="''"/>
 <xsl:variable name="mlang_sma" select="''"/>
