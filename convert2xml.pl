@@ -401,8 +401,10 @@ sub process_file {
 		  # Copy file with free license to gtfree.
 		  my $document = XML::Twig->new;
 		  if (! $document->safe_parsefile("$int")) {
-			  $command = "rm -rf \"$intfree\"";
-			  exec_com($command, $file);
+			  if (-f $intfree) {
+				  $command = "rm -rf \"$intfree\"";
+				  exec_com($command, $file);
+			  }
 
 			  print STDERR "Copyfree: $int: ERROR parsing the XML-file failed: $@\n";		  
 			  last COPYFREE;
@@ -439,7 +441,7 @@ sub process_file {
 			  chmod 0664, $intfree;
 			  
 		  }
-		  else {
+		  elsif (-f $intfree) {
 			  $command = "rm -rf \"$intfree\"";
 			  exec_com($command, $file);
 		  }
