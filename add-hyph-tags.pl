@@ -1,8 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use encoding 'utf8';
-use open ':utf8';
-
+binmode STDOUT, ":utf8";
 
 # add_hyph_tags.pl
 #
@@ -14,15 +12,17 @@ use open ':utf8';
 # there is still some heuristics used to recognize the "real" hyphens.
 #
 # The script is made for processing corpus files in xml-format. The xml
-# processing is done by basic perl operations. header field is skipped.
+# processing is done by basic XML::Twig. header field is skipped.
 # Some files may have hyphenation points divided between two paragraphs,
-# they are taken into account as well.
+# they are taken into account as well. The paragraphs may contain emphasis
+# or some other xml-formatting. Those are skipped for now.
 #
 # $Id$
 # $Revision$
 
 # permit named arguments
 use Getopt::Long;
+use XML::Twig;
 
 my $help;
 my $all_hyphens = 0;
@@ -51,152 +51,151 @@ my %jadahje = ("ja" => 1,
 			   "vai" => 1
 			   );
 
-my $HYPH = "<hyph/>";
 
-my $end_hyphen = 0;
-my $start_hyphen = 0;
-my $previous_word = 0;
-my $continue_para = 0;
-
-my @output;
-my @final_output;
-my $header=0;
-
-my @text_array;
-open INFH, "$infile" or die "Could not open file $infile: $!" ;
-while (<INFH>) {
-	push (@text_array, $_);
+my $document = XML::Twig->new(twig_handlers => { body => sub { add_tags(@_); } });
+if (! $document->safe_parsefile ("$infile")) {
+	print STDERR "add-hyph-tags.pl: parsing the XML-file failed: $@\n";
+	exit;
 }
-close INFH;
 
-open OUTFH, ">$outfile" or die "Could not open file $infile: $!" ;
+open (FH, ">:utf8", "$outfile") or die "Cannot open $outfile $!";
+$document->set_pretty_print('indented');
+$document->print( \*FH);
+$document->purge;
+close(FH);
 
-# Read line by line
-for (@text_array) {
+my @final_output;
+my $prev_p;
 
-	# skip header field
-	if (?<header>?){ 
-		print OUTFH "@final_output\n"; 
-		@final_output = "";
-		@output = "";
-		pop @output;
-		$header = 1; }
-	if (?</header>?) {
-		$header=0;
-	}
-	if ($header) { 
-		print OUTFH;
-		next;
-	}
+sub add_tags {
+	my ( $twig, $body) = @_;
 
-	chomp;
-	# If empty line, print everything processed this far and
-	# move to the next line.
-	if (/^$/ && ! $continue_para) {
-		if (@final_output) {
-			print OUTFH "@final_output\n";
-		}
-		@final_output = "";
-		@output = "";
-		pop @output;
-		next;
-	}
+	my @output;
+	my $end_hyphen=0;
+	my $start_hyphen=0;
+	my $previous_word="";
+	
+	for my $p ($body->descendants) {
+		my $type = $p->att('type');
+		my $gi = $p->gi;
+		if ( $gi ne "p"  || ! $p->contains_only_text || ($prev_p && $prev_p->gi ne $gi)) {
+			if($prev_p) {
+				if ($end_hyphen) {
+					push(@final_output, @output);
+					@output = "";
+					pop @output;
+					$previous_word .= "-";
+					push (@final_output, $previous_word);
 
-	# If the paragraph ends to a hyphen, search the next paragraph
-	# for the rest of the word.
-	if ( /<\/p>/) {
-		if ($end_hyphen) {
-			$continue_para = 1;
-			next;
-		}
-		else { $continue_para = 0; }
-	}
-	next if (/^\s*<p>\s*$/ && $continue_para);
-	if (/^\s*<p>\w+/ && $continue_para) {
-		print OUTFH "<p>\n";
-		s/^<p>//;
-	}
+					$prev_p->set_content(@final_output);
+					@final_output = "";
+					pop @final_output;
 
-	# split the line by space
-	my @words = split;
-	my $first_word = 1; 
-
-	while (@words) {		
-
-		my $word = shift @words;
-
-		# Skip expressions which contain non-alphabetic chars or digits.
-		# cases like pla-, ple- ja plipli, "-pla
-		# Proper names would be one class to be skipped, but not included here.
-		if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ || $word =~ /[<>]/) {
-			if ($end_hyphen) {
-				$previous_word .= "-";
-				push (@output, $previous_word);
-				$end_hyphen = 0;
-			}
-			push (@output, $word);
-			$first_word = 0;
-			next;
-		}
-
-		# If the previous token ends to a hyphen test the next word
-		# if the current word is jadahje type or not the first
-		# word at the line, put the hyphen back
-		# and push the previous word to the output array.
-		if ($end_hyphen) {
-			if (! $jadahje{$word}) {
-				# otherwise join the two words with a tag. 
-				if ($all_hyphens || $first_word) {
-					$word = $previous_word . $HYPH . $word;
+					$end_hyphen = 0;
+				}
+				else {
+					$prev_p=undef;
 				}
 			}
-			else {
-				$previous_word = $previous_word . "-";
-				push (@output, $previous_word);
-				$end_hyphen = 0;
-			}
+			next;
 		}
 
-		# If the word ends to a hyphen, remember it.
-		if ($word =~ s/-+$//) { $end_hyphen = 1; }
-		else { $end_hyphen = 0; }
+		my $text = $p->text;
 
-		if ($all_hyphens) {
-			# Remember also the starting hyphens
-			if ($word =~ s/^-//) { $start_hyphen = 1; }
-			else { $start_hyphen = 0; }
+		my @lines = split (/\n+/, $text);
+		for my $line (@lines) {
+
+			# split the line by space
+			my @words = split(/\s+/, $line);
+			my $first_word = 1; 
 			
-			# If the option --all is specified, mark all the hyphens with a tag 
-			# Replace all the other instances of hyphens
-			$word = join ($HYPH,  split(/-/, $word));
- 		
-			# put back the start hyphen.
-			if ($start_hyphen) {
-				$word = "-" . $word;
+			while (@words) {
+				
+				my $word = shift @words;
+				chomp $word;
+
+				# Skip expressions which contain non-alphabetic chars or digits.
+				# cases like pla-, ple- ja plipli, "-pla
+				# Proper names would be one class to be skipped, but not included here.
+				if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ || $word =~ /[<>]/) {
+					if ($end_hyphen) {
+						$previous_word .= "- ";
+						push(@output, $previous_word);
+						$end_hyphen = 0;
+					}
+					$word .= " ";
+					push( @output, $word);
+					$first_word = 0;
+					next;
+				}
+				# If the previous token ends to a hyphen test the next word
+				# if the current word is jadahje type or not the first
+				# word at the line, put the hyphen back
+				# and add the previous word to the output.
+				if ($end_hyphen) {
+					if (! $jadahje{$word}) {
+						# otherwise join the two words with a tag. 
+						if ($all_hyphens || $first_word) {
+							my $hyph = XML::Twig::Elt->new( hyph => '#EMPTY');
+							push (@output, ($previous_word, $hyph));
+						}
+					}
+					else {
+						$previous_word .=  "- ";
+						push(@output, $previous_word);
+					}
+					$end_hyphen=0;
+				}
+				
+				# If the word ends to a hyphen, remember it.
+				if ($word =~ s/-+$//) { $end_hyphen = 1; }
+				else { $end_hyphen = 0; }
+				
+				if ($all_hyphens && $word =~ /-/) {
+					# Remember also the starting hyphens
+					if ($word =~ s/^-//) { $start_hyphen = 1; }
+					else { $start_hyphen = 0; }
+					
+					# If the option --all is specified, mark all the hyphens with a tag 
+					# Replace all the other instances of hyphens
+
+					my @pieces = split(/-/, $word);
+					my $piece = shift @pieces;
+					push (@output, $piece);
+					while (@pieces) {
+						my $hyph = XML::Twig::Elt->new( hyph => '#EMPTY');
+						push (@output, $hyph);
+						my $piece = shift @pieces;
+						push (@output, $piece);
+					}
+					push (@output, " ");
+					next;
+				}
+				
+				# The word with end hyphen is examined at the next round.
+				if (! $end_hyphen) {
+					$word .= " ";
+					push(@output, $word);
+				}
+				$previous_word = $word;
+				$first_word = 0;
+			}
+			if (! $end_hyphen) {
+				push(@final_output, @output);
+				@output = "";
+				pop @output;
 			}
 		}
-
-		# The word with end hyphen is examined at the next round.
-		if (! $end_hyphen) {
-			push (@output, $word);
+		$prev_p=$p;
+		if (! $end_hyphen && @final_output) {
+			$prev_p->set_content(@final_output);
+			@final_output = "";
+			pop @final_output;
 		}
-		$previous_word = $word;
-		$first_word = 0;
 	}
-		
-	if (@final_output) {
-		print OUTFH "@final_output\n";
-	}
-	@final_output = @output;
-	@output = "";
-	pop @output;
 }
 
-if (@final_output) {
-	print OUTFH "@final_output\n";
-}
 
-close OUTFH;
 
 sub print_usage {
 	print "Usage: add-hyph-tags.pl [OPTIONS] FILES\n";
