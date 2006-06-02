@@ -64,13 +64,13 @@ while(<>) {
 	$line =~ s/^\\toc.*$//g;
 
 	# Remove all the poetry markers
-	$line =~ s/\\(q\d*|qr|qc|qs\*|qs|qac\*|qac|qm\d*)([ |\n])/$2/g;
+	$line =~ s/\\(q\d*|qr|qc|qs\*|qs|qac\*|qac|qm\d*)([ |\n]).*$//g;
 	# Replace blank line marker with newline.
 	$line =~ s/\\b/\n/g;
 	
 	# Replace paragraph markers related to layout with plain 
 	# marker \p.
-	$line =~ s/\\(m|pmo|pm|pmc|pm|pi\d*)([ |\n])/\\p$2/g;
+	$line =~ s/\\(m|pmo|pm|pmc|pm|ps|pi\d*)([ |\n])/\\p$2/g;
 
 	# Remove some paragraph markers related to layout
 	$line =~ s/\\(mi|nb|cls_text|pc|pr|ph\d*)([ |\n])/$2/g;
@@ -117,6 +117,7 @@ while(<>) {
 	}
 }
 
+
 # The cleaned text is processed and stored to an xml-tree,
 # the fields that are available are filled according to corpus.dtd.
 
@@ -138,6 +139,8 @@ while($i < $size && $text_array[$i]) {
 #	}
 
 	if ($line =~ /^\\mt (.*)$/) {
+		if($p) { $p->paste( 'last_child', $body); $p=undef; }
+	
 		my $title = XML::Twig::Elt->new('title');
 		my $text = $1;
 		$title->set_text($text);
@@ -148,7 +151,7 @@ while($i < $size && $text_array[$i]) {
 
 	# Format chapter headings.
 	if ($line =~ /^\\c (\d+)(.*)$/) {
-		start_new_text_para();
+		if($p) { $p->paste( 'last_child', $body); $p=undef; }
 
 		my $p_title = XML::Twig::Elt->new('p');
 		$p_title->set_att('type', 'title');
@@ -167,12 +170,12 @@ while($i < $size && $text_array[$i]) {
 
 	# Format other headings.
 	if ($line =~ /^\\(h|s)(\d*) (.*)$/) {
-		start_new_text_para();
+		if($p) { $p->paste( 'last_child', $body); $p=undef; }
 
 		my $p_title = XML::Twig::Elt->new('p');
 		$p_title->set_att('type', 'title');
-		my $number = $1;
-		my $text=$2;
+		my $number = $2;
+		my $text=$3;
 		$p_title->set_text("$number $text");
 		$p_title->paste( 'last_child', $body);
 		$i++;
@@ -190,31 +193,40 @@ while($i < $size && $text_array[$i]) {
 	# Format verses. Our present xml-format does not have any 
 	# element for verse, but it is possible to get the information
 	# out in this block.
-	if ($line =~ /^\\v (\d+)(.*)$/) {
+	if($line =~ /\\v/) {
+		my ($prev, $next) =  split(/\\v/, $line);
+		if($prev) {
+			if($p) {
+				my $cur_text=$p->text;
+				$p->set_text("$cur_text $prev");
+			}
+		}
+		if ($next =~ /^\s*(\d+)(.*)$/) {
 #		my $verse = XML::Twig::Elt->new('verse');
 #		$verse->set_att('number', $1);
-		my $number = $1;
-		my $text="$2\n";
-		while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
-			$text .= "$text_array[$i+1]";
-			shift(@text_array);
-		}
+			my $number = $1;
+			my $text="$2\n";
+			while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
+				$text .= "$text_array[$i+1]";
+				shift(@text_array);
+			}
 #		$verse->set_text($text);
 #		$verse->paste( 'last_child', $p);
-		if(! $p) {
-			$p = XML::Twig::Elt->new('p');
-			$p->set_att('type', 'text');
+			if(! $p) {
+				$p = XML::Twig::Elt->new('p');
+				$p->set_att('type', 'text');
+			}
+			my $cur_text=$p->text;
+			$p->set_text("$cur_text $number $text");
 		}
- 		my $cur_text = $p->text;
-		$p->set_text("$cur_text $number $text");
 		$i++;
 		next;
 	}
-	if ($line =~ /[^\\]/) {
+	if ($line !~ /\\/) {
 		if($p) {
-			my $cur_text = $p->text;
-			$p->set_text("$cur_text $line\n");
-			$i++;
+			my $cur_text=$p->text;
+			$p->set_text("$cur_text $line");
+				$i++;
 			next;
 		}
 	}
@@ -243,6 +255,7 @@ sub start_new_text_para {
 	$p->set_att('type', 'text');
 
 }
+
 
 sub print_usage {
 	print "Usage: paratext2xml.pl [OPTIONS] FILE\n";
