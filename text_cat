@@ -158,7 +158,7 @@ sub read_xml {
 		print STDERR "Langdetect: ERROR parsing the XML-file failed: $@\n";		  
 		last LANGDETECT;
 	}
-	if( ! open (FH, ">$file")) { print STDERR "ERROR cannot open file $!"; return; }
+	open (FH, ">$file") or die "ERROR cannot open file $!";
 	$document->set_pretty_print('indented');
 	$document->print( \*FH);
 	$document->purge;
@@ -182,7 +182,7 @@ sub langdetect {
 	if ($text !~ /[$w_class_no_space]/o) { $para->del_att( 'xml:lang'); return;}
 
 	# Classification returns the choices for the text.
-	my @choices = classify($text, @avail_langs, $mainlang);
+	my @choices = classify($text, @avail_langs);
 	
 	# If the language was not recognized, the document language is selected.
 	if (! @choices) {
@@ -199,7 +199,7 @@ sub langdetect {
 
 # CLASSIFICATION
 sub classify {
-  my ($input, @avail_langs, $mainlang) = @_;
+  my ($input, @avail_langs) = @_;
 
   my $all_langs=0;
   if (!@avail_langs) { $all_langs=1; }
@@ -262,7 +262,6 @@ sub classify {
 	}
     
     $results{$language} = $p;
-
   }
   print STDERR "read language models done (" . 
     timestr(timediff(new Benchmark, $t1)) . 
@@ -277,7 +276,8 @@ sub classify {
   while (@results && $results{$results[0]} < ($opt_u *$ans)) {
     @answers=(@answers,shift(@results));
   }
-#  print "Answers are: @answers\n";
+  print "Answers are: @answers\n";
+
   splice(@answers,3) if (@answers > 3); 
 
   # SHORT WORD MODEL
@@ -352,7 +352,7 @@ sub classify {
 		 @wanswers=(@wanswers,shift(@wresults_a));
 	 }
 
-#	 print "WAnswers are: @wanswers\n";
+	 print "WAnswers are: @wanswers\n";
  } #TEST_SHORT
 
   if (@wanswers > $opt_a) {
