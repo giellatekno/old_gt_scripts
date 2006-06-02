@@ -306,7 +306,7 @@ sub process_file {
 				  last ENCODING;
 			  }
 			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			  $document->set_pretty_print('record');
+			  $document->set_pretty_print('indented');
 			  $document->print( \*FH);
 		  } else {
 			  # assume same encoding for the whole file.
@@ -331,7 +331,7 @@ sub process_file {
 					last PARSE_TITLE;
 			  }
 			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			  $document->set_pretty_print('record');
+			  $document->set_pretty_print('indented');
 			  $document->print( \*FH);
 			  
 		  } # PARSE_TITLE
@@ -498,7 +498,7 @@ sub txtclean {
 
 	# Initialize XML-structure
 	my $twig = XML::Twig->new();
-	$twig->set_pretty_print('record');
+	$twig->set_pretty_print('indented');
 	my $document = XML::Twig::Elt->new('document');
 	$document->set_att('xml:lang', $lang);
 
