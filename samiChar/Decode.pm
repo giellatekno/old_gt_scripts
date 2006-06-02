@@ -89,7 +89,7 @@ sub guess_text_encoding() {
 
 	my ($file, $outfile, $lang) = @_;
 
-	my @encodings = ("MAC-SAMI", "LATIN1");
+	my @encodings = ("MAC-SAMI", "WINSAMI2", "LATIN1");
 	my %results;
 	my %count_table;
 
@@ -497,6 +497,9 @@ samiChar::Decode.pm -- convert characters byte-wise to other characters.
     $encoding = &guess_encoding($file, $lang, $para_ref);
     &decode_file($file, $encoding, $outfile);
 
+    $encoding = &guess_text_encoding($file, $outfile, $lang);
+    &decode_text_file($file, $encoding, $outfile);
+
 
 =head1 DESCRIPTION
 
@@ -558,6 +561,8 @@ These encodings are available:
 =item    samimac_roman => samimac_roman.txt
 
 =item    levi_winsam => levi_CP1258.txt
+
+=item    winsam => winsam.txt
 
 =item    8859-4 => 8859-4.txt
 
