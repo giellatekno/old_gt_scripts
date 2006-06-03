@@ -1,6 +1,7 @@
 
 package samiChar::Decode;
 
+binmode STDOUT, ":utf8";
 use open ':utf8';
 use Getopt::Long;
 use File::Basename;
@@ -77,6 +78,7 @@ our %Sami_Chars = (
 our $UNCONVERTED = 0;
 our $CORRECT = 1;
 our $NO_ENCODING = 0;
+our $ERROR = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
@@ -91,7 +93,7 @@ sub guess_text_encoding() {
 
 	my ($file, $outfile, $lang) = @_;
 
-	my @encodings = ("MAC-SAMI", "WINSAMI2", "LATIN1");
+	my @encodings = ("MAC-SAMI", "WINSAMI2", "LATIN-9", "L1");
 	my %results;
 	my %count_table;
 
@@ -103,8 +105,17 @@ sub guess_text_encoding() {
     }
 
 	for my $enc (@encodings) {
-		my $command="iconv -f $enc -t UTF-8 -o $outfile $file";
-		system($command) == 0 or return "Guess encoding failed: $!";
+
+		my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\"";
+
+		if ( system($command) != 0 ) { 
+			print STDERR "Guess encoding failed: $!\n"; 
+			# Try to return something.
+			for my $tmp ( @encodings) {
+				if($results{$tmp} > 3) { print STDERR "Guess encoding: return best this far..\n"; return $tmp; }
+			}
+			return $ERROR; 
+		}
 		my %test_table;
 
 		for my $char (keys % { $Sami_Chars{$lang}}){
@@ -146,9 +157,8 @@ sub guess_text_encoding() {
 		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
 		else { print "$encoding \n"; }
 	}
-    return $encoding;
-
-}
+    return $encoding
+	}
 
 # Subroutine for decoding text file. Just iconv call.
 sub decode_text_file() {
@@ -166,7 +176,7 @@ sub decode_text_file() {
 	if($Test) {
 		print "Converting $file -> $outfile\n";
 	}
-	my $command="iconv -f $encoding -t UTF-8 -o $outfile $file";
+	my $command="iconv -f $encoding -t UTF-8 -o \"$outfile\" \"$file\"";
 	system($command) == 0 or return "Encoding failed: $!";
 
 	return 0;
