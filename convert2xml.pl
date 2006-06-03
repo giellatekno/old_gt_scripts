@@ -126,7 +126,7 @@ if (! $nolog) {
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
 	if (-d $dir) { find (\&process_file, $dir) }
-	else { print "$dir ERROR: Directory did not exist.\n"; }
+	else { print "$dir ERROR: Directory did not exit.\n"; }
 }
 
 # Process the file given in command line.
@@ -306,16 +306,7 @@ sub process_file {
 		exec_com("rm -rf \"$tmp1\"", $file);
 		exec_com("rm -rf \"$tmp3\"", $file);
 	}
-	
-	# hyphenate the file
-	if (! $no_hyph && $file !~/\.pdf/ ) {
-		if ($all_hyph) {
-			$command = "$hyphenate --all --infile=\"$int\" --outfile=\"$int\"";
-		}
-		else {
-			$command = "$hyphenate --infile=\"$int\" --outfile=\"$int\"";		}
-		exec_com($command, $file);
-	}
+
 
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
@@ -345,22 +336,31 @@ sub process_file {
 		  # Document title in msword documents is generally wrongly encoded, 
 		  # check that separately.
 		  # Not in use.
-		  my $notitle = 1;
+		  my $notitle = 0;
 		PARSE_TITLE:
 		  if ($file =~ /\.doc$/ && ! $notitle) {
-			  my $document = XML::Twig->new(twig_handlers => {title => sub { call_decode_title(@_); }}
+			  my $doc = XML::Twig->new(twig_handlers => {'title' => sub { call_decode_title(@_); },
+														 'p[@type="title"]' => sub { call_decode_title(@_); }}
 											);
-			  if (! $document->safe_parsefile ("$int")) {
+			  if (! $doc->safe_parsefile ("$int")) {
 				  print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";
 					last PARSE_TITLE;
 			  }
 			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			  $document->set_pretty_print('indented');
-			  $document->print( \*FH);
+			  $doc->set_pretty_print('indented');
+			  $doc->print( \*FH);
 			  
 		  } # PARSE_TITLE
 	  }
   } # ENCODING
+
+	# hyphenate the file
+	if (! $no_hyph ) {
+		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$int\""; }
+		else { $command = "$hyphenate --infile=\"$int\" --outfile=\"$tmp1\"";}
+		exec_com($command, $file);
+	}
+
 	if(! $upload) {
 		my $cnt = chown -1, $gt_gid, $int;
 #		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
