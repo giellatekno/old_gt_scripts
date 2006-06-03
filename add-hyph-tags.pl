@@ -48,7 +48,11 @@ if ($help) {
 # Add different languages here!
 my %jadahje = ("ja" => 1,
 			   "dahje" => 1,
-			   "vai" => 1
+			   "vai" => 1,
+			   "iige" => 1,
+			   "og" => 1,
+			   "eller" => 1,
+			   "tai" => 1
 			   );
 
 
