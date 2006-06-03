@@ -16,7 +16,7 @@
 # $Revision$
 
 use strict;
-#use open ':locale';
+#use open ':utf8';
 binmode STDOUT, ":utf8";
 use File::Find;
 use File::Copy;
@@ -159,6 +159,26 @@ sub process_file {
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
     (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
 
+	# Really small (text)files are not processed.
+	# Small amount of data leads to problems in guessing the character coding.
+	# The rm-commands are temporary and removed after the conversion is rerun.
+	if ( -s $file < 200) {
+		print STDERR "$file: ERROR. File is too small for processing. STOP\n";
+		if( -f $int) { 
+			$command = "rm -rf \"$int\"";
+			exec_com($command, $file);
+			$command = "rm -rf \"$intfree\"";
+			exec_com($command, $file);
+		}
+		if( -f $intfree) { 
+			$command = "rm -rf \"$int\"";
+			exec_com($command, $file);
+			$command = "rm -rf \"$intfree\"";
+			exec_com($command, $file);
+		}
+		return;
+	}
+
 	# Take only the file name without path.
 	$file =~ s/.*[\/\\](.*)/$1/;
 
@@ -248,6 +268,10 @@ sub process_file {
 			if ($coding eq 0) { 
 				copy($orig,$int);
 				print STDERR "Correct character encoding.\n"; 
+			}
+			elsif( $coding eq -1 ) {
+				print STDERR "Was not able to determine character encoding. STOP.\n";
+				return;
 			}
 			else { 
 				copy($orig,$tmp4);
