@@ -185,22 +185,10 @@ Find the book element, which then is converted to the "document" tag
 <!-- Title -->
 <xsl:template match="title">
 	<xsl:if test="normalize-space(.)">
-		<xsl:choose>
-	        <!-- Guessing whether a title is actually a paragraph -->
-	        <xsl:when
-	            test="string-length(.) > 130 and not(starts-with(translate(., '0123456789', '9999999999'), '9'))">
-	            <xsl:element name="p">
-	                <xsl:apply-templates/>
-	            </xsl:element>
-	        </xsl:when>
-	        <!-- Else it is a title -->
-	        <xsl:otherwise>
-	            <xsl:element name="p">
-	                <xsl:attribute name="type">title</xsl:attribute>
-	                <xsl:apply-templates mode="para" />
-	            </xsl:element>
-	        </xsl:otherwise>
-	    </xsl:choose>
+           <xsl:element name="p">
+              <xsl:attribute name="type">title</xsl:attribute>
+              <xsl:apply-templates mode="para" />
+           </xsl:element>
     </xsl:if>
 </xsl:template>
 
