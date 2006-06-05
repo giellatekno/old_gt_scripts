@@ -18,20 +18,29 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @EXPORT_OK   = qw(&find_dec &combine_two_codings %Sami_Chars);
 
 our %Char_Files = (
-                 "latin6" => "iso8859-10-1.txt",
+                  "latin6" => "iso8859-10-1.txt",
 #                 "levi" => "levi.txt",
-                 "winsam" => "winsam.txt",
+                  "winsam" => "winsam.txt",
 #                 "macroman" => "macroman.txt",
-				 "plainroman" => "ROMAN.txt",
-				 "CP1258" => "CP1258.txt",
-                 "iso_ir_197" => "iso_ir_197.txt",
-                 "samimac_roman" => "samimac_roman.txt",
-                 "levi_winsam" => "levi_CP1258.txt",
-#                 "utf8_utf8" => "utf8_utf8.txt",
-                 "8859-4" => "8859-4.txt",
+                "plainroman" => "ROMAN.txt",
+                "CP1258" => "CP1258.txt",
+                  "iso_ir_197" => "iso_ir_197.txt",
+                  "samimac_roman" => "samimac_roman.txt",
+                  "levi_winsam" => "levi_CP1258.txt",
+                  "8859-4" => "8859-4.txt",
 #                 "8859-2" => "8859-2.txt",
-		   );
+					 );
 
+our %min_amount = (
+				   "latin6" =>  3,
+				   "winsam" => 3,
+				   "plainroman" => 1,
+				   "CP1258" => 0.1,
+				   "iso_ir_197" => 3,
+				   "samimac_roman" => 0.5,
+				   "levi_winsam" => 1,
+				   "8859-4" => 3,
+		   );
 
 our %Char_Tables;
 
@@ -39,7 +48,7 @@ our %Char_Tables;
 # to ensure the correct encoding for texts with mixed content.
 our %Sami_Chars = (
 			"sme" =>  {
-#		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
+		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
 		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 #		   0x010C => 1, #"LATIN CAPITAL LETTER C WITH CARON"
 			0x010D => 1, #"LATIN SMALL LETTER C WITH CARON"
@@ -55,8 +64,11 @@ our %Sami_Chars = (
 			0x017E => 1,  #"LATIN SMALL LETTER Z WITH CARON"
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 			0x00F8 => 1, #"LATIN SMALL LETTER O WITH STROKE"
+			0x00D8 => 1, #"LATIN CAPITAL LETTER O WITH STROKE"
             0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
-            0x00F6 => 1 #"LATIN SMALL LETTER O WITH DIAERESIS"
+            0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
+            0x00F6 => 1, #"LATIN CAPITAL LETTER O WITH DIAERESIS"
+            0x00E6 => 1 #"LATIN SMALL LETTER AE"
 			},
 
 		    "smj" => {
@@ -82,10 +94,10 @@ our $ERROR = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 0.1;
+our $MIN_AMOUNT = 1;
 
 # Printing some test data, chars and their amounts
-our $Test=0;
+our $Test=1;
 
 # Subroutine for determining the correct encoding for text
 # Text is assumed not to be converted to utf-8 earlier.
@@ -112,7 +124,7 @@ sub guess_text_encoding() {
 			print STDERR "Guess encoding failed: $!\n"; 
 			# Try to return something.
 			for my $tmp ( @encodings) {
-				if($results{$tmp} > 3) { print STDERR "Guess encoding: return best this far..\n"; return $tmp; }
+				if($results{$tmp} && $results{$tmp} > 3) { print STDERR "Guess encoding: return best this far..\n"; return $tmp; }
 			}
 			return $ERROR; 
 		}
@@ -150,7 +162,11 @@ sub guess_text_encoding() {
 		}
 		$last_val = $key;
 	}
-    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT ) {
+	
+	my $min;
+	if($min_amount{$last_val}) { $min = $min_amount{$last_val}; }
+	else { $min=$MIN_AMOUNT; }
+    if ($results{$last_val} && $results{$last_val} > $min ) {
 		$encoding = $last_val;
     }
 	if($Test) {
@@ -283,11 +299,14 @@ sub guess_encoding () {
 		if($Test) {
 			my $rounded_unconv = sprintf("%.3f", $statistics{$key}->[$UNCONVERTED]);
 			my $rounded_correct = sprintf("%.3f", $statistics{$key}->[$CORRECT]);
-			print $file, " ", $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
+			print $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
 		}
 		$last_val = $key;
 	}
-    if ($statistics{$last_val}->[$UNCONVERTED] && $statistics{$last_val}->[$UNCONVERTED] > $MIN_AMOUNT ) {
+	my $min;
+	if($min_amount{$last_val}) { $min = $min_amount{$last_val}; }
+	else { $min=$MIN_AMOUNT; }
+    if ($statistics{$last_val}->[$UNCONVERTED] && $statistics{$last_val}->[$UNCONVERTED] > $min ) {
 		$encoding = $last_val;
     }
 	if($Test) {
@@ -300,7 +319,7 @@ sub guess_encoding () {
 sub decode_para (){
 	my ($lang, $para_ref, $encoding) = @_;
 	
-	if (! $encoding) { $encoding = &guess_encoding("", $lang, $para_ref); }
+	if (! $encoding) { $encoding = &guess_encoding(undef, $lang, $para_ref); }
 	if ($encoding eq $NO_ENCODING) { return; }
 
 	my %convert_table = %{ $Char_Tables{$encoding} };
