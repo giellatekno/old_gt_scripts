@@ -32,14 +32,14 @@ our %Char_Files = (
 					 );
 
 our %min_amount = (
-				   "latin6" =>  3,
-				   "winsam" => 3,
-				   "plainroman" => 1,
-				   "CP1258" => 0.1,
-				   "iso_ir_197" => 3,
-				   "samimac_roman" => 0.5,
-				   "levi_winsam" => 1,
-				   "8859-4" => 3,
+				   "latin6" =>  10,
+				   "winsam" => 1,
+				   "plainroman" => 10,
+				   "CP1258" => 2,
+				   "iso_ir_197" => 10,
+				   "samimac_roman" => 10,
+				   "levi_winsam" => 10,
+				   "8859-4" => 10,
 		   );
 
 our %Char_Tables;
@@ -94,7 +94,7 @@ our $ERROR = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 1;
+our $MIN_AMOUNT = 0.5;
 
 # Printing some test data, chars and their amounts
 our $Test=0;
@@ -162,11 +162,7 @@ sub guess_text_encoding() {
 		}
 		$last_val = $key;
 	}
-	
-	my $min;
-	if($min_amount{$last_val}) { $min = $min_amount{$last_val}; }
-	else { $min=$MIN_AMOUNT; }
-    if ($results{$last_val} && $results{$last_val} > $min ) {
+    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT ) {
 		$encoding = $last_val;
     }
 	if($Test) {
@@ -270,9 +266,10 @@ sub guess_encoding () {
 			$unconv_total += $count_table{$key}->[$UNCONVERTED];
 			$other_total += $count_table{$key}->[$CORRECT];
 		}
-		if ($total_char_count > 0) {
-			$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_char_count) ;
-			$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_char_count) ;
+		my $total_sami = $unconv_total + $other_total;		
+		if ($total_sami > 0) {
+			$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_sami) ;
+			$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_sami) ;
 		}
 		# Test print
 		if($Test) {
@@ -303,6 +300,8 @@ sub guess_encoding () {
 		}
 		$last_val = $key;
 	}
+	if (! $last_val) { return $NO_ENCODING; }
+
 	my $min;
 	if($min_amount{$last_val}) { $min = $min_amount{$last_val}; }
 	else { $min=$MIN_AMOUNT; }
