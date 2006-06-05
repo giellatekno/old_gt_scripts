@@ -301,13 +301,6 @@ sub process_file {
 	exec_com($command, $file);
 	copy ($tmp1, $int) ;
 
-	# Remove temporary file unless testing.
-	if (! $test) {
-		exec_com("rm -rf \"$tmp1\"", $file);
-		exec_com("rm -rf \"$tmp3\"", $file);
-	}
-
-
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
@@ -332,7 +325,7 @@ sub process_file {
 					# Document title in msword documents is generally wrongly encoded, 
 					# check that separately.
 					my $d=XML::Twig->new(twig_handlers=>{'p[@type="title"]'=>sub{call_decode_title(@_, $coding);},
-													   'title'=>sub{call_decode_title(@_, $coding);}
+													   'title'=>sub{call_decode_title(@_);}
 												 }
 									   );
 					if (! $d->safe_parsefile ("$int") ) {
@@ -348,8 +341,8 @@ sub process_file {
 			# Continue decoding the file.
 			print STDERR "Character decoding: $coding\n";
 			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
-											  'title'=>sub{call_decode_para(@_, $coding);}
-											   }
+												 'title'=>sub{call_decode_para(@_, $coding);}
+											 }
 									   );
 			if (! $d->safe_parsefile ("$int") ) {
 				print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
@@ -364,9 +357,16 @@ sub process_file {
 
 	# hyphenate the file
 	if (! $no_hyph ) {
-		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$int\""; }
+		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$tmp1\""; }
 		else { $command = "$hyphenate --infile=\"$int\" --outfile=\"$tmp1\"";}
 		exec_com($command, $file);
+		copy ($tmp1, $int) ;
+	}
+
+	# Remove temporary file unless testing.
+	if (! $test) {
+		exec_com("rm -rf \"$tmp1\"", $file);
+		exec_com("rm -rf \"$tmp3\"", $file);
 	}
 
 	if(! $upload) {
@@ -519,6 +519,12 @@ sub call_decode_title {
 	my ( $twig, $title, $coding ) = @_;
 
 	my $text = $title->text;
+
+	if(!$coding) {
+		my $error = &decode_para($language, \$text);
+		if ($error){ print STDERR $error; }
+	}
+
 	my $error = &decode_title($language, \$text, $coding);
 	if ($error){ print STDERR $error; }
 
