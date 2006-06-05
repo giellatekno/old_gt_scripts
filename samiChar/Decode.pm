@@ -97,7 +97,7 @@ our $ERROR = -1;
 our $MIN_AMOUNT = 1;
 
 # Printing some test data, chars and their amounts
-our $Test=1;
+our $Test=0;
 
 # Subroutine for determining the correct encoding for text
 # Text is assumed not to be converted to utf-8 earlier.
