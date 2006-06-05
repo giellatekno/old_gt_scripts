@@ -311,48 +311,56 @@ sub process_file {
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
-	  if (! $no_decode && ! $no_decode_this_time ) {
-		  &read_char_tables;
-		  # guess encoding and decode each paragraph at the time.
-		  if( $multi_coding ) {
-			  my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode(@_); } });
-			  if (! $document->safe_parsefile ("$int") ) {
-				  print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
-				  last ENCODING;
-			  }
-			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			  $document->set_pretty_print('indented');
-			  $document->print( \*FH);
-		  } else {
-			  # assume same encoding for the whole file.
-			  my $coding = &guess_encoding($int, $language, 0);
-			  if ($coding eq 0) { print STDERR "Correct character encoding.\n"; }
-			  else { 
-				  print STDERR "Character decoding: $coding\n";
-				  my $error = &decode_file($int, $coding, $int, $language, 1);
-				  if ($error){ print STDERR $error; }
-			  }
-		  }
-		  # Document title in msword documents is generally wrongly encoded, 
-		  # check that separately.
-		  # Not in use.
-		  my $notitle = 0;
-		PARSE_TITLE:
-		  if ($file =~ /\.doc$/ && ! $notitle) {
-			  my $doc = XML::Twig->new(twig_handlers => {'title' => sub { call_decode_title(@_); },
-														 'p[@type="title"]' => sub { call_decode_title(@_); }}
-											);
-			  if (! $doc->safe_parsefile ("$int")) {
-				  print STDERR "Title: $int: ERROR parsing the XML-file failed.\n";
-					last PARSE_TITLE;
-			  }
-			  open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			  $doc->set_pretty_print('indented');
-			  $doc->print( \*FH);
-			  
-		  } # PARSE_TITLE
-	  }
-  } # ENCODING
+	if (! $no_decode && ! $no_decode_this_time ) {
+		&read_char_tables;
+		# guess encoding and decode each paragraph at the time.
+		if( $multi_coding ) {
+			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para(@_); } });
+			if (! $document->safe_parsefile ("$int") ) {
+				print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
+				last ENCODING;
+			}
+			open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+			$document->set_pretty_print('indented');
+			$document->print( \*FH);
+		} else {
+			# assume same encoding for the whole file.
+			my $coding = &guess_encoding($int, $language, 0);
+			if ($coding eq 0) { 
+				print STDERR "Correct character encoding.\n"; 
+				if($file =~ /\.doc$/) {
+					# Document title in msword documents is generally wrongly encoded, 
+					# check that separately.
+					my $d=XML::Twig->new(twig_handlers=>{'p[@type="title"]'=>sub{call_decode_title(@_, $coding);},
+													   'title'=>sub{call_decode_title(@_, $coding);}
+												 }
+									   );
+					if (! $d->safe_parsefile ("$int") ) {
+						print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
+						last ENCODING;
+					}
+					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+					$d->set_pretty_print('indented');
+					$d->print( \*FH);
+					last ENCODING; 
+				}
+			} 
+			# Continue decoding the file.
+			print STDERR "Character decoding: $coding\n";
+			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
+											  'title'=>sub{call_decode_para(@_, $coding);}
+											   }
+									   );
+			if (! $d->safe_parsefile ("$int") ) {
+				print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
+				last ENCODING;
+			}
+			open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+			$d->set_pretty_print('indented');
+			$d->print( \*FH);
+		}
+	}
+	} #ENCODING
 
 	# hyphenate the file
 	if (! $no_hyph ) {
@@ -496,21 +504,24 @@ sub exec_com {
 
 
 # Decode false utf8-encoding for text paragraph.
-sub call_decode {
-	my ( $twig, $para ) = @_;
+sub call_decode_para {
+	my ( $twig, $para, $coding) = @_;
 
 	my $text = $para->text;
-	&decode_para($language, \$text);
+	my $error = &decode_para($language, \$text, $coding);
+	if ($error){ print STDERR $error; }
+
 	$para->set_text($text);
 }
 
 # Decode false utf8-encoding for titles.
-# Not in use.
 sub call_decode_title {
-	my ( $twig, $title ) = @_;
+	my ( $twig, $title, $coding ) = @_;
 
 	my $text = $title->text;
-	&decode_title($language, \$text);
+	my $error = &decode_title($language, \$text, $coding);
+	if ($error){ print STDERR $error; }
+
 	$title->set_text($text);
 }
 
