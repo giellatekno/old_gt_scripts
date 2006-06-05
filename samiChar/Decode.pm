@@ -154,7 +154,7 @@ sub guess_text_encoding() {
     # Select the best encoding by comparing the amount of chars to be converted.
     my $encoding = $NO_ENCODING;
     my $last_val;
-    for my $key (sort { $results{$a} cmp $results{$b} } keys %results) {
+    for my $key (sort { $results{$a} <=> $results{$b} } keys %results) {
 		if($Test) {
 			my $rounded_unconv = sprintf("%.3f", $results{$key});
 			my $rounded_correct = sprintf("%.3f", $results{$key});
@@ -292,10 +292,10 @@ sub guess_encoding () {
     # Select the best encoding by comparing the amount of chars to be converted.
     my $encoding = $NO_ENCODING;
     my $last_val;
-    for  my $key (sort { $statistics{$a}->[$UNCONVERTED] cmp $statistics{$b}->[$UNCONVERTED] } keys %statistics) {
+    for  my $key (sort { $statistics{$a}->[$UNCONVERTED] <=> $statistics{$b}->[$UNCONVERTED] } keys %statistics) {
 		if($Test) {
-			my $rounded_unconv = sprintf("%.3f", $statistics{$key}->[$UNCONVERTED]);
-			my $rounded_correct = sprintf("%.3f", $statistics{$key}->[$CORRECT]);
+			my $rounded_unconv = sprintf("%.2f", $statistics{$key}->[$UNCONVERTED]);
+			my $rounded_correct = sprintf("%.2f", $statistics{$key}->[$CORRECT]);
 			print $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
 		}
 		$last_val = $key;
