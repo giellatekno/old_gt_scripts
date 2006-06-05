@@ -1027,6 +1027,7 @@ folketellingsmaterialet
 folketilveksten
 folkevalde
 folkminnesarkivet
+for
 forbrydelser
 forbudne
 foreldreveiledning
@@ -1481,6 +1482,7 @@ obsol
 oc
 occupatio
 ock
+of
 offene
 ofuer
 også
@@ -1579,6 +1581,7 @@ quisque
 quoque
 quum
 qvænsk
+race
 ranching
 rannikkoalueille
 rechtvaardigen
@@ -1752,6 +1755,7 @@ skriftserie
 skråle
 skyddsväsen
 skyte-
+skyter
 skánner
 slic
 sluttføres
@@ -2298,6 +2302,7 @@ Innsjøfisk
 kommunalteknisk
 Statlstlsk
 hagebruk
+med
 medikamentene
 medikamenter
 medikamentet
@@ -5340,6 +5345,7 @@ inaktuellt
 importskydd
 importrestriktioner
 ikrafttredelse
+ikke
 ikke-biologiske
 ihht
 igångsatts
@@ -5828,6 +5834,7 @@ driftsmässig
 driftsmessig
 driftmönster
 driftenhet
+drag
 dragna
 drabbade
 domstolsprøving
