@@ -55,9 +55,9 @@ our %Sami_Chars = (
 			0x017E => 1,  #"LATIN SMALL LETTER Z WITH CARON"
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 			0x00F8 => 1, #"LATIN SMALL LETTER O WITH STROKE"
-			0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
-			0x00F6 => 1 #"LATIN SMALL LETTER O WITH DIAERESIS"
-			    },
+            0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
+            0x00F6 => 1 #"LATIN SMALL LETTER O WITH DIAERESIS"
+			},
 
 		    "smj" => {
 #			0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
@@ -82,7 +82,7 @@ our $ERROR = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 0.02;
+our $MIN_AMOUNT = 0.1;
 
 # Printing some test data, chars and their amounts
 our $Test=0;
@@ -298,11 +298,11 @@ sub guess_encoding () {
 }
 
 sub decode_para (){
-	my ($lang, $para_ref) = @_;
-
-	my $encoding = &guess_encoding("", $lang, $para_ref);
+	my ($lang, $para_ref, $encoding) = @_;
+	
+	if (! $encoding) { $encoding = &guess_encoding("", $lang, $para_ref); }
 	if ($encoding eq $NO_ENCODING) { return; }
-	print "$encoding\n";
+
 	my %convert_table = %{ $Char_Tables{$encoding} };
 	my @unpacked = unpack("U*", $$para_ref);
 	for my $byte (@unpacked) {
@@ -314,23 +314,57 @@ sub decode_para (){
 	return 0;
 }
 
+# Preliminary code table, hope to get better later.
 sub decode_title (){
-	my ($lang, $para_ref) = @_;
+	my ($lang, $para_ref, $encoding) = @_;
 
-	my $encoding = "utf8_utf8";
-	my %convert_table = %{ $Char_Tables{$encoding} };
+	my %byte_table = (
+		195 => {
+			63 => "193", # Á
+			161 => "225", # á
+			166 => "230" # æ
+			},
+		196 => {
+			63 => "269", # č
+			338 => "268", # Č
+			8216 => "273" # đ
+			},
+		197 => {
+			161 => "353", # š
+			190 => "382", # ž
+			189 => "381", # big ž
+			167 => "359", # t stroke
+			166 => "358", # big t stroke
+			8249 => "331", # eng
+			352 => "330" # big eng
+			}
+	);
+
+	my $packed;
 	my @unpacked = unpack("U*", $$para_ref);
-	for my $byte (@unpacked) {
-		if ($convert_table{$byte}) {
-			$byte = $convert_table{$byte};
+	my $byte = shift(@unpacked);
+    while ($byte) {
+		my $next_byte;
+		if ( 195 <= $byte && $byte <= 197 ) {
+			$next_byte = shift(@unpacked);
+			if (130 <= $next_byte && $next_byte <= 159 ) {
+				$byte = shift(@unpacked);
+				next;
+			}
+			if(my $new = $byte_table{$byte}{$next_byte}) {
+				$byte=$new;
+			}
 		}
-	}
-	$$para_ref = pack("U*", @unpacked);
+		my $char = pack("U*", $byte);
+		$packed .= $char;
+		$byte = shift(@unpacked);
+    }
+	$$para_ref=$packed;
 	return 0;
 }
 
 sub decode_file (){
-    my ($file, $encoding, $outfile) =  @_;
+    my ($file, $encoding, $outfile, $lang, $decode_title) =  @_;
 
     unless ($outfile) {
 		$outfile = $file . ".out";
@@ -350,7 +384,9 @@ sub decode_file (){
     my %convert_table = &read_char_table($charfile);
     my @text_array = &read_file($file);
 
+	my $in_title;
     for my $line (@text_array) {
+
 		my @unpacked = unpack("U*", $line);
 		for my $byte (@unpacked) {
 			if ($convert_table{$byte}) {
