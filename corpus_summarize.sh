@@ -28,10 +28,19 @@ echo "perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/bound
 perl $tmpdir/gt/script/corpus-summary.pl --dir=/usr/local/share/corp/bound --outdir=$outdir
 
 echo "xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml"
-xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml
+if ! xmllint --dtdvalid $tmpdir/gt/dtd/corpus-content.dtd --encode UTF-8 --noout $outdir/corpus-content.xml 
+then
+echo "corpus-content.xml was not valid. exiting.."
+exit
+fi
 echo "xmllint --dtdvalid $tmpdir/gt/dtd/corpus-summary.dtd --encode UTF-8 --noout $outdir/corpus-summary.xml"
-xmllint --dtdvalid $tmpdir/gt/dtd/corpus-summary.dtd --encode UTF-8 --noout $outdir/corpus-summary.xml
+if  ! xmllint --dtdvalid $tmpdir/gt/dtd/corpus-summary.dtd --encode UTF-8 --noout $outdir/corpus-summary.xml 
+then
+echo "corpus-summary.xml was not valid. exiting.."
+exit
+fi
 
+exit
 if [ -s "$outdir/corpus-summary.xml" ]
 then
 	echo "checkin $outdir/corpus-summary.xml"
