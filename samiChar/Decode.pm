@@ -124,7 +124,7 @@ sub guess_text_encoding() {
 			print STDERR "Guess encoding failed: $!\n"; 
 			# Try to return something.
 			for my $tmp ( @encodings) {
-				if($results{$tmp} && $results{$tmp} > 3) { print STDERR "Guess encoding: return best this far..\n"; return $tmp; }
+				if($results{$tmp} && $results{$tmp} > $MIN_AMOUNT) { print STDERR "Guess encoding: return best this far..\n"; return $tmp; }
 			}
 			return $ERROR; 
 		}
