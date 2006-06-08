@@ -94,7 +94,7 @@ our $ERROR = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 0.5;
+our $MIN_AMOUNT = 0.3;
 
 # Printing some test data, chars and their amounts
 our $Test=0;
@@ -120,14 +120,7 @@ sub guess_text_encoding() {
 
 		my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\"";
 
-		if ( system($command) != 0 ) { 
-			print STDERR "Guess encoding failed: $!\n"; 
-			# Try to return something.
-			for my $tmp ( @encodings) {
-				if($results{$tmp} && $results{$tmp} > $MIN_AMOUNT) { print STDERR "Guess encoding: return best this far..\n"; return $tmp; }
-			}
-			return $ERROR; 
-		}
+		if ( system($command) != 0 ) {  next; }
 		my %test_table;
 
 		for my $char (keys % { $Sami_Chars{$lang}}){
@@ -144,7 +137,7 @@ sub guess_text_encoding() {
 			$total_count += length($line);
 			my @unpacked = unpack("U*", $line);
 			for my $byte (@unpacked) {
-				if( $count_table{$byte} ) { $count++; }				
+				if( $count_table{$byte} ) { $count++; }
 			}
 		}
 		if ($total_count != 0 ) {
