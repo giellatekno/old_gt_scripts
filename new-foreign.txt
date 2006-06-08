@@ -856,6 +856,7 @@ artium
 assimilasjonspolitikk
 asyndeton
 attføringstrygd
+av
 avendelse
 avhendelse
 avvitring
@@ -1582,6 +1583,7 @@ quoque
 quum
 qvænsk
 race
+racing
 ranching
 rannikkoalueille
 rechtvaardigen
@@ -2050,6 +2052,7 @@ miljøfag
 fellesforslag
 Tilleggsforslag
 vassdrag-
+Vårt
 Vitenskapsbygg
 Gjennomenlttiig
 forholdsvalg
@@ -5431,6 +5434,7 @@ helseopplysning
 helsenettet
 helsenett
 helsedepartementets
+har
 harvning
 harmonisera
 harmonieras
@@ -7040,6 +7044,7 @@ nakkebevegelser
 Innleggelser
 kvinneundersøkelser
 sansopplevelser
+sparegris
 sprangøvelser
 videokonferanser
 erfaringskonferanser
