@@ -18,6 +18,9 @@ bool bPrintPara = true;
 bool bPrintTitle = false;
 bool bPrintList = false;
 bool bPrintTable = false;
+bool bAddID = false;
+
+int iParaNum = 0;
 
 char sLang[4];
 static string const version = "$Revision$";
@@ -26,7 +29,7 @@ void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
 void ProcessWord (TagParser &parse);
 void ProcessTag (TagParser &parse);
-void DumpTag (int Spaces, TagParser &parse, bool bEofLine = true);
+void DumpTag (int Spaces, int id, TagParser &parse, bool bEofLine = true);
 void print_help();
 //const string& Version() const;
 void print_version();
@@ -85,6 +88,10 @@ main (int argc, char *argv[])
             TraverseDir(dirp, path);
         }
 
+        else if (strcmp(argv[i], "--add-id") == 0) {
+            bAddID = true;
+        }
+        
         else if (strcmp(argv[i], "-h") == 0) {
             print_help();
             return 0;
@@ -143,6 +150,7 @@ void ProcessFile(const char *pFile)
     // Create parse object
     TagParser parse(&in,true,false);
     
+//    cout << parse.GetFullText() << endl;
     
     while (parse.GetNextToken())
     {
@@ -195,7 +203,16 @@ void ProcessTag (TagParser &parse)
             bInList = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "listitem" ? true : false;
             bInTable = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "tablecell" ? true : false;
 //        }
-//        DumpTag(0, parse);
+
+        if (bInPara)
+      {
+            iParaNum++;
+            if (bAddID)
+                DumpTag(0, iParaNum, parse);
+        }
+        else if (bAddID)
+            DumpTag(0, 0, parse);
+
 //        if (!bInPara && !bInTitle && !bInList && !bInTable)
         if (parse.Type() == TagParser::TAG_END_TAG && bPrintEndTag) {
             cout << "¶\n";
@@ -204,8 +221,10 @@ void ProcessTag (TagParser &parse)
     }
 }
 
-void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
+void DumpTag(int Spaces, int id, TagParser &parse, bool bEofLine)
 {
+  ostringstream temp;
+  
   if (!bStartOfLine)
     cout << "\n";
 
@@ -215,6 +234,11 @@ void DumpTag(int Spaces,TagParser &parse,bool bEofLine)
   cout << "<";
   if (parse.Type() == TagParser::TAG_END_TAG)
     cout << "/";
+  else if (id > 0)
+  {
+    temp << id;
+    parse.addAttrib("id", temp.str());
+  }
   cout << parse.Value();
   const list<TagAttribute*> &lst = parse.GetAttribs();
   if (lst.size())
