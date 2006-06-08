@@ -280,7 +280,6 @@ sub process_file {
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
 			}
-			$no_decode_this_time = 1;
 		}
 		txtclean($int, $tmp4, $language);
 		copy($tmp4,$int);
