@@ -261,33 +261,33 @@ sub process_file {
 	# Simple html-tags are added in subroutine txtclean
 	# and then converted to confront the corpus structure
 	if ($file =~ /\.txt$/) {
+		copy($orig,$int);
+		my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 	  ENCODING:
 		if (! $no_decode && ! $no_decode_this_time ) {
-			my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
-			my $coding = &guess_text_encoding($orig, $tmp4, $language);
+			my $coding = &guess_text_encoding($int, $tmp4, $language);
 			if ($coding eq 0) { 
-				copy($orig,$int);
 				print STDERR "Correct character encoding.\n"; 
 			}
 			elsif( $coding eq -1 ) {
 				print STDERR "Was not able to determine character encoding. STOP.\n";
+				exec_com("rm -rf \"$int\"", $file);
 				return;
 			}
 			else { 
-				copy($orig,$tmp4);
+				copy($int, $tmp4);
 				print STDERR "Character decoding: $coding\n";
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
-			}	
-			if (! $test) { exec_com("rm -rf \"$tmp4\"", $file); }
+			}
 			$no_decode_this_time = 1;
 		}
-		txtclean($int, $language);
+		txtclean($int, $tmp4, $language);
+		copy($tmp4,$int);
+		if (! $test) { exec_com("rm -rf \"$tmp4\"", $file); }
 	}
 
-#	return;
-
-	if(! -f $int || -z $int ) {
+	if (! -f $int || -z $int ) {
 		print "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\nSee $log_file for details.\n";
 		if (! $upload) {
 			print STDERR "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\n";
@@ -300,6 +300,8 @@ sub process_file {
 	my $command = "$convert_eol \"$int\" > \"$tmp1\"";
 	exec_com($command, $file);
 	copy ($tmp1, $int) ;
+
+#	return;
 
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
@@ -335,8 +337,8 @@ sub process_file {
 					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
 					$d->set_pretty_print('indented');
 					$d->print( \*FH);
-					last ENCODING; 
 				}
+				last ENCODING; 
 			} 
 			# Continue decoding the file.
 			print STDERR "Character decoding: $coding\n";
@@ -534,127 +536,169 @@ sub call_decode_title {
 # Add prelimnary xml-structure for the text files.
 sub txtclean {
 
-    my ($file, $lang) = @_;
+    my ($file, $outfile, $lang) = @_;
 
 	my $replaced = qq(\^\@\;|–&lt;|\!q|&gt);
 	my $maxtitle=30;
 
+    # Open file for printing out the summary.
+	my $FH1;
+	open($FH1,  ">$outfile");
+	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|, "\n";
+	print $FH1 qq|<document xml:lang="$lang">|, "\n";
+
 	# Initialize XML-structure
 	my $twig = XML::Twig->new();
 	$twig->set_pretty_print('indented');
-	my $document = XML::Twig::Elt->new('document');
-	$document->set_att('xml:lang', $lang);
 
 	my $header = XML::Twig::Elt->new('header');
-	my $body = XML::Twig::Elt->new('body');
 
 	# Start reading the text
-    local $/;           # enable "slurp" mode
+	# enable slurp mode
+	local $/ = undef;
     if (! open (INFH, "$file")) {
         print STDERR "$file: ERROR open failed: $!. ";
         return;
     }
-    my $string = <INFH>;    # whole file now here
 
-	$string =~ s/($replaced)//g;
-	$string =~ s/\\//g;
-	# remove all the xml-tags.
-	$string =~ s/<.*?>//g;
-	my @text_array;
-	my $title;
+    while(my $string=<INFH>){
 
-	return if (! $string);
-	# The text contains newstext tags:
-	if ($string =~ /\@(.*?)\:/) {
-		while ($string =~ s/(\@(.*?)\:[^\@]*)//) {
-			push @text_array, $1;
-		}
-		for my $line (@text_array) {
-			if ($line =~ /^\@(.*?)\:(.*?)$/) {
-				my $tag = $1;
-				my $text = $2;
-				if ( $tag =~ /tittel/ && $text && ! $title) {
-					$text =~ s/[\r\n]+//;
-
-					# If the title is too long, there is probably an error
-					# and the text is treated as normal paragraph.
-					if(length($text) > $maxtitle) {
+#		print "string: $string\n";
+		$string =~ s/($replaced)//g;
+		$string =~ s/\\//g;
+		# remove all the xml-tags.
+		$string =~ s/<.*?>//g;
+		my @text_array;
+		my $title;
+		my $notitle=1;
+		
+		return if (! $string);
+		# The text contains newstext tags:
+		if ($string =~ /\@(.*?)\:/) {
+			while ($string =~ s/(\@(.*?)\:[^\@]*)//) {
+				push @text_array, $1;
+			}
+			for my $line (@text_array) {
+				if ($line =~ /^\@(.*?)\:(.*?)$/) {
+					my $tag = $1;
+					my $text = $2;
+					if ( $tag =~ /tittel/ && $text && ! $title) {
+						$text =~ s/[\r\n]+//;
+						
+						# If the title is too long, there is probably an error
+						# and the text is treated as normal paragraph.
+						if(length($text) > $maxtitle) {
+							if ($notitle) { 
+								printheader($header, $FH1);
+								$notitle=0; 
+							} 
+							my $p = XML::Twig::Elt->new('p');
+							$p->set_text($text);
+							$p->print($FH1);
+							$p->DESTROY;
+							next;
+						}
+						if ($notitle) {
+							$title = XML::Twig::Elt->new('title');
+							$title->set_text($text);
+							$title->paste( 'last_child', $header);
+							printheader($header, $FH1);
+							$notitle=0;
+						}
+						if ($notitle) { 
+							$notitle=0; 
+						} 
 						my $p = XML::Twig::Elt->new('p');
+						$p->set_att('type', "title");
 						$p->set_text($text);
-						$p->paste( 'last_child', $body);
+						$p->print($FH1);
+						$p->DESTROY;
 						next;
 					}
-					$title = XML::Twig::Elt->new('title');
-					$title->set_text($text);
-					$title->paste( 'last_child', $header);
+					if ( $tag =~ /(tekst|stikk)/ ) {
+						if ($notitle) { 
+							printheader($header, $FH1);
+							$notitle=0;
+						} 
+						my $p = XML::Twig::Elt->new('p');
+						$p->set_text($text);
+						$p->print($FH1);
+						$p->DESTROY;
+						next;
+					}
+					if ($notitle) { 
+						printheader($header, $FH1);
+						$notitle=0;
+					} 
 					my $p = XML::Twig::Elt->new('p');
+					$p->set_text($text);
 					$p->set_att('type', "title");
-					$p->set_text($text);
-					$p->paste( 'last_child', $body);
+					$p->print($FH1);
+					$p->DESTROY;
 					next;
 				}
-				if ( $tag =~ /(tekst|stikk)/ ) {
-					my $p = XML::Twig::Elt->new('p');
-					$p->set_text($text);
-					$p->paste( 'last_child', $body);
-					next;
+				else { 
+					print "Error: line did not match: $line\n"; 
+					next; 
 				}
-				my $p = XML::Twig::Elt->new('p');
-				$p->set_text($text);
-				$p->set_att('type', "title");
-				$p->paste( 'last_child', $body);
-				next;
 			}
-			else { 
-				print "Error: line did not match: $line\n"; 
-				next; 
+		}
+		# The text does not contain newstext tags:
+		else {
+			$notitle=0;
+			my $p_continues=0;
+			my $p;
+			$header->print($FH1);
+			print $FH1 qq|<body>|;
+			
+			my @text_array = split(/[\n\r]/, $string);
+			for my $line (@text_array) {
+				$line .= "\n";
+				if (! $p ) {
+					$p = XML::Twig::Elt->new('p');
+					$p->set_text($line);
+					$p_continues = 1;
+					next;
+				}
+				if( $line =~ /^\s*\n/  ) {
+					$p_continues = 0;
+					next;
+				}
+				if($p_continues ) {
+					my $orig_text = $p->text;
+					$line = $orig_text . $line;
+					$p->set_text($line);
+				}
+				else {
+					$p->print($FH1);
+					$p->DESTROY;
+					$p = XML::Twig::Elt->new('p');
+					$p->set_text($line);
+					$p_continues = 1;
+				}
+			}
+			if ($p) {
+				$p->print($FH1);
+				$p->DESTROY;
 			}
 		}
 	}
-	# The text does not contain newstext tags:
-	else {
-		my $p_continues=0;
-		my $p;
-		my @text_array = split(/[\n\r]/, $string);
-		for my $line (@text_array) {
-			$line .= "\n";
-			if (! $p ) {
-				$p = XML::Twig::Elt->new('p');
-				$p->set_text($line);
-				$p_continues = 1;
-				next;
-			}
-			if( $line eq "\n"  ) {
-				$p_continues = 0;
-				next;
-			}
-			if($p_continues ) {
-				my $orig_text = $p->text;
-				$line = $orig_text . $line;
-				$p->set_text($line);
-			}
-			else {
-				$p->paste( 'last_child', $body);
-				$p = XML::Twig::Elt->new('p');
-				$p->set_text($line);
-				$p_continues = 1;
-			}
-		}
-		$p->paste( 'last_child', $body);
-	}
-	$header->paste( 'last_child', $document);
-	$body->paste( 'last_child', $document);
-
-# Open file for printing out the summary.
-	my $FH1;
-	open($FH1,  ">$file");
-	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
-	$document->print($FH1);
-	$document->DESTROY;
+	close INFH;
+	print $FH1 qq|</body>|;
+	print $FH1 qq|</document>|;
 	close $FH1;
 }
-	
-	
+
+# routine for printing out header in the middle of processing
+# used in subroutine txtclean.
+sub printheader {
+	my ($header, $fh) = @_;
+
+	$header->print($fh);
+	$header->DESTROY;
+	print $fh qq|<body>|;
+
+}	
 
 
 sub pdfclean {
