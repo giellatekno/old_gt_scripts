@@ -127,14 +127,15 @@ sub process_file {
 	my $section_count;
 	my $twig = XML::Twig->new(twig_handlers =>
 							  { header => \&header,
-								p  => sub { $p_count += 1; },
-								section  => sub { $section_count += 1; },
-							});
+								p  => sub { $p_count += 1; $_[0]->purge; },
+								section  => sub { $section_count += 1; $_[0]->purge; }}
+							  );
 	if (! $twig->safe_parsefile("$file")) {
 		my $nonvalid = XML::Twig::Elt->new('nonvalid'); 
 		$nonvalid->paste( 'last_child', $file_elt);
 		print STDERR "$file: ERROR parsing the XML-file failed.\n";		  
 	}
+
 	
 	my $p_count_elt = XML::Twig::Elt->new('pcount'); 
 	my $section_count_elt = XML::Twig::Elt->new('sectioncount'); 
@@ -142,34 +143,35 @@ sub process_file {
 	$section_count_elt->set_text($section_count);
 	$p_count_elt->paste( 'last_child', $size);
 	$section_count_elt->paste( 'last_child', $size);
-
+	
 	$size->paste( 'last_child', $file_elt);
 
 	my $filename = XML::Twig::Elt->new('filename');
 	$filename->set_text($file);
 	$filename->paste( 'last_child', $file_elt);
-
+	
 	# Create language and genre structure if needed
 	if($count{$root}{$lang}{'count'} == 1) {
 		if($lang_elt) {
-			$lang_elt->print($FH1);
-			$lang_elt->DESTROY;
-			
+			if ($langgenre_elt) {
+				print $FH1 qq|\n</genre>|;
+				$langgenre_elt=0;
+			}
+			print $FH1 qq|\n</language>|;
+			$lang_elt=0;
 		}
-		$lang_elt = XML::Twig::Elt->new('language');
-		$lang_elt->set_att('xml:lang', $lang);
+		print $FH1 qq|\n<language xml:lang="$lang">|;
+		$lang_elt=1;
 	}
 	
 	if($count{$root}{$lang}{$genre}{'count'} == 1) {
-		if ($langgenre_elt) {		
-			$langgenre_elt->DESTROY;
-		}
-		
-		$langgenre_elt = XML::Twig::Elt->new('genre');
-		$langgenre_elt->set_att('name', $genre);
-		$langgenre_elt->paste( 'last_child', $lang_elt);
+		print $FH1 qq|\n<genre name="$genre">|;		
+		$langgenre_elt=1;
 	}
-	$file_elt->paste( 'last_child', $langgenre_elt);
+	$file_elt->print($FH1);
+	$file_elt->DESTROY;
+
+	$twig->purge;
 }
 
 # Copy relevant header fields to the summary
@@ -189,7 +191,7 @@ sub header {
 	my $wordcount2;
 	my $wordcount = $header->first_child('wordcount');
 	if($wordcount) { $wordcount2 = $wordcount->copy; 
-					 $wordcount2->paste( 'last_child', $size);
+					 $wordcount2->paste( 'last_child', $file_elt);
 				 }
 	my $translated_from2;
 	my $translated_from = $header->first_child('translated_from');
@@ -202,11 +204,13 @@ sub header {
 	if($multilingual) { $multilingual2 = $multilingual->copy; 
 						$multilingual2->paste( 'last_child', $file_elt);
 					}
-
 }
+if($langgenre_elt){
+	print $FH1 qq|\n</genre>|;	
+}
+
 if($lang_elt){
-	$lang_elt->print($FH1);
-	$lang_elt->DESTROY;
+	print $FH1 qq|\n</language>|;	
 }
 
 print $FH1 qq|\n</summary>|;
