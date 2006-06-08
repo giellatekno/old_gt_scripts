@@ -53,6 +53,8 @@ public:
 
   const char * GetValue(const char *pName) const;
   string       sGetValue(const char *pName) const;
+  
+  void addAttrib(string pName, string pValue);
 
   string GetFullText();
 

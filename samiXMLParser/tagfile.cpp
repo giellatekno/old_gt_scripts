@@ -221,31 +221,65 @@ const char * TagParser::GetValue(const char *pName) const
   return "";
 }
 
+//===========================================================
+void TagParser::addAttrib(string pName, string pValue)
+{
+    attr.push_back(new TagAttribute(pName,pValue));
+}
+
 //===========================================================    	
 string TagParser::GetFullText()
 {
-  switch(Type())
+  int intend = -3;
+  string ret;
+
+  while (GetNextToken())
   {
-    case TagParser::TAG_START_TAG:
-	{
-		 string ret;
+      string space = "";
+      switch(Type())
+      {
+        case TagParser::TAG_START_TAG:
+        	{
+          intend++;
+    
+          for (int i = 0; i < intend; i++)
+            space += "  ";
 
-		 ret = string("<") + Value();
-		 const list<TagAttribute*> &lst = GetAttribs();
+    		 ret += space + string("<") + Value();
+    		 const list<TagAttribute*> &lst = GetAttribs();
+    
+    		 if (lst.size())
+    		 {
+    			ret += string(" ");
+    		    for(list<TagAttribute*>::const_iterator i = lst.begin(); i != lst.end();++i)
+             {
+                if ((*i)->getName() != "/")
+      		      ret += (*i)->getName() + "=\"" + (*i)->getValue() + "\" ";
+                else
+                {
+                   ret += "/";
+                   intend--;
+                }
+             }
+    		 }
+             
+         if (Value().find_first_of("/")!=string::npos)
+            intend--;
+            
+    		 ret += ">\n";
+    	    }
+    	      break;
+        case TagParser::TAG_END_TAG:
+          for (int i = 0; i < intend; i++)
+            space += "  ";
 
-		 if (lst.size())
-		 {
-			ret += string(" ");
-		    for(list<TagAttribute*>::const_iterator i = lst.begin(); i != lst.end();++i)
-  		      ret += (*i)->getName() + "=" + (*i)->getValue() + " ";
-		 }
-		 ret += ">";
-	 }
-	  break;
-    case TagParser::TAG_END_TAG:
-	  return string("</") + Value() + ">";
-    case TagParser::TAG_WORD:
-	  return Value();
-  } 
-  return "";
+          intend--;
+            
+    	      ret += "\n" + space + string("</") + Value() + ">\n";
+          break;
+        case TagParser::TAG_WORD:
+    	      ret += space + Value() + " ";
+      } 
+  }
+  return ret;
 }
