@@ -13,7 +13,6 @@
 # Run the script corpus_summary.pl, check the result and store to cvs.
 # Script is used mainly via crontab.
 
-corpdir=/usr/local/share/corp
 tmpdir=/home/saara/cron
 outdir=$tmpdir/gt/doc/lang/corp
 
