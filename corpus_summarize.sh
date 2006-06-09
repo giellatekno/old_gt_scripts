@@ -39,7 +39,6 @@ echo "corpus-summary.xml was not valid. exiting.."
 exit
 fi
 
-exit
 if [ -s "$outdir/corpus-summary.xml" ]
 then
 	echo "checkin $outdir/corpus-summary.xml"
