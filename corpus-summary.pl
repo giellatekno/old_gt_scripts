@@ -165,6 +165,10 @@ sub process_file {
 	}
 	
 	if($count{$root}{$lang}{$genre}{'count'} == 1) {
+		if ($langgenre_elt) {
+			print $FH1 qq|\n</genre>|;
+			$langgenre_elt=0;
+		}
 		print $FH1 qq|\n<genre name="$genre">|;		
 		$langgenre_elt=1;
 	}
@@ -191,7 +195,7 @@ sub header {
 	my $wordcount2;
 	my $wordcount = $header->first_child('wordcount');
 	if($wordcount) { $wordcount2 = $wordcount->copy; 
-					 $wordcount2->paste( 'last_child', $file_elt);
+					 $wordcount2->paste( 'last_child', $size);
 				 }
 	my $translated_from2;
 	my $translated_from = $header->first_child('translated_from');
@@ -201,8 +205,7 @@ sub header {
 
 	my $multilingual2;
 	my $multilingual = $header->first_child('multilingual');
-	if($multilingual) { $multilingual2 = $multilingual->copy; 
-						$multilingual2->paste( 'last_child', $file_elt);
+	if($multilingual) { $multilingual2  = XML::Twig::Elt->new('multilingual');
 					}
 }
 if($langgenre_elt){
