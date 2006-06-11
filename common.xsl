@@ -480,7 +480,100 @@
 				</xsl:element>
 			</xsl:if>
 
-		    <xsl:choose>
+			<xsl:if test="$parallel_texts">
+				<xsl:if test="$para_sme">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$smelang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_sme"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_smj">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$smjlang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_smj"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_sma">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$smalang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_sma"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_nob">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$noblang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_nob"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_nno">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$nnolang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_nno"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_swe">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$swelang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_swe"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_fin">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$finlang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_fin"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_ger">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$gerlang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_ger"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$para_eng">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+							<xsl:value-of select="$englang"/>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_eng"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+			</xsl:if>
+
+			<xsl:choose>
 			<xsl:when test="$metadata">
 				<xsl:element name="metadata">
 				<xsl:choose>
