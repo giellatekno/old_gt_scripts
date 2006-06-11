@@ -170,9 +170,8 @@ void ProcessWord (TagParser &parse)
 {
    string word = parse.Value();
 
-// Commented out the test for language, since the language is
-// still missing or incorrect in many corpus files. -- sh
-   if (( bElementLang) &&
+// if language is not given all the paras are printed.
+   if ((sLang[0] == '\0' || bElementLang) &&
 	   (bPrintPara && bInPara)   ||
        (bPrintTitle && bInTitle) ||
        (bPrintList && bInList)   ||
