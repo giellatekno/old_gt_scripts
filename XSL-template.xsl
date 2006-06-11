@@ -84,6 +84,19 @@
 <xsl:variable name="mlang_eng" select="''"/>
 <xsl:variable name="mlang_oth" select="''"/>
 
+<!-- If the document has parallel texts, select "1" for parallel_texts -->
+<!-- Add the locations of the parallel files to the variables-->
+<xsl:variable name="parallel_texts" select="''"/>
+<xsl:variable name="para_sme" select="''"/>
+<xsl:variable name="para_smj" select="''"/>
+<xsl:variable name="para_sma" select="''"/>
+<xsl:variable name="para_nob" select="''"/>
+<xsl:variable name="para_nno" select="''"/>
+<xsl:variable name="para_swe" select="''"/>
+<xsl:variable name="para_fin" select="''"/>
+<xsl:variable name="para_ger" select="''"/>
+<xsl:variable name="para_eng" select="''"/>
+
 <!-- Tag the specified elements with the specified language: -->
 <xsl:variable name="smelang" select="'sme'"/>
 <xsl:variable name="smjlang" select="'smj'"/>
@@ -94,6 +107,7 @@
 <xsl:variable name="finlang" select="'fin'"/>
 <xsl:variable name="englang" select="'swe'"/>
 <xsl:variable name="gerlang" select="'fin'"/>
+
 
 <!-- Add all paragraphs that should have xml:lang=X-->
 <!-- Uncomment the following and add the paths, for example: -->
