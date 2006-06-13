@@ -121,6 +121,7 @@ utgåve
 1Samisk
 1Turisten
 1Ættarbok
+4-åringer
 6]Noter
 75Ih
 8-bits
@@ -217,6 +218,7 @@ Ekspress
 Emneregister
 Emulation
 Enbusk
+Eple6
 Erfarenheterna
 Erhvervsmaade
 Ethnographie
@@ -233,12 +235,14 @@ FDAFFinmarkens
 FSSFinnmark
 FaaBForordninger
 Familiebog
+Familiegudstjeneste
 Familievern
 Familievernkontorers
 Far
 Farminga
 Fastighetsrättens
 Fastsetting
+Fastebønn
 Fearøsk
 Fegner
 FellesLappeloven
@@ -359,6 +363,8 @@ Hjemmehavnene
 Holt-Takamine
 Husdyrene
 Håløygminne
+Høymesse
+Høytidsgudtjeneste
 Högtährade
 Hülpers
 Hülphers
@@ -410,6 +416,9 @@ Knochen
 Koccam
 Kolarctic
 Kompetansesenter
+Konfirmantarbeid
+Konfirmantarbeidet
+Konfirmantpresentasjon
 Kongerigerne
 Kontaktilähtöinen
 Kontorsystemer
@@ -490,6 +499,7 @@ Mennesterettighetene
 Mennneskerettigheter
 Michelsens
 Middagsfjellområdet
+Midnattsrocken
 Milj-og
 Minneskrift
 Mordvalaiskielten
@@ -499,6 +509,7 @@ Museumsutvikling
 Mut
 Mänkee
 Møtebok
+møterummet
 NLNorske
 NNSNord-norske
 NRRNorske
@@ -520,6 +531,7 @@ Nordmands-øerne
 Nordmandspige
 Nordmændene
 Nordnorske
+Nordvest-Russland
 Normalvisning
 Norvegie
 Norvvagicum
@@ -652,6 +664,7 @@ Schnitlers
 Secwepemc
 Sehnen
 Sentraladministrasjonens
+Setervandring
 Siidaen
 Sikkerhetsproblemer
 Situerte
@@ -778,6 +791,7 @@ Vestlandsbygdene
 Vidner
 Vierenhalben
 Vigenss
+Vikarprest
 Vilkaar
 Vinterfšring
 Vinterbetesområden
@@ -1012,6 +1026,7 @@ fiskeretten
 fiskerettigheter
 fiskeriers
 fiskerikommune
+fiskerinæringa
 fiskerireguleringer
 fiskeristatistikk
 fjellbeitene
@@ -1422,6 +1437,7 @@ minnoalaine
 minoritetskulturene
 minoritetspolitikk
 minoritetspolitisk
+misjonsprosjekt
 mobiltelefon-
 modergudinnens
 morce
@@ -1873,6 +1889,8 @@ tjenesteytere
 tjenesteyting
 tonne
 topografiens
+torsdagsavisen
+torsdagsavisene
 tospråklighet
 totalkulturen
 tractationes
@@ -1966,6 +1984,7 @@ veterinærhøyskole
 vexler
 videnskabers
 videreforedle
+videreforedling
 vidneforklaringer
 vidreki
 vigende
@@ -2192,6 +2211,7 @@ barnehagens
 Vinterskolens
 demens
 årsplanens
+KOMMUNE
 KOMMUNENS
 Lederens
 vegvesen:s
@@ -2362,6 +2382,7 @@ gränsbetesområde
 förhållanden
 Karlstadskonventionen
 Kirke-
+Kirkekaffe
 Konventionen
 Konventionens
 Konventionsområdena
@@ -2686,6 +2707,7 @@ fungerar
 främjar
 fremgår
 folkrätten
+fluefiske
 flyttningen
 flyttade
 fjällsamebyarna
@@ -2781,6 +2803,7 @@ föregående
 folkrättsliga
 folkgrupp
 fattar
+fasteaksjon
 fastlege
 fastslagna
 etablerade
@@ -3661,6 +3684,10 @@ minska
 minoritets-
 minimera
 mildväder
+menighetshuset
+Menighetsarbeid
+Menighetsarbeidet
+Menighetsrådsvalg
 meningar
 mellanstatliga
 medgivande
@@ -3818,6 +3845,7 @@ disponerade
 desentrale
 delegationsordförande
 definieras
+danselag
 danska
 dalgångar
 började
@@ -3895,6 +3923,7 @@ alltjämt
 allmennlegetjenesten
 administrerar
 accepterar
+Utegudstjeneste
 Utviklingspsykologi
 Utifrån
 Uppstår
@@ -6190,6 +6219,7 @@ snøforholdene
 Nemndene
 grensegjerdene
 rådene
+hovedbilde
 Hovedområdene
 landområdene
 språkområdene
@@ -6250,6 +6280,7 @@ diagnosegruppene
 målgruppene
 nyrene
 binyrene
+Reiseliv
 Reisene
 oksene
 Hedmarks
@@ -6489,6 +6520,7 @@ Synliggjøring
 synliggjøring
 omgjøring
 hundekjøring
+hundespann
 nedising
 Parsing
 Parterna
@@ -6585,6 +6617,7 @@ gjerdespørsmål
 lovgivningsspørsmål
 næringsspørsmål
 Ungdomsspørsmål
+Ungdommenshus
 heklenål
 nǧl
 maam
@@ -6875,6 +6908,7 @@ livsområder
 lavområder
 Fifer
 Sager
+kirkebok
 kirkedager
 virkedager
 plager
