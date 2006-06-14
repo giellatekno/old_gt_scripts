@@ -144,6 +144,7 @@ Amts
 Anners
 Arbetets
 Arders
+Arkivbilde
 Arpakšad
 Atque
 Atskilligt
@@ -151,6 +152,7 @@ Aufbewahrungsstelle
 Auflage
 Automobil-Forbund
 Avhendelse
+BILDE
 Balkenwerk
 Bankwatch
 Barn-
@@ -192,6 +194,7 @@ Confercnce
 Constitutionelle
 Coregonus
 Creolization
+Dagstur
 Datatjeneste
 Decolonizing
 Deele
@@ -199,9 +202,11 @@ Denderen
 Dessutom
 Deutschen
 Diakonhjemmets
+Diakoniarbeid
 Diehtie
 Diek
 Domstolens
+Dyrebeskyttelsen
 Dåjmalasj
 Därefter
 ECOSOC
@@ -303,6 +308,7 @@ Folkerettens
 Folkrätten
 Forelæsninger
 Forerindring
+Forhåndssalg
 Forordning
 Forpligtelser
 Forschung
@@ -311,6 +317,7 @@ Forstaar
 Forstudier
 Forurensningstilsyn
 Fremskrittspartiet
+Friluftsgudstjeneste
 Friluftslivets
 Friluftsrådenes
 Frühjahr
@@ -335,6 +342,7 @@ Geschichte
 Gesicht
 Girjie
 Gjærningsmændene
+Gollevarre
 Gruveaktiebolag
 Grändser
 Grådighet
@@ -370,7 +378,9 @@ Hülpers
 Hülphers
 IT-enhet
 ITinfrastruktur
+Ibbagirkumarsjen
 Identitetens
+Idrettshallen
 Imigrants
 Indfjordene
 Indkomne
@@ -421,6 +431,7 @@ Konfirmantarbeidet
 Konfirmantpresentasjon
 Kongerigerne
 Kontaktilähtöinen
+Kontaktp:
 Kontorsystemer
 Konung
 Konungariket
@@ -443,6 +454,7 @@ Kyper
 L.c
 Lakseelver
 Landbrukskontorets
+Langnesmarked
 Lapmarkiske
 Lappalaisten
 Lappar
@@ -481,6 +493,7 @@ Lovkyndighed
 Lulelapsk
 Lullisámig
 Luopioinen
+Lysmesse
 Lyydiläismurteiden
 Læringssenterets
 Länsstyrelserna
@@ -572,6 +585,7 @@ Pas.Postnrsted
 Pas.Fornavn
 Pas.Etternavn
 Pas.Adresse
+Pasjonsgudstjeneste
 Pastoralits
 Pasvig
 Peahccam
@@ -584,6 +598,7 @@ Pohjansäde
 Postog
 Produksjonsstøtte
 Profinske
+Prostiprest
 Protokollet
 Protolappisch
 Q-meieriene
@@ -634,8 +649,11 @@ Røvertog
 SAK.
 SATØStatsarkivet
 SamSamtak
+Samecup
 Samefolkets
+Sameforening
 Samekvinnens
+Samemisjonen
 Samenes
 Samenes
 Samepolitikk
@@ -659,10 +677,12 @@ Samorganisasjon
 Samtak
 Samtidigt
 Sandemark
+Sangkveld
 Schamleiste
 Schnitlers
 Secwepemc
 Sehnen
+Seidafjellet
 Sentraladministrasjonens
 Setervandring
 Siidaen
@@ -704,16 +724,23 @@ Stappene
 Stastsskog
 Statkog-
 Statpipeledningene
+Stefanusdagen
 Ste-eller
 Steinsliperiet
 Stensliperiet
 Stor-
 Storjunkkare
+Storlule
 Storog
+Storstilt
 Stortingstidende
 Strabadser
+Strandfiskekonkurranse
 Strandtindene
+Strandvandring
+Streifarrangement
 Strækninger
+Studieforbund
 Stålhane
 Stängsel
 Sub-Commission
@@ -724,6 +751,8 @@ Sustainable
 Sver
 Sydsamisk
 Sydsamisk-norsk
+Sykkelens
+Sykkelkonkurranse
 Symposio
 Sys.Dato
 Sårene
@@ -737,7 +766,9 @@ Søksmålbetingelser
 Sørsamisk
 Sør-Varangers
 Tallak
+Tanabreddens
 Tanaelvens
+Tanamarkedet
 Teahter
 Teatere
 Teltneset
@@ -752,6 +783,7 @@ Tiendekanden
 Tiivistelmä
 Tilleg
 Tillägnade
+Tilsett
 Tingbok
 Tingsrettslige
 Topographisk-Statistisk
@@ -791,11 +823,13 @@ Vestlandsbygdene
 Vidner
 Vierenhalben
 Vigenss
+Vik.prest
 Vikarprest
 Vilkaar
 Vinterfšring
 Vinterbetesområden
 Vitenskapsspørsmålet
+Voksenklasse
 Vorträge
 Västre
 Wahrnehmungsvermögen
@@ -818,6 +852,7 @@ aalðhkie
 abspalten
 acconts
 ad-hoc
+administra-sjonssted
 administrasjonsavdeling
 administrasjonsavdelingen
 administrasjonshistorie
@@ -988,6 +1023,7 @@ eminens
 emisk
 energiverk
 eneyrke
+entreprenørskap
 eren
 erweiterte
 esj
@@ -998,8 +1034,10 @@ etymologinen
 etymologischen
 evanjgelium
 faae
+fagansvar
 fagopplæring
 fagskole
+fangstanlegg
 fangstsamfunnets
 fastighetsrätt
 feiltolket
@@ -1025,9 +1063,11 @@ fisker-
 fiskeretten
 fiskerettigheter
 fiskeriers
+fiskerforening
 fiskerikommune
 fiskerinæringa
 fiskerireguleringer
+fiskerisamarbeid
 fiskeristatistikk
 fjellbeitene
 fjellbeiter
@@ -1106,6 +1146,7 @@ glühen
 goble
 goesngedh
 goesngehtidh
+grendehus
 grensedragninger
 grenseeksaminasjonsprotokoller
 grenseeksamisnasjonsprotokoller
@@ -1171,6 +1212,7 @@ hotade
 hullunkurinen
 hunde
 husflidsskole
+husklyngene
 hvalreki
 hybenum
 hyvännaaluinen
@@ -1217,6 +1259,7 @@ interprete
 intranett
 ishafvet
 jakultur
+jeger-
 jete
 johss
 jordbrugende
@@ -1287,6 +1330,7 @@ koordináhtor
 kopibøker
 korttaa
 korventaa
+korverksted
 korvikeäänne
 kosio
 koskettoa
@@ -1349,6 +1393,7 @@ laektedh
 lagerrom
 laksefisk
 laksefiske
+laksefiske-festival
 laksefiskeinteressentskap
 laksefisket
 lampaannahkainen
@@ -1430,6 +1475,7 @@ merjiennam
 metodelære
 mezzopiano
 miljø-ødeleggelsene
+miljøovervåking
 milliare
 milliwatt
 mineralressurser
@@ -1485,6 +1531,7 @@ nykytutkimuksen
 nysing
 nysne
 näringens
+nærings-
 næringsavdeling
 næringsmessig
 næringsråd
@@ -1556,6 +1603,8 @@ persona
 perspektivets
 pertransire
 pesetas
+petroleumsnæringen
+petroleumsutviklingen
 petroleumsvirksomheten
 peuplere
 pipende
@@ -1630,6 +1679,8 @@ reinforskning
 reinnomader
 reintallet
 reintråkk
+reiseliv
+reiselivsnæringen
 reiselivsnæringer
 rekamark
 rekipeitto
@@ -1686,6 +1737,7 @@ safeguarded
 sakrätt
 saksbehandlingsprinsipper
 salgslagene
+salmebøker
 samarnes
 samefolkets
 samekonvensjon
@@ -1718,6 +1770,7 @@ sana-arkisto
 sanakirja
 sanastosta
 sangare
+sangtime
 satuttaa
 schillet
 schlagen
@@ -1939,9 +1992,12 @@ urkunder
 urminnestider
 usum
 usvainen
+ut-markshøsting
 utarming
 utbredning
 utdanningskadelidde
+utefest
+utemarked
 utenlandsbehandling
 utifra
 utmaninig
@@ -2032,7 +2088,10 @@ zerchlagen
 Åarjelsaemien-daaroen
 Åhpadusministar
 Åndre
+åp.dag
 Åpenhet
+Åpning
+Åpningsarrangement
 Åpningsforedrag
 Ældste
 Ö
@@ -2173,6 +2232,7 @@ utviklingsmidler
 reaksjonsmidler
 omløpsmidler
 gaveartikler
+artikkelens
 hovedkapitler
 snøhuler
 budsjettrammer
@@ -2194,6 +2254,7 @@ Ressurssenter
 turistsenter
 TURISTSENTER
 Turistsenter
+Turmarsj
 melkekvoter
 forhaster
 SOSIALTJENESTER
@@ -2241,8 +2302,10 @@ servicetorget
 auget
 vedtaksmyndighet
 forenhet
+fotballvenner
 kuenhet
 puterom
+Punktkonserter
 Puterommet
 satinet
 ubemannet
@@ -2287,6 +2350,7 @@ handlingsplanen
 Opplæringsplanen
 tiltaksplanen
 Gámasuidnen
+Motorklubb
 Momskompensasjonen
 brannstasjonen
 barnehagesituasjonen
@@ -2383,6 +2447,7 @@ förhållanden
 Karlstadskonventionen
 Kirke-
 Kirkekaffe
+kafffe
 Konventionen
 Konventionens
 Konventionsområdena
@@ -2440,6 +2505,7 @@ antalet
 konvensjonsområdet
 ökade
 renskötare
+p.p.
 pic
 medför
 konventionsavgift
@@ -2707,6 +2773,7 @@ fungerar
 främjar
 fremgår
 folkrätten
+flue-binding
 fluefiske
 flyttningen
 flyttade
@@ -2778,6 +2845,10 @@ möten
 motiverar
 minskat
 medfört
+markedsuka
+markedsplassen
+markedsorienterin
+markeds-plassen
 markerna
 lösning
 liknande
@@ -2968,6 +3039,7 @@ folkegruppe
 flyttningsmönster
 flyttningarna
 flerkulturell
+flerkulturelle
 fjällrenskötsel
 fjellkjeden
 fastställda
@@ -2979,6 +3051,7 @@ dåliga
 driftsforhold
 domarvärv
 dobbelbeiting
+dobbeltrom
 doaim.
 disponerar
 delges
@@ -3005,6 +3078,8 @@ samløpet
 reindriftsområdene
 phl
 pasientrettigheter
+komparative
+kompetansemiljøer
 kompetanseutvikling
 jođ
 helsestasjons-
@@ -3251,6 +3326,7 @@ fylkeslegenes
 fungerande
 framför
 fortsätta
+forsknings-
 forskningsdepartementet
 folkrättsligt
 flacka
@@ -3441,6 +3517,8 @@ uppenbarligen
 uppehållet
 uppdraget
 ungdomsalderen
+ungdomsklasse
+ungdommenshus
 undviks
 underutskott
 undertecknandet
@@ -3507,6 +3585,7 @@ spesialisthelsetjeneste
 sosialkomiteen
 sosialfag
 sommerbeiteområdet
+sommernatt
 sommarlandet
 sommarbetet
 sommarbetesdistrikt
@@ -3685,9 +3764,11 @@ minoritets-
 minimera
 mildväder
 menighetshuset
+Menighetsbladet
 Menighetsarbeid
 Menighetsarbeidet
 Menighetsrådsvalg
+menighetssalen
 meningar
 mellanstatliga
 medgivande
@@ -3812,6 +3893,8 @@ fjällområdet
 fjällområdena
 fjällområde
 fjordområdena
+fjord-områder
+fjellkirke
 fjellreindrift
 filippilaccaide
 fastställt
@@ -3923,6 +4006,7 @@ alltjämt
 allmennlegetjenesten
 administrerar
 accepterar
+Utefest
 Utegudstjeneste
 Utviklingspsykologi
 Utifrån
@@ -4479,6 +4563,7 @@ snömängden
 snöförhållandena
 snö-
 småbørn
+småskala
 smältningsprocessen
 smältning
 smávvat
@@ -4514,6 +4599,7 @@ skoterkörning
 skolor
 skolehelsestjenesten
 skole-
+skole-internat
 skogsvårdsstyrelserna
 skogsvårdslagen
 skogsvägen
@@ -4930,6 +5016,7 @@ ofördelaktiga
 ofullständigt
 offentligrättsliga
 offentligrättslig
+offersteiner
 odlingsgrensen
 oceaniskt
 oceaniska
@@ -5093,10 +5180,12 @@ majoritetsbeslut
 magrar
 magesekken
 magarna
+lensmanns-kontoret
 lösts
 lösningarna
 lösmassor
 löser
+lærebedrifter
 lærerhøgskole
 långvariga
 lågfjällsterrängen
@@ -5832,6 +5921,7 @@ entledigades
 enspråklige
 enskilds
 enskildes
+enkeltrom
 enkeltsak
 enheterna
 energiförlust
@@ -5893,6 +5983,7 @@ bidragssystemen
 bidragsregler
 bidragande
 bevisuppgifter
+bevilgningsmyndighet
 beviljas
 beviljar
 bevarat
@@ -6065,6 +6156,7 @@ auktoriserad
 aspekterna
 asbesta
 arrenderad
+arrange-ment
 arrangerat
 arealförlusten
 arealen
@@ -6235,6 +6327,7 @@ sosialfagene
 plagene
 magene
 høydedragene
+høykapasitets
 Fylkeslegene
 dalgangene
 kommisjonsforhandlingene
@@ -6284,6 +6377,7 @@ Reiseliv
 Reisene
 oksene
 Hedmarks
+Hedningarna
 Hendelsene
 beskrivelsene
 landegrensene
@@ -6300,10 +6394,12 @@ Samebyene
 Fjellsamebyene
 fagmiljøene
 sjøene
+sjømat
 innsjøene
 veine
 angrepne
 Barne
+Barnearbeid
 urinlederne
 delegasjonslederne
 sosialarbeiderne
@@ -6388,6 +6484,7 @@ grunnløse
 bevisoppgave
 ilag
 Skilag
+Skiippagurra-festivalen
 Skjomens
 omlag
 verdigrunnlag
@@ -6766,6 +6863,7 @@ Handlingsplanen
 brubyggingHandlingsplanen
 handlingsingsplanen
 ungdomsplanen
+villrein
 villreinen
 Folkemedisinen
 hinnen
@@ -6798,6 +6896,7 @@ innleggelsen
 meddelelsen
 Områdegrensen
 områdegrensen
+Søndagsskolen
 Sørgrensen
 sørgrensen
 eiendomsgrensen
@@ -6812,6 +6911,8 @@ planprosessen
 fordøyelsesprosessen
 Fornorskingsprosessen
 fornorskingsprosessen
+fornybar
+fornybare
 skogpleieloven
 helsepersonelloven
 dekningsloven
@@ -6910,6 +7011,7 @@ Fifer
 Sager
 kirkebok
 kirkedager
+kirkesenter
 virkedager
 plager
 kommuneleger
@@ -7132,6 +7234,7 @@ vassdragenes
 avdelingenes
 familienes
 Skolenes
+Skolestivandring
 Karesuandosamenes
 Fylkesmennenes
 forhandlingsdelegasjonenes
