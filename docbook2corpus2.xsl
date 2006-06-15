@@ -308,6 +308,11 @@ Find the book element, which then is converted to the "document" tag
 </xsl:template>
 
 <!-- Ignored elements -->
+<xsl:template match="footnote"/>
+<xsl:template match="footnoteref"/>
+<xsl:template match="note"/>
+<xsl:template match="tip"/>
+
 <xsl:template match="corpname"/>
 <xsl:template match="subscript|superscript"/>
 <xsl:template match="beginpage"/>
