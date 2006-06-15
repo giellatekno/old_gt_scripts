@@ -144,14 +144,6 @@ sub process_file {
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
-		if( -f $int) { 
-			$command = "rm -rf \"$int\"";
-			exec_com($command, $file);
-		}
-		if( -f $intfree) { 
-			$command = "rm -rf \"$intfree\"";
-			exec_com($command, $file);
-		}
 		return;
 	}
 	return if (! -f $file);
