@@ -300,8 +300,6 @@ sub process_file {
 	exec_com($command, $file);
 	copy ($tmp1, $int) ;
 
-#	return;
-
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
@@ -402,7 +400,12 @@ sub process_file {
 		# Validate the xml-file unless web upload.
 		if(! $upload) {
 			$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
-			exec_com($command, $file);
+			if( exec_com($command, $file) != 0 ) {
+				print STDERR "ERROR: not valid xml, removing $int.. STOP.\n";
+				$command = "rm -rf \"$int\"";
+				exec_com($command, $file);
+				return;
+			}
 		}
 		copy ($tmp, $int) 
 			or print STDERR "ERROR: copy failed ($tmp $int)\n";
@@ -499,8 +502,11 @@ sub exec_com {
 	if ($test) {
 		print STDERR "$com\n";
 	}
-	system($com) == 0 
-			or print STDERR "$file: ERROR errors in $com. \n";
+	if ( system($com) != 0 ) { 
+		print STDERR "$file: ERROR errors in $com: $!\n";
+		return $?;
+	}
+	else { return 0; }
 }
 
 
