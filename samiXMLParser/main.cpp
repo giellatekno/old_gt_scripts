@@ -211,7 +211,7 @@ void ProcessTag (TagParser &parse)
             if (bAddID)
                 DumpTag(0, iParaNum, parse);
         }
-        else if (bAddID)
+        else if (bPrintEndTag && bAddID)
             DumpTag(0, 0, parse);
 
 //        if (!bInPara && !bInTitle && !bInList && !bInTable)
