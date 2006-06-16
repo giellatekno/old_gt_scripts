@@ -187,6 +187,8 @@ void ProcessTag (TagParser &parse)
   if (parse.Value() == "document")
     {
 	  bDocLang = parse.sGetValue("xml:lang") == sLang ? true : false;
+      
+      if (bAddID) DumpTag(0, 0, parse);
     }
   else if (parse.Value() == "p")
     {
@@ -204,7 +206,7 @@ void ProcessTag (TagParser &parse)
 //        }
 
         if (bInPara)
-      {
+        {
             iParaNum++;
             if (bAddID)
                 DumpTag(0, iParaNum, parse);
@@ -214,7 +216,7 @@ void ProcessTag (TagParser &parse)
 
 //        if (!bInPara && !bInTitle && !bInList && !bInTable)
         if (parse.Type() == TagParser::TAG_END_TAG && bPrintEndTag) {
-            cout << "¶\n";
+            if (!bAddID) cout << "¶\n";
             bPrintEndTag = false;
         }
     }
@@ -233,11 +235,13 @@ void DumpTag(int Spaces, int id, TagParser &parse, bool bEofLine)
   cout << "<";
   if (parse.Type() == TagParser::TAG_END_TAG)
     cout << "/";
+/*
   else if (id > 0)
   {
     temp << id;
     parse.addAttrib("id", temp.str());
   }
+*/
   cout << parse.Value();
   const list<TagAttribute*> &lst = parse.GetAttribs();
   if (lst.size())
