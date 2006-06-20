@@ -205,11 +205,17 @@ void ProcessTag (TagParser &parse)
             bInTable = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "tablecell" ? true : false;
 //        }
 
-        if (bInPara)
+        if (bAddID && 
+                ((sLang[0] == '\0' || bElementLang) &&
+                   (bPrintPara && bInPara)   ||
+                   (bPrintTitle && bInTitle) ||
+                   (bPrintList && bInList)   ||
+                   (bPrintTable && bInTable)
+                )
+            )
         {
             iParaNum++;
-            if (bAddID)
-                DumpTag(0, iParaNum, parse);
+            DumpTag(0, iParaNum, parse);
         }
         else if (bPrintEndTag && bAddID)
             DumpTag(0, 0, parse);
