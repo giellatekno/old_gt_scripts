@@ -197,7 +197,7 @@ void ProcessTag (TagParser &parse)
 //        {
             bElementLang = parse.sGetValue("xml:lang") == sLang ? true : false;
 			if( bDocLang ) {
-			  bElementLang = parse.sGetValue("xml:lang") == "" ? true : false;
+			  (bElementLang = parse.sGetValue("xml:lang") == "" || parse.sGetValue("xml:lang") == sLang)  ? true : false;
 			}
             bInPara = parse.Type() == TagParser::TAG_START_TAG && (parse.sGetValue("type") == "" ||  parse.sGetValue("type") == "text") ? true : false;
             bInTitle = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "title" ? true : false;
