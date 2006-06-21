@@ -111,7 +111,7 @@ sub read_xml {
 	my $file = shift @_;
 
 	my @languages;
-	my $test=1;
+	my $test=0;
 
 	# Find out the languages specified for the docu.
 	# Take only the header of the document.
@@ -123,11 +123,14 @@ sub read_xml {
 	
 	my $header = $docu->first_child('header');
 	my $multi;
+	my $mainlang_ok=0;
 	if($multi = $header->first_child('multilingual')) {
 		my @langs = $multi->children;
 		for my $lang (@langs) {
 			push @languages, $lang->{'att'}->{'xml:lang'};
+			if ($lang eq $mainlang) { $mainlang_ok=1; }
 		}
+		if (! $mainlang_ok ) { push @languages, $mainlang; }
 		if($test) {
 			if (@languages) { print STDERR "Document is categorized in languages: @languages\n"; }
 			else { print STDERR "text_cat: Document is categorized in languages: all.\n" };
