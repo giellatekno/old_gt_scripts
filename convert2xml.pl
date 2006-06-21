@@ -42,7 +42,7 @@ my $bindir = "/usr/local/share/corp/bin";
 my $gtbound_dir = "bound";
 my $gtfree_dir = "free";
 my $orig_dir = "orig";
-my $gt_gid = 503; # group: cvs
+my $gt_gid = 50782; # group: bound
 my $orig_gid = 50779; #group: corpus
 
 my $docxsl = $bindir . "/docbook2corpus2.xsl";

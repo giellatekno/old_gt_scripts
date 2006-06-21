@@ -55,13 +55,13 @@ gtbound ()
 	  files=`find $bound/$dir -name "*.xml"`
 	  for file in $files
 	  do
-		chgrp cvs $file
+		chgrp bound $file
 		chmod 0660 $file
 	  done
 	  subdirs=$(find $bound/$dir -type d)
 	  for sub in $subdirs
 	  do
-		chgrp cvs $sub
+		chgrp bound $sub
 		chmod 0770 $sub
 	  done
 	 done
