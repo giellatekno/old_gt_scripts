@@ -124,6 +124,20 @@
  </xsl:template>
 -->
 
+<!-- Change or remove problematic characters from the text. -->
+<!-- add the template to match (here all p:s), and write the -->
+<!-- replaced characters and the replacements. -->
+<!--
+<xsl:template match="p">
+<xsl:variable name="text" select='current()' />
+<xsl:element name="p">
+			<xsl:value-of select="translate($text,'ð','đ') "/>
+</xsl:element>
+</xsl:template>
+-->
+
+
+
 <xsl:include href="/usr/local/share/corp/bin/common.xsl"/>
 
 
