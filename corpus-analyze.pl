@@ -67,6 +67,8 @@ while(<$ifh>) {
 	$string .= $_;
 }
 
+if(! $string) { exit; }
+
 my $document = XML::Twig->new(twig_handlers => {  'p' => sub { analyze_para(@_);
 														   keep_encoding => 1 } });
 
