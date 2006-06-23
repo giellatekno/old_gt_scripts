@@ -103,6 +103,8 @@ sub analyze_para {
 	while( my $answer = <R>) { push (@answers, $answer); }
 	close R;
 
+	waitpid $pid, 0 ;
+
   COHORTS:
 	for my $ans (@answers) {
 
