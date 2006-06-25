@@ -130,7 +130,20 @@
 <!--
 <xsl:template match="p">
 <xsl:variable name="text" select='current()' />
+<xsl:variable name="type" select='@type' />
+<xsl:variable name="lang" select='@xml:lang' />
 <xsl:element name="p">
+            <xsl:if test="$type">
+            <xsl:attribute name="type">
+            <xsl:value-of select="$type"/>
+            </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="$lang">
+            <xsl:attribute name="xml:lang">
+            <xsl:value-of select="$lang"/>
+            </xsl:attribute>
+            </xsl:if>
+
 			<xsl:value-of select="translate($text,'ð','đ') "/>
 </xsl:element>
 </xsl:template>
