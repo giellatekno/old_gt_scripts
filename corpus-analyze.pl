@@ -37,6 +37,8 @@ my $preproc = "/usr/local/bin/preprocess";
 my $lookup2cg = "/usr/local/bin/lookup2cg";
 my $tagfile = "/usr/tmp/gt/cwb/korpustags.txt";
 my $corrtypos="/home/trond/bin/corrtypos.pl";
+my $lookup="/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
+my $vislcg="/opt/xerox/bin/vislcg";
 my $s_id=0;
 
 my $infile;
@@ -51,7 +53,7 @@ if ($infile) {
 }
 else { $ifh = 'STDIN'; }
 
-my $analyze = "$preproc --abbr=$abbr --fst=$fst | $corrtypos | lookup -flags mbTT -utf8 -f $cap | $lookup2cg | vislcg --grammar=$rle --quiet";
+my $analyze = "$preproc --abbr=$abbr --fst=$fst | $corrtypos | $lookup -flags mbTT -utf8 -f $cap | $lookup2cg | $vislcg --grammar=$rle --quiet";
 print STDERR $analyze;
 
 my $SENT_DELIM = qq|.!?|;
@@ -75,6 +77,7 @@ my $document = XML::Twig->new(twig_handlers => {  'p' => sub { analyze_para(@_);
 if (! $document->safe_parse ($string)) {
 	print STDERR "Couldn't parse file: $@";
 }
+
 open (FH, ">:utf8", "$outfile") or die "Cannot open $!";
 $document->set_pretty_print('record');
 $document->print( \*FH);
