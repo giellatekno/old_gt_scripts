@@ -66,7 +66,7 @@ my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
 # The directory where fst is stored
 my $fstdir = "/opt/smi/$lang/bin" ;
 # The directory for vislcg and lookup2cg
-my $bindir = "/www/opt/cg/bin" ;
+my $bindir = "/usr/local/bin";
 
 my $out = new CGI;
 &printinitialhtmlcodes ;         # see the subroutine below
