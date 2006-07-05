@@ -217,9 +217,9 @@ sub printinitialhtmlcodes {
 sub printfinalhtmlcodes
 {
     print $out->hr,
-	$out->p("S&aacute;mi giellateknologiija, Trond Trosterud"), 
-	$out->a({href=>"http://giellatekno.uit.no/"},"http://giellatekno.uit.no/"),
+	$out->a({href=>"http://giellatekno.uit.no/"}, "S&aacute;mi giellateknologiija"), 
 	$out->br,
+	$out->a({href=>"mailto:trond.trosterud\@hum.uit.no"},"Trond Trosterud"),
 	$out->end_html;
 }
 
