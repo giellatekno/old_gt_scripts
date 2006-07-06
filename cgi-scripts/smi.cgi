@@ -66,7 +66,7 @@ my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
 # The directory where fst is stored
 my $fstdir = "/opt/smi/$lang/bin" ;
 # The directory for vislcg and lookup2cg
-my $bindir = "/usr/local/bin";
+my $bindir = "/opt/sami/cg/bin" ;
 
 my $out = new CGI;
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -75,7 +75,6 @@ my $out = new CGI;
 if($charset =~ /latin1/) {
 	$text = Unicode::String::latin1( $text);
 }
-
 # Convert html-entity to unicode
 decode_entities( $text );
 
@@ -113,7 +112,9 @@ if ($action =~ /generate/) {
 }
 else {
    if ($cg =~ /disamb/) {
-     $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
+
+     $result = `echo $text | \
+			$bindir/preprocess --abbr=$fstdir/abbr.txt | \
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
 			$bindir/lookup2cg | $bindir/vislcg --grammar=$fstdir/$lang-dis.rle`;  }
   elsif ($cg =~ /analyse/) {
@@ -207,9 +208,10 @@ sub printinitialhtmlcodes {
 
     print $out->header(-type => 'text/html',
                           -charset => 'utf-8');
-    print   $out->start_html('Sami morfologiija');
+    print   $out->start_html(-title => 'Sami morfologiija', -encoding => 'utf-8');
+                                
 
-    print $out->h2("S&aacute;mi instituhtta, Romssa universitehta");
+    print $out->h1("S&aacute;mi instituhtta, Romssa universitehta");
     print $out->p("Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.");
     print $out->hr;
 }
@@ -217,9 +219,8 @@ sub printinitialhtmlcodes {
 sub printfinalhtmlcodes
 {
     print $out->hr,
-	$out->a({href=>"http://giellatekno.uit.no/"}, "S&aacute;mi giellateknologiija"), 
-	$out->br,
-	$out->a({href=>"mailto:trond.trosterud\@hum.uit.no"},"Trond Trosterud"),
+	$out->p(a({href=>"http://giellatekno.uit.no/"},"S&aacute;mi giellateknologiija")),
+	$out->p(a({href=>"mailto:trond.trosterud\@hum.uit.no"}, "Trond Trosterud")),
 	$out->end_html;
 }
 
