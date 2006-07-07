@@ -173,6 +173,7 @@ Blutader
 Blåsjöns
 Bomændene
 Bredtvet
+Brekkebygd
 Brudstykker
 Bruksmåte
 Brønnøysundregistrene
@@ -191,6 +192,7 @@ Charakter
 Christoffers
 Commerse
 Commissarier
+Committee
 Communique
 Confercnce
 Constitutionelle
@@ -708,6 +710,8 @@ Siidaen
 Sikkerhetsproblemer
 Situerte
 Sjøfinnane
+Sjøsamiske
+Skal
 Skattefjällsmålet
 Skatteinnkreverne
 Skogarna
@@ -819,6 +823,7 @@ Työhypoteesina
 Ubmeje
 Ugric
 Umwandlung
+Underholdning
 Undersaatter
 Undersøkelsen
 Universitetsstudiene
@@ -910,6 +915,7 @@ ambulanse-
 amtenes
 amts
 and
+anerkjennelse
 ang
 angaaende
 angaar
@@ -976,6 +982,7 @@ bredbånd
 brekkstang
 brekkstang
 brubygging
+bruke
 bruksretter
 bufinne
 bumanden
@@ -986,6 +993,7 @@ bygeret
 byggstandardiseringsråd
 bygningslova
 byog
+både
 båttermer
 bør
 bøndenes
@@ -999,6 +1007,7 @@ christelig
 cilgen
 cit.s
 citato
+coastal
 complectitur
 conditionelle
 conserned
@@ -1891,6 +1900,7 @@ skyter
 skánner
 slic
 slik
+slikt
 sluttføres
 smaler
 snorking
@@ -1910,7 +1920,9 @@ spier
 spinnen
 spleissen
 språk
+språket
 språkets
+språknemnd
 språkpolitikk
 språkpolitiske
 språkråd
@@ -1923,6 +1935,7 @@ stangfiske
 statens
 statsalmenninger
 statsmakten
+statstilskudd
 statsvitenskapelig
 statsålmenning
 stedsnavnsregister
@@ -1965,12 +1978,14 @@ säimäyttää
 säpäle
 säämä
 säämää
+så
 sån
 sååbbar
 særrett
 søesiden
 søring
 sørsamisk
+sørsamiske
 tamreindriften
 tamreinstammen
 tegen
@@ -1985,6 +2000,7 @@ teorianmuodostukseen
 termistöä
 terrae
 terrenggående
+tid
 tidskrift
 tidsskille
 til
@@ -2011,6 +2027,7 @@ torsdagsavisene
 tospråklighet
 totalkulturen
 tractationes
+traditionally
 traktatrett
 traktor-
 trampning
@@ -2051,6 +2068,7 @@ uppgifter
 uppodling
 uppslagsbok
 urbefolkninger
+urfolks
 urfolksforskning
 urkunder
 urminnestider
@@ -2092,6 +2110,7 @@ vepsskogo
 verbesserte
 verbiketju
 verbrennen
+verd
 verden
 verdener
 verdslige
@@ -2133,11 +2152,13 @@ värden
 være
 vår
 vårfeller
+waters
 weben
 weichgemachte
 weichschlagen
 weiterbläst
 wenner
+which
 wirken
 wissen
 wollene
@@ -2154,6 +2175,8 @@ yrkessentrerte
 ytringsmulighet
 zerchlagen
 Ámts
+Å
+Åarjelsamien
 Åarjelsaemien-daaroen
 Åhpadusministar
 Åndre
@@ -2162,10 +2185,12 @@ zerchlagen
 Åpning
 Åpningsarrangement
 Åpningsforedrag
+Åres
 Ældste
 Ö
 Östen
 Överbygd
+ø.
 ØFFSØst-Finmarkens
 ØFFØst-Finmarkens
 Ødeleggelsene
@@ -2174,9 +2199,12 @@ zerchlagen
 Ønsket
 Østlandsforskning
 Østsamene
+øke
 økonomiinstruks
 økonomiplan
 økonomisk
+økte
+økt
 østligste
 ánden
 áššejođih
@@ -2200,6 +2228,7 @@ miljøfag
 fellesforslag
 Tilleggsforslag
 vassdrag-
+vassdrag
 Vårt
 Vitenskapsbygg
 Gjennomenlttiig
@@ -2314,6 +2343,7 @@ geinseminer
 RUTINER
 sikkerhetsrutiner
 sikre
+sikres
 igloer
 målgrupper
 røykdykkerer
@@ -2651,12 +2681,14 @@ konventionsstängsel
 gränsstängsel
 gemensam
 förutsättning
+blir
 blivit
 betänkande
 betydande
 beiteområder
 Enligt
 Eftersom
+vår
 vår-
 vinterbeite
 kommisjonens
@@ -3138,6 +3170,7 @@ disponerar
 delges
 delegationen
 deler
+der
 beträffande
 betraktas
 bestäms
@@ -3449,6 +3482,7 @@ djuren
 distrikta-
 detaljerade
 detaljerad
+detaljert
 delegationerna
 deháleamoš
 centralbyrån
@@ -3564,6 +3598,7 @@ vinterbeitet
 vindförhållanden
 vildrenfångsten
 videreutvikler
+vern
 verksamheter
 verkan
 vektlegges
@@ -3579,17 +3614,23 @@ utövarna
 utökade
 utväxlas
 utvärderas
+utvikle
 utviklingshemmede
 utvidgning
 utredningsuppdrag
 utnämningskriterierna
 utnyttjat
+utkast
+utgjør
 utgående
 utförselavgift
 utförligare
 utfodring
 uteslutande
 utarbetandet
+ut
+used
+use
 ursprungsfolket
 ursprungsfolkens
 urberg
@@ -3608,10 +3649,12 @@ uppfattas
 uppenbarligen
 uppehållet
 uppdraget
+ungdom
 ungdomsalderen
 ungdomsklasse
 ungdommenshus
 undviks
+under
 underutskott
 undertecknandet
 undersåtare
@@ -3649,9 +3692,11 @@ tabellerna
 söker
 sökanden
 säsongsbunden
+syn
 synpunkt
 syftar
 svårligen
+svekke
 stödsystemet
 stödsystem
 stödgivningen
@@ -3661,7 +3706,10 @@ stängs
 styrningsorgan
 styrning
 styrkingen
+styrking
+styring
 styrelse
+styre
 strørein
 strövar
 strängare
@@ -4412,12 +4460,14 @@ tvistesaker
 tverretatlige
 tvangsgrunnlag
 tullbestämmelser
+turnover
 trälav
 träffades
 trädlav
 trygdeytelser
 trettioårsperioden
 trelav
+trekker
 traseer
 transporteras
 transportbilar
@@ -4441,6 +4491,7 @@ tjänstemän
 tjurar
 tjugoen
 tjenesteyter
+tjenestetvister
 tjenesteutøvelsen
 tjenestenes
 tjenestemenn
@@ -4452,6 +4503,7 @@ tjaktje
 tiltak
 tilsynsmetodikken
 tilsyns-
+tilskudd
 tilskuddsmidlene
 tilskuddene
 tilrettelagte
@@ -4509,12 +4561,14 @@ tidsbegrensninger
 tidigast
 tideräknings
 the
+they
 texterna
 terrängtyper
 terränggående
 terrängförhållandena
 terrängfordon
 terrängens
+territories
 tendraget
 tenderar
 temperaturskillnader
@@ -4614,6 +4668,7 @@ storfurstendömet
 storfurstendöme
 storfursten
 store
+stor
 stimulering
 stipulerades
 stipender
@@ -4675,6 +4730,7 @@ smältningsprocessen
 smältning
 smávvat
 slöts
+sluttet
 slutsatser
 sluts
 slutligt
@@ -4699,6 +4755,7 @@ skyddat
 skyddad
 skulptuvrraid
 skuhtermáđiijaid
+skritt
 skrivelser
 skriftväxlingen
 skoterkörningen
@@ -6115,6 +6172,7 @@ djuretiska
 divergerande
 distriktstyrelse
 distriktens
+disposisjonsrett
 disponerat
 diskuterat
 bidragssystemen
@@ -6189,6 +6247,7 @@ beskattningsavtal
 beskattning
 beskattades
 besittelsesrett
+besittelsesrettigheter
 besiktningsveterinärorganisationen
 besiktigat
 berövas
@@ -6225,6 +6284,8 @@ behandlingssted
 begränsades
 befrämjar
 befrämjandet
+befolkningen
+befolkning
 befolkningsökningen
 befolkningsutvecklingen
 befolkningsunderlag
@@ -6247,6 +6308,7 @@ barnehageplassen
 barmarkstiden
 barmarkssäsongen
 barmarksoch
+barmarkskjøring
 barmarksbetesmarker
 barmarksbeteslanden
 barmarksbetesland
@@ -6343,6 +6405,7 @@ anföres
 anbefalingene
 analysera
 alltigenom
+allmenn
 allmennlegers
 allenarådande
 sykdomsbilde
@@ -6857,6 +6920,7 @@ næringsspørsmål
 Ungdomspris
 Ungdomsspørsmål
 Ungdommenshus
+Unike
 heklenål
 nǧl
 maam
