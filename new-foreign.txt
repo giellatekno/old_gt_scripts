@@ -627,6 +627,7 @@ Regeringsrättens
 Regionalstatistikk
 Regionforskning
 Regionsykehuset
+Regulativ
 Reimers
 Reindeer
 Reindeerherders
@@ -642,6 +643,7 @@ Resolutioner
 ResultatLedelse
 Resultaterne
 Rets
+Rette
 Rettigheden
 Rettigheder
 Rettigheder...
@@ -651,6 +653,7 @@ Rettstenking
 Rettstenkning
 Rettstidende
 Revmatikerforbund
+Rige
 Rigs-Registranter
 Rikskonsertene
 Rivers
@@ -688,6 +691,7 @@ Samfundsinteresser
 Samfunnsavdeling
 Samfunnsvitenskapelige
 Samic
+Samis
 Samiske
 Samojedisch
 Samojedischer
@@ -1034,6 +1038,7 @@ dombøker
 dominium
 domstolens
 dragjärn
+drift
 driftsenhet
 dunster
 dutkam
@@ -1414,6 +1419,7 @@ kahlata
 kortata
 von
 säimiä
+vi
 viti
 frå
 kuukkoinen
@@ -1717,6 +1723,7 @@ rechtvaardigen
 redegjørelse
 reflek-sjoner
 reformats
+regional
 regionaldeparte-mentet
 regionaldepartementet
 regionforskning
@@ -1727,6 +1734,7 @@ reguleringspolitikk
 rehabiliteringspolitikk
 reinbeitekommisjon
 reinbeiteland
+reindrift
 reindriftens
 reindriftskole
 reindriftsloven
@@ -1746,6 +1754,7 @@ reiselivsnæringen
 reiselivsnæringer
 rekamark
 rekipeitto
+rekrutteringen
 renar
 rendriften
 rendriftslag
@@ -1757,11 +1766,14 @@ rensener
 renskötselsföretag
 renskötselsrätt
 reprodusenter
+resources
 ressurskartlegging
 retfærdighet
+retningslinjer
 retsam
 retssforhold
 rett
+rette
 rettigheter
 rettighetspasient
 rettighetspasienter
@@ -1771,6 +1783,7 @@ rettsforhold
 rettshistorie
 rettshistorisk
 rettskilder
+rettslige
 rettsliggjøring
 rettsoppfatninger
 rettsorden
@@ -1779,6 +1792,7 @@ rettsstudier
 rettstidende
 rettsvern
 rettsvitenskap
+right
 rinnastuksen
 romanes
 roukkonen
@@ -1798,10 +1812,12 @@ saaredh
 sabaktani
 sacellum
 safeguarded
+sak
 sakrätt
 saksbehandlingsprinsipper
 salgslagene
 salmebøker
+samarbeidet
 samarnes
 samefolkets
 samekonvensjon
@@ -1842,6 +1858,8 @@ sangtime
 satuttaa
 schillet
 schlagen
+se
+sekretærer
 sektoretatar
 selitysvaihtoehtoa
 selveier
@@ -1850,14 +1868,19 @@ senast
 sener
 senetråd
 sennoalaine
+sentralbyrå
 sentråd
+sentrum
 septentriones
 servicesenter
 sesongbeiter
 sesongflyttinger
+settes
 sevnnodiie
 seämee
 si
+side
+siden
 sidste
 sierralagásj
 sig
@@ -3793,6 +3816,7 @@ senterets
 selvhjelp
 satsinger
 samtycke
+samtykke
 sammantagna
 samiskt
 samhälls-
@@ -4180,6 +4204,7 @@ skatteland
 satsingen
 samfunnsmedisin
 samfunns-
+samfunnsliv
 sameting
 samebygrensen
 same-
