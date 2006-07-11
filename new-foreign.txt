@@ -558,7 +558,9 @@ Nordmands-øerne
 Nordmandspige
 Nordmændene
 Nordnorske
+Nordplus-sprog
 Nordvest-Russland
+Norgesfararleden
 Normalvisning
 Norvegie
 Norvvagicum
@@ -566,6 +568,7 @@ Norwegianization
 Norwegianized
 Notandum
 Når
+når
 Nååmesjevuemie
 Næringskombinasjoner
 Næringskomite
@@ -606,6 +609,7 @@ Pasvig
 Peahccam
 Peattsam
 Peisens
+Peoples
 Permic
 Pinega-joen
 Pla-og
@@ -1572,6 +1576,7 @@ natura-resource
 naturforvaltning
 naturressursene
 naturresursser
+naturressurser
 nedbygging
 nedtråkket
 neiden
@@ -1579,11 +1584,13 @@ nescio
 neutraalien
 ngt
 nomadisme
+nord
 nordmannsleidang
 nordmannsleidang
 norsk
 norsk-russiske
 norsk-svenske
+norske
 nosen
 noutoa
 numerantur
@@ -1597,8 +1604,10 @@ nærings-
 næringsavdeling
 næringsmessig
 næringsråd
+næringsutvikling
 næringsvandring
 næringsvirksomhet
+nærmere
 nördlichen
 nødsår
 nødvendig
@@ -1625,10 +1634,14 @@ områdetilhørighet
 opere
 opinio
 opinnäytetyöstä
+oppfatning
 oppfylle
+oppfyller
+oppfylt
 oppgavefordeling
 opplæring
 oppmåling
+oppnå
 oppsto
 oprindelige
 ordfører
@@ -1656,6 +1669,7 @@ painaltaa
 paradokser
 partam
 partens
+participate
 partiprogrammer
 pasientjournal
 pasientombud
@@ -2475,6 +2489,7 @@ temaplanen
 kommunedelplanen
 handlingsplanen
 Opplæringsplanen
+Opplæringsavdeling
 tiltaksplanen
 Gámasuidnen
 Motorklubb
@@ -2852,6 +2867,7 @@ Renskötsel
 Renskötseln
 Renskötselns
 Overprøvingsnemnden
+Overflyttelse
 Avtalet
 1972-konvensjonen
 År
@@ -4254,6 +4270,7 @@ fylkeslegene
 funksjonshemningene
 funksjonshemningen
 forvinteren
+forvaltningsordning
 forvaltningsorganer
 forvaltningsorgan
 forvaltningsnivåer
@@ -5146,6 +5163,8 @@ overholdes
 ovannämnda
 ovanligt
 ouppsägbarhet
+other
+otherwise
 otillåtna
 ostgränsen
 ospecificerad
@@ -6146,6 +6165,7 @@ enkeltsak
 enheterna
 energiförlust
 enens
+ene
 endetarmen
 enats
 enades
@@ -6508,6 +6528,7 @@ skolemessige
 sesongmessige
 næringsmessige
 hjemmesykepleie
+pensjonskasse
 pensjonspremie
 vedlike
 næringsrike
@@ -6890,6 +6911,7 @@ Ekonomisk
 Økonomisk
 Oseanisk
 oseanisk
+owner
 poliklinisk
 frisk
 krakylsk
