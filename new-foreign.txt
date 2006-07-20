@@ -25,6 +25,7 @@ jordbunnsforhold
 arbeidsmiljøforhold
 öfvervåld
 forhand
+innhold
 innland
 Kalls
 Kalvningsland
@@ -459,6 +460,7 @@ Kunnskapsforlagets
 Kvindepolitiske
 Kvinder
 Kvinneforskning
+Kvinnekraftsenteret
 Kvinnevisjoner
 Kvinnorepresentation
 Kyper
@@ -485,6 +487,7 @@ Lappisk
 Lappiske
 Lautgeschichte
 Laxefiskerier
+Ledelse
 Ledelsesregler
 Ledinga
 Lehnbeziehungen
@@ -507,6 +510,7 @@ Lullisámig
 Luopioinen
 Lysmesse
 Lyydiläismurteiden
+Lånekasse
 Læringssenterets
 Länsstyrelserna
 Lögdeälvens
@@ -522,6 +526,7 @@ Medisinalinnberetninger
 Menneskerettighederne
 Mennesterettighetene
 Mennneskerettigheter
+Menneskeverd
 Michelsens
 Middagsfjellområdet
 Midnattsrocken
@@ -1472,6 +1477,7 @@ lappmarker
 lappmarksgränsen
 lapska
 lasagne
+layout
 lc
 ledinga
 leicht
@@ -1526,6 +1532,8 @@ matorische
 matproduksjon
 matrikkelvesen
 medh
+medieforvaltning
+medier
 meeki-
 meere
 meistring
@@ -1617,6 +1625,7 @@ obliqua
 obsol
 oc
 occupatio
+occupied
 ock
 of
 offene
@@ -1808,6 +1817,7 @@ rettsvern
 rettsvitenskap
 right
 rinnastuksen
+rolle
 romanes
 roukkonen
 roukonen
@@ -2426,6 +2436,7 @@ siidaers
 ANDERS
 Noodt
 rammetilskuddet
+rammevilkår
 Fagforbundet
 Utdanningsforbundet
 sentrumsområdet
@@ -2535,7 +2546,7 @@ med
 medikamentene
 medikamenter
 medikamentet
-
+medlemmer
 
 
 
@@ -3945,6 +3956,9 @@ minska
 minoritets-
 minimera
 mildväder
+meget
+men
+Men
 menighetshuset
 Menighetsbladet
 Menighetsarbeid
@@ -5420,6 +5434,7 @@ länsnivån
 länder-
 lydelse
 lyckade
+lulesamisk
 lulesamiske
 lule-
 luftvård
@@ -5427,6 +5442,7 @@ luftströmmar
 luftningslandet
 luftning
 loppet
+lokalsamfunnet
 lokalsykehus
 lokaliseringen
 lokaliserade
@@ -5484,6 +5500,8 @@ kusttrakterna
 kustregionerna
 kusteffekt
 kunskapen
+kunstnerråd
+kurnstneravtale
 kunne
 kunnskap
 kunnskapsgrunnlag
@@ -5495,6 +5513,12 @@ kulturkompetansen
 kulturdrag
 kulturbakgrunn
 kulturarvet
+kulturfaktor
+kulturminner
+kulturminnevernavdeling
+kulturminneråd
+kulturorganisasasjoner
+kulturråd
 krök
 krävdes
 kroppsvikt
@@ -6853,6 +6877,7 @@ involvering
 avmagring
 dommerforsikring
 Rennäring
+legger
 legeerklæring
 språklæring
 voksenopplæring
@@ -7563,6 +7588,7 @@ Nansens
 riksgrensens
 Samelovens
 Samebyens
+leder
 leders
 eier-
 eiers
