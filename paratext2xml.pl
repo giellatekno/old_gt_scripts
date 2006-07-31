@@ -125,6 +125,7 @@ my $header = XML::Twig::Elt->new('header');
 my $body = XML::Twig::Elt->new('body'); 
 
 my $p;
+my $ch;
 my $size = $#text_array;
 
 while($i < $size && $text_array[$i]) {
@@ -139,7 +140,9 @@ while($i < $size && $text_array[$i]) {
 #	}
 
 	if ($line =~ /^\\mt (.*)$/) {
-		if($p) { $p->paste( 'last_child', $body); $p=undef; }
+
+		if($p) { $p->paste( 'last_child', $ch); $p=undef; }
+		if($ch) { $ch->paste( 'last_child', $body); $ch=undef; }
 	
 		my $title = XML::Twig::Elt->new('title');
 		my $text = $1;
@@ -151,10 +154,11 @@ while($i < $size && $text_array[$i]) {
 
 	# Format chapter headings.
 	if ($line =~ /^\\c (\d+)(.*)$/) {
-		if($p) { $p->paste( 'last_child', $body); $p=undef; }
 
-		my $p_title = XML::Twig::Elt->new('p');
-		$p_title->set_att('type', 'title');
+		if($p) { $p->paste( 'last_child', $ch); $p=undef; }
+		if($ch) { $ch->paste( 'last_child', $body); $ch=undef; }
+
+		$ch = XML::Twig::Elt->new('chapter');
 		my $number = $1;
 		my $text="";
 		# skip other info related to chapter.
@@ -162,28 +166,31 @@ while($i < $size && $text_array[$i]) {
 			$text = $1;
 			shift(@text_array);
 		}
-		$p_title->set_text("$number $text");
-		$p_title->paste( 'last_child', $body);
+		if( $text ) { $ch->set_att('title', $text); }
+		$ch->set_att('number', $number);
 		$i++;
 		next;
 	}
 
 	# Format other headings.
 	if ($line =~ /^\\(h|s)(\d*) (.*)$/) {
-		if($p) { $p->paste( 'last_child', $body); $p=undef; }
+
+		if($p) { $p->paste( 'last_child', $ch); $p=undef; }
 
 		my $p_title = XML::Twig::Elt->new('p');
 		$p_title->set_att('type', 'title');
 		my $number = $2;
 		my $text=$3;
 		$p_title->set_text("$number $text");
-		$p_title->paste( 'last_child', $body);
+		$p_title->paste( 'last_child', $ch);
+		$p_title=undef;
 		$i++;
 		next;
 	}
 
 	# Format verses
 	if ($line =~ /^\\p/) {
+
 		start_new_text_para();
 
 		$i++;
@@ -194,30 +201,32 @@ while($i < $size && $text_array[$i]) {
 	# element for verse, but it is possible to get the information
 	# out in this block.
 	if($line =~ /\\v/) {
+
+		if(! $p) { $p = XML::Twig::Elt->new('p'); }
+
+		# sometimes a new verse starts in the middle of the line
+		# the verse starting the line is taken care of here.
 		my ($prev, $next) =  split(/\\v/, $line);
 		if($prev) {
-			if($p) {
-				my $cur_text=$p->text;
-				$p->set_text("$cur_text $prev");
+			if ($prev =~ /^\s*(\d+)(.*)$/) {
+				my $verse = XML::Twig::Elt->new('verse');
+				$verse->set_att('number', $1);
+				$verse->set_text($2);
+				$verse->paste( 'last_child', $p);
 			}
 		}
+
 		if ($next =~ /^\s*(\d+)(.*)$/) {
-		my $verse = XML::Twig::Elt->new('verse');
-		$verse->set_att('number', $1);
+			my $verse = XML::Twig::Elt->new('verse');
+			$verse->set_att('number', $1);
 			my $number = $1;
-			my $text="$2\n";
+			my $text = $2;
 			while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
 				$text .= "$text_array[$i+1]";
 				shift(@text_array);
 			}
-#		$verse->set_text($text);
-#		$verse->paste( 'last_child', $p);
-			if(! $p) {
-				$p = XML::Twig::Elt->new('p');
-				$p->set_att('type', 'text');
-			}
-			my $cur_text=$p->text;
-			$p->set_text("$cur_text $number $text");
+			$verse->set_text($text);
+			$verse->paste( 'last_child', $p);
 		}
 		$i++;
 		next;
@@ -234,7 +243,8 @@ while($i < $size && $text_array[$i]) {
 	$i++;
 }
 
-$p->paste( 'last_child', $body);
+$p->paste( 'last_child', $ch);
+$ch->paste( 'last_child', $body);
 
 $header->print($FH1);
 $header->DESTROY;
@@ -249,10 +259,10 @@ close $FH1;
 sub start_new_text_para {
 
 	if($p) {
-		$p->paste( 'last_child', $body);
+		if(! $ch) { my $tex= $p->text; print "$tex\n"; }
+		$p->paste( 'last_child', $ch);
 	}
 	$p = XML::Twig::Elt->new('p');
-	$p->set_att('type', 'text');
 
 }
 
