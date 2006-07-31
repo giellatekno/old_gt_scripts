@@ -202,8 +202,8 @@ while($i < $size && $text_array[$i]) {
 			}
 		}
 		if ($next =~ /^\s*(\d+)(.*)$/) {
-#		my $verse = XML::Twig::Elt->new('verse');
-#		$verse->set_att('number', $1);
+		my $verse = XML::Twig::Elt->new('verse');
+		$verse->set_att('number', $1);
 			my $number = $1;
 			my $text="$2\n";
 			while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
