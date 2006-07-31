@@ -66,6 +66,7 @@ GetOptions ("abbr=s" => \$abbr_file,
 			"fst=s" => \$fst,
 			"help" => \$help,
 			"v" => \$verbose,
+
 			"hyph" => \$hyph,
 			"use-hyph-tag" => \$use_hyph_tag) ;
 
@@ -113,7 +114,7 @@ while (<>) {
 	while (@words) {
 		
 		my $word = shift @words;
-
+		
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
 		
@@ -128,7 +129,7 @@ while (<>) {
 
 		# store punctuation from the front of the expression
 		# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-		if ($word =~ s/^([$SINGLE_PUNCT]+)//o) {
+		if ($word =~ s/^([-–$SINGLE_PUNCT]+)//o) {
 			push (@tokens, split(//, $1));
 		}
 		# Examine the type of the string. If the expression contains
@@ -185,7 +186,7 @@ sub process_word {
 
 		# Process the last part further, it may start with punctuation
 		# that is separate token.
-		if ($word =~ s/^([$PUNCT])//o) {
+		if ($word =~ s/^([-$PUNCT])//o) {
 			push (@{$tokens_aref}, $1);
 			}
 		if (!$word) {
@@ -498,7 +499,6 @@ sub print_usage {
 	print "                multiword expressions.\n";
 
 }
-
 
 
 
