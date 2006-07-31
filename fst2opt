@@ -24,4 +24,5 @@ do
 
 		chgrp cvs /opt/sami/smi/$lang/bin/*
 		chmod a+x /opt/sami/smi/$lang/bin/*
+		chmod g+w /opt/sami/smi/$lang/bin/*
 done
