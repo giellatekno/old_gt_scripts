@@ -394,7 +394,7 @@ sub process_file {
 		exec_com($command, $file);
 
 		# Validate the xml-file unless web upload.
-		if(! $upload) {
+		if(! $upload && ($file !~ /.ptx$/)) {
 			$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
 			if( exec_com($command, $file) != 0 ) {
 				print STDERR "ERROR: not valid xml, removing $int.. STOP.\n";
