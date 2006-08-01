@@ -8,7 +8,7 @@
 use XML::Twig;
 
 #If a common language file is created, change this to 1.
-my $common = 0;
+my $common = 1;
 # If all the fields are printed (even though empty) change this to 1.
 my $all = 0;
 my $language = "sme";
@@ -22,6 +22,7 @@ $twig->set_pretty_print('record');
 # Specify the $infile and $outfile to the files you want:
 
 my $infile = "../sme/src/propernoun-sme-lex.txt";
+#my $infile = "prop-test.txt";
 my $outfile = "terms-sme.xml";
 my $outfile_common = "termcenter.xml";
 
@@ -33,7 +34,7 @@ else { open($FH1, ">$outfile"); }
 
 # The root element. Name??
 my $dict = XML::Twig::Elt->new('dict');
-
+ 
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 # Commented out the DOCTYPE for the time being - it requires extra setup in eXist,
@@ -49,6 +50,8 @@ while( $line = <FH> ) {
 	last if ($line =~ /^LEXICON ProperNoun$/ );
 	}
 
+my $prev_word="";
+my $prev_entry="";
 while ($line = <FH>) {
 
 	#discard comments, empty lines and for now, LEXICONs
@@ -60,9 +63,12 @@ while ($line = <FH>) {
 	# Replace space in multipart names temporarily with $.
 	$line =~ s/% /\$/g;
 	
-	my ($word, $contlex_text) = split (/ /, $line, 2);
+	my ($word, $contlex_text) = split (/\s+/, $line);
 	$word =~ s/\$/ /g;
 
+#	if($word eq $prev_word) {
+#		print "samat: $word\n";
+#	}
 	# Check the regular expression!!
 	if ($word && $contlex_text) {
 
@@ -182,7 +188,8 @@ while ($line = <FH>) {
 		}
     }
 	
-	else { print STDERR "Line not included: $line"; }
+	else { print STDERR "Line not included: $line\n"; }
+	$prev_word=$word;
 }
 
 print $FH1 qq|\n</dict>|;
