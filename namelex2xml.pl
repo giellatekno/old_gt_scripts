@@ -35,9 +35,12 @@ else { open($FH1, ">$outfile"); }
 my $dict = XML::Twig::Elt->new('dict');
 
 # The xml specifications, name of dtd-file and root node.
-print $FH1 qq|<?xml version='1.1'  encoding="UTF-8"?>|;
-print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
-print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
+print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+# Commented out the DOCTYPE for the time being - it requires extra setup in eXist,
+# and we really don't use it. Besides, the center-doc and the lang-docs require
+# different DTDs, and thus different DOCTYPEs. SNM 010806.
+#print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
+#print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
 print $FH1 qq|\n<dict>|;
 
 my $line;
