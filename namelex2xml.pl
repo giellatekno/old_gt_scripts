@@ -7,10 +7,6 @@
 # http://www.xmltwig.com/
 use XML::Twig;
 
-#If a common language file is created, change this to 1.
-my $common = 1;
-# If all the fields are printed (even though empty) change this to 1.
-my $all = 0;
 my $language = "sme";
 
 my $twig = XML::Twig->new( output_encoding => "utf8");
@@ -29,8 +25,9 @@ my $outfile_common = "termcenter.xml";
 open (FH, "<utf8", "$infile") or die "Cannot open file $infile: $!";
 
 my $FH1;
-if ($common) { open($FH1,  ">$outfile_common"); }
-else { open($FH1, ">$outfile"); }
+my $FH2;
+open($FH1,  ">$outfile_common");
+open($FH2, ">$outfile");
 
 # The root element. Name??
 my $dict = XML::Twig::Elt->new('dict');
@@ -43,16 +40,25 @@ print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 #print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
 #print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
 print $FH1 qq|\n<dict>|;
+print $FH2 qq|\n<dict>|;
 
 my $line;
 # Ignore the morphology part in this test version.
 while( $line = <FH> ) {
+
 	last if ($line =~ /^LEXICON ProperNoun$/ );
 	}
 
-my $prev_word="";
+my $prev_word=undef;
 my $prev_entry="";
-while ($line = <FH>) {
+my %termc_entries;
+my %term_entries;
+my @contlex_texts;
+
+my $last=0;
+
+FILE:
+while ($line = <FH> ) {
 
 	#discard comments, empty lines and for now, LEXICONs
 	next if ($line =~ /^\!/);
@@ -66,131 +72,163 @@ while ($line = <FH>) {
 	my ($word, $contlex_text) = split (/\s+/, $line);
 	$word =~ s/\$/ /g;
 
-#	if($word eq $prev_word) {
-#		print "samat: $word\n";
-#	}
-	# Check the regular expression!!
-	if ($word && $contlex_text) {
+	# something wrong
+	if ( !$word || ! $contlex_text) {
+		print STDERR "Line not included: $line\n";
+		next;
+	}
 
-		my ($lemma_text, $stem_text) = split (/:/, $word, 2);
+	# first line
+	if (! $prev_word ) {
+		$prev_word = $word;
+		push (@contlex_texts, $contlex_text);
+		next;
+	}
 
+	# consequtive identical entries are collected
+	while ( $prev_word eq $word && ! eof ) {
+		print "$prev_word $word\n";
+		push (@contlex_texts, $contlex_text);
+		next FILE;
+	}
+
+	my ($lemma_text, $stem_text) = split (/:/, $prev_word, 2);
+
+	# Find out all the semantic categories associated with this word.
+	my @contlexes;
+	for my $cont ( @contlex_texts ) {
+		
 		# Take comment out, split e.g. ACCRA-fem
-		my ($contlex, $comment) = split(/\!/, $contlex_text);
+		my ($contlex, $comment) = split(/\!/, $cont);
 		$contlex =~ s/\s?\;\s?$//;
 		$contlex =~ s/^\s+//;
-
+		
+		push (@contlexes, $contlex);
 		my ($infl_text, $sem_text) = split(/-/, $contlex);
 		
 		if ($sem_text) { $sem_text =~ s/\s+$//; }
+		else { $sem_text = "empty"; }
 
-		my @sem_texts;
-		my $lemma_2;
-		my $entry2;
-		if($sem_text && length($sem_text) > 3) {
-		    push (@sem_texts, substr($sem_text, 0, 3));
-		    push (@sem_texts, substr($sem_text, 3, 3));
-		    $lemma_2 = $lemma_text . "_2";
+		if($sem_text ne "empty" && (length($sem_text) > 3)) {
+		    $sem_texts{substr($sem_text, 0, 3)} = 1;
+		    $sem_texts{substr($sem_text, 3, 3)} = 1;
 		}
-		else { push (@sem_texts, $sem_text); }
+		else { $sem_texts{$sem_text} = 1; }
 
-		# Create a new entry and paste it to the XML-tree.
+	}
+	# Create one termc entry for each semantic category.
+	my $i=0;
+	if (%sem_texts) {
+		for my $key (keys %sem_texts) {
+
+			# Create a new entry for each semantic category
+			my $entry = XML::Twig::Elt->new('entry');
+			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
+			else { $lemma_2 = $lemma_text }
+			$entry->set_att('id', $lemma_2);
+
+			my $sem = XML::Twig::Elt->new('sem');
+			if ($key ne "empty") {
+				my $sem_type = XML::Twig::Elt->new($key);
+				$sem_type->paste('last_child', $sem);
+			}
+			$sem->paste('last_child', $entry);
+
+			$termc_entries{$key} = $entry;
+			$i++;
+		}
+	}
+	# if there is no semantic category specified, create one termc entry.
+	else {
 		my $entry = XML::Twig::Elt->new('entry');
 		$entry->set_att('id', $lemma_text);
+		
+		$termc_entries{'empty'} = $entry;
+	}
 
-		# The language-specific part contains stem, inflection class
-		# and other fields as well as reference to the entries in the
-		# common file.
-		if (! $common) {
-		    if ($stem_text && ($stem_text ne $lemma_text)) {
-				my $stem = XML::Twig::Elt->new('stem');
-				$stem->set_text($stem_text);
-				$stem->paste('last_child', $entry);
-		    }
+	for my $cont (@contlexes) {
 
-		    my $infl = XML::Twig::Elt->new('infl');
-		    $infl->set_att('lexc', $infl_text);		
-		    $infl->paste('last_child', $entry);
-		    
-		    if ($all) {
-				my $name_parts = XML::Twig::Elt->new('name-parts');
-				$name_parts->paste('last_child', $entry);
-				
-				my $variants = XML::Twig::Elt->new('variants');
-				my $variant = XML::Twig::Elt->new('variant');
-				$variant->set_att('ref', "");		
-				$variant->paste('last_child', $variants);
-				$variants->paste('last_child', $entry);			
-				
-				my $etym = XML::Twig::Elt->new('etym');
-				$etym->paste('last_child', $entry);			
-				
-				my $rel_name = XML::Twig::Elt->new('rel-name');
-				$rel_name->set_att('ref', "");		
-				$rel_name->paste('last_child', $entry);
-		    }
+		my ($infl_text, $sem_text) = split(/-/, $cont);
+		
+		if ($sem_text) { $sem_text =~ s/\s+$//; }
+		else { $sem_text = "empty" }
+
+		undef %sem_texts;		
+		if($sem_text ne "empty"  && length($sem_text) > 3) {
+		    $sem_texts{substr($sem_text, 0, 3)} = 1;
+		    $sem_texts{substr($sem_text, 3, 3)} = 1;
+		}
+		else { $sem_texts{$sem_text} = 1; }
+
+		# Find the termc entry that corresponds the semantic class in question
+		# take the id.
+		for my $key (keys %sem_texts) {
+
+			my $termc_entry = $termc_entries{$key};
+			my $id = $termc_entry->{'att'}->{'id'};
 			
-		    my $senses = XML::Twig::Elt->new('senses');
-		    my $sense = XML::Twig::Elt->new('sense');
-		    $sense->set_att('ref', $lemma_text);	
-		    $sense->paste('last_child', $senses);
-		    if ($#sem_texts > 0) {
-				my $sense2 = XML::Twig::Elt->new('sense');
-				$sense2->set_att('ref', $lemma_2);	
-				$sense2->paste('last_child', $senses);
-		    }
-		    $senses->paste('last_child', $entry);
-		}
-		# The common part contains the semantic description.
-		if($common) {
-		    if ($#sem_texts > 0) {
-				# Create a new entry and paste it to the XML-tree.
-				$entry2 = XML::Twig::Elt->new('entry');
-				$entry2->set_att('id', $lemma_2);
+			# If there is terms-entry with the same id, just add
+			# new inflection class.
+			if( $term_entries{$id} ) {
+				my $infl = XML::Twig::Elt->new('infl');
+				$infl->set_att('lexc', $infl_text);		
+				$infl->paste('last_child', $term_entries{$id});
+			}
+
+			# Otherwise create new terms-entry.
+			else {
+				my $entry = XML::Twig::Elt->new('entry');
+				$entry->set_att('id', $id);
+				if ($stem_text && ($stem_text ne $lemma_text)) {
+					my $stem = XML::Twig::Elt->new('stem');
+					$stem->set_text($stem_text);
+					$stem->paste('last_child', $entry);
+				}
+				# Add reference to the termc
+				my $senses = XML::Twig::Elt->new('senses');
+				my $sense = XML::Twig::Elt->new('sense');
+				$sense->set_att('ref', $id);
+				$sense->paste('last_child', $senses);
+				$senses->paste('last_child', $entry);
+
+				my $infl = XML::Twig::Elt->new('infl');
+				$infl->set_att('lexc', $infl_text);		
+				$infl->paste('last_child', $entry);
+
+				# Alter termc entry by adding reference to terms
+				my $langentry = XML::Twig::Elt->new('langentry');
+				$langentry->set_att('lang', $language);
+				$langentry->set_att('ref', $id);
+				$langentry->paste('last_child', $termc_entry);
 				
-				my $sem2 = XML::Twig::Elt->new('sem');
-				my $sem_type2 = XML::Twig::Elt->new($sem_texts[1]);
-				$sem_type2->paste('last_child', $sem2);
-				$sem2->paste('last_child', $entry2);
-		    }
-		    my $sem;
-		    if ($sem_text) {
-				$sem = XML::Twig::Elt->new('sem');
-				my $sem_type = XML::Twig::Elt->new($sem_texts[0]);
-				$sem_type->paste('last_child', $sem);
-				$sem->paste('last_child', $entry);
-		    }
-		    
-		    if ($all && $sem_text =~ /^plc$/) {
-				my $plc = XML::Twig::Elt->new('plc');
-				my $geo = XML::Twig::Elt->new('geo');
-				
-				$geo->paste('last_child', $plc);
-				$plc->paste('last_child', $sem);
-		    }
-		    
-		    my $langentry = XML::Twig::Elt->new('langentry');
-		    $langentry->set_att('lang', $language);
-		    $langentry->set_att('ref', $lemma_text);
-		    $langentry->paste('last_child', $entry);
-			
-		    if ($#sem_texts > 0) {
-				my $langentry2 = XML::Twig::Elt->new('langentry');
-				$langentry2->set_att('lang', $language);
-				$langentry2->set_att('ref', $lemma_2);
-				$langentry2->paste('last_child', $entry2);
-		    }
+				$term_entries{$id} = $entry;
+			}
 		}
-		$entry->print($FH1);
-		$entry->DESTROY;
-		if ($common && $#sem_texts > 0) {
-		    $entry2->print($FH1);
-		    $entry2->DESTROY;
-		}
-    }
+	}
 	
-	else { print STDERR "Line not included: $line\n"; }
-	$prev_word=$word;
+	for my $ent ( keys %termc_entries )	{
+		$termc_entries{$ent}->print($FH1);
+		$termc_entries{$ent}->DESTROY;
+	}
+
+	for my $ent ( sort { $a cmp $b } keys %term_entries ) {
+		$term_entries{$ent}->print($FH2);
+		$term_entries{$ent}->DESTROY;
+	}
+
+	undef %sem_texts;
+	undef %term_entries;
+	undef %termc_entries;
+
+	$prev_word = $word;
+
+	@contlex_texts=undef;
+	pop @contlex_texts;
+	push (@contlex_texts, $contlex_text);	
 }
 
 print $FH1 qq|\n</dict>|;
 close $FH1;
+
+print $FH2 qq|\n</dict>|;
+close $FH2;
