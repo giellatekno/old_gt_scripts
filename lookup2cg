@@ -75,10 +75,6 @@ while(<>) {
 			# Store the analysis to a hash
 			$forms{$line} = 1;
         } 
-		# Rate compounds accoring to word boundaries
-		if ($max_comp_rate > 0) { 
-			rate_compounds(\%forms); 
-		}
 		
 		# Print output
         if (@Analyses) {
