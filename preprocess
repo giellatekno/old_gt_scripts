@@ -170,7 +170,7 @@ sub process_word {
     }
 
     # Store the punctuation at the front of the string to tokens array.
-	if ($word =~ s/([+=%:-]+)$//o) {
+	if ($word =~ s/^([+=%:-]+)$//o) {
 		push (@{$tokens_aref}, split(//, $1));
 		verbose ("process_word/end_punct", $end_punct, __LINE__);
 	}
