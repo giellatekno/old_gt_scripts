@@ -72,8 +72,7 @@ GetOptions ("abbr=s" => \$abbr_file,
 
 if ($help) {
 	&print_usage;
-	exit;
-}
+	exit;}
 
 my %idioms;
 # If the abbreviation file is given,
@@ -126,10 +125,9 @@ while (<>) {
 				next;
 			}
 		}
-
 		# store punctuation from the front of the expression
 		# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-		if ($word =~ s/^([-–$SINGLE_PUNCT]+)//o) {
+		if ($word =~ s/^([–$SINGLE_PUNCT]+)//o) {
 			push (@tokens, split(//, $1));
 		}
 		# Examine the type of the string. If the expression contains
@@ -170,6 +168,12 @@ sub process_word {
         $end_num = $1;
         verbose ("process_word/end_num", $end_num, __LINE__);
     }
+
+    # Store the punctuation at the front of the string to tokens array.
+	if ($word =~ s/([+=%:-]+)$//o) {
+		push (@{$tokens_aref}, split(//, $1));
+		verbose ("process_word/end_punct", $end_punct, __LINE__);
+	}
 
     # Store the punctuation at the end of the string to a variable
 	if ($word =~ s/([+=%:$SINGLE_PUNCT]+)$//o) {
@@ -252,10 +256,11 @@ sub test_abbr {
 	if (! ($abbr =~ s/\.$//)) {
 		return 0;
 	}
-	
+
 	# Transitive abbreviations are never followed
 	# by sentence boundary.
 	if ($abbrs{$abbr} eq $TRAB) {
+
 		push (@{$tokens_aref}, $word);
 		return 1;
 	}
@@ -279,6 +284,7 @@ sub test_abbr {
 		}
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -470,7 +476,7 @@ sub read_abbr {
 	while (<LEX>) {
 		chomp;		
 		last if (/^LEXICON IDIOM/);
-		if (/^LEXICON (.*)$/) {
+		if (/^LEXICON\s+(.*?)\s*$/) {
 			$current = $1;
 			next;
 		}
