@@ -91,9 +91,12 @@ sub verbose {
 	print STDERR "[$from:$linenumber] $word\n";
 }
 
-# read one paragraph at the time.
-# the paragraph ends with two subsequent newlines.
-$/ = "";
+# Read one line at a time but keep track on the next line.
+
+my $next_line=undef;
+my $cur_line=undef;
+my @next_words;
+my @words;
 
 while (<>) {
 	chomp;
@@ -104,12 +107,21 @@ while (<>) {
 		else { s/\<hyph\>//g; }
 	}
 
-	# The newline is removed from the possible remaining hyphenation points.
-	s/\w\-\n/\-/g;
+	# Process always the previous line, unless it's the last one
+	if(!@words) { 
+		@words = split; 
+		if (!eof) { next; }
+		else { @next_words=undef; pop @next_words; }
+	}
+	else { @next_words = split; }
 
-	# split the sentence by space.
-    my @words = split;
+	process_words();
+}
 
+process_words();
+
+sub process_words {
+	
 	while (@words) {
 		
 		my $word = shift @words;
@@ -145,6 +157,7 @@ while (<>) {
 			print "$token\n" unless ($token =~ /^$/);
 		}
 	}
+	@words=@next_words;
 }
 
 
@@ -298,9 +311,13 @@ sub test_idiom {
 
 	# Test for multiword expressions by growing the token
 	# one word at a time
+	my $next=0;
 	my $i=0;
-	my $token = $words_aref->[0];
-	while ($i < $size && $words_aref->[$i]) {
+	my $token;
+	if( $words_aref->[0] ) { $token = $words_aref->[0]; }
+	elsif ($next_words[0]) { $token = $next_words[0]; $next=1; }
+	else {return 0;}
+	while ($i <= $size) {
 
 		# Remove the punctuation at the end of the expression.
 		(my $token_2 = $token) =~ s/[^\w]*$//;
@@ -315,8 +332,14 @@ sub test_idiom {
 				# Construct the new multiword processing unit.
 				# Remove the parts of the multiword expression from
 				# the word array.
-				$$word_ref = $$word_ref . " " . $words_aref->[0];
-				shift @{$words_aref};
+				if($next) { 
+					$$word_ref = $$word_ref . " " . $next_words[0];
+					shift @next_words;
+				}
+				else {
+					$$word_ref = $$word_ref . " " . $words_aref->[0]; 
+					shift @{$words_aref}; 
+				}
 			}
 			return 1;
 		}
@@ -339,8 +362,14 @@ sub test_idiom {
 							# Construct the new multiword processing unit.
 							# Remove the parts of the multiword expression from
 							# the word array.
-							$$word_ref = $$word_ref . " " . $words_aref->[0];
-							shift @{$words_aref};
+							if($next) { 
+								$$word_ref = $$word_ref . " " . $next_words[0];
+								shift @next_words;
+							}
+							else {
+								$$word_ref = $$word_ref . " " . $words_aref->[0]; 
+								shift @{$words_aref}; 
+							}
 						}
 						return 1;
 					}
@@ -348,7 +377,12 @@ sub test_idiom {
 			}
 		}
 		$i++;
-		$token = $token . " " . $words_aref->[$i];
+		if($words_aref->[$i]) { $token = $token . " " . $words_aref->[$i]; }
+		elsif(! $next && $next_words[0]) { 
+			$token = $token . " " . $words_aref->[0];
+			$next=1;
+		}
+		else { return 0; }
 	}
 }
 
