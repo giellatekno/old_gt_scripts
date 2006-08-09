@@ -34,6 +34,7 @@ my $dict = XML::Twig::Elt->new('dict');
  
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 # Commented out the DOCTYPE for the time being - it requires extra setup in eXist,
 # and we really don't use it. Besides, the center-doc and the lang-docs require
 # different DTDs, and thus different DOCTYPEs. SNM 010806.
