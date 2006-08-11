@@ -40,8 +40,8 @@ print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 # different DTDs, and thus different DOCTYPEs. SNM 010806.
 #print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
 #print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
-print $FH1 qq|\n<dict>|;
-print $FH2 qq|\n<dict>|;
+print $FH1 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude">|;
+print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude">|;
 
 my $line;
 # Ignore the morphology part in this test version.
@@ -199,7 +199,10 @@ while ($line = <FH> ) {
 				# Alter termc entry by adding reference to terms
 				my $langentry = XML::Twig::Elt->new('langentry');
 				$langentry->set_att('lang', $language);
-				$langentry->set_att('ref', $id);
+				my $include = XML::Twig::Elt->new('xi:include');
+				my $ref = 'terms-'.$language.".xml#xpointer(//entry[\@id='".$id."'])";
+				$include->set_att('href', $ref);
+				$include->paste('last_child', $langentry);
 				$langentry->paste('last_child', $termc_entry);
 				
 				$term_entries{$id} = $entry;
