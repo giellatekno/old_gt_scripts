@@ -53,7 +53,6 @@ Find the book element, which then is converted to the "document" tag
             <xsl:apply-templates select="section"/>
             <xsl:apply-templates select="sect1"/>
             <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
-            <xsl:apply-templates select="para//tbody"/>
             <xsl:apply-templates select="para//table"/>
             <xsl:apply-templates select="para//informaltable"/>
             <xsl:apply-templates select="table"/>
@@ -128,7 +127,6 @@ Find the book element, which then is converted to the "document" tag
         <xsl:apply-templates select="chapter"/>
         <xsl:apply-templates select="sect1"/>
         <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
-        <xsl:apply-templates select="para//tbody"/>
 	    <xsl:apply-templates select="para//informaltable"/>
 	    <xsl:apply-templates select="para//table"/>
         <xsl:apply-templates select="table"/>
@@ -174,7 +172,6 @@ Find the book element, which then is converted to the "document" tag
 
 <xsl:template name="sect">
     <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
-    <xsl:apply-templates select="para//tbody"/>
     <xsl:apply-templates select="para//table"/>
     <xsl:apply-templates select="para//informaltable"/>
     <xsl:apply-templates select="table"/>
