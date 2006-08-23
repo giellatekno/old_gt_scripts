@@ -23,6 +23,7 @@ use Getopt::Long;
 
 my @words;
 my %abbrs;
+my %corrections;
 my $TRAB="TRAB";
 my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
@@ -61,9 +62,11 @@ my $verbose=0;
 my $hyph=0;
 my $use_hyph_tag=0;
 my $fst;
+my $corr;
 
 GetOptions ("abbr=s" => \$abbr_file,
 			"fst=s" => \$fst,
+			"corr=s" => \$corr,
 			"help" => \$help,
 			"v" => \$verbose,
 
@@ -79,6 +82,10 @@ my %idioms;
 # read the abbreviations from the file to a hash.
 if ($abbr_file) {
 	&read_abbr (\%abbrs, \%idioms);
+}
+# Read the corrections file (typos.txt)
+if ($corr) {
+	&read_corr (\%corrections);
 }
 
 sub verbose {
@@ -132,6 +139,7 @@ sub process_words {
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster.
 		if ($word =~ /^[^\W\d\s\n]*$/) {
+			if($corr) {if ($corrections{$word}) { $word = $corrections{$word}; }}
 			if (! $idioms{($word)} && ! $idioms{lcfirst($word)}) {
 				print "$word\n";
 				next;
@@ -171,6 +179,7 @@ sub process_word {
 	my $rest_punct;
 
     # Test for multiword expression.
+	if ($corr ) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 	if ($idioms{$word} || $idioms{lcfirst($word)}) {
 		test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
 	}
@@ -185,7 +194,7 @@ sub process_word {
     # Store the punctuation at the front of the string to tokens array.
 	if ($word =~ s/^([+=%:-]+)$//o) {
 		push (@{$tokens_aref}, split(//, $1));
-		verbose ("process_word/end_punct", $end_punct, __LINE__);
+		verbose ("process_word/front_punct", $1, __LINE__);
 	}
 
     # Store the punctuation at the end of the string to a variable
@@ -199,12 +208,15 @@ sub process_word {
 	# Check for expressions in $CONTAIN_PUNCT -variable.
 	if ($word !~ /$CONTAIN_PUNCT/o && (my @parts = split (/([+=%$SINGLE_PUNCT\/])/o, $word))) {
 		$word = pop @parts;
+		if ($corr ) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 		push (@{$tokens_aref}, @parts);
+		verbose ("process_word/contain_punct", "$word", __LINE__);
 
 		# Process the last part further, it may start with punctuation
 		# that is separate token.
 		if ($word =~ s/^([-$PUNCT])//o) {
 			push (@{$tokens_aref}, $1);
+			verbose ("process_word/contain_punct/last_part", "$1", __LINE__);
 			}
 		if (!$word) {
 			push (@{$tokens_aref}, split(//, $end_punct));
@@ -217,6 +229,7 @@ sub process_word {
 	  # ? or !, the word ends the sentence in any case, so the word can
 	  # be treated as a token.
 	  if ($end_punct =~ /[¶\?\!\.]/) {
+		  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 		  push (@{$tokens_aref}, $word);
 		  last TEST;
 	  }
@@ -233,6 +246,7 @@ sub process_word {
 		  # There is a sentence boundary. todo: Remove this as irrelevant!!
 		  elsif ($abbr =~ /^[[:upper:]1]{2,3}$/ ) {
 			  if ($words_aref->[0] !~ /^[[:lower:]]/ ) {
+				  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 				  push (@{$tokens_aref}, $abbr);
 				  push (@{$tokens_aref}, ".");
 				  last TEST;
@@ -249,6 +263,7 @@ sub process_word {
 	  if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
 		  $rest_punct =  $1;
 		  verbose ("process_word/rest_punct", $rest_punct, __LINE__);
+		  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 		  push (@{$tokens_aref}, $word);
 		  push (@{$tokens_aref}, $rest_punct);
 		  last TEST;
@@ -489,6 +504,25 @@ sub process_numeral {
 	push (@{$tokens_aref}, split(//, $end_punct)); 
 }
 
+sub read_corr {
+	my ($corr_href) = @_;
+
+	local $/="\n";
+
+	open CORR, "< $corr" or die "Cant open the file: $!\n";
+
+	while (<CORR>) {
+		chomp;
+		
+		next if (/^!/);
+		next if (/^\s*$/);
+		next if (/^\#/);
+		
+		my ($error, $correct) = split(/\t+/);
+		if ($error && $correct) { $$corr_href{$error} = $correct; }
+		else { print STDERR "preprocess warning: Line not included to typos: $_\n"; }
+	}
+}
 
 
 sub read_abbr {
@@ -537,6 +571,7 @@ sub print_usage {
     print " --v            prints information of the execution of the script\n";
 	print " --fst=<file>   analysator file (e.g. sme.fst) for recognizing\n";
 	print "                multiword expressions.\n";
+	print " --corr=<file>  list of common typos and their corrections (e.g. typos.txt)\n";
 
 }
 
