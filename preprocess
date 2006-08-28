@@ -34,8 +34,8 @@ my $MULTIWORD_SIZE = 3;
 
 #  «»‹›“”„‘’‚ ´`'"
 my $quotations = "\x{00AB}\x{00BB}\x{2039}\x{203A}\x{201C}\x{201D}\x{201E}\x{2018}\x{2019}\x{201A}\x{00B4}\x{0060}\'\"";
-#… and • ¶
-my $other = "\x{2026}\x{2022}\x{00B6}";
+#… and • ¶ en-dash em-dash
+my $other = "\x{2026}\x{2022}\x{00B6}\x{2013}\x{2014}";
 my $parentheses = quotemeta("|{}[]()");
 my $general_punct = quotemeta("$.*?!,;:.%");
 
@@ -147,7 +147,8 @@ sub process_words {
 		}
 		# store punctuation from the front of the expression
 		# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-		if ($word =~ s/^([–$SINGLE_PUNCT]+)//o) {
+		if ($word =~ s/^([$SINGLE_PUNCT]+)//o) {
+		    verbose("if front punct ", $word , __LINE__);
 			push (@tokens, split(//, $1));
 		}
 		# Examine the type of the string. If the expression contains
