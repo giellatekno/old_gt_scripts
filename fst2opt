@@ -10,8 +10,9 @@
 
 PATH=$PATH:/opt/xerox/bin
 
+# The gt-catalog
 cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/gt gt
-for lang in "sme" "smj" "sma" "foe"
+for lang in #"sme" "smj" "sma"
 do
         cd /usr/tmp/gt/ && make clean TARGET=$lang
 		cd /usr/tmp/gt/ && make TARGET=$lang
@@ -21,6 +22,24 @@ do
 		cp /usr/tmp/gt/$lang/bin/hyph-$lang.fst /opt/sami/smi/$lang/bin/
 		cp /usr/tmp/gt/$lang/src/$lang-dis.rle /opt/sami/smi/$lang/bin/
 		cp /usr/tmp/gt/$lang/bin/abbr.txt /opt/sami/smi/$lang/bin/
+
+		chgrp cvs /opt/sami/smi/$lang/bin/*
+		chmod a+x /opt/sami/smi/$lang/bin/*
+		chmod g+w /opt/sami/smi/$lang/bin/*
+done
+
+# st-catalog
+cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/st st
+for lang in "foe"
+do 
+        cd /usr/tmp/st/$lang/src && make clean
+		cd /usr/tmp/st/$lang/src && make
+
+		cp /usr/tmp/st/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/st/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/st/$lang/bin/hyph-$lang.fst /opt/sami/smi/$lang/bin/
+#		cp /usr/tmp/st/$lang/src/$lang-dis.rle /opt/sami/smi/$lang/bin/
+#		cp /usr/tmp/st/$lang/bin/abbr.txt /opt/sami/smi/$lang/bin/
 
 		chgrp cvs /opt/sami/smi/$lang/bin/*
 		chmod a+x /opt/sami/smi/$lang/bin/*
