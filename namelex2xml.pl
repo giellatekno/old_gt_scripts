@@ -88,7 +88,6 @@ while ($line = <FH> ) {
 
 	# consequtive identical entries are collected
 	while ( $prev_word eq $word && ! eof ) {
-		print "$prev_word $word\n";
 		push (@contlex_texts, $contlex_text);
 		next FILE;
 	}
@@ -126,6 +125,8 @@ while ($line = <FH> ) {
 			my $entry = XML::Twig::Elt->new('entry');
 			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
 			else { $lemma_2 = $lemma_text }
+			$lemma_2 =~ s/\^//g;
+			$lemma_2 =~ s/ /_/g;
 			$entry->set_att('id', $lemma_2);
 
 			my $sem = XML::Twig::Elt->new('sem');
@@ -167,46 +168,82 @@ while ($line = <FH> ) {
 
 			my $termc_entry = $termc_entries{$key};
 			my $id = $termc_entry->{'att'}->{'id'};
-			
-			# If there is terms-entry with the same id, just add
-			# new inflection class.
-			if( $term_entries{$id} ) {
-				my $infl = XML::Twig::Elt->new('infl');
-				$infl->set_att('lexc', $infl_text);		
-				$infl->paste('last_child', $term_entries{$id});
-			}
 
-			# Otherwise create new terms-entry.
-			else {
-				my $entry = XML::Twig::Elt->new('entry');
-				$entry->set_att('id', $id);
-				if ($stem_text && ($stem_text ne $lemma_text)) {
-					my $stem = XML::Twig::Elt->new('stem');
-					$stem->set_text($stem_text);
-					$stem->paste('last_child', $entry);
-				}
-				# Add reference to the termc
-				my $senses = XML::Twig::Elt->new('senses');
-				my $sense = XML::Twig::Elt->new('sense');
-				$sense->set_att('ref', $id);
-				$sense->paste('last_child', $senses);
-				$senses->paste('last_child', $entry);
+		  TERMS: {
+			  # If there is terms-entry with the same id
+			  # add new inflection class.
+			  $curid = $id;
+			  $curid =~ s/\_\d+$//;
+			  if ($term_entries{$curid}) {
+				  $curentry = $term_entries{$curid};
 
-				my $infl = XML::Twig::Elt->new('infl');
-				$infl->set_att('lexc', $infl_text);		
-				$infl->paste('last_child', $entry);
+				  # add sense reference if not exist already.
+				  my $senses_elt;
+				  my %sens_hash;
+				  my @sens_array;
+				  if( $senses_elt = $curentry->first_child('senses')) {
+					  @sens_array=$senses_elt->children;
+					  for my $sens (@sens_array) { $sens_hash{$sens->{'att'}->{'ref'}} = 1; }
+					  if (! $sens_hash{$id}) {
+						  my $sense = XML::Twig::Elt->new('sense');
+						  $sense->set_att('ref', $id);
+						  $sense->paste('last_child', $senses_elt);
+						  
+						  # Alter termc entry by adding reference to terms
+						  my $langentry = XML::Twig::Elt->new('langentry');
+						  $langentry->set_att('lang', $language);
+						  my $include = XML::Twig::Elt->new('xi:include');
+						  my $ref = 'terms-'.$language.".xml#xpointer(//entry[\@id='".$curid."'])";
+						  $include->set_att('href', $ref);
+						  $include->paste('last_child', $langentry);
+						  $langentry->paste('last_child', $termc_entry);
+					  }
+				  }
+				  else { print "NO senses $curid?\n"; }
+				  if ($curentry->first_child('infl')) {
+					  if($curentry->first_child('infl')->{'att'}->{'lexc'} ne $infl_text) {
+						  @sens_array=$senses_elt->children;
+						  if ( $#sens_array > 0 ) {
+							  print "$curid\tadding multiple infl classes.\n";
+						  }
+						  my $infl = XML::Twig::Elt->new('infl');
+						  $infl->set_att('lexc', $infl_text);		
+						  $infl->paste('last_child', $curentry);
+					  }
+				  }
+				  last TERMS;
+			  }
 
-				# Alter termc entry by adding reference to terms
-				my $langentry = XML::Twig::Elt->new('langentry');
-				$langentry->set_att('lang', $language);
-				my $include = XML::Twig::Elt->new('xi:include');
-				my $ref = 'terms-'.$language.".xml#xpointer(//entry[\@id='".$id."'])";
-				$include->set_att('href', $ref);
-				$include->paste('last_child', $langentry);
-				$langentry->paste('last_child', $termc_entry);
-				
-				$term_entries{$id} = $entry;
-			}
+			  # If there was no terms entry with id or id_1, create new terms-entry.
+			  my $entry = XML::Twig::Elt->new('entry');
+			  $entry->set_att('id', $curid);
+			  if ($stem_text && ($stem_text ne $lemma_text)) {
+				  my $stem = XML::Twig::Elt->new('stem');
+				  $stem->set_text($stem_text);
+				  $stem->paste('last_child', $entry);
+			  }
+			  # Add reference to the termc
+			  my $senses = XML::Twig::Elt->new('senses');
+			  my $sense = XML::Twig::Elt->new('sense');
+			  $sense->set_att('ref', $id);
+			  $sense->paste('last_child', $senses);
+			  $senses->paste('last_child', $entry);
+			  
+			  my $infl = XML::Twig::Elt->new('infl');
+			  $infl->set_att('lexc', $infl_text);		
+			  $infl->paste('last_child', $entry);
+			  
+			  # Alter termc entry by adding reference to terms
+			  my $langentry = XML::Twig::Elt->new('langentry');
+			  $langentry->set_att('lang', $language);
+			  my $include = XML::Twig::Elt->new('xi:include');
+			  my $ref = 'terms-'.$language.".xml#xpointer(//entry[\@id='".$curid."'])";
+			  $include->set_att('href', $ref);
+			  $include->paste('last_child', $langentry);
+			  $langentry->paste('last_child', $termc_entry);
+			  
+			  $term_entries{$curid} = $entry;
+		  }
 		}
 	}
 	
