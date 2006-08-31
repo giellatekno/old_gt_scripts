@@ -14,8 +14,8 @@ PATH=$PATH:/opt/xerox/bin
 cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/gt gt
 for lang in "sme" "smj" "sma"
 do
-        cd /usr/tmp/gt/ && make clean TARGET=$lang
-		cd /usr/tmp/gt/ && make TARGET=$lang
+        cd /usr/tmp/gt/ && make clean TARGET=$lang 
+		cd /usr/tmp/gt/ && make TARGET=$lang 1>/dev/null
 
 		cp /usr/tmp/gt/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
 		cp /usr/tmp/gt/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
@@ -33,7 +33,7 @@ cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/st st
 for lang in "foe"
 do 
         cd /usr/tmp/st/$lang/src && make clean
-		cd /usr/tmp/st/$lang/src && make
+		cd /usr/tmp/st/$lang/src && make 1>/dev/null
 
 		cp /usr/tmp/st/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
 		cp /usr/tmp/st/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
