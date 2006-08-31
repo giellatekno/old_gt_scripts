@@ -30,7 +30,7 @@ done
 
 # st-catalog
 cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/st st
-for lang in "foe"
+for lang in "foe" "kal"
 do 
         cd /usr/tmp/st/$lang/src && make clean
 		cd /usr/tmp/st/$lang/src && make 1>/dev/null
