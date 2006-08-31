@@ -12,7 +12,7 @@ PATH=$PATH:/opt/xerox/bin
 
 # The gt-catalog
 cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/gt gt
-for lang in #"sme" "smj" "sma"
+for lang in "sme" "smj" "sma"
 do
         cd /usr/tmp/gt/ && make clean TARGET=$lang
 		cd /usr/tmp/gt/ && make TARGET=$lang
