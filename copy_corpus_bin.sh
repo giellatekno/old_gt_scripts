@@ -35,7 +35,10 @@ do
 done
 
 cp $tmpdir/gt/script/LM/* $bindir/LM/
+echo "copying $tmpdir/gt/script/LM/* $bindir/LM/"
+
 cp $tmpdir/gt/script/$makefile $corpdir/Makefile
+echo "copying $tmpdir/gt/script/$makefile $corpdir/Makefile"
 
 cd $bindir && perl $tmpdir/gt/script/reformat_commonxsl.pl
 chgrp cvs $bindir/*
