@@ -16,9 +16,7 @@
 # If you notice a new encoding class, please name it 
 # and add to the list below.
 
-dir=/usr/local/share/corp/bound/sme
-origdir=/usr/local/share/corp/orig/sme
-outfile=bad_decoding.txt
+dir=/usr/local/share/corp/bound/sme/facta
 
 # List of wrongly encoded characters, classified according 
 # to the supposed encoding. Some classes are overlapping.
@@ -33,7 +31,7 @@ latinkuus="[¹ è¿˜¼ ]"
 # html-symbols that harm processing. Such that &lt;
 html="\&.{1,4}\;"
 
-echo "Files with encoding problems:" > $outfile
+echo "Files with encoding problems:"
 
 for code in "$greek" "$samimac" "$winsam" "$iso_ir" "$levi_winsam" "$viitonen" "$latinkuus" "$html"
 do
