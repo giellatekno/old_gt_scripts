@@ -73,12 +73,16 @@ sub process_file {
     return if ($file =~ /[\~]$/);
 	return if (-z $file);
 	
-	my $document = XML::Twig->new(twig_handlers => { header => sub { take_mainlang(@_, $file); }, 
-													 p => sub { find_words(@_, $file); } });
+	my @messages;
+	my $document = XML::Twig->new(twig_handlers => { header => sub { take_mainlang(@_, \@messages); }, 
+													 p => sub { find_words(@_, \@messages); } });
 	if (! $document->safe_parsefile ("$file") ) {
 		print STDERR "Parsing the XML-file $file failed: $@\n";
 		return;
 	}
+	if(@messages) {
+		print "$file\n", @messages;
+	}	
 }
 
 sub take_mainlang {
@@ -87,7 +91,8 @@ sub take_mainlang {
 	my $mlang = $header->{'att'}->{'xml:lang'};
 
 	if ($mainlang && $mlang && $mlang ne $mainlang) {
-		print "$file: Main language $mainlang did not match xml:lang definition: $mlang\n";
+		print "$file\n";
+		print "Warning: Main language $mainlang did not match xml:lang definition: $mlang\n";
 		print "Using $mlang as main language.\n";
 	}
 	if ($mlang) {
@@ -97,7 +102,7 @@ sub take_mainlang {
 
 
 sub find_words {
-	my ( $twig, $para, $file) = @_;
+	my ( $twig, $para, $messages_aref) = @_;
 
 	my $paralang = $para->{'att'}->{'xml:lang'};
 
@@ -106,20 +111,30 @@ sub find_words {
 	my $text = $para->text;
 	$text =~ s/^\n+//;
 	$text =~ s/\n+$//;
+	return if ($text =~ /^\s*[\W\d]*\s*$/);
 
-	my @messages;
 	my @matched;
 	for my $word (@{$langs{$paralang}}) {
 		if ($text =~ /\b$word\b/ || $text =~ /\bucfirst($word)\b/) { push (@matched, $word); }
 	}
 #		if ($paralang ne $l && @matched) {
-#			push @messages, "\"$l\" words \"@matched\" found from paragraph marked as \"$paralang\":\n";
+#			push @messages, "\"$l\" words \"@matched\" found from paragraph marked as \"$paralang\":\t$text\n";
 #		}
 	if (! @matched) {
-		push @messages, "Paragraph contained no words for xml:lang \"$paralang\":\n";
+		push @$messages_aref, "Paragraph contained no words for xml:lang \"$paralang\":\n\t$text\n\n";
 	}
-	if(@messages) {
-		print @messages;
-		print "\t $text\n\n";
-	}	
+}
+
+sub print_help {
+	print <<END;
+Usage: corpus-wrong-lang.pl [OPTIONS] [FILE]
+Search files for paragraphs that do not contain words 
+associated to the specified language. Print to STDOUT.
+The available options:
+    --help            Print this help text and exit.
+    --dir=<dir>       The directory where to search for files,
+                      if not given, only FILE is processed.
+    --mainlang=<lang> The assumed main language. If the file has
+	                  different specification, produces a warning.
+END
 }
