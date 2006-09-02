@@ -11,8 +11,10 @@ ORIGDIR=orig
 CONVERT2XML=/usr/local/share/corp/bin/convert2xml.pl
 LANGUAGE=sme
 GENRE=
+ifneq ($(GENRE),)
 boundfiles=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type f)
 origdirs=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type d)
+endif
 
 nullstring :=
 space := $(nullstring) # variable now contains a space
@@ -29,3 +31,4 @@ all: $(boundfiles)
 
 $(BOUNDDIR)/%.xml: $(ORIGDIR)/% $(ORIGDIR)/%.xsl,v
 	$(CONVERT2XML) --lang=$(LANGUAGE) --nolog $<
+
