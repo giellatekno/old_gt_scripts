@@ -40,8 +40,8 @@ print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 # different DTDs, and thus different DOCTYPEs. SNM 010806.
 #print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
 #print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
-print $FH1 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude">|;
-print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude">|;
+print $FH1 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="">|;
+print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="">|;
 
 my $line;
 # Ignore the morphology part in this test version.
@@ -123,6 +123,8 @@ while ($line = <FH> ) {
 
 			# Create a new entry for each semantic category
 			my $entry = XML::Twig::Elt->new('entry');
+			my $log = XML::Twig::Elt->new('log');
+			$log->paste('last_child', $entry);
 			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
 			else { $lemma_2 = $lemma_text }
 			$lemma_2 =~ s/\^//g;
@@ -143,6 +145,9 @@ while ($line = <FH> ) {
 	# if there is no semantic category specified, create one termc entry.
 	else {
 		my $entry = XML::Twig::Elt->new('entry');
+		my $log = XML::Twig::Elt->new('log');
+		$log->paste('last_child', $entry);
+
 		$entry->set_att('id', $lemma_text);
 		
 		$termc_entries{'empty'} = $entry;
@@ -216,6 +221,9 @@ while ($line = <FH> ) {
 
 			  # If there was no terms entry with id or id_1, create new terms-entry.
 			  my $entry = XML::Twig::Elt->new('entry');
+			  my $log = XML::Twig::Elt->new('log');
+			  $log->paste('last_child', $entry);
+
 			  $entry->set_att('id', $curid);
 			  if ($stem_text && ($stem_text ne $lemma_text)) {
 				  my $stem = XML::Twig::Elt->new('stem');
