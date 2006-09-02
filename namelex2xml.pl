@@ -127,7 +127,7 @@ while ($line = <FH> ) {
 			$log->paste('last_child', $entry);
 			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
 			else { $lemma_2 = $lemma_text }
-			$lemma_2 =~ s/\^//g;
+			$lemma_2 =~ s/[\^#0]//g;
 			$lemma_2 =~ s/ /_/g;
 			$entry->set_att('id', $lemma_2);
 
@@ -192,6 +192,7 @@ while ($line = <FH> ) {
 					  if (! $sens_hash{$id}) {
 						  my $sense = XML::Twig::Elt->new('sense');
 						  $sense->set_att('ref', $id);
+						  $sense->set_att('sem', $key);
 						  $sense->paste('last_child', $senses_elt);
 						  
 						  # Alter termc entry by adding reference to terms
@@ -234,6 +235,7 @@ while ($line = <FH> ) {
 			  my $senses = XML::Twig::Elt->new('senses');
 			  my $sense = XML::Twig::Elt->new('sense');
 			  $sense->set_att('ref', $id);
+			  $sense->set_att('sem', $key);
 			  $sense->paste('last_child', $senses);
 			  $senses->paste('last_child', $entry);
 			  
