@@ -1,7 +1,11 @@
 #!/usr/bin/perl -w
 use strict;
 
-# Usage: corpus-search-words.pl
+# Usage: corpus-search-words.pl --dir=<dir>
+# Search for files and directories for paragraphs that do not match to 
+# the specified language. Uses word models (the files LM/lang.wm) as
+# source of words for that language.
+#
 # $Id$
 
 use File::Find;
@@ -11,9 +15,8 @@ use Getopt::Long;
 binmode STDOUT, ":utf8";
 
 my $help;
-#my $dir="/usr/local/share/corp/bound/sme/facta";
 my $dir;
-my $wmdir="/home/saara/gt/script/LM";
+my $wmdir="/usr/local/share/corp/bin/LM";
 my $lang;
 my @languages=("eng","nno","nob","sme","fin","smj","sma","ger","swe" );
 my %langs;
