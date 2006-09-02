@@ -63,6 +63,7 @@ if ($dir) {
 # Process the file given in command line.
 process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
 
+my $mono;
 sub process_file {
     my $file = $_;
     $file = shift (@_) if (!$file);
@@ -75,7 +76,8 @@ sub process_file {
 	# returned here.
     return if ($file =~ /[\~]$/);
 	return if (-z $file);
-	
+
+	$mono=0;
 	my @messages;
 	my $document = XML::Twig->new(twig_handlers => { header => sub { take_mainlang(@_, \@messages); }, 
 													 p => sub { find_words(@_, \@messages); } });
@@ -101,12 +103,15 @@ sub take_mainlang {
 	if ($mlang) {
 		$mainlang = $mlang;
 	}
+	# Skip the file if marked as monolingual.
+	if ($header->first_child('monolingual')) { $mono=1 };
 }
 
 
 sub find_words {
 	my ( $twig, $para, $messages_aref) = @_;
 
+	return if $mono;
 	my $paralang = $para->{'att'}->{'xml:lang'};
 
 	if(! $paralang) { $paralang = $mainlang; }
@@ -115,6 +120,7 @@ sub find_words {
 	$text =~ s/^\n+//;
 	$text =~ s/\n+$//;
 	return if ($text =~ /^\s*[\W\d]*\s*$/);
+	return if length($text) < 50;
 
 	my @matched;
 	for my $word (@{$langs{$paralang}}) {
