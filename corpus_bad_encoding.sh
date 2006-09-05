@@ -29,11 +29,11 @@ levi_winsam="[¹„¿˜]"
 viitonen="[¾¿]"
 latinkuus="[¹ è¿˜¼ ]"
 # html-symbols that harm processing. Such that &lt;
-html="\&.{1,4}\;"
+# html="\&.{1,4}\;"
 
 echo "Files with encoding problems:"
 
-for code in "$greek" "$samimac" "$winsam" "$iso_ir" "$levi_winsam" "$viitonen" "$latinkuus" "$html"
+for code in "$greek" "$samimac" "$winsam" "$iso_ir" "$levi_winsam" "$viitonen" "$latinkuus"
 do
   files=$(find $dir -type f | while read I; do grep -cH -E "$code" "$I"; done | sed "s/^.*0$//" |sort |uniq )
   echo "$code" "$files"
