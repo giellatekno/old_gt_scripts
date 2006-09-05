@@ -16,7 +16,7 @@
 # If you notice a new encoding class, please name it 
 # and add to the list below.
 
-dir=/usr/local/share/corp/bound/sme/facta
+dir=/usr/local/share/corp/bound/sme
 
 # List of wrongly encoded characters, classified according 
 # to the supposed encoding. Some classes are overlapping.
