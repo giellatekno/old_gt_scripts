@@ -27,7 +27,7 @@ winsam="[ðñçóþ]"
 iso_ir="[±¢³º]"
 levi_winsam="[¹„¿˜]"
 viitonen="[¾¿]"
-latinkuus="[¹ è¿˜¼ ]"
+latinkuus="[¹è¿˜¼]"
 # html-symbols that harm processing. Such that &lt;
 # html="\&.{1,4}\;"
 
