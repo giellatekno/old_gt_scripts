@@ -67,6 +67,9 @@ build_and_copy_sites()
 {
     cd
     rm gt/doc/lang/corp/corpus-summary-2006-05-16.xml
+    #rm gt/doc/lang/corp/corpus-summary.xml
+    #rm gt/doc/lang/corp/corpus-content.xml
+
     for SITE in sd gtuit
     do
         cd $HOME/xtdoc/$SITE
@@ -78,7 +81,7 @@ build_and_copy_sites()
 
         # Build the site, at the same time checking the docs
         echo "Cleaning old build ..."
-        forrest clean
+        #forrest clean
         echo "Validating $SITE ..."
         forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
 
@@ -87,10 +90,10 @@ build_and_copy_sites()
         if [ "$?"  == "0" ]
         then
             echo "Building site ..."
-            forrest -Dforrest.jvmargs=-Djava.awt.headless=true
+            nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
             echo "Copying file to $SITE..."
             cd build/site
-            #scp -rq * $SITE@giellatekno.uit.no:public_html/.
+            scp -rq * $SITE@giellatekno.uit.no:public_html/.
             if [ "$?"  != "0" ]
             then
                 (
