@@ -37,6 +37,13 @@ orig ()
 		chmod 0640 $file
 	  done
 
+	  xslfiles=`find $orig/$dir -type f -name "*.xsl,v"`
+	  for file in $xslfiles
+	  do 
+		chgrp corpus $file
+		chmod 0440 $file
+	  done
+
 	  subdirs=$(find $orig/$dir -type d)
 	  for sub in $subdirs
 	  do
