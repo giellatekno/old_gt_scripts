@@ -112,17 +112,18 @@ sub rate_compounds {
 	for (keys %$href) {
 		$boundary_count = tr/\#//;
 		if ( $boundary_count > $min_boundary_count )
-			{ delete($$href{$_}); }
+		{ delete($$href{$_}); }
 	}
 }
 
 sub format_compound {
 	my ($refbase, $refline, $refword) = @_;
-
+	
 	# Take only the analysis of the last part of the compound
 	$$refline =~ s/^.*\#(.*?)\s(.*$)/$2/o;
 	my $last_word = $1;
-
+	if(! $last_word) { return; }
+								
 	# Search for the 4 first letters of the last base form
 	# from the original compound 
 	my $substring = substr($last_word,0,4);
@@ -134,10 +135,10 @@ sub format_compound {
 	}
     # If the compound boundary is not found, 
 	# use "last resort": 2 letters instead of 3 or 4.
-	if ($$refword !~ m/$substring/) {	
+		if ($$refword !~ m/$substring/) {	
 		$substring = substr($last_word,0,2);
 	}
-    # If the compound boundary is not found, 
+	# If the compound boundary is not found, 
 	# use "last resort": 1 letters instead of 2 3 or 4.
 	if ($$refword !~ m/$substring/) {	
 		$substring = substr($last_word,0,1);
@@ -148,9 +149,11 @@ sub format_compound {
 		# it, in order to mark the result as a compound.
 		my $orig = $$refbase;
 		$$refbase = $$refword;
+#		print "$$refbase $last_word ok\n";
 		$$refbase =~ s/(^.*)$substring.*$/$1\#$last_word/;
 		if ($orig =~ m/^\p{isLower}/) {
 			$$refbase = lcfirst($$refbase);
 		}
 	}
+								
 }
