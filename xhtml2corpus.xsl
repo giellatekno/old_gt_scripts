@@ -34,9 +34,16 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:head">
  <header>
   <title>
+  <xsl:choose>
+  <xsl:when test="html:title">
+			<xsl:value-of select="html:title"/>
+  </xsl:when>
+  <xsl:otherwise>	
    <xsl:value-of select="../html:body//html:h1[1]
    						|../html:body//html:h2[1]
    						|../html:body//html:h3[1]"/>
+  </xsl:otherwise>
+  </xsl:choose>
   </title>
  </header>
 </xsl:template>
@@ -198,7 +205,21 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="html:td">
-  <xsl:apply-templates/>
+<xsl:choose>
+	<xsl:when test="text()">
+	<xsl:choose>
+	<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+			  <xsl:apply-templates select="text()"/>
+	</xsl:when>
+	<xsl:otherwise>
+			  <p><xsl:apply-templates select="text()"/></p>
+	</xsl:otherwise>
+	</xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+			<xsl:apply-templates/>
+	</xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:tr">
@@ -233,7 +254,21 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- other formatting -->
 <xsl:template match="html:span|html:font">
-<xsl:apply-templates />
+<xsl:choose>
+	<xsl:when test="text()">
+	<xsl:choose>
+	<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+			  <xsl:apply-templates select="text()"/>
+	</xsl:when>
+	<xsl:otherwise>
+			  <p><xsl:apply-templates select="text()"/></p>
+	</xsl:otherwise>
+	</xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+			<xsl:apply-templates/>
+	</xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 
 
