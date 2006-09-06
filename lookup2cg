@@ -27,54 +27,65 @@ my $compound = 0;
 my $comp_rate = 0;
 my $max_comp_rate = 0;
 
+$/ = "";
+
 # Read while not eol
 while(<>) {	
-	# While line not empty, store word to a scalar and
-	# analysis (=base form and tags) to an array
-	if (! /^\s*$/) {
-		chomp;
+
+	my @Analyses;
+	my %forms;
+	my %rated;
+	
+	my $word;
+	my $tmp;
+	my $compound = 0;
+	my $comp_rate = 0;
+	my $max_comp_rate = 0;
+
+	my @lines = split(/\n/, $_);
+	for my $line (@lines) {
+		# store word to a scalar and
+		# analysis (=base form and tags) to an array
 		my $analysis;
-		($word, $analysis) = split(/\t/, $_, 2);
+		($word, $analysis) = split(/\t/, $line, 2);
 		$analysis =~ tr/\t//d;
 		push @Analyses, $analysis;
-		$comp_rate = tr/#//;
+		$comp_rate = tr/\#//;
 		if ($comp_rate > $max_comp_rate) { 
 			$max_comp_rate = $comp_rate; 
 		}
 	}
-	# Empty line means that the whole cohort has been read,
 	# format the output and print
-	else {
-		if ($max_comp_rate > 0) { 
-			while (@Analyses) {
-				my $line = pop @Analyses;
-				$rated{$line} = 1;
-			}
-			pop @Analyses;
-			rate_compounds(\%rated); 
-			for my $key (keys %rated) {
-				push @Analyses, $key;
-			}
+	if ($max_comp_rate > 0) { 
+		while (@Analyses) {
+			my $line = pop @Analyses;
+			$rated{$line} = 1;
 		}
-		# Format each analysis
-		for my $line (@Analyses) {
-			# Separate the base form from the analysis
-			my ($base, $line2) = split(/\+/, $line, 2);
-			$line2 =~ tr/+/ /;
-
-			# If line contains a compound
-			if ( $max_comp_rate > 0 ) {
-				format_compound(\$base, \$line2, \$word); 
-			}
-			# Mark derivational tags
-			1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
+		pop @Analyses;
+		rate_compounds(\%rated); 
+		for my $key (keys %rated) {
+			push @Analyses, $key;
+		}
+	}
+	# Format each analysis
+	for my $line (@Analyses) {
+		# Separate the base form from the analysis
+		my ($base, $line2) = split(/\+/, $line, 2);
+		$line2 =~ tr/+/ /;
+		
+		# If line contains a compound
+		if ( $max_comp_rate > 0 ) {
+			format_compound(\$base, \$line2, \$word); 
+		}
+		# Mark derivational tags
+		1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
             
             #Format output
             $line =  "\t" . " \"$base\" " . $line2 . "\n";
  			
 			# Store the analysis to a hash
 			$forms{$line} = 1;
-        } 
+        }
 		
 		# Print output
         if (@Analyses) {
@@ -82,15 +93,7 @@ while(<>) {
 		for my $line (keys %forms)
 		{ print "$line"; }
 		}
-		@Analyses = ();
-		%forms = ();
-		%rated = ();
-		$comp_rate = 0;
-		$max_comp_rate = 0;
-
-	}
-
-} # end of while
+	} # end of while
 
 
 sub rate_compounds {
@@ -100,14 +103,14 @@ sub rate_compounds {
 	my $min_boundary_count=5;
 	my $boundary_count=0;
 	for (keys %$href) {
-		$boundary_count = tr/#//;
+		$boundary_count = tr/\#//;
 		if ( $boundary_count < $min_boundary_count )
 		{ $min_boundary_count = $boundary_count; }
 	}
 	my $i=0;
 	$boundary_count = 0;
 	for (keys %$href) {
-		$boundary_count = tr/#//;
+		$boundary_count = tr/\#//;
 		if ( $boundary_count > $min_boundary_count )
 			{ delete($$href{$_}); }
 	}
@@ -117,7 +120,7 @@ sub format_compound {
 	my ($refbase, $refline, $refword) = @_;
 
 	# Take only the analysis of the last part of the compound
-	$$refline =~ s/^.*#(.*?)\s(.*$)/$2/o;
+	$$refline =~ s/^.*\#(.*?)\s(.*$)/$2/o;
 	my $last_word = $1;
 
 	# Search for the 4 first letters of the last base form
@@ -145,7 +148,7 @@ sub format_compound {
 		# it, in order to mark the result as a compound.
 		my $orig = $$refbase;
 		$$refbase = $$refword;
-		$$refbase =~ s/(^.*)$substring.*$/$1#$last_word/;
+		$$refbase =~ s/(^.*)$substring.*$/$1\#$last_word/;
 		if ($orig =~ m/^\p{isLower}/) {
 			$$refbase = lcfirst($$refbase);
 		}
