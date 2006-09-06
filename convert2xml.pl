@@ -214,7 +214,7 @@ sub process_file {
 		my $xsl;
 		if ($xsl_file) { $xsl = $xsl_file; }
 		else { $xsl = $htmlxsl; }
-		$command = "$tidy \"$orig\" > \"$tmp3\"";
+		$command = "$tidy \"$orig\" > \"$tmp3\" 2>/dev/null";
 		exec_com($command, $file);
 
 		$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
