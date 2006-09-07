@@ -32,6 +32,10 @@ open($FH2, ">$outfile");
 # The root element. Name??
 my $dict = XML::Twig::Elt->new('dict');
  
+# Set the conversion time for the XML output;
+# This will be stored as part of the XML files.
+my $convtime = &timestring;
+
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
@@ -40,8 +44,8 @@ print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 # different DTDs, and thus different DOCTYPEs. SNM 010806.
 #print $FH1 qq|<!DOCTYPE dict PUBLIC "-//DIVVUN//DTD Proper Noun Dictionary V1.0//EN"|;
 #print $FH1 qq|"http://www.divvun.no/dtd/prop-noun-dict-v10.dtd">|;
-print $FH1 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="">|;
-print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="">|;
+print $FH1 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="$convtime">|;
+print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="$convtime">|;
 
 my $line;
 # Ignore the morphology part in this test version.
@@ -283,3 +287,20 @@ close $FH1;
 
 print $FH2 qq|\n</dict>|;
 close $FH2;
+
+########################################################
+# timestring: Prints date&time as an integer of the form:
+# YYYYMMDDHHMMSS, ie 20050329145107
+# This way we can do timestamp comparisons with less overhead.
+sub timestring {
+  ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst)
+  = localtime(time);
+  $year = $year+1900;
+  $mon++;            # 0-base -> 1-base
+  $mon  = ( $mon  > 9) ? $mon  : "0$mon" ;
+  $mday = ( $mday > 9) ? $mday : "0$mday" ;
+  $hour = ( $hour > 9) ? $hour : "0$hour" ;
+  $min  = ( $min  > 9) ? $min  : "0$min" ;
+  $sec  = ( $sec  > 9) ? $sec  : "0$sec" ;
+  return $year . $mon . $mday . $hour . $min . $sec;
+}
