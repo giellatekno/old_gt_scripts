@@ -21,8 +21,9 @@ $twig->set_pretty_print('record');
 # Specify the $infile and $outfile to the files you want:
 
 my $infile = "../sme/src/propernoun-sme-lex.txt";
+#my $infile = "../smj/src/propernoun-smj-lex.txt";
 #my $infile = "prop-test.txt";
-my $outfile = "terms-sme.xml";
+my $outfile = "terms-" . $mainlang . ".xml";
 my $outfile_common = "termcenter.xml";
 
 open (FH, "<utf8", "$infile") or die "Cannot open file $infile: $!";
@@ -78,6 +79,10 @@ my $last=0;
 
 FILE:
 while ($line = <FH> ) {
+
+	if ($mainlang eq "smj") {
+		last FILE if $line =~ /Dump/;
+	}
 
 	my %termc_entries;
 	my %term_entries;
