@@ -90,7 +90,7 @@ add_suffix ()
 		fi
 		extension=$(echo "$file" | sed -e "s/.*\.//")
 
-		if [ "$extension" = "$file" ]
+		if [ "$extension" = "$file" -o -z "$extension" ]
 			then
 			case "$filetype" in
 					"text/plain" ) file2=$file.txt;;
@@ -102,13 +102,14 @@ add_suffix ()
 			 if [ "$file" != "$file2" ]
 				 then
 				 mv "$file" "$file2"
+#				 echo "komento: mv \"$file\" \"$file2\""
 			 fi
 	  	 fi
 	   done
 	done
 }
 
-rename $subdirs
-#add_suffix $subdirs
+#rename $subdirs
+add_suffix $subdirs
 
 exit 0
