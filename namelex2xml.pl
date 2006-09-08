@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+use strict;
+
 #use encoding 'utf8';
 #use open ':utf8';
 
@@ -7,7 +9,8 @@
 # http://www.xmltwig.com/
 use XML::Twig;
 
-my $language = "sme";
+my $mainlang = "sme";
+my @other_langs = ("smj", "sma");
 
 my $twig = XML::Twig->new( output_encoding => "utf8");
 $twig->set_pretty_print('record');
@@ -29,10 +32,7 @@ my $FH2;
 open($FH1,  ">$outfile_common");
 open($FH2, ">$outfile");
 
-# The root element. Name??
-my $dict = XML::Twig::Elt->new('dict');
- 
-# Set the conversion time for the XML output;
+ # Set the conversion time for the XML output;
 # This will be stored as part of the XML files.
 my $convtime = &timestring;
 
@@ -47,6 +47,22 @@ print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 print $FH1 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="$convtime">|;
 print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="$convtime">|;
 
+my %outfiles;
+for my $lang (@other_langs) {
+	my $out = "terms-" . $lang . ".xml";
+	my $fh_out;
+	open($fh_out, ">$out");
+	print $fh_out qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+	print $fh_out qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="">|;
+	$outfiles{$lang} = $fh_out;
+}
+
+my @all_langs = @other_langs;
+push @all_langs, $mainlang;
+
+# The root element.
+my $dict = XML::Twig::Elt->new('dict');
+
 my $line;
 # Ignore the morphology part in this test version.
 while( $line = <FH> ) {
@@ -56,14 +72,17 @@ while( $line = <FH> ) {
 
 my $prev_word=undef;
 my $prev_entry="";
-my %termc_entries;
-my %term_entries;
 my @contlex_texts;
 
 my $last=0;
 
 FILE:
 while ($line = <FH> ) {
+
+	my %termc_entries;
+	my %term_entries;
+	my %sem_texts;
+	my $lemma_2;
 
 	#discard comments, empty lines and for now, LEXICONs
 	next if ($line =~ /^\!/);
@@ -108,8 +127,13 @@ while ($line = <FH> ) {
 		$contlex =~ s/^\s+//;
 		
 		push (@contlexes, $contlex);
-		my ($infl_text, $sem_text) = split(/-/, $contlex);
-		
+
+#		my ($infl_text, $sem_text) = split(/-/, $contlex);
+
+		$contlex =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
+		my $infl_text=$1;
+		my $sem_text=$2;
+
 		if ($sem_text) { $sem_text =~ s/\s+$//; }
 		else { $sem_text = "empty"; }
 
@@ -131,7 +155,7 @@ while ($line = <FH> ) {
 			$log->paste('last_child', $entry);
 			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
 			else { $lemma_2 = $lemma_text }
-			$lemma_2 =~ s/[\^#0]//g;
+			$lemma_2 =~ s/[\^\#0]//g;
 			$lemma_2 =~ s/ /_/g;
 			$entry->set_att('id', $lemma_2);
 
@@ -153,13 +177,17 @@ while ($line = <FH> ) {
 		$log->paste('last_child', $entry);
 
 		$entry->set_att('id', $lemma_text);
-		
+
 		$termc_entries{'empty'} = $entry;
 	}
 
 	for my $cont (@contlexes) {
 
-		my ($infl_text, $sem_text) = split(/-/, $cont);
+#		my ($infl_text, $sem_text) = split(/-/, $cont);
+
+		$cont =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
+		my $infl_text=$1;
+		my $sem_text=$2;
 		
 		if ($sem_text) { $sem_text =~ s/\s+$//; }
 		else { $sem_text = "empty" }
@@ -174,22 +202,67 @@ while ($line = <FH> ) {
 		# Find the termc entry that corresponds the semantic class in question
 		# take the id.
 		for my $key (keys %sem_texts) {
-
-			my $termc_entry = $termc_entries{$key};
-			my $id = $termc_entry->{'att'}->{'id'};
-
+			
+			my $id = $termc_entries{$key}->{'att'}->{'id'};
 		  TERMS: {
-			  # If there is terms-entry with the same id
-			  # add new inflection class.
-			  $curid = $id;
+			  # If there is no terms-entry with the same id
+			  # add new element
+			  my $curid = $id;
 			  $curid =~ s/\_\d+$//;
-			  if ($term_entries{$curid}) {
-				  $curentry = $term_entries{$curid};
+			  if (! ${$term_entries{$mainlang}}{$curid}) { 
+			
+				  # If there was no terms entry with id or id_1, create new terms-entry.
+				  for my $lang (@all_langs) {
 
-				  # add sense reference if not exist already.
-				  my $senses_elt;
-				  my %sens_hash;
-				  my @sens_array;
+					  my $entry = XML::Twig::Elt->new('entry');
+					  my $log = XML::Twig::Elt->new('log');
+					  $log->paste('last_child', $entry);
+					  
+					  $entry->set_att('id', $curid);
+					  if ($stem_text && ($stem_text ne $lemma_text)) {
+						  my $stem = XML::Twig::Elt->new('stem');
+						  $stem->set_text($stem_text);
+						  $stem->paste('last_child', $entry);
+					  }
+					  # Add reference to the termc
+					  my $senses = XML::Twig::Elt->new('senses');
+					  my $sense = XML::Twig::Elt->new('sense');
+					  $sense->set_att('ref', $id);
+					  if($key ne "empty") {
+						  $sense->set_att('sem', $key);
+					  }
+					  $sense->paste('last_child', $senses);
+					  $senses->paste('last_child', $entry);
+					  
+					  # Alter termc entry by adding reference to terms
+					  my $langentry = XML::Twig::Elt->new('langentry');
+					  $langentry->set_att('lang', $lang);
+					  my $include = XML::Twig::Elt->new('xi:include');
+					  my $ref = 'terms-'.$lang.".xml#xpointer(//entry[\@id='".$curid."'])";
+					  $include->set_att('href', $ref);
+					  $include->paste('last_child', $langentry);
+					  $langentry->paste('last_child', $termc_entries{$key});
+
+					  ${$term_entries{$lang}}{$curid} = $entry;
+					  
+					  my $infl = XML::Twig::Elt->new('infl');
+					  # Add inflection information only for the main language.
+					  if ($lang eq $mainlang) {
+						  $infl->set_att('lexc', $infl_text);
+					  }
+					  $infl->paste('last_child', ${$term_entries{$lang}}{$curid});
+				  }
+				  last TERMS;
+			  }
+			  # If there was already an element
+			  # Add only inflection class and some references.
+			  my $senses_elt;
+			  my %sens_hash;
+			  my @sens_array;
+			  
+			  for my $lang (@all_langs) {
+				  
+				  my $curentry = ${$term_entries{$lang}}{$curid};
 				  if( $senses_elt = $curentry->first_child('senses')) {
 					  @sens_array=$senses_elt->children;
 					  for my $sens (@sens_array) { $sens_hash{$sens->{'att'}->{'ref'}} = 1; }
@@ -201,63 +274,31 @@ while ($line = <FH> ) {
 						  
 						  # Alter termc entry by adding reference to terms
 						  my $langentry = XML::Twig::Elt->new('langentry');
-						  $langentry->set_att('lang', $language);
+						  $langentry->set_att('lang', $mainlang);
 						  my $include = XML::Twig::Elt->new('xi:include');
-						  my $ref = 'terms-'.$language.".xml#xpointer(//entry[\@id='".$curid."'])";
+						  my $ref = 'terms-'.$lang.".xml#xpointer(//entry[\@id='".$curid."'])";
 						  $include->set_att('href', $ref);
 						  $include->paste('last_child', $langentry);
-						  $langentry->paste('last_child', $termc_entry);
+						  $langentry->paste('last_child', $termc_entries{$key});
+						  
 					  }
 				  }
-				  else { print "NO senses $curid?\n"; }
-				  if ($curentry->first_child('infl')) {
-					  if($curentry->first_child('infl')->{'att'}->{'lexc'} ne $infl_text) {
-						  @sens_array=$senses_elt->children;
-						  if ( $#sens_array > 0 ) {
-							  print "$curid\tadding multiple infl classes.\n";
-						  }
-						  my $infl = XML::Twig::Elt->new('infl');
-						  $infl->set_att('lexc', $infl_text);		
-						  $infl->paste('last_child', $curentry);
+			  }
+			  
+			  # Add inflection info only to the main language.
+			  my $curentry = ${$term_entries{$mainlang}}{$curid};
+			  if ($curentry->first_child('infl')) {
+				  if($curentry->first_child('infl')->{'att'}->{'lexc'} ne $infl_text) {
+					  @sens_array=$senses_elt->children;
+					  if ( $#sens_array > 0 ) {
+						  print "$curid\tadding multiple infl classes.\n";
 					  }
+					  my $infl = XML::Twig::Elt->new('infl');
+					  $infl->set_att('lexc', $infl_text);		
+					  $infl->paste('last_child', $curentry);
 				  }
-				  last TERMS;
 			  }
-
-			  # If there was no terms entry with id or id_1, create new terms-entry.
-			  my $entry = XML::Twig::Elt->new('entry');
-			  my $log = XML::Twig::Elt->new('log');
-			  $log->paste('last_child', $entry);
-
-			  $entry->set_att('id', $curid);
-			  if ($stem_text && ($stem_text ne $lemma_text)) {
-				  my $stem = XML::Twig::Elt->new('stem');
-				  $stem->set_text($stem_text);
-				  $stem->paste('last_child', $entry);
-			  }
-			  # Add reference to the termc
-			  my $senses = XML::Twig::Elt->new('senses');
-			  my $sense = XML::Twig::Elt->new('sense');
-			  $sense->set_att('ref', $id);
-			  $sense->set_att('sem', $key);
-			  $sense->paste('last_child', $senses);
-			  $senses->paste('last_child', $entry);
-			  
-			  my $infl = XML::Twig::Elt->new('infl');
-			  $infl->set_att('lexc', $infl_text);		
-			  $infl->paste('last_child', $entry);
-			  
-			  # Alter termc entry by adding reference to terms
-			  my $langentry = XML::Twig::Elt->new('langentry');
-			  $langentry->set_att('lang', $language);
-			  my $include = XML::Twig::Elt->new('xi:include');
-			  my $ref = 'terms-'.$language.".xml#xpointer(//entry[\@id='".$curid."'])";
-			  $include->set_att('href', $ref);
-			  $include->paste('last_child', $langentry);
-			  $langentry->paste('last_child', $termc_entry);
-			  
-			  $term_entries{$curid} = $entry;
-		  }
+		  }	# TERMS
 		}
 	}
 	
@@ -266,9 +307,19 @@ while ($line = <FH> ) {
 		$termc_entries{$ent}->DESTROY;
 	}
 
-	for my $ent ( sort { $a cmp $b } keys %term_entries ) {
-		$term_entries{$ent}->print($FH2);
-		$term_entries{$ent}->DESTROY;
+	for my $ent ( sort { $a cmp $b } keys %{$term_entries{$mainlang}} ) {
+		${$term_entries{$mainlang}}{$ent}->print($FH2);
+		${$term_entries{$mainlang}}{$ent}->DESTROY;
+	}
+	undef %{$term_entries{$mainlang}};
+
+	for my $lang (@other_langs) {
+		my $fh=$outfiles{$lang};
+		for my $ent ( sort { $a cmp $b } keys %{$term_entries{$lang}} ) {
+			${$term_entries{$lang}}{$ent}->print($fh);
+			${$term_entries{$lang}}{$ent}->DESTROY;
+		}
+		undef %{$term_entries{$lang}};
 	}
 
 	undef %sem_texts;
@@ -279,7 +330,7 @@ while ($line = <FH> ) {
 
 	@contlex_texts=undef;
 	pop @contlex_texts;
-	push (@contlex_texts, $contlex_text);	
+	push (@contlex_texts, $contlex_text);
 }
 
 print $FH1 qq|\n</dict>|;
@@ -288,12 +339,18 @@ close $FH1;
 print $FH2 qq|\n</dict>|;
 close $FH2;
 
+for my $lang (@other_langs) {
+	my $fh=$outfiles{$lang};
+	print $fh qq|\n</dict>|;
+	close $outfiles{$lang};	
+}
+
 ########################################################
 # timestring: Prints date&time as an integer of the form:
 # YYYYMMDDHHMMSS, ie 20050329145107
 # This way we can do timestamp comparisons with less overhead.
 sub timestring {
-  ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst)
+  my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst)
   = localtime(time);
   $year = $year+1900;
   $mon++;            # 0-base -> 1-base
