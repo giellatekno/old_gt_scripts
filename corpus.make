@@ -10,11 +10,12 @@ BOUNDDIR=bound
 ORIGDIR=orig
 CONVERT2XML=/usr/local/share/corp/bin/convert2xml.pl
 LANGUAGE=sme
-GENRE=
-ifneq ($(GENRE),)
+GENRE=facta
+
 boundfiles=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type f)
 origdirs=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type d)
-endif
+origfiles=$(shell find $(ORIGDIR)/$(LANGUAGE)/$(GENRE) -type f ! -name "*.xsl*")
+missing_bound=$(subst orig,bound,$(patsubst %,%.xml,$(origfiles)))
 
 nullstring :=
 space := $(nullstring) # variable now contains a space
@@ -27,7 +28,9 @@ vpath %.pdf $(subst $(space),:,$(origdirs))
 vpath %.txt $(subst $(space),:,$(origdirs))
 vpath %.html $(subst $(space),:,$(origdirs))
 
-all: $(boundfiles)
+all: $(boundfiles) 
+
+missing: $(missing_bound)
 
 $(BOUNDDIR)/%.xml: $(ORIGDIR)/% $(ORIGDIR)/%.xsl,v
 	$(CONVERT2XML) --lang=$(LANGUAGE) --nolog $<
