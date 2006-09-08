@@ -10,7 +10,7 @@ BOUNDDIR=bound
 ORIGDIR=orig
 CONVERT2XML=/usr/local/share/corp/bin/convert2xml.pl
 LANGUAGE=sme
-GENRE=facta
+GENRE=
 
 boundfiles=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type f)
 origdirs=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type d)
