@@ -18,7 +18,8 @@
 # Fix the filenames in corpus directory:
 # - replace spaces with underscores
 # - remove space in the end of the file name
-# - replace other "difficult" characters with underscore (implemented: dot)
+# - replace other "difficult" characters with underscore:
+# (implemented: big dot, : removed: (), ?, ", & and %)
 # - add correct extensions (.doc, .pdf, .txt, .html) if missing
 
 corpdir=/usr/local/share/corp
@@ -33,17 +34,41 @@ text/html
 text/plain"
 
 
-# Original documents and xsl-files
+# Change only
+# original documents and xsl-files
 rename ()
 {
 	for dir in "$@"
 	do
 	  echo "fixing $corpdir/$dir"
 
+	  # Remove unsecure characters from filenames.
 	  # change directories first
-	  find $corpdir/$dir -type d | while read I; do NEWNAME=$(echo $I | sed -e "s/•/_/g" -e "s/ /_/g"); if [ "$I" != "$NEWNAME" ]; then mv "$I" "$NEWNAME"; fi; done;
+	  find $corpdir/$dir -type d | while read I; \
+		  do NEWNAME=$(echo $I | sed -e "s/[\(\)\?\"\&\%]//g" -e "s/•/_/g" -e "s/ /_/g" -e "s/\:/_/"); \
+		  if [ "$I" != "$NEWNAME" ] && [ ! -e "$NEWNAME" ]; \
+		  then mv "$I" "$NEWNAME"; echo "mv \"$I\" \"$NEWNAME\""; fi; \
+		  done;
 
-	  find $corpdir/$dir -type f | while read I; do NEWNAME=$(echo "$I" | sed -e "s/•/_/g" -e "s/[ ]*$//" -e "s/ /_/g"); if [ "$I" != "$NEWNAME" ] && [ -f "$I" ]; then mv "$I" "$NEWNAME"; fi; if [ -f "$I " ]; then mv "$I " "$NEWNAME"; fi; done;
+	  find $corpdir/$dir -type f | while read I; \
+		  do NEWNAME=$(echo "$I" | \
+		  sed -e "s/[\(\)\?\"\&\%]//g" -e "s/•/_/g" -e "s/[ ]*$//" -e "s/ /_/g" -e "s/\:/_/"); \
+		  if [ "$I" != "$NEWNAME" ] && [ -f "$I" ] && [ ! -e "$NEWNAME" ]; \
+		  then mv "$I" "$NEWNAME"; echo "mv \"$I\" \"$NEWNAME\""; fi; \
+		  if [ -f "$I " ] && [ ! -e "$NEWNAME" ]; \
+		  then mv "$I " "$NEWNAME"; fi; \
+		  done;
+	done
+}
+
+add_suffix ()
+{
+  	for dir in "$@"
+	  do
+	  echo "fixing $corpdir/$dir"
+	  
+	  # Check the file type and add the corresponding suffix.
+
 	  files=$(find $corpdir/$dir -type f)
 
 	  for file in $files
@@ -84,5 +109,6 @@ rename ()
 }
 
 rename $subdirs
+#add_suffix $subdirs
 
 exit 0
