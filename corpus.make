@@ -12,9 +12,10 @@ CONVERT2XML=/usr/local/share/corp/bin/convert2xml.pl
 LANGUAGE=sme
 GENRE=
 
+#excluded=eps,jpg,pmb,xls,rtf,indd,psd
 boundfiles=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type f)
 origdirs=$(shell find $(BOUNDDIR)/$(LANGUAGE)/$(GENRE) -type d)
-origfiles=$(shell find $(ORIGDIR)/$(LANGUAGE)/$(GENRE) -type f ! -name "*.xsl*")
+origfiles=$(shell find $(ORIGDIR)/$(LANGUAGE)/$(GENRE) -type f ! -name "*.xsl*" ! -name "*.eps" ! -name "*.bmp" ! -name "*.jpg" ! -name "*.xls" ! -name "*.rtf" ! -name "*.indd" ! -name "*.psd")
 missing_bound=$(subst orig,bound,$(patsubst %,%.xml,$(origfiles)))
 
 nullstring :=
@@ -28,10 +29,13 @@ vpath %.pdf $(subst $(space),:,$(origdirs))
 vpath %.txt $(subst $(space),:,$(origdirs))
 vpath %.html $(subst $(space),:,$(origdirs))
 
-all: $(boundfiles) 
+all: $(boundfiles) $(missing_bound)
 
 missing: $(missing_bound)
 
 $(BOUNDDIR)/%.xml: $(ORIGDIR)/% $(ORIGDIR)/%.xsl,v
 	$(CONVERT2XML) --lang=$(LANGUAGE) --nolog $<
 
+.PRECIOUS: $(ORIGDIR)/%.xsl,v
+$(ORIGDIR)/%.xsl,v: $(ORIGDIR)/%
+	$(CONVERT2XML) --lang=$(LANGUAGE) --nolog $<
