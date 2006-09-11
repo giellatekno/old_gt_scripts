@@ -111,7 +111,7 @@ sub read_xml {
 	my $file = shift @_;
 
 	my @languages;
-	my $test=0;
+	my $test=1;
 
 	# Find out the languages specified for the docu.
 	# Take only the header of the document.
@@ -120,28 +120,32 @@ sub read_xml {
 
 	my $docu=$twig->root;
 	my $mainlang = $docu->{'att'}->{'xml:lang'};
-	
+
+	my $mainlang_ok=0;	
 	my $header = $docu->first_child('header');
-	my $multi;
-	my $mainlang_ok=0;
-	if($multi = $header->first_child('multilingual')) {
-		my @langs = $multi->children;
-		for my $lang (@langs) {
-			push @languages, $lang->{'att'}->{'xml:lang'};
-			if ($lang eq $mainlang) { $mainlang_ok=1; }
-		}
-		if (! $mainlang_ok ) { push @languages, $mainlang; }
-		if($test) {
-			if (@languages) { print STDERR "Document is categorized in languages: @languages\n"; }
-			else { print STDERR "text_cat: Document is categorized in languages: all.\n" };
-		}
-	}
-	else {
+	my $multi = $header->first_child('multilingual');
+
+	if(! $multi ) {
 		if($test) { print STDERR "text_cat: Document is monolingual.\n"; }
 		return;
 	}
-
-	# open directory to find which languages are supported
+  LANG_TEST: {
+	  my @langs = $multi->children;
+	  if (! @langs ) {
+		  if ($test) { print STDERR "text_cat: Document is categorized in languages: all.\n" }
+		  last LANG_TEST;
+	  }
+	  for my $lang (@langs) {
+		  push @languages, $lang->{'att'}->{'xml:lang'};
+		  if ($lang eq $mainlang) { $mainlang_ok=1; }
+	  }
+	  if (! $mainlang_ok ) { push @languages, $mainlang; }
+	  if($test) {
+		  if (@languages) { print STDERR "Document is categorized in languages: @languages\n"; }
+		  else { print STDERR "text_cat: Document is categorized in languages: all.\n" };
+	  }
+  }
+   # open directory to find which languages are supported
 	opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
 	my @lm = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
 	closedir DIR;
