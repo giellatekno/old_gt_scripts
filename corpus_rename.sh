@@ -11,6 +11,9 @@
 # $Id$
 #****************************************************************
 
+# remember this
+# mv orig/sme/news/MinAigi/2005/018-05/markka* tmp/
+
 # Fix directory names
 # - replace spaces with underscores
 # - replace dot with underscore
@@ -33,6 +36,7 @@ application/pdf
 text/html
 text/plain"
 
+file_extensions="doc|pdf|txt|html|ptx"
 
 # Change only
 # original documents and xsl-files
@@ -69,7 +73,7 @@ add_suffix ()
 	  
 	  # Check the file type and add the corresponding suffix.
 
-	  files=$(find $corpdir/$dir -type f)
+	  files=$(find $corpdir/$dir -type f ! -name "*.xsl,v" ! -name "*.xsl")
 
 	  for file in $files
 	  do
@@ -88,9 +92,12 @@ add_suffix ()
 			echo "$file: File type was not recognized. stop"
 			return
 		fi
+
 		extension=$(echo "$file" | sed -e "s/.*\.//")
 
-		if [ "$extension" = "$file" -o -z "$extension" ]
+		is_extension=$(echo "$extension" | grep -E "(pdf|txt|html|ptx|doc|xls)")
+
+		if [ "$extension" = "$file" -o -z "$extension" -o -z "$is_extension" ]
 			then
 			case "$filetype" in
 					"text/plain" ) file2=$file.txt;;
