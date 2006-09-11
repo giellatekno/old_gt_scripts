@@ -553,6 +553,7 @@ sub txtclean {
 	$twig->set_pretty_print('indented');
 
 	my $header = XML::Twig::Elt->new('header');
+	my $body = XML::Twig::Elt->new('body');
 
 	# Start reading the text
 	# enable slurp mode
@@ -561,6 +562,9 @@ sub txtclean {
         print STDERR "$file: ERROR open failed: $!. ";
         return;
     }
+
+	my $text=0;
+	my $notitle=1;
 
     while(my $string=<INFH>){
 
@@ -571,8 +575,7 @@ sub txtclean {
 		$string =~ s/<.*?>//g;
 		my @text_array;
 		my $title;
-		my $notitle=1;
-		
+
 		return if (! $string);
 		# The text contains newstext tags:
 		if ($string =~ /\@(.*?)\:/) {
@@ -583,59 +586,49 @@ sub txtclean {
 				if ($line =~ /^\@(.*?)\:(.*?)$/) {
 					my $tag = $1;
 					my $text = $2;
-					if ( $tag =~ /tittel/ && $text && ! $title) {
+					
+					if ( $tag =~ /(tittel|m.titt)/ && $text ) {
 						$text =~ s/[\r\n]+//;
 						
 						# If the title is too long, there is probably an error
 						# and the text is treated as normal paragraph.
 						if(length($text) > $maxtitle) {
-							if ($notitle) { 
-								printheader($header, $FH1);
-								$notitle=0; 
-							} 
 							my $p = XML::Twig::Elt->new('p');
 							$p->set_text($text);
-							$p->print($FH1);
-							$p->DESTROY;
+							$p->paste('last_child', $body);
 							next;
 						}
 						if ($notitle) {
 							$title = XML::Twig::Elt->new('title');
 							$title->set_text($text);
 							$title->paste( 'last_child', $header);
-							printheader($header, $FH1);
 							$notitle=0;
 						}
-						if ($notitle) { 
-							$notitle=0; 
-						} 
 						my $p = XML::Twig::Elt->new('p');
 						$p->set_att('type', "title");
 						$p->set_text($text);
-						$p->print($FH1);
-						$p->DESTROY;
+						$p->paste('last_child', $body);
 						next;
 					}
-					if ( $tag =~ /(tekst|stikk)/ ) {
-						if ($notitle) { 
-							printheader($header, $FH1);
-							$notitle=0;
-						} 
+					if ( $tag =~ /(tekst|ingress)/ ) {
 						my $p = XML::Twig::Elt->new('p');
 						$p->set_text($text);
-						$p->print($FH1);
-						$p->DESTROY;
+						$p->paste('last_child', $body);
 						next;
 					}
-					if ($notitle) { 
-						printheader($header, $FH1);
-						$notitle=0;
-					} 
+					if ( $tag =~ /(byline)/ ) {
+						my $a = XML::Twig::Elt->new('author');
+						my $p = XML::Twig::Elt->new('person');
+						$p->set_att('firstname', "");
+						$p->set_att('lastname', "$text");
+						$p->paste( 'last_child', $a);
+						$a->paste( 'last_child', $header);
+						next;
+					}
 					my $p = XML::Twig::Elt->new('p');
 					$p->set_text($text);
 					$p->set_att('type', "title");
-					$p->print($FH1);
-					$p->DESTROY;
+					$p->paste('last_child', $body);
 					next;
 				}
 				else { 
@@ -649,8 +642,6 @@ sub txtclean {
 			$notitle=0;
 			my $p_continues=0;
 			my $p;
-			$header->print($FH1);
-			print $FH1 qq|<body>|;
 			
 			my @text_array = split(/[\n\r]/, $string);
 			for my $line (@text_array) {
@@ -671,21 +662,18 @@ sub txtclean {
 					$p->set_text($line);
 				}
 				else {
-					$p->print($FH1);
-					$p->DESTROY;
+					$p->paste('last_child', $body);
 					$p = XML::Twig::Elt->new('p');
 					$p->set_text($line);
 					$p_continues = 1;
 				}
 			}
-			if ($p) {
-				$p->print($FH1);
-				$p->DESTROY;
-			}
 		}
 	}
 	close INFH;
-	print $FH1 qq|</body>|;
+	$header->print($FH1);
+	$body->print($FH1);
+
 	print $FH1 qq|</document>|;
 	close $FH1;
 }
