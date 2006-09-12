@@ -28,12 +28,13 @@ iso_ir="[±¢³º]"
 levi_winsam="[¹„¿˜]"
 viitonen="[¾¿]"
 latinkuus="[¹è¿˜¼]"
+wrong_utf8="[Ã]"
 # html-symbols that harm processing. Such that &lt;
 # html="\&.{1,4}\;"
 
 echo "Files with encoding problems:"
 
-for code in "$greek" "$samimac" "$winsam" "$iso_ir" "$levi_winsam" "$viitonen" "$latinkuus"
+for code in "$wrong_utf8" "$greek" "$samimac" "$winsam" "$iso_ir" "$levi_winsam" "$viitonen" "$latinkuus"
 do
   files=$(find $dir -type f | while read I; do grep -cH -E "$code" "$I"; done | sed "s/^.*0$//" |sort |uniq )
   echo "$code" "$files"
