@@ -20,7 +20,7 @@ $twig->set_pretty_print('record');
 #
 # Specify the $infile and $outfile to the files you want:
 
-my $infile = "../sme/src/propernoun-sme-lex.txt";
+my $infile = "../".$mainlang."/src/propernoun-".$mainlang."-lex.txt";
 #my $infile = "../smj/src/propernoun-smj-lex.txt";
 #my $infile = "prop-test.txt";
 my $outfile = "terms-" . $mainlang . ".xml";
@@ -30,7 +30,7 @@ open (FH, "<utf8", "$infile") or die "Cannot open file $infile: $!";
 
 my $FH1;
 my $FH2;
-open($FH1,  ">$outfile_common");
+open($FH1, ">$outfile_common");
 open($FH2, ">$outfile");
 
  # Set the conversion time for the XML output;
@@ -54,7 +54,7 @@ for my $lang (@other_langs) {
 	my $fh_out;
 	open($fh_out, ">$out");
 	print $fh_out qq|<?xml version='1.0'  encoding="UTF-8"?>|;
-	print $fh_out qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="">|;
+	print $fh_out qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="$convtime">|;
 	$outfiles{$lang} = $fh_out;
 }
 
