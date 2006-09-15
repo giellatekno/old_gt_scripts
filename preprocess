@@ -465,9 +465,8 @@ sub process_numeral {
 	NUM_TEST: {
 		
 		# Check for ending dot, it is a separate token if 
-		# the following word starts with capital letter. Or if there is
-		# case ending. If there is an abbreviation with numeral, don't
-		# do checking.
+		# the following word starts with capital letter.
+		# If there is an abbreviation with numeral, don't do checking.
 		# Otherwise belongs to the expression.
 		if ($end_word) {
 			my $abbr = $end_word;
@@ -481,26 +480,36 @@ sub process_numeral {
 			}
 		}
 		
-		if((($words_aref->[0] !~ /^[[:lower:]\d]/) && ($word =~ s/(\.)$// )) || ($word =~ s/(:\w+)(\.)/$1/)) 
-		{
-			$end_punct = "." . $end_punct;
-			
-			verbose ("process_numeral/ending dot", $word, __LINE__);
-			
-			# Clean the rest of the token:
-			# cases like 123). where dot is preceded by punctuation.
-			if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
-				$rest_punct =  $1;
-			}
-		}
+	  DOT_TEST: {
+		  last DOT_TEST if ($word !~ /\.$/);
+		  if((($words_aref->[0] !~ /^[[:lower:]\d]/) && $word !~ /^\d{1,3}\.$/) || ($word =~ /(:\w+)(\.)$/)) {
+			  $word =~ s/\.$//;
+		  }
+		  elsif ($word =~ /^\d{1,3}\.$/) {
+			  if ($words_aref->[0] !~ /^[[:upper:]]/) {
+				  last DOT_TEST;
+			  }
+		  }
+		  else { last DOT_TEST; }
+		  $end_punct = "." . $end_punct;
+		  
+		  verbose ("process_numeral/ending dot", $word, __LINE__);
+		  
+		  # Clean the rest of the token:
+		  # cases like 123). where dot is preceded by punctuation.
+		  if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
+			  $rest_punct =  $1;
+		  }
+	  } # end of DOT_TEST
+
 		verbose ("process_numeral", $word, __LINE__);
 		
 		# Push everything to the tokens array.
 		push (@{$tokens_aref}, $word);
 		push (@{$tokens_aref}, $end_word);
-	
+		
 	} #end of NUM_TEST
-
+	
 	push (@{$tokens_aref}, split(//, $rest_punct)); 
 	push (@{$tokens_aref}, split(//, $end_punct)); 
 }
