@@ -30,10 +30,18 @@ vislcg --grammar $GT_HOME/gt/sme/src/sme-dis.rle --minimal
 # What kind of input (plain text, xml text, evt. other text formats as well)
 # What kind of output (disambiguated text with and without rule numbers, non-disambiguated text with and without syntactic tags
 # What kind of morphological transducers (standard (tolerant) or normative (restricted))
-# 
-# dis.sh (script for disambiguating text)
+
+# dis.sh (script for disambiguating sentences or text)
+# If given as
+# dis.sh filename
+# the script expects a text
+# If given as 
+# dis.sh 
+# (i.e., without file name), the script expects a sentence, and answers:
+# "Write a sentence and press ENTER. Terminate by pressing ctrl-C."
+
 # options:
-# -l <lang> what disambiguator to call for (compulsatory)
+# -l <lang> what disambiguator to call for (sme as default?)
 # -n        gives the rule number (no rule numbers is default)
 # -m        gives the non-disambiguated output (only section 1 in the .rle file)
 # -norm     uses normative transducers for the morphological analysis,
