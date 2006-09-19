@@ -422,7 +422,9 @@ sub create_lm {
   # remove non-word characters from input --sh
   s/[^$w_class]//og;
   foreach my $word (split(/\s+/)) {
-    $word = "_" . $word . "_";
+	  # lower case
+	  $word = lc $word;
+	  $word = "_" . $word . "_";
 
     my $len = length($word);
     my $flen=$len;
