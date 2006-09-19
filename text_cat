@@ -16,6 +16,8 @@ my $w_class_no_space = qw("A-Za-zÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøä�
 
 my $non_word_characters='\d';
 
+my $MINCHAR = 0;
+
 # OPTIONS
 getopts('a:d:f:hi:lnst:u:v:x');
 
@@ -175,8 +177,6 @@ sub read_xml {
 # Process each xml-element (paragraph)
 sub langdetect {
 	my ( $twig, $para, $mainlang, @avail_langs ) = @_;
-
-	my $MINCHAR = 20;
 
 	my $text = $para->text;
 
