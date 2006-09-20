@@ -5,7 +5,6 @@
 use strict;
 use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x $opt_w);
 use Getopt::Std;
-use Benchmark;
 use open ':utf8';
 use XML::Twig;
 use utf8;
@@ -27,7 +26,7 @@ $opt_d ||= './LM';
 $opt_f ||= 0;
 $opt_w ||= 0;
 $opt_t ||= 400;
-$opt_u ||= 1.05;
+$opt_u ||= 1.1;
 
 sub help {
     print <<HELP
@@ -75,7 +74,7 @@ $0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File] [-w]
     -u    determines how much worse result must be in order not to be 
           mentioned as an alternative. Typical value: 1.05 or 1.1. 
           Default: $opt_u.
-	-w    Use only word lists.
+    -w    Use only word lists.
     -v    verbose. Continuation messages are written to standard error.
 
 * for creating new language model, based on text read from standard input:
@@ -192,8 +191,8 @@ sub langdetect {
 	my @choices = classify($text, @avail_langs);
 	
 	# If the language was not recognized, the document language is selected.
-	if (! @choices) {
-		print "Language was not recognized.\n";
+	if (! @choices || ! $choices[0]) {
+#		print "Language was not recognized.\n";
 		$para->del_att( 'xml:lang');
 		return;
 	}
@@ -226,7 +225,6 @@ sub classify {
   my @unknown=create_lm($input);
   # load model and count for each language.
   my $language;
-  my $t1 = new Benchmark;
 
   # If the set of languages is not restricted, the text is tested
   # against all lanugage models.
@@ -263,27 +261,38 @@ sub classify {
 		if ($ngram{$unknown[$i]}) {
 			$p=$p+abs($ngram{$unknown[$i]}-$i);
 		} else { 
-			$p=$p+$maxp; 
+			$p=$p+$maxp;
 		}
 		++$i;
 	}
-    
+
     $results{$language} = $p;
   }
-  print STDERR "read language models done (" . 
-    timestr(timediff(new Benchmark, $t1)) . 
-      ".\n" if $opt_v;
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
-  
-  print join("\n",map { "$_\t $results{$_}"; } @results),"\n" if $opt_v;
 
-  my $ans = $results{$results[0]};
-  
-  my @answers=(shift(@results));
-  while (@results && $results{$results[0]} < ($opt_u *$ans)) {
-    @answers=(@answers,shift(@results));
+  if ($opt_v || $opt_l) {
+	  for my $r (@results) {
+		  print "$r\t$results{$r}\n";
+	  }
   }
-#  print "Answers are: @answers\n";
+
+  my $ans = $results{$results[0]}; 
+  my $ans2 = $results{$results[1]}; 
+
+  # Drop the candidates which are too weak.
+  my @answers=(shift(@results));
+  while (@results && $results{$results[0]} < ($opt_u*$ans)) {
+	  @answers=(@answers,shift(@results));
+  }
+
+#  print "Best is $ans, Answers are: @answers\n";
+  
+  # If there was no language that could fit the input,
+  # return undef.
+  if ($ans==0 || $ans2 == $ans ) {
+	  if($opt_l) { print "Could not decide the language\n"; exit; }
+	  else { return undef; }
+  }
 
   splice(@answers,3) if (@answers > 3); 
 
@@ -292,7 +301,7 @@ sub classify {
   my @wanswers;
   my %wresults;
  TEST_SHORT: {
-	 if(@answers == 1 ) {  @wanswers = @answers;  last TEST_SHORT; }
+	 if(@answers == 1 ) {  @wanswers = @answers; last TEST_SHORT; }
 
 	 # open directory to find which languages are supported
 	 opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
@@ -315,33 +324,41 @@ sub classify {
 
 		 # loads the language model into hash %$language.
 		 my %wgram=();
-		 my $maxw = 200;
-		 my $wrang=1;
+		 # There are 1000 words in some word lists.
+		 # not used right now.
+		 my $maxw=1000;
 		 if (! open(LM,"$opt_d/$language.wm")) { 
 			 print STDERR "cannot open $opt_d/$language.txt: $!\n"; 
 			 next; 
 		 } 
 		 print STDERR "creating short word model for $language\n" if $opt_v;
+
+		 # Normalize the length of the list
+		 my $maxw_lang=`wc -l \"$opt_d/$language.wm\"`;
+		 $maxw_lang =~ s/^(\d+)\s+.*$/$1/;
+		 my $wrang=0;
+		 my $increment = $maxw/$maxw_lang;
 		 while (<LM>) {
 			 chomp;
+			 s/\s+//og;
+			 s/[^$w_class]//og;
 			 if (/^[$w_class]+/o) {
-				 s/[^$w_class]//og;
-				 s/\s+//og;
-				 $wgram{$_} = $wrang++;
+				 $wrang += $increment;
+				 $wgram{$_} = $maxw - $wrang;
 			 } 
 		 }
 		 close(LM);
-		 
+
 		 print STDERR "loaded short word model $language\n" if $opt_v;
 		 
 		 # compares the language model with input wgrams list
 		 my ($i,$p)=(0,0);
 		 while ($i < @wunknown) {
 			 if ($wgram{$wunknown[$i]}) {
-				 $p=$p+abs($wgram{$wunknown[$i]}-$i);
-			 } else { 
-				 $p=$p+$maxw; 
-			 }
+				 $b = sprintf("%.0f", ($results{$language}*$wgram{$wunknown[$i]})/($results{$language}*10));
+				 $p=$p-$b;
+				 if($opt_l) { print "$language vah. $b, p: $p $wgram{$wunknown[$i]} {$wunknown[$i]}\n"; }				 
+			 } 
 			 ++$i;
 		 }
 		 print STDERR "short word: $language: $p\n" if $opt_v;
@@ -353,24 +370,38 @@ sub classify {
 		
 	 my @wresults_a = sort { $wresults{$a} <=> $wresults{$b} } keys %wresults;
 
+	 if ($opt_v || $opt_l) {
+		 for my $r (@wresults_a) {
+			 print "$r\t$wresults{$r}\n";
+		 }
+	 }
+
 	 my $ans = $wresults{$wresults_a[0]};
 	 @wanswers=(shift(@wresults_a));
 	 while (@wresults_a && $results{$wresults_a[0]} < ($opt_u *$ans)) {
 		 @wanswers=(@wanswers,shift(@wresults_a));
 	 }
 
-#	 print "WAnswers are: @wanswers\n";
+	 # If there was no language that could fit the input,
+	 # return undef.
+	 if ($ans==0) {
+		 if($opt_l) { print "Could not decide the language\n"; exit; }
+		 else { return undef; }
+	 }
+
+#	 print "Best is $ans, WAnswers are: @wanswers\n";
+
  } #TEST_SHORT
 
   if (@wanswers > $opt_a) {
-	  if($opt_x) { return undef; }
-	  else {
+	  if($opt_l) {
 		  print "I don't know; " .
 			  "Perhaps this is a language I haven't seen before?\n";
 	  }
+	  else { return undef; }
   } else {
-	  if($opt_x) { return @wanswers; }
-	  else { print join(" or ", @wanswers), "\n"; }
+	  if($opt_l) { print join(" or ", @wanswers), "\n"; }
+	  else { return @wanswers; }
   }
 }
 
@@ -415,12 +446,13 @@ sub create_wm {
 }
 
 sub create_lm {
-  my $t1 = new Benchmark;
   my $ngram;
   ($_,$ngram) = @_;  #$ngram contains reference to the hash we build
-    # then add the ngrams found in each word in the hash
+  # then add the ngrams found in each word in the hash
+  return if (! $_);
   # remove non-word characters from input --sh
   s/[^$w_class]//og;
+
   foreach my $word (split(/\s+/)) {
 	  # lower case
 	  $word = lc $word;
@@ -439,9 +471,6 @@ sub create_lm {
     }
   }
   ### print "@{[%$ngram]}";
-  my $t2 = new Benchmark;
-  print STDERR "count_ngrams done (". 
-    timestr(timediff($t2, $t1)) .").\n" if $opt_v;
 
   # as suggested by Karel P. de Vos, k.vos@elsevier.nl, we speed up
   # sorting by removing singletons
@@ -455,8 +484,6 @@ sub create_lm {
   my @sorted = sort { $$ngram{$b} <=> $$ngram{$a} } keys %$ngram;
 
   splice(@sorted,$opt_t) if (@sorted > $opt_t); 
-  print STDERR "sorting done (" . 
-    timestr(timediff(new Benchmark, $t2)) . 
-      ").\n" if $opt_v;
+
   return @sorted;
 }
