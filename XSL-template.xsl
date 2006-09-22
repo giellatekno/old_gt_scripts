@@ -60,7 +60,8 @@
 <xsl:variable name="metadata" select="'uncomplete'"/>
 <xsl:variable name="template_version" select="'$Revision$'"/>
 <xsl:variable name="current_version" select="'Revision'"/>
-
+<!-- Free text field for notes -->
+<xsl:variable name="note" select="''"/>
 
 <!-- The main language of the document -->
 <xsl:variable name="mainlang" select="''"/>
@@ -148,7 +149,6 @@
 </xsl:element>
 </xsl:template>
 -->
-
 
 
 <xsl:include href="/usr/local/share/corp/bin/common.xsl"/>
