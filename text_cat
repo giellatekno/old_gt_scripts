@@ -271,6 +271,7 @@ sub classify {
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
 
   if ($opt_v || $opt_l) {
+	  print "results\n";
 	  for my $r (@results) {
 		  print "$r\t$results{$r}\n";
 	  }
@@ -301,7 +302,10 @@ sub classify {
   my @wanswers;
   my %wresults;
  TEST_SHORT: {
-	 if(@answers == 1 ) {  @wanswers = @answers; last TEST_SHORT; }
+	 if(@answers == 1 ) {
+		 @wanswers = @answers; 
+		 last TEST_SHORT; 
+	 }
 
 	 # open directory to find which languages are supported
 	 opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
@@ -309,17 +313,8 @@ sub classify {
 	 closedir DIR;
 	 if(!@languages) { @wanswers = @answers;  last TEST_SHORT; }
 
-	 # If theres is no short word model for some language,
-	 # the whole test is skipped.
-	 my %languages_h;
-	 for my $lang (@languages) { $languages_h{$lang} = 1; }
-	 for my $ans (@answers) {
-		 if (! $languages_h{$ans}) { @wanswers = @answers;  last TEST_SHORT; }
-	 }
-
 	 # Create short word model.
-	 my @wunknown=create_wm($input);
-	 
+	 my %wunknown=create_wm($input);
 	 foreach $language (@answers) {
 
 		 # loads the language model into hash %$language.
@@ -353,11 +348,11 @@ sub classify {
 		 
 		 # compares the language model with input wgrams list
 		 my ($i,$p)=(0,0);
-		 while ($i < @wunknown) {
-			 if ($wgram{$wunknown[$i]}) {
-				 $b = sprintf("%.0f", ($results{$language}*$wgram{$wunknown[$i]})/($results{$language}*10));
+		 for my $key (keys %wunknown) {
+			 if ($wgram{$key}) {
+				 $b = sprintf("%.0f", ($wgram{$key}**2*$wunknown{$key}*10/$results{$language}));
 				 $p=$p-$b;
-				 if($opt_l) { print "$language vah. $b, p: $p $wgram{$wunknown[$i]} {$wunknown[$i]}\n"; }				 
+				 if($opt_l) { print "$language vah. $b, p: $p $wgram{$key} {$key $wunknown{$key}}\n"; }				 
 			 } 
 			 ++$i;
 		 }
@@ -371,6 +366,7 @@ sub classify {
 	 my @wresults_a = sort { $wresults{$a} <=> $wresults{$b} } keys %wresults;
 
 	 if ($opt_v || $opt_l) {
+		 print "word results\n";
 		 for my $r (@wresults_a) {
 			 print "$r\t$wresults{$r}\n";
 		 }
@@ -434,15 +430,9 @@ sub create_wm {
 	
 	$text =~ s/[^$w_class]//og;
 	foreach my $word (split(/\s+/, $text)) {
-		my $len = length($word);
-		if ($len < 6) {
-			$wgram{$word}++;
-		}
+		$wgram{$word}++;
 	}
-	my @sorted = sort { $wgram{$b} <=> $wgram{$a} } keys %wgram;
-
-	splice(@sorted,$opt_t) if (@sorted > $opt_t); 
-	return @sorted;
+	return %wgram;
 }
 
 sub create_lm {
