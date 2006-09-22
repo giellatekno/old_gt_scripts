@@ -18,7 +18,7 @@ my $non_word_characters='\d';
 my $MINCHAR = 0;
 
 # OPTIONS
-getopts('a:d:f:hi:lnst:u:v:x:w');
+getopts('a:d:f:i:nst:u:xhvwl');
 
 # defaults: set $opt_X unless already defined (Perl Cookbook p. 6):
 $opt_a ||= 10;
@@ -117,7 +117,10 @@ sub read_xml {
 	# Find out the languages specified for the docu.
 	# Take only the header of the document.
 	my $twig= XML::Twig->new( twig_roots => { header => 1 });
-	$twig->parsefile("$file");
+	if (! $twig->safe_parsefile ("$file") ) {
+		print STDERR "Encoding: $file: ERROR parsing the XML-file failed. $!\n";
+		return;
+	}
 
 	my $docu=$twig->root;
 	my $mainlang = $docu->{'att'}->{'xml:lang'};
