@@ -430,7 +430,7 @@ sub create_wm {
 	
 	$text =~ s/[^$w_class]//og;
 	foreach my $word (split(/\s+/, $text)) {
-		$wgram{$word}++;
+		$wgram{lc($word)}++;
 	}
 	return %wgram;
 }
