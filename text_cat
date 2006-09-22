@@ -18,7 +18,7 @@ my $non_word_characters='\d';
 my $MINCHAR = 0;
 
 # OPTIONS
-getopts('a:d:f:hi:lnst:u:v:x');
+getopts('a:d:f:hi:lnst:u:v:x:w');
 
 # defaults: set $opt_X unless already defined (Perl Cookbook p. 6):
 $opt_a ||= 10;
@@ -74,7 +74,7 @@ $0 [-a Int] [-d Dir] [-f Int] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File] [-w]
     -u    determines how much worse result must be in order not to be 
           mentioned as an alternative. Typical value: 1.05 or 1.1. 
           Default: $opt_u.
-    -w    Use only word lists.
+    -w    Do not use word lists.
     -v    verbose. Continuation messages are written to standard error.
 
 * for creating new language model, based on text read from standard input:
@@ -302,7 +302,7 @@ sub classify {
   my @wanswers;
   my %wresults;
  TEST_SHORT: {
-	 if(@answers == 1 ) {
+	 if(@answers == 1 || $opt_w) {
 		 @wanswers = @answers; 
 		 last TEST_SHORT; 
 	 }
