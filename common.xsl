@@ -629,8 +629,15 @@
                     <xsl:value-of select="$xhtml2corpus_version"/>
                     </xsl:element>
             </xsl:if>
-
 			</xsl:element>
+
+			<xsl:if test="$note">
+					<xsl:element name="note">
+					<xsl:value-of select="$note"/>
+					</xsl:element>
+			</xsl:if>
+
+
   </xsl:element>
 <xsl:apply-templates select="body"/>
   </xsl:element>
