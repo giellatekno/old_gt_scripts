@@ -102,15 +102,66 @@
         </xsl:otherwise>
 		</xsl:choose>
 
+		    <xsl:choose>
+			<xsl:when test="$license_type">
+				<xsl:element name="availability">
+				<xsl:choose>
+						<xsl:when test="contains($license_type, 'free')">
+							 <xsl:element name="free">
+							 </xsl:element>
+						</xsl:when>
+						<xsl:otherwise>
+								<xsl:element name="license">
+								<xsl:attribute name="type">	
+								<xsl:value-of select="$license_type"/>
+								</xsl:attribute>
+								</xsl:element>
+						</xsl:otherwise>
+				</xsl:choose>
+	            </xsl:element>
+			</xsl:when>
+			<xsl:when test="header/availability">
+		        <xsl:apply-templates select="header/availablity"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:element name="availability">
+					<xsl:element name="license">
+					<xsl:attribute name="type">	
+						<text>standard</text>
+					</xsl:attribute>
+		            </xsl:element>
+	            </xsl:element>
+			</xsl:otherwise>
+			</xsl:choose>
+
+			<xsl:choose>
+			<xsl:when test="$metadata">
+				<xsl:element name="metadata">
+				<xsl:choose>
+					<xsl:when test="contains($metadata, 'uncomplete')">
+						<xsl:element name="uncomplete">
+			            </xsl:element>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:element name="complete">
+						</xsl:element>
+					</xsl:otherwise>
+				</xsl:choose>
+	            </xsl:element>
+			</xsl:when>
+			<xsl:otherwise>
+		        <xsl:apply-templates select="header/metadata"/>
+			</xsl:otherwise>
+			</xsl:choose>
+
 			<xsl:if test="$note">
 					<xsl:element name="note">
-					<xsl:value-of select="$note">
+					<xsl:value-of select="$note"/>
 					</xsl:element>
 			</xsl:if>
 
   </xsl:element>
 <xsl:element name="body"/>
-  </xsl:element>
   </xsl:element>
 </xsl:template>
 
