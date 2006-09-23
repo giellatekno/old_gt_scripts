@@ -105,7 +105,7 @@ my $header = XML::Twig::Elt->new('header');
 $header->paste('last_child', $outdocu);
 my $body = XML::Twig::Elt->new('body');
 
-my $latest_font;
+my $title=0;
 
 # The files are named according to the page number
 # here they are sorted.
@@ -117,7 +117,7 @@ for my $key ( sort { $a <=> $b } keys %files ) {
 
 	$first_para=1;
 
-	my $document = XML::Twig->new(twig_handlers => { p => sub { handle_para(@_,$first_para); } },
+	my $document = XML::Twig->new(twig_handlers => { p => sub { handle_para(@_); } },
 								  keep_spaces => 1,
 								  pretty_print => 'record_c');
 	if (! $document->safe_parsefile ("$file") ) {
@@ -126,18 +126,22 @@ for my $key ( sort { $a <=> $b } keys %files ) {
 	}
 }
 
-my $title=0;
 sub handle_para {
-	my ($twig,$para, $first_para) = @_;
-		
-	if ($first_para && @paras) {
-		my $latest_para = $body->last_child;
-		my $latest_text = $latest_para->text;
-		push (@final_output, $latest_text);
-		$latest_para->delete;
+	my ($twig,$para) = @_;
+
+	if($first_para) {
+		if(@final_output) {
+			my $cur_para = XML::Twig::Elt->new('p');
+			$cur_para->set_content(@final_output);
+			if($title) { $cur_para->set_att('type', "title"); }
+			$title=0;
+			$cur_para->paste('last_child', $body);
+			@final_output=undef;
+			pop @final_output;
+		}
 		$first_para=0;
 	}
-
+	
 	# remove nodes with font smaller than the main font.
 	my @font_nodes = $para->children('font');
 	for my $font_n (@font_nodes) {
@@ -154,14 +158,13 @@ sub handle_para {
 		my $style = $font_n->{'att'}->{'style'};
 		next if (! $style);
 		if(($style =~ /($title_sizes)/) and (! $title_styles or $style =~ /($title_styles)/)) {
-			my $text=$para->text;
-			chomp $text;
-			return if ($text =~ /^\s*$/) ;
 			
 			# If the para starts a title, print out the previous para.
 			if (! $title && @final_output) {
 				my $cur_para = XML::Twig::Elt->new('p');
 				$cur_para->set_content(@final_output);
+				if($title) { $cur_para->set_att('type', "title"); }
+				$title=0;
 				$cur_para->paste('last_child', $body);
 				@final_output=undef;
 				pop @final_output;
@@ -185,12 +188,12 @@ sub handle_para {
 
 	my $text=$para->text;
 	return if ($text =~ /^\s*$/) ;
+	$text =~ s/\n+/\n/;
 
 	push (@final_output, $text);
 	push (@final_output, " ");
 
 	if($text =~ /\n/ && @final_output) {
-#		print $text if ($text =~ /Finnmárkku muhtun/);
 		my $cur_para = XML::Twig::Elt->new('p');
 		$cur_para->set_content(@final_output);
 		if($title) { $cur_para->set_att('type', "title"); }
