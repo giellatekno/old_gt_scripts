@@ -18,6 +18,7 @@ scripts="convert2xml.pl
 text_cat
 paratext2xml.pl
 pdf2xml.pl
+corpus_call_jpedal.sh
 add-hyph-tags.pl
 convert_eol.pl
 XSL-template.xsl
