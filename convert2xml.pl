@@ -29,14 +29,14 @@ use samiChar::Decode;
 
 my $no_decode = 0;
 my $nolog = 0; 
-my $xsl_file = '';
+my $convxsl = '';
 my $dir = '';
 my $tmpdir = ''; 
+#my $tmpdir = '/home/saara/tmp'; 
 my $no_hyph = 0; 
 my $all_hyph = 0; 
 my $noxsl = 0;
 my $corpdir = "/usr/local/share/corp";
-#my $corpdir = "/home/saara/samipdf";
 my $bindir = "/usr/local/share/corp/bin";
 #my $bindir = "/home/saara/gt/script";
 my $gtbound_dir = "bound";
@@ -53,10 +53,10 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-my $test=0; #preserves temporary files.
+my $test=0; #preserves temporary files and prints extra info.
 
 # set the permissions for created files: -rw-rw-r--
-umask 0112;
+#umask 0112;
 
 # Some securing operations, add these to upload.cgi!
 $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
@@ -67,7 +67,7 @@ my $xsltproc="/usr/bin/xsltproc";
 my $help;
 
 GetOptions ("no-decode" => \$no_decode,
-			"xsl=s" => \$xsl_file,
+			"xsl=s" => \$convxsl,
 			"noxsl" => \$noxsl,
 			"dir=s" => \$dir,
 			"tmpdir=s" => \$tmpdir,
@@ -95,6 +95,8 @@ my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
+my $jpedal = "/home/saara/gt/script/corpus_call_jpedal.sh";
+my $pdf2xml = "perl /home/saara/gt/script/pdf2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -194,6 +196,27 @@ sub process_file {
 		return;
 	}
 
+
+	my $xsl_file = $orig . ".xsl";
+	my $xsl_vfile = $orig . ".xsl,v";
+	if(! $noxsl) {
+		# Prepare the xsl-file for further processing
+		# Copy it from template, if not exist.
+		if(! -f $xsl_file && ! -f $xsl_vfile ) {
+			copy ($xsltemplate, $xsl_file) 
+				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+			
+			my $cnt = chown -1, $orig_gid, $xsl_file;
+#			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
+			
+			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
+			exec_com($command, $file);
+		}
+		
+		$command = "co -f -q \"$xsl_file\"";
+		exec_com($command, $file);
+	}
+
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	IO::File->new($int, O_RDWR|O_CREAT) 
 		or die "Couldn't open $int for writing: $!\n";
@@ -201,7 +224,7 @@ sub process_file {
 	# Conversion of word documents
 	if ($file =~ /\.doc$/) {
 		my $xsl;
-		if ($xsl_file) { $xsl = $xsl_file; }
+		if ($convxsl) { $xsl = $convxsl; }
 		else { $xsl = $docxsl; }
 		$command = "/usr/local/bin/antiword -s -x db \"$orig\" > \"$tmp3\"";
 		exec_com($command, $file);
@@ -212,7 +235,7 @@ sub process_file {
 	# Conversion of xhtml documents
 	if ($file =~ /\.html$/) {
 		my $xsl;
-		if ($xsl_file) { $xsl = $xsl_file; }
+		if ($convxsl) { $xsl = $convxsl; }
 		else { $xsl = $htmlxsl; }
 		$command = "$tidy \"$orig\" > \"$tmp3\" 2>/dev/null";
 		exec_com($command, $file);
@@ -223,28 +246,73 @@ sub process_file {
 	}
 	
 	# Conversion of pdf documents	
-	elsif ($file =~ /\.pdf$/) {
-		my $xsl;
-		if ($xsl_file) { $xsl = $xsl_file; }
-		else { $xsl = $htmlxsl; }
-		my $html = $tmpdir . "/" . $file . ".tmp3";
-		$command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
-		exec_com($command, $file);
+	if ($file =~ /\.pdf$/) {
+	  PDF: {
+		  my $main_sizes;
+		  my $title_sizes;
+		  my $title_styles;
+		  my $main_font_elt;
+		  if(! $noxsl) {
+			  my $document = XML::Twig->new;
+			  if (! $document->safe_parsefile("$xsl_file")) {
+				  print STDERR "Copyfree: $xsl_file: ERROR parsing the XML-file failed: $!\n";		  
+				  last COPYFREE;
+			  }
+			  
+			  my $root = $document->root;
+			  
+			  $main_font_elt = $root->first_child('xsl:variable[@name="main_sizes"]');
+			  if ($main_font_elt) { $main_sizes = $main_font_elt->{'att'}{'select'}; }
+			  
+			  my $title_font_elt = $root->first_child('xsl:variable[@name="title_sizes"]');
+			  if ($title_font_elt) { $title_sizes = $title_font_elt->{'att'}{'select'}; }
+			  
+			  my $title_styles_elt = $root->first_child('xsl:variable[@name="title_styles"]');
+			  if ($title_styles_elt) { $title_styles = $title_styles_elt->{'att'}{'select'}; }
+		  }
+		  if ($main_font_elt) {
+			  
+			  $command = "$jpedal $orig $tmpdir  1>/dev/null";
+			  exec_com($command, $file);
+			  
+			  (my $base = $file ) =~ s/\.pdf//;
+			  $command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
+			  exec_com($command, $file);
+			  
+			  $command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
+			  exec_com($command, $file);
+			  
+			  if( -z $int && ! $upload ) {
+				  print "$file: no pdf2xml output. STOP.\n";
+				  return;
+			  }
+			  last PDF;
+		  }
 
-		# If there were severe errors in pdftotext, the html file is not created.
-		if(! -f $html && ! $upload ) {
-			print "$file: no pdftotext output. STOP.\n";
-			return;			
-		}
+		  my $xsl;
+		  if ($convxsl) { $xsl = $convxsl; }
+		  else { $xsl = $htmlxs
+
+l; }
+		  my $html = $tmpdir . "/" . $file . ".tmp3";
+		  $command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
+		  exec_com($command, $file);
+		  
+		  # If there were severe errors in pdftotext, the html file is not created.
+		  if(! -f $html && ! $upload ) {
+			  print "$file: no pdftotext output. STOP.\n";
+			  return;			
+		  }
 		&pdfclean($html);
-		$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-		exec_com($command, $file);
-
-		# remove temporary files unless testing.
-		if (! $test) {
-			$command = "rm -rf \"$html\"";
-			exec_com($command, $file);
-		}
+		  $command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
+		  exec_com($command, $file);
+		  
+		  # remove temporary files unless testing.
+		  if (! $test) {
+			  $command = "rm -rf \"$html\"";
+			  exec_com($command, $file);
+		  }
+	  } # end of PDF
 	}
 
 	# Conversion of paratext documents
@@ -275,6 +343,7 @@ sub process_file {
 				print STDERR "Character decoding: $coding\n";
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
+				$no_decode_this_time=1;
 			}
 		}
 		txtclean($int, $tmp4, $language);
@@ -295,7 +364,9 @@ sub process_file {
 	my $command = "$convert_eol \"$int\" > \"$tmp1\"";
 	exec_com($command, $file);
 	copy ($tmp1, $int) ;
+	print "copying $tmp1 to $int\n";
 
+	$no_decode_this_time=1;
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
@@ -332,7 +403,7 @@ sub process_file {
 					$d->print( \*FH);
 				}
 				last ENCODING; 
-			} 
+			}
 			# Continue decoding the file.
 			print STDERR "Character decoding: $coding\n";
 			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
@@ -372,23 +443,6 @@ sub process_file {
 
 	if (! $noxsl) {
 		# Execute the file specific .xsl-script.
-		# Copy it from template, if not exist.
-		my $xsl_file = $orig . ".xsl";
-		my $xsl_vfile = $orig . ".xsl,v";
-		if(! -f $xsl_file && ! -f $xsl_vfile ) {
-			copy ($xsltemplate, $xsl_file) 
-				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
-
-			my $cnt = chown -1, $orig_gid, $xsl_file;
-#			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
-
-			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
-			exec_com($command, $file);
-		}
-
-		$command = "co -f -q \"$xsl_file\"";
-		exec_com($command, $file);
-
 		my $tmp = $tmpdir . "/" . $file . ".tmp";
 		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
 		exec_com($command, $file);
@@ -424,7 +478,8 @@ sub process_file {
 
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
-		my $command = "$text_cat -x -d $lmdir \"$int\"";
+#		my $command = "$text_cat -x -d $lmdir \"$int\"";
+		my $command = "/home/saara/gt/script/text_cat -x -d $lmdir \"$int\"";
 		exec_com($command, $file);
 	}
 
@@ -637,6 +692,7 @@ sub txtclean {
 				}
 			}
 		}
+
 		# The text does not contain newstext tags:
 		else {
 			$notitle=0;
