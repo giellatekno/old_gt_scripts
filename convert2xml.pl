@@ -291,9 +291,7 @@ sub process_file {
 
 		  my $xsl;
 		  if ($convxsl) { $xsl = $convxsl; }
-		  else { $xsl = $htmlxs
-
-l; }
+		  else { $xsl = $htmlxsl; }
 		  my $html = $tmpdir . "/" . $file . ".tmp3";
 		  $command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
 		  exec_com($command, $file);
