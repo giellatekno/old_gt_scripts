@@ -17,6 +17,7 @@ tmpdir="/usr/tmp"
 scripts="convert2xml.pl
 text_cat
 paratext2xml.pl
+pdf2xml.pl
 add-hyph-tags.pl
 convert_eol.pl
 XSL-template.xsl
