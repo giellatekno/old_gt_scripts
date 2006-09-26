@@ -8,9 +8,11 @@
 while (<>) {
   chomp;
   my ($orig, $hyph) = split (/\s+/);
-  my $cleaned = $hyph;
-     $cleaned =~ s/[#^]//g;
-  if ($orig eq $cleaned) {
-    print "$hyph\n";
+  if ( $hyph ) {
+    $cleaned = $hyph;
+    $cleaned =~ s/[#^]//g;
+    if ($orig eq $cleaned) {
+      print "$hyph\n";
+    }
   }
 }
