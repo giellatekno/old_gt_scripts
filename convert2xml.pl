@@ -255,8 +255,8 @@ sub process_file {
 		  if(! $noxsl) {
 			  my $document = XML::Twig->new;
 			  if (! $document->safe_parsefile("$xsl_file")) {
-				  print STDERR "Copyfree: $xsl_file: ERROR parsing the XML-file failed: $!\n";		  
-				  last COPYFREE;
+				  print STDERR "Copyfree: $xsl_file: ERROR parsing the XML-file failed: $@\n";		  
+				  last PDF;
 			  }
 			  
 			  my $root = $document->root;
@@ -362,9 +362,7 @@ sub process_file {
 	my $command = "$convert_eol \"$int\" > \"$tmp1\"";
 	exec_com($command, $file);
 	copy ($tmp1, $int) ;
-	print "copying $tmp1 to $int\n";
 
-	$no_decode_this_time=1;
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
   ENCODING: {
