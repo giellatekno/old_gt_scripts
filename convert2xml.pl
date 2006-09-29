@@ -474,8 +474,7 @@ sub process_file {
 
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
-#		my $command = "$text_cat -x -d $lmdir \"$int\"";
-		my $command = "/home/saara/gt/script/text_cat -x -d $lmdir \"$int\"";
+		my $command = "$text_cat -x -d $lmdir \"$int\"";
 		exec_com($command, $file);
 	}
 
