@@ -129,7 +129,6 @@ sub add_sentences {
 
 	$para->set_asis;
 	my $text = $para->text;
-	print "$text\n";
 
 	for my $c ($para->children) {
 		$c->delete;
@@ -153,7 +152,7 @@ sub add_sentences {
 	my $sentence;
 	my @words;
 	my $ans;
-	print @answers;
+
   WORDS:
 	for $ans (@answers) {
 		chomp $ans;
@@ -203,7 +202,6 @@ sub analyze_block {
 	$block->set_asis;
 
 	my $text = $block->text;
-	print "$text\n";
 	$text =~ s/\n/ /g;
 	
 	my $pid = open2(\*R,\*W, $analyze); 
