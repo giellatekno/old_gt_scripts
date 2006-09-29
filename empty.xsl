@@ -42,7 +42,9 @@
 		     </xsl:element>
         </xsl:when>
 		<xsl:when test="header/title">
+		    <xsl:element name="title">
               <xsl:apply-templates select="header/title"/>
+		     </xsl:element>
 		</xsl:when>
 		<xsl:otherwise>
 		    <xsl:element name="title">
