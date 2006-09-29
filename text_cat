@@ -16,6 +16,8 @@ my $w_class_no_space = qw("A-Za-zÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøä�
 my $non_word_characters='\d';
 
 my $MINCHAR = 0;
+my %lmodel;
+my %wmodel;
 
 # OPTIONS
 getopts('a:d:f:i:nst:u:xhvwl');
@@ -133,10 +135,17 @@ sub read_xml {
 		if($test) { print STDERR "text_cat: Document is monolingual.\n"; }
 		return;
 	}
+	# open directory to find which languages are supported
+	opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
+	my @lm = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
+	closedir DIR;
+	if (! @lm) { die "text_cat: no language models found in $opt_d"; }
+	
   LANG_TEST: {
 	  my @langs = $multi->children;
 	  if (! @langs ) {
 		  if ($test) { print STDERR "text_cat: Document is categorized in languages: all.\n" }
+		  @languages = @lm;
 		  last LANG_TEST;
 	  }
 	  for my $lang (@langs) {
@@ -146,25 +155,28 @@ sub read_xml {
 	  if (! $mainlang_ok ) { push @languages, $mainlang; }
 	  if($test) {
 		  if (@languages) { print STDERR "Document is categorized in languages: @languages\n"; }
-		  else { print STDERR "text_cat: Document is categorized in languages: all.\n" };
+		  else { 
+			  print STDERR "text_cat: Document is categorized in languages: all.\n" ;
+			  }
 	  }
   }
-   # open directory to find which languages are supported
-	opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
-	my @lm = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
-	closedir DIR;
-	if (! @lm) { die "text_cat: no language models found in $opt_d"; }
-	
+	# Test if the main language is included in the language models.
 	my %languages_h;
 	for my $lang (@lm) { $languages_h{$lang}=1;}
 	if(! $languages_h{$mainlang}) { 
 		print STDERR "text_cat: Document language \"$mainlang\" was not recognized.\n"; 
 		return; 
 	}
-	
+
+    # Load langauge and word models for the tested languages.
+	foreach my $lang (@languages) { $lmodel{$lang}=load_lm($lang); }
+	if(!$opt_w) {
+		foreach my $lang (@languages) { $wmodel{$lang}=load_wm($lang); }
+	}
+
 	# Process each paragraph at the time.
 	# Function langdetect handles the classification of the paragraph.
-	my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $mainlang, @languages); } });
+	my $document = XML::Twig->new(twig_handlers => { p => sub { langdetect(@_, $mainlang); } });
 	if (! $document->safe_parsefile ("$file")) {
 		print STDERR "Langdetect: ERROR parsing the XML-file failed: $@\n";		  
 		last LANGDETECT;
@@ -178,7 +190,7 @@ sub read_xml {
 
 # Process each xml-element (paragraph)
 sub langdetect {
-	my ( $twig, $para, $mainlang, @avail_langs ) = @_;
+	my ( $twig, $para, $mainlang) = @_;
 
 	my $text = $para->text;
 
@@ -191,7 +203,7 @@ sub langdetect {
 	if ($text !~ /[$w_class_no_space]/o) { $para->del_att( 'xml:lang'); return;}
 
 	# Classification returns the choices for the text.
-	my @choices = classify($text, @avail_langs);
+	my @choices = classify($text);
 	
 	# If the language was not recognized, the document language is selected.
 	if (! @choices || ! $choices[0]) {
@@ -208,71 +220,55 @@ sub langdetect {
 
 # CLASSIFICATION
 sub classify {
-  my ($input, @avail_langs) = @_;
-
-  my $all_langs=0;
-  if (!@avail_langs) { $all_langs=1; }
-
-  my %results=();
-  my $maxp = $opt_t;
-  # open directory to find which languages are supported
-  opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
-  my @languages = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
-  closedir DIR;
-  @languages or die "sorry, can't read any language models from $opt_d\n" .
-    "language models must reside in files with .lm ending\n";
+  my $input = shift @_;
 
   # create ngrams for input. Note that hash %unknown is not used;
   # it contains the actual counts which are only used under -n: creating
   # new language model (and even then they are not really required).
   my @unknown=create_lm($input);
-  # load model and count for each language.
-  my $language;
 
-  # If the set of languages is not restricted, the text is tested
-  # against all lanugage models.
-  my @tested_langs;
-  if($all_langs) { @tested_langs = @languages; }
-  else { @tested_langs = @avail_langs; }
+  # If text_cat was invoked command-line, the language models have to 
+  # be loaded.
+  if(! %lmodel && $opt_l) {
+	  # open directory to find which languages are supported
+	  opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
+	  my @lm = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
+	  closedir DIR;
+	  if (! @lm) { die "text_cat: no language models found in $opt_d"; }
+	  print "@lm\n";
 
-  foreach $language (@tested_langs) {
-    # loads the language model into hash
-    my %ngram=();
-    my $rang=1;
-    open(LM,"$opt_d/$language.lm") || die "cannot open $language.lm: $!\n";
-    print STDERR "creating language model $language\n" if $opt_v;
-    while (<LM>) {
-      chomp;
-      # only use lines starting with appropriate character. Others are
-      # ignored.
-	  # remove non-word characters from ngram --sh
-	  s/[^$w_class]//og;
-	  s/\s+//g;
-	  next if(/^_+$/); 
-	  next if(/^\s+$/); 
-      if (/^[$w_class]+/o) {
-		  # The less frequent the string, the more weight it gets.
-		  $ngram{$_} = $rang++;
-      } 
-    }
-    close(LM);
-    print STDERR "loaded language model $language\n" if $opt_v;
+	  for my $lang (@lm) {  $lmodel{$lang}=load_lm($lang); }
+	  if(!$opt_w) {
+		  for my $lang (@lm) {  $wmodel{$lang}=load_wm($lang); }
+	  }
+  }
+  
+  my %results=();
+  my $maxp = $opt_t;
 
-    # compares the language model with input ngrams list
-    my ($i,$p)=(0,0);
-    while ($i < @unknown) {
-		if ($ngram{$unknown[$i]}) {
-			$p=$p+abs($ngram{$unknown[$i]}-$i);
-		} else { 
-			$p=$p+$maxp;
-		}
-		++$i;
-	}
+  if (! %lmodel) { 
+	  print "Loading the language models failed, exiting..\n";
+	  return;
+  }
 
-    $results{$language} = $p;
+  foreach my $language (keys %lmodel) {
+
+	  # compares the language model with input ngrams list
+	  my ($i,$p)=(0,0);
+	  while ($i < @unknown) {
+		  my $unk=$unknown[$i];
+		  if ($lmodel{$language}{$unk}) {
+			  $p=$p+abs($lmodel{$language}{$unk}-$i);
+		  } else { 
+			  $p=$p+$maxp;
+		  }
+		  ++$i;
+	  }
+	  
+	  $results{$language} = $p;
   }
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
-
+  
   if ($opt_v || $opt_l) {
 	  print "results\n";
 	  for my $r (@results) {
@@ -288,8 +284,8 @@ sub classify {
   while (@results && $results{$results[0]} < ($opt_u*$ans)) {
 	  @answers=(@answers,shift(@results));
   }
-
-#  print "Best is $ans, Answers are: @answers\n";
+ 
+  #  print "Best is $ans, Answers are: @answers\n";
   
   # If there was no language that could fit the input,
   # return undef.
@@ -305,58 +301,23 @@ sub classify {
   my @wanswers;
   my %wresults;
  TEST_SHORT: {
-	 if(@answers == 1 || $opt_w) {
+	 if(@answers == 1 || $opt_w || ! %wmodel) {
 		 @wanswers = @answers; 
 		 last TEST_SHORT; 
 	 }
 
-	 # open directory to find which languages are supported
-	 opendir DIR, "$opt_d" or die "directory $opt_d: $!\n";
-	 my @languages = sort(grep { s/\.wm// && -r "$opt_d/$_.wm" } readdir(DIR));
-	 closedir DIR;
-	 if(!@languages) { @wanswers = @answers;  last TEST_SHORT; }
-
-	 # Create short word model.
+     # Create short word model.
 	 my %wunknown=create_wm($input);
-	 foreach $language (@answers) {
-
-		 # loads the language model into hash %$language.
-		 my %wgram=();
-		 # There are 1000 words in some word lists.
-		 # not used right now.
-		 my $maxw=1000;
-		 if (! open(LM,"$opt_d/$language.wm")) { 
-			 print STDERR "cannot open $opt_d/$language.txt: $!\n"; 
-			 next; 
-		 } 
-		 print STDERR "creating short word model for $language\n" if $opt_v;
-
-		 # Normalize the length of the list
-		 my $maxw_lang=`wc -l \"$opt_d/$language.wm\"`;
-		 $maxw_lang =~ s/^(\d+)\s+.*$/$1/;
-		 my $wrang=0;
-		 my $increment = $maxw/$maxw_lang;
-		 while (<LM>) {
-			 chomp;
-			 s/\s+//og;
-			 s/[^$w_class]//og;
-			 if (/^[$w_class]+/o) {
-				 $wrang += $increment;
-				 $wgram{$_} = $maxw - $wrang;
-			 } 
-		 }
-		 close(LM);
-
-		 print STDERR "loaded short word model $language\n" if $opt_v;
-		 
-		 # compares the language model with input wgrams list
-		 my ($i,$p)=(0,0);
-		 for my $key (keys %wunknown) {
-			 if ($wgram{$key}) {
-				 $b = sprintf("%.0f", ($wgram{$key}**2*$wunknown{$key}*10/$results{$language}));
-				 $p=$p-$b;
-				 if($opt_l) { print "$language vah. $b, p: $p $wgram{$key} {$key $wunknown{$key}}\n"; }				 
-			 } 
+	 foreach my $language (@answers) {
+	
+	# compares the language model with input wgrams list
+	my ($i,$p)=(0,0);
+	for my $key (keys %wunknown) {
+		if ($wmodel{$language}{$key}) {
+			$b = sprintf("%.0f", ($wmodel{$language}{$key}**2*$wunknown{$key}*10/$results{$language}));
+			$p=$p-$b;
+			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
+		} 
 			 ++$i;
 		 }
 		 print STDERR "short word: $language: $p\n" if $opt_v;
@@ -479,4 +440,68 @@ sub create_lm {
   splice(@sorted,$opt_t) if (@sorted > $opt_t); 
 
   return @sorted;
+}
+
+
+sub load_lm {
+	my $language = shift @_;
+	
+	# loads the language model into hash
+	my %ngram=();
+	my $rang=1;
+
+	open(LM,"$opt_d/$language.lm") || die "cannot open $language.lm: $!\n";
+	print STDERR "creating language model $language\n" if $opt_v;
+	while (<LM>) {
+		chomp;
+		# only use lines starting with appropriate character. Others are
+		# ignored.
+		# remove non-word characters from ngram --sh
+		s/[^$w_class]//og;
+		s/\s+//g;
+		next if(/^_+$/); 
+		next if(/^\s+$/); 
+		if (/^[$w_class]+/o) {
+			# The less frequent the string, the more weight it gets.
+			$ngram{$_} = $rang++;
+		} 
+	}
+	close(LM);
+	print STDERR "loaded language model $language\n" if $opt_v;
+	return \%ngram;
+
+}
+
+sub load_wm {
+	my $language = shift @_;
+	
+	# loads the language model into hash %$language.
+	my %wgram=();
+	# There are 1000 words in some word lists.
+	# not used right now.
+	my $maxw=1000;
+	if (! open(LM,"$opt_d/$language.wm")) { 
+#			 print STDERR "cannot open $opt_d/$language.wm: $!\n"; 
+		return; 
+	} 
+	print STDERR "creating short word model for $language\n" if $opt_v;
+	
+	# Normalize the length of the list
+	my $maxw_lang=`wc -l \"$opt_d/$language.wm\"`;
+	$maxw_lang =~ s/^(\d+)\s+.*$/$1/;
+	my $wrang=0;
+	my $increment = $maxw/$maxw_lang;
+	while (<LM>) {
+		chomp;
+		s/\s+//og;
+		s/[^$w_class]//og;
+		if (/^[$w_class]+/o) {
+			$wrang += $increment;
+			$wgram{$_} = $maxw - $wrang;
+		} 
+	}
+	close(LM);
+	
+	print STDERR "loaded short word model $language\n" if $opt_v;
+	return \%wgram;
 }
