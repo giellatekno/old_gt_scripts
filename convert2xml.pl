@@ -448,7 +448,7 @@ sub process_file {
 			$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
 			if( exec_com($command, $file) != 0 ) {
 				print STDERR "ERROR: not valid xml, removing $int.. STOP.\n";
-				$command = "rm -rf \"$int\"";
+				$command = "rm -rf \"$int\" \"$tmp\"";
 				exec_com($command, $file);
 				return;
 			}
