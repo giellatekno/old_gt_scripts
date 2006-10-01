@@ -21,7 +21,9 @@ use strict;
 # analyzing the words, with option --only_add_sentences. 
 # The parallel files are preprocessed with this option.
 #
-# Typical usage: ccat --add-id docu.xml | corpus-analyze.pl
+# Typical usage: 
+# ccat --add-id docu.xml file.xml > file.tmp 
+# corpus-analyze.pl --input=file.tmp
 #
 # $Id$
 
@@ -60,15 +62,11 @@ my $corrtypos="/home/trond/bin/corrtypos.pl";
 my $lookup="/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
 my $vislcg="/opt/xerox/bin/vislcg";
 
-my $ifh;
-if ($infile) {
-	open ($ifh, "< $infile") or die "Can't open $infile: $!";
-}
-else { $ifh = 'STDIN'; }
-
 my $analyze = "$preproc --abbr=$abbr --fst=$fst | $corrtypos | $lookup -flags mbTT -utf8 -f $cap | $lookup2cg | $vislcg --grammar=$rle --quiet";
 
-my $preprocess = "$preproc --abbr=$abbr --fst=$fst";
+my $preprocess;
+if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --fst=$fst"; }
+else { $preprocess = "$preproc"; }
 
 my $SENT_DELIM = qq|.!?|;
 
@@ -77,13 +75,20 @@ my %tags;
 &read_tags(\%tags);
 
 ##### Start processing the input 
-# Read input to a string.
-my $string;
-while(<$ifh>) {
-	$string .= $_;
-}
+# Read input to a string if the file is not given.
+if (!$infile) {
+	my $ifh;
+	if ($infile) {
+		open ($ifh, "< $infile") or die "Can't open $infile: $!";
+	}
+	else { $ifh = 'STDIN'; }
 
-if(! $string) { exit; }
+	my $string;
+	while(<$ifh>) {
+		$string .= $_;
+	}
+	if(! $string) { exit; }
+}
 
 my $document;
 
@@ -91,8 +96,8 @@ my $document;
 if ($only_add_sentences) {
 	$document = XML::Twig->new(twig_handlers => {  'p' => sub { add_sentences(@_);
 																keep_encoding => 1 } });
-	if (! $document->safe_parse ($string)) {
-		print STDERR "Couldn't parse file: $@";
+	if (! $document->safe_parsefile ($infile)) {
+		print STDERR "Couldn't parse file $infile: $@";
 	}
 }
 # Otherwise analyze each para and add sentences
@@ -100,7 +105,7 @@ elsif ( $add_sentences) {
     print STDERR $analyze;
 	$document = XML::Twig->new(twig_handlers => {  'p' => sub { analyze_block(@_, "para");
 																   keep_encoding => 1 } });	
-	if (! $document->safe_parse ($string)) {
+	if (! $document->safe_parsefile ($infile)) {
 		print STDERR "Couldn't parse file: $@";
 	}
 }
@@ -109,7 +114,7 @@ else {
     print STDERR $analyze;
 	$document = XML::Twig->new(twig_handlers => {  's' => sub { analyze_block(@_, "sentence");
 																   keep_encoding => 1 } });
-	if (! $document->safe_parse ($string)) {
+	if (! $document->safe_parsefile ($infile)) {
 		print STDERR "Couldn't parse file: $@";
 	}
 }
@@ -170,6 +175,10 @@ sub add_sentences {
 		push (@words, " ");
 
 		if ($ans =~ /^[$SENT_DELIM]$/) {
+			if($#words==1  && $words[0] =~ /^[\W\s]*$/) {
+#			   print "ok $words[0]\n";
+			   $words[0] .= "1";
+		   }
 			$sentence->set_content(@words);
 			$sentence->paste('last_child', $para);
 			$sentence->DESTROY;
@@ -186,6 +195,10 @@ sub add_sentences {
 			$sentence = XML::Twig::Elt->new('s');
 			$sentence->set_att('id', $s_id++);
 		}
+		if($#words==1 && $words[0] =~ /^[\W\s]*$/) {
+		   print "ok $words[0]\n";
+		   $words[0] .= "1";
+	   }
 		$sentence->set_content(@words);
 		$sentence->paste('last_child', $para);
 	}
