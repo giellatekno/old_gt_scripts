@@ -18,6 +18,8 @@ $/ = "";
 
 # Read while not eol
 while(<>) {	
+	
+#	print;
 
 	my @Analyses;
 	my %forms;
@@ -30,8 +32,9 @@ while(<>) {
 	my $min_boundary_count = 5;
 	my $max_comp_rate = 0;
 	my $boundary_count;
-	
+
 	my @lines = split(/\n/, $_);
+	if ($#lines == 0) { print; next; }
 	for my $line (@lines) {
 		# store word to a scalar and
 		# analysis (=base form and tags) to an array
@@ -72,9 +75,11 @@ while(<>) {
 		  { delete($forms{$_}); }		  
 	  }
   } #RATE_COMP
-	
+
+	unless( keys %forms) { print STDERR "No forms for $word\n"; }
+ 	
 	# Print the output.
 	for my $key (keys %forms) {
-		print "$word\t$key\n";
+		print "$word\t$key\n\n";
 	}
 } # while
