@@ -12,8 +12,6 @@ my $PORT = 9000; # pick something not in use
 my $lookup="lookup";
 my $language;
 my $fst;
-my $timeout=0.15;
-
 
 my $server = IO::Socket::INET->new( Proto     => 'tcp',
 								 LocalPort => $PORT,
@@ -79,10 +77,11 @@ while ($client = $server->accept()) {
 				if($anl) {
 					# send some string there:
 					$exp_anl->send("$r\n");
-					$exp_anl->expect($timeout);
+					$exp_anl->expect(undef, '-re', '\r?\n\r?\n' );
 					
-					my $read_anl = $exp_anl->clear_accum();
-					print $client $read_anl;
+					my $read_anl = $exp_anl->before();
+					
+					print $client "$read_anl\n\n";
 				}
 				else { print $client $r; }
 			}
