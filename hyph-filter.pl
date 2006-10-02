@@ -49,13 +49,12 @@ while(<>) {
 			# take acoount also the lower cased form.
 			next if ($word ne $cleaned && lcfirst($word) ne $cleaned);
 			$forms{$hyph} = 1;
-		}
-			
+		
 		# Get the min and max boundary counts.
 		my $boundary_count = ( $hyph  =~ tr/\#// );
 		if ($boundary_count > $max_boundary_count) { $max_boundary_count = $boundary_count; }
 		if ( $boundary_count < $min_boundary_count) { $min_boundary_count = $boundary_count; }
-
+		}
 	}
 
   RATE_COMP: {
@@ -77,10 +76,11 @@ while(<>) {
 	  }
   } #RATE_COMP
 
-	unless( keys %forms) { print STDERR "No forms for $word\n"; }
+	unless( %forms) { print STDERR "No forms for $word\n"; }
  	
 	# Print the output.
 	for my $key (keys %forms) {
-		print "$word\t$key\n\n";
+		print "$word\t$key\n";
 	}
+	print "\n";
 } # while
