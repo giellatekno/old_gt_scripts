@@ -46,7 +46,8 @@ while(<>) {
 			$hyph =~ s/^\#//;
 			( my $cleaned = $hyph ) =~ tr/[\#^]//d;
 
-			next if ($word ne $cleaned);
+			# take acoount also the lower cased form.
+			next if ($word ne $cleaned && lcfirst($word) ne $cleaned);
 			$forms{$hyph} = 1;
 		}
 			
