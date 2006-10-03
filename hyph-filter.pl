@@ -18,8 +18,6 @@ $/ = "";
 
 # Read while not eol
 while(<>) {	
-	
-#	print;
 
 	my @Analyses;
 	my %forms;
@@ -32,9 +30,10 @@ while(<>) {
 	my $min_boundary_count = 5;
 	my $max_comp_rate = 0;
 	my $boundary_count;
-
+	
+	chomp;
 	my @lines = split(/\n/, $_);
-	if ($#lines == 0) { print; next; }
+	if ($#lines == 0) { print; print "\n\n"; next; }
 	for my $line (@lines) {
 		# store word to a scalar and
 		# analysis (=base form and tags) to an array
@@ -47,7 +46,8 @@ while(<>) {
 			( my $cleaned = $hyph ) =~ tr/[\#^]//d;
 
 			# take acoount also the lower cased form.
-			next if ($word ne $cleaned && lcfirst($word) ne $cleaned);
+			(my $lcfirst = $word) =~ tr/A-ZÁČĐŊŠŦŽÅÆØÄÖ/a-záčđŋšŧžåæøäö/;
+			next if ($word ne $cleaned && $lcfirst ne $cleaned);
 			$forms{$hyph} = 1;
 		
 		# Get the min and max boundary counts.
