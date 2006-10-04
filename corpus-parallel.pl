@@ -6,6 +6,7 @@ use IO::File;
 use File::Basename;
 use Getopt::Long;
 use XML::Twig;
+use File::Find;
 
 my $corpdir = "/usr/local/share/corp";
 my $bindir = "/usr/local/share/corp/bin";
@@ -16,6 +17,9 @@ my $gtfree_dir = "free";
 my $orig_dir = "orig";
 my $lang = "sme";
 my $para_lang = "nob";
+my $list_parallel;
+my $list_file;
+my $dir;
 
 my $help;
 my $file;
@@ -23,8 +27,11 @@ my $files;
 
 GetOptions ("file=s" => \$file,
 			"files=s" => \$files,
+			"dir=s" => \$dir,
 			"lang=s" => \$lang,
 			"para_lang=s" => \$para_lang,
+			"list_parallel" => \$list_parallel,
+			"list_file=s" => \$list_file,
 			);
 
 if ($help) {
@@ -32,13 +39,75 @@ if ($help) {
 	exit 1;
 }
 
-if ($files) {
-	my @input_files = split (",", $files);
-	for my $f ( @input_files) {
-		process_file($f);
+# Search the files in the directory $dir and process each one of them.
+if ($dir) {
+	if ($list_parallel) {
+	if ($list_file) { 
+		open(FH,">$list_file"); 
+	}
+		if (-d $dir) { find (\&list_files, $dir) }
+		else { print "$dir ERROR: Directory did not exit.\n"; }		
+	}
+	else {
+		if (-d $dir) { find (\&process_file, $dir) }
+		else { print "$dir ERROR: Directory did not exit.\n"; }
 	}
 }
-else { process_file($file); }
+
+elsif ($files) {
+	my @input_files = split (",", $files);
+	for my $f ( @input_files) {
+		if (-f $f) { process_file($f); }
+	}
+}
+elsif ($file) { process_file($file); }
+
+# Process the file given in command line.
+else { process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV]; }
+
+
+sub list_files {
+	my $file = $_;
+	return if (! -f $file );
+
+	return if ($file =~ /~$/);
+	
+	my %para_files;
+
+    my $full = File::Spec->rel2abs($file);
+	(my $path = $full) =~ s/(.*)[\/\\].*/$1/;
+
+	my $document = XML::Twig->new;
+	if (! $document->safe_parsefile ("$file") ) {
+		print STDERR "$file: ERROR parsing the XML-file failed.\n";
+		return;
+	}
+	my $location;
+	my $root = $document->root;
+	my $header = $root->first_child('header');
+	my @parallel_texts = $header->children('parallel_text');
+	for my $p (@parallel_texts) {
+		my $plang = $p->{'att'}->{'xml:lang'};
+		$para_files{$plang} = $p->{'att'}->{'location'};
+	}
+	return if (! %para_files);
+
+	if ($list_file) { 
+		print FH "$full\n";
+		for my $plang (keys %para_files) {
+			(my $para_path = $path) =~ s/$lang/$plang/o;
+			print FH "$plang: $para_path/$para_files{$plang}.xml\n";
+		}
+		print FH "\n";
+	} else {
+		print "$full\n";
+		for my $plang (keys %para_files) {
+			(my $para_path = $path) =~ s/$lang/$plang/o;
+			print "$plang: $para_path/$para_files{$plang}.xml\n";
+		}
+		print "\n";
+	}
+}
 
 sub process_file {
 	my $file = shift @_;
@@ -46,7 +115,7 @@ sub process_file {
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile ("$file") ) {
 		print STDERR "$file: ERROR parsing the XML-file failed.\n";
-		exit;
+		return;
 	}
 	
 	my $location;
@@ -62,7 +131,7 @@ sub process_file {
 	
 	if(! $location) {
 		print "No parallel texts found for language $para_lang.\n";
-		exit;
+		return;
 	}
 	
 # The path to the original.
@@ -86,16 +155,16 @@ sub process_file {
 	(my $base = $file) =~ s/.*[\/\\](.*)/$1/;
 	my $outfile=$tmpdir . "/" . $base . ".sent";
 	my $command="corpus-analyze.pl --input=\"$file\" --output=\"$outfile\" --only_add_sentences --lang=$lang";
-	print "$command\n";
-#	if ( system($command) != 0 ) {  die "errors in $command: $!\n"; }
+	print STDERR "$command\n";
+	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 	
 # If there are more than one parallel file, these files are combined to one.
-	if ($#full_paths > 0) { die "Cannot process more than one parallel file\n"; }
+	if ($#full_paths > 0) { return "Cannot process more than one parallel file\n"; }
 	
 	my $pfile=$full_paths[0];
 	(my $pbase = $pfile) =~ s/.*[\/\\](.*)/$1/;
 	my $poutfile=$tmpdir . "/" . $pbase . ".sent";
 	$command="corpus-analyze.pl --input=\"$pfile\" --output=\"$poutfile\" --only_add_sentences --lang=$para_lang";
-	print "$command\n";
-	if ( system($command) != 0 ) {  die "errors in $command: $!\n"; }
+	print STDERR "$command\n";
+	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 }
