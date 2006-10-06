@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
 use strict;
 
-# corpus-analyze.pl
+# corpus-analyze.pl [OPTIONS] [FILE]
 #
 # Perl script for analyzing corpus files for storing 
 # to the grammatical corpus interface.
 # --tags=<file_name>
-# --input=<file_name> (default STDIN)
 # --output=<file_name> (default tmp.out)
 # --add_sentences
 # --only_add_sentences
@@ -41,14 +40,20 @@ my $only_add_sentences=0;
 my $tagfile = "/usr/tmp/gt/cwb/korpustags.txt";
 
 my $infile;
-my $outfile="out.tmp";
+my $outfile;
+my $help;
 GetOptions ("tags=s" => \$tagfile,
-            "input=s" => \$infile,
 			"output=s" => \$outfile,
 			"add_sentences" => \$add_sentences,
 			"only_add_sentences" => \$only_add_sentences,
 			"lang=s" => \$lang,
+			"help" => \$help,
 );
+
+if ($help) {
+	&print_help;
+	exit 1;
+}
 
 my $binpath="/opt/smi/$lang/bin";
 
@@ -62,10 +67,11 @@ my $corrtypos="/home/trond/bin/corrtypos.pl";
 my $lookup="/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
 my $vislcg="/opt/xerox/bin/vislcg";
 
-my $analyze = "$preproc --abbr=$abbr --fst=$fst | $corrtypos | $lookup -flags mbTT -utf8 -f $cap | $lookup2cg | $vislcg --grammar=$rle --quiet";
+my $analyze = "$preproc --abbr=$abbr --fst=$fst | $corrtypos | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg --grammar=$rle --quiet";
 
 my $preprocess;
 if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --fst=$fst"; }
+elsif ($lang =~ /nob/) { $preprocess = "$preproc --abbr=/home/saara/st/nob/bin/abbr.txt"; }
 else { $preprocess = "$preproc"; }
 
 my $SENT_DELIM = qq|.!?|;
@@ -73,6 +79,11 @@ my $SENT_DELIM = qq|.!?|;
 # Read the tags
 my %tags;
 &read_tags(\%tags);
+
+# Process the file given in command line.
+if ( -f $ARGV[$#ARGV]) { $infile = $ARGV[$#ARGV]; }
+if ($infile && ! $outfile) { $outfile=$infile . ".analyzed"; }
+else { die "Specify file for output with option --output\n"; }
 
 ##### Start processing the input 
 # Read input to a string if the file is not given.
@@ -102,7 +113,7 @@ if ($only_add_sentences) {
 }
 # Otherwise analyze each para and add sentences
 elsif ( $add_sentences) {
-    print STDERR $analyze;
+    print STDERR "$analyze\n";
 	$document = XML::Twig->new(twig_handlers => {  'p' => sub { analyze_block(@_, "para");
 																   keep_encoding => 1 } });	
 	if (! $document->safe_parsefile ($infile)) {
@@ -111,7 +122,7 @@ elsif ( $add_sentences) {
 }
 # Otherwise analyze each sentence
 else {
-    print STDERR $analyze;
+    print STDERR "$analyze\n";
 	$document = XML::Twig->new(twig_handlers => {  's' => sub { analyze_block(@_, "sentence");
 																   keep_encoding => 1 } });
 	if (! $document->safe_parsefile ($infile)) {
@@ -368,3 +379,21 @@ sub read_tags {
 
 	close TAGS;
 }
+
+sub print_help {
+	print << "END";
+Analyzes and modifies corpus files with xml-structure.
+Usage: corpus-analyze.pl [OPTIONS] [FILE]
+--help               Print this help text and exit.
+--tags               Location of the file korpustags.txt
+--output=<file>      The file for output.
+--add_sentences      Add <s>-tags to the file during the analysis.
+                     Use with files which are not aligned.
+--only_add_sentences Adds <s> tags using preprocessor and abbr.txt
+                     Does not analyze.
+--lang=<lang>        The main language of the document. The language
+                     defines the path to the tools.
+END
+
+}
+
