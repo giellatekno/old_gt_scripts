@@ -25,7 +25,7 @@ my $help;
 my $file;
 my $files;
 
-GetOptions ("file=s" => \$file,
+GetOptions ("help" => \$help,
 			"files=s" => \$files,
 			"dir=s" => \$dir,
 			"lang=s" => \$lang,
@@ -168,3 +168,19 @@ sub process_file {
 	print STDERR "$command\n";
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 }
+
+sub print_help {
+	print << "END";
+Searches for parallel documents and prepares them for alignment.
+Usage: corpus-parallel.pl [OPTIONS] [FILE]
+--help                Print this help text and exit.
+--files=<f1,f2,..>    List of input files separated by comma.
+--dir=<dir>           The directory where the files are searched.        
+--lang=<lang>         The main language.
+--para_lang=<lang>    The language of the parallel document(s).
+--list                List the parallel files, use with option --dir.
+--list_file=<file>    The name of the list file.
+END
+
+}
+
