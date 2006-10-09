@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # teaksta
 # This is a shell script for analysing Northern Sámi text
