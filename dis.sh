@@ -7,13 +7,18 @@
 #
 #           run vislcg
 #
-# $Id $
+# $Id$
 #****************************************************************
 
 # compile m4 grammar file
 # call vislcg
+# Usage: as vislcg.
+# dis.sh --grammar=... --minimal < file.txt
+# .. | lookup2cg | dis.sh --grammar=... --minimal
 
-vislcg="vislcg --grammar $HOME/gt/sme/bin/sme-dis.rle --minimal"
+args=$@
+
+vislcg="vislcg $@"
 
 cd $HOME/gt/ && make dis TARGET=sme
 exec $vislcg<&0
