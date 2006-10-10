@@ -121,8 +121,16 @@ else {
 			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
 			$bindir/lookup2cg`; }
   elsif ($cg =~ /hyphenate/) {
+  if ($lang eq "sme") {
    $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | cut -f2 | tr '\012' ' '`;
+			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | \
+			$bindir/hyph-filter.pl | cut -f2 | tr '\012' ' '`;
+}
+else {
+   $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
+			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | \
+			cut -f2 | tr '\012' ' '`;
+}
 		}
    else {
 	 $result = `echo $text | $bindir/preprocess | \
