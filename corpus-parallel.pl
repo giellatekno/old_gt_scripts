@@ -42,9 +42,9 @@ if ($help) {
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
 	if ($list_parallel) {
-	if ($list_file) { 
-		open(FH,">$list_file"); 
-	}
+		if ($list_file) { 
+			open(FH,">$list_file"); 
+		}
 		if (-d $dir) { find (\&list_files, $dir) }
 		else { print "$dir ERROR: Directory did not exit.\n"; }		
 	}
@@ -110,7 +110,7 @@ sub list_files {
 }
 
 sub process_file {
-	my $file = shift @_;
+	my $file = $_;
 
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile ("$file") ) {
@@ -154,7 +154,7 @@ sub process_file {
 # Take only the file name without path.
 	(my $base = $file) =~ s/.*[\/\\](.*)/$1/;
 	my $outfile=$tmpdir . "/" . $base . ".sent";
-	my $command="corpus-analyze.pl --input=\"$file\" --output=\"$outfile\" --only_add_sentences --lang=$lang";
+	my $command="corpus-analyze.pl --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
 	print STDERR "$command\n";
 	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 	
@@ -164,7 +164,7 @@ sub process_file {
 	my $pfile=$full_paths[0];
 	(my $pbase = $pfile) =~ s/.*[\/\\](.*)/$1/;
 	my $poutfile=$tmpdir . "/" . $pbase . ".sent";
-	$command="corpus-analyze.pl --input=\"$pfile\" --output=\"$poutfile\" --only_add_sentences --lang=$para_lang";
+	$command="corpus-analyze.pl  --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
 	print STDERR "$command\n";
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 }
