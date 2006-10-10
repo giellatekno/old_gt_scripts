@@ -38,16 +38,23 @@ my $s_id=0;
 my $add_sentences=0;
 my $only_add_sentences=0;
 my $tagfile = "/usr/tmp/gt/cwb/korpustags.txt";
+my $tables=0;
+my $lists=0;
+my $all=0;
 
 my $infile;
 my $outfile;
 my $help;
+Getopt::Long::Configure ("bundling");
 GetOptions ("tags=s" => \$tagfile,
 			"output=s" => \$outfile,
-			"add_sentences" => \$add_sentences,
-			"only_add_sentences" => \$only_add_sentences,
+			"add_sentences|s" => \$add_sentences,
+			"only_add_sentences|o" => \$only_add_sentences,
 			"lang=s" => \$lang,
-			"help" => \$help,
+			"lists|l=s" => \$lists,
+			"tables|t=s" => \$tables,
+			"all|a=s" => \$all,
+			"help|h" => \$help,
 );
 
 if ($help) {
@@ -82,8 +89,7 @@ my %tags;
 
 # Process the file given in command line.
 if ( -f $ARGV[$#ARGV]) { $infile = $ARGV[$#ARGV]; }
-if ($infile && ! $outfile) { $outfile=$infile . ".analyzed"; }
-else { die "Specify file for output with option --output\n"; }
+if ($infile && ! $outfile) { $outfile = "out.tmp"; }  #$outfile=$infile . ".analyzed"; }
 
 ##### Start processing the input 
 # Read input to a string if the file is not given.
@@ -112,23 +118,48 @@ if ($only_add_sentences) {
 	}
 }
 # Otherwise analyze each para and add sentences
-elsif ( $add_sentences) {
-    print STDERR "$analyze\n";
-	$document = XML::Twig->new(twig_handlers => {  'p' => sub { analyze_block(@_, "para");
-																   keep_encoding => 1 } });	
-	if (! $document->safe_parsefile ($infile)) {
-		print STDERR "Couldn't parse file: $@";
-	}
-}
-# Otherwise analyze each sentence
 else {
     print STDERR "$analyze\n";
-	$document = XML::Twig->new(twig_handlers => {  's' => sub { analyze_block(@_, "sentence");
-																   keep_encoding => 1 } });
+	
+  PARSE: {
+	  if(($tables && $lists) | $all) {
+		  $document = XML::Twig->new(twig_handlers => {  'p' => sub { analyze_block(@_);
+																	  keep_encoding => 1 } });
+		  last PARSE;
+	  }
+	  if (! $tables && ! $lists) {
+		  print "NO tables no lists\n";
+		  $document = XML::Twig->new(twig_handlers => { 
+			  'table' => sub{ $_->delete; },
+			  'list' => sub{ $_->delete; },
+			  'p' => sub { analyze_block(@_); },
+			  keep_encoding => 1 });
+		  last PARSE;
+	  } 
+	  if ($tables && ! $lists) {
+		  $document = XML::Twig->new(twig_handlers => {  
+			  'list' => sub{ $_->delete; },
+			  'table' => sub { $_->erase; },
+			  'row' => sub { $_->erase; },
+			  'p' => sub { analyze_block(@_);
+						   keep_encoding => 1 } });	
+		  last PARSE;
+	  }
+	  if (! $tables && $lists) {
+		  $document = XML::Twig->new(twig_handlers => {  
+			  'table' => sub{ $_->delete; },
+			  'list' => sub { $_->erase; },
+			  'p' => sub { analyze_block(@_);
+						 keep_encoding => 1 } });	
+		  last PARSE;
+	  }
+  } # end of PARSE
 	if (! $document->safe_parsefile ($infile)) {
 		print STDERR "Couldn't parse file: $@";
 	}
+	
 }
+
 
 
 open (FH, ">:utf8", "$outfile") or die "Cannot open $!";
@@ -186,10 +217,10 @@ sub add_sentences {
 		push (@words, " ");
 
 		if ($ans =~ /^[$SENT_DELIM]$/) {
-			if($#words==1  && $words[0] =~ /^[\W\s]*$/) {
-#			   print "ok $words[0]\n";
-			   $words[0] .= "1";
-		   }
+			if($#words==1 && $words[0] =~ /^[\W\s]*$/) {
+				print "ok $words[0]\n";
+				$words[0] .= "1";
+			}
 			$sentence->set_content(@words);
 			$sentence->paste('last_child', $para);
 			$sentence->DESTROY;
@@ -216,7 +247,7 @@ sub add_sentences {
 }
 
 sub analyze_block {
-	my ($twig, $block, $type) = @_;
+	my ($twig, $block) = @_;
 
 	my @answers;
 
@@ -269,12 +300,12 @@ sub analyze_block {
 	if ($cohort_rec) {
 		push @tokens, $cohort_rec;
 	}
-	add_structure(\@tokens, \%tags, $block, $type);
+	add_structure(\@tokens, \%tags, $block);
 }
 
 # Subroutine to add <s> tags and print out the result.
 sub add_structure {
-	my ($tokens_aref, $tags_href, $block, $type) = @_;
+	my ($tokens_aref, $tags_href, $block) = @_;
 
 	my @sentences;
 	my @tokens;
@@ -284,7 +315,7 @@ sub add_structure {
 
 		# Create a new XML-element for the token
 		my $token = XML::Twig::Elt->new('w');
-		if($type eq "para" && ! $sentence ) { 
+		if($add_sentences && ! $sentence ) { 
 			$sentence = XML::Twig::Elt->new('s');
 			$sentence->set_att('id', $s_id++);
 		}
@@ -324,7 +355,7 @@ sub add_structure {
 
 		push (@tokens, $token);
 
-		if ($type eq "para" && $token_rec->{WORD} =~ /^[$SENT_DELIM]$/) {
+		if ($add_sentences && $token_rec->{WORD} =~ /^[$SENT_DELIM]$/) {
 			$sentence->set_content(@tokens);
 			push @sentences, $sentence;
 			$sentence->DESTROY;
@@ -335,7 +366,7 @@ sub add_structure {
 
 	} # end while tokens
 
-	if($type eq "para") {
+	if($add_sentences) {
 		if (@tokens) {
 			$sentence->set_content(@tokens);
 		}		
