@@ -18,6 +18,9 @@ binmode STDIN, ":utf8";
 # set reading to paragraph mode.
 $/ = "";
 
+# change this to 1 when used with smi.cgi.
+my $take_only_one=0;
+
 # Read while not eol
 INPUT:
 	while(<>) {	
@@ -92,6 +95,9 @@ INPUT:
 		# Print the output.
 		for my $key (keys %forms) {
 			print "$word\t$key\n";
+			if($take_only_one) {
+				last;
+			}
 		}
 		print "\n";
 	} # while
