@@ -19,7 +19,8 @@
 args=$@
 
 vislcg="vislcg $@"
+pwd=$(pwd)
 
 cd $HOME/gt/ && make dis TARGET=sme
-exec $vislcg<&0
+cd $pwd && exec $vislcg<&0
 
