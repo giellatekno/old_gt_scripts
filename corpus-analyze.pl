@@ -70,15 +70,17 @@ my $abbr = $binpath ."/abbr.txt";
 my $rle = $binpath ."/". $lang ."-dis.rle";
 my $preproc = "/usr/local/bin/preprocess";
 my $lookup2cg = "/usr/local/bin/lookup2cg";
-my $corrtypos="/home/trond/bin/corrtypos.pl";
-my $lookup="/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
-my $vislcg="/opt/xerox/bin/vislcg";
+my $corrtypos = $binpath . "/". "typos.txt";
+my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
+my $vislcg = "/opt/xerox/bin/vislcg";
 
-my $analyze = "$preproc --abbr=$abbr --fst=$fst | $corrtypos | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg --grammar=$rle --quiet";
+my $analyze = "$preproc --abbr=$abbr --fst=$fst --corr=$corrtypos | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg --grammar=$rle --quiet";
 
 my $preprocess;
 if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --fst=$fst"; }
-elsif ($lang =~ /nob/) { $preprocess = "$preproc --abbr=/home/saara/st/nob/bin/abbr.txt"; }
+elsif ($lang =~ /nob/) { 
+	$preprocess = "$preproc --abbr=/home/saara/st/nob/bin/abbr.txt";	
+}
 else { $preprocess = "$preproc"; }
 
 my $SENT_DELIM = qq|.!?|;
@@ -128,7 +130,6 @@ else {
 		  last PARSE;
 	  }
 	  if (! $tables && ! $lists) {
-		  print "NO tables no lists\n";
 		  $document = XML::Twig->new(twig_handlers => { 
 			  'table' => sub{ $_->delete; },
 			  'list' => sub{ $_->delete; },
