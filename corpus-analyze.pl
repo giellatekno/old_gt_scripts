@@ -110,22 +110,6 @@ my %tags;
 if ( -f $ARGV[$#ARGV]) { $infile = $ARGV[$#ARGV]; }
 if ($infile && ! $outfile) { $outfile = "out.tmp"; }  #$outfile=$infile . ".analyzed"; }
 
-##### Start processing the input 
-# Read input to a string if the file is not given.
-if (!$infile) {
-	my $ifh;
-	if ($infile) {
-		open ($ifh, "< $infile") or die "Can't open $infile: $!";
-	}
-	else { $ifh = 'STDIN'; }
-
-	my $string;
-	while(<$ifh>) {
-		$string .= $_;
-	}
-	if(! $string) { exit; }
-}
-
 my $document;
 
 # Do not analyze, only add <s>-tags.
