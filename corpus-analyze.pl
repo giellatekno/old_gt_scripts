@@ -33,11 +33,11 @@ use open ':utf8';
 use POSIX qw(locale_h);
 use Getopt::Long;
 
+my $tagfile;
 my $lang="sme";
 my $s_id=0;
 my $add_sentences=0;
 my $only_add_sentences=0;
-my $tagfile = "/usr/tmp/gt/cwb/korpustags.txt";
 my $tables=0;
 my $lists=0;
 my $all=0;
@@ -63,16 +63,33 @@ if ($help) {
 }
 
 my $binpath="/opt/smi/$lang/bin";
+my $preproc = "/usr/local/bin/preprocess";
+my $lookup2cg = "/usr/local/bin/lookup2cg";
+my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
+my $vislcg = "/opt/xerox/bin/vislcg";
+my  $corrtypos = $binpath . "/". "typos.txt";
+
+my $host=`hostname`;
+# If we are in G5
+if ($host =~ /hum-tf4-ans142/) {
+    my $gtdir="/Users/saara/cron/gt";
+    if(! $tagfile) { $tagfile = $gtdir . "/cwb/korpustags.txt"; }
+    $binpath = $gtdir . "/$lang/bin";
+    $preproc = $gtdir . "/script/preprocess";
+    $lookup2cg = $gtdir . "/script/lookup2cg";
+    $lookup="lookup";
+    $vislcg="vislcg";
+    $corrtypos = $gtdir . "/$lang/src/typos.txt";
+
+} else { 
+    if(! $tagfile) { $tagfile = "/usr/tmp/gt/cwb/korpustags.txt"; }
+
+}
 
 my $cap = $binpath ."/". "cap-" . $lang;
 my $fst = $binpath ."/". $lang . ".fst";
 my $abbr = $binpath ."/abbr.txt";
 my $rle = $binpath ."/". $lang ."-dis.rle";
-my $preproc = "/usr/local/bin/preprocess";
-my $lookup2cg = "/usr/local/bin/lookup2cg";
-my $corrtypos = $binpath . "/". "typos.txt";
-my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
-my $vislcg = "/opt/xerox/bin/vislcg";
 
 my $analyze = "$preproc --abbr=$abbr --fst=$fst --corr=$corrtypos | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg --grammar=$rle --quiet";
 
@@ -386,7 +403,7 @@ sub read_tags {
 	my ($tags_href) = shift @_;
 
 	# Read from tag file and store to an array.
-	open TAGS, "< $tagfile" or die "Cant open the file: $!\n";
+	open TAGS, "< $tagfile" or die "Cant open the file $tagfile: $!\n";
 	my @tags;
 	my $tag_class;
   TAG_FILE:
