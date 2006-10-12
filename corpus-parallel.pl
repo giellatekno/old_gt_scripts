@@ -46,7 +46,7 @@ if ($dir) {
 		else { print "$dir ERROR: Directory did not exit.\n"; }		
 
 		for my $file (sort keys %file_list) {
-			print "$file\n";
+			print "$file";
 			for my $plang (keys %{ $file_list{$file} } ) {
 				print "\t$file_list{$file}{$plang}.xml\n";
 			}
@@ -152,7 +152,7 @@ sub process_file {
 	(my $base = $file) =~ s/.*[\/\\](.*)/$1/;
 	my $outfile=$tmpdir . "/" . $base . ".sent";
 	my $command="corpus-analyze.pl --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
-#	print STDERR "$command\n";
+	print STDERR "$command\n";
 	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 	
 # If there are more than one parallel file, these files are combined to one.
