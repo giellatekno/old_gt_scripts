@@ -17,9 +17,9 @@ my $gtfree_dir = "free";
 my $orig_dir = "orig";
 my $lang = "sme";
 my $para_lang = "nob";
-my $list_parallel;
-my $list_file;
+my $list;
 my $dir;
+my %file_list;
 
 my $help;
 my $file;
@@ -30,8 +30,7 @@ GetOptions ("help" => \$help,
 			"dir=s" => \$dir,
 			"lang=s" => \$lang,
 			"para_lang=s" => \$para_lang,
-			"list_parallel" => \$list_parallel,
-			"list_file=s" => \$list_file,
+			"list" => \$list,
 			);
 
 if ($help) {
@@ -41,12 +40,18 @@ if ($help) {
 
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
-	if ($list_parallel) {
-		if ($list_file) { 
-			open(FH,">$list_file"); 
-		}
+	if ($list) {
+		print STDERR "listing..\n";
 		if (-d $dir) { find (\&list_files, $dir) }
 		else { print "$dir ERROR: Directory did not exit.\n"; }		
+
+		for my $file (sort keys %file_list) {
+			print "$file\n";
+			for my $plang (keys %{ $file_list{$file} } ) {
+				print "\t$file_list{$file}{$plang}.xml\n";
+			}
+			print "\n";
+		}
 	}
 	else {
 		if (-d $dir) { find (\&process_file, $dir) }
@@ -88,29 +93,21 @@ sub list_files {
 	my @parallel_texts = $header->children('parallel_text');
 	for my $p (@parallel_texts) {
 		my $plang = $p->{'att'}->{'xml:lang'};
-		$para_files{$plang} = $p->{'att'}->{'location'};
+		my $para_file = $p->{'att'}->{'location'};
+		if($para_file) {
+			(my $para_path = $path) =~ s/$lang/$plang/o;
+			$para_file = $para_path . "/" . $para_file;
+			$para_files{$plang} = $para_file;
+		}
 	}
 	return if (! %para_files);
 
-	if ($list_file) { 
-		print FH "$full\n";
-		for my $plang (keys %para_files) {
-			(my $para_path = $path) =~ s/$lang/$plang/o;
-			print FH "$plang: $para_path/$para_files{$plang}.xml\n";
-		}
-		print FH "\n";
-	} else {
-		print "$full\n";
-		for my $plang (keys %para_files) {
-			(my $para_path = $path) =~ s/$lang/$plang/o;
-			print "$plang: $para_path/$para_files{$plang}.xml\n";
-		}
-		print "\n";
-	}
+	$file_list{$full} = { %para_files };
 }
 
 sub process_file {
 	my $file = $_;
+    $file = shift (@_) if (!$file);
 
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile ("$file") ) {
@@ -155,7 +152,7 @@ sub process_file {
 	(my $base = $file) =~ s/.*[\/\\](.*)/$1/;
 	my $outfile=$tmpdir . "/" . $base . ".sent";
 	my $command="corpus-analyze.pl --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
-	print STDERR "$command\n";
+#	print STDERR "$command\n";
 	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 	
 # If there are more than one parallel file, these files are combined to one.
