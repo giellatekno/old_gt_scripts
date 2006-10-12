@@ -9,8 +9,16 @@ use XML::Twig;
 use File::Find;
 
 my $corpdir = "/usr/local/share/corp";
-my $bindir = "/usr/local/share/corp/bin";
 my $tmpdir = "/usr/local/share/corp/tmp";
+my $corpus_analyze="corpus-analyze.pl";
+
+my $host=`hostname`;
+# If we are in G5
+if ($host =~ /hum-tf4-ans142/) {
+    $corpdir = "/Users/hoavda/Public/corp";
+    $tmpdir = $corpdir . "/tmp";
+    $corpus_analyze = "/Users/saara/cron/gt/script/corpus-analyze.pl";
+}
 
 my $gtbound_dir = "bound";
 my $gtfree_dir = "free";
@@ -24,6 +32,7 @@ my %file_list;
 my $help;
 my $file;
 my $files;
+my $outdir;
 
 GetOptions ("help" => \$help,
 			"files=s" => \$files,
@@ -31,12 +40,15 @@ GetOptions ("help" => \$help,
 			"lang=s" => \$lang,
 			"para_lang=s" => \$para_lang,
 			"list" => \$list,
+			"outdir=s" => \$outdir,
 			);
 
 if ($help) {
 	&print_help;
 	exit 1;
 }
+
+if(! $outdir) { $outdir=$tmpdir; }
 
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
@@ -48,7 +60,7 @@ if ($dir) {
 		for my $file (sort keys %file_list) {
 			print "$file";
 			for my $plang (keys %{ $file_list{$file} } ) {
-				print "\t$file_list{$file}{$plang}.xml\n";
+				print ",$file_list{$file}{$plang}.xml";
 			}
 			print "\n";
 		}
@@ -79,7 +91,7 @@ sub list_files {
 	
 	my %para_files;
 
-    my $full = File::Spec->rel2abs($file);
+	my $full = File::Spec->rel2abs($file);
 	(my $path = $full) =~ s/(.*)[\/\\].*/$1/;
 
 	my $document = XML::Twig->new;
@@ -149,9 +161,9 @@ sub process_file {
 # The output goes to tmp.
 	
 # Take only the file name without path.
-	(my $base = $file) =~ s/.*[\/\\](.*)/$1/;
-	my $outfile=$tmpdir . "/" . $base . ".sent";
-	my $command="corpus-analyze.pl --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
+	(my $base = $file) =~ s/.*[\/\\](.*).xml/$1/;
+	my $outfile=$outdir . "/" . $base . ".sent.xml";
+	my $command="$corpus_analyze --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
 	print STDERR "$command\n";
 	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 	
@@ -159,9 +171,9 @@ sub process_file {
 	if ($#full_paths > 0) { return "Cannot process more than one parallel file\n"; }
 	
 	my $pfile=$full_paths[0];
-	(my $pbase = $pfile) =~ s/.*[\/\\](.*)/$1/;
-	my $poutfile=$tmpdir . "/" . $pbase . ".sent";
-	$command="corpus-analyze.pl  --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
+	(my $pbase = $pfile) =~ s/.*[\/\\](.*).xml/$1/;
+	my $poutfile=$outdir . "/" . $pbase . ".sent.xml";
+	$command="$corpus_analyze --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
 	print STDERR "$command\n";
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 }
@@ -176,7 +188,7 @@ Usage: corpus-parallel.pl [OPTIONS] [FILE]
 --lang=<lang>         The main language.
 --para_lang=<lang>    The language of the parallel document(s).
 --list                List the parallel files, use with option --dir.
---list_file=<file>    The name of the list file.
+--outdir=<dir>        The directory where the output files are stored.
 END
 
 }
