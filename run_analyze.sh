@@ -78,8 +78,11 @@ sent ()
 
       dir=$corproot/parallel/$base01
       mkdir -p $dir
-
-      perl /Users/saara/cron/gt/script/corpus-parallel.pl --lang=sme --outdir="$dir" "$file1"
+      
+      if [ ! -e $dir/$base1.sent.xml ]
+	  then
+	  perl /Users/saara/cron/gt/script/corpus-parallel.pl --lang=sme --outdir="$dir" "$file1"
+      fi
 
     done
 }
@@ -121,9 +124,9 @@ process ()
     file="$1"
 
     base=$(basename $file .xml)
-    in=$corproot/parallel/$base/$base.xml.sent
+    in=$corproot/parallel/$base/$base.sent.xml
     out=$corproot/parallel/$base/$base.analyzed.xml
-    echo "corpus-analyze.pl --output=$out $in"
+    echo "$crondir/gt/script/corpus-analyze.pl --output=$out $in"
 
     $crondir/gt/script/corpus-analyze.pl --output=$out $in
     
