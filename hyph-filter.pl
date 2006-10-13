@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
-binmode STDOUT, ":utf8";
-binmode STDIN, ":utf8";
+#binmode STDOUT, ":utf8";
+#binmode STDIN, ":utf8";
 
 # hyph-filter.pl 
 # Perls script for cleaning the hyphenator output.
