@@ -115,7 +115,7 @@ sub read_xml {
 	my $file = shift @_;
 
 	my @languages;
-	my $test=1;
+	my $test=0;
 
 	# Find out the languages specified for the docu.
 	# Take only the header of the document.
