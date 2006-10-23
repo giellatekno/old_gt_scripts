@@ -141,7 +141,7 @@ sub process_file {
     $file = shift (@_) if (!$file);
 
 	my $no_decode_this_time = 0;
-	print STDERR "$file: $language\n";
+	if($test) { print STDERR "$file: $language\n"; }
 
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
@@ -329,16 +329,16 @@ sub process_file {
 		if (! $no_decode && ! $no_decode_this_time ) {
 			my $coding = &guess_text_encoding($int, $tmp4, $language);
 			if ($coding eq 0) { 
-				print STDERR "Correct character encoding.\n"; 
+				if ($test) { print STDERR "Correct character encoding.\n"; }
 			}
 			elsif( $coding eq -1 ) {
-				print STDERR "Was not able to determine character encoding. STOP.\n";
+				if ($test) { print STDERR "Was not able to determine character encoding. STOP.\n"; }
 				exec_com("rm -rf \"$int\"", $file);
 				return;
 			}
 			else { 
 				copy($int, $tmp4);
-				print STDERR "Character decoding: $coding\n";
+				if ($test) { print STDERR "Character decoding: $coding\n"; }
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
 				$no_decode_this_time=1;
@@ -382,7 +382,7 @@ sub process_file {
 			# assume same encoding for the whole file.
 			my $coding = &guess_encoding($int, $language, 0);
 			if ($coding eq 0) { 
-				print STDERR "Correct character encoding.\n"; 
+				if($test) { print STDERR "Correct character encoding.\n"; }
 				if($file =~ /\.doc$/) {
 					# Document title in msword documents is generally wrongly encoded, 
 					# check that separately.
@@ -401,7 +401,7 @@ sub process_file {
 				last ENCODING; 
 			}
 			# Continue decoding the file.
-			print STDERR "Character decoding: $coding\n";
+			if($test) { print STDERR "Character decoding: $coding\n"; }
 			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
 												 'title'=>sub{call_decode_para(@_, $coding);}
 											 }
