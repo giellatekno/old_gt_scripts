@@ -71,17 +71,6 @@ $document->set_pretty_print('record');
 open (FH, ">$upload_file.xsl") or die "Cannot open file $upload_file.xsl for output: $!";
 $document->print( \*FH);
 
-# Create a temporary file for conversion.
-my $tmpfile = $upload_file . ".tmp";
-move ("$upload_file.xml", "$tmpfile.xml") or die "Could not move the file $upload_file.xml. $!";
-
-# Convert the document
-my $command;
-$command = "xsltproc --novalid $upload_file.xsl $tmpfile.xml > $upload_file.xml";
-system($command);
-# The user does not have to know it the command failed, the metainformation is there already.
-#	or die "$command failed: $! \n";
-
 # The html-part starts here
 print <<END_HTML;
 
