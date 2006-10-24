@@ -71,11 +71,11 @@ our %Sami_Chars = (
             0x00E6 => 1 #"LATIN SMALL LETTER AE"
 			},
 
-		    "smj" => {
+				   "smj" => {
 #			0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
 #			0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 #			0x00C4 => 1, #"LATIN CAPITAL LETTER A WITH DIAERESIS"
-			0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
+		   0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
 #			0x00C5 => 1, #"LATIN CAPITAL LETTER A WITH RING ABOVE"
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 #			0x00D1 => 1, #"LATIN CAPITAL LETTER N WITH TILDE"
@@ -84,6 +84,31 @@ our %Sami_Chars = (
 # sma => {},
 # sms => {},
 # smn => {},
+				   "nob" => {
+		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
+			0x010D => 1, #"LATIN SMALL LETTER C WITH CARON"
+			0x0111 => 1, #"LATIN SMALL LETTER D WITH STROKE"
+			0x0161 => 1, #"LATIN SMALL LETTER S WITH CARON"
+			0x017E => 1,  #"LATIN SMALL LETTER Z WITH CARON"
+		   0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
+			0x00F8 => 1, #"LATIN SMALL LETTER O WITH STROKE"
+			0x00D8 => 1, #"LATIN CAPITAL LETTER O WITH STROKE"
+            0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
+            0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
+            0x00F6 => 1, #"LATIN CAPITAL LETTER O WITH DIAERESIS"
+            0x00E6 => 1 #"LATIN SMALL LETTER AE"
+			},
+
+				   "nno" => {
+		   0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
+			0x00F8 => 1, #"LATIN SMALL LETTER O WITH STROKE"
+			0x00D8 => 1, #"LATIN CAPITAL LETTER O WITH STROKE"
+            0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
+            0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
+            0x00F6 => 1, #"LATIN CAPITAL LETTER O WITH DIAERESIS"
+            0x00E6 => 1 #"LATIN SMALL LETTER AE"
+			},
+
 			);
 
 
@@ -116,16 +141,19 @@ sub guess_text_encoding() {
 		return $NO_ENCODING;
     }
 
+	# Read the tested characters.
+	for my $char (keys % { $Sami_Chars{$lang}}){
+		$count_table{$char} = 1;
+	}
+
+	# Go through each encoding
 	for my $enc (@encodings) {
 
 		my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\"";
-
 		if ( system($command) != 0 ) {  next; }
+
 		my %test_table;
 
-		for my $char (keys % { $Sami_Chars{$lang}}){
-			$count_table{$char} = 1;
-		}
 		my @text_array;
 		# Read the output
 		if (-f $outfile) {
@@ -149,15 +177,44 @@ sub guess_text_encoding() {
     my $last_val;
     for my $key (sort { $results{$a} <=> $results{$b} } keys %results) {
 		if($Test) {
-			my $rounded_unconv = sprintf("%.3f", $results{$key});
 			my $rounded_correct = sprintf("%.3f", $results{$key});
-			print $file, " ", $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
+			print $file, " ", $key, " ",  $rounded_correct, "\n";
 		}
 		$last_val = $key;
 	}
     if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT ) {
 		$encoding = $last_val;
     }
+	# If no encoding, the file may still be broken.
+	# Test next if there are any sámi characters in the text
+  CORRECT: {
+	  if ($encoding eq $NO_ENCODING) {
+		  my @text_array;
+		  # Read the file
+		  if (-f $file) {
+			  @text_array = &read_file($outfile);
+		  }
+		  my $count = 0;
+		  my $total_count = 0;
+		  for my $line (@text_array) {
+			  $total_count += length($line);
+			  my @unpacked = unpack("U*", $line);
+			  for my $byte (@unpacked) {
+				  if( $count_table{$byte} ) { $count++; }
+			  }
+		  }
+		  my $results;
+		  if ($total_count != 0 ) {
+			  $results = 100 * ($count / $total_count);
+		  }
+		  if($Test) {
+			  my $rounded_correct = sprintf("%.3f", $results);
+			  print $file, " ",  $rounded_correct, "\n";
+		  }
+		  if ($results == 0) { return $ERROR; }
+	  }
+  }
+
 	if($Test) {
 		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
 		else { print "$encoding \n"; }
@@ -419,7 +476,7 @@ sub read_file {
 
     open (FH, $file) or return "Cannot open file $file: $!";
     while (<FH>) {
-	push (@text_array, $_);
+		push (@text_array, $_);
     }
     close (FH);
     return @text_array;
