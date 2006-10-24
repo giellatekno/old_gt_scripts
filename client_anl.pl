@@ -89,17 +89,17 @@ if ($disamb) {
 	print $msg;
 }
 
-while(<$remote>) {
-	print;
+my $anl="";
+while($anl !~ /quit|exit/) {
 
-	my $anl = <STDIN>;
-	if (/quit|exit/) {
+	$anl = <STDIN>;
+	if ($anl =~ /quit|exit/) {
 		print $remote $anl;
 		exit;
 	}
 	print $remote $anl;
 	my $line = <$remote>;
-	while ($anl !~ /quit|exit/ && $line !~ /end/) {
+	while ($line !~ /end/) {
 		print $line;
 		$line = <$remote>;
 	}
