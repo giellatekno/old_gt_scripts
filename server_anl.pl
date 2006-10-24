@@ -12,6 +12,7 @@ my $PORT = 8080; # pick something not in use
 my $lookup="lookup";
 my $language;
 my $fst;
+my %paradigms;
 my $lookup2cg="/usr/local/bin/lookup2cg";
 my $end_of_dis="\<\"¶\"\>\n\t\"¶\"";
 
@@ -22,6 +23,9 @@ my $server = IO::Socket::INET->new( Proto     => 'tcp',
 
 die "can't setup server" unless $server;
 print "[Server $0 accepting clients]\n";
+
+push(@{$paradigms{'N'}}, "N+Prop+Sg+Nom");
+push(@{$paradigms{'N'}}, "N+Sg+Nom");
 
 my $client;
 while ($client = $server->accept()) {
@@ -42,7 +46,7 @@ while ($client = $server->accept()) {
 	my $action=<$client>;
 	chomp $action;
 	my ($prep, $anl, $gen, $hyph, $dis, $para)=split(",", $action);
-#	print "$prep, $anl, $gen, $hyph, $dis, $para ok\n";
+	print "$prep, $anl, $gen, $hyph, $dis, $para ok\n";
 	last if(! ($prep || $anl || $gen || $hyph || $dis || $para));
 
 
@@ -54,7 +58,7 @@ while ($client = $server->accept()) {
 	my $fst=<$client>;
 	chomp $fst;
 	if(! $fst || $fst =~ /^\s*$/ ) { 
-		if ($gen) {
+		if ($gen || $para) {
 			$fst="/opt/smi/$language/bin/i$language.fst";
 		}
 		elsif($hyph) {
@@ -79,7 +83,7 @@ while ($client = $server->accept()) {
 
 	my $analyze;
 	if($anl ||$hyph) { $analyze="$lookup -flags mbTT -utf8  $fst 2>/dev/null"; }
-	if ($gen) { $analyze = "$lookup -flags mbTT -utf8  -d $fst 2>/dev/null"; }
+	if ($gen || $para) { $analyze = "$lookup -flags mbTT -utf8  -d $fst 2>/dev/null"; }
 	my $preprocess = "preprocess --abbr=/opt/smi/$language/bin/abbr.txt";
 #	print "$analyze\n";
 	my $disamb;
@@ -88,7 +92,7 @@ while ($client = $server->accept()) {
 	}
 	# create an Expect object by spawning another process
 	my $exp_anl;
-	if($anl || $gen || $hyph) {
+	if($anl || $gen || $hyph || $para) {
 		$exp_anl = Expect->spawn($analyze)
 			or die "Cannot spawn $analyze: $!\n";
 		$exp_anl->log_stdout(0);
@@ -101,7 +105,7 @@ while ($client = $server->accept()) {
 		$exp_dis->log_stdout(0);
 	}
 	
-	print $client "String?\n";
+#	print $client "String?\n";
 	while ( <$client>) {
 		last if (/quit/);
 
@@ -111,30 +115,36 @@ while ($client = $server->accept()) {
 
 		if($prep) {
             # Remove the unsecure characters from the input.
-			$_ =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
-
+			$_ =~ s/[\;\<\>\*\|\`\&\$\!\#\(\)\[\]\{\}\:\'\"]/ /g; 
+			
 			my $result = `echo \"$_\" | $preprocess`;
 			@input = split(/\n/, $result);
 		}
 		else { @input = split(/\n/, $_); }
 		
-		for my $r (@input) {
-			if($anl || $hyph || $gen) {
-				# send some string there:
-				$exp_anl->send("$r\n");
-				$exp_anl->expect(undef, '-re', '\r?\n\r?\n' );
-				
-				my $read_anl = $exp_anl->before();
-
-				# Take away the original input.
-				$read_anl =~ s/^.*?\n//;
-
+		if($anl || $hyph || $gen) {
+			for my $r (@input) {
+				my $analysis = analyze_input($exp_anl, $r);
 				if($dis) { 
-					push (@dis_strings, $read_anl);
+					push (@dis_strings, $analysis);
 				}
-				else { print $client "$read_anl\n\n"; }
+				else { print $client "$analysis\n\n"; }
 			}
-			else { print $client $r; }
+		}
+		elsif ($para) {
+			my @forms;
+			for my $r (@input) {
+#				print "r $r\n";
+				my ( $word, $pos) = split(/\s+/, $r);
+				for my $a ( @{$paradigms{$pos}} ) {
+					my $string = "$word+$a";
+#					print "string $string\n";
+					my $analysis = analyze_input($exp_anl, $string);
+					push (@forms, $analysis);
+				}
+			}
+			local $, = "\n";
+			print $client @forms, "\n";
 		}
 		if($dis) { 
 #			for my $string (@dis_strings) {
@@ -150,13 +160,14 @@ while ($client = $server->accept()) {
 		}
 
 		print $client "end\n";
-		print $client "String? \n";
+#		print $client "String? \n";
 	}
-	print "client exiting..\n";
+	print "client exiting..";
 	close($client);
 	
 	# if no longer needed, do a soft_close to nicely shut down the command
 	if($exp_anl) { $exp_anl->soft_close(); }
+	print "ready\n";
 	
 	# exit the child
 	exit 0;
@@ -164,6 +175,21 @@ while ($client = $server->accept()) {
 
 close $server;
 exit 0;
+
+sub analyze_input {
+	my ($exp_anl, $r) = @_;
+	
+	# send some string there:
+	$exp_anl->send("$r\n");
+	$exp_anl->expect(undef, '-re', '\r?\n\r?\n' );
+	
+	my $read_anl = $exp_anl->before();
+	
+	# Take away the original input.
+	$read_anl =~ s/^.*?\n//;
+
+	return $read_anl;
+}
 
 # remove dead children from the defunct list.
 $SIG{CHLD} = sub {
