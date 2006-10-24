@@ -141,7 +141,7 @@ sub process_file {
     $file = shift (@_) if (!$file);
 
 	my $no_decode_this_time = 0;
-	if($test) { print STDERR "$file: $language\n"; }
+	print STDERR "$file\n";
 
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
