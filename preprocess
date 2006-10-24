@@ -40,9 +40,9 @@ my $parentheses = quotemeta("|{}[]()");
 my $general_punct = quotemeta("$.*?!,;:.%");
 
 # áčđŋšŧžåæøäöå n_with_tilde
-my $lc_class = "\x{00E1}\x{010D}\x{0111}\x{014B}\x{0161}\x{0167}\x{017E}\x{00E6}\x{00F8}\x{00E4}\x{00D6}\x{00E5}\x{00F1}";
+my $lc_class = "\x{00E1}\x{010D}\x{0111}\x{014B}\x{0161}\x{0167}\x{017E}\x{00E6}\x{00F8}\x{00E4}\x{00F6}\x{00E5}\x{00F1}";
 # ÁČĐŊŠŦŽÅÆØÄÖÅ N_with_tilde
-my $uc_class = "\x{00C1}\x{010C}\x{0110}\x{014A}\x{0160}\x{0166}\x{017D}\x{00E5}\x{00D8}\x{00C4}\x{00F6}\x{00C5}\x{00D1}";;
+my $uc_class = "\x{00C1}\x{010C}\x{0110}\x{014A}\x{0160}\x{0166}\x{017D}\x{00E5}\x{00D8}\x{00C4}\x{00D6}\x{00C5}\x{00D1}";
 
 # General punctuation, not much used. 
 my $PUNCT = $quotations . $parentheses . $general_punct . $other;
@@ -137,6 +137,7 @@ sub process_words {
 	while (@words) {
 		
 		my $word = shift @words;
+		$word =~ s/^\s+//;
 		
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
