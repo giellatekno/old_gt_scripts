@@ -218,6 +218,10 @@ sub process_file {
 		$command = "co -f -q \"$xsl_file\"";
 		exec_com($command, $file);
 	}
+	# remove temporary files to get a clean start.
+	my $tmpfiles = $tmpdir . "/" . $file . ".tmp*";
+	$command = "rm -rf $tmpfiles";
+	exec_com($command, $file);
 
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	IO::File->new($int, O_RDWR|O_CREAT) 
