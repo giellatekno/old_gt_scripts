@@ -7,6 +7,7 @@ use Getopt::Long;
 use File::Basename;
 use strict;
 use warnings;
+use utf8;
 
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
@@ -178,7 +179,7 @@ sub guess_text_encoding() {
 	if ($total_count) { $coding_total = $total_count; }
 	for my $enc (@encodings) {
 
-		my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\"";
+		my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
 		if ( system($command) != 0 ) {  next; }
 
 		my %test_table;
@@ -243,7 +244,7 @@ sub decode_text_file() {
 	if($Test) {
 		print "Converting $file -> $outfile\n";
 	}
-	my $command="iconv -f $encoding -t UTF-8 -o \"$outfile\" \"$file\"";
+	my $command="iconv -f $encoding -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
 	system($command) == 0 or return "Encoding failed: $!";
 
 	return 0;
