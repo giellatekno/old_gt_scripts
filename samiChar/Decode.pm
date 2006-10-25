@@ -147,7 +147,7 @@ sub guess_text_encoding() {
 		$count_table{$char} = 1;
 	}
 	# Count first the sámi characters that already exist in the text.
-	my $correct;
+	my $correct=0;
 	my $total_count=0;
   CORRECT: {
 	  my @text_array;
@@ -218,7 +218,7 @@ sub guess_text_encoding() {
 	}
 
 	if($Test) {
-		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
+		if ($encoding eq $NO_ENCODING && $correct != 0 ) { print "Correct encoding.\n"; }
 		else { print "$encoding \n"; }
 	}
 	# If no encoding, the file may still be broken.
