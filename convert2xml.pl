@@ -17,7 +17,9 @@
 
 use strict;
 #use open ':utf8';
-binmode STDOUT, ":utf8";
+#binmode STDOUT, ":utf8";
+#binmode STDERR, ":utf8";
+use utf8;
 use File::Find;
 use File::Copy;
 use IO::File;
@@ -332,7 +334,7 @@ sub process_file {
 				if ($test) { print STDERR "Correct character encoding.\n"; }
 			}
 			elsif( $coding eq -1 ) {
-				if ($test) { print STDERR "Was not able to determine character encoding. STOP.\n"; }
+				print STDERR "Was not able to determine character encoding. STOP.\n";
 				exec_com("rm -rf \"$int\"", $file);
 				return;
 			}
@@ -381,7 +383,12 @@ sub process_file {
 		} else {
 			# assume same encoding for the whole file.
 			my $coding = &guess_encoding($int, $language, 0);
-			if ($coding eq 0) { 
+			if ($coding eq -1) { 
+				print STDERR "Was not able to determine character encoding. STOP.\n";
+				exec_com("rm -rf \"$int\"", $file);
+				return;
+			}
+			elsif ($coding eq 0) { 
 				if($test) { print STDERR "Correct character encoding.\n"; }
 				if($file =~ /\.doc$/) {
 					# Document title in msword documents is generally wrongly encoded, 
