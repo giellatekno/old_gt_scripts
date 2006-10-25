@@ -210,9 +210,11 @@ sub guess_text_encoding() {
 		}
 		$last_val = $key;
 	}
-    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT && $results{$last_val} > $correct) {
-		$encoding = $last_val;
-    }
+    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
+		if (! $correct || $results{$last_val} < $correct) {
+			$encoding = $last_val;
+		}
+	}
 
 	if($Test) {
 		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
