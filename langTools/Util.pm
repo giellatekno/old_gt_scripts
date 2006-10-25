@@ -15,9 +15,72 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&read_tags);
+@EXPORT = qw(&read_tags &generate_taglist);
 @EXPORT_OK   = qw();
 
+# Read the grammar for  paradigm tag list.
+# Call the recursive function that generates the tag list.
+sub generate_taglist {
+	my ($gramfile, $tagfile, $taglist_aref) = @_;
+
+	my @grammar;
+	push (@grammar, "N+Subclass?+Number+Case+Possessive?+Clitic?");
+	my %tags;
+
+	if ($gramfile) {
+		# Read from tag file and store to an array.
+		open GRAM, "< $gramfile" or die "Cant open the file $tagfile: $!\n";
+		my @tags;
+		my $tag_class;
+	  GRAM_FILE:
+		while (<GRAM>) {
+			chomp;
+			next if /^\s*$/;
+			next if /^%/;
+			next if /^$/;
+			next if /^#/;
+			
+			push (@grammar, $_);
+		
+		}
+	}
+	read_tags($tagfile, \%tags);
+	
+	my @taglists;
+	# Read each grammar rule and generate the taglist.
+	for my $gram (@grammar) {
+		my @classes = split (/\+/, $gram);
+		my $pos = shift @classes;
+		my $tag = $pos;
+		my @taglist;
+		generate_tag($tag, \%tags, \@classes, \@taglist);
+		push (@taglists, @taglist);
+	}
+	for my$aref ( @taglists ) {
+#		print "@$aref\n";
+    }
+}
+
+# Ttravel recursively the taglists and generate
+# the tagsets for pardigm generation.
+# The taglist is stored to the array reference $taglist_aref.
+sub generate_tag {
+	my ($tag, $tags_href, $classes_aref, $taglist_aref) = @_;
+
+	if (! @$classes_aref) { push (@$taglist_aref, $tag); return;  }
+	my $class = shift @$classes_aref;
+	if ($class =~ s/\?//) {
+		my $new_tag = $tag;
+		my @new_class = @$classes_aref;
+		generate_tag($new_tag, $tags_href, \@new_class, $taglist_aref);
+	}
+		
+	for my $t (keys %{$$tags_href{$class}}) {
+		my $new_tag = $tag . "+" . $t;
+		my @new_class = @$classes_aref;
+		generate_tag($new_tag, $tags_href, \@new_class, $taglist_aref);
+	}
+}			
 
 # Read the morphological tags from a file (korpustags.txt)
 sub read_tags {
@@ -33,8 +96,10 @@ sub read_tags {
 		next if /^\s*$/;
 		next if /^%/;
 		next if /^$/;
-
+		next if /=/;
+		
 		if (s/^#//) {
+
 			$tag_class = $_;
 			for my $tag (@tags) {
 				$$tags_href{$tag_class}{$tag} = 1;
