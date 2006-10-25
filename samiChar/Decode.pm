@@ -145,8 +145,37 @@ sub guess_text_encoding() {
 	for my $char (keys % { $Sami_Chars{$lang}}){
 		$count_table{$char} = 1;
 	}
+	# Count first the sámi characters that already exist in the text.
+	my $correct;
+	my $total_count=0;
+  CORRECT: {
+	  my @text_array;
+	  my $error;
+	  # Read the file
+	  if (-f $file) {  $error = &read_file($outfile, \@text_array); }
+	  last CORRECT if ($error);
+	  my $count = 0;
+	  my $total_count = 0;
+	  for my $line (@text_array) {
+		  $total_count += length($line);
+		  my @unpacked = unpack("U*", $line);
+		  for my $byte (@unpacked) {
+			  if( $count_table{$byte} ) { $count++; }
+		  }
+	  }
+	  if ($total_count != 0 ) {
+		  $correct = 100 * ($count / $total_count);
+	  }
+	  if($Test) {
+		  my $rounded_correct = sprintf("%.3f", $correct);
+		  print $file, " ",  $rounded_correct, "\n";
+	  }
+  } # end of CORRECT
+
 
 	# Go through each encoding
+	my $coding_total=0;
+	if ($total_count) { $coding_total = $total_count; }
 	for my $enc (@encodings) {
 
 		my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\"";
@@ -155,21 +184,20 @@ sub guess_text_encoding() {
 		my %test_table;
 
 		my @text_array;
+		my $error;
 		# Read the output
-		if (-f $outfile) {
-			@text_array = &read_file($outfile);
-		}
+		if (-f $outfile) { $error = &read_file($outfile, \@text_array); }
+		next if ($error);
 		my $count = 0;
-		my $total_count = 0;
 		for my $line (@text_array) {
-			$total_count += length($line);
+			if (! $total_count) { $coding_total += length($line); }
 			my @unpacked = unpack("U*", $line);
 			for my $byte (@unpacked) {
 				if( $count_table{$byte} ) { $count++; }
 			}
 		}
-		if ($total_count != 0 ) {
-			$results{$enc} = 100 * ($count / $total_count);
+		if ($coding_total != 0 ) {
+			$results{$enc} = 100 * ($count / $coding_total);
 		}
 	}			
     # Select the best encoding by comparing the amount of chars to be converted.
@@ -182,43 +210,18 @@ sub guess_text_encoding() {
 		}
 		$last_val = $key;
 	}
-    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT ) {
+    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT && $results{$last_val} > $correct) {
 		$encoding = $last_val;
     }
-	# If no encoding, the file may still be broken.
-	# Test next if there are any sámi characters in the text
-  CORRECT: {
-	  if ($encoding eq $NO_ENCODING) {
-		  my @text_array;
-		  # Read the file
-		  if (-f $file) {
-			  @text_array = &read_file($outfile);
-		  }
-		  my $count = 0;
-		  my $total_count = 0;
-		  for my $line (@text_array) {
-			  $total_count += length($line);
-			  my @unpacked = unpack("U*", $line);
-			  for my $byte (@unpacked) {
-				  if( $count_table{$byte} ) { $count++; }
-			  }
-		  }
-		  my $results;
-		  if ($total_count != 0 ) {
-			  $results = 100 * ($count / $total_count);
-		  }
-		  if($Test) {
-			  my $rounded_correct = sprintf("%.3f", $results);
-			  print $file, " ",  $rounded_correct, "\n";
-		  }
-		  if ($results == 0) { return $ERROR; }
-	  }
-  }
 
 	if($Test) {
 		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
 		else { print "$encoding \n"; }
 	}
+	# If no encoding, the file may still be broken.
+	# Test next if there are any sámi characters in the text
+	if ($encoding eq $NO_ENCODING && $correct == 0) { return $ERROR; }
+
     return $encoding
 	}
 
@@ -244,6 +247,8 @@ sub decode_text_file() {
 	return 0;
 }
 
+# Guess text encoding from a file $file if it's given.
+# Else use the reference to a pargraph $para_ref.
 sub guess_encoding () {
     my ($file, $lang, $para_ref) = @_;
 
@@ -255,11 +260,11 @@ sub guess_encoding () {
     }
 
 	my @text_array;
+	my $error=0;
     # Read the corpus file
-	if ($file) {
-		@text_array = &read_file($file);
-	} 
-	else { @text_array = split("\n", $$para_ref); }
+	if ($file) { $error = &read_file($file, \@text_array); } 
+	if ($error ) { print "Non-utf8-bytes..\n"; return; }
+	elsif (! @text_array) { @text_array = split("\n", $$para_ref); }
     
     # Store the statistics here
     my %statistics = ();
@@ -450,7 +455,8 @@ sub decode_file (){
     my $charfile = $Char_Files{$encoding};
     
     my %convert_table = &read_char_table($charfile);
-    my @text_array = &read_file($file);
+    my @text_array;
+	my $error = &read_file($file, \@text_array);
 
 	my $in_title;
     for my $line (@text_array) {
@@ -471,15 +477,15 @@ sub decode_file (){
 }
 
 sub read_file {
-    my $file = shift @_;
-    my @text_array;
+    my ($file, $text_aref) =  @_;
 
     open (FH, $file) or return "Cannot open file $file: $!";
     while (<FH>) {
-		push (@text_array, $_);
+		if (! utf8::is_utf8($_)) { return 1; }
+		push (@$text_aref, $_);
     }
     close (FH);
-    return @text_array;
+    return 0;
 }
 
 sub read_char_tables {
@@ -523,7 +529,8 @@ sub find_dec {
     my $count = 0;
 
     # Read the corpus file
-    my @text_array = &read_file($file);
+    my @text_array;
+	my $error= &read_file($file, \@text_array);
 
     for my $line (@text_array) {
 		my @unpacked = unpack("U*", $line);
