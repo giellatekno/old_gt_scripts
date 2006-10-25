@@ -263,7 +263,7 @@ sub guess_encoding () {
 	my $error=0;
     # Read the corpus file
 	if ($file) { $error = &read_file($file, \@text_array); } 
-	if ($error ) { print "Non-utf8-bytes..\n"; return; }
+	if ($error ) { print "Decode.pm: non-utf8 bytes.\n"; return $ERROR; }
 	elsif (! @text_array) { @text_array = split("\n", $$para_ref); }
     
     # Store the statistics here
@@ -457,6 +457,7 @@ sub decode_file (){
     my %convert_table = &read_char_table($charfile);
     my @text_array;
 	my $error = &read_file($file, \@text_array);
+	if ($error) { print "Decode.pm: Non-utf8 bytes.\n"; return $ERROR; }
 
 	my $in_title;
     for my $line (@text_array) {
