@@ -29,7 +29,7 @@ sub generate_taglist {
 
 	if ($gramfile) {
 		# Read from tag file and store to an array.
-		open GRAM, "< $gramfile" or die "Cant open the file $tagfile: $!\n";
+		open GRAM, "< $gramfile" or die "Cant open the file $gramfile: $!\n";
 		my @tags;
 		my $tag_class;
 	  GRAM_FILE:
@@ -54,11 +54,11 @@ sub generate_taglist {
 		my $tag = $pos;
 		my @taglist;
 		generate_tag($tag, \%tags, \@classes, \@taglist);
-		push (@taglists, @taglist);
+		$$taglist_aref{$pos}= [ @taglist ];
 	}
-	for my$aref ( @taglists ) {
-#		print "@$aref\n";
-    }
+#	for my $pos ( keys %$taglist_aref ) {
+#		print "@$taglist_aref{$pos}\n";
+#    }
 }
 
 # Ttravel recursively the taglists and generate
