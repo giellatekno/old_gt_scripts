@@ -92,7 +92,7 @@ my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, swe
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
 
-my $tidy = "tidy --quote-nbsp no --add-xml-decl yes --enclose-block-text yes -asxml -utf8 -quiet -language $language";
+my $tidy = "tidy -config $bindir/tidy-config.txt -quiet -asxml -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
 my $convert_eol = $bindir . "/convert_eol.pl";
@@ -459,8 +459,12 @@ sub process_file {
 			$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
 			if( exec_com($command, $file) != 0 ) {
 				print STDERR "ERROR: not valid xml, removing $int.. STOP.\n";
-				$command = "rm -rf \"$int\" \"$tmp\"";
+				$command = "rm -rf \"$int\"";
 				exec_com($command, $file);
+				if (! $test) {
+					$command = "rm -rf \"$tmp\"";
+					exec_com($command, $file);
+				}
 				return;
 			}
 		}
