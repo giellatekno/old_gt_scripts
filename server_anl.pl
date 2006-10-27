@@ -1,20 +1,36 @@
 #!/usr/bin/perl -w
+#
+# server_anl.pl
+#
+# Server application for launching the xerox tools.
+#
+# actions: prep, anl, dis, hyph, gen, para
+#
+# $Id$
+
 use strict;
 use IO::Socket;
 use Net::hostent; # for OO version of gethostbyaddr
 use POSIX qw(:sys_wait_h);
 
+use XML::Twig;
 # Module to communicate with program's user interfaces
 use Expect;
+# Module that contains the xml-formatting and some utility functions.
+use langTools::XMLStruct;
+use langTools::Util;
 
 my $PORT = 8080; # pick something not in use
 
 my $lookup="lookup";
-my $language;
-my $fst;
 my %paradigms;
 my $lookup2cg="/usr/local/bin/lookup2cg";
 my $end_of_dis="\<\"¶\"\>\n\t\"¶\"";
+my $tagfile="/home/saara/gt/cwb/korpustags.txt";
+my $exp_anl;
+my $exp_dis;
+my $exp_lo2cg;
+my $preprocess;
 
 my $server = IO::Socket::INET->new( Proto     => 'tcp',
 								 LocalPort => $PORT,
@@ -24,171 +40,235 @@ my $server = IO::Socket::INET->new( Proto     => 'tcp',
 die "can't setup server" unless $server;
 print "[Server $0 accepting clients]\n";
 
-push(@{$paradigms{'N'}}, "N+Prop+Sg+Nom");
-push(@{$paradigms{'N'}}, "N+Sg+Nom");
-
 my $client;
-while ($client = $server->accept()) {
-	my $child = fork;
-	if (!defined($child)) { warn "ERROR: Couldn't fork a process: $!\n"; } 
-	if ($child) {
-		# fork returned 0 nor undef
-		# so this branch is parent
-		close($client);
-		next;
-	}
-	# otherwise serve the client.
-	$client->autoflush(1);
-	print $client "Welcome to $0;\n";
-	my $hostinfo = gethostbyaddr($client->peeraddr);
-	printf "[Connect from %s]\n", $hostinfo ? $hostinfo->name : $client->peerhost;
-
-	my $action=<$client>;
-	chomp $action;
-	my ($prep, $anl, $gen, $hyph, $dis, $para)=split(",", $action);
-	print "$prep, $anl, $gen, $hyph, $dis, $para ok\n";
-	last if(! ($prep || $anl || $gen || $hyph || $dis || $para));
-
-
-	my $language=<$client>;
-	chomp $language;
-	print "Setting language to $language.\n";
-	print $client "Setting language to $language.\n";
-	
-	my $fst=<$client>;
-	chomp $fst;
-	if(! $fst || $fst =~ /^\s*$/ ) { 
-		if ($gen || $para) {
-			$fst="/opt/smi/$language/bin/i$language.fst";
+ CLIENT:
+	while ($client = $server->accept()) {
+		my $child = fork;
+		if (!defined($child)) { warn "ERROR: Couldn't fork a process: $!\n"; } 
+		if ($child) {
+			# fork returned 0 nor undef
+			# so this branch is parent
+			close($client);
+			next;
 		}
-		elsif($hyph) {
-			$fst="/opt/smi/$language/bin/hyph-$language.fst";
-		}
-		else {
-			$fst="/opt/smi/$language/bin/$language.fst";
-
-		}
-	}	
-	print "Using fst: $fst.\n";
-	print $client "Using fst: $fst\n";
-	
-	my $rle; 
-	if ($dis) {
-		$rle = <$client>;
-		chomp $rle;
-		if(! $rle || $rle =~ /^\s*$/ ) { $rle="/opt/smi/$language/bin/$language-dis.rle"; }	
-		print "Using rle: $rle.\n";
-		print $client "Using rle: $rle\n";
-	}
-
-	my $analyze;
-	if($anl ||$hyph) { $analyze="$lookup -flags mbTT -utf8  $fst 2>/dev/null"; }
-	if ($gen || $para) { $analyze = "$lookup -flags mbTT -utf8  -d $fst 2>/dev/null"; }
-	my $preprocess = "preprocess --abbr=/opt/smi/$language/bin/abbr.txt";
-#	print "$analyze\n";
-	my $disamb;
-	if ($dis) {
-		$disamb = "vislcg --quiet --grammar=$rle";
-	}
-	# create an Expect object by spawning another process
-	my $exp_anl;
-	if($anl || $gen || $hyph || $para) {
-		$exp_anl = Expect->spawn($analyze)
-			or die "Cannot spawn $analyze: $!\n";
-		$exp_anl->log_stdout(0);
-	}
-	my $exp_dis;
-	my $exp_lo2cg;
-	if($dis) {
-		$exp_dis = Expect->spawn($disamb)
-			or die "Cannot spawn $disamb: $!\n";
-		$exp_dis->log_stdout(0);
-	}
-	
-#	print $client "String?\n";
-	while ( <$client>) {
-		last if (/quit/);
-
-		my @input;
-		my @results;
-		my @dis_strings;
-
-		if($prep) {
-            # Remove the unsecure characters from the input.
-			$_ =~ s/[\;\<\>\*\|\`\&\$\!\#\(\)\[\]\{\}\:\'\"]/ /g; 
-			
-			my $result = `echo \"$_\" | $preprocess`;
-			@input = split(/\n/, $result);
-		}
-		else { @input = split(/\n/, $_); }
+		# otherwise serve the client.
+		$client->autoflush(1);
+		print $client "Welcome to $0;\n";
+		my $hostinfo = gethostbyaddr($client->peeraddr);
+		printf "[Connect from %s]\n", $hostinfo ? $hostinfo->name : $client->peerhost;
 		
-		if($anl || $hyph || $gen) {
-			for my $r (@input) {
-				my $analysis = analyze_input($exp_anl, $r);
-				if($dis) { 
-					push (@dis_strings, $analysis);
-				}
-				else { print $client "$analysis\n\n"; }
-			}
+		# Read the xml-structure which contains the parameters.
+		my $paras;
+		my $start=<$client>;
+		if ($start !~ /parameters/) { print $client "ERROR in parsing parameters\n"; last CLIENT; }
+		chomp $start;
+		$paras .= $start;
+		while(<$client>) {
+			chomp;
+			$paras .= $_;
+			last if /parameters/;
 		}
-		elsif ($para) {
-			my @forms;
-			for my $r (@input) {
-#				print "r $r\n";
-				my ( $word, $pos) = split(/\s+/, $r);
-				for my $a ( @{$paradigms{$pos}} ) {
-					my $string = "$word+$a";
-#					print "string $string\n";
-					my $analysis = analyze_input($exp_anl, $string);
-					push (@forms, $analysis);
-				}
-			}
-			local $, = "\n";
-			print $client @forms, "\n";
-		}
-		if($dis) { 
-#			for my $string (@dis_strings) {
-#				my $result = `echo \"$string\n\n\" | $lookup2cg`;
-#				$exp_dis->send("$result\n");
-#			}
-			print "$end_of_dis\n\n";
-			$exp_dis->send("$end_of_dis\n\n"); 
-			$exp_dis->expect(1);
-			my $read_dis = $exp_dis->clear_accum();
-#			$read_dis =~ s/^.*\"\x{00B6}\"\n//m;
-			print $client "$read_dis\n\n";
-		}
+		my $error = process_paras($paras);
+		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
+		else { print $client "\n"; }
+		
+		print "Setting language to $language.\n";
+		print "Using fst: $fst.\n";
+		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
 
-		print $client "end\n";
-#		print $client "String? \n";
+		# Initialize different tools according to the parameters.
+		# Start the expect objects: exp_anl and dis_anl if requested.
+		init_tools();
+				
+		# Start processing client input
+		while ( <$client>) {
+			#next if (/^\s*$/);
+			last CLIENT if (/quit|exit/);
+			
+			# call xml-functions to parse the input if xml_in
+			# call preprocessor if requested.
+			my $line = process_input($_);
+			
+			my $analysis = analyze_input($line);
+			print $client $analysis, "\n";
+
+			my $output;
+			if($action{'dis'}) { 
+				my $result = disambiguate($analysis);
+				if ($xml_out) { $output = dis2xml($result); }
+				else { $output = $result; }
+				print $client $result, "\n";
+			}
+			
+			print $client "end\n";
+		}
+		print "client exiting..";
+		close($client);
+		
+		# if no longer needed, do a soft_close to nicely shut down the command
+		if($exp_anl) { $exp_anl->soft_close(); }
+		print "ready\n";
+		
+		# exit the child
+		exit 0;
 	}
-	print "client exiting..";
-	close($client);
-	
-	# if no longer needed, do a soft_close to nicely shut down the command
-	if($exp_anl) { $exp_anl->soft_close(); }
-	print "ready\n";
-	
-	# exit the child
-	exit 0;
-}
 
 close $server;
 exit 0;
 
+
+sub process_input {
+	my $line = $_;
+
+	if($action{'prep'}) {
+		if ($xml_in) { $line = xml2preprocess($line); }
+		
+		#print "LINE $line\n";
+		# Remove the unsecure characters from the input.
+		$line =~ s/[\;\<\>\*\|\`\&\$\!\#\(\)\[\]\{\}\:\'\"]/ /g; 
+		
+		$line = `echo \"$line\" | $preprocess`;
+					#print "LINE2 $line\n";
+		
+		return $line;
+	}
+	if ($xml_in) {
+		if ($action{'anl'} || $action{'hyph'} || $action{'gen'} || $action{'para'}) { 
+			$line = xml2words($_);
+		}
+		elsif ($action{'dis'}) {  $line = xml2dis($_); }
+	}
+	return $line;
+} 
+
 sub analyze_input {
-	my ($exp_anl, $r) = @_;
+	my $input = shift @_;
+
+	my $analysis;
+	my $output;
+
+	if($action{'anl'} || $action{'hyph'} || $action{'gen'}) {
+		$analysis = call_analyze($exp_anl, $input);
+		if ($analysis =~ /ERROR/) { return $analysis; }
+		
+		if ($action{'dis'}) { last ANALYZE; }
+		if ($xml_out) {
+				if ($action{'anl'}) { $output = &analyzer2xml($analysis); }
+				elsif ($action{'hyph'}) { $output = &hyph2xml($analysis); }
+				elsif ($action{'gen'}) { $output = &gen2xml($analysis); }
+			}
+		else { $output = $analysis; }
+		
+		return $output;
+	}
+	if ($action{'para'}) {
+		#print "line: $input\n";
+		$analysis = generate_paradigm($exp_anl, $input);
+		if ($analysis =~ /ERROR/) { return $analysis; }
+		
+		if ($xml_out) { $output = gen2xml($analysis,1); }
+		else { $output = $analysis; };
+		return $output;
+	}
+}
+
+sub init_tools {
+
+	my $analyze;
+	my $disamb;
+
+	if($action{'anl'} ||$action{'hyph'}) { 
+		$analyze="$lookup $args $fst 2>/dev/null"; 
+	}
+	if ($action{'gen'} || $action{'para'}) { 
+		$analyze = "$lookup $args $fst 2>/dev/null"; 
+	}
+	if ($action{'prep'}) {
+		if ($prep_tools{'fst'}) { 
+			$preprocess = "preprocess --abbr=$prep_tools{'abbr'} --fst=$prep_tools{'fst'}"; 
+		}
+		else { $preprocess = "preprocess --abbr=$prep_tools{'abbr'}"; }
+	}
+		
+	if ($action{'dis'}) { $disamb = "vislcg $dis_tools{'args'} --grammar=$dis_tools{'rle'}"; }
+
+		# generate tag lists for the paradigms
+		my %taglist;
+		if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms) };
+		
+		# create an Expect object of fst
+		if($action{'anl'} || $action{'gen'} || $action{'hyph'} || $action{'para'}) {
+			$exp_anl = Expect->spawn($analyze)
+				or die "Cannot spawn $analyze: $!\n";
+			$exp_anl->log_stdout(0);
+		}
+		# create an Expect object of vislcg
+
+		if($action{'dis'}) {
+			$exp_dis = Expect->spawn($disamb)
+				or die "Cannot spawn $disamb: $!\n";
+			$exp_dis->log_stdout(0);
+		}
+
+}
+
+sub disambiguate {
+	my ($exp_dis, $input) = @_;
+
+#			for my $string (@dis_strings) {
+#				my $result = `echo \"$string\n\n\" | $lookup2cg`;
+#				$exp_dis->send("$result\n");
+#			}
+	print "$end_of_dis\n\n";
+	$exp_dis->send("$end_of_dis\n\n"); 
+	$exp_dis->expect(1);
+	my $read_dis = $exp_dis->clear_accum();
+#			$read_dis =~ s/^.*\"\x{00B6}\"\n//m;
+	return $read_dis;
+}
+
+sub generate_paradigm {
+	my ($exp_anl, $line) = @_;
+
+	if (! $line || $line =~ /^\s*$/ ) { return; }
+
+	my @input=split(/\n/, $line);
+	my $output;
+
+	for my $r (@input) {
+		#print "r $r\n";
+		my ( $word, $pos) = split(/\s+/, $r);
+		if ( !$pos ) { return "ERROR: $line"; }
+
+		for my $a ( @{$paradigms{$pos}} ) {
+			my $string = "$word+$a";
+			#print "string $string\n";
+			my $analysis = call_analyze($exp_anl, $string);
+			chomp $analysis;
+			next if ($analysis =~ /\+\?/);
+			$output .= $analysis;
+		}
+	}
+	return $output;
+}
+
+sub call_analyze {
+	my ($exp_anl, $line) = @_;
 	
 	# send some string there:
-	$exp_anl->send("$r\n");
-	$exp_anl->expect(undef, '-re', '\r?\n\r?\n' );
+	my @input=split(/\n/, $line);
+	my $output;
+	for my $r (@input) {
+		$exp_anl->send("$r\n");
+		$exp_anl->expect(undef, '-re', '\r?\n\r?\n' );
+		
+		my $read_anl = $exp_anl->before();
 	
-	my $read_anl = $exp_anl->before();
-	
-	# Take away the original input.
-	$read_anl =~ s/^.*?\n//;
-
-	return $read_anl;
+		# Take away the original input.
+		$read_anl =~ s/^.*?\n//;
+		$output .= $read_anl . "\n\n";
+	}
+	return $output;
 }
 
 # remove dead children from the defunct list.
