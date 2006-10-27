@@ -1,0 +1,22 @@
+// configuration file for html tidy
+// $Id$
+indent: auto
+indent-spaces: 2
+wrap: 72
+markup: yes
+output-xml: yes
+add-xml-decl: yes
+input-xml: no
+show-warnings: no
+numeric-entities: yes
+quote-marks: yes
+quote-nbsp: yes
+quote-ampersand: yes
+break-before-br: no
+uppercase-tags: no
+uppercase-attributes: no
+char-encoding: utf8
+enclose-block-text: yes
+new-empty-tags: ms,mb,nf
+new-inline-tags: dato,note,idiv
+
