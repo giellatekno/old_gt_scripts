@@ -4,6 +4,9 @@ use Getopt::Long;
 
 use strict;
 
+# use xml parser in parameter list.
+use XML::Twig;
+
 # Simple command-line client for the server that does the analysis.
 #
 # Usage: client_anl.pl [OPTIONS]
@@ -19,6 +22,8 @@ my $paradigm=0;
 my $help;
 my $fst;
 my $rle;
+my $xml=0;
+my $param;
 
 # Allow combination of options, -pad
 Getopt::Long::Configure ("bundling");
@@ -31,6 +36,8 @@ GetOptions ("lang|l=s" => \$language,
 			"disamb|d" => \$disamb,
 			"fst=s" => \$fst,
 			"rle=s" => \$rle,
+			"xml|x" => \$xml,
+			"param=s" => \$param,
 			"help" => \$help);
 
 if ($help) {
@@ -43,51 +50,30 @@ my $remote = IO::Socket::INET->new(
 								PeerAddr => "victorio.uit.no",
 								PeerPort => "8080",
 								)
-	or die "cannot connect to daytime port at localhost";
+	or die "cannot connect to port 8080 at localhost";
 
 $remote->autoflush(1);
 
 my $welcome = <$remote>;
 print $welcome;
 
-my $msg;
-if( $preprocess | $analyze | $generate | $hyphenate |$disamb|$paradigm) {
-	print $remote "$preprocess,$analyze,$generate,$hyphenate,$disamb,$paradigm\n";
-}
-else {
-	print $remote "0,1,0,0,0,0\n";
-}
+# Read processing instructions from file.
+my $parameters;
 
-while (! $language ) {
-	print "Select language (sme, smj, sma)\n";
-	$language = <STDIN>;
-	if ($language !~ /sme|smj|sma/) { $language=undef; }
-}
-
-print $remote "$language\n";
-$msg=<$remote>;
-print $msg;
-
-while ($fst && ! -f $fst) {
-	print "$fst is not readable, give another one.\n";
-	$fst = <STDIN>;
-}
-
-if (! $fst) { print $remote "\n"; }
-else { print $remote "$fst\n"; }
-$msg=<$remote>;
-print $msg;
-
-if ($disamb) {
-	while ($rle && ! -f $rle) {
-		print "$rle is not readable, give another one.\n";
-		$rle = <STDIN>;
+$param="/home/saara/gt/script/paras.xml";
+if ($param) {
+	open (FH, "<$param");
+	while(<FH>) {
+		$parameters .= $_;
 	}
-	if (! $rle) { print $remote "\n"; }
-	else { print $remote "$rle\n"; }
-	$msg=<$remote>;
-	print $msg;
 }
+
+print $remote "$parameters";
+
+# Take the confirmation of parameters, and possible error.
+my $msg = <$remote>;
+print STDERR $msg;
+exit if ($msg =~ /ERROR/);
 
 my $anl="";
 while($anl !~ /quit|exit/) {
@@ -99,7 +85,8 @@ while($anl !~ /quit|exit/) {
 	}
 	print $remote $anl;
 	my $line = <$remote>;
-	while ($line !~ /end/) {
+	print $line;
+	while ($line && $line !~ /end/) {
 		print $line;
 		$line = <$remote>;
 	}
