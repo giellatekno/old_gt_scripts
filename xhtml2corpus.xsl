@@ -153,6 +153,18 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:if>
 </xsl:template>
 
+<xsl:template match="html:center">
+<xsl:if test="string-length(normalize-space(.)) > 1">
+   <p >
+     <xsl:value-of select="text()"/>
+    </p>
+</xsl:if>
+</xsl:template>
+
+<xsl:template match="html:dato">
+     <xsl:value-of select="text()"/>
+</xsl:template>
+
 
 <!-- inline formatting -->
 <xsl:template match="html:b">
@@ -242,6 +254,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
   <xsl:apply-templates/>
 </xsl:template>
 
+<xsl:template match="html:idiv">
+  <xsl:apply-templates/>
+</xsl:template>
+
 <!-- quotations -->
 <xsl:template match="html:blockquote|html:q">
 <xsl:apply-templates />
@@ -249,7 +265,21 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- superscripts and subscripts are dropped to text -->
 <xsl:template match="html:big|html:small|html:sub|html:sup">
-<xsl:apply-templates />
+<xsl:choose>
+	<xsl:when test="text()">
+	<xsl:choose>
+	<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+			  <xsl:apply-templates select="text()"/>
+	</xsl:when>
+	<xsl:otherwise>
+			  <p><xsl:apply-templates select="text()"/></p>
+	</xsl:otherwise>
+	</xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+			<xsl:apply-templates/>
+	</xsl:otherwise>
+</xsl:choose>
 </xsl:template>
 
 <!-- other formatting -->
