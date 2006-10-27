@@ -25,7 +25,8 @@ XSL-template.xsl
 common.xsl
 empty.xsl
 xhtml2corpus.xsl
-docbook2corpus2.xsl"
+docbook2corpus2.xsl
+tidy-config.txt"
 
 makefile="corpus.make"
 
