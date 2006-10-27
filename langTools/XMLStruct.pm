@@ -1,15 +1,13 @@
 
-package langTools::XMLstruct;
+package langTools::XMLStruct;
 
 binmode STDOUT, ":utf8";
 use open ':utf8';
-use Getopt::Long;
-use File::Basename;
-use strict;
 use warnings;
 use strict;
 
 use XML::Twig;
+use Carp qw(cluck);
 
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
@@ -17,9 +15,19 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis);
+@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras);
 @EXPORT_OK   = qw(&process_paras);
 
+our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
+
+our %default_args = (
+				   "dis" =>  "--quiet",
+				   "anl" => "-flags -mbTT -utf8",
+				   "gen" => "-flags -mbTT -utf8 -d",
+				   "para" => "-flags -mbTT -utf8 -d",
+				   "hyph" => "-flags -mbTT -utf8",
+				   "prep" => "",
+				   );
 
 # Store the vislcg or lookup2cg output
 # to xml-structure.
@@ -28,6 +36,12 @@ sub dis2xml {
 
 	my $w;
 	my $output=XML::Twig::Elt->new('output');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
 
 	my @input = split(/\n/, $text);
 	for my $out (@input) {
@@ -68,8 +82,12 @@ sub dis2xml {
 		$reading->paste('last_child', $w); 
 	}
 	if ($w) { $w->paste('last_child', $output); }
+	
+	my $string = $output->sprint;
+	$output->print;
+	$output->delete;
 
-	return $output;
+	return $string;
 }
 
 # Convert the xml-output of analyzator or lookup2cg to
@@ -79,8 +97,9 @@ sub xml2dis {
 
 	my $string;
 	my $twig = XML::Twig->new;
-	if (! $twig->parse ($xml)) {
-		print STDERR "Couldn't parse file $xml: $@";
+	if (! $twig->safe_parse ($xml)) {
+		cluck("Couldn't parse xml");
+		return Carp::longmess("Could not parse xml");
 	}
 	my $root=$twig->root;
 	my @words=$root->children;
@@ -97,16 +116,24 @@ sub xml2dis {
 			$string .= "\n";
 		}
 	}
+	$twig->delete;
 	return $string;
 }
 
 # Store analyzer output to xml-structure.
 sub analyzer2xml {
-	my ($text) = @_;
+	my ($text) = shift @_;
 
 	my $word;
 	my $w;
 	my $output=XML::Twig::Elt->new('output');
+	$output->set_pretty_print('record');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
 
 	my @input=split(/\n/, $text);
 	for my $out (@input) {
@@ -130,14 +157,17 @@ sub analyzer2xml {
 		my $reading=XML::Twig::Elt->new('reading');
 		$reading->set_att('lemma', $lemma);
 		if ($analysis) { $reading->set_att('analysis', $analysis); }
+
 		$reading->paste('last_child', $w);
-		
 	}
 	if ($w) {
 		$w->set_att('form', $word);	
 		$w->paste('last_child', $output);
 	}
-	return $output;
+
+	my $string = $output->sprint;
+	return $string;
+
 }
 
 # Convert xml-input of word list 
@@ -147,16 +177,21 @@ sub xml2words {
 
 	my $string;
 	my $twig = XML::Twig->new;
-	if (! $twig->parse ($xml)) {
-		print STDERR "Couldn't parse file $xml: $@";
+	if (! $twig->safe_parse ($xml)) {
+		cluck("Couldn't parse xml");
+		return Carp::longmess("Could not parse xml");
 	}
 	my $root=$twig->root;
+	if (!$root) {
+	}
 	my @words=$root->children;
 
 	for my $word (@words) {
 		$string .= $word->{'att'}->{'form'};
 		$string .= "\n";
 	}
+	$twig->dispose;
+
 	return $string;
 }
 		
@@ -167,6 +202,13 @@ sub hyph2xml {
 	my $w;
 	my $word;
 	my $output=XML::Twig::Elt->new('output');
+	$output->set_pretty_print('record');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
 
 	my @input=split(/\n/, $text);
 	for my $out (@input) {
@@ -193,25 +235,34 @@ sub hyph2xml {
 		$w->set_att('form', $word);	
 		$w->paste('last_child', $output);
 	}
-	return $output;
+	my $string = $output->sprint;
+	$output->delete;
 
+	return $string;
 }
 
 # Move generator output to xml-structure.
 sub gen2xml {
-	my ($text) = @_;
-	
+	my ($text, $paradigm) = @_;
+
 	my $w;
 	my $lemma;
 	my $analysis;
 	my $output=XML::Twig::Elt->new('output');
+	$output->set_pretty_print('record');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
 
 	my @input=split(/\n/, $text);
 	for my $out (@input) {
 		if ($out =~ /^\s*$/) {
 			if ($w) {
-				$w->set_att('lemma', $lemma);	
-				$w->set_att('analysis', $analysis);	
+				$w->set_att('lemma', $lemma);
+				if (! $paradigm) { $w->set_att('analysis', $analysis); }
 				$w->paste('last_child', $output);
 				$w->DESTROY;
 				undef $w;
@@ -223,11 +274,13 @@ sub gen2xml {
 		my $hyph;
 		my ($line, $form) = split(/\t/, $out, 2);
 		$form =~ s/^\s+//;
-
+		
 		($lemma, $analysis) = split(/\+/, $line, 2);
 
 		if (! $w) { $w=XML::Twig::Elt->new('w'); }
 		my $surface=XML::Twig::Elt->new('surface');
+		$surface->set_att('form', $form);
+		if ($paradigm) { $surface->set_att('analysis', $analysis); }
 		$surface->set_att('form', $form);
 		$surface->paste('last_child', $w);
 	}
@@ -236,7 +289,11 @@ sub gen2xml {
 		$w->set_att('analysis', $analysis);	
 		$w->paste('last_child', $output);
 	}
-	return $output;
+
+	my $string = $output->sprint;
+	$output->delete;
+
+	return $string;
 
 }
 
@@ -246,6 +303,14 @@ sub preprocess2xml {
 	my ($text) = @_;
 	
 	my $output=XML::Twig::Elt->new('output');
+	$output->set_pretty_print('record');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
+
 	my @input=split(/\n/, $text);
 
 	for my $out (@input) {
@@ -262,70 +327,90 @@ sub xml2preprocess {
 	my $xml = shift @_;
 
 	my $twig = XML::Twig->new;
-	if (! $twig->parse ($xml)) {
-		print STDERR "Couldn't parse file $xml: $@";
+	if (! $twig->safe_parse ($xml)) {
+		cluck("Couldn't parse xml.");
+		return Carp::longmess("Could not parse xml");
 	}
 	my $root=$twig->root;
 	my $text=$root->text;
+
+	$root->delete;
+	$twig->dispose;
 	return $text;
 }
 
 # Processing instructions are parsed
 # from XML-structure.
-sub process_paras() {
+sub process_paras {
 	my $parameters = shift @_;
-
-	my $anl_fst;
-	my $hyph_fst;
-	my $gen_fst;
-	my $prep_fst;
-	my $prep_corr;
-	my $prep_abbr;
-	my $rle;
 
 	my $document = XML::Twig->new;
 	if (! $document->safe_parse ("$parameters") ) {
-		print STDERR "Parsing the parameters $parameters failed.\n";
-		return;
+		cluck("Could not parse parameters.");
+		return Carp::longmess("Could not parse parameters: $parameters");
 	}
 	my $root = $document->root;
-	my $language = $document->first_child('language');
-	if(! $language) { print STDERR "No language specified.\n"; return; }
-	my $xml_input = $document->first_child('xml_input');
-	my $xml_output = $document->first_child('xml_output');
+	my $lang = $root->first_child('lang');
+	if (! $lang || ! $lang->text) {
+		cluck("No language specified.");
+		return Carp::longmess("No language specified: $parameters");
+	}
+	else { $language = $lang->text; }
+
+	my %default_fsts = (
+						"anl" => "/opt/smi/$language/bin/$language.fst",
+						"hyph" => "/opt/smi/$language/bin/hyph-$language.fst",
+						"gen" => "/opt/smi/$language/bin/i$language.fst",
+						"para" => "/opt/smi/$language/bin/i$language.fst",
+						"prep" => "",
+						);
+		
+	$xml_in = $root->first_child('xml_in');
+	$xml_out = $root->first_child('xml_out');
 	my @actions = $root->children('action');
 	my %tools;
 	for my $act (@actions) {
-		if ($act->{'att'}->{'tool'} == 'anl') {
-			if ($act->{'att'}->{'fst'}) { $anl_fst=$act->{'att'}->{'fst'}; }
-			else { $anl_fst="/opt/smi/$language/bin/$language.fst"; }
+		my $tool = $act->{'att'}->{'tool'};
+		my $tmp_fst = $act->{'att'}->{'fst'};
+		my $tmp_args = $act->{'att'}->{'args'};
+		my $rle = $act->{'att'}->{'rle'};
+		my $abbr = $act->{'att'}->{'abbr'};
+		my $corr = $act->{'att'}->{'corr'};
+
+		if ($tool eq 'anl' || $tool eq 'hyph' || $tool eq 'gen' || $tool eq 'para') {
+			$action{$tool}=1;
+			if ($tmp_fst) { $fst=$tmp_fst; }
+			else { $fst=$default_fsts{$tool}; }
+			if ($tmp_args) { $args=$tmp_args; }
+			else { $args = $default_args{$tool}; }
 			next;
 		}
-		if ($act->{'att'}->{'tool'} == 'hyph') {
-			if ($act->{'att'}->{'fst'}) { $hyph_fst=$act->{'att'}->{'fst'}; }
-			else { $hyph_fst="/opt/smi/$language/bin/$language-hyph.fst"; }
+		if ($tool eq 'dis') {
+			$action{'dis'}=1;
+			if ($rle) { $dis_tools{'rle'}=$rle; }
+			else { $dis_tools{'rle'}="/opt/smi/$language/bin/$language-dis.fst"; }
+			if ($tmp_args) { $dis_tools{'args'}=$tmp_args; }
+			else { $dis_tools{'args'}=$default_args{'dis'}; }
 			next;
 		}
-		if ($act->{'att'}->{'tool'} == 'gen') {
-			if ($act->{'att'}->{'fst'}) { $gen_fst=$act->{'att'}->{'fst'}; }
-			else { $gen_fst="/opt/smi/$language/bin/i$language.fst"; }
-			next;
-		}
-		if ($act->{'att'}->{'tool'} == 'dis') {
-			if ($act->{'att'}->{'rle'}) { $rle=$act->{'att'}->{'rle'}; }
-			else { $rle="/opt/smi/$language/bin/$language-dis.fst"; }
-			next;
-		}
-		if ($act->{'att'}->{'tool'} == 'prep') {
-			if ($act->{'att'}->{'fst'}) { $rle=$act->{'att'}->{'fst'}; }
-			else { $prep_fst="/opt/smi/$language/bin/$language.fst"; }
-			if ($act->{'att'}->{'abbr'}) { $rle=$act->{'att'}->{'abbr'}; }
-			else { $prep_abbr="/opt/smi/$language/bin/abbr.txt"; }
-			if ($act->{'att'}->{'corr'}) { $rle=$act->{'att'}->{'corr'}; }
-			else { $prep_corr="/opt/smi/$language/bin/corr.txt"; }
+		if ($tool eq 'prep') {
+			$action{'prep'}=1;
+			if ($tmp_fst) { $prep_tools{'fst'} = $tmp_fst; }
+			else { $prep_tools{'fst'}="/opt/smi/$language/bin/$language.fst"; }
+			if ($abbr) { $prep_tools{'abbr'}=$abbr; }
+			else { $prep_tools{'abbr'}="/opt/smi/$language/bin/abbr.txt"; }
+			if ($corr) { $prep_tools{'corr'}=$corr; }
+			else { $prep_tools{'corr'}="/opt/smi/$language/bin/corr.txt"; }
+			if ($tmp_args) { $prep_tools{'args'}=$tmp_args; }
+			else { $prep_tools{'args'}=$default_args{'dis'}; }
 			next;
 		}
 	}
+	if (! %action) {
+		cluck("No action specified.");
+		return Carp::longmess("No action specified $parameters");
+	}
+	return 0;
 }
 
 1;
