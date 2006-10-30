@@ -15,7 +15,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras);
+@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action);
 @EXPORT_OK   = qw(&process_paras);
 
 our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
@@ -339,6 +339,21 @@ sub xml2preprocess {
 	return $text;
 }
 
+sub get_action{
+	my $line = shift @_;
+
+	my $document = XML::Twig->new;
+	if (! $document->safe_parse ("$line") ) {
+		cluck("Could not parse parameters.");
+		return Carp::longmess("ERROR Could not parse $line");
+	}
+	my $root = $document->root;
+	my $action = $root->{'att'}->{'tool'};
+
+	return $action;
+}
+
+
 # Processing instructions are parsed
 # from XML-structure.
 sub process_paras {
@@ -378,11 +393,10 @@ sub process_paras {
 		my $corr = $act->{'att'}->{'corr'};
 
 		if ($tool eq 'anl' || $tool eq 'hyph' || $tool eq 'gen' || $tool eq 'para') {
-			$action{$tool}=1;
-			if ($tmp_fst) { $fst=$tmp_fst; }
-			else { $fst=$default_fsts{$tool}; }
-			if ($tmp_args) { $args=$tmp_args; }
-			else { $args = $default_args{$tool}; }
+			if ($tmp_fst) { $action{$tool}{'fst'}=$tmp_fst; }
+			else { ${$action{$tool}}{'fst'} = $default_fsts{$tool}; }
+			if ($tmp_args) { $action{$tool}{'args'}=$tmp_args; }
+			else { $action{$tool}{'args'} = $default_args{$tool}; }
 			next;
 		}
 		if ($tool eq 'dis') {
