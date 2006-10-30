@@ -266,6 +266,7 @@ sub call_analyze {
 	
 		# Take away the original input.
 		$read_anl =~ s/^.*?\n//;
+		$read_anl =~ s/\r\n/\n/g;
 		$output .= $read_anl . "\n\n";
 	}
 	return $output;
