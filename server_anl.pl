@@ -27,7 +27,7 @@ my %paradigms;
 my $lookup2cg="/usr/local/bin/lookup2cg";
 my $end_of_dis="\<\"¶\"\>\n\t\"¶\"";
 my $tagfile="/home/saara/gt/cwb/korpustags.txt";
-my $exp_anl;
+my %exp_anl;
 my $exp_dis;
 my $exp_lo2cg;
 my $preprocess;
@@ -73,23 +73,42 @@ my $client;
 		else { print $client "\n"; }
 		
 		print "Setting language to $language.\n";
-		print "Using fst: $fst.\n";
-		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
+		print "Using fsts:\n";
+		for my $key (keys %action) {
+			print "$action{$key}{'fst'}\n";
+		}
 
+		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
+		
 		# Initialize different tools according to the parameters.
 		# Start the expect objects: exp_anl and dis_anl if requested.
 		init_tools();
 				
 		# Start processing client input
 		while ( <$client>) {
+
 			#next if (/^\s*$/);
 			last CLIENT if (/quit|exit/);
 			
+			# Find the action to be done with this input
+			my $act;
+			if ($xml_in) { $act = get_action($_); }
+			if ($act) {
+				if ($act =~ /ERROR/) { print $client "$act\n end\n"; next; } 
+				if (! $action{$act}) { print $client "ERROR: not initialized: $act\n end\n"; next; } 
+			}
+			elsif (! $act) {
+				if ($action{'anl'}) { $act = "anl"; }
+				elsif ($action{'gen'}) { $act = "gen"; }
+				elsif ($action{'hyph'}) { $act = "hyph"; }
+				elsif ($action{'para'}) { $act = "para"; }
+			}
+
 			# call xml-functions to parse the input if xml_in
 			# call preprocessor if requested.
-			my $line = process_input($_);
+			my $line = process_input($_, $act);
 			
-			my $analysis = analyze_input($line);
+			my $analysis = analyze_input($line, $act);
 			print $client $analysis, "\n";
 
 			my $output;
@@ -106,7 +125,9 @@ my $client;
 		close($client);
 		
 		# if no longer needed, do a soft_close to nicely shut down the command
-		if($exp_anl) { $exp_anl->soft_close(); }
+		if(%exp_anl) { 
+			for my $exp (keys %exp_anl) { $exp->soft_close(); }
+			}
 		print "ready\n";
 		
 		# exit the child
@@ -118,9 +139,9 @@ exit 0;
 
 
 sub process_input {
-	my $line = $_;
+	my ($line, $act) = @_;
 
-	if($action{'prep'}) {
+	if($act eq 'prep' || $action{'prep'}) {
 		if ($xml_in) { $line = xml2preprocess($line); }
 		
 		#print "LINE $line\n";
@@ -133,7 +154,7 @@ sub process_input {
 		return $line;
 	}
 	if ($xml_in) {
-		if ($action{'anl'} || $action{'hyph'} || $action{'gen'} || $action{'para'}) { 
+		if ($act =~ /anl|hyph|gen|para/) {
 			$line = xml2words($_);
 		}
 		elsif ($action{'dis'}) {  $line = xml2dis($_); }
@@ -142,28 +163,26 @@ sub process_input {
 } 
 
 sub analyze_input {
-	my $input = shift @_;
+	my ($input, $act) = @_;
 
 	my $analysis;
 	my $output;
 
-	if($action{'anl'} || $action{'hyph'} || $action{'gen'}) {
-		$analysis = call_analyze($exp_anl, $input);
+	if($act =~ /anl|hyph|gen/) {
+		$analysis = call_analyze($exp_anl{$act}, $input);
 		if ($analysis =~ /ERROR/) { return $analysis; }
-		
-		if ($action{'dis'}) { last ANALYZE; }
 		if ($xml_out) {
-				if ($action{'anl'}) { $output = &analyzer2xml($analysis); }
-				elsif ($action{'hyph'}) { $output = &hyph2xml($analysis); }
-				elsif ($action{'gen'}) { $output = &gen2xml($analysis); }
-			}
+			if ($act eq 'anl') { $output = analyzer2xml($analysis); }
+			elsif ($act eq 'hyph') { $output = hyph2xml($analysis); }
+			elsif ($act eq 'gen') { $output = gen2xml($analysis); }
+		}
 		else { $output = $analysis; }
 		
 		return $output;
 	}
-	if ($action{'para'}) {
+	if ($act eq 'para') {
 		#print "line: $input\n";
-		$analysis = generate_paradigm($exp_anl, $input);
+		$analysis = generate_paradigm($exp_anl{$act}, $input);
 		if ($analysis =~ /ERROR/) { return $analysis; }
 		
 		if ($xml_out) { $output = gen2xml($analysis,1); }
@@ -173,43 +192,38 @@ sub analyze_input {
 }
 
 sub init_tools {
-
+	
 	my $analyze;
+	my $analyze_gen;
 	my $disamb;
 
-	if($action{'anl'} ||$action{'hyph'}) { 
-		$analyze="$lookup $args $fst 2>/dev/null"; 
+	for my $tool (keys %action) {
+		if($action{'anl'} || $action{'gen'} || $action{'hyph'} || $action{'para'}) {
+			
+			$analyze="$lookup $action{$tool}{'args'} $action{$tool}{'fst'} 2>/dev/null"; 
+			$exp_anl{$tool} = Expect->spawn($analyze)
+				or die "Cannot spawn $analyze: $!\n";
+			$exp_anl{$tool}->log_stdout(0);
+		}
 	}
-	if ($action{'gen'} || $action{'para'}) { 
-		$analyze = "$lookup $args $fst 2>/dev/null"; 
-	}
+	
 	if ($action{'prep'}) {
 		if ($prep_tools{'fst'}) { 
 			$preprocess = "preprocess --abbr=$prep_tools{'abbr'} --fst=$prep_tools{'fst'}"; 
 		}
 		else { $preprocess = "preprocess --abbr=$prep_tools{'abbr'}"; }
 	}
-		
+	
 	if ($action{'dis'}) { $disamb = "vislcg $dis_tools{'args'} --grammar=$dis_tools{'rle'}"; }
-
-		# generate tag lists for the paradigms
-		my %taglist;
-		if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms) };
-		
-		# create an Expect object of fst
-		if($action{'anl'} || $action{'gen'} || $action{'hyph'} || $action{'para'}) {
-			$exp_anl = Expect->spawn($analyze)
-				or die "Cannot spawn $analyze: $!\n";
-			$exp_anl->log_stdout(0);
-		}
-		# create an Expect object of vislcg
-
-		if($action{'dis'}) {
-			$exp_dis = Expect->spawn($disamb)
-				or die "Cannot spawn $disamb: $!\n";
-			$exp_dis->log_stdout(0);
-		}
-
+	
+	# generate tag lists for the paradigms
+	if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms) };
+	
+	if($action{'dis'}) {
+		$exp_dis = Expect->spawn($disamb)
+			or die "Cannot spawn $disamb: $!\n";
+		$exp_dis->log_stdout(0);
+	}
 }
 
 sub disambiguate {
@@ -228,7 +242,7 @@ sub disambiguate {
 }
 
 sub generate_paradigm {
-	my ($exp_anl, $line) = @_;
+	my ($exp, $line) = @_;
 
 	if (! $line || $line =~ /^\s*$/ ) { return; }
 
@@ -243,7 +257,7 @@ sub generate_paradigm {
 		for my $a ( @{$paradigms{$pos}} ) {
 			my $string = "$word+$a";
 			#print "string $string\n";
-			my $analysis = call_analyze($exp_anl, $string);
+			my $analysis = call_analyze($exp, $string);
 			chomp $analysis;
 			next if ($analysis =~ /\+\?/);
 			$output .= $analysis;
@@ -253,16 +267,16 @@ sub generate_paradigm {
 }
 
 sub call_analyze {
-	my ($exp_anl, $line) = @_;
+	my ($exp, $line) = @_;
 	
 	# send some string there:
 	my @input=split(/\n/, $line);
 	my $output;
 	for my $r (@input) {
-		$exp_anl->send("$r\n");
-		$exp_anl->expect(undef, '-re', '\r?\n\r?\n' );
+		$exp->send("$r\n");
+		$exp->expect(undef, '-re', '\r?\n\r?\n' );
 		
-		my $read_anl = $exp_anl->before();
+		my $read_anl = $exp->before();
 	
 		# Take away the original input.
 		$read_anl =~ s/^.*?\n//;
