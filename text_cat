@@ -236,7 +236,6 @@ sub classify {
 	  my @lm = sort(grep { s/\.lm// && -r "$opt_d/$_.lm" } readdir(DIR));
 	  closedir DIR;
 	  if (! @lm) { die "text_cat: no language models found in $opt_d"; }
-	  print "@lm\n";
 
 	  for my $lang (@lm) {  $lmodel{$lang}=load_lm($lang); }
 	  if(!$opt_w) {
@@ -270,7 +269,7 @@ sub classify {
   }
   my @results = sort { $results{$a} <=> $results{$b} } keys %results;
   
-  if ($opt_v || $opt_l) {
+  if ($opt_v) {
 	  print "results\n";
 	  for my $r (@results) {
 		  print "$r\t$results{$r}\n";
@@ -317,7 +316,7 @@ sub classify {
 		if ($wmodel{$language}{$key}) {
 			$b = sprintf("%.0f", ($wmodel{$language}{$key}**2*$wunknown{$key}*10/$results{$language}));
 			$p=$p-$b;
-			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
+#			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
 		} 
 			 ++$i;
 		 }
@@ -330,7 +329,7 @@ sub classify {
 		
 	 my @wresults_a = sort { $wresults{$a} <=> $wresults{$b} } keys %wresults;
 
-	 if ($opt_v || $opt_l) {
+	 if ($opt_v) {
 		 print "word results\n";
 		 for my $r (@wresults_a) {
 			 print "$r\t$wresults{$r}\n";
