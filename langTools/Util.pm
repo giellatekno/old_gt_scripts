@@ -24,7 +24,7 @@ sub generate_taglist {
 	my ($gramfile, $tagfile, $taglist_aref) = @_;
 
 	my @grammar;
-	push (@grammar, "N+Subclass?+Number+Case+Possessive?+Clitic?");
+#	push (@grammar, "N+Subclass?+Number+Case+Possessive?+Clitic?");
 	my %tags;
 
 	if ($gramfile) {
