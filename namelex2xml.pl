@@ -255,8 +255,8 @@ while ($line = <FH> ) {
 					  if ($lang eq $mainlang) {
 						  $infl->set_att('lexc', $infl_text);
 					  }
-					  $infl->paste('last_child', ${$term_entries{$lang}}{$curid});
-				  }
+				      $infl->paste('last_child', ${$term_entries{$lang}}{$curid});
+		          }
 				  last TERMS;
 			  }
 			  # If there was already an element
@@ -279,7 +279,7 @@ while ($line = <FH> ) {
 						  
 						  # Alter termc entry by adding reference to terms
 						  my $langentry = XML::Twig::Elt->new('langentry');
-						  $langentry->set_att('lang', $mainlang);
+						  $langentry->set_att('lang', $lang);
 						  my $include = XML::Twig::Elt->new('xi:include');
 						  my $ref = 'terms-'.$lang.".xml#xpointer(//entry[\@id='".$curid."'])";
 						  $include->set_att('href', $ref);
