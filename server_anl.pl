@@ -79,11 +79,11 @@ my $client;
 		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
 		else { print $client "\n"; }
 		
-		print "Setting language to $language.\n";
-		print "Using fsts:\n";
-		for my $key (keys %action) {
-			print "$action{$key}{'fst'}\n";
-		}
+#		print "Setting language to $language.\n";
+#		print "Using fsts:\n";
+#		for my $key (keys %action) {
+#			print "$action{$key}{'fst'}\n";
+#		}
 
 		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
 		
@@ -95,30 +95,39 @@ my $client;
 		while ( <$client>) {
 
 			#next if (/^\s*$/);
-			last CLIENT if (/quit|exit/);
+			last CLIENT if (/END_REQUEST/);
 			
 			# Find the action to be done with this input
 			my $act;
 			if ($xml_in) { $act = get_action($_); }
 			if ($act) {
-				if ($act =~ /ERROR/) { print $client "$act\n end\n"; next; } 
-				if (! $action{$act}) { print $client "ERROR: not initialized: $act\n end\n"; next; } 
+				if ($act =~ /ERROR/) { print $client "$act\n END_REPLY\n"; next; } 
+				if (! $action{$act}) { print $client "ERROR: not initialized: $act\n END_REPLY\n"; next; } 
 			}
 			elsif (! $act) {
 				if ($action{'anl'}) { $act = "anl"; }
 				elsif ($action{'gen'}) { $act = "gen"; }
 				elsif ($action{'hyph'}) { $act = "hyph"; }
 				elsif ($action{'para'}) { $act = "para"; }
+				elsif ($action{'prep'}) { $act = "prep"; }
 			}
 
 			# call xml-functions to parse the input if xml_in
 			# call preprocessor if requested.
 			my $line = process_input($_, $act);
+
+			my $output;
+			if ($act eq "prep") { 
+				if ($xml_out) { $output = preprocess2xml($line); }
+				else { $output = $line; }
+				print $client $output, "\n"; 
+				print $client "END_REPLY\n";
+				next;
+			}
 			
 			my $analysis = analyze_input($line, $act);
 			print $client $analysis, "\n";
 
-			my $output;
 			if($action{'dis'}) { 
 				my $result = disambiguate($analysis);
 				if ($xml_out) { $output = dis2xml($result); }
@@ -126,7 +135,7 @@ my $client;
 				print $client $result, "\n";
 			}
 			
-			print $client "end\n";
+			print $client "END_REPLY\n";
 		}
 		print "client exiting..";
 		close($client);
@@ -148,7 +157,7 @@ exit 0;
 sub process_input {
 	my ($line, $act) = @_;
 
-	if($act eq 'prep' || $action{'prep'}) {
+	if($act eq 'prep' || ($act eq "anl" && $action{'prep'})) {
 		if ($xml_in) { $line = xml2preprocess($line); }
 		
 		#print "LINE $line\n";
@@ -156,7 +165,7 @@ sub process_input {
 		$line =~ s/[\;\<\>\*\|\`\&\$\!\#\(\)\[\]\{\}\:\'\"]/ /g; 
 		
 		$line = `echo \"$line\" | $preprocess`;
-					#print "LINE2 $line\n";
+		#print "LINE2 $line\n";
 		
 		return $line;
 	}
@@ -177,7 +186,9 @@ sub analyze_input {
 
 	# Lookup call
 	if($act =~ /anl|hyph|gen/) {
+
 		$analysis = call_analyze($exp_anl{$act}, $input);
+		if (! $analysis) { return; }
 		if ($analysis =~ /ERROR/) { return $analysis; }
 
 		# Filter hyphenations if requested.
@@ -216,7 +227,7 @@ sub init_tools {
 	
 	# Lookup-tools, start lookup-process for each tool.
 	for my $tool (keys %action) {
-		if($action{'anl'} || $action{'gen'} || $action{'hyph'} || $action{'para'}) {			
+		if($tool =~ /anl|gen|hyph|para/) {
 			$analyze="$lookup $action{$tool}{'args'} $action{$tool}{'fst'} 2>/dev/null"; 
 			$exp_anl{$tool} = Expect->spawn($analyze)
 				or die "Cannot spawn $analyze: $!\n";
@@ -233,7 +244,7 @@ sub init_tools {
 		}
 	}
 	# Paradigm generation, generate tag lists for the paradigms
-	if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms) };
+	if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms, $action{'para'}{'mode'}) };
 
 	# Preprocessing, initialize command
 	if ($action{'prep'}) {
