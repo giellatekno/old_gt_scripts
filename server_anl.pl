@@ -98,6 +98,7 @@ my $client;
 		# Start processing client input
 		while ( <$client>) {
 
+			s/\r//g;
 			#next if (/^\s*$/);
 			last CLIENT if (/END_REQUEST/);
 			
