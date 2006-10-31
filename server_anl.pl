@@ -75,6 +75,10 @@ my $client;
 			$paras .= $_;
 			last if /parameters/;
 		}
+
+		$paras =~ s/\n//g;
+		$paras =~ s/\r//g;
+
 		my $error = process_paras($paras);
 		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
 		else { print $client "\n"; }
