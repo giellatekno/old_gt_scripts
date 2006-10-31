@@ -3,6 +3,7 @@
 use strict;
 #binmode STDOUT, ":utf8";
 #binmode STDIN, ":utf8";
+#use utf8;
 
 # hyph-filter.pl 
 # Perls script for cleaning the hyphenator output.
@@ -41,7 +42,7 @@ INPUT:
 			chomp;
 			($word, $hyph) = split(/\t/, $line);
 
-			if ($#lines == 0 and $word eq $hyph) {
+			if ($#lines == 0 and $word eq $hyph && $line !~ /\+\?/) {
 				print; 
 				print "\n\n"; 
 				next INPUT; 
@@ -50,8 +51,9 @@ INPUT:
 			#remove word boundary from the beginning of the word.
 			$hyph =~ s/^\#//;
 
-			# take the upper case form.
+			# take the upper case and lower case forms.
 			my $uc = ucfirst($hyph);
+			my $lc = lcfirst($hyph);
 			
 			# remove all the other wb:s
 			( my $cleaned = $hyph ) =~ tr/[\#^]//d;
@@ -61,6 +63,9 @@ INPUT:
 			  
 			  ( my $ucfirst = $uc ) =~ tr/[\#^]//d;
 			  if ($ucfirst eq $word) { $forms{$uc} = 1; last TEST; }
+
+			  ( my $lcfirst = $lc ) =~ tr/[\#^]//d;
+			  if ($lcfirst eq $word) { $forms{$lc} = 1; last TEST; }
 			  
 			  #If gone this far, then move forward.
 			  next;
