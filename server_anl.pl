@@ -13,6 +13,10 @@ use IO::Socket;
 use Net::hostent; # for OO version of gethostbyaddr
 use POSIX qw(:sys_wait_h);
 
+#binmode STDOUT, ":utf8";
+#binmode STDIN, ":utf8";
+#use utf8;
+
 use XML::Twig;
 # Module to communicate with program's user interfaces
 use Expect;
@@ -25,6 +29,9 @@ my $PORT = 8080; # pick something not in use
 my $lookup="lookup";
 my %paradigms;
 my $lookup2cg="/usr/local/bin/lookup2cg";
+#my $default_hyph_filter="/opt/sami/cg/bin/hyph-filter.pl";
+my $default_hyph_filter="/home/saara/cron/gt/script/hyph-filter.pl";
+my $hyph_filter;
 my $end_of_dis="\<\"¶\"\>\n\t\"¶\"";
 my $tagfile="/home/saara/gt/cwb/korpustags.txt";
 my %exp_anl;
@@ -168,18 +175,28 @@ sub analyze_input {
 	my $analysis;
 	my $output;
 
+	# Lookup call
 	if($act =~ /anl|hyph|gen/) {
 		$analysis = call_analyze($exp_anl{$act}, $input);
 		if ($analysis =~ /ERROR/) { return $analysis; }
+
+		# Filter hyphenations if requested.
+		if ($act =~ 'hyph' && $hyph_filter) {
+			# Remove the unsecure characters from the input.
+			$analysis =~ s/[\;\<\>\*\|\`\&\$\!\(\)\[\]\{\}\:\'\"]/ /g; 
+			$analysis = `echo \"$analysis\" | $hyph_filter`;
+		}
+		# Format XML-output
 		if ($xml_out) {
 			if ($act eq 'anl') { $output = analyzer2xml($analysis); }
-			elsif ($act eq 'hyph') { $output = hyph2xml($analysis); }
 			elsif ($act eq 'gen') { $output = gen2xml($analysis); }
+			elsif ($act eq 'hyph') { $output = hyph2xml($analysis); }
 		}
 		else { $output = $analysis; }
 		
 		return $output;
 	}
+	# Paradigm generator
 	if ($act eq 'para') {
 		#print "line: $input\n";
 		$analysis = generate_paradigm($exp_anl{$act}, $input);
@@ -196,30 +213,38 @@ sub init_tools {
 	my $analyze;
 	my $analyze_gen;
 	my $disamb;
-
+	
+	# Lookup-tools, start lookup-process for each tool.
 	for my $tool (keys %action) {
-		if($action{'anl'} || $action{'gen'} || $action{'hyph'} || $action{'para'}) {
-			
+		if($action{'anl'} || $action{'gen'} || $action{'hyph'} || $action{'para'}) {			
 			$analyze="$lookup $action{$tool}{'args'} $action{$tool}{'fst'} 2>/dev/null"; 
 			$exp_anl{$tool} = Expect->spawn($analyze)
 				or die "Cannot spawn $analyze: $!\n";
 			$exp_anl{$tool}->log_stdout(0);
 		}
 	}
-	
+    # Hyphenation, initialize filter command.
+	if ($action{'hyph'}) {
+		if ($action{'hyph'}{'filter'}) {
+			if ($action{'hyph'}{'filter_script'} && -f $action{'hyph'}{'filter_script'}) { 
+				$hyph_filter = $action{'hyph'}{'filter_script'};
+			}
+			else{ $hyph_filter = $default_hyph_filter; }
+		}
+	}
+	# Paradigm generation, generate tag lists for the paradigms
+	if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms) };
+
+	# Preprocessing, initialize command
 	if ($action{'prep'}) {
 		if ($prep_tools{'fst'}) { 
 			$preprocess = "preprocess --abbr=$prep_tools{'abbr'} --fst=$prep_tools{'fst'}"; 
 		}
 		else { $preprocess = "preprocess --abbr=$prep_tools{'abbr'}"; }
 	}
-	
-	if ($action{'dis'}) { $disamb = "vislcg $dis_tools{'args'} --grammar=$dis_tools{'rle'}"; }
-	
-	# generate tag lists for the paradigms
-	if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms) };
-	
-	if($action{'dis'}) {
+	# Disambiguation, start process for vislcg.
+	if ($action{'dis'}) { 
+		$disamb = "vislcg $dis_tools{'args'} --grammar=$dis_tools{'rle'}";
 		$exp_dis = Expect->spawn($disamb)
 			or die "Cannot spawn $disamb: $!\n";
 		$exp_dis->log_stdout(0);
