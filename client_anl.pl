@@ -80,14 +80,13 @@ while($anl !~ /quit|exit/) {
 
 	$anl = <STDIN>;
 	if ($anl =~ /quit|exit/) {
-		print $remote $anl;
+		print $remote "END_REQUEST\n";
 		exit;
 	}
 	print $remote $anl;
 	my $line = <$remote>;
-	print $line;
-	while ($line && $line !~ /end/) {
-		print $line;
+	while ($line && $line !~ /END_REPLY/) {
+		print "$line";
 		$line = <$remote>;
 	}
 }
