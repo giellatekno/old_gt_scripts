@@ -391,12 +391,18 @@ sub process_paras {
 		my $rle = $act->{'att'}->{'rle'};
 		my $abbr = $act->{'att'}->{'abbr'};
 		my $corr = $act->{'att'}->{'corr'};
+		my $filter = $act->{'att'}->{'filter'};
+		my $filter_script = $act->{'att'}->{'filter_script'};
 
 		if ($tool eq 'anl' || $tool eq 'hyph' || $tool eq 'gen' || $tool eq 'para') {
 			if ($tmp_fst) { $action{$tool}{'fst'}=$tmp_fst; }
-			else { ${$action{$tool}}{'fst'} = $default_fsts{$tool}; }
+			else { $action{$tool}{'fst'} = $default_fsts{$tool}; }
 			if ($tmp_args) { $action{$tool}{'args'}=$tmp_args; }
 			else { $action{$tool}{'args'} = $default_args{$tool}; }
+			if ($filter) { 
+				$action{$tool}{'filter'} = 1;
+				if ($filter_script) { $action{$tool}{'filter_script'} = $filter_script; }
+			}
 			next;
 		}
 		if ($tool eq 'dis') {
