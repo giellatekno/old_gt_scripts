@@ -405,7 +405,7 @@ sub process_file {
 						print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
 						last ENCODING;
 					}
-					open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
+					open (FH, ">utf8", "$int") or print STDERR "$file: ERROR cannot open file $!";
 					$d->set_pretty_print('indented');
 					$d->print( \*FH);
 				}
@@ -427,6 +427,7 @@ sub process_file {
 		}
 	}
 	} #ENCODING
+
 
 	# hyphenate the file
 	if (! $no_hyph ) {
