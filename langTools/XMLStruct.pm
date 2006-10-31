@@ -190,6 +190,7 @@ sub xml2words {
 		$string .= $word->{'att'}->{'form'};
 		$string .= "\n";
 	}
+
 	$twig->dispose;
 
 	return $string;
@@ -319,7 +320,10 @@ sub preprocess2xml {
 		$w->set_att('form', $out);
 		$w->paste('last_child', $output);
 	}
-	return $output;
+	my $string = $output->sprint;
+	$output->delete;
+
+	return $string;
 }
 
 # preprocessor input read from xml-structure.
@@ -393,6 +397,7 @@ sub process_paras {
 		my $corr = $act->{'att'}->{'corr'};
 		my $filter = $act->{'att'}->{'filter'};
 		my $filter_script = $act->{'att'}->{'filter_script'};
+		my $mode = $act->{'att'}->{'mode'};
 
 		if ($tool eq 'anl' || $tool eq 'hyph' || $tool eq 'gen' || $tool eq 'para') {
 			if ($tmp_fst) { $action{$tool}{'fst'}=$tmp_fst; }
@@ -403,6 +408,7 @@ sub process_paras {
 				$action{$tool}{'filter'} = 1;
 				if ($filter_script) { $action{$tool}{'filter_script'} = $filter_script; }
 			}
+			if ($mode) { $action{$tool}{'mode'} = $mode; }
 			next;
 		}
 		if ($tool eq 'dis') {
