@@ -21,10 +21,10 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 # Read the grammar for  paradigm tag list.
 # Call the recursive function that generates the tag list.
 sub generate_taglist {
-	my ($gramfile, $tagfile, $taglist_aref) = @_;
+	my ($gramfile, $tagfile, $taglist_aref, $mode) = @_;
 
 	my @grammar;
-#	push (@grammar, "N+Subclass?+Number+Case+Possessive?+Clitic?");
+	push (@grammar, "N+Subclass?+Number+Case+Possessive?+Clitic?");
 	my %tags;
 
 	if ($gramfile) {
