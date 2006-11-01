@@ -3,7 +3,7 @@
 # mailto:vannoord@let.rug.nl
 
 use strict;
-use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x $opt_w);
+use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_q $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x $opt_w);
 use Getopt::Std;
 use open ':utf8';
 use XML::Twig;
@@ -20,8 +20,14 @@ my $MINCHAR = 0;
 my %lmodel;
 my %wmodel;
 
+my %pairs = (
+			 "\"" =>  "\"",
+			 "«" => "»",
+			 "“" => "”",
+			 );
+
 # OPTIONS
-getopts('a:d:f:i:nst:u:xhvwl');
+getopts('a:d:f:i:nqst:u:xhvwl');
 
 # defaults: set $opt_X unless already defined (Perl Cookbook p. 6):
 $opt_a ||= 10;
@@ -30,6 +36,7 @@ $opt_f ||= 0;
 $opt_w ||= 0;
 $opt_t ||= 400;
 $opt_u ||= 1.1;
+$opt_q ||= 0;
 
 sub help {
     print <<HELP
@@ -45,7 +52,7 @@ $0 -h
 
 * for guessing: 
 
-$0 [-a Int] [-d Dir] [-f Int] [-h] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File] [-w]
+$0 [-a Int] [-d Dir] [-f Int] [-h] [-i N] [-l] [q] [-t Int] [-u Int] [-v] [-x File] [-w]
 
     -a    the program returns the best-scoring language together
           with all languages which are $opt_u times worse (cf option -u). 
@@ -66,6 +73,7 @@ $0 [-a Int] [-d Dir] [-f Int] [-h] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File] 
     -l    indicates that input is given as an argument on the command line,
           e.g. text_cat -l "this is english text"
           Cannot be used in combination with -n.
+    -q    Add span-element for quotations and check the language.
     -s    Determine language of each line of input.
     -x F  The input is given as xml (corpus.dtd) and output is written to 
 	      the same file.
@@ -79,6 +87,7 @@ $0 [-a Int] [-d Dir] [-f Int] [-h] [-i N] [-l] [-t Int] [-u Int] [-v] [-x File] 
           Default: $opt_u.
     -w    Do not use word lists.
     -v    verbose. Continuation messages are written to standard error.
+
 
 * for creating new language model, based on text read from standard input:
 
@@ -215,8 +224,59 @@ sub langdetect {
 
 	# The best language is selected.
 	my $bestlang = $choices[0];
+
+	# Test if there are quoted strings in other than main lang.
+	if ($opt_q && $text =~ /[\«\"“]/) {
+		my @text_array;
+		my $return_val = mark_span($text, \@text_array, $mainlang);
+		if ($return_val ) { $para->set_content(@text_array); }
+	}
+	
 	if ($bestlang ne $mainlang  ) { $para->set_att( "xml:lang" => $bestlang ); }
 	else { $para->del_att( 'xml:lang'); }
+}
+
+# Function to pick quotations to element "span"
+# The language of the quotation is checked and marked
+# if it differs from the main language.
+sub mark_span {
+	my ($text, $text_aref, $mainlang) = @_;
+
+	my $first;
+	if ($text =~ /[\"\«“]/) { 
+		if ($text =~ /([\«\"\“]).*?[\»\"”]/s) { $first = $1; }
+		else { return 0; }
+	}
+	else { return 0; }
+	
+	my $second = $pairs{$first};
+	if ($text =~ /^(.*?)($first.*?$second)(.*)$/s ) {
+		my $quote = $2;
+		my $rest = $3;
+#		print "1: $1\n 2: $quote\n 3: $rest\n"; 
+
+		# Classification returns the choices for the text.
+		my @choices = classify($quote);
+		
+		# If the language was not recognized, the mainlang is selected.
+		my $bestlang;
+		if (! @choices || ! $choices[0]) { $bestlang = $mainlang; }
+		else { $bestlang = $choices[0]; }
+
+		# A new span element is created for the quotation.
+		push (@$text_aref, $1);
+		my $span = XML::Twig::Elt->new('span');
+		$span->set_att("type" => 'quote');
+		if ($bestlang ne $mainlang) { $span->set_att("xml:lang" =>  $bestlang); }
+		$span->set_text($quote);
+		push (@$text_aref, $span);
+		my $return_val;
+
+		# The rest of the paragraph is processed further.
+		if ($rest) { $return_val = mark_span($rest, $text_aref, $mainlang); }
+		if (! $return_val) {push (@$text_aref, $rest)};
+		return 1;
+	}
 }
 
 # CLASSIFICATION
