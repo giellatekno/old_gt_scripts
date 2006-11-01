@@ -96,18 +96,34 @@ my $client;
 		init_tools();
 				
 		# Start processing client input
+		my $input;
+	  CLIENT_REQUEST:
 		while ( <$client>) {
 
-			s/\r//g;
-			#next if (/^\s*$/);
-			last CLIENT if (/END_REQUEST/);
-			
+		  READ_INPUT: {
+			  s/\r//g;
+			  #next if (/^\s*$/);
+			  
+			  # if client is exiting
+			  last CLIENT if (/END_CLIENT/);
+			  
+			  # if end request, go to the next block
+			  last READ_INPUT if (/END_REQUEST/);
+
+			  # otherwise continue reading
+			  $input .= $_;
+			  next CLIENT_REQUEST;
+		  }
+			if (! $input) { print $client "END_REPLY\n"; next; }
+
 			# Find the action to be done with this input
 			my $act;
-			if ($xml_in) { $act = get_action($_); }
+			if ($xml_in) { $act = get_action($input); }
 			if ($act) {
-				if ($act =~ /ERROR/) { print $client "$act\n END_REPLY\n"; next; } 
-				if (! $action{$act}) { print $client "ERROR: not initialized: $act\n END_REPLY\n"; next; } 
+				if ($act =~ /ERROR/) { print $client "$act\n END_REPLY\n"; $input=undef; next; } 
+				if (! $action{$act}) { print $client "ERROR: not initialized: $act\n END_REPLY\n"; 
+									   $input=undef; 
+									   next; } 
 			}
 			elsif (! $act) {
 				if ($action{'anl'}) { $act = "anl"; }
@@ -119,7 +135,7 @@ my $client;
 
 			# call xml-functions to parse the input if xml_in
 			# call preprocessor if requested.
-			my $line = process_input($_, $act);
+			my $line = process_input($input, $act);
 
 			my $output;
 			if ($act eq "prep") { 
@@ -127,6 +143,7 @@ my $client;
 				else { $output = $line; }
 				print $client $output, "\n"; 
 				print $client "END_REPLY\n";
+				$input=undef;
 				next;
 			}
 			
@@ -141,6 +158,7 @@ my $client;
 			}
 			
 			print $client "END_REPLY\n";
+			$input=undef;
 		}
 		print "client exiting..";
 		close($client);
