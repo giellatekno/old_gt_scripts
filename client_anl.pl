@@ -75,15 +75,19 @@ my $msg = <$remote>;
 print STDERR $msg;
 exit if ($msg =~ /ERROR/);
 
-my $anl="";
-while($anl !~ /quit|exit/) {
+my $input;
+while(<STDIN>) {
 
-	$anl = <STDIN>;
-	if ($anl =~ /quit|exit/) {
-		print $remote "END_REQUEST\n";
+	if (/quit|exit/) {
+		print $remote "END_CLIENT\n";
 		exit;
 	}
-	print $remote $anl;
+	if ($_ =~ /^\s*$/ && $input) { 
+		print $remote $input;
+		print $remote "END_REQUEST\n";
+		$input=undef;
+	}
+	else { $input .= $_; next; }
 	my $line = <$remote>;
 	while ($line && $line !~ /END_REPLY/) {
 		print "$line";
