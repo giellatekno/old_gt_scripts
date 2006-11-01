@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use Getopt::Long;
 
 # lookup2cg
 # Perl-script for converting lookup-output to CG-2 input.
@@ -26,6 +27,20 @@ my $tmp;
 my $compound = 0;
 my $comp_rate = 0;
 my $max_comp_rate = 0;
+my $der=0;
+
+my $der=0;
+my $help;
+
+Getopt::Long::Configure ("bundling");
+GetOptions ("der|d" => \$der,
+			"help" => \$help);
+
+if ($help) {
+	&print_help;
+	exit 1;
+}
+
 
 $/ = "";
 
@@ -74,11 +89,15 @@ while(<>) {
 		$line2 =~ tr/+/ /;
 		
 		# If line contains a compound
-		if ( $max_comp_rate > 0 ) {
+		if ( $max_comp_rate > 0 && ! $der) {
 			format_compound(\$base, \$line2, \$word); 
 		}
 		# Mark derivational tags
 		1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
+
+        # Mark IV with star when there is later TV
+        # (causative derivation)
+		1 while $line2 =~ s/\b(IV)(\ |\ .*?\ )(TV)\b/$1\*$2$3/g;
             
             #Format output
             $line =  "\t" . " \"$base\" " . $line2 . "\n";
@@ -110,6 +129,9 @@ sub rate_compounds {
 	my $i=0;
 	$boundary_count = 0;
 	for (keys %$href) {
+		if ($der) {
+			next if /\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/;
+		}
 		$boundary_count = tr/\#//;
 		if ( $boundary_count > $min_boundary_count )
 		{ delete($$href{$_}); }
