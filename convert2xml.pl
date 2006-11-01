@@ -490,7 +490,7 @@ sub process_file {
 
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
-		my $command = "$text_cat -x -d $lmdir \"$int\"";
+		my $command = "$text_cat -q -x -d $lmdir \"$int\"";
 		exec_com($command, $file);
 	}
 
