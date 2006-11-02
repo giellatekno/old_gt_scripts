@@ -181,6 +181,8 @@ exit 0;
 sub process_input {
 	my ($line, $act) = @_;
 
+	if ($xml_in) { $line =~ s/\n//g; }
+
 	if($act eq 'prep' || ($act eq "anl" && $action{'prep'})) {
 		if ($xml_in) { $line = xml2preprocess($line); }
 		
@@ -195,9 +197,9 @@ sub process_input {
 	}
 	if ($xml_in) {
 		if ($act =~ /anl|hyph|gen|para/) {
-			$line = xml2words($_);
+			$line = xml2words($line);
 		}
-		elsif ($action{'dis'}) {  $line = xml2dis($_); }
+		elsif ($action{'dis'}) {  $line = xml2dis($line); }
 	}
 	return $line;
 } 
