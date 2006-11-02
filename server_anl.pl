@@ -80,8 +80,8 @@ my $client;
 		$paras =~ s/\r//g;
 
 		my $error = process_paras($paras);
-		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
-		else { print $client "\n"; }
+		if ($error) { print $client "ERROR $error\nEND_REPLY\n"; last CLIENT; }
+		else { print $client "END_REPLY\n"; }
 		
 #		print "Setting language to $language.\n";
 #		print "Using fsts:\n";
@@ -103,6 +103,7 @@ my $client;
 		  READ_INPUT: {
 			  s/\r//g;
 			  #next if (/^\s*$/);
+			  s/^\n+//;
 			  
 			  # if client is exiting
 			  last CLIENT if (/END_CLIENT/);
