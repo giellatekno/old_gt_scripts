@@ -347,7 +347,7 @@ sub process_file {
 				if ($test) { print STDERR "Character decoding: $coding\n"; }
 				my $error = &decode_text_file($tmp4, $coding, $int);
 				if ($error){ print STDERR $error; }
-				$no_decode_this_time=1;
+				$no_decode_this_time=0;
 			}
 		}
 		txtclean($int, $tmp4, $language);
