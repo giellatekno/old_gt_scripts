@@ -10,6 +10,7 @@
 
 use strict;
 use IO::Socket;
+use Socket qw(:all);
 use Net::hostent; # for OO version of gethostbyaddr
 use POSIX qw(:sys_wait_h);
 
@@ -24,7 +25,7 @@ use Expect;
 use langTools::XMLStruct;
 use langTools::Util;
 
-my $PORT = 8080; # pick something not in use
+my $PORT = 8080;
 
 my $lookup="lookup";
 my %paradigms;
@@ -45,6 +46,13 @@ my $server = IO::Socket::INET->new( Proto     => 'tcp',
 								 Reuse     => 1);
 
 die "can't setup server" unless $server;
+
+defined(my $tcp = getprotobyname("tcp"))
+	or die "Could not determine the protocol number for tcp";
+
+setsockopt($server, $tcp, TCP_NODELAY, 1)
+	or die "Could not change TCP_NODELAY socket option: $!";
+
 print "[Server $0 accepting clients]\n";
 
 my $client;
