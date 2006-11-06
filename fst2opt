@@ -40,7 +40,7 @@ do
 		cp /usr/tmp/st/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
 		cp /usr/tmp/st/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
 		cp /usr/tmp/st/$lang/bin/hyph-$lang.fst /opt/sami/smi/$lang/bin/
-#		cp /usr/tmp/st/$lang/src/$lang-dis.rle /opt/sami/smi/$lang/bin/
+		cp /usr/tmp/st/$lang/src/$lang-dis.rle /opt/sami/smi/$lang/bin/
 #		cp /usr/tmp/st/$lang/bin/abbr.txt /opt/sami/smi/$lang/bin/
 
 		chgrp cvs /opt/sami/smi/$lang/bin/*
