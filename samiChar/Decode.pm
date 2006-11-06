@@ -74,7 +74,7 @@ our %Sami_Chars = (
 
 				   "smj" => {
 #			0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
-#			0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
+			0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 #			0x00C4 => 1, #"LATIN CAPITAL LETTER A WITH DIAERESIS"
 		   0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
 #			0x00C5 => 1, #"LATIN CAPITAL LETTER A WITH RING ABOVE"
@@ -153,7 +153,7 @@ sub guess_text_encoding() {
 	  my @text_array;
 	  my $error;
 	  # Read the file
-	  if (-f $file) {  $error = &read_file($outfile, \@text_array); }
+	  if (-f $file) {  $error = &read_file($file, \@text_array); }
 	  last CORRECT if ($error);
 	  my $count = 0;
 	  my $total_count = 0;
@@ -169,7 +169,7 @@ sub guess_text_encoding() {
 	  }
 	  if($Test) {
 		  my $rounded_correct = sprintf("%.3f", $correct);
-		  print $file, " ",  $rounded_correct, "\n";
+		  print $file, " CORRECT ",  $rounded_correct, "\n";
 	  }
   } # end of CORRECT
 
@@ -212,7 +212,7 @@ sub guess_text_encoding() {
 		$last_val = $key;
 	}
     if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
-		if (! $correct || $results{$last_val} < $correct) {
+		if (! $correct || $results{$last_val} > $correct) {
 			$encoding = $last_val;
 		}
 	}
