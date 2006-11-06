@@ -398,7 +398,8 @@ sub decode_title (){
 		195 => {
 			63 => "193", # Á
 			161 => "225", # á
-			166 => "230" # æ
+			166 => "230", # æ
+			260 => "225", # á
 			},
 		196 => {
 			63 => "269", # č
@@ -407,8 +408,11 @@ sub decode_title (){
 			},
 		197 => {
 			161 => "353", # š
+			260 => "353", # š
 			190 => "382", # ž
+			382 => "382", # ž
 			189 => "381", # big ž
+			330 => "381", # big ž
 			167 => "359", # t stroke
 			166 => "358", # big t stroke
 			8249 => "331", # eng
@@ -421,7 +425,10 @@ sub decode_title (){
 	my $byte = shift(@unpacked);
     while ($byte) {
 		my $next_byte;
-		if ( 195 <= $byte && $byte <= 197 ) {
+		if ($byte == 8225 ) { 
+			$byte = 225;
+		}
+		elsif ( 195 <= $byte && $byte <= 197 ) {
 			$next_byte = shift(@unpacked);
 			if (130 <= $next_byte && $next_byte <= 159 ) {
 				$byte = shift(@unpacked);
