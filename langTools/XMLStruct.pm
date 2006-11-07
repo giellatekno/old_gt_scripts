@@ -187,8 +187,10 @@ sub xml2words {
 	my @words=$root->children;
 
 	for my $word (@words) {
-		$string .= $word->{'att'}->{'form'};
-		$string .= "\n";
+		if ($word->{'att'}->{'form'}) {
+			$string .= $word->{'att'}->{'form'};
+			$string .= "\n";
+		}
 	}
 
 	$twig->dispose;
