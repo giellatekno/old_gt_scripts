@@ -24,6 +24,7 @@ my $fst;
 my $rle;
 my $xml=0;
 my $param;
+my $PORT=9000;
 
 # Allow combination of options, -pad
 Getopt::Long::Configure ("bundling");
@@ -48,7 +49,7 @@ if ($help) {
 my $remote = IO::Socket::INET->new(
 								Proto    => "tcp",
 								PeerAddr => "victorio.uit.no",
-								PeerPort => "8080",
+								PeerPort => $PORT,
 								)
 	or die "cannot connect to port 8080 at localhost";
 
@@ -72,22 +73,17 @@ print $remote "$parameters";
 
 # Take the confirmation of parameters, and possible error.
 my $msg = <$remote>;
-print STDERR $msg;
-exit if ($msg =~ /ERROR/);
+if ($msg =~ /ERROR/) { print STDERR $msg; exit; }
 
-my $input;
 while(<STDIN>) {
 
 	if (/quit|exit/) {
 		print $remote "END_CLIENT\n";
 		exit;
 	}
-	if ($_ =~ /^\s*$/ && $input) { 
-		print $remote $input;
-		print $remote "END_REQUEST\n";
-		$input=undef;
-	}
-	else { $input .= $_; next; }
+
+	print $remote "$_";
+
 	my $line = <$remote>;
 	while ($line && $line !~ /END_REPLY/) {
 		print "$line";
