@@ -107,22 +107,20 @@ my $client;
 		my $input;
 	  CLIENT_REQUEST:
 		while ( <$client>) {
-
-		  READ_INPUT: {
-			  s/\r//g;
-			  #next if (/^\s*$/);
-			  s/^\n+//;
+			
+			# read one line at the time
+			s/\r//g;
+			#next if (/^\s*$/);
+			s/^\n+//;
+			
+			# if client is exiting
+			last CLIENT if (/END_CLIENT/);
+			
+			# remove possible end request.
+			s/END_REQUEST//g;
 			  
-			  # if client is exiting
-			  last CLIENT if (/END_CLIENT/);
-			  
-			  # if end request, go to the next block
-			  last READ_INPUT if (/END_REQUEST/);
+			$input = $_;
 
-			  # otherwise continue reading
-			  $input .= $_;
-			  next CLIENT_REQUEST;
-		  }
 			if (! $input) { print $client "END_REPLY\n"; next; }
 
 			# Find the action to be done with this input
