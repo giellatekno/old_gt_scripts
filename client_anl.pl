@@ -24,7 +24,8 @@ my $fst;
 my $rle;
 my $xml=0;
 my $param;
-my $PORT=9000;
+#my $PORT=9000;
+my $PORT=8080;
 
 # Allow combination of options, -pad
 Getopt::Long::Configure ("bundling");
