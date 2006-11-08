@@ -35,7 +35,7 @@ sub dis2xml {
 	my ($text) = @_;
 
 	my $w;
-	my $output=XML::Twig::Elt->new('output');
+	my $output=XML::Twig::Elt->new('disamb');
 
 	if (! $text) { 
 		my $string = $output->sprint;
@@ -126,7 +126,7 @@ sub analyzer2xml {
 
 	my $word;
 	my $w;
-	my $output=XML::Twig::Elt->new('output');
+	my $output=XML::Twig::Elt->new('analysis');
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
@@ -204,7 +204,7 @@ sub hyph2xml {
 	
 	my $w;
 	my $word;
-	my $output=XML::Twig::Elt->new('output');
+	my $output=XML::Twig::Elt->new('hyphenation');
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
@@ -251,7 +251,11 @@ sub gen2xml {
 	my $w;
 	my $lemma;
 	my $analysis;
-	my $output=XML::Twig::Elt->new('output');
+	my $output;
+	if ($paradigm)
+		$output=XML::Twig::Elt->new('paradigm');
+	else
+		$output=XML::Twig::Elt->new('generation');
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
@@ -305,7 +309,7 @@ sub gen2xml {
 sub preprocess2xml {
 	my ($text) = @_;
 	
-	my $output=XML::Twig::Elt->new('output');
+	my $output=XML::Twig::Elt->new('preprocess');
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
