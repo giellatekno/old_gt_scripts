@@ -253,9 +253,9 @@ sub gen2xml {
 	my $analysis;
 	my $output;
 	if ($paradigm)
-		$output=XML::Twig::Elt->new('paradigm');
+		{ $output=XML::Twig::Elt->new('paradigm'); }
 	else
-		$output=XML::Twig::Elt->new('generation');
+		{ $output=XML::Twig::Elt->new('generation'); }
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
