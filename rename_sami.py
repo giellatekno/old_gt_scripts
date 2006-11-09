@@ -78,14 +78,14 @@ def RenameProblemTree(ProblemTree):
 			unidir = unicodedata.normalize('NFC', dir.decode('utf-8', dir))
 			newdir = ChangeProblematicName(unidir)
 			if newdir != unidir:
-				print "in dirs ", uniroot + unidir , uniroot + newdir
+				#print "in dirs ", uniroot + unidir , uniroot + newdir
 				os.rename(uniroot + unidir , uniroot + newdir)
 		
 		for file in files:
 			unifile = unicodedata.normalize('NFC', file.decode('utf-8', file))
 			newfile = ChangeProblematicName(unifile)
 			if newfile != unifile:
-				print "in files ", uniroot + unifile, uniroot + newfile
+				#print "in files ", uniroot + unifile, uniroot + newfile
 				os.rename(uniroot + unifile, uniroot + newfile)
 
 
