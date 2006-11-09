@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
-
+# Version : $Id$
 ############################################################################
 #    Copyright (C) 2006 by Børre Gaup   #
 #    boerre@skolelinux.no   #
