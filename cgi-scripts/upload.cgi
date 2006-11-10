@@ -31,7 +31,6 @@ my %mime_types = ( "text/html" => "html",
 				   "application/pdf" => "pdf",
 				   "text/plain" => "txt" );
 
-my $file_count=1;
 
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
@@ -48,7 +47,8 @@ $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 # print new page for multiple file upload
-$file_count = param("file_count");
+my $file_count = param("file_count");
+if (! $file_count) { $file_count = 1; }
 if(param("print_multiple") && $file_count) {
 	print_multiple_upload($file_count);
 	exit;
@@ -57,7 +57,7 @@ if(param("print_multiple") && $file_count) {
 # Getting the filename and contet type check.
 my @filehandle  = upload('document');    #array of file handles 
 
-if (! @filehandle ) { die "OK: No file was selected for upload.\n" }
+if (! @filehandle ) { die "No file was selected for upload.\n" }
 for my $file (@filehandle) {
 	my $filetype = uploadInfo($file)->{'Content-Type'}; 
 	
@@ -98,14 +98,6 @@ for($i=0;$i<$file_count;$i++) {
 
     # Parsing the path away
 	my $filename = $filehandle[$i];
-
-    # Handle to the file
-#	my $upload_filehandle = upload("$filename");
-#	if (!$upload_filehandle) {
-#		if ($i>0) { mailit($message); }
-#		die "$filename: FILE NOT FOUND!";
-#	}
-
 
     # Parsing the path away
 	$filename =~ s/.*[\/\\](.*)/$1/;
@@ -227,7 +219,7 @@ END_FIRST_PART
 	print <<END_HTML;
 	<h1>The document information</h1>
 
-    <form name="metainfo" TYPE="text" ACTION="xsl-process-test.cgi"
+    <form name="metainfo" TYPE="text" ACTION="xsl-process.cgi"
 	METHOD="post" enctype="multipart/form-data" onsubmit="return checkWholeForm(this)">
 
   Document title: <input type="text" name="title" value="$title" size="50"> <br/>
