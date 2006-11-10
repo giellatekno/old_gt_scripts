@@ -18,49 +18,68 @@
 corpdir=/usr/local/share/corp
 #corpdir=/home/saara/samipdf
 
+downloads_dir=/home/saara/downloads
+
 tmpdir=/usr/tmp
-languages="sme"
 time=`date +%F`
 
-rm -rf $tmpdir/gtfree
-rm -rf $tmpdir/gttext
+gtfree=$corpdir/free
+rem_file=$tmpdir/rem_broken_free.sh
+corpus_fix="/home/saara/gt/script/corpus-fix-free.pl"
 
-mkdir -p $tmpdir/gtfree
+
+languages="smj"
 
 for lang in $languages
 do
-  gtfree=gtfree/$lang
-  gttext=gttext/$lang
 
-  cp -r $corpdir/$gtfree $tmpdir/gtfree/
+  tmptext=$tmpdir/$lang-txt
+  # Remove old txt-directory
+  rm -rf $tmptext
+  mkdir -p $tmptext
 
-  # temporary fix: remove the bible dir
-  rm -rf $tmpdir/$gtfree/bible
-
-  # make the plain text directory.
-  cd $tmpdir && cp -r gtfree gttext
+  # Check first the free-catalog
+  rm -rf $rem_file
+#  perl $corpus_fix --corpdir=$corpdir --lang=$lang --rem_file=$rem_file
+  if [ -f $rem_file -a -s $rem_file ]
+	  then
+	  echo "Fix errors first! See file $rem_file"
+	  chmod a+x $rem_file
+	  exit
+  else
+	  echo "No errors. Continuing.."
+  fi
 
   # create plain text files.
-  files=`find $tmpdir/$gttext -type f`
-
+  files=`find $gtfree/$lang -type f`
+  
   for file in $files
 	do
-	txtfile=`echo $file | sed s/xml/txt/`
-	ccat $file > $txtfile
-	rm -rf $file
+	txtfile=`echo $file | perl -pe "s/xml/txt/; s|$corpdir|$tmpdir|; s|free\/$lang|$lang-txt|"`
+	#echo $txtfile
+	dir=$(dirname $txtfile)
+	mkdir -p $dir
+	ccat -l $lang $file > $txtfile
   done
 
   # Create both xml and text tar-archives.
-  tar_file=$lang-corpus-xml-$time.tar
-  cd $tmpdir && tar -c --file=$tar_file $gtfree
+  tar_file=$tmpdir/$lang-corpus-xml-$time.tar
+  echo "cd $gtfree && tar -c --file=$tar_file $lang"
+  cd $gtfree && tar -c --file=$tar_file $lang
+  echo "gzip -f $tar_file"
   gzip -f $tar_file
 
-  txt_tar_file=$lang-corpus-txt-$time.tar
-  cd $tmpdir && tar -c --file=$txt_tar_file $gttext
+  txt_tar_file=$tmpdir/$lang-corpus-txt-$time.tar
+  echo "cd $tmpdir && tar -c --file=$txt_tar_file $lang-txt"
+  cd $tmpdir && tar -c --file=$txt_tar_file $lang-txt
+  echo "gzip -f $txt_tar_file"
   gzip -f $txt_tar_file
 
-  cp $tmpdir/$txt_tar_file.gz /home/saara/downloads/
-  cp $tmpdir/$tar_file.gz /home/saara/downloads/
+  echo "cp $txt_tar_file.gz $downloads_dir"
+  echo "cp $tar_file.gz $downloads_dir"
+
+  cp $txt_tar_file.gz $downloads_dir
+  cp $tar_file.gz $downloads_dir
 
 done
 
