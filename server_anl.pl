@@ -89,7 +89,7 @@ my $client;
 
 		my $error = process_paras($paras);
 		if ($error) { print $client "ERROR $error\nEND_REPLY\n"; last CLIENT; }
-		else { print $client "END_REPLY\n"; }
+		else { print $client ""; }
 		
 #		print "Setting language to $language.\n";
 #		print "Using fsts:\n";
@@ -121,7 +121,7 @@ my $client;
 			  
 			$input = $_;
 
-			if (! $input) { print $client "END_REPLY\n"; next; }
+			if (! $input) { next; }
 
 			# Find the action to be done with this input
 			my $act;
@@ -164,7 +164,7 @@ my $client;
 				print $client $result, "\n";
 			}
 			
-			print $client "END_REPLY\n";
+#			print $client "END_REPLY\n";
 			$input=undef;
 		}
 		print "client exiting..";
