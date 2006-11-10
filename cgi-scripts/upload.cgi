@@ -129,7 +129,7 @@ for($i=0;$i<$file_count;$i++) {
 	for my $j (@md5sums) {
 		if ($j eq $md5) {
 #		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
-#			if ($j>0) { mailit($message); }
+			if ($j>0) { mailit($message); }
 			die "$filename: File already exists in our corpus base!";
 		}
 	}
