@@ -10,24 +10,43 @@ use strict;
 #binmode STDOUT, ":utf8";
 use XML::Twig;
 
-my $corpdir="/usr/local/share/corp/bound/sme/facta";
-#my $corpdir="/home/saara/samipdf/free";
+use Getopt::Long;
 
-my $files=`find $corpdir -type f  -name \"*.xml\"`;
+my $corpdir="/usr/local/share/corp/";
+my $lang="sme";
+my $rem_file="remove_non_free.sh";
+
+GetOptions ("corpdir=s" => \$corpdir,
+			"lang=s" => \$lang,
+			"rem_file=s" => \$rem_file,
+			);
+
+my $freedir="$corpdir/free/$lang";
+
+my $files=`find $freedir -type f  -name \"*.xml\"`;
 my @file_a = split ("\n", $files);
 
-my $rem_file="remove_non_free.sh";
-open FH, $rem_file;
+open FH, ">$rem_file";
+
+print "Going through files in free-catalog.\n";
+print "Printing commands to file: $rem_file\n";
 
 for my $file (@file_a) {
-	print "$file\n";
-	(my $freefile = $file) =~ s/\/bound/\/free/;
-	next if (! -f $freefile);
+	(my $boundfile = $file) =~ s/\/free/\/bound/;
+
+	(my $origfile = $file) =~ s/\/free/\/orig/;
+	$origfile =~ s/\.xml//;
+	if (! -f $origfile) {
+		print "$file: missing original file\n";
+		my $command = "rm -rf \"$file\"";
+		print FH "$command\n";
+		next;
+	}
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile("$file")) {
-		my $command = "rm -rf \"$freefile\"";
+		my $command = "rm -rf \"$file\"";
 		print FH "$command\n";
-		print STDERR "$file: Parsing the XML-file failed: $@\n";
+		print "$file: Parsing the XML-file failed: $@\n";
 		next;
 	}
 
@@ -39,8 +58,11 @@ for my $file (@file_a) {
 
 	if ( $license !~ /free/ ) {
 		print "$file: non free\n";
-		my $command = "rm -rf \"$freefile\"";
+		my $command = "rm -rf \"$file\"";
 		print FH "$command\n";
+		next;
 	}
 }
+
+
 close FH;
