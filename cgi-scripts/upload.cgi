@@ -3,8 +3,8 @@
 use strict;
 
 # Importing CGI libraries
-use CGI;
-use CGI::Upload;
+use CGI qw/:standard/;
+#use CGI::Upload;
 $CGI::DISABLE_UPLOADS = 0;
 $CGI::POST_MAX        = 1_024 * 1_024; # limit posts to 1 meg max
 
@@ -31,7 +31,7 @@ my %mime_types = ( "text/html" => "html",
 				   "application/pdf" => "pdf",
 				   "text/plain" => "txt" );
 
-my $query = new CGI;
+my $file_count=1;
 
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
@@ -47,79 +47,35 @@ mkdir ($upload_dir, 0755) unless -d $upload_dir;
 $ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
-my $license_type = $query->param("license_type");
-my $mainlang = $query->param("mainlang");
+# print new page for multiple file upload
+$file_count = param("file_count");
+if(param("print_multiple") && $file_count) {
+	print_multiple_upload($file_count);
+	exit;
+}
 
 # Getting the filename and contet type check.
-my $upload = CGI::Upload->new({ query => $query });
-my $filename = $upload->file_name('document');
-if (! $filename ) { die "No file was selected for upload.\n" }
-my $filetype = $upload->mime_type('document');
-if (! $mime_types{$filetype}) {
-	die "Upload only msword, pdf and html-files.\n" 
-	}
-else {
-	if ($filename !~ m/\.(doc|pdf|html|txt|ptx)$/) {
-		$filename = $filename . "." . $mime_types{$filetype};
-	}
-}
+my @filehandle  = upload('document');    #array of file handles 
 
-# Parsing the path away
-$filename =~ s/.*[\/\\](.*)/$1/;
-# Replace space with underscore - c = complement the search list
-my $fname = $filename;
-$fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
-
-# Generate a new file name 
-# if there exists a file with the same name.
-$fname =~ s/.*[\/\\](.*)/$1/;
-my $i = 1;
-while (-e "$upload_dir/$fname") {
-	my $tmp = $fname;
-	$tmp =~ s/(\.(.*))$//;
-	$tmp = $tmp . "_" . $i;
-	$fname = $tmp.$1;
-	$i++;
-}
-
-# Calculate md5sums of files in orig/ dir
-my @md5sums = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
-
-
-# Handle to the file
-my $upload_filehandle = $upload->file_handle('document');
-
-if (!$upload_filehandle) {
-    die "FILE NOT FOUND!";
-}
-
-# Open file on the server and print uploaded file into it.
-open UPLOADFILE, ">$upload_dir/$fname"
-      or die "Can't open file $upload_dir/$fname!";
-while (<$upload_filehandle>) {
-	print UPLOADFILE;
-}
-close UPLOADFILE;
-
-
-my $md5 = (`md5sum $upload_dir/$fname | cut -c 1-32`);
-# Check that file doesn't already exist
-for my $i (@md5sums) {
-	if ($i eq $md5) {
-#		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
-		die "File already exists in our corpus base!";
+if (! @filehandle ) { die "OK: No file was selected for upload.\n" }
+for my $file (@filehandle) {
+	my $filetype = uploadInfo($file)->{'Content-Type'}; 
+	
+	if (! $mime_types{$filetype}) { die "Upload only msword, pdf and html-files.\n" }
+	else {
+		if ($file !~ m/\.(doc|pdf|html|txt|ptx)$/) {
+			$file = $file . "." . $mime_types{$file};
+		}
 	}
 }
 
+my $real_count = @filehandle;
+if ($real_count > $file_count || $real_count > 9) {
+	die "Upload only up to 9 files at the time.\n"
+}
 
-# Calling convert2xml -script with hardcoded execution path
-# The 'or die' part doesn't work, it dies everytime...
-my @args = ("$convert", "--lang=$mainlang", "--tmpdir=$tmpdir", "--noxsl", "--upload", "$upload_dir/$fname");
-system (@args);
-#	 or die "Error in conversion";
-
-# Send an email message of the upload.
-mailit("corpus\@giellatekno.uit.no", "upload.cgi", "File uploaded", "File uploaded to $upload_dir\nName: $fname\nlanguage: $mainlang\nlicense: $license_type\n---\nThis is automatic notification email from web upload script upload.cgi.");
+# Message sent to the maintainer after corpus upload.
+my $message = "Files uploaded to $upload_dir.\n";
 
 my $author1_ln="";
 my $publisher="";
@@ -127,42 +83,151 @@ my $year="";
 my $isbn="";
 my $issn="";
 my $title="";
-my $document = XML::Twig->new(twig_handlers => 
-							  { 'header/author/person' => sub { $author1_ln = $_->{'att'}->{'lastname'} },
-								'header/publChannel/publisher' => sub { $publisher = $_->text },
-								'header/publChannel/isbn' => sub { $isbn = $_->text },
-								'header/publChannel/issn' => sub { $issn = $_->text },
-								'header/year' => sub { $year = $_->text },
-								'header/title' => sub { $title = $_->text },
 
-							});
+my @fnames;
+my @mainlangs;
+my @license_types;
 
-if (! $document->safe_parsefile ("$upload_dir/$fname.xml")) {
-	 print STDERR "$fname: Warning: parsing the XML-file failed.\n";
- }
 
-# The html-part starts here                                                                                 
-print <<END_HEADER
-<html>
+# Calculate md5sums of files in orig/ dir
+my @md5sums = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
+	
+
+my $i;
+for($i=0;$i<$file_count;$i++) {
+
+    # Parsing the path away
+	my $filename = $filehandle[$i];
+
+    # Handle to the file
+#	my $upload_filehandle = upload("$filename");
+#	if (!$upload_filehandle) {
+#		if ($i>0) { mailit($message); }
+#		die "$filename: FILE NOT FOUND!";
+#	}
+
+
+    # Parsing the path away
+	$filename =~ s/.*[\/\\](.*)/$1/;
+    # Replace space with underscore - c = complement the search list
+	my $fname = $filename;
+	$fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
+	
+    # Generate a new file name 
+    # if there exists a file with the same name.
+	$fname =~ s/.*[\/\\](.*)/$1/;
+	my $j = 1;
+	while (-e "$upload_dir/$fname") {
+		my $tmp = $fname;
+		$tmp =~ s/(\.(.*))$//;
+		$fname = $tmp . "_" . $j . $1;
+		$j++;
+	}
+
+   # Open file on the server and print uploaded file into it.
+	open UPLOADFILE, ">$upload_dir/$fname"
+		or die "Can't open file $upload_dir/$fname!";
+	while (<$filename>) {
+		print UPLOADFILE;
+	}
+	close UPLOADFILE;
+	
+	my $md5 = (`md5sum $upload_dir/$fname | cut -c 1-32`);	
+    # Check that file doesn't already exist
+	for my $j (@md5sums) {
+		if ($j eq $md5) {
+#		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
+#			if ($j>0) { mailit($message); }
+			die "$filename: File already exists in our corpus base!";
+		}
+	}
+
+	my $mlang = "mainlang_" . $i;
+	my $ltype = "license_type_" . $i;
+	my $mainlang = param($mlang);
+	my $license_type = param($ltype);
+	push @mainlangs, $mainlang;
+	push @license_types, $license_type;
+
+    # Calling convert2xml -script with hardcoded execution path
+    # The 'or die' part doesn't work, it dies everytime...
+	my @args = ("$convert", "--lang=$mainlang", "--tmpdir=$tmpdir", "--noxsl", "--upload", "$upload_dir/$fname");
+	system (@args);
+    # or die "$filename: Error in conversion";
+
+	# Only the first document is parsed and checked for xml-structure
+	# to speed up processing.
+	if($i==0) {
+		my $doc = XML::Twig->new(twig_handlers => 
+								 {'header/author/person' => sub { $author1_ln = $_->{'att'}->{'lastname'} },
+								  'header/publChannel/publisher' => sub { $publisher = $_->text },
+								  'header/publChannel/isbn' => sub { $isbn = $_->text },
+								  'header/publChannel/issn' => sub { $issn = $_->text },
+								  'header/year' => sub { $year = $_->text },
+								  'header/title' => sub { $title = $_->text },
+							   });
+		if (! $doc->safe_parsefile ("$upload_dir/$fname.xml")) {
+			print STDERR "$fname: ERROR parsing the XML-file failed.\n";
+		}
+	}
+
+	push @fnames, $fname;
+	$message.= "Name: $fname\nlanguage: $mainlang\nlicense: $license_type\n"
+}
+
+
+# Print metainformation form.
+&print_metaform;
+
+
+########## Subroutines from here on ######
+
+# Print metainfomation form
+sub print_metaform {
+
+
+	print <<END_HEADER;
+	<html>
 	<head>
 END_HEADER
-	;
-	&write_js;
 
-print <<END_HTML
-	<title>File uploaded</title>
-  </head>
-  <body>
+&write_js;
 
-<h1>File uploaded</h1>
-    <p>Thank you for uploading the file $filename </a>.</p>
-	<p>Please fill in the following form with the available
-    information of the document. The fields submitter name
-    and email are mandatory.</p>
+	if($real_count > 1) {
+		print <<END_FIRST_PART;
+		<title>File uploaded</title>
+			</head>
+			<body>
+			
+			<h1>File uploaded</h1>
+			<p>Thank you for uploading the file @filehandle </a>.</p>
+			<p>Please fill in the following form with the available
+			information of the document. The fields submitter name
+			and email are mandatory.</p>
+END_FIRST_PART
 
-<h1>The document information</h1>
+}	
 
-    <form name="metainfo" TYPE="text" ACTION="xsl-process.cgi"
+	else {
+		print <<END_FIRST_PART;
+		<title>Files uploadeded</title>
+			</head>
+			<body>
+			
+			<h1>File uploaded</h1>
+			<p>Thank you for uploading the files @filehandle </a>.</p>
+			<p>Please fill in the following form with the available
+			information of the documents. Notice that all the
+			documents will recieve the same metainformation. The fields submitter name
+			and email are mandatory.</p>
+END_FIRST_PART
+
+	}
+
+	print <<END_HTML;
+	<h1>The document information</h1>
+
+    <form name="metainfo" TYPE="text" ACTION="xsl-process-test.cgi"
 	METHOD="post" enctype="multipart/form-data" onsubmit="return checkWholeForm(this)">
 
   Document title: <input type="text" name="title" value="$title" size="50"> <br/>
@@ -310,22 +375,30 @@ print <<END_HTML
 <input type="text" name="sub_email" value="" size="40"></td>
 </tr>
 </table>
-      <input type="hidden" name="filename" value="$upload_dir/$fname">
-      <input type="hidden" name="license_type" value="$license_type">
-      <input type="hidden" name="mainlang" value="$mainlang">
+      <input type="hidden" name="filename" value="@fnames">
+      <input type="hidden" name="license_type" value="@license_types">
+      <input type="hidden" name="mainlang" value="@mainlangs">
       <input type="submit" name="Submit" value="submit form">
     </form>
   </body>
 </html>
 
 END_HTML
-	;
+}
 
 # send an email notification.
 sub mailit {
-	my ($recipient, $sender, $subject, $message) = @_;
+	my $message = shift @_;
+	
+	my $recipient="corpus\@giellatekno.uit.no";
+	my $sender="upload.cgi";
+	my $subject="File uploaded";
 
-	open(MAIL, "|/usr/lib/sendmail -t");
+    $message .= "\n---\nThis is automatic notification email from web upload script upload.cgi.";
+
+return;
+
+    open(MAIL, "|/usr/lib/sendmail -t");
 	print MAIL "To: $recipient\n";
 	print MAIL "From: $sender\n";
 	print MAIL "Subject: $subject\n\n";
@@ -333,9 +406,73 @@ sub mailit {
 	close (MAIL);
 }
 
+sub print_multiple_upload {
+
+	my $file_c = shift @_;
+
+	
+	print <<END_H;
+	<html>
+		<head>
+		<title>File uploaded</title>
+		</head>
+		<body>
+		
+		<h1>Fill in the filenames and languages</h1>
+		
+		<form  ACTION="http://sami-cgi-bin.uit.no/cgi-bin/smi/upload2.cgi"
+		METHOD="post" ENCTYPE="multipart/form-data">
+		
+END_H
+	
+	my $i;
+	for($i=0;$i<$file_c;$i++) {
+		my $j=$i+1;
+		print <<END_FIELDS;
+		<table border="0" cellspacing="5" cellpadding="0" >
+			<tr><td> File $j: </td><td><INPUT TYPE="file" NAME="document"></td></tr>
+			<tr><td> Main language: </td><td>
+			<select name="mainlang_$i">
+			<option value="sme">North S&aacute;mi</option>
+			<option value="smj">Julev S&aacute;mi</option>
+			<option value="sma">South S&aacute;mi</option>
+			<option value="nno">Nynorsk</option>
+			<option value="nob">Bokm&aring;l</option>
+			<option value="fin">Finnish</option>
+			<option value="swe">Swedish</option>
+			<option value="eng">English</option>
+			<option value="oth">other</option>
+			</select></td>
+			</tr>
+			<tr><td> License: </td><td>
+			<select name="license_type_$i">
+			<option value="free">Free</option>
+			<option value="standard">Standard</option>
+			<option value="other">Other</option>
+			</select>
+			</td></tr>
+			</table>
+			
+END_FIELDS
+
+}
+	
+	print <<END;
+		<br/>
+			<input type="hidden" name="file_count" value="$file_c">
+			<INPUT TYPE="submit" NAME="Submit" VALUE="Submit Form" >
+		</form>
+		</body>
+		</html>
+		
+END
+
+}
+
+
 sub write_js {
-	print <<END_OF_JS
-<script language="JavaScript">
+	print <<END_OF_JS;
+	<script language="JavaScript">
 
 // check form
    	function checkWholeForm(theForm) {
@@ -379,5 +516,5 @@ sub write_js {
 		}
 </script>
 END_OF_JS
-;
+
 }

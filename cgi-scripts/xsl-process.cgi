@@ -53,23 +53,40 @@ my $xsltemplate = "$corpdir/bin/XSL-template.xsl";
 
 if(!$bookinfo{filename}) { die "File not specified\n"; }
 
-# Parse the filename once more, once for security
+# Parse the filenames once more, once for security
 # and second for to take away the path.
-my $fname = $bookinfo{filename};
-$fname =~ s/.*[\/\\](.*)/$1/;
-$fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
-my $upload_file = "$upload_dir/$fname";
 
-# Create the xsl-file and add the form data
-copy ("$xsltemplate", "$upload_file.xsl") or die "Copy failed ($upload_file.xsl): $!";
+my $fname_list = $bookinfo{'filename'};
+my @fnames = split(" ", $fname_list);
+my @mainlangs = split(" ", $bookinfo{'mainlang'});
+my @license_types = split(" ", $bookinfo{'license_type'});
 
-my $document = XML::Twig->new(twig_handlers => {'xsl:variable' => \&process });
 
-$document->parsefile ("$upload_file.xsl");
-$document->set_pretty_print('record');
+my $i;
+my $real_count = scalar @fnames;
 
-open (FH, ">$upload_file.xsl") or die "Cannot open file $upload_file.xsl for output: $!";
-$document->print( \*FH);
+for($i=0;$i<$real_count;$i++) {
+	my $fname = $fnames[$i];
+	next if (! $fname || $fname =~ /^\s+$/);
+
+	my $mainlang=$mainlangs[$i];
+	my $license_type=$license_types[$i];
+
+	$fname =~ s/.*[\/\\](.*)/$1/;
+	$fname =~ tr/\.A-Za-z0-9ÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö/_/c;
+	my $upload_file = "$upload_dir/$fname";
+	
+    # Create the xsl-file and add the form data
+	copy ("$xsltemplate", "$upload_file.xsl") or die "Copy failed ($upload_file.xsl): $!";
+	
+	my $document = XML::Twig->new(twig_handlers => {'xsl:variable' => sub { process(@_, $fname, $mainlang, $license_type)} });
+
+	$document->parsefile ("$upload_file.xsl");
+	$document->set_pretty_print('record');
+	
+	open (FH, ">$upload_file.xsl") or die "Cannot open file $upload_file.xsl for output: $!";
+	$document->print( \*FH);
+}
 
 # The html-part starts here
 print <<END_HTML;
@@ -81,7 +98,7 @@ print <<END_HTML;
   
   <body>
     <h1>Document information updated</h1> 
-	<p>Information updated to file $fname.xml.</p>
+	<p>Information updated to files @fnames.</p>
     <p><a href="http://www.divvun.no/upload/upload-corpus-file.html"> Upload more files</a> </p>
 	<p><a href="http://www.divvun.no/"> Divvun main page</a></p>
   </body>
@@ -90,15 +107,22 @@ print <<END_HTML;
 END_HTML
 
 sub process {
-    my ( $t, $var) = @_;
+    my ( $t, $var, $fname, $mainlang, $license_type) = @_;
 
 	my $attribute = $var->{'att'}->{'name'};
 	if ($attribute && $bookinfo{$attribute} ) {
 		if ($attribute eq "filename") {
 			$var->set_att( 'select' => "'" . $fname  . "'");
+			return;
 		}
-		else {
-			$var->set_att( 'select' => "'" . $bookinfo{$attribute}  . "'");
+		if ($attribute eq "mainlang") {
+			$var->set_att( 'select' => "'" . $mainlang  . "'");
+			return;
 		}
+		if ($attribute eq "license_type") {
+			$var->set_att( 'select' => "'" . $license_type  . "'");
+			return;
+		}
+		$var->set_att( 'select' => "'" . $bookinfo{$attribute}  . "'");
 	}
 }
