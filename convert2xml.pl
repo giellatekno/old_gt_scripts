@@ -163,7 +163,6 @@ sub process_file {
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
     (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
-	print "INT: $int\n";
 
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
