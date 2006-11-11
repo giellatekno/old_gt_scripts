@@ -17,6 +17,7 @@ tmpdir="/usr/tmp"
 scripts="convert2xml.pl
 text_cat
 paratext2xml.pl
+bible2xml.pl
 pdf2xml.pl
 corpus_call_jpedal.sh
 add-hyph-tags.pl
