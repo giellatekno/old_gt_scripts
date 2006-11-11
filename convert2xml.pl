@@ -97,8 +97,9 @@ my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
-my $jpedal = "/home/saara/gt/script/corpus_call_jpedal.sh";
-my $pdf2xml = "perl /home/saara/gt/script/pdf2xml.pl";
+my $jpedal = $bindir . "/corpus_call_jpedal.sh";
+my $pdf2xml = $bindir . "/pdf2xml.pl";
+my $bible2xml = $bindir . "/bible2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -145,7 +146,7 @@ sub process_file {
 	my $no_decode_this_time = 0;
 	print STDERR "$file\n";
 
-	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt)$/);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return;
@@ -162,6 +163,7 @@ sub process_file {
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
     (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
+	print "INT: $int\n";
 
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
@@ -322,6 +324,12 @@ sub process_file {
 	# Conversion of paratext documents
 	if ($file =~ /\.ptx$/) {
 		$command = "$paratext2xml \"$orig\" --out=\"$int\"";
+		exec_com($command, $file);
+	}
+
+	# Conversion of bibles
+	if ($file =~ /\.bible\.xml$/) {
+		$command = "$bible2xml --out=\"$int\" \"$orig\"";
 		exec_com($command, $file);
 	}
 
