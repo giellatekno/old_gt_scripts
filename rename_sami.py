@@ -48,45 +48,53 @@ import os.path
 
 def ChangeProblematicName(ProblematicName):
 	AsciiName = ProblematicName.strip()
-	for i in u'åÅæÆäÄáÁ':
-		AsciiName = AsciiName.replace(i, 'a')
-	for i in u'øØöÖóÓ':
-		AsciiName = AsciiName.replace(i, 'o')
-	for i in u'šŠ':
-		AsciiName = AsciiName.replace(i, 's')
-	for i in u'ŧŦ':
-		AsciiName = AsciiName.replace(i, 't')
-	for i in u'ŋŊ':
-		AsciiName = AsciiName.replace(i, 'n')
-	for i in u'đĐ':
-		AsciiName = AsciiName.replace(i, 'd')
-	for i in u'žŽ':
-		AsciiName = AsciiName.replace(i, 'z')
-	for i in u'čČ':
-		AsciiName = AsciiName.replace(i, 'c')
-	for i in u'•':
-		AsciiName = AsciiName.replace(i, '_bullit_')
-	return AsciiName
+        AsciiName = AsciiName.replace(' ','')
+	AsciiName = AsciiName.replace('A\xCC\x81', 'AI') # Á
+        AsciiName = AsciiName.replace('A\xCC\x88', 'AE') # Ä
+        AsciiName = AsciiName.replace('A\xCC\x8A', 'AA') # Å
+        AsciiName = AsciiName.replace('C\xCC\x8C', 'TSJ') # Č
+        AsciiName = AsciiName.replace('O\xCC\x88', 'OE') # Ö
+        AsciiName = AsciiName.replace('S\xCC\x8C', 'SJ') # Š
+        AsciiName = AsciiName.replace('Z\xCC\x8C', 'DSJ') # Ž
+        AsciiName = AsciiName.replace('a\xCC\x81', 'a') # á
+        AsciiName = AsciiName.replace('a\xCC\x88', 'ae') # ä
+        AsciiName = AsciiName.replace('a\xCC\x8A', 'aa') # å
+        AsciiName = AsciiName.replace('c\xCC\x8C', 'tsj') # č
+        AsciiName = AsciiName.replace('o\xCC\x88', 'oe') # ö
+        AsciiName = AsciiName.replace('s\xCC\x8C', 'sj') # š
+        AsciiName = AsciiName.replace('z\xCC\x8C', 'dsj') # ž
+        AsciiName = AsciiName.replace('\xC3\x86', 'AE') # Æ
+        AsciiName = AsciiName.replace('\xC3\x98', 'OE') # Ø
+        AsciiName = AsciiName.replace('\xC3\xA6', 'ae') # æ
+        AsciiName = AsciiName.replace('\xC3\xB8', 'oe') # ø
+        AsciiName = AsciiName.replace('\xC4\x90', 'DH') # Đ
+        AsciiName = AsciiName.replace('\xC4\x91', 'dh') # đ
+        AsciiName = AsciiName.replace('\xC5\x8A', 'NG') # Ŋ
+        AsciiName = AsciiName.replace('\xC5\x8B', 'ng') # ŋ
+        AsciiName = AsciiName.replace('\xC5\xA6', 'TH') # Ŧ
+        AsciiName = AsciiName.replace('\xC5\xA7', 'th') # ŧ
+        return AsciiName
 
 def RenameProblemTree(ProblemTree):
 	for root, dirs, files in os.walk(ProblemTree, topdown=False):
 		if 'Library' in dirs:
 			dirs.remove('Library') # Don't visit Library directories
 			
-		uniroot = unicodedata.normalize('NFC', root.decode('utf-8', root)) + '/'
-		for dir in dirs:
-			unidir = unicodedata.normalize('NFC', dir.decode('utf-8', dir))
-			newdir = ChangeProblematicName(unidir)
-			if newdir != unidir:
-				#print "in dirs ", uniroot + unidir , uniroot + newdir
-				os.rename(uniroot + unidir , uniroot + newdir)
+		for mydir in dirs:
+			newdir = ChangeProblematicName(mydir)
+			if newdir != mydir:
+			        print "in dirs ", root + '/' + mydir, '-->', root + '/' + newdir
+				os.rename(root + '/' + mydir, root + '/' + newdir)
 		
-		for file in files:
-			unifile = unicodedata.normalize('NFC', file.decode('utf-8', file))
-			newfile = ChangeProblematicName(unifile)
-			if newfile != unifile:
-				#print "in files ", uniroot + unifile, uniroot + newfile
-				os.rename(uniroot + unifile, uniroot + newfile)
+	for root, dirs, files in os.walk(ProblemTree):
+		if 'Library' in dirs:
+			dirs.remove('Library') # Don't visit Library directories
+		
+                for file in files:
+			newfile = ChangeProblematicName(file)
+			if newfile != file:
+			     print "in files ", root + '/' + file , root + '/' + newfile
+			     os.rename(root + '/' + file, root + '/' + newfile)
 
 
 def main():
