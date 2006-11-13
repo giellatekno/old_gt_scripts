@@ -8,9 +8,9 @@
 use strict;
 use XML::Twig;
 
-#my $file="/usr/local/share/corp/orig/smj/bible/nt/lule_sami_new_testament.html";
+my $file="/usr/local/share/corp/orig/smj/bible/nt/lule_sami_new_testament.html";
 #my $file="/home/saara/lule_sami_new_testament.html";
-my $file="/home/saara/lule_new.html";
+#my $file="/home/saara/lule_new.html";
 
 my $document = XML::Twig->new;
 if (! $document->safe_parsefile("$file")) {
@@ -136,6 +136,27 @@ for my $c ($body->children) {
 			$verse=undef;
 		}
 	}
+}
+
+if ($book) {
+	if ($chapter) {
+		if ($section) {
+			if ($verse) { 
+				$verse->paste('last_child', $chapter); 
+				$verse->DESTROY;
+				$verse=undef;
+			}
+			$section->paste('last_child', $chapter);
+			$section->DESTROY;
+			$section=undef;
+		}
+		$chapter->paste('last_child', $book);
+		$chapter->DESTROY;
+		$chapter=undef;
+	}
+	$book->paste('last_child', $body);
+	$book->DESTROY;
+	$book=undef;
 }
 	
 $document->print;
