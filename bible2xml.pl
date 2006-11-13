@@ -12,7 +12,7 @@ use strict;
 use XML::Twig;
 use Getopt::Long;
 
-my $file="/home/saara/koe.xml";
+my $file;
 my $outfile="/home/saara/koe_out.xml";
 
 GetOptions ("out=s" => \$outfile,
@@ -66,7 +66,7 @@ sub process_book {
 		$p->paste('first_child', $section);
 
 		for my $se ($chapter->children) {
-			if ($se->gi eq 'verse') { process_verse($section, $se);  next; }
+			if ($se->gi eq 'verse') { process_verse($section, $se, 1);  next; }
 			process_section($section, $se);
 		}
 		$chapter->delete;
@@ -75,13 +75,17 @@ sub process_book {
 }
 
 sub process_verse {
-	my ($parent, $verse) =  @_;
+	my ($parent, $verse, $create_para) =  @_;
 
-	my $p = XML::Twig::Elt->new('p');
 	my $text = $verse->text;
-	$p->set_text($text);
-	$p->paste('last_child', $parent);
 	$verse->delete;	
+
+	if ($create_para) { 
+		my $p = XML::Twig::Elt->new('p');
+		$p->set_text($text);
+		$p->paste('last_child', $parent);
+	}
+	else {  return $text; }
 
 }
 
@@ -95,9 +99,16 @@ sub process_section {
 		$p->set_text($title);
 		$p->paste('first_child', $section);
 	}
+
+	my $p = XML::Twig::Elt->new('p');
+
+	my @content;
 	for my $verse ($s->children('verse')) {
-		process_verse($section, $verse);
+		my $text = process_verse($section, $verse, 0);
+		push (@content, $text);
 	}
+	$p->set_content(@content);
+	$p->paste('last_child', $parent);
 
 	$s->delete;
 	$section->paste('last_child', $parent);
