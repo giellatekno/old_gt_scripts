@@ -109,7 +109,7 @@ sub process_section {
 	}
 
 	$p->set_text($content);
-	$p->paste('last_child', $parent);
+	$p->paste('last_child', $section);
 
 	$s->delete;
 	$section->paste('last_child', $parent);
