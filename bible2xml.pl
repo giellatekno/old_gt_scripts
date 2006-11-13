@@ -102,12 +102,13 @@ sub process_section {
 
 	my $p = XML::Twig::Elt->new('p');
 
-	my @content;
+	my $content ="";
 	for my $verse ($s->children('verse')) {
 		my $text = process_verse($section, $verse, 0);
-		push (@content, $text);
+		$content .= " $text";
 	}
-	$p->set_content(@content);
+
+	$p->set_text($content);
 	$p->paste('last_child', $parent);
 
 	$s->delete;
