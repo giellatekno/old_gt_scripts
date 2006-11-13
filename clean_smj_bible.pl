@@ -36,6 +36,7 @@ my $book;
 my $chapter;
 my $verse;
 my $section;
+my $first_verse=0;
 for my $c ($body->children) {
 	
 	if ($c->gi eq 'h1') {
@@ -84,6 +85,7 @@ for my $c ($body->children) {
 		}
 		$chapter=XML::Twig::Elt->new('chapter');
 		my $title=$c->text;
+		$first_verse=1;
 		$chapter->set_att('title', $title);
 		$c->delete;
 		$chapter->set_gi('chapter');
@@ -126,6 +128,7 @@ for my $c ($body->children) {
 			next if ($l =~ /^\s*$/);
 			$l =~ s/^\s*//;
 			my ($num, $t) = split(" ", $l, 2);
+			if ($first_verse) { $num = 1; $first_verse=0;}
 			my $verse = XML::Twig::Elt->new('verse');
 			$verse->set_att('number', $num);
 			$verse->set_text($t);
