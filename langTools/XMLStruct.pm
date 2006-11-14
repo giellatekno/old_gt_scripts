@@ -96,7 +96,7 @@ sub xml2dis {
 	my ($xml) = @_;
 
 	my $string;
-	my $twig = XML::Twig->new;
+	my $twig = XML::Twig->new(keep_encoding => 1);
 	if (! $twig->safe_parse ($xml)) {
 		cluck("Couldn't parse xml");
 		return Carp::longmess("Could not parse xml");
@@ -176,7 +176,7 @@ sub xml2words {
 	my ($xml) = @_;
 
 	my $string;
-	my $twig = XML::Twig->new;
+	my $twig = XML::Twig->new(keep_encoding => 1);
 	if (! $twig->safe_parse ($xml)) {
 		cluck("Couldn't parse xml");
 		return Carp::longmess("Could not parse xml");
@@ -336,7 +336,7 @@ sub preprocess2xml {
 sub xml2preprocess {
 	my $xml = shift @_;
 
-	my $twig = XML::Twig->new;
+	my $twig = XML::Twig->new(keep_encoding => 1);
 	if (! $twig->safe_parse ($xml)) {
 		cluck("Couldn't parse xml.");
 		return Carp::longmess("Could not parse xml");
@@ -352,7 +352,7 @@ sub xml2preprocess {
 sub get_action{
 	my $line = shift @_;
 
-	my $document = XML::Twig->new;
+	my $document = XML::Twig->new(keep_encoding => 1);
 	if (! $document->safe_parse ("$line") ) {
 		cluck("Could not parse parameters.");
 		return Carp::longmess("ERROR Could not parse $line");
@@ -369,7 +369,7 @@ sub get_action{
 sub process_paras {
 	my $parameters = shift @_;
 
-	my $document = XML::Twig->new;
+	my $document = XML::Twig->new(keep_encoding => 1);
 	if (! $document->safe_parse ("$parameters") ) {
 		cluck("Could not parse parameters.");
 		return Carp::longmess("Could not parse parameters: $parameters");
