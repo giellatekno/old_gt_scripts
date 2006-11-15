@@ -61,7 +61,7 @@ sub process_book {
 		
 		my $text = $chapter->{'att'}->{'number'};
 		if ($text &&  $chapter->{'att'}->{'title'} ) {
-			$text .= $chapter->{'att'}->{'title'};
+			$text .= " " . $chapter->{'att'}->{'title'};
 		}
 		elsif ($chapter->{'att'}->{'title'} ) { $text = $chapter->{'att'}->{'title'}; }
 
