@@ -59,7 +59,12 @@ sub process_book {
 	for my $chapter ($book->children) {
 		my $section = XML::Twig::Elt->new('section');
 		
-		my $text = $chapter->{'att'}->{'title'};
+		my $text = $chapter->{'att'}->{'number'};
+		if ($text &&  $chapter->{'att'}->{'title'} ) {
+			$text .= $chapter->{'att'}->{'title'};
+		}
+		elsif ($chapter->{'att'}->{'title'} ) { $text = $chapter->{'att'}->{'title'}; }
+
 		my $p = XML::Twig::Elt->new('p');
 		$p->set_att('type', 'title');
 		$p->set_text($text);
@@ -100,16 +105,29 @@ sub process_section {
 		$p->paste('first_child', $section);
 	}
 
-	my $p = XML::Twig::Elt->new('p');
-
-	my $content ="";
-	for my $verse ($s->children('verse')) {
-		my $text = process_verse($section, $verse, 0);
-		$content .= " $text";
+	if ($s->first_child->gi eq "verse") {
+		my $p = XML::Twig::Elt->new('p');
+		my $content ="";
+		
+		for my $verse ($s->children) {
+			my $text = process_verse($section, $verse, 0);
+			$content .= " $text";
+		}
+		$p->set_text($content);
+		$p->paste('last_child', $section);
 	}
-
-	$p->set_text($content);
-	$p->paste('last_child', $section);
+	elsif($s->first_child->gi eq "p") {
+		for my $p ($s->children) {
+			$p->cut;
+			my $content ="";
+			for my $verse ($p->children) {
+				my $text = process_verse($p, $verse, 0);
+				$content .= " $text";
+			}
+			$p->set_text($content);
+			$p->paste('last_child', $section);
+		}
+	}
 
 	$s->delete;
 	$section->paste('last_child', $parent);
