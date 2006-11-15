@@ -64,7 +64,7 @@ while(<>) {
 	$line =~ s/^\\toc.*$//g;
 
 	# Remove all the poetry markers
-	$line =~ s/\\(q\d*|qr|qc|qs\*|qs|qac\*|qac|qm\d*)([ |\n]).*$//g;
+	$line =~ s/\\(q\d*|qr|qc|qs\*|qs|qac\*|qac|qm\d*)([ |\n])(.*)$/$3/g;
 	# Replace blank line marker with newline.
 	$line =~ s/\\b/\n/g;
 	
@@ -117,6 +117,9 @@ while(<>) {
 	}
 }
 
+#open (FH, ">koe.para");
+#print FH "@text_array";
+#close FH;
 
 # The cleaned text is processed and stored to an xml-tree,
 # the fields that are available are filled according to corpus.dtd.
@@ -126,6 +129,9 @@ my $body = XML::Twig::Elt->new('body');
 
 my $p;
 my $ch;
+my $book;
+my $cur_text;
+my $section;
 my $size = $#text_array;
 
 while($i < $size && $text_array[$i]) {
@@ -141,13 +147,19 @@ while($i < $size && $text_array[$i]) {
 
 	if ($line =~ /^\\mt (.*)$/) {
 
-		if($p) { $p->paste( 'last_child', $ch); $p=undef; }
-		if($ch) { $ch->paste( 'last_child', $body); $ch=undef; }
-	
+		if($p) { $p->paste( 'last_child', $section); $p=undef; }
+		if($section) { $section->paste( 'last_child', $ch); $p=undef; }
+		if($ch) { $ch->paste( 'last_child', $book); $ch=undef; }
+		if($book) { $book->paste( 'last_child', $body); $book=undef; }
+
 		my $title = XML::Twig::Elt->new('title');
 		my $text = $1;
 		$title->set_text($text);
 		$title->paste( 'last_child', $header);
+
+		$book = XML::Twig::Elt->new('book');
+		$book->set_att('title', $text);
+
 		$i++;
 		next;
 	}
@@ -155,18 +167,20 @@ while($i < $size && $text_array[$i]) {
 	# Format chapter headings.
 	if ($line =~ /^\\c (\d+)(.*)$/) {
 
-		if($p) { $p->paste( 'last_child', $ch); $p=undef; }
-		if($ch) { $ch->paste( 'last_child', $body); $ch=undef; }
+		if (! $section && $p) { my $tex = $p->text; print "$tex\n"; }
+		if($p) { $p->paste( 'last_child', $section); $p=undef; }
+		if($section) { $section->paste( 'last_child', $ch); $section=undef; }
+		if($ch) { $ch->paste( 'last_child', $book); $ch=undef; }
 
 		$ch = XML::Twig::Elt->new('chapter');
 		my $number = $1;
 		my $text="";
 		# skip other info related to chapter.
-		if ($text_array[$i+1] =~ /^\\s (.*)$/) {
-			$text = $1;
-			shift(@text_array);
-		}
-		if( $text ) { $ch->set_att('title', $text); }
+		#if ($text_array[$i+1] =~ /^\\s (.*)$/) {
+		#	$text = $1;
+		#	shift(@text_array);
+		#}
+		#if( $text ) { $ch->set_att('title', $text); }
 		$ch->set_att('number', $number);
 		$i++;
 		next;
@@ -175,24 +189,15 @@ while($i < $size && $text_array[$i]) {
 	# Format other headings.
 	if ($line =~ /^\\(h|s)(\d*) (.*)$/) {
 
-		if($p) { $p->paste( 'last_child', $ch); $p=undef; }
+		start_new_section($2, $3);
 
-		my $p_title = XML::Twig::Elt->new('p');
-		$p_title->set_att('type', 'title');
-		my $number = $2;
-		my $text=$3;
-		$p_title->set_text("$number $text");
-		$p_title->paste( 'last_child', $ch);
-		$p_title=undef;
 		$i++;
 		next;
 	}
 
 	# Format verses
 	if ($line =~ /^\\p/) {
-
-		start_new_text_para();
-
+		start_new_real_para();
 		$i++;
 		next;
 	}
@@ -203,6 +208,7 @@ while($i < $size && $text_array[$i]) {
 	if($line =~ /\\v/) {
 
 		if(! $p) { $p = XML::Twig::Elt->new('p'); }
+		if(! $section) { $section = XML::Twig::Elt->new('section'); }
 
 		# sometimes a new verse starts in the middle of the line
 		# the verse starting the line is taken care of here.
@@ -211,7 +217,10 @@ while($i < $size && $text_array[$i]) {
 			if ($prev =~ /^\s*(\d+)(.*)$/) {
 				my $verse = XML::Twig::Elt->new('verse');
 				$verse->set_att('number', $1);
-				$verse->set_text($2);
+				if ($cur_text) { $cur_text .= " $2"; }
+				else { $cur_text = $2; }
+				$verse->set_text($cur_text);
+				$cur_text=undef;
 				$verse->paste( 'last_child', $p);
 			}
 		}
@@ -220,22 +229,26 @@ while($i < $size && $text_array[$i]) {
 			my $verse = XML::Twig::Elt->new('verse');
 			$verse->set_att('number', $1);
 			my $number = $1;
-			my $text = $2;
+			if ($cur_text) { $cur_text .= " $2"; }
+			else { $cur_text = $2; }
 			while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
-				$text .= "$text_array[$i+1]";
+				chomp $text_array[$i+1];
+				$cur_text .= "\n$text_array[$i+1]";
 				shift(@text_array);
 			}
-			$verse->set_text($text);
+			$verse->set_text($cur_text);
+			$cur_text=undef;
 			$verse->paste( 'last_child', $p);
 		}
 		$i++;
 		next;
 	}
 	if ($line !~ /\\/) {
+		# take the hanging text inside a verse.
 		if($p) {
-			my $cur_text=$p->text;
-			$p->set_text("$cur_text $line");
-				$i++;
+			$cur_text = $line ;
+			#print "$cur_text\n";
+			$i++;
 			next;
 		}
 	}
@@ -243,12 +256,16 @@ while($i < $size && $text_array[$i]) {
 	$i++;
 }
 
-$p->paste( 'last_child', $ch);
-$ch->paste( 'last_child', $body);
+
+$p->paste( 'last_child', $section);
+$section->paste( 'last_child', $ch);
+$ch->paste( 'last_child', $book);
+$book->paste('last_child', $body);
 
 $header->print($FH1);
 $header->DESTROY;
 
+$body->set_pretty_print('record');
 $body->print($FH1);
 $body->DESTROY;
 print $FH1 qq|</document>|;
@@ -256,14 +273,30 @@ print $FH1 qq|</document>|;
 close $FH1;
 
 
-sub start_new_text_para {
+sub start_new_section {
+	my ($num, $text) = @_;
+
+	if($p) { 
+		if(! $section) { $section = XML::Twig::Elt->new('section'); }
+		$p->paste( 'last_child', $section); $p=undef;
+	}
+
+	if($section) {
+		if(! $ch) { my $tex= $p->text; print "$tex\n"; }
+		$section->paste( 'last_child', $ch);
+	}
+	$section = XML::Twig::Elt->new('section');
+	if ($num) { $section->set_att('number', $num); }
+	if ($text) {$section->set_att('title', $text); }
+}
+
+sub start_new_real_para {
 
 	if($p) {
-		if(! $ch) { my $tex= $p->text; print "$tex\n"; }
-		$p->paste( 'last_child', $ch);
+		if(! $section) { $section = XML::Twig::Elt->new('section'); }
+		$p->paste( 'last_child', $section);
 	}
 	$p = XML::Twig::Elt->new('p');
-
 }
 
 
