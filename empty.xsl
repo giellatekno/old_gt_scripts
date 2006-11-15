@@ -94,7 +94,9 @@
 			</xsl:element>
         </xsl:when>
 		<xsl:when test="header/author">
-            <xsl:apply-templates select="header/author"/>
+			 <xsl:element name="author">
+		        <xsl:apply-templates select="header/author"/>
+			 </xsl:element>
 		</xsl:when>
         <xsl:otherwise>
 			 <xsl:element name="author">
