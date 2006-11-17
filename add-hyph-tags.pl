@@ -55,6 +55,9 @@ my %jadahje = ("ja" => 1,
 			   "tai" => 1
 			   );
 
+#hyphen soft hyphen
+#my $hyphens="-­";
+#\x{173}
 
 my $document = XML::Twig->new(twig_handlers => { body => sub { add_tags(@_); } });
 if (! $document->safe_parsefile ("$infile")) {
@@ -70,6 +73,7 @@ close(FH);
 
 my @final_output;
 my $prev_p;
+my $hyphen="-";
 
 sub add_tags {
 	my ( $twig, $body) = @_;
@@ -88,7 +92,7 @@ sub add_tags {
 					push(@final_output, @output);
 					@output = "";
 					pop @output;
-					$previous_word .= "-";
+					$previous_word .= $hyphen;
 					push (@final_output, $previous_word);
 
 					$prev_p->set_content(@final_output);
@@ -117,13 +121,14 @@ sub add_tags {
 				
 				my $word = shift @words;
 				chomp $word;
+				next if (!$word);
 
 				# Skip expressions which contain non-alphabetic chars or digits.
 				# cases like pla-, ple- ja plipli, "-pla
 				# Proper names would be one class to be skipped, but not included here.
 				if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ || $word =~ /[<>]/) {
 					if ($end_hyphen) {
-						$previous_word .= "- ";
+						$previous_word .= $hyphen . " ";
 						push(@output, $previous_word);
 						$end_hyphen = 0;
 					}
@@ -145,17 +150,17 @@ sub add_tags {
 						}
 					}
 					else {
-						$previous_word .=  "- ";
+						$previous_word .=  $hyphen . " ";
 						push(@output, $previous_word);
 					}
 					$end_hyphen=0;
 				}
 				
 				# If the word ends to a hyphen, remember it.
-				if ($word =~ s/-+$//) { $end_hyphen = 1; }
+				if ($word =~ s/([-­])+$//) { $end_hyphen = 1; $hyphen=$1; }
 				else { $end_hyphen = 0; }
 				
-				if ($all_hyphens && $word =~ /-/) {
+				if ($all_hyphens && $word =~ /[-­]/) {
 					# Remember also the starting hyphens
 					if ($word =~ s/^-//) { $start_hyphen = 1; }
 					else { $start_hyphen = 0; }
@@ -163,7 +168,7 @@ sub add_tags {
 					# If the option --all is specified, mark all the hyphens with a tag 
 					# Replace all the other instances of hyphens
 
-					my @pieces = split(/-/, $word);
+					my @pieces = split(/[-­]/, $word);
 					my $piece = shift @pieces;
 					push (@output, $piece);
 					while (@pieces) {
