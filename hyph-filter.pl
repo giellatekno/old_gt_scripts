@@ -5,6 +5,8 @@ use strict;
 #binmode STDIN, ":utf8";
 #use utf8;
 
+use utf8;
+
 # hyph-filter.pl 
 # Perls script for cleaning the hyphenator output.
 # - reads one cohort at the time
@@ -20,7 +22,7 @@ use strict;
 $/ = "";
 
 # change this to 1 when used with smi.cgi.
-my $take_only_one=0;
+my $take_only_one=1;
 
 # Read while not eol
 INPUT:
@@ -54,18 +56,22 @@ INPUT:
 			# take the upper case and lower case forms.
 			my $uc = ucfirst($hyph);
 			my $lc = lcfirst($hyph);
-			
+
+			# Take hyphenation point count.
+			my $count = ($hyph =~ tr/^//);
+			#if ($count == 0) {
+
 			# remove all the other wb:s
 			( my $cleaned = $hyph ) =~ tr/[\#^]//d;
 			
 		  TEST: {
-			  if ($word eq $cleaned) { $forms{$hyph} = 1; last TEST; }
+			  if ($word eq $cleaned) { $forms{$hyph} = $count; last TEST; }
 			  
 			  ( my $ucfirst = $uc ) =~ tr/[\#^]//d;
-			  if ($ucfirst eq $word) { $forms{$uc} = 1; last TEST; }
+			  if ($ucfirst eq $word) { $forms{$uc} = $count; last TEST; }
 
 			  ( my $lcfirst = $lc ) =~ tr/[\#^]//d;
-			  if ($lcfirst eq $word) { $forms{$lc} = 1; last TEST; }
+			  if ($lcfirst eq $word) { $forms{$lc} = $count; last TEST; }
 			  
 			  #If gone this far, then move forward.
 			  next;
@@ -98,10 +104,14 @@ INPUT:
 		unless( %forms) { print STDERR "No forms for $word\n"; }
 		
 		# Print the output.
-		for my $key (keys %forms) {
-			print "$word\t$key\n";
-			if($take_only_one) {
+		if($take_only_one) {
+			for my $key (sort { $forms{$b} <=> $forms{$a}} keys %forms) {
+				print "$word\t$key\n";
 				last;
+			}
+		} else {
+			for my $key (keys %forms) {
+				print "$word\t$key\n";
 			}
 		}
 		print "\n";
