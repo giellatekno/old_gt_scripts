@@ -5,6 +5,8 @@ use strict;
 #use encoding 'utf8';
 #use open ':utf8';
 
+binmode STDOUT;
+
 # use Perl module XML::Twig for XML-handling
 # http://www.xmltwig.com/
 use XML::Twig;
@@ -98,7 +100,7 @@ while ($line = <FH> ) {
 	# Replace space in multipart names temporarily with $.
 	$line =~ s/% /\$/g;
 	
-	my ($word, $contlex_text) = split (/\s+/, $line);
+	my ($word, $contlex_text) = split (/\s+/, $line, 2);
 	$word =~ s/\$/ /g;
 
 	# something wrong
@@ -124,17 +126,21 @@ while ($line = <FH> ) {
 
 	# Find out all the semantic categories associated with this word.
 	my @contlexes;
+	my $sub;
 	for my $cont ( @contlex_texts ) {
 		
-		# Take comment out, split e.g. ACCRA-fem
+		# Take comment out
 		my ($contlex, $comment) = split(/\!/, $cont);
 		$contlex =~ s/\s?\;\s?$//;
 		$contlex =~ s/^\s+//;
+	
+		if($comment && $comment =~ /SUB/) { $sub=1;}
 		
 		push (@contlexes, $contlex);
 
 #		my ($infl_text, $sem_text) = split(/-/, $contlex);
 
+		# split e.g. ACCRA-fem
 		$contlex =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
 		my $infl_text=$1;
 		my $sem_text=$2;
@@ -224,6 +230,7 @@ while ($line = <FH> ) {
 					  $log->paste('last_child', $entry);
 					  
 					  $entry->set_att('id', $curid);
+					  if ($sub) { $entry->set_att('type', "secondary"); }
 					  if ($stem_text && ($stem_text ne $lemma_text)) {
 						  my $stem = XML::Twig::Elt->new('stem');
 						  $stem->set_text($stem_text);
