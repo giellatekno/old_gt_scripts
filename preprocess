@@ -36,7 +36,7 @@ my $MULTIWORD_SIZE = 3;
 my $quotations = "\x{00AB}\x{00BB}\x{2039}\x{203A}\x{201C}\x{201D}\x{201E}\x{2018}\x{2019}\x{201A}\x{00B4}\x{0060}\'\"";
 #… and • ¶ en-dash em-dash
 my $other = "\x{2026}\x{2022}\x{00B6}\x{2013}\x{2014}";
-my $parentheses = quotemeta("|{}[]()");
+my $parentheses = quotemeta("|{}[]()<>");
 my $general_punct = quotemeta("$.*?!,;:.%");
 
 # áčđŋšŧžåæøäöå n_with_tilde
@@ -411,7 +411,7 @@ sub test_idiom {
 sub process_numeral {
 	my ($word, $words_aref, $tokens_aref) = @_;
 
-	# Take the three dots out ...voxende
+	# Take the three dots out "...voxende"
 	if ($word =~ /^\.\.\./) {
 		push (@$tokens_aref, "...");
 		$word =~ s/^\.\.\.//;
