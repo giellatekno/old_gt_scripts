@@ -25,6 +25,10 @@ sub generate_taglist {
 
 	my @grammar;
 	push (@grammar, "N+Subclass?+Number+Case+Possessive?+Clitic?");
+	push (@grammar, "A+Grade?+Attributive?+Number?+Case?+Possessive?+Clitic?");
+	push (@grammar, "V+Infinite?+Diathesis?+Polarity?+Mood?+Tense?+Person-Number?+Clitic?");
+	push (@grammar, "Adv+Grade?+Clitic?");
+
 	my %tags;
 
 	if ($gramfile) {
@@ -57,7 +61,7 @@ sub generate_taglist {
 		$$taglist_aref{$pos}= [ @taglist ];
 	}
 #	for my $pos ( keys %$taglist_aref ) {
-#		print "@$taglist_aref{$pos}\n";
+#		print "JEE @$taglist_aref{$pos} ";
 #    }
 }
 
