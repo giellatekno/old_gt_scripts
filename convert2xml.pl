@@ -320,6 +320,11 @@ sub process_file {
 	  } # end of PDF
 	}
 
+	# Remove temporary file unless testing.
+	if (! $test) {
+		exec_com("rm -rf \"$tmp3\"", $file);
+	}
+
 	# Conversion of paratext documents
 	if ($file =~ /\.ptx$/) {
 		$command = "$paratext2xml \"$orig\" --out=\"$int\"";
@@ -433,22 +438,8 @@ sub process_file {
 			$d->print( \*FH);
 		}
 	}
-	} #ENCODING
-
-
-	# hyphenate the file
-	if (! $no_hyph ) {
-		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$tmp1\""; }
-		else { $command = "$hyphenate --infile=\"$int\" --outfile=\"$tmp1\"";}
-		exec_com($command, $file);
-		copy ($tmp1, $int) ;
-	}
-
-	# Remove temporary file unless testing.
-	if (! $test) {
-		exec_com("rm -rf \"$tmp1\"", $file);
-		exec_com("rm -rf \"$tmp3\"", $file);
-	}
+} #ENCODING
+	
 
 	if(! $upload) {
 		my $cnt = chown -1, $gt_gid, $int;
@@ -493,6 +484,19 @@ sub process_file {
 			$command = "ci -t-\"xsl-script commit by convert2xml.pl\" -q \"$xsl_file\" \"$xsl_vfile\" ";
 			exec_com($command, $file);
 		}
+	}
+
+	# hyphenate the file
+	if (! $no_hyph ) {
+		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$tmp1\""; }
+		else { $command = "$hyphenate --infile=\"$int\" --outfile=\"$tmp1\"";}
+		exec_com($command, $file);
+		copy ($tmp1, $int) ;
+	}
+
+	# Remove temporary file unless testing.
+	if (! $test) {
+		exec_com("rm -rf \"$tmp1\"", $file);
 	}
 
 	if (! $upload) {
