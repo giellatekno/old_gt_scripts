@@ -194,7 +194,6 @@ sub xml2words {
 	}
 
 	$twig->dispose;
-
 	return $string;
 }
 		
@@ -385,7 +384,7 @@ sub process_paras {
 	my %default_fsts = (
 						"anl" => "/opt/smi/$language/bin/$language.fst",
 						"hyph" => "/opt/smi/$language/bin/hyph-$language.fst",
-						"gen" => "/opt/smi/$language/bin/i$language.fst",
+						"gen" => "/opt/smi/$language/bin/i$language-norm.fst",
 						"para" => "/opt/smi/$language/bin/i$language.fst",
 						"prep" => "",
 						);
