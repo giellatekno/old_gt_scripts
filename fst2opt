@@ -8,42 +8,79 @@
 # $Id$
 #****************************************************************
 
-PATH=$PATH:/opt/xerox/bin
+tmpdir=/usr/tmp
+host=$(hostname)
 
-# The gt-catalog
-cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/gt gt
-for lang in "sme" "smj" "sma"
-do
-        cd /usr/tmp/gt/ && make clean TARGET=$lang 
-		cd /usr/tmp/gt/ && make TARGET=$lang 1>/dev/null
-		cd /usr/tmp/gt/ && make TARGET=$lang hyph-$lang.fst 1>/dev/null
+# Set variables according to the current host.
+if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+then
+	group=staff
+	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
+else
+	PATH=$PATH:/opt/xerox/bin
+	group=cvs
+	cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
+	cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
+fi
 
-		cp /usr/tmp/gt/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/hyph-$lang.fst /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/$lang-dis.rle /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/bin/abbr.txt /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/gt/$lang/src/typos.txt /opt/sami/smi/$lang/bin/
+build_gt() {
 
-		chgrp cvs /opt/sami/smi/$lang/bin/*
-		chmod a+x /opt/sami/smi/$lang/bin/*
-		chmod g+w /opt/sami/smi/$lang/bin/*
-done
+	for lang in "sme" "smj" "sma"
+	  do
+	  cd $tmpdir/gt/ && make clean TARGET=$lang 
+	  cd $tmpdir/gt/ && make TARGET=$lang 1>/dev/null
+	  cd $tmpdir/gt/ && make TARGET=$lang hyph-$lang.fst 1>/dev/null
+	  cd $tmpdir/gt/ && make TARGET=$lang ifst-norm 1>/dev/null
+	  
+	  cp $tmpdir/gt/$lang/bin/$lang.fst /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/i$lang-norm.fst /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/$lang-dis.rle /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/abbr.txt /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/src/typos.txt /opt/smi/$lang/bin/
+	  
+	  chgrp $group /opt/smi/$lang/bin/*
+	  chmod a+x /opt/smi/$lang/bin/*
+	  chmod g+w /opt/smi/$lang/bin/*
+	done
+
+	cp $tmpdir/gt/script/hyph-filter.pl /opt/smi/common/bin/
+	cp $tmpdir/gt/cwb/korpustags.txt /opt/smi/common/bin/
+	cp $tmpdir/gt/common/bin/allcaps.fst /opt/smi/common/bin/
+	
+	chgrp $group /opt/smi/common/bin/*
+	chmod a+x /opt/smi/common/bin/*
+	chmod g+w /opt/smi/common/bin/*
+	
+}
+
 
 # st-catalog
-cvs -d /usr/local/cvs/repository checkout -d /usr/tmp/st st
-for lang in "foe" "kal"
-do 
-        cd /usr/tmp/st/$lang/src && make clean
-		cd /usr/tmp/st/$lang/src && make 1>/dev/null
+st() {
 
-		cp /usr/tmp/st/$lang/bin/$lang.fst /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/st/$lang/bin/i$lang.fst /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/st/$lang/bin/hyph-$lang.fst /opt/sami/smi/$lang/bin/
-		cp /usr/tmp/st/$lang/src/$lang-dis.rle /opt/sami/smi/$lang/bin/
-#		cp /usr/tmp/st/$lang/bin/abbr.txt /opt/sami/smi/$lang/bin/
+	for lang in "foe" "kal"
+	  do
+        cd $tmpdir/st/$lang/src && make clean
+        cd $tmpdir/st/$lang/src && make 1>/dev/null
+		
+        cp $tmpdir/st/$lang/bin/$lang.fst /opt/smi/$lang/bin/
+        cp $tmpdir/st/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
+        cp $tmpdir/st/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
+        cp $tmpdir/st/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
+#       cp $tmpdir/st/$lang/bin/abbr.txt /opt/smi/$lang/bin/
+		
+        chgrp cvs /opt/smi/$lang/bin/*
+        chmod a+x /opt/smi/$lang/bin/*
+        chmod g+w /opt/smi/$lang/bin/*
+	done
+}
 
-		chgrp cvs /opt/sami/smi/$lang/bin/*
-		chmod a+x /opt/sami/smi/$lang/bin/*
-		chmod g+w /opt/sami/smi/$lang/bin/*
-done
+
+# Call subroutines for building gt- and st-hierarchies.
+build_gt
+
+if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
+then
+	build_st
+fi
