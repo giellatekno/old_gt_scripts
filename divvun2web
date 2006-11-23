@@ -74,14 +74,14 @@ build_and_copy_sites()
     #rm gt/doc/lang/corp/corpus-summary.xml
     #rm gt/doc/lang/corp/corpus-content.xml
 
-    for SITE in sd gtuit
+    for SITE in gtuit
     do
         cd $HOME/xtdoc/$SITE
-        if [ "$SITE" == "sd" ]; then
-            sed -i 's/<search provider="lucene" name="Divvun" \/>/<search provider="google" domain="www.divvun.no" name="Divvun" \/>/g' src/documentation/skinconf.xml
-        else
+#         if [ "$SITE" == "sd" ]; then
+#             sed -i 's/<search provider="lucene" name="Divvun" \/>/<search provider="google" domain="www.divvun.no" name="Divvun" \/>/g' src/documentation/skinconf.xml
+#         else
             sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
-        fi
+#         fi
 
         # Build the site, at the same time checking the docs
         echo "Cleaning old build ..."
@@ -124,4 +124,4 @@ build_and_copy_sites()
 fetch_giella_and_divvun
 build_and_copy_sites
 
-echo "Done updating giellatekno and divvun:-)!"
+echo "Done updating giellatekno:-)!"
