@@ -229,9 +229,11 @@ sub hyph2xml {
 		($word, $hyph) = split(/\t/, $out, 2);
 
 		if (! $w) { $w=XML::Twig::Elt->new('w'); }
-		my $reading=XML::Twig::Elt->new('reading');
-		$reading->set_att('hyph', $hyph);
-		$reading->paste('last_child', $w);
+		if ($hyph) {
+			my $reading=XML::Twig::Elt->new('reading');
+			$reading->set_att('hyph', $hyph);
+			$reading->paste('last_child', $w);
+		}
 	}
 	if ($w) {
 		$w->set_att('form', $word);	
@@ -279,6 +281,7 @@ sub gen2xml {
 
 		my $hyph;
 		my ($line, $form) = split(/\t/, $out, 2);
+		next if (! $form);
 		$form =~ s/^\s+//;
 		
 		($lemma, $analysis) = split(/\+/, $line, 2);
