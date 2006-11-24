@@ -25,7 +25,7 @@ use Expect;
 use langTools::XMLStruct;
 use langTools::Util;
 
-my $PORT = 8080;
+my $PORT = 8081;
 
 my $lookup="lookup";
 my %paradigms;
