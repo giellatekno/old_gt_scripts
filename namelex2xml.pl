@@ -12,7 +12,7 @@ binmode STDOUT;
 use XML::Twig;
 
 my $mainlang = "sme";
-my @other_langs = ("smj", "sma");
+my @other_langs = ("sme", "smj", "sma", "nor");
 
 my $twig = XML::Twig->new( output_encoding => "utf8");
 $twig->set_pretty_print('record');
