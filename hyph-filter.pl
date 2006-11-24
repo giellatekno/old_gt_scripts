@@ -43,6 +43,7 @@ INPUT:
 		for my $line (@lines) {
 			chomp;
 			($word, $hyph) = split(/\t/, $line);
+			next if (! $hyph);
 
 			if ($#lines == 0 and $word eq $hyph && $line !~ /\+\?/) {
 				print; 
