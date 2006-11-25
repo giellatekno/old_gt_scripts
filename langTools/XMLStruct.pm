@@ -226,7 +226,7 @@ sub hyph2xml {
 		chomp $out;
 
 		my $hyph;
-		($word, $hyph) = split(/\t/, $out, 2);
+		($word, $hyph) = split(/\t/, $out);
 
 		if (! $w) { $w=XML::Twig::Elt->new('w'); }
 		if ($hyph) {
