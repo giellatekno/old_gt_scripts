@@ -52,6 +52,7 @@ print $FH2 qq|\n<dict xmlns:xi="http://www.w3.org/2001/XInclude" last-update="$c
 
 my %outfiles;
 for my $lang (@other_langs) {
+	next if ($lang eq $mainlang);
 	my $out = "terms-" . $lang . ".xml";
 	my $fh_out;
 	open($fh_out, ">$out");
@@ -61,7 +62,9 @@ for my $lang (@other_langs) {
 }
 
 my @all_langs = @other_langs;
-push @all_langs, $mainlang;
+my %is_lang;
+for (@all_langs) { $is_lang{$_} = 1 }
+if (! $is_lang{$mainlang}) { push @all_langs, $mainlang }
 
 # The root element.
 my $dict = XML::Twig::Elt->new('dict');
@@ -285,7 +288,7 @@ while ($line = <FH> ) {
 						  $sense->paste('last_child', $senses_elt);
 						  
 						  # Alter termc entry by adding reference to terms
-						  my $langentry = XML::Twig::Elt->new('langentry');
+						  my $langentry= XML::Twig::Elt->new('langentry');
 						  $langentry->set_att('lang', $lang);
 						  my $include = XML::Twig::Elt->new('xi:include');
 						  my $ref = 'terms-'.$lang.".xml#xpointer(//entry[\@id='".$curid."'])";
@@ -326,6 +329,7 @@ while ($line = <FH> ) {
 	undef %{$term_entries{$mainlang}};
 
 	for my $lang (@other_langs) {
+		next if ($lang eq $mainlang);
 		my $fh=$outfiles{$lang};
 		for my $ent ( sort { $a cmp $b } keys %{$term_entries{$lang}} ) {
 			${$term_entries{$lang}}{$ent}->print($fh);
@@ -352,6 +356,7 @@ print $FH2 qq|\n</dict>|;
 close $FH2;
 
 for my $lang (@other_langs) {
+	next if ($lang eq $mainlang);
 	my $fh=$outfiles{$lang};
 	print $fh qq|\n</dict>|;
 	close $outfiles{$lang};	
