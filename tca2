@@ -1,0 +1,2 @@
+#!/bin/sh
+java -jar /usr/local/share/tca2/alignment.jar $1 $2 $3 $4
