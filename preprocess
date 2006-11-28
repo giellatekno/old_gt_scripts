@@ -151,23 +151,52 @@ sub process_words {
 				next;
 			}
 		}
-		# store punctuation from the front of the expression
-		# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-		if ($word =~ s/^([$SINGLE_PUNCT]+)//o) {
-		    verbose("if front punct ", $word , __LINE__);
-			push (@tokens, split(//, $1));
-		}
-		# Examine the type of the string. If the expression contains
-		# alphabetical characters optionally preceded by one non-alphabetic
-		# character, it is a word.
-		if ($word =~ /^[\W]?[^\W\d]+/) {
-		    verbose("if word", $word , __LINE__);
-			process_word ($word, \@words, \@tokens);
-		}
-		# Otherwise it is processed like numeral.
-		else {
-			process_numeral ($word, \@words, \@tokens);
-		}
+		PROCESS_WORD: {
+			# Fix some punctuation, like ...voxende
+			if ($word =~ /^(.*?)(:?\.){3,}(.*)$/) {
+				my $first_word = $1;
+				my $second_word = $3;
+				if ($first_word) {
+					if ($first_word =~ /^[\W]?[^\W\d]+/) { 
+						verbose("if word with dots", $first_word , __LINE__);
+						process_word ($first_word, \@words, \@tokens);
+					} else {
+						verbose("if numeral with dots", $first_word , __LINE__);
+						process_numeral ($first_word, \@words, \@tokens);
+					}
+				}
+				push (@tokens, "...");
+				if ($second_word) {
+					if ($second_word =~ /^[\W]?[^\W\d]+/) { 
+						verbose("if word with dots", $second_word , __LINE__);
+						process_word ($second_word, \@words, \@tokens);
+					} else {
+						verbose("if numeral with dots", $second_word , __LINE__);
+					process_numeral ($second_word, \@words, \@tokens);
+					}
+				}
+				last PROCESS_WORD;
+			}
+
+			# store punctuation from the front of the expression
+			# to the tokens array. (todo: check variable $CONTAIN_PUNCT)
+			if ($word =~ s/^([$SINGLE_PUNCT]+)//o) {
+				verbose("if front punct ", $word , __LINE__);
+				push (@tokens, split(//, $1));
+			}
+			# Examine the type of the string. If the expression contains
+			# alphabetical characters optionally preceded by one non-alphabetic
+			# character, it is a word.
+			if ($word =~ /^[\W]?[^\W\d]+/) {
+				verbose("if word", $word , __LINE__);
+				process_word ($word, \@words, \@tokens);
+			}
+			# Otherwise it is processed like numeral.
+			else {
+				process_numeral ($word, \@words, \@tokens);
+			}
+		} # end of PROCESS_WORD
+
 		for my $token (@tokens) {
 			print "$token\n" unless ($token =~ /^$/);
 		}
@@ -410,16 +439,6 @@ sub test_idiom {
 
 sub process_numeral {
 	my ($word, $words_aref, $tokens_aref) = @_;
-
-	# Take the three dots out "...voxende"
-	if ($word =~ /^\.\.\./) {
-		push (@$tokens_aref, "...");
-		$word =~ s/^\.\.\.//;
-		if ($word =~ /\w/) { 
-			process_word ($word, $words_aref, $tokens_aref);
-			return;
-		}
-	}		
 
 	# Combine punctuation with numeral if followed by other numeral.
 	# cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
