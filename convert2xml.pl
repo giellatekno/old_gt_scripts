@@ -28,6 +28,7 @@ use Getopt::Long;
 use Cwd;
 use XML::Twig;
 use samiChar::Decode;
+use Carp qw(cluck carp);
 
 my $no_decode = 0;
 my $nolog = 0; 
@@ -55,7 +56,7 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-my $test=0; #preserves temporary files and prints extra info.
+my $test=1; #preserves temporary files and prints extra info.
 
 # set the permissions for created files: -rw-rw-r--
 #umask 0112;
@@ -146,6 +147,7 @@ sub process_file {
 	my $no_decode_this_time = 0;
 	print STDERR "$file\n";
 
+	# Check the filename
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
@@ -153,12 +155,12 @@ sub process_file {
 	}
 	return if (! -f $file);
 
-	# Search with find gives some unwanted files which are silently
-	# returned here.
+	# Search with find gives some unwanted files which are ignored
     return if ($file =~ /[\~]$/);
     return if (__FILE__ =~ /$file/);
 	return if (-z $file);
-	
+
+	# The name and location of the resulting xml-file.
     my $orig = File::Spec->rel2abs($file);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
@@ -166,21 +168,12 @@ sub process_file {
 
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
-	# The rm-commands are temporary and removed after the conversion is rerun.
 	if ( -s $file < 200) {
 		print STDERR "$file: ERROR. File is too small for processing. STOP\n";
-		if( -f $int) { 
-			$command = "rm -rf \"$int\"";
-			exec_com($command, $file);
-		}
-		if( -f $intfree) { 
-			$command = "rm -rf \"$intfree\"";
-			exec_com($command, $file);
-		}
 		return;
 	}
 
-	# Take only the file name without path.
+	# Take the basename of the file.
 	$file =~ s/.*[\/\\](.*)/$1/;
 
 	# Create the directory to gtbound if it does not exist.
@@ -193,13 +186,14 @@ sub process_file {
 		chmod 0770,$dir;
 	}		
 
+	# Check that the xml-file is available for writing.
 	if(-f $int && ! -w $int) {
 		print "$file: ERROR: permission denied to $int. STOP.\n";
 		print STDERR "$file: ERROR: permission denied to $int. STOP.\n";
 		return;
 	}
 
-
+	# check out the file-specific xsl-file for processing
 	my $xsl_file = $orig . ".xsl";
 	my $xsl_vfile = $orig . ".xsl,v";
 	if(! $noxsl) {
@@ -220,158 +214,53 @@ sub process_file {
 		exec_com($command, $file);
 	}
 	# remove temporary files to get a clean start.
-	my $tmpfiles = $tmpdir . "/" . $file . ".tmp*";
-	$command = "rm -rf $tmpfiles";
-	exec_com($command, $file);
+	remove_tmp_files($tmpdir, $file);
 
-	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
-	IO::File->new($int, O_RDWR|O_CREAT) 
-		or die "Couldn't open $int for writing: $!\n";
-
-	# Conversion of word documents
+	##### Start conversion ############
+	my $error;
+	# Word documents
 	if ($file =~ /\.doc$/) {
-		my $xsl;
-		if ($convxsl) { $xsl = $convxsl; }
-		else { $xsl = $docxsl; }
-		$command = "/usr/local/bin/antiword -s -x db \"$orig\" > \"$tmp3\"";
-		exec_com($command, $file);
-		$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
-		exec_com($command, $file);
+		$error = convert_doc($file, $orig, $int);
 	}
 
-	# Conversion of xhtml documents
-	if ($file =~ /\.html$/) {
-		my $xsl;
-		if ($convxsl) { $xsl = $convxsl; }
-		else { $xsl = $htmlxsl; }
-		$command = "$tidy \"$orig\" > \"$tmp3\" 2>/dev/null";
-		exec_com($command, $file);
-
-		$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
-		exec_com($command, $file);
-
+	# xhtml documents
+	elsif ($file =~ /\.html$/) {
+		$error = convert_html($file, $orig, $int);		
 	}
 	
-	# Conversion of pdf documents	
-	if ($file =~ /\.pdf$/) {
-	  PDF: {
-		  my $main_sizes;
-		  my $title_sizes;
-		  my $title_styles;
-		  my $main_font_elt;
-		  if(! $noxsl) {
-			  my $document = XML::Twig->new;
-			  if (! $document->safe_parsefile("$xsl_file")) {
-				  print STDERR "Copyfree: $xsl_file: ERROR parsing the XML-file failed: $@\n";		  
-				  last PDF;
-			  }
-			  
-			  my $root = $document->root;
-			  
-			  $main_font_elt = $root->first_child('xsl:variable[@name="main_sizes"]');
-			  if ($main_font_elt) { $main_sizes = $main_font_elt->{'att'}{'select'}; }
-			  
-			  my $title_font_elt = $root->first_child('xsl:variable[@name="title_sizes"]');
-			  if ($title_font_elt) { $title_sizes = $title_font_elt->{'att'}{'select'}; }
-			  
-			  my $title_styles_elt = $root->first_child('xsl:variable[@name="title_styles"]');
-			  if ($title_styles_elt) { $title_styles = $title_styles_elt->{'att'}{'select'}; }
-		  }
-		  if ($main_font_elt) {
-			  
-			  $command = "$jpedal $orig $tmpdir  1>/dev/null";
-			  exec_com($command, $file);
-			  
-			  (my $base = $file ) =~ s/\.pdf//;
-			  $command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
-			  exec_com($command, $file);
-			  
-			  $command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
-			  exec_com($command, $file);
-			  
-			  if( -z $int && ! $upload ) {
-				  print "$file: no pdf2xml output. STOP.\n";
-				  return;
-			  }
-			  last PDF;
-		  }
-
-		  my $xsl;
-		  if ($convxsl) { $xsl = $convxsl; }
-		  else { $xsl = $htmlxsl; }
-		  my $html = $tmpdir . "/" . $file . ".tmp3";
-		  $command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
-		  exec_com($command, $file);
-		  
-		  # If there were severe errors in pdftotext, the html file is not created.
-		  if(! -f $html && ! $upload ) {
-			  print "$file: no pdftotext output. STOP.\n";
-			  return;			
-		  }
-		&pdfclean($html);
-		  $command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-		  exec_com($command, $file);
-		  
-		  # remove temporary files unless testing.
-		  if (! $test) {
-			  $command = "rm -rf \"$html\"";
-			  exec_com($command, $file);
-		  }
-	  } # end of PDF
+	# pdf documents	
+	elsif ($file =~ /\.pdf$/) {
+		$error = convert_pdf($file, $orig, $int, $xsl_file);
 	}
 
-	# Remove temporary file unless testing.
-	if (! $test) {
-		exec_com("rm -rf \"$tmp3\"", $file);
-	}
-
-	# Conversion of paratext documents
-	if ($file =~ /\.ptx$/) {
+	# paratext documents
+	elsif ($file =~ /\.ptx$/) {
 		$command = "$paratext2xml \"$orig\" --out=\"$int\"";
-		exec_com($command, $file);
+		$error = exec_com($command, $file);
 	}
 
-	# Conversion of bibles
-	if ($file =~ /\.bible\.xml$/) {
+	# bibles
+	elsif ($file =~ /\.bible\.xml$/) {
 		$command = "$bible2xml --out=\"$int\" \"$orig\"";
-		exec_com($command, $file);
+		$error = exec_com($command, $file);
 	}
 
 	# Conversion of text documents
-	# Simple html-tags are added in subroutine txtclean
-	# and then converted to confront the corpus structure
-	if ($file =~ /\.txt$/) {
-		copy($orig,$int);
-		my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
-	  ENCODING:
-		if (! $no_decode && ! $no_decode_this_time ) {
-			my $coding = &guess_text_encoding($int, $tmp4, $language);
-			if ($coding eq 0) { 
-				if ($test) { print STDERR "Correct character encoding.\n"; }
-			}
-			elsif( $coding eq -1 ) {
-				print STDERR "Was not able to determine character encoding. STOP.\n";
-				exec_com("rm -rf \"$int\"", $file);
-				return;
-			}
-			else { 
-				copy($int, $tmp4);
-				if ($test) { print STDERR "Character decoding: $coding\n"; }
-				my $error = &decode_text_file($tmp4, $coding, $int);
-				if ($error){ print STDERR $error; }
-				$no_decode_this_time=0;
-			}
-		}
-		txtclean($int, $tmp4, $language);
-		copy($tmp4,$int);
-		if (! $test) { exec_com("rm -rf \"$tmp4\"", $file); }
+	elsif ($file =~ /\.txt$/) {
+		$error = convert_txt($file, $orig, $int, \$no_decode_this_time);
 	}
+	else { $error = 1; }
 
-	if (! -f $int || -z $int ) {
-		print "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\nSee $log_file for details.\n";
+	# If there were errors in the conversion, remove
+	# the xml-file and proceed to the next file.
+	if ($error || ! -f $int || -z $int ) {
+		print "ERROR: First conversion step from original failed. STOP.\n";
+		if ($log_file) { print "See $log_file for details.\n"; }
 		if (! $upload) {
-			print STDERR "$file: ERROR: First conversion step from original failed. \n$int is empty. STOP.\n";
+			carp "ERROR: First conversion step from original failed. STOP.\n";
 		}
+		exec_com("rm -rf \"$int\"", $file);
+		if (! $test) { remove_tmp_files($tmpdir, $file); }
 		return;
 	}
 
@@ -379,111 +268,26 @@ sub process_file {
 	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 	my $command = "$convert_eol \"$int\" > \"$tmp1\"";
 	exec_com($command, $file);
-	copy ($tmp1, $int) ;
+	copy ($tmp1, $int) ;	
 
-	# Check if the file contains characters that are wrongly
-	# utf-8 encoded and decode them.
-  ENCODING: {
-	if (! $no_decode && ! $no_decode_this_time ) {
-		&read_char_tables;
-		# guess encoding and decode each paragraph at the time.
-		if( $multi_coding ) {
-			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para(@_); } });
-			if (! $document->safe_parsefile ("$int") ) {
-				print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
-				last ENCODING;
-			}
-			open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			$document->set_pretty_print('indented');
-			$document->print( \*FH);
-		} else {
-			# assume same encoding for the whole file.
-			my $coding = &guess_encoding($int, $language, 0);
-			if ($coding eq -1) { 
-				print STDERR "Was not able to determine character encoding. STOP.\n";
-				exec_com("rm -rf \"$int\"", $file);
-				return;
-			}
-			elsif ($coding eq 0) { 
-				if($test) { print STDERR "Correct character encoding.\n"; }
-				if($file =~ /\.doc$/) {
-					# Document title in msword documents is generally wrongly encoded, 
-					# check that separately.
-					my $d=XML::Twig->new(twig_handlers=>{'p[@type="title"]'=>sub{call_decode_title(@_, $coding);},
-													   'title'=>sub{call_decode_title(@_);}
-												 }
-									   );
-					if (! $d->safe_parsefile ("$int") ) {
-						print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
-						last ENCODING;
-					}
-					open (FH, ">utf8", "$int") or print STDERR "$file: ERROR cannot open file $!";
-					$d->set_pretty_print('indented');
-					$d->print( \*FH);
-				}
-				last ENCODING; 
-			}
-			# Continue decoding the file.
-			if($test) { print STDERR "Character decoding: $coding\n"; }
-			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
-												 'title'=>sub{call_decode_para(@_, $coding);}
-											 }
-									   );
-			if (! $d->safe_parsefile ("$int") ) {
-				print STDERR "Encoding: $int: ERROR parsing the XML-file failed.\n";
-				last ENCODING;
-			}
-			open (FH, ">$int") or print STDERR "$file: ERROR cannot open file $!";
-			$d->set_pretty_print('indented');
-			$d->print( \*FH);
-		}
-	}
-} #ENCODING
-	
-
+	# chmod and chgrp the new xml-file.
 	if(! $upload) {
 		my $cnt = chown -1, $gt_gid, $int;
 #		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
 		chmod 0660, $int;
 	}
 
-	if (! $noxsl) {
-		# Execute the file specific .xsl-script.
-		my $tmp = $tmpdir . "/" . $file . ".tmp";
-		$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+	# Run the file specific xsl-script.
+	if (! $noxsl) { file_specific_xsl($file, $orig, $int, $xsl_file); }
+
+	# Checking in the xsl-file
+	if ( -f $xsl_vfile) {
+		$command = "rm -rf \"$xsl_file\" ";
 		exec_com($command, $file);
-
-		# Validate the xml-file unless web upload.
-		if(! $upload && ($file !~ /.ptx$/)) {
-			$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
-			if( exec_com($command, $file) != 0 ) {
-				print STDERR "ERROR: not valid xml, removing $int.. STOP.\n";
-				$command = "rm -rf \"$int\"";
-				exec_com($command, $file);
-				if (! $test) {
-					$command = "rm -rf \"$tmp\"";
-					exec_com($command, $file);
-				}
-				return;
-			}
-		}
-		copy ($tmp, $int) 
-			or print STDERR "ERROR: copy failed ($tmp $int)\n";
-
-		# Remove temporary file unless testing.
-		if (! $test) {
-			$command = "rm -rf \"$tmp\"";
-			exec_com($command, $file);
-		}
-
-		if ( -f $xsl_vfile) {
-			$command = "rm -rf \"$xsl_file\" ";
-			exec_com($command, $file);
-		}
-		else {
-			$command = "ci -t-\"xsl-script commit by convert2xml.pl\" -q \"$xsl_file\" \"$xsl_vfile\" ";
-			exec_com($command, $file);
-		}
+	}
+	else {
+		$command = "ci -t-\"xsl-script commit by convert2xml.pl\" -q \"$xsl_file\" \"$xsl_vfile\" ";
+		exec_com($command, $file);
 	}
 
 	# hyphenate the file
@@ -494,71 +298,29 @@ sub process_file {
 		copy ($tmp1, $int) ;
 	}
 
-	# Remove temporary file unless testing.
-	if (! $test) {
-		exec_com("rm -rf \"$tmp1\"", $file);
+	$error = character_encoding($file, $orig, $int, $no_decode_this_time);
+	if ($error) {
+		exec_com("rm -rf \"$int\"", $file);
+		if (! $test) { remove_tmp_files($tmpdir, $file); }
+		return;
 	}
 
+	# Text categorization
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
 		my $command = "$text_cat -q -x -d $lmdir \"$int\"";
 		exec_com($command, $file);
 	}
 
+	# Copy the freely available texts to the corp/free -catalog
 	if (! $upload) {
-	  COPYFREE: {
-		  # Copy file with free license to gtfree.
-		  my $document = XML::Twig->new;
-		  if (! $document->safe_parsefile("$int")) {
-			  if (-f $intfree) {
-				  $command = "rm -rf \"$intfree\"";
-				  exec_com($command, $file);
-			  }
-
-			  print STDERR "Copyfree: $int: ERROR parsing the XML-file failed: $@\n";		  
-			  last COPYFREE;
-		  }
-		  
-		  my $license = "license";
-		  my $root = $document->root;
-		  my $header = $root->first_child('header');
-		  my $avail = $header->first_child('availability');
-		  $license = $avail->first_child->local_name;
-		  
-		  if ( $license =~ /free/ ) {
-			  if(-f $intfree && ! -w $intfree) {
-				  print STDERR "$file: ERROR permission denied $intfree.\n";
-				  last COPYFREE;
-			  }
-			  
-			  # Create the directory to gtfree if it does not exist.
-			  ( my $dir =  $intfree )  =~ s/(.*)[\/\\].*/$1/;
-			  if (! -d $dir ) {
-				  my $command="mkdir -p \"$dir\"";
-				  exec_com($command, $file);
-				  my $cnt = chown -1, $gt_gid, $dir;
-#				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
-				  chmod 0770,$dir;
-			  }		
-
-			  copy ($int, $intfree) 
-				  or print STDERR "ERROR: copy failed ($int $intfree)\n";
-
-			  my $cnt = chown -1, $gt_gid, $intfree;
-#			  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $intfree.\n"};
-
-			  chmod 0664, $intfree;
-			  
-		  }
-		  elsif (-f $intfree) {
-			  $command = "rm -rf \"$intfree\"";
-			  exec_com($command, $file);
-		  }
-		  $document->purge;
-	  } # COPYFREE
+		copyfree($file, $orig, $int, $intfree);
 	}
 
-	# Print log message in case of fatal ERROR
+	# Remove temporary files unless testing.
+	if (! $test) { remove_tmp_files($tmpdir, $file); }
+
+	# Print log message to STDOUT in case of fatal ERROR
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
@@ -567,8 +329,225 @@ sub process_file {
 				}
 		}
 	}
+	return 0;
 }
 
+
+sub convert_doc {
+	my ($file, $orig, $int) = @_;
+
+	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+
+	my $xsl;
+	if ($convxsl) { $xsl = $convxsl; }
+	else { $xsl = $docxsl; }
+	$command = "/usr/local/bin/antiword -s -x db \"$orig\" > \"$tmp3\"";
+	exec_com($command, $file);
+	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
+	exec_com($command, $file);
+
+	return 0;
+}
+
+sub convert_pdf {
+	my ($file, $orig, $int, $xsl_file) = @_;
+	
+	my $main_sizes;
+	my $title_sizes;
+	my $title_styles;
+	my $main_font_elt;
+	if(! $noxsl) {
+		my $document = XML::Twig->new;
+		if (! $document->safe_parsefile("$xsl_file")) {
+			carp "ERROR parsing the XML-file failed: $@\n";		  
+			return "ERROR";
+		}
+		
+		my $root = $document->root;
+		
+		$main_font_elt = $root->first_child('xsl:variable[@name="main_sizes"]');
+		if ($main_font_elt) { $main_sizes = $main_font_elt->{'att'}{'select'}; }
+		
+		my $title_font_elt = $root->first_child('xsl:variable[@name="title_sizes"]');
+		if ($title_font_elt) { $title_sizes = $title_font_elt->{'att'}{'select'}; }
+		
+		my $title_styles_elt = $root->first_child('xsl:variable[@name="title_styles"]');
+		if ($title_styles_elt) { $title_styles = $title_styles_elt->{'att'}{'select'}; }
+	}
+	if ($main_font_elt) {
+		
+		$command = "$jpedal $orig $tmpdir  1>/dev/null";
+		exec_com($command, $file);
+		
+		(my $base = $file ) =~ s/\.pdf//;
+		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
+		exec_com($command, $file);
+		
+		$command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
+		exec_com($command, $file);
+		
+		if( -z $int && ! $upload ) {
+			print "ERROR $file: no pdf2xml output. STOP.\n";
+			return "ERROR";
+		}
+		return;
+	}
+	
+	my $xsl;
+	if ($convxsl) { $xsl = $convxsl; }
+	else { $xsl = $htmlxsl; }
+	my $html = $tmpdir . "/" . $file . ".tmp3";
+	$command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
+	exec_com($command, $file);
+	
+	# If there were severe errors in pdftotext, the html file is not created.
+	if(! -f $html && ! $upload ) {
+		print "$file: no pdftotext output. STOP.\n";
+		return "ERROR";			
+	}
+	&pdfclean($html);
+	$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
+	exec_com($command, $file);
+	
+	# remove temporary files unless testing.
+	if (! $test) {
+		$command = "rm -rf \"$html\"";
+		exec_com($command, $file);
+	}
+	return 0;
+}
+
+sub convert_txt {
+	my ($file, $orig, $int, $no_decode_this_time_ref) = @_;	
+
+	copy($orig,$int);
+	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
+  ENCODING:
+	if (! $no_decode && ! $$no_decode_this_time_ref ) {
+		my $coding = &guess_text_encoding($int, $tmp4, $language);
+		if ($coding eq 0) { 
+			if ($test) { print STDERR "Correct character encoding.\n"; }
+		}
+		elsif( $coding eq -1 ) {
+			carp "ERROR Was not able to determine character encoding. STOP.\n";
+			return "ERROR";
+		}
+		else { 
+			copy($int, $tmp4);
+			if ($test) { print STDERR "Character decoding: $coding\n"; }
+			my $error = &decode_text_file($tmp4, $coding, $int);
+			if ($error eq -1){ return "ERROR"; }
+			$$no_decode_this_time_ref=0;
+		}
+	}
+	# Simple html-tags are added in subroutine txtclean
+	# and then converted to confront the corpus structure
+	
+	txtclean($int, $tmp4, $language);
+	copy($tmp4,$int);
+
+	return 0;
+}
+
+sub convert_html {
+	my ($file, $orig, $int) = @_;
+
+	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+
+	my $xsl;
+	if ($convxsl) { $xsl = $convxsl; }
+	else { $xsl = $htmlxsl; }
+	$command = "$tidy \"$orig\" > \"$tmp3\" 2>/dev/null";
+	exec_com($command, $file);
+	
+	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
+	exec_com($command, $file);
+
+	return 0;
+}
+
+
+
+# File specific xsl-script
+sub file_specific_xsl {
+	my ($file, $orig, $int, $xsl_file) = @_;
+	
+	# Execute the file specific .xsl-script.
+	my $tmp = $tmpdir . "/" . $file . ".tmp";
+	$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+	exec_com($command, $file);
+	
+	# Validate the xml-file unless web upload.
+	if(! $upload && ($file !~ /.ptx$/)) {
+		$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
+		if( exec_com($command, $file) != 0 ) {
+			carp "ERROR: not valid xml, removing $int.. STOP.\n";
+			return "ERROR";
+		}
+	}
+	if (! copy ($tmp, $int) ) {
+		carp "ERROR: copy failed\n";
+		return "ERROR";
+	}
+	return 0;
+}
+
+
+sub copyfree {
+	my ($file, $orig, $int, $intfree) = @_;
+
+	# Copy file with free license to gtfree.
+	my $document = XML::Twig->new;
+	if (! $document->safe_parsefile("$int")) {
+		if (-f $intfree) {
+			$command = "rm -rf \"$intfree\"";
+			exec_com($command, $file);
+		}
+		carp "ERROR parsing the XML-file failed ";		  
+		return "ERROR";
+	}
+	
+	my $license = "license";
+	my $root = $document->root;
+	my $header = $root->first_child('header');
+	my $avail = $header->first_child('availability');
+	$license = $avail->first_child->local_name;
+	
+	if ( $license =~ /free/ ) {
+		if(-f $intfree && ! -w $intfree) {
+			carp "ERROR permission denied to $intfree.";
+			return "ERROR";
+		}
+		
+		# Create the directory to gtfree if it does not exist.
+		( my $dir =  $intfree )  =~ s/(.*)[\/\\].*/$1/;
+		if (! -d $dir ) {
+			my $command="mkdir -p \"$dir\"";
+			exec_com($command, $file);
+			my $cnt = chown -1, $gt_gid, $dir;
+#				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
+			chmod 0770,$dir;
+		}		
+		
+		copy ($int, $intfree) 
+			or carp "ERROR: copy failed ($int $intfree)\n";
+
+		my $cnt = chown -1, $gt_gid, $intfree;
+#			  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $intfree.\n"};
+		
+		chmod 0664, $intfree;
+	}
+	elsif (-f $intfree) {
+		$command = "rm -rf \"$intfree\"";
+		exec_com($command, $file);
+	}
+	$document->purge;
+
+	return 0;
+}
+
+
+# Subroutine to execute system commands and handle return values.
 sub exec_com {
 	my ($com, $file) = @_;
 
@@ -582,6 +561,87 @@ sub exec_com {
 	else { return 0; }
 }
 
+sub remove_tmp_files {
+	my ($tmpdir, $file) = @_;
+
+	my $tmpfiles = $tmpdir . "/" . $file . ".tmp*";
+	$command = "rm -rf $tmpfiles";
+	exec_com($command, $file);
+
+	return 0;
+}
+
+sub character_encoding {
+	my ($file, $orig, $int, $no_decode_this_time) = @_;
+
+	# Check if the file contains characters that are wrongly
+	# utf-8 encoded and decode them.
+
+	if (! $no_decode && ! $no_decode_this_time ) {
+		&read_char_tables;
+		# guess encoding and decode each paragraph at the time.
+		if( $multi_coding ) {
+			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para(@_); } });
+			if (! $document->safe_parsefile ("$int") ) {
+				carp "ERROR parsing the XML-file failed. STOP\n";
+				return "ERROR";
+			}
+			if (! open (FH, ">$int")) {
+				carp "ERROR cannot open file STOP";
+				return "ERROR";
+			} 
+			$document->set_pretty_print('indented');
+			$document->print( \*FH);
+		} else {
+			# assume same encoding for the whole file.
+			my $coding = &guess_encoding($int, $language, 0);
+			if ($coding eq -1) { 
+				carp "ERROR Was not able to determine character encoding. STOP.";
+				return "ERROR";
+			}
+			elsif ($coding eq 0) { 
+				if($test) { print STDERR "Correct character encoding.\n"; }
+				if($file =~ /\.doc$/) {
+					# Document title in msword documents is generally wrongly encoded, 
+					# check that separately.
+					my $d=XML::Twig->new(twig_handlers=>{
+						'p[@type="title"]'=> sub{call_decode_title(@_, $coding); },
+						'title'=>sub{call_decode_title(@_);}
+					}
+										 );
+					if (! $d->safe_parsefile ("$int") ) {
+						carp "ERROR parsing the XML-file failed.\n";
+						return "ERROR";
+					}
+					if (! open (FH, ">utf8", "$int")) {
+						carp "ERROR cannot open file";
+						return "ERROR";
+					}
+					$d->set_pretty_print('indented');
+					$d->print( \*FH);
+				}
+				return;
+			}
+			# Continue decoding the file.
+			if($test) { print STDERR "Character decoding: $coding\n"; }
+			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
+												 'title'=>sub{call_decode_para(@_, $coding);}
+											 }
+								 );
+			if (! $d->safe_parsefile ("$int") ) {
+				carp "ERROR parsing the XML-file failed.\n";
+				return "ERROR";
+			}
+			if (! open (FH, ">$int")) {
+				carp "ERROR cannot open file";
+				return "ERROR";
+			}
+			$d->set_pretty_print('indented');
+			$d->print( \*FH);
+		}
+	}
+	return 0;
+} 
 
 # Decode false utf8-encoding for text paragraph.
 sub call_decode_para {
@@ -592,6 +652,8 @@ sub call_decode_para {
 	if ($error){ print STDERR $error; }
 
 	$para->set_text($text);
+	
+	return 0;
 }
 
 # Decode false utf8-encoding for titles.
@@ -609,6 +671,8 @@ sub call_decode_title {
 	if ($error){ print STDERR $error; }
 
 	$title->set_text($text);
+
+	return 0;
 }
 
 # Add prelimnary xml-structure for the text files.
