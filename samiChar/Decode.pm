@@ -7,6 +7,7 @@ use Getopt::Long;
 use File::Basename;
 use strict;
 use warnings;
+use Carp qw(cluck carp);
 use utf8;
 
 use Exporter;
@@ -137,7 +138,7 @@ sub guess_text_encoding() {
 
     if (!$lang || ! $Sami_Chars{$lang}) {
 		if ($Test) {
-			print "guess_encoding: language is not specified or language $lang is not supported\n";
+			carp "guess_encoding: language is not specified or language $lang is not supported\n";
 		}
 		return $NO_ENCODING;
     }
@@ -153,8 +154,10 @@ sub guess_text_encoding() {
 	  my @text_array;
 	  my $error;
 	  # Read the file
-	  if (-f $file) {  $error = &read_file($file, \@text_array); }
-	  last CORRECT if ($error);
+	  if (-f $file) {  
+		  $error = &read_file($file, \@text_array); 
+		  if ($error) {  carp "ERROR: $error\n"; last CORRECT; }
+	  }
 	  my $count = 0;
 	  my $total_count = 0;
 	  for my $line (@text_array) {
@@ -257,7 +260,7 @@ sub guess_encoding () {
 
     if (!$lang || ! $Sami_Chars{$lang}) {
 		if ($Test) {
-			print "guess_encoding: language is not specified or language $lang is not supported\n";
+			carp "guess_encoding: language is not specified or language $lang is not supported\n";
 		}
 		return $NO_ENCODING;
     }
@@ -266,7 +269,7 @@ sub guess_encoding () {
 	my $error=0;
     # Read the corpus file
 	if ($file) { $error = &read_file($file, \@text_array); } 
-	if ($error ) { print "Decode.pm: non-utf8 bytes.\n"; return $ERROR; }
+	if ($error ) { carp "non-utf8 bytes.\n"; return $ERROR; }
 	elsif (! @text_array) { @text_array = split("\n", $$para_ref); }
     
     # Store the statistics here
@@ -467,7 +470,7 @@ sub decode_file (){
     my %convert_table = &read_char_table($charfile);
     my @text_array;
 	my $error = &read_file($file, \@text_array);
-	if ($error) { print "Decode.pm: Non-utf8 bytes.\n"; return $ERROR; }
+	if ($error) { cluck "Non-utf8 bytes.\n"; return $ERROR; }
 
 	my $in_title;
     for my $line (@text_array) {
@@ -481,7 +484,10 @@ sub decode_file (){
 		$line = pack("U*", @unpacked);
 	}
 	
-    open (FH, ">$outfile") or return "Cannot open file $outfile: $!";
+    if (! open (FH, ">$outfile")) { 
+		carp "Cannot open file $outfile";
+		return $ERROR;
+	}
     print(FH @text_array); 
     close (FH);
 	return 0;
@@ -490,7 +496,10 @@ sub decode_file (){
 sub read_file {
     my ($file, $text_aref) =  @_;
 
-    open (FH, $file) or return "Cannot open file $file: $!";
+    if (! open (FH, "$file")) { 
+		carp "Cannot open file $file";
+		return $ERROR;
+	}
     while (<FH>) {
 		if (! utf8::is_utf8($_)) { return 1; }
 		push (@$text_aref, $_);
