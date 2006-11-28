@@ -2,7 +2,8 @@
 package samiChar::Decode;
 
 binmode STDOUT, ":utf8";
-use open ':utf8';
+# removed because sometimes we want to open non-utf8.
+#use open ':utf8';
 use Getopt::Long;
 use File::Basename;
 use strict;
@@ -155,9 +156,11 @@ sub guess_text_encoding() {
 	  my $error;
 	  # Read the file
 	  if (-f $file) {  
-		  $error = &read_file($file, \@text_array); 
-		  if ($error) {  carp "ERROR: $error\n"; last CORRECT; }
+		  $error = &read_file($file, \@text_array, 1); 
+		  if ($error) { last CORRECT; }
 	  }
+	  #return;
+
 	  my $count = 0;
 	  my $total_count = 0;
 	  for my $line (@text_array) {
@@ -214,7 +217,7 @@ sub guess_text_encoding() {
 		}
 		$last_val = $key;
 	}
-    if ($results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
+    if (%results && $results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
 		if (! $correct || $results{$last_val} > $correct) {
 			$encoding = $last_val;
 		}
@@ -484,7 +487,7 @@ sub decode_file (){
 		$line = pack("U*", @unpacked);
 	}
 	
-    if (! open (FH, ">$outfile")) { 
+    if (! open (FH, ">:utf8", "$outfile")) { 
 		carp "Cannot open file $outfile";
 		return $ERROR;
 	}
@@ -494,14 +497,21 @@ sub decode_file (){
 }
 
 sub read_file {
-    my ($file, $text_aref) =  @_;
+    my ($file, $text_aref, $allow_nonutf) =  @_;
 
-    if (! open (FH, "$file")) { 
-		carp "Cannot open file $file";
-		return $ERROR;
+	if ($allow_nonutf) {
+		if (! open (FH,"$file")) { 
+			carp "Cannot open file $file";
+			return $ERROR;
+		} 
+	} else {
+		if (! open (FH, "<utf8", "$file")) { 
+			carp "Cannot open file $file";
+			return $ERROR;
+		}
 	}
     while (<FH>) {
-		if (! utf8::is_utf8($_)) { return 1; }
+		if (! utf8::is_utf8($_)) { return "ERROR"; }
 		push (@$text_aref, $_);
     }
     close (FH);
@@ -571,7 +581,7 @@ sub combine_two_codings {
     my $charfile1 = $Char_Files{$coding1};
     my $charfile2 = $Char_Files{$coding2};
 
-    open (OUTFILE, ">$outfile");
+    open (OUTFILE, ">:utf8", "$outfile");
     print (OUTFILE "# $coding1 $coding2 \n");
 
     my $data_dir = dirname __FILE__;
