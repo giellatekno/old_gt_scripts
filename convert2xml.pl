@@ -56,7 +56,7 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-my $test=1; #preserves temporary files and prints extra info.
+my $test=0; #preserves temporary files and prints extra info.
 
 # set the permissions for created files: -rw-rw-r--
 #umask 0112;
