@@ -57,7 +57,7 @@ build_gt() {
 
 
 # st-catalog
-st() {
+build_st() {
 
 	for lang in "foe" "kal"
 	  do
