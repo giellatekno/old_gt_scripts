@@ -24,10 +24,18 @@ sub generate_taglist {
 	my ($gramfile, $tagfile, $taglist_aref, $mode) = @_;
 
 	my @grammar;
-	push (@grammar, "N+Number+Case+Possessive?+Clitic?");
-	push (@grammar, "A+Grade?+Attributive?+Number?+Case?+Possessive?+Clitic?");
-	push (@grammar, "V+Infinite?+Diathesis?+Polarity?+Mood?+Tense?+Person-Number?+Clitic?");
-	push (@grammar, "Adv+Grade?+Clitic?");
+	push (@grammar, "N+Number?+Case+Possessive?");
+	push (@grammar, "A+Grade?+Attributive?+Subclass?+Number?+Case?+Possessive?");
+	push (@grammar, "V+Infinite?+Diathesis?+Polarity?+Mood?+Tense?+Person-Number?");
+	push (@grammar, "Adv+Grade?");
+	push (@grammar, "Num+Attributive?+Number?+Case?");
+	push (@grammar, "Pron+Subclass+Attributive?+Person-Number?+Case?+Possessive?");
+	push (@grammar, "CS");
+	push (@grammar, "CC");
+	push (@grammar, "Interj");
+	push (@grammar, "Pcle");
+	push (@grammar, "Po+Possessive");
+	push (@grammar, "Pr+Possessive");
 
 	my %tags;
 
