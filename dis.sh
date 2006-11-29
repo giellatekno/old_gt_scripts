@@ -18,9 +18,16 @@
 
 args=$@
 
+m4flags=$(echo $@ | sed -re "s/.*(-D.*)\..*/\1/")
+if [ "$m4flags" = "$@" ]
+then
+	m4flags=""
+fi
+
+
 vislcg="vislcg $@"
 pwd=$(pwd)
 
-cd $HOME/gt/ && make dis TARGET=sme
+cd $HOME/gt/ && make dis TARGET=sme M4FLAGS="$m4flags"
 cd $pwd && exec $vislcg<&0
 
