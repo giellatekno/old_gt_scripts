@@ -16,17 +16,24 @@
 # dis.sh --grammar=... --minimal < file.txt
 # .. | lookup2cg | dis.sh --grammar=... --minimal
 
-args=$@
+mei=$@
 
-m4flags=$(echo $@ | sed -re "s/.*(-D.*)\..*/\1/")
-if [ "$m4flags" = "$@" ]
-then
-	m4flags=""
+a=$(expr match "$mei" '.*-D.*')
+#echo $a
+if [ "$a" != "0" ]
+then 
+	m4flags=$(echo $@ | sed -re "s/.*(-D.*)\..*/\1/")
 fi
 
+#echo "M4FLAGS"
+#echo $m4flags
+#echo $@
 
 vislcg="vislcg $@"
 pwd=$(pwd)
+
+#echo "VISLCG"
+#echo $vislcg
 
 cd $HOME/gt/ && make dis TARGET=sme M4FLAGS="$m4flags"
 cd $pwd && exec $vislcg<&0
