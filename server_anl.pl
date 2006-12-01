@@ -347,7 +347,9 @@ sub call_analyze {
 	
 		# Take away the original input.
 		$read_anl =~ s/^.*?\n//;
+		# Replace extra newlines.
 		$read_anl =~ s/\r\n/\n/g;
+		$read_anl =~ s/\r//g;
 		$output .= $read_anl . "\n\n";
 	}
 	return $output;
