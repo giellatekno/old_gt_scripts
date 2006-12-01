@@ -23,9 +23,15 @@ my $help;
 my $fst;
 my $rle;
 my $xml=0;
-my $param;
 #my $PORT=9000;
-my $PORT=8080;
+my $PORT=8081;
+
+my $param="/home/saara/gt/script/paras.xml";
+my $host=`hostname`;
+# If we are in G5
+if ($host =~ /hum-tf4-ans142/) {
+	$param="/Users/saara/gt/script/paras.xml";
+}
 
 # Allow combination of options, -pad
 Getopt::Long::Configure ("bundling");
@@ -49,10 +55,10 @@ if ($help) {
 
 my $remote = IO::Socket::INET->new(
 								Proto    => "tcp",
-								PeerAddr => "victorio.uit.no",
+								PeerAddr => "localhost",
 								PeerPort => $PORT,
 								)
-	or die "cannot connect to port 8080 at localhost";
+	or die "cannot connect to port $PORT at localhost";
 
 $remote->autoflush(1);
 
@@ -62,7 +68,6 @@ print $welcome;
 # Read processing instructions from file.
 my $parameters;
 
-$param="/home/saara/gt/script/paras.xml";
 if ($param) {
 	open (FH, "<$param");
 	while(<FH>) {
@@ -86,7 +91,7 @@ while(<STDIN>) {
 	print $remote "$_";
 
 	my $line = <$remote>;
-	while ($line && $line !~ /END_REPLY/) {
+	while ($line !~ /^$/) {
 		print "$line";
 		$line = <$remote>;
 	}
