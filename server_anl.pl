@@ -87,17 +87,17 @@ my $client;
 		$paras =~ s/\r//g;
 
 		my $error = process_paras($paras);
-		if ($error) { print $client "ERROR $error\nEND_REPLY\n"; last CLIENT; }
+		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
 		else { print $client ""; }
 		
-#		print "Setting language to $language.\n";
-#		print "Using fsts:\n";
-#		for my $key (keys %action) {
-#			print "$action{$key}{'fst'}\n";
-#		}
+		print "Setting language to $language.\n";
+		print "Using fsts:\n";
+		for my $key (keys %action) {
+			print "$action{$key}{'fst'}\n";
+		}
 
 		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
-		
+
 		# Initialize different tools according to the parameters.
 		# Start the expect objects: exp_anl and dis_anl if requested.
 		init_tools();
@@ -242,7 +242,7 @@ sub analyze_input {
 	if ($act eq 'para') {
 		#print "line: $input\n";
 		$analysis = generate_paradigm($exp_anl{$act}, $input);
-		if ($analysis =~ /ERROR/) { return $analysis; }
+		if ($analysis && $analysis =~ /ERROR/) { return $analysis; }
 		
 		if ($xml_out) { $output = gen2xml($analysis,1); }
 		else { $output = $analysis; };
