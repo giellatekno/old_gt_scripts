@@ -12,8 +12,19 @@
 
 # Change file group and permissions for different corpus directories.
 
-corpdir=/usr/local/share/corp
-#corpdir=/home/saara/samipdf
+host=$(hostname)
+
+# Set variables according to the current host.
+if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+then
+	corpdir=/Users/hoavda/Public/corp
+	corpus_group="staff"
+	free_group="staff"
+else
+	corpdir=/usr/local/share/corp
+	corpus_group="corpus"
+	free_group="cvs"
+fi
 
 orig="$corpdir/orig"
 bound="$corpdir/bound"
@@ -33,21 +44,21 @@ orig ()
 	  files=`find $orig/$dir -type f ! -name "*.xsl*"` 
 	  for file in $files
 	  do
-		chgrp corpus $file
+		chgrp $corpus_group $file
 		chmod 0640 $file
 	  done
 
 	  xslfiles=`find $orig/$dir -type f -name "*.xsl,v"`
 	  for file in $xslfiles
 	  do 
-		chgrp corpus $file
+		chgrp $corpus_group $file
 		chmod 0440 $file
 	  done
 
 	  subdirs=$(find $orig/$dir -type d)
 	  for sub in $subdirs
 	  do
-		chgrp corpus $sub
+		chgrp $corpus_group $sub
 		chmod 0770 $sub
 	  done
 	done
@@ -62,13 +73,13 @@ gtbound ()
 	  files=`find $bound/$dir -name "*.xml"`
 	  for file in $files
 	  do
-		chgrp bound $file
+		chgrp $corpus_group $file
 		chmod 0660 $file
 	  done
 	  subdirs=$(find $bound/$dir -type d)
 	  for sub in $subdirs
 	  do
-		chgrp bound $sub
+		chgrp $corpus_group $sub
 		chmod 0770 $sub
 	  done
 	 done
@@ -83,21 +94,26 @@ gtfree ()
 	  files=`find $free/$dir -name "*.xml"`
 	  for file in $files
 	  do
-		chgrp cvs $file
+		chgrp $free_group $file
 		chmod 0664 $file
 	  done
 
 	  subdirs=$(find $free/$dir -type d)
 	  for sub in $subdirs
 	  do
-		chgrp cvs $sub
+		chgrp $free_group $sub
 		chmod 0775 $sub
 	  done
 	done
 }
 
-orig $langdirs
-gtbound $langdirs
-gtfree $langdirs
+if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+then
+	gtbound $langdirs
+else
+	orig $langdirs
+	gtbound $langdirs
+	gtfree $langdirs
+fi
 
 exit 0
