@@ -16,16 +16,25 @@ script_dir=$tmpdir/gt/script
 bindir=$tmpdir/gt/bin
 srcdir=$tmpdir/gt/src
 
-perl_libdir=/usr/lib/perl5/5.8.5
+host=$(hostname)
+
+# If we are in G5
+if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+then 
+	perl_libdir=/Library/Perl/5.8.6
+else
+	perl_libdir=/usr/lib/perl5/5.8.5
+fi
+
 common_bin=/usr/local/bin
 
 own_modules="samiChar
 langTools"
-other_modules="XML::Twig"
+#other_modules="XML::Twig"
 
 binaries="ccat"
 
-scripts="preprocess lookup2cg text_cat hyph-filter.pl cgi-export"
+scripts="preprocess lookup2cg text_cat cgi-export"
 
 ##### start copying
 
