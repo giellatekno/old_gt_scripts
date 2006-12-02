@@ -16,6 +16,7 @@ if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
 then
 	group=staff
 	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
+	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
 else
 	PATH=$PATH:/opt/xerox/bin
 	group=cvs
@@ -79,9 +80,12 @@ build_st() {
 
 
 # Call subroutines for building gt- and st-hierarchies.
-build_gt
+#build_gt
 
 if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
 then
 	build_st
+else
+	cd $tmpdir/st/nob/src && make abbr 
+	cp $tmpdir/st/nob/bin/abbr.txt /opt/smi/nob/bin/
 fi
