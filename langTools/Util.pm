@@ -24,19 +24,6 @@ sub generate_taglist {
 	my ($gramfile, $tagfile, $taglist_aref, $mode) = @_;
 
 	my @grammar;
-	push (@grammar, "N+Number?+Case+Possessive?");
-	push (@grammar, "A+Grade?+Attributive?+Subclass?+Number?+Case?+Possessive?");
-	push (@grammar, "V+Infinite?+Diathesis?+Polarity?+Mood?+Tense?+Person-Number?");
-	push (@grammar, "Adv+Grade?");
-	push (@grammar, "Num+Attributive?+Number?+Case?");
-	push (@grammar, "Pron+Subclass+Attributive?+Person-Number?+Case?+Possessive?");
-	push (@grammar, "CS");
-	push (@grammar, "CC");
-	push (@grammar, "Interj");
-	push (@grammar, "Pcle");
-	push (@grammar, "Po+Possessive");
-	push (@grammar, "Pr+Possessive");
-
 	my %tags;
 
 	if ($gramfile) {
@@ -52,8 +39,7 @@ sub generate_taglist {
 			next if /^$/;
 			next if /^#/;
 			
-			push (@grammar, $_);
-		
+			push (@grammar, $_);		
 		}
 	}
 	read_tags($tagfile, \%tags);
