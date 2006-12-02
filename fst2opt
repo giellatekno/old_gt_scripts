@@ -47,6 +47,7 @@ build_gt() {
 
 	cp $tmpdir/gt/script/hyph-filter.pl /opt/smi/common/bin/
 	cp $tmpdir/gt/cwb/korpustags.txt /opt/smi/common/bin/
+	cp $tmpdir/gt/cwb/paradigm.txt /opt/smi/common/bin/
 	cp $tmpdir/gt/common/bin/allcaps.fst /opt/smi/common/bin/
 	
 	chgrp $group /opt/smi/common/bin/*
