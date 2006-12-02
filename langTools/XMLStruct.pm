@@ -20,15 +20,6 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
 
-our %default_args = (
-				   "dis" =>  "--quiet",
-				   "anl" => "-flags -mbTT -utf8",
-				   "gen" => "-flags -mbTT -utf8 -d",
-				   "para" => "-flags -mbTT -utf8 -d",
-				   "hyph" => "-flags -mbTT -utf8",
-				   "prep" => "",
-				   );
-
 # Store the vislcg or lookup2cg output
 # to xml-structure.
 sub dis2xml {
@@ -384,14 +375,28 @@ sub process_paras {
 	}
 	else { $language = $lang->text; }
 
-	my %default_fsts = (
-						"anl" => "/opt/smi/$language/bin/$language.fst",
-						"hyph" => "/opt/smi/$language/bin/hyph-$language.fst",
-						"gen" => "/opt/smi/$language/bin/i$language-norm.fst",
-						"para" => "/opt/smi/$language/bin/i$language.fst",
+	my %default_args = (
+						"dis" =>  "--quiet",
+						"anl" => "-flags -mbTT -utf8",
+						"gen" => "-flags -mbTT -utf8 -d",
+						"para" => "-flags -mbTT -utf8 -d",
+						"hyph" => "-flags -mbTT -utf8",
 						"prep" => "",
 						);
-		
+
+	my %default_tools = (
+						 "anl_fst" => "/opt/smi/$language/bin/$language.fst",
+						 "hyph_fst" => "/opt/smi/$language/bin/hyph-$language.fst",
+						 "hyph_filter" => "/opt/smi/common/bin/hyph-filter.pl",
+						 "gen_fst" => "/opt/smi/$language/bin/i$language-norm.fst",
+						 "para_fst" => "/opt/smi/$language/bin/i$language.fst",
+						 "para_grammar" => "/opt/smi/common/bin/paradigm.txt",
+						 "para_tags" => "/opt/smi/common/bin/korpustags.txt",
+						 "prep_fst" => "/opt/smi/$language/bin/$language.fst",
+						 "prep_abbr" => "/opt/smi/$language/bin/$language.fst",
+						 "prep_corr" => "/opt/smi/$language/bin/$language.fst",
+						 );
+
 	$xml_in = $root->first_child('xml_in');
 	$xml_out = $root->first_child('xml_out');
 	my @actions = $root->children('action');
@@ -406,17 +411,25 @@ sub process_paras {
 		my $filter = $act->{'att'}->{'filter'};
 		my $filter_script = $act->{'att'}->{'filter_script'};
 		my $mode = $act->{'att'}->{'mode'};
+		my $grammar = $act->{'att'}->{'grammar'};
+		my $tags = $act->{'att'}->{'tags'};
 
 		if ($tool eq 'anl' || $tool eq 'hyph' || $tool eq 'gen' || $tool eq 'para') {
 			if ($tmp_fst) { $action{$tool}{'fst'}=$tmp_fst; }
-			else { $action{$tool}{'fst'} = $default_fsts{$tool}; }
+			else { $action{$tool}{'fst'} = $default_tools{$tool . "_fst"}; }
 			if ($tmp_args) { $action{$tool}{'args'}=$tmp_args; }
 			else { $action{$tool}{'args'} = $default_args{$tool}; }
 			if ($filter) { 
-				$action{$tool}{'filter'} = 1;
-				if ($filter_script) { $action{$tool}{'filter_script'} = $filter_script; }
+				if ($filter_script) {  $action{$tool}{'filter'} = $filter_script; }
+				else { $action{$tool}{'filter'} = $default_tools{'hyph_filter'}; }
 			}
-			if ($mode) { $action{$tool}{'mode'} = $mode; }
+			if ($tool eq "para") {
+				if ($grammar) { $action{$tool}{'grammar'} = $grammar; }
+				else { $action{$tool}{'grammar'} = $default_tools{'para_grammar'}; }
+				if ($tags) { $action{$tool}{'tags'} = $tags; }
+				else { $action{$tool}{'tags'} = $default_tools{'para_tags'}; }
+				if ($mode) { $action{$tool}{'mode'} = $mode; }
+			}
 			next;
 		}
 		if ($tool eq 'dis') {
@@ -430,13 +443,13 @@ sub process_paras {
 		if ($tool eq 'prep') {
 			$action{'prep'}=1;
 			if ($tmp_fst) { $prep_tools{'fst'} = $tmp_fst; }
-			else { $prep_tools{'fst'}="/opt/smi/$language/bin/$language.fst"; }
+			else { $prep_tools{'fst'}=$default_tools{'prep_fst'}; }
 			if ($abbr) { $prep_tools{'abbr'}=$abbr; }
-			else { $prep_tools{'abbr'}="/opt/smi/$language/bin/abbr.txt"; }
+			else { $prep_tools{'abbr'}=$default_tools{'prep_abbr'}; }
 			if ($corr) { $prep_tools{'corr'}=$corr; }
-			else { $prep_tools{'corr'}="/opt/smi/$language/bin/corr.txt"; }
+			else { $prep_tools{'corr'}=$default_tools{'prep_corr'}; }
 			if ($tmp_args) { $prep_tools{'args'}=$tmp_args; }
-			else { $prep_tools{'args'}=$default_args{'dis'}; }
+			else { $prep_tools{'args'}=$default_args{'prep'}; }
 			next;
 		}
 	}
