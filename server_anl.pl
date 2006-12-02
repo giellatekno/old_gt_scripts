@@ -87,7 +87,7 @@ my $client;
 
 		my $error = process_paras($paras);
 		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
-		else { print $client "\n"; }
+		else { print $client ""; }
 		
 		print "Setting language to $language.\n";
 		print "Using fsts:\n";
