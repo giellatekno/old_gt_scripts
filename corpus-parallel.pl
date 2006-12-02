@@ -8,18 +8,17 @@ use Getopt::Long;
 use XML::Twig;
 use File::Find;
 
-my $corpdir = "/usr/local/share/corp";
-my $tmpdir = "/usr/local/share/corp/tmp";
 my $corpus_analyze="corpus-analyze.pl";
+my $corpdir = "/usr/local/share/corp";
 
 my $host=`hostname`;
 # If we are in G5
 if ($host =~ /hum-tf4-ans142/) {
     $corpdir = "/Users/hoavda/Public/corp";
-    $tmpdir = $corpdir . "/tmp";
-    $corpus_analyze = "/Users/saara/cron/gt/script/corpus-analyze.pl";
+    $corpus_analyze = "/Users/saara/gt/script/corpus-analyze.pl";
 }
 
+my $tmpdir = $corpdir . "/tmp";
 my $gtbound_dir = "bound";
 my $gtfree_dir = "free";
 my $orig_dir = "orig";
@@ -49,6 +48,9 @@ if ($help) {
 }
 
 if(! $outdir) { $outdir=$tmpdir; }
+
+#my $anchor_file = $bindir . "anchor-" . $lang1 . $lang2
+my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
 
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
@@ -143,8 +145,8 @@ sub process_file {
 		return;
 	}
 	
-# The path to the original.
-# And path to parallel files.
+    # The path to the original.
+    # And path to parallel files.
 	$file = File::Spec->rel2abs($file);
 	(my $path = $file) =~ s/(.*)[\/\\].*/$1/;
 	(my $para_path = $path) =~ s/$lang/$para_lang/o;
@@ -156,18 +158,18 @@ sub process_file {
 		push (@full_paths, $p);
 	}
 	
-# Prepare files for further processing by 
-# adding <s> tags and sentence ids.
-# The output goes to tmp.
-	
-# Take only the file name without path.
+	# Prepare files for further processing by 
+	# adding <s> tags and sentence ids.
+    # The output goes to tmp.
+
+    # Take only the file name without path.
 	(my $base = $file) =~ s/.*[\/\\](.*).xml/$1/;
 	my $outfile=$outdir . "/" . $base . ".sent.xml";
 	my $command="$corpus_analyze --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
-	print STDERR "$command\n";
-	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
+#	print STDERR "$command\n";
+#	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 	
-# If there are more than one parallel file, these files are combined to one.
+    # If there are more than one parallel file, these files are combined to one.
 	if ($#full_paths > 0) { return "Cannot process more than one parallel file\n"; }
 	
 	my $pfile=$full_paths[0];
@@ -176,6 +178,10 @@ sub process_file {
 	$command="$corpus_analyze --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
 	print STDERR "$command\n";
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
+
+	$command="tca2 -a $anchor_file $outfile $poutfile";
+	system($command);
+
 }
 
 sub print_help {
