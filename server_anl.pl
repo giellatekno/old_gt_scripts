@@ -25,15 +25,14 @@ use Expect;
 use langTools::XMLStruct;
 use langTools::Util;
 
+#my $PORT = 9000;
 my $PORT = 8081;
 
 my $lookup="lookup";
 my %paradigms;
-my $lookup2cg="/usr/local/bin/lookup2cg";
-my $default_hyph_filter="hyph-filter.pl";
 my $hyph_filter;
-my $end_of_dis="\<\"¶\"\>\n\t\"¶\"";
-my $tagfile="/opt/smi/common/bin/korpustags.txt";
+my $lookup2cg="/usr/local/bin/lookup2cg";
+my $end_of_dis;
 my %exp_anl;
 my $exp_dis;
 my $exp_lo2cg;
@@ -88,7 +87,7 @@ my $client;
 
 		my $error = process_paras($paras);
 		if ($error) { print $client "ERROR $error\n"; last CLIENT; }
-		else { print $client ""; }
+		else { print $client "\n"; }
 		
 		print "Setting language to $language.\n";
 		print "Using fsts:\n";
@@ -223,10 +222,11 @@ sub analyze_input {
 		if ($analysis =~ /ERROR/) { return $analysis; }
 
 		# Filter hyphenations if requested.
-		if ($act =~ 'hyph' && $hyph_filter) {
+		if ($act =~ 'hyph' && $action{'hyph'}{'filter'}) {
+			#print "filtering\n";
 			# Remove the unsecure characters from the input.
 			$analysis =~ s/[\;\<\>\*\|\`\&\$\!\(\)\[\]\{\}\:\'\"]/ /g; 
-			$analysis = `echo \"$analysis\" | $hyph_filter`;
+			$analysis = `echo \"$analysis\" | $action{'hyph'}{'filter'}`;
 		}
 		# Format XML-output
 		if ($xml_out) {
@@ -265,17 +265,10 @@ sub init_tools {
 			$exp_anl{$tool}->log_stdout(0);
 		}
 	}
-    # Hyphenation, initialize filter command.
-	if ($action{'hyph'}) {
-		if ($action{'hyph'}{'filter'}) {
-			if ($action{'hyph'}{'filter_script'} && -f $action{'hyph'}{'filter_script'}) { 
-				$hyph_filter = $action{'hyph'}{'filter_script'};
-			}
-			else{ $hyph_filter = $default_hyph_filter; }
-		}
-	}
 	# Paradigm generation, generate tag lists for the paradigms
-	if ($action{'para'}) { generate_taglist (undef, $tagfile, \%paradigms, $action{'para'}{'mode'}) };
+	if ($action{'para'}) {
+		generate_taglist($action{'para'}{'grammar'},$action{'para'}{'tags'},\%paradigms,$action{'para'}{'mode'});
+	}
 
 	# Preprocessing, initialize command
 	if ($action{'prep'}) {
