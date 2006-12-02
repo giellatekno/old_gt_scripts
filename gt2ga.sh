@@ -44,9 +44,7 @@ analyze_gt ()
 {
     for lang in "$@"
       do 
-      cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
-      cd $tmpdir/gt && make TARGET=$lang 
-      
+
       mkdir -p $gadir/$lang
       echo "processing language $lang..."
       directories=`find $corproot/$gt/$lang -maxdepth 1 -mindepth 1 -type d`
@@ -89,10 +87,21 @@ process ()
 {
     lang="$1"
     dir="$2"
+
+	optdir="/opt/smi/$lang/bin"
+	abbr="$optdir/abbr.txt"
+	corr="$optdir/typos.txt"
+	fst="$optdir/$lang.fst"
+	preprocess="preprocess --abbr=$abbr --corr=$corr --fst=$fst"
+	lookup="lookup -flags mbTT -utf8 -f $optdir/cap-$lang"
+	vislcg="vislcg --grammar=$optdir/$lang-dis.rle"
+	ccat="ccat -l $lang -r $corproot/$gt/$lang/$dir/"
+
     echo "processing $lang directory $dir"
-    echo "/usr/local/bin/ccat -l $lang -r $corproot/$gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --corr=$tmpdir/gt/$lang/src/typos.txt --abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT -utf8 $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/bin/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed"
-    /usr/local/bin/ccat -l $lang -r $corproot/$gt/$lang/$dir/ | $tmpdir/gt/script/preprocess --corr=$tmpdir/gt/$lang/src/typos.txt--abbr=$tmpdir/gt/$lang/bin/abbr.txt --fst=$tmpdir/gt/$lang/bin/$lang.fst | lookup -flags mbTT -utf8 $tmpdir/gt/$lang/bin/$lang.fst | $tmpdir/gt/script/lookup2cg | vislcg --grammar=$tmpdir/gt/$lang/bin/$lang-dis.rle  > $gadir/$lang/$dir/$dir.analyzed
-    
+    echo "$ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed"
+    $ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed
+	exit
+
     return 0
 }
 
