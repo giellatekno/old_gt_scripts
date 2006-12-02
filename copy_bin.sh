@@ -18,14 +18,6 @@ srcdir=$tmpdir/gt/src
 
 host=$(hostname)
 
-# If we are in G5
-if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
-then 
-	perl_libdir=/Library/Perl/5.8.6
-else
-	perl_libdir=/usr/lib/perl5/5.8.5
-fi
-
 common_bin=/usr/local/bin
 
 own_modules="samiChar
@@ -36,11 +28,20 @@ binaries="ccat"
 
 scripts="preprocess lookup2cg text_cat cgi-export"
 
-##### start copying
+# If we are in G5
+if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+then 
+	perl_libdir=/Library/Perl/5.8.6
+	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
+else
+	perl_libdir=/usr/lib/perl5/5.8.5
+	echo "Check out gt from cvs"
+	cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
+fi
 
-# First check out the lateset version from cvs.
-echo "Check out gt from cvs"
-cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
+
+
+##### start copying
 
 # make and copy ccat
 echo "Making and copying ccat.."
