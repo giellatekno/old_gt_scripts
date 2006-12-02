@@ -4,7 +4,8 @@
 #			fst2opt
 #			written by Saara Huhmarniemi
 #
-#           Copy the analyzator to web-directory
+#           Copy and compile the latest versions of the analyzer tools
+#
 # $Id$
 #****************************************************************
 
@@ -80,7 +81,7 @@ build_st() {
 
 
 # Call subroutines for building gt- and st-hierarchies.
-#build_gt
+build_gt
 
 if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
 then
