@@ -22,7 +22,7 @@ a=$(expr match "$mei" '.*-D.*')
 #echo $a
 if [ "$a" != "0" ]
 then 
-	m4flags=$(echo $@ | sed -re "s/.*(-D.*)\..*/\1/")
+	m4flags=$(echo $@ | perl -pe "s/.*(-D.*)\..*/\1/")
 fi
 
 #echo "M4FLAGS"
