@@ -39,6 +39,7 @@ sub generate_taglist {
 			next if /^$/;
 			next if /^#/;
 			
+			s/\s*$//;
 			push (@grammar, $_);		
 		}
 	}
@@ -55,7 +56,7 @@ sub generate_taglist {
 		$$taglist_aref{$pos}= [ @taglist ];
 	}
 #	for my $pos ( keys %$taglist_aref ) {
-#		print "JEE @$taglist_aref{$pos} ";
+#		print "JEE @{$$taglist_aref{'N'}} ";
 #    }
 }
 
