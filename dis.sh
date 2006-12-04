@@ -18,11 +18,12 @@
 
 mei=$@
 
-a=$(expr match "$mei" '.*-D.*')
+a=$(echo "$@" | grep '.*-D.*')
 #echo $a
-if [ "$a" != "0" ]
+if [ ! -z "$a" ]
 then 
-	m4flags=$(echo $@ | perl -pe "s/.*(-D.*)\..*/\1/")
+	echo "joo"
+	m4flags=$(echo $@ | perl -pe "s/.*?(-D.*)\..*/\1/")
 fi
 
 #echo "M4FLAGS"
