@@ -22,7 +22,6 @@ a=$(echo "$@" | grep '.*-D.*')
 #echo $a
 if [ ! -z "$a" ]
 then 
-	echo "joo"
 	m4flags=$(echo $@ | perl -pe "s/.*?(-D.*)\..*/\1/")
 fi
 
