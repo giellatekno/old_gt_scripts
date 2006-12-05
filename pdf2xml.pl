@@ -34,7 +34,7 @@ my $title_styles;
 GetOptions ("dir=s" => \$dir,
 			"outfile=s" => \$outfile,
 			"xslfile=s" => \$xslfile,
-			"font_sizes=s" => \$main_sizes,
+			"main_sizes=s" => \$main_sizes,
 			"title_sizes=s" => \$title_sizes,
 			"title_styles=s" => \$title_styles,
 			"help" => \$help);
@@ -71,6 +71,7 @@ $title_sizes =~ s/\'//g;
 $main_sizes =~ s/\'//g;
 $title_styles =~ s/\'//g;
 
+if(! $main_sizes) { print STDERR "No main font size\n"; exit; }
 
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
