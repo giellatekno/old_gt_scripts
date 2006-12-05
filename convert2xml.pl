@@ -250,7 +250,7 @@ sub process_file {
 		$error = convert_txt($file, $orig, $int, \$no_decode_this_time);
 	}
 	else { $error = 1; }
-
+	
 	# If there were errors in the conversion, remove
 	# the xml-file and proceed to the next file.
 	if ($error || ! -f $int || -z $int ) {
@@ -278,7 +278,14 @@ sub process_file {
 	}
 
 	# Run the file specific xsl-script.
-	if (! $noxsl) { file_specific_xsl($file, $orig, $int, $xsl_file); }
+	if (! $noxsl) { 
+		$error = file_specific_xsl($file, $orig, $int, $xsl_file); 
+		if ($error) {
+			exec_com("rm -rf \"$int\"", $file);
+			if (! $test) { remove_tmp_files($tmpdir, $file); }
+			return;
+		}
+	}
 
 	# Checking in the xsl-file
 	if ( -f $xsl_vfile) {
@@ -356,6 +363,7 @@ sub convert_pdf {
 	my $title_sizes;
 	my $title_styles;
 	my $main_font_elt;
+	my $col_num;
 	if(! $noxsl) {
 		my $document = XML::Twig->new;
 		if (! $document->safe_parsefile("$xsl_file")) {
@@ -373,12 +381,17 @@ sub convert_pdf {
 		
 		my $title_styles_elt = $root->first_child('xsl:variable[@name="title_styles"]');
 		if ($title_styles_elt) { $title_styles = $title_styles_elt->{'att'}{'select'}; }
+
+		my $column_elt = $root->first_child('xsl:variable[@name="columns"]');
+		if ($column_elt) { $col_num = $column_elt->{'att'}{'select'}; }
+
 	}
 	if ($main_font_elt) {
-		
-		$command = "$jpedal $orig $tmpdir  1>/dev/null";
+
+		if ($col_num eq "'2'") { $command = "$jpedal $orig $tmpdir -Dcol 1>/dev/null"; }
+		else { $command = "$jpedal $orig $tmpdir  1>/dev/null"; }
 		exec_com($command, $file);
-		
+
 		(my $base = $file ) =~ s/\.pdf//;
 		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
 		exec_com($command, $file);
@@ -440,6 +453,7 @@ sub convert_txt {
 			$$no_decode_this_time_ref=0;
 		}
 	}
+	#return;
 	# Simple html-tags are added in subroutine txtclean
 	# and then converted to confront the corpus structure
 	
@@ -649,7 +663,6 @@ sub call_decode_para {
 
 	my $text = $para->text;
 	my $error = &decode_para($language, \$text, $coding);
-	if ($error){ print STDERR $error; }
 
 	$para->set_text($text);
 	
@@ -664,11 +677,9 @@ sub call_decode_title {
 
 	if(!$coding) {
 		my $error = &decode_para($language, \$text);
-		if ($error){ print STDERR $error; }
 	}
 
 	my $error = &decode_title($language, \$text, $coding);
-	if ($error){ print STDERR $error; }
 
 	$title->set_text($text);
 
@@ -773,8 +784,8 @@ sub txtclean {
 					next;
 				}
 				else { 
-					print "Error: line did not match: $line\n"; 
-					next; 
+					carp "ERROR: line did not match: $line\n"; 
+					return "ERROR";
 				}
 			}
 		}
