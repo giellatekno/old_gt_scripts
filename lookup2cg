@@ -103,14 +103,14 @@ while(<>) {
             $line =  "\t" . " \"$base\" " . $line2 . "\n";
  			
 			# Store the analysis to a hash
-			$forms{$line} = 1;
+			if ($base) { $forms{$line} = 1; }
         }
 		
 		# Print output
         if (@Analyses) {
 		print "\"<$word>\"\n";
-		for my $line (keys %forms)
-		{ print "$line"; }
+		for my $line (keys %forms) 
+                 { print "$line"; }
 		}
 	} # end of while
 
