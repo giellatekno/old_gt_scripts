@@ -63,6 +63,7 @@ while(<>) {
 		# analysis (=base form and tags) to an array
 		my $analysis;
 		($word, $analysis) = split(/\t/, $line, 2);
+		next if (! $analysis);
 		$analysis =~ tr/\t//d;
 		push @Analyses, $analysis;
 		$comp_rate = tr/\#//;
