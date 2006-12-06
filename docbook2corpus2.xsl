@@ -13,7 +13,7 @@ Output the header information
             encoding="UTF-8"
             indent="yes"
             doctype-public="-//UIT//DTD Corpus V1.0//EN"
-            doctype-system="/home/saara/gt/dtd/corpus.dtd"/>
+            doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/>
 
 <!--
    Root element
