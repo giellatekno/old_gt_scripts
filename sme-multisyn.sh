@@ -10,7 +10,8 @@ echo -n "Atte cealkaga: "                   # (message to user)
 read sentence                               # next 3 lines is the usual command
 echo $sentence | preprocess --abbr=~/gt/sme/bin/abbr.txt | \
 lookup -flags mbTT -utf8 ~/gt/sme/bin/sme.fst | ~/gt/script/lookup2cg | \
-dis.sh --grammar ~/gt/sme/bin/sme-dis.rle --minimal --sections=1 
+ vislcg --grammar ~/gt/sme/src/sme-dis.rle --minimal --sections=1 # no m4
+#dis.sh --grammar ~/gt/sme/bin/sme-dis.rle --minimal --sections=1 # m4
 
 done                      
 exit 0
