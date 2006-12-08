@@ -311,7 +311,9 @@ sub generate_paradigm {
 
 	for my $r (@input) {
 		#print "r $r\n";
-		my ( $word, $pos) = split(/\s+/, $r);
+		$r =~ /^(.*)\s+(\w+)/;
+		my $word=$1;
+		my $pos=$2;
 		if ( !$pos ) { return "ERROR: $line"; }
 
 		for my $a ( @{$paradigms{$pos}} ) {
