@@ -119,7 +119,7 @@ while (<>) {
 		else { s/\<hyph\>//g; }
 	}
 
-	# Process always the previous line, unless it's the last one
+	# Process always the previous line, unless first line.
 	if(!@words) { 
 		@words = split; 
 		if (!eof) { next; }
@@ -403,9 +403,11 @@ sub test_idiom {
 				my @readings = split (/\n/, $output);
 				for my $reading (@readings) {
 					my ($form, $analysis) = split(/\t/, $reading, 2);
+					next if (! $analysis);
 					$analysis =~ tr/\t//d;
 					my ($base, $tags) = split(/\+/, $analysis, 2);
-				($$word_ref, $token_2) = split(/ /, $base, 2);
+					($$word_ref, $token_2) = split(/ /, $base, 2);
+
 					# Test if the formed multiword expression exists in the
 					# idiom list, test also the lower case version.
 					if ($idioms{$$word_ref} eq $token_2 || $idioms{lcfirst($$word_ref)} eq lcfirst($token_2)) {
