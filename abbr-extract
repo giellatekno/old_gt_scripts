@@ -63,7 +63,7 @@ while (<LEX>) {
 	# at least following type (see documentation)
 	# nr
 	# j.d.s
-	# earret% ear�
+	# earret% eará
 	
 	if ((my $abbr = $_)	=~ s/^([\w\.]+(% [\w\.]+)*)\s.*/$1/) {
 		$abbr =~ s/%//g;
@@ -81,8 +81,10 @@ for my  $file (@lex_file_names) {
 		chomp;
 		next if /^\!/ ;    #discard comments
 		
-		if ((my $abbr = $_) =~ s/^([\w\-]+(% [\w\-]+)+)[\s|:].*/$1/) {
+		if ((my $abbr = $_) =~ s/^([\w\-^]+(% [\w\-^]+)+)[\s|:].*/$1/) {
 			$abbr =~ s/%//g;
+			$abbr =~ s/\^//g;
+			$abbr =~ s/0//g;
 			print ABB "$abbr\n";
 		}
 	}
