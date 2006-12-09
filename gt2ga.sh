@@ -10,17 +10,13 @@
 # $Id$
 #****************************************************************
 
-source /Users/saara/.profile
+#source /Users/saara/.profile
 
 # add the analyzed languages here
 languages="sme"
 
-tmpdir="/Users/saara/cron"
-#tmpdir="/tmp"
-
 corproot="/Users/hoavda/Public/corp"
 
-#gadir=/Users/saara/tmp/ga
 gadir="$corproot/ga"
 gt="bound"
 
@@ -31,7 +27,8 @@ copy_gt ()
 {
     for lang in "$@"
       do 
-      scp -r saara@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
+	  echo "copying files from victorio.."
+      scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
     done
     return 0
 }
@@ -106,6 +103,6 @@ process ()
 }
 
 copy_gt $languages
-analyze_gt $languages
+#analyze_gt $languages
 
 exit 0
