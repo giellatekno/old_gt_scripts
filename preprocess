@@ -83,10 +83,11 @@ if ($help) {
 	exit;}
 
 my %idioms;
+my %idioms_short;
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
 if ($abbr_file) {
-	&read_abbr (\%abbrs, \%idioms);
+	&read_abbr (\%abbrs, \%idioms, \%idioms_short);
 }
 # Read the corrections file (typos.txt)
 if ($corr) {
@@ -113,6 +114,8 @@ my @words;
 while (<>) {
 	chomp;
 
+	next if (/^\s*$/);
+	
 	# Process the <hyph> tag.
 	if (! $use_hyph_tag) {
 		if ($hyph) { s/\<hyph\>/-/g; }
@@ -121,7 +124,7 @@ while (<>) {
 
 	# Process always the previous line, unless first line.
 	if(!@words) { 
-		@words = split; 
+		@words = split(/\s+/);
 		if (!eof) { next; }
 		else { @next_words=undef; pop @next_words; }
 	}
@@ -137,7 +140,6 @@ sub process_words {
 	while (@words) {
 		
 		my $word = shift @words;
-		$word =~ s/^\s+//;
 		
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
@@ -145,8 +147,8 @@ sub process_words {
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster.
 		if ($word =~ /^[^\W\d\s\n]*$/) {
-			if($corr) {if ($corrections{$word}) { $word = $corrections{$word}; }}
-			if (! $idioms{($word)} && ! $idioms{lcfirst($word)}) {
+			if($corr && $corrections{$word}) { $word = $corrections{$word}; }
+			if (! $idioms_short{$word}) {
 				print "$word\n";
 				next;
 			}
@@ -216,9 +218,7 @@ sub process_word {
 
     # Test for multiword expression.
 	if ($corr ) { if ($corrections{$word}) { $word = $corrections{$word}; } }
-	if ($idioms{$word} || $idioms{lcfirst($word)}) {
-		test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
-	}
+	test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
 
     my $end_num;
     if ($word =~ /\.(\d+\.?)$/){
@@ -358,27 +358,29 @@ sub test_abbr {
 
 sub test_idiom {
 	my ($word_ref, $words_aref, $size) = @_;
-	
 
 	# Test for multiword expressions by growing the token
 	# one word at a time
 	my $next=0;
 	my $i=0;
-	my $token;
-	if( $words_aref->[0] ) { $token = $words_aref->[0]; }
-	elsif ($next_words[0]) { $token = $next_words[0]; $next=1; }
-	else {return 0;}
+	my $last_part;
+	if( $words_aref->[0] ) { $last_part = $words_aref->[0]; }
+	elsif ($next_words[0]) { $last_part = $next_words[0]; $next=1; }
+	else { return 0; }
 	while ($i <= $size) {
 
 		# Remove the punctuation at the end of the expression.
-		(my $token_2 = $token) =~ s/[^\w]*$//;
-		
+		(my $last_part_2 = $last_part) =~ s/[^\w]*$//;
+
 		# If the expressions contains punctuation in the middle, return.
-		return if ($token_2 =~ /\W/);
+		return if ($last_part_2 =~ /[^\w\s\d]/);
 
 		# Test if the formed multiword expression exists in the
 		# idiom list. Test also lower case version.
-		if ($idioms{$$word_ref} eq $token_2 || $idioms{lcfirst($$word_ref)} eq lcfirst($token_2)) {
+		my $idiom = $$word_ref . " " . $last_part_2;
+
+		my $ucidiom = ucfirst($$word_ref) . " " . ucfirst($last_part_2);
+		if ($idioms{$idiom} || $idioms{lc($idiom)} || $idioms{($ucidiom)}) {
 			for (my $j=0; $j <= $i; $j++) {
 				# Construct the new multiword processing unit.
 				# Remove the parts of the multiword expression from
@@ -394,45 +396,13 @@ sub test_idiom {
 			}
 			return 1;
 		}
-		my $output ="";
-		# If fst is given, the analysator is called for the base form of
-		# the multiword expression.
-		if ($fst) {
-			$output = `echo \"$$word_ref $token_2\" | lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null`;
-			if ($output && $output !~ /\?/) {
-				my @readings = split (/\n/, $output);
-				for my $reading (@readings) {
-					my ($form, $analysis) = split(/\t/, $reading, 2);
-					next if (! $analysis);
-					$analysis =~ tr/\t//d;
-					my ($base, $tags) = split(/\+/, $analysis, 2);
-					($$word_ref, $token_2) = split(/ /, $base, 2);
-
-					# Test if the formed multiword expression exists in the
-					# idiom list, test also the lower case version.
-					if ($idioms{$$word_ref} eq $token_2 || $idioms{lcfirst($$word_ref)} eq lcfirst($token_2)) {
-						for (my $j=0; $j <= $i; $j++) {
-							# Construct the new multiword processing unit.
-							# Remove the parts of the multiword expression from
-							# the word array.
-							if($next) { 
-								$$word_ref = $$word_ref . " " . $next_words[0];
-								shift @next_words;
-							}
-							else {
-								$$word_ref = $$word_ref . " " . $words_aref->[0]; 
-								shift @{$words_aref}; 
-							}
-						}
-						return 1;
-					}
-				}
-			}
-		}
 		$i++;
-		if($words_aref->[$i]) { $token = $token . " " . $words_aref->[$i]; }
+		if($words_aref->[$i]) { 
+			$last_part = $last_part . " " . $words_aref->[$i];
+			$last_part =~ s/\s+/ /g;
+		}
 		elsif(! $next && $next_words[0]) { 
-			$token = $token . " " . $words_aref->[0];
+			$last_part = $last_part . " " . $words_aref->[0];
 			$next=1;
 		}
 		else { return 0; }
@@ -563,7 +533,7 @@ sub read_corr {
 
 
 sub read_abbr {
-	my ($abbr_href, $idiom_href) = @_;
+	my ($abbr_href, $idiom_href, $idiom_short_href) = @_;
 	
 	local $/="\n";
     # The filename may contain a tilde ~
@@ -591,10 +561,14 @@ sub read_abbr {
 		chomp;
 		last if (/^LEXICON IDIOM/);
 		my ($first, $last) = split(/ /, $_, 2);
-		$$idiom_href{$first} = $last;
+		$$idiom_href{$_} = 1;
+		$$idiom_short_href{$first} = 1;
 	}
 	close LEX;	
 
+#	for my $key (keys %$idiom_href) {
+#		print "$key $$idiom_href{$key}\n";
+#	}
 }
 
 sub print_usage {
