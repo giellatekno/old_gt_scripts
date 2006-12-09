@@ -18,21 +18,32 @@ use strict;
 # It means that variable \w contains Latin-1 alphabet.
 #use locale;
 #use encoding 'utf-8';
-use open ':utf8';
+#use open ':utf8';
 
 # permit named arguments
 use Getopt::Long;
+
+# Module to communicate with program's user interfaces
+use Expect;
+use langTools::Util;
 
 my @lex_file_names;
 my $lex_files;
 my $abbr_file;
 my $abbr_lex_file;
+my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
+my $tagfile="/opt/smi/common/bin/korpustags.txt";
+my $fst;
 
 my %idioms;
 
 GetOptions ("output=s" => \$abbr_file,
 			"abbr_lex=s" => \$abbr_lex_file,
+			"fst=s" => \$fst,
+			"paradigm=s" => \$paradigmfile,
+			"tags=s" => \$tagfile,
 			"lex=s" => \$lex_files) ;
+
 
 @lex_file_names = split (/,/, $lex_files);
 
@@ -75,7 +86,28 @@ close LEX;
 # There are multi-word expressions also in other files.
 # they go to IDIOM-category.
 print ABB "LEXICON IDIOM\n";
-for my  $file (@lex_file_names) {
+
+my %lex_pos = ( 'noun' => 'N',
+				'adv' => 'Adv',
+				'propernoun' => 'N',
+				'verb' => 'V',
+				);
+
+# Initialize paradigm and generator
+my %paradigms;
+generate_taglist($paradigmfile,$tagfile,\%paradigms);
+my $analyze="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
+my $exp = init_lookup($analyze);
+
+for my $file (@lex_file_names) {
+
+	my $pos;
+	for my $key (keys %lex_pos) {
+		if ($file =~ /$key/) {
+			$pos = $lex_pos{$key};
+		}
+	}
+
 	open LEX, "< $file" or die "Cant open the file: $!\n";
 	while (<LEX>) {
 		chomp;
@@ -85,7 +117,28 @@ for my  $file (@lex_file_names) {
 			$abbr =~ s/%//g;
 			$abbr =~ s/\^//g;
 			$abbr =~ s/0//g;
-			print ABB "$abbr\n";
+
+			my @idioms;
+			if (! $pos) { print ABB "$abbr\n"; next; }
+
+			for my $a ( @{$paradigms{$pos}} ) {
+				my $string = "$abbr+$a";
+
+				my $read_anl = call_lookup(\$exp, $string);
+
+				my @analyses = split(/\n/, $read_anl);
+				push (@idioms,@analyses);
+			}
+			#print "@idioms\n";
+			for my $idi (@idioms) {
+				#print $idi;
+				next if ($idi =~ /\+\?/);
+				next if ($idi =~ /[\:\-]/);
+				my ($word, $analysis) = split(/\t/, $idi);
+				next if (! $analysis);
+				#print $analysis, "\n";
+				print ABB "$analysis\n";
+			}
 		}
 	}
 	close LEX;
