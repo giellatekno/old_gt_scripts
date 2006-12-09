@@ -8,6 +8,7 @@ binmode STDIN, ":utf8";
 use open ':utf8';
 use warnings;
 use strict;
+use Carp qw(cluck);
 
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
@@ -15,8 +16,42 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&read_tags &generate_taglist);
+@EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist);
 @EXPORT_OK   = qw();
+
+
+sub init_lookup {
+	my ($command) =  @_;
+
+	if (! $command) { cluck "No command specified"; }
+	my $exp = Expect->spawn($command)
+		or cluck "Cannot spawn $command";
+	$exp->log_stdout(0);
+	
+	return $exp;
+}
+
+
+
+sub call_lookup {
+	my ($exp_ref, $string)  = @_;
+
+	if (! $$exp_ref) { cluck "The expect object missing"; }
+	$$exp_ref->send("$string\n");
+	$$exp_ref->expect(undef, '-re', '\r?\n\r?\n' );
+
+	my $read_anl = $$exp_ref->before();
+
+	# Take away the original input.
+	$read_anl =~ s/^.*?\n//;
+	# Replace extra newlines.
+	$read_anl =~ s/\r\n/\n/g;
+	$read_anl =~ s/\r//g;
+
+	return $read_anl;
+}
+
+
 
 # Read the grammar for  paradigm tag list.
 # Call the recursive function that generates the tag list.
@@ -113,6 +148,8 @@ sub read_tags {
 
 	close TAGS;
 }
+
+
 
 1;
 
