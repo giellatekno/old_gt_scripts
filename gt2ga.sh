@@ -28,7 +28,8 @@ copy_gt ()
     for lang in "$@"
       do 
 	  echo "copying files from victorio.."
-      scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
+      echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt"
+	  scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
     done
     return 0
 }
