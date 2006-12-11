@@ -580,8 +580,6 @@ sub print_usage {
     print "--use-hyph-tags leave the <hyph> tags untouched\n";
     print "--help          prints the help text and exit.\n";
     print " --v            prints information of the execution of the script\n";
-	print " --fst=<file>   analysator file (e.g. sme.fst) for recognizing\n";
-	print "                multiword expressions.\n";
 	print " --corr=<file>  list of common typos and their corrections (e.g. typos.txt)\n";
 
 }
