@@ -104,6 +104,6 @@ process ()
 }
 
 copy_gt $languages
-#analyze_gt $languages
+analyze_gt $languages
 
 exit 0
