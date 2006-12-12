@@ -90,7 +90,7 @@ process ()
 	abbr="$optdir/abbr.txt"
 	corr="$optdir/typos.txt"
 	fst="$optdir/$lang.fst"
-	preprocess="preprocess --abbr=$abbr --corr=$corr --fst=$fst"
+	preprocess="preprocess --abbr=$abbr --corr=$corr"
 	lookup="lookup -flags mbTT -utf8 -f $optdir/cap-$lang"
 	vislcg="vislcg --grammar=$optdir/$lang-dis.rle"
 	ccat="ccat -l $lang -r $corproot/$gt/$lang/$dir/"
