@@ -17,8 +17,8 @@
 
 use strict;
 #use open ':utf8';
-#binmode STDOUT, ":utf8";
-#binmode STDERR, ":utf8";
+#binmode STDOUT;
+binmode STDERR;
 use utf8;
 use File::Find;
 use File::Copy;
@@ -100,6 +100,7 @@ my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
 my $jpedal = $bindir . "/corpus_call_jpedal.sh";
 my $pdf2xml = $bindir . "/pdf2xml.pl";
+#my $pdf2xml = "/home/saara/gt/script/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
@@ -165,6 +166,8 @@ sub process_file {
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
     (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
+
+	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
 
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
@@ -276,10 +279,9 @@ sub process_file {
 #		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
 		chmod 0660, $int;
 	}
-
 	# Run the file specific xsl-script.
 	if (! $noxsl) { 
-		$error = file_specific_xsl($file, $orig, $int, $xsl_file); 
+		$error = file_specific_xsl($file, $orig, $int, $xsl_file, $doc_id); 
 		if ($error) {
 			exec_com("rm -rf \"$int\"", $file);
 			if (! $test) { remove_tmp_files($tmpdir, $file); }
@@ -395,6 +397,7 @@ sub convert_pdf {
 		(my $base = $file ) =~ s/\.pdf//;
 		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
 		exec_com($command, $file);
+
 		
 		$command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
 		exec_com($command, $file);
@@ -484,11 +487,11 @@ sub convert_html {
 
 # File specific xsl-script
 sub file_specific_xsl {
-	my ($file, $orig, $int, $xsl_file) = @_;
-	
+	my ($file, $orig, $int, $xsl_file, $doc_id) = @_;
+
 	# Execute the file specific .xsl-script.
 	my $tmp = $tmpdir . "/" . $file . ".tmp";
-	$command = "xsltproc --novalid \"$xsl_file\" \"$int\" > \"$tmp\"";
+	$command = "xsltproc --novalid --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
 	exec_com($command, $file);
 	
 	# Validate the xml-file unless web upload.
