@@ -600,39 +600,39 @@
 
 			<xsl:element name="version">
 			<xsl:if test="$template_version">
-					<xsl:element name="XSLtemplate">
-					<xsl:value-of select="$template_version"/>			
-					</xsl:element>
+					<xsl:text>XSLtemplate </xsl:text>
+					<xsl:value-of select="$template_version"/>	
+					<xsl:text>; </xsl:text>
 			</xsl:if>
 			<xsl:if test="$current_version">
-					<xsl:element name="XSL">		
+					<xsl:text>file-specific xsl  </xsl:text>
 					<xsl:value-of select="$current_version"/>
-					</xsl:element>
+					<xsl:text>; </xsl:text>
 			</xsl:if>
 			<xsl:if test="$common_version">
-					<xsl:element name="commonXSL">
+					<xsl:text>common.xsl  </xsl:text>
 					<xsl:value-of select="$common_version"/>			
-					</xsl:element>
+					<xsl:text>; </xsl:text>
 			</xsl:if>
 			<xsl:if test="$convert2xml_version">
-					<xsl:element name="convert2xml">		
+					<xsl:text>convert2xml  </xsl:text>
 					<xsl:value-of select="$convert2xml_version"/>
-					</xsl:element>
+					<xsl:text>; </xsl:text>
 			</xsl:if>
 			<xsl:if test="$hyph_version">
-					<xsl:element name="add_hyph_tags">		
+					<xsl:text>add_hyph_tags  </xsl:text>
 					<xsl:value-of select="$hyph_version"/>
-					</xsl:element>
+					<xsl:text>; </xsl:text>
 			</xsl:if>
             <xsl:if test="$docbook2corpus2_version">
-                    <xsl:element name="docbook2corpus2">
+					<xsl:text>docbook2corpus2  </xsl:text>
                     <xsl:value-of select="$docbook2corpus2_version"/>
-                    </xsl:element>
+					<xsl:text>; </xsl:text>
             </xsl:if>
             <xsl:if test="$xhtml2corpus_version">
-                    <xsl:element name="xhtml2corpus">
+					<xsl:text>xhtml2corpus  </xsl:text>
                     <xsl:value-of select="$xhtml2corpus_version"/>
-                    </xsl:element>
+					<xsl:text>; </xsl:text>
             </xsl:if>
 			</xsl:element>
 
