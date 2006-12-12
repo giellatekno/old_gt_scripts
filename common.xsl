@@ -21,6 +21,7 @@
 <xsl:variable name="hyph_version" select="''"/>
 <xsl:variable name="xhtml2corpus_version" select="''"/>
 <xsl:variable name="docbook2corpus2_version" select="''"/>
+<xsl:param name="document_id" select="'no_id'"/>
 
 
 <!-- Fix empty em-type according to the dtd -->
@@ -73,6 +74,10 @@
             <xsl:value-of select="@xml:lang"/>
 	</xsl:otherwise>
 	</xsl:choose>
+    </xsl:attribute>
+
+    <xsl:attribute name="id">			
+	    <xsl:value-of select="$document_id"/>
     </xsl:attribute>
 
 	<xsl:element name="header">
