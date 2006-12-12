@@ -17,6 +17,8 @@
             doctype-public="-//UIT//DTD Corpus V1.0//EN"
 			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/> 
 
+<xsl:param name="document_id" select="'no_id'"/>
+
 <!-- Add info about the main language: -->
 <xsl:template  match="document">
     <xsl:element name="document">
@@ -32,6 +34,10 @@
             <xsl:value-of select="@xml:lang"/>
 	</xsl:otherwise>
 	</xsl:choose>
+    </xsl:attribute>
+
+    <xsl:attribute name="id">			
+	    <xsl:value-of select="$document_id"/>
     </xsl:attribute>
 
 	<xsl:element name="header">
