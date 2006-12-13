@@ -20,6 +20,8 @@ use strict;
 #use encoding 'utf-8';
 #use open ':utf8';
 
+binmode STDOUT;
+
 # permit named arguments
 use Getopt::Long;
 
@@ -34,6 +36,8 @@ my $abbr_lex_file;
 my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
 my $tagfile="/opt/smi/common/bin/korpustags.txt";
 my $fst;
+# The numbers which are used as examples of number inflection in the preprocessor.
+my @numbers = qw(1 17);
 
 my %idioms;
 
@@ -45,12 +49,14 @@ GetOptions ("output=s" => \$abbr_file,
 			"lex=s" => \$lex_files) ;
 
 
+
 @lex_file_names = split (/,/, $lex_files);
 
 # Read from lex-file and write to abbr file.
 open ABB, "> $abbr_file" or die "Cant open the file: $!\n";
 
 open LEX, "< $abbr_lex_file" or die "Cant open the file: $!\n";
+
 
 # read from the beginning of the file.
 # idioms come first.
@@ -143,5 +149,38 @@ for my $file (@lex_file_names) {
 	}
 	close LEX;
 }
+
+print ABB "\nLEXICON NUM\n";
+
+my %num_suffix;
+for my $n (@numbers) {
+	for my $a ( @{$paradigms{"Num"}} ) {
+		my $string = "$n+$a";
+		
+		#print $string;
+		
+		my $read_anl = call_lookup(\$exp, $string);
+		
+		my @analyses = split(/\n/, $read_anl);
+		for my $a (@analyses) { 
+			next if ($a =~ /\+\?/);
+			next if ($a =~ /[\:\-]/);
+			print "$a\n";
+			my ($word, $analysis) = split(/\t/, $a);
+			next if (! $analysis);
+			
+			next if ($analysis =~ /^\s*$/);
+
+			$analysis =~ s/$n//;
+			$num_suffix{$analysis} = 1; 
+		}
+	}
+}
+
+for my $idi (keys %num_suffix) {
+
+	print ABB "$idi\n";
+}
+
 close ABB;
 
