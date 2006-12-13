@@ -47,6 +47,8 @@ my $uc_class = "\x{00C1}\x{010C}\x{0110}\x{014A}\x{0160}\x{0166}\x{017D}\x{00E5}
 # General punctuation, not much used. 
 my $PUNCT = $quotations . $parentheses . $general_punct . $other;
 
+my $all_sami = $lc_class . $uc_class;
+
 # Punctuation marks that are always their own tokens,
 # whether word or numeral expression.
 # There are characters added to this list depending on if
@@ -84,10 +86,11 @@ if ($help) {
 
 my %idioms;
 my %idioms_short;
+my %num;
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
 if ($abbr_file) {
-	&read_abbr (\%abbrs, \%idioms, \%idioms_short);
+	&read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num);
 }
 # Read the corrections file (typos.txt)
 if ($corr) {
@@ -221,14 +224,14 @@ sub process_word {
 	test_idiom(\$word, $words_aref, $MULTIWORD_SIZE);
 
     my $end_num;
-    if ($word =~ /\.(\d+\.?)$/){
+    if ($word =~ /\.?(\d+\.?)$/){
         $word =~ s/(\d+\.?)$//;
         $end_num = $1;
         verbose ("process_word/end_num", $end_num, __LINE__);
     }
 
     # Store the punctuation at the front of the string to tokens array.
-	if ($word =~ s/^([+=%:-]+)$//o) {
+	if ($word =~ s/^([*+=%:\-$other]+)//o) {
 		push (@{$tokens_aref}, split(//, $1));
 		verbose ("process_word/front_punct", $1, __LINE__);
 	}
@@ -242,7 +245,8 @@ sub process_word {
 	# Cut the word into tokens if there is punctuation in the middle.
 	# e.g. gielddat/guovllut
 	# Check for expressions in $CONTAIN_PUNCT -variable.
-	if ($word !~ /$CONTAIN_PUNCT/o && (my @parts = split (/([+=%$SINGLE_PUNCT\/])/o, $word))) {
+	my @parts = split (/([+=%$SINGLE_PUNCT\/])/o, $word);
+	if ($word !~ /$CONTAIN_PUNCT/o && scalar @parts > 1) {
 		$word = pop @parts;
 		if ($corr ) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 		push (@{$tokens_aref}, @parts);
@@ -296,7 +300,7 @@ sub process_word {
 	  # If the word was not an abbreviation, the rest
 	  # of the punctuation is removed and stored as separate tokens.
 	  # This operation is for taking the dot out.
-	  if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
+	  if ($word =~ s/([$SINGLE_PUNCT\.\-:]+)$//o) {
 		  $rest_punct =  $1;
 		  verbose ("process_word/rest_punct", $rest_punct, __LINE__);
 		  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
@@ -443,18 +447,34 @@ sub process_numeral {
 	
 	verbose ("process_numeral", $word, __LINE__);
 
-	# Check if there is an abbreviation or a word attached to
-	# numeral. E.g. 6.b. ...ovdal. This introduces problems with some
-	# mispellings with headings, like 1.6.Vuonain 
 	my $end_word;
-	if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) { 
-		$word =~ s/([^\W\d]+\.?)$//;
-		push (@$tokens_aref, $word);
-		$end_word = $1;
-	}
 
+	SPLIT_NUMERAL : {
+		# Check if the word is an inflected numeral. 12s, etc.
+		if  ( $word =~ /^(\d+)([\:\'\-]?)([a-zA-Z$all_sami]+)/o ) {
+
+			verbose ("process_numeral/inflected", $word, __LINE__);
+
+			if ( $num{$3} ) { last SPLIT_NUMERAL; }
+			if (! $2 ) { 
+				push (@$tokens_aref, $1); 
+				process_word ($3, $words_aref, $tokens_aref);
+				return;
+			}
+			last SPLIT_NUMERAL;
+		}
+		
+		# Check if there is an abbreviation or a word attached to
+		# numeral. E.g. 6.b. ...ovdal. This introduces problems with some
+		# mispellings with headings, like 1.6.Vuonain 
+		if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) { 
+			$word =~ s/([^\W\d]+\.?)$//;
+			push (@$tokens_aref, $word);
+			$end_word = $1;
+			verbose ("process_numeral/end_word", $end_word, __LINE__);
+		}
+	} # end of SPLIT_NUMERAL
 	
-	verbose ("process_numeral/end_word", $end_word, __LINE__);
 	verbose ("process_numeral/abbr", $word, __LINE__);
 
 	my $rest_punct;
@@ -533,7 +553,7 @@ sub read_corr {
 
 
 sub read_abbr {
-	my ($abbr_href, $idiom_href, $idiom_short_href) = @_;
+	my ($abbr_href, $idiom_href, $idiom_short_href, $num_href) = @_;
 	
 	local $/="\n";
     # The filename may contain a tilde ~
@@ -559,15 +579,22 @@ sub read_abbr {
 	}
 	while (<LEX>) {
 		chomp;
-		last if (/^LEXICON IDIOM/);
+		last if (/^LEXICON NUM/);
 		my ($first, $last) = split(/ /, $_, 2);
 		$$idiom_href{$_} = 1;
 		$$idiom_short_href{$first} = 1;
 	}
+
+	while (<LEX>) {
+		next if /^\s*$/;
+		chomp;
+		$$num_href{$_} = 1;
+	}
+
 	close LEX;	
 
-#	for my $key (keys %$idiom_href) {
-#		print "$key $$idiom_href{$key}\n";
+#	for my $key (keys %$num_href) {
+#		print "$key $$num_href{$key}\n";
 #	}
 }
 
