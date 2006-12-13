@@ -165,7 +165,7 @@ for my $n (@numbers) {
 		for my $a (@analyses) { 
 			next if ($a =~ /\+\?/);
 			next if ($a =~ /[\:\-]/);
-			print "$a\n";
+			#print "$a\n";
 			my ($word, $analysis) = split(/\t/, $a);
 			next if (! $analysis);
 			
