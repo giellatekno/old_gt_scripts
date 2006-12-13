@@ -20,6 +20,8 @@ corproot="/Users/hoavda/Public/corp"
 gadir="$corproot/ga"
 gt="bound"
 
+directories="admin facta news laws bible ficti" 
+
 umask=0112
 
 # Copy the gt-directory from victorio for each language.
@@ -45,46 +47,48 @@ analyze_gt ()
 
       mkdir -p $gadir/$lang
       echo "processing language $lang..."
-      directories=`find $corproot/$gt/$lang -maxdepth 1 -mindepth 1 -type d`
+      #directories=`find $corproot/$gt/$lang -maxdepth 1 -mindepth 1 -type d`
       i=0
       for dir in $directories
-	do
-	base="${dir##*/}"
-	dirs[$i]=$base
-	(( i += 1 ))
+		do
+		base="${dir##*/}"
+		dirs[$i]=$base
+		(( i += 1 ))
       done
       element_count=${#dirs[@]}
-      for dir in "${dirs[@]}"
-	do
-	mkdir -p $gadir/$lang/$dir;
-      done
-	  
-      let divd=element_count/3
-      let modd=element_count%3
-      j=0
-      for (( i = 0 ; i < divd ; i++ ))
-	do
-	(process $lang ${dirs[$j]}) &
-	(process $lang ${dirs[$((j+1))]}) &
-	(process $lang ${dirs[$((j+2))]})
-	wait
-	let j=j+3
-      done
-      for (( i = 0 ; i < modd ; i++ ))
-	do
-	process $lang ${dir[$j]}
-	let j=j+1
-      done
-      echo "Ready!"
+		  for dir in "${dirs[@]}"
+			do
+			mkdir -p $gadir/$lang/$dir;
+		  done
+		  
+		  let divd=element_count/3
+		  let modd=element_count%3
+		  j=0
+		  for (( i = 0 ; i < divd ; i++ ))
+			do
+			(process $lang ${dirs[$j]}) &
+			(process $lang ${dirs[$((j+1))]}) &
+			(process $lang ${dirs[$((j+2))]})
+			wait
+			let j=j+3
+		  done
+		  for (( i = 0 ; i < modd ; i++ ))
+			do
+			process $lang ${dir[$j]}
+			let j=j+1
+		  done
+		  echo "Ready!"
     done
     return 0
-}
-
+	  }
+	  
 
 process ()
 {
     lang="$1"
     dir="$2"
+
+	echo "processing $lang directory $dir"
 
 	optdir="/opt/smi/$lang/bin"
 	abbr="$optdir/abbr.txt"
@@ -95,7 +99,6 @@ process ()
 	vislcg="vislcg --grammar=$optdir/$lang-dis.rle"
 	ccat="ccat -l $lang -r $corproot/$gt/$lang/$dir/"
 
-    echo "processing $lang directory $dir"
     echo "$ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed"
     $ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed
 	exit
