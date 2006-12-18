@@ -49,6 +49,8 @@ GetOptions ("output=s" => \$abbr_file,
 			"lex=s" => \$lex_files) ;
 
 
+my $noparadigm;
+if(! $fst) { $noparadigm=1; }
 
 @lex_file_names = split (/,/, $lex_files);
 
@@ -102,8 +104,12 @@ my %lex_pos = ( 'noun' => 'N',
 # Initialize paradigm and generator
 my %paradigms;
 generate_taglist($paradigmfile,$tagfile,\%paradigms);
-my $analyze="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
-my $exp = init_lookup($analyze);
+my $analyze;
+my $exp;
+if (! $noparadigm) {
+	$analyze="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
+	$exp = init_lookup($analyze);
+}
 
 for my $file (@lex_file_names) {
 
@@ -125,7 +131,7 @@ for my $file (@lex_file_names) {
 			$abbr =~ s/0//g;
 
 			my @idioms;
-			if (! $pos) { print ABB "$abbr\n"; next; }
+			if (! $pos || $noparadigm) { print ABB "$abbr\n"; next; }
 
 			for my $a ( @{$paradigms{$pos}} ) {
 				my $string = "$abbr+$a";
@@ -150,36 +156,36 @@ for my $file (@lex_file_names) {
 	close LEX;
 }
 
-print ABB "\nLEXICON NUM\n";
-
-my %num_suffix;
-for my $n (@numbers) {
-	for my $a ( @{$paradigms{"Num"}} ) {
-		my $string = "$n+$a";
-		
-		#print $string;
-		
-		my $read_anl = call_lookup(\$exp, $string);
-		
-		my @analyses = split(/\n/, $read_anl);
-		for my $a (@analyses) { 
-			next if ($a =~ /\+\?/);
-			next if ($a =~ /[\:\-]/);
-			#print "$a\n";
-			my ($word, $analysis) = split(/\t/, $a);
-			next if (! $analysis);
+if( ! $noparadigm) {
+	print ABB "\nLEXICON NUM\n";
+	
+	my %num_suffix;
+	for my $n (@numbers) {
+		for my $a ( @{$paradigms{"Num"}} ) {
+			my $string = "$n+$a";
 			
-			next if ($analysis =~ /^\s*$/);
-
-			$analysis =~ s/$n//;
-			$num_suffix{$analysis} = 1; 
+			#print $string;
+			
+			my $read_anl = call_lookup(\$exp, $string);
+			
+			my @analyses = split(/\n/, $read_anl);
+			for my $a (@analyses) { 
+				next if ($a =~ /\+\?/);
+				next if ($a =~ /[\:\-]/);
+				#print "$a\n";
+				my ($word, $analysis) = split(/\t/, $a);
+				next if (! $analysis);
+				
+				next if ($analysis =~ /^\s*$/);
+				
+				$analysis =~ s/$n//;
+				$num_suffix{$analysis} = 1; 
+			}
 		}
 	}
-}
-
-for my $idi (keys %num_suffix) {
-
-	print ABB "$idi\n";
+	for my $idi (keys %num_suffix) {
+		print ABB "$idi\n";
+	}
 }
 
 close ABB;
