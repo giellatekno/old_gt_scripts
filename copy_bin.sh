@@ -40,8 +40,9 @@ else
 fi
 
 
-
 ##### start copying
+
+echo "*** Copying requires sudo rights ***"
 
 # make and copy ccat
 echo "Making and copying ccat.."
