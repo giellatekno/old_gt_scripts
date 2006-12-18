@@ -302,7 +302,7 @@ sub process_word {
 	  # If the word was not an abbreviation, the rest
 	  # of the punctuation is removed and stored as separate tokens.
 	  # This operation is for taking the dot out.
-	  if ($word =~ s/([$SINGLE_PUNCT\.\-:]+)$//o) {
+	  if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
 		  $rest_punct =  $1;
 		  verbose ("process_word/rest_punct", $rest_punct, __LINE__);
 		  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
