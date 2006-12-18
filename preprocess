@@ -379,7 +379,7 @@ sub test_idiom {
 		(my $last_part_2 = $last_part) =~ s/[^\w]*$//;
 
 		# If the expressions contains punctuation in the middle, return.
-		return if ($last_part_2 =~ /[^\w\s\d\-]/);
+		return if ($last_part_2 =~ /[^\w\s\d\.\-]/);
 
 		# Test if the formed multiword expression exists in the
 		# idiom list. Test also lower case version.
