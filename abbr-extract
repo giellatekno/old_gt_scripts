@@ -113,6 +113,8 @@ if (! $noparadigm) {
 
 for my $file (@lex_file_names) {
 
+	print STDERR "abbr-extract: reading file $file\n";
+
 	my $pos;
 	for my $key (keys %lex_pos) {
 		if ($file =~ /$key/) {
@@ -125,7 +127,7 @@ for my $file (@lex_file_names) {
 		chomp;
 		next if /^\!/ ;    #discard comments
 		
-		if ((my $abbr = $_) =~ s/^([\w\-^]+(% [\w\-^]+)+)[\s|:].*/$1/) {
+		if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+)+)[\s|:].*/$1/) {
 			$abbr =~ s/%//g;
 			$abbr =~ s/\^//g;
 			$abbr =~ s/0//g;
