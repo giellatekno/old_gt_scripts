@@ -30,8 +30,14 @@ copy_gt ()
     for lang in "$@"
       do 
 	  echo "copying files from victorio.."
-      echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt"
-	  scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang /Users/hoavda/Public/corp/$gt
+      echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt"
+	  scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt
+
+      # Delete the files that were not updated
+	  echo "deleting files that were not updated.."
+	  echo "find $corproot/$gt/$lang ! -mtime 1 -type f -delete"
+	  find $corproot/$gt/$lang ! -mtime 1 -type f -delete
+
     done
     return 0
 }
