@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
-binmode STDOUT, ":utf8";
+
+use utf8;
 
 # add_hyph_tags.pl
 #
@@ -30,7 +31,7 @@ my $infile;
 my $outfile;
 
 if ( -f $ARGV[$#ARGV] ) {
-	 $infile = $ARGV[$#ARGV]; 
+	 $infile = Encode::decode_utf8($ARGV[$#ARGV]); 
 	 $outfile = $infile . ".out";
  }
 
@@ -65,7 +66,7 @@ if (! $document->safe_parsefile ("$infile")) {
 	exit;
 }
 
-open (FH, ">:utf8", "$outfile") or die "Cannot open $outfile $!";
+open (FH, ">$outfile") or die "Cannot open $outfile $!";
 $document->set_pretty_print('indented');
 $document->print( \*FH);
 $document->purge;

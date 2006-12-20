@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
+use utf8;
 use strict;
-binmode STDOUT, ":utf8";
+
 use IO::File;
 use File::Basename;
 use Getopt::Long;
@@ -82,7 +83,7 @@ elsif ($files) {
 elsif ($file) { process_file($file); }
 
 # Process the file given in command line.
-else { process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV]; }
+else { process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV]; }
 
 
 sub list_files {
@@ -104,6 +105,7 @@ sub list_files {
 	my $location;
 	my $root = $document->root;
 	my $header = $root->first_child('header');
+	next if (!$header);
 	my @parallel_texts = $header->children('parallel_text');
 	for my $p (@parallel_texts) {
 		my $plang = $p->{'att'}->{'xml:lang'};

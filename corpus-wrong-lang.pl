@@ -8,11 +8,12 @@ use strict;
 #
 # $Id$
 
+use utf8;
+
 use File::Find;
 use File::Basename;
 use XML::Twig;
 use Getopt::Long;
-binmode STDOUT, ":utf8";
 
 my $help;
 my $dir;
@@ -20,7 +21,7 @@ my $wmdir="/usr/local/share/corp/bin/LM";
 my $lang;
 my @languages=("eng","nno","nob","sme","fin","smj","sma","ger","swe" );
 my %langs;
-my $mainlang;
+my $mainlang="sme";
 
 
 GetOptions ("mainlang=s" => \$mainlang,
@@ -28,7 +29,7 @@ GetOptions ("mainlang=s" => \$mainlang,
 			"help" => \$help);
 
 if ($help) {
-	&print_usage;
+	&print_help;
 	exit;
 }
 
@@ -61,7 +62,7 @@ if ($dir) {
 }
 
 # Process the file given in command line.
-process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV];
 
 my $mono;
 sub process_file {
@@ -135,7 +136,7 @@ sub find_words {
 }
 
 sub print_help {
-	print <<END;
+	print << END;
 Usage: corpus-wrong-lang.pl [OPTIONS] [FILE]
 Search files for paragraphs that do not contain words 
 associated to the specified language. Print to STDOUT.

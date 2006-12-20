@@ -5,13 +5,14 @@
 # The header section is not fully generated.
 # The script skips most of the metainformation (comments etc.) and
 # other tags. It can be modified to include whatever wanted.
+# Usage:
+# paratext2xml.pl [OPTIONS] FILE
+# paratext2xml.pl --help
 #
 # $Id$
 
 use strict;
-use open ':locale';
-use encoding 'utf8';
-#binmode STDOUT, ":utf8";
+use utf8;
 
 use File::Find;
 use IO::File;
@@ -154,6 +155,7 @@ while($i < $size && $text_array[$i]) {
 
 		my $title = XML::Twig::Elt->new('title');
 		my $text = $1;
+		print "$text\n";
 		$title->set_text($text);
 		$title->paste( 'last_child', $header);
 
@@ -182,6 +184,7 @@ while($i < $size && $text_array[$i]) {
 		#}
 		#if( $text ) { $ch->set_att('title', $text); }
 		$ch->set_att('number', $number);
+		print "$number\n";
 		$i++;
 		next;
 	}
@@ -217,6 +220,7 @@ while($i < $size && $text_array[$i]) {
 			if ($prev =~ /^\s*(\d+)(.*)$/) {
 				my $verse = XML::Twig::Elt->new('verse');
 				$verse->set_att('number', $1);
+				print "  $1\n";
 				if ($cur_text) { $cur_text .= " $2"; }
 				else { $cur_text = $2; }
 				$verse->set_text($cur_text);
@@ -229,6 +233,7 @@ while($i < $size && $text_array[$i]) {
 			my $verse = XML::Twig::Elt->new('verse');
 			$verse->set_att('number', $1);
 			my $number = $1;
+			print "  $number\n";
 			if ($cur_text) { $cur_text .= " $2"; }
 			else { $cur_text = $2; }
 			while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
@@ -286,8 +291,8 @@ sub start_new_section {
 		$section->paste( 'last_child', $ch);
 	}
 	$section = XML::Twig::Elt->new('section');
-	if ($num) { $section->set_att('number', $num); }
-	if ($text) {$section->set_att('title', $text); }
+	if ($num) { $section->set_att('number', $num); print " $num\n"; }
+	if ($text) {$section->set_att('title', $text); print " $text\n"; }
 }
 
 sub start_new_real_para {
@@ -302,9 +307,9 @@ sub start_new_real_para {
 
 sub print_usage {
 	print "Usage: paratext2xml.pl [OPTIONS] FILE\n";
-	print "Convert paratext FILE to basic xml (roughly corpus.dtd).\n";
+	print "Convert paratext FILE to basic xml, following corpus.dtd.\n";
 	print "Options:\n";
 	print "\t--out=<file>  Name of the output file, default is para.out.\n";
-	print "\t--nofoot      Do not include footnotes.\n";
+	print "\t--footnotes   Include footnotes.\n";
     print "\t--help        Prints the help text and exit.\n";
 }

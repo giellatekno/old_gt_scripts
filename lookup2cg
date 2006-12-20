@@ -2,6 +2,8 @@
 use strict;
 use Getopt::Long;
 
+use utf8;
+
 # lookup2cg
 # Perl-script for converting lookup-output to CG-2 input.
 # - Rates and removes compound analyses according to 

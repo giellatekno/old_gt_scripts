@@ -1,19 +1,19 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 use strict;
-use encoding 'utf-8';
-use open ':utf8';
+use utf8;
 
-use locale;
 # sum-cg.pl
 #
 # Perl script for summarizing ambiguous analyzes.
 # 1. For finding the expressions that are ambiguous and common.
 # 2. For finding out, which grammatical analyzes are most ambiguous.
+# Usage: 
+# sum-cg [OPTIONS] ANALYZED_FILE
+# sum-cg [OPTIONS] --dir=<dir>
+# sum-cg --help
 # 
 # $Id$
-
-binmode STDERR, ":utf8";
 
 # permit named arguments
 use Getopt::Long;
@@ -57,7 +57,7 @@ if ($dir) {
 }
 
 # Process the file given in command line.
-process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV];
 
 if ($grammar) {
 	my %tags;

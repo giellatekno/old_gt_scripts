@@ -5,16 +5,9 @@
 use strict;
 use vars qw($opt_d $opt_f $opt_h $opt_i $opt_l $opt_n $opt_q $opt_s $opt_t $opt_v $opt_u $opt_a $opt_x $opt_w);
 use Getopt::Std;
-use open ':utf8';
 use XML::Twig;
+
 use utf8;
-binmode STDOUT, ":utf8";
-binmode STDERR, ":utf8";
-binmode STDIN, ":utf8";
-
-my $w_class = qw("A-Za-zÁČĐŊŠŦŽÅÆØÄÖáčđŋšŧžåæøäö_\s");
-
-my $non_word_characters='\d';
 
 my $MINCHAR = 0;
 my %lmodel;
@@ -107,9 +100,9 @@ if ($opt_n) {
     my @result = create_lm(input(),\%ngram);
     print join("\n",map { "$_\t $ngram{$_}" ; } @result),"\n";
 } elsif ($opt_l) {
-    classify($ARGV[0]);
+    classify(Encode::decode_utf8($ARGV[0]));
 } elsif ($opt_x) {
-    read_xml($ARGV[0]);
+    read_xml(Encode::decode_utf8($ARGV[0]));
 } elsif ($opt_s) {
     while (<>) {
 	chomp;
@@ -210,7 +203,7 @@ sub langdetect {
 
 	# If text contains only non-word characters, it is classified
 	# as the default language.
-	if ($text !~ /[$w_class]/o) { $para->del_att( 'xml:lang'); return;}
+	if ($text !~ /[\pL]/o) { $para->del_att( 'xml:lang'); return;}
 
 	# Classification returns the choices for the text.
 	my @choices = classify($text);
@@ -369,14 +362,14 @@ sub classify {
      # Create short word model.
 	 my %wunknown=create_wm($input);
 	 foreach my $language (@answers) {
-	
+
 	# compares the language model with input wgrams list
 	my ($i,$p)=(0,0);
 	for my $key (keys %wunknown) {
 		if ($wmodel{$language}{$key}) {
-			$b = sprintf("%.0f", ($wmodel{$language}{$key}**2*$wunknown{$key}*10/$results{$language}));
+			$b = sprintf("%.0f", ($wmodel{$language}{$key}**2*$wunknown{$key}*100/$results{$language}));
 			$p=$p-$b;
-#			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
+			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
 		} 
 			 ++$i;
 		 }
@@ -451,8 +444,10 @@ sub input {
 sub create_wm {
 	my %wgram;
 	my $text = shift @_;
-	
-	$text =~ s/[^$w_class]//og;
+
+	$text =~ s/[^\pL_\- ]//og;
+	print "$text\n";
+
 	foreach my $word (split(/\s+/, $text)) {
 		$wgram{lc($word)}++;
 	}
@@ -476,13 +471,11 @@ sub create_lm {
 	  my $line = $_;
 
 	  # remove non-word characters from input --sh
-	  $line =~ tr/A-ZÁČĐŊŠŦŽÅÆØÄÖa-záčđŋšŧžåæøäö_ //cd;
-#	  $line =~ s/[^$w_class]//og;
+	  $line =~ s/[^\pL_\- ]//;
 
 	  foreach my $word (split(/\s+/, $line)) {
 		  # lower case
 
-#		  $word =~ tr/A-ZÁČĐŊŠŦŽÅÆØÄÖ/a-záčđŋšŧžåæøäö/;
 		  $word = lc($word);
 		  $word = "_" . $word . "_";
 		  
@@ -533,11 +526,11 @@ sub load_lm {
 		# only use lines starting with appropriate character. Others are
 		# ignored.
 		# remove non-word characters from ngram --sh
-		s/[^$w_class]//og;
+		s/[^\pL]//og;
 		s/\s+//g;
 		next if(/^_+$/); 
 		next if(/^\s+$/); 
-		if (/^[$w_class]+/o) {
+		if (/^[\pL]+/o) {
 			# The less frequent the string, the more weight it gets.
 			$ngram{$_} = $rang++;
 		} 
@@ -570,8 +563,8 @@ sub load_wm {
 	while (<LM>) {
 		chomp;
 		s/\s+//og;
-		s/[^$w_class]//og;
-		if (/^[$w_class]+/o) {
+		s/[^\pL]//og;
+		if (/^[\pL]+/o) {
 			$wrang += $increment;
 			$wgram{$_} = $maxw - $wrang;
 		} 

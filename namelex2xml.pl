@@ -2,8 +2,7 @@
 
 use strict;
 
-#use encoding 'utf8';
-#use open ':utf8';
+use utf8;
 
 binmode STDOUT;
 
@@ -14,7 +13,7 @@ use XML::Twig;
 my $mainlang = "sme";
 my @other_langs = ("sme", "smj", "sma", "nor");
 
-my $twig = XML::Twig->new( output_encoding => "utf8");
+my $twig = XML::Twig->new;
 $twig->set_pretty_print('record');
 
 # Usage: 
@@ -28,7 +27,7 @@ my $infile = "../".$mainlang."/src/propernoun-".$mainlang."-lex.txt";
 my $outfile = "terms-" . $mainlang . ".xml";
 my $outfile_common = "termcenter.xml";
 
-open (FH, "<utf8", "$infile") or die "Cannot open file $infile: $!";
+open (FH, "$infile") or die "Cannot open file $infile: $!";
 
 my $FH1;
 my $FH2;

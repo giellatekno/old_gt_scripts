@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
+use utf8;
+
 use strict;
-use open ':locale';
 use Text::Brew qw(distance);
 
 # This script reads line by line, and calculates the editing operations

@@ -1,8 +1,7 @@
 
 package langTools::XMLStruct;
 
-binmode STDOUT, ":utf8";
-use open ':utf8';
+use utf8;
 use warnings;
 use strict;
 
@@ -345,7 +344,8 @@ sub xml2preprocess {
 sub get_action{
 	my $line = shift @_;
 
-	my $document = XML::Twig->new(keep_encoding => 1);
+	print "$line\n";
+	my $document = XML::Twig->new;
 	if (! $document->safe_parse ("$line") ) {
 		cluck("Could not parse parameters.");
 		return Carp::longmess("ERROR Could not parse $line");

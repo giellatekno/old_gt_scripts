@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 
+use utf8;
+
 # abbr-extract
 # Perl-script for extracting abbreviations from lexicon files.
 #  - Reads different abbreviation classes from abbr-lang-lex.txt
@@ -13,14 +15,6 @@ use strict;
 #  --lex=<file_name1>,<file_name2> Comma-separated list of other lexicon files.
 #
 # $Id$
-
-# Use the local character class. 
-# It means that variable \w contains Latin-1 alphabet.
-#use locale;
-#use encoding 'utf-8';
-#use open ':utf8';
-
-binmode STDOUT;
 
 # permit named arguments
 use Getopt::Long;
@@ -36,6 +30,7 @@ my $abbr_lex_file;
 my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
 my $tagfile="/opt/smi/common/bin/korpustags.txt";
 my $fst;
+
 # The numbers which are used as examples of number inflection in the preprocessor.
 my @numbers = qw(1 17);
 
@@ -46,7 +41,8 @@ GetOptions ("output=s" => \$abbr_file,
 			"fst=s" => \$fst,
 			"paradigm=s" => \$paradigmfile,
 			"tags=s" => \$tagfile,
-			"lex=s" => \$lex_files) ;
+			"lex=s" => \$lex_files, );
+
 
 
 my $noparadigm;

@@ -8,6 +8,8 @@
 #
 # $Id$
 
+use utf8;
+
 use strict;
 use XML::Twig;
 use Getopt::Long;
@@ -18,7 +20,7 @@ my $outfile="/home/saara/koe_out.xml";
 GetOptions ("out=s" => \$outfile,
 			);
 
-if ( -f $ARGV[$#ARGV]) { $file = $ARGV[$#ARGV]; }
+if ( -f $ARGV[$#ARGV]) { $file = Encode::decode_utf8($ARGV[$#ARGV]); }
 else { print STDERR "ERROR in bible2xml.pl: No input file given.\n"; exit; }
 
 my $document2 = XML::Twig::Elt->new('document');
@@ -36,7 +38,7 @@ if (! $document->safe_parsefile ("$file")) {
 
 $body->paste('last_child', $document2);
 
-open (FH, ">:utf8", "$outfile") or die "Cannot open $outfile $!";
+open (FH, ">$outfile") or die "Cannot open $outfile $!";
 $document2->set_pretty_print('indented');
 $document2->print( \*FH);
 close(FH);

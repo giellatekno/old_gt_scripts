@@ -3,9 +3,9 @@
 
 package langTools::Util;
 
-binmode STDOUT, ":utf8";
-binmode STDIN, ":utf8";
-use open ':utf8';
+use utf8;
+
+use Encode;
 use warnings;
 use strict;
 use Carp qw(cluck);
@@ -35,12 +35,17 @@ sub init_lookup {
 
 sub call_lookup {
 	my ($exp_ref, $string)  = @_;
-
+	
 	if (! $$exp_ref) { cluck "The expect object missing"; }
+
+	$string = Encode::encode_utf8($string);
+	
 	$$exp_ref->send("$string\n");
 	$$exp_ref->expect(undef, '-re', '\r?\n\r?\n' );
 
 	my $read_anl = $$exp_ref->before();
+
+	$read_anl = Encode::decode_utf8($read_anl);
 
 	# Take away the original input.
 	$read_anl =~ s/^.*?\n//;
@@ -49,6 +54,7 @@ sub call_lookup {
 	$read_anl =~ s/\r//g;
 
 	return $read_anl;
+
 }
 
 

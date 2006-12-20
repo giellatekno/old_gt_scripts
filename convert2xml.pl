@@ -16,9 +16,6 @@
 # $Revision$
 
 use strict;
-#use open ':utf8';
-#binmode STDOUT;
-binmode STDERR;
 use utf8;
 use File::Find;
 use File::Copy;
@@ -137,7 +134,7 @@ if ($dir) {
 }
 
 # Process the file given in command line.
-process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV];
 
 close STDERR;
 
@@ -630,7 +627,7 @@ sub character_encoding {
 						carp "ERROR parsing the XML-file failed.\n";
 						return "ERROR";
 					}
-					if (! open (FH, ">utf8", "$int")) {
+					if (! open (FH, ">$int")) {
 						carp "ERROR cannot open file";
 						return "ERROR";
 					}

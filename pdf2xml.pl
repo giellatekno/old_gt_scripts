@@ -12,14 +12,15 @@ use strict;
 #
 # $Id$
 
+use utf8;
 
-binmode STDOUT, ":utf8";
 use File::Find;
 use File::Copy;
 use IO::File;
 use File::Basename;
 use Getopt::Long;
 use XML::Twig;
+use Encode;
 
 my $dir;
 my $file;
@@ -43,6 +44,7 @@ if ($help) {
 	&print_help;
 	exit 1;
 }
+
 
 if( $xslfile) {
 	my $document = XML::Twig->new;
@@ -76,11 +78,11 @@ if(! $main_sizes) { print STDERR "No main font size\n"; exit; }
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
 	if (-d $dir) { find (\&process_file, $dir) }
-	else { print "$dir ERROR: Directory did not exit.\n"; }
+	else { print "$dir ERROR: Directory did not exist.\n"; }
 }
 
 # Process the file given in command line.
-process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV];
 
 sub process_file {
     my $file = $_;

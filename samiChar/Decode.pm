@@ -1,14 +1,12 @@
 
 package samiChar::Decode;
 
-binmode STDOUT, ":utf8";
-# removed because sometimes we want to open non-utf8.
-#use open ':utf8';
 use Getopt::Long;
 use File::Basename;
 use strict;
 use warnings;
 use Carp qw(cluck carp);
+
 use utf8;
 
 use Exporter;
@@ -53,17 +51,17 @@ our %Sami_Chars = (
 			"sme" =>  {
 		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
 		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
-#		   0x010C => 1, #"LATIN CAPITAL LETTER C WITH CARON"
+		   0x010C => 1, #"LATIN CAPITAL LETTER C WITH CARON"
 			0x010D => 1, #"LATIN SMALL LETTER C WITH CARON"
-#		   0x0110 => 1, #"LATIN CAPITAL LETTER D WITH STROKE"
+		   0x0110 => 1, #"LATIN CAPITAL LETTER D WITH STROKE"
 			0x0111 => 1, #"LATIN SMALL LETTER D WITH STROKE"
-#		   0x014A => 1, #"LATIN CAPITAL LETTER ENG"
+		   0x014A => 1, #"LATIN CAPITAL LETTER ENG"
 			0x014B => 1, #"LATIN SMALL LETTER ENG"
-#		   0x0160 => 1, #"LATIN CAPITAL LETTER S WITH CARON"
+		   0x0160 => 1, #"LATIN CAPITAL LETTER S WITH CARON"
 			0x0161 => 1, #"LATIN SMALL LETTER S WITH CARON"
-#		   0x0166 => 1, #"LATIN CAPITAL LETTER T WITH STROKE"
-#		   0x0167 => 1, #"LATIN SMALL LETTER T WITH STROKE"
-#		   0x017D => 1, #"LATIN CAPITAL LETTER Z WITH CARON"
+		   0x0166 => 1, #"LATIN CAPITAL LETTER T WITH STROKE"
+		   0x0167 => 1, #"LATIN SMALL LETTER T WITH STROKE"
+		   0x017D => 1, #"LATIN CAPITAL LETTER Z WITH CARON"
 			0x017E => 1,  #"LATIN SMALL LETTER Z WITH CARON"
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 			0x00F8 => 1, #"LATIN SMALL LETTER O WITH STROKE"
@@ -133,7 +131,7 @@ sub guess_text_encoding() {
 
 	my ($file, $outfile, $lang) = @_;
 
-	my @encodings = ("MAC-SAMI", "WINSAMI2", "LATIN-9", "L1");
+	my @encodings = ("MAC-SAMI", "WINSAMI2", "LATIN-9", "L1", "UTF8");
 	my %results;
 	my %count_table;
 
@@ -148,6 +146,7 @@ sub guess_text_encoding() {
 	for my $char (keys % { $Sami_Chars{$lang}}){
 		$count_table{$char} = 1;
 	}
+
 	# Count first the sámi characters that already exist in the text.
 	my $correct=0;
 	my $total_count=0;
@@ -487,7 +486,7 @@ sub decode_file (){
 		$line = pack("U*", @unpacked);
 	}
 	
-    if (! open (FH, ">:utf8", "$outfile")) { 
+    if (! open (FH, ">$outfile")) { 
 		carp "Cannot open file $outfile";
 		return $ERROR;
 	}
@@ -511,7 +510,7 @@ sub read_file {
 		}
 	}
     while (<FH>) {
-		if (! utf8::is_utf8($_)) { return "ERROR"; }
+		if (! utf8::is_utf8($_)) { print $_; return "ERROR"; }
 		push (@$text_aref, $_);
     }
     close (FH);
@@ -581,7 +580,7 @@ sub combine_two_codings {
     my $charfile1 = $Char_Files{$coding1};
     my $charfile2 = $Char_Files{$coding2};
 
-    open (OUTFILE, ">:utf8", "$outfile");
+    open (OUTFILE, ">$outfile");
     print (OUTFILE "# $coding1 $coding2 \n");
 
     my $data_dir = dirname __FILE__;

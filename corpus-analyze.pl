@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
+use utf8;
 
 # corpus-analyze.pl [OPTIONS] [FILE]
 #
@@ -27,9 +28,7 @@ use strict;
 # $Id$
 
 use XML::Twig;
-binmode STDOUT, ":utf8";
 use IPC::Open2;
-use open ':utf8';
 use POSIX qw(locale_h);
 use Getopt::Long;
 use langTools::XMLStruct;
@@ -163,7 +162,7 @@ else {
 	
 }
 
-open (FH, ">:utf8", "$outfile") or die "Cannot open $!";
+open (FH, ">$outfile") or die "Cannot open $!";
 $document->set_pretty_print('record');
 $document->print( \*FH);
 $document->purge;

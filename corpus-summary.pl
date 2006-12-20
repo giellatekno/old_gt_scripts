@@ -1,10 +1,18 @@
 #!/usr/bin/perl -w
+#
+# Perl script for summarizing the content of corpus repository
+# Usage:
+# corpus-summary.pl --dir=/usr/local/share/corp/sme/admin
+#
+# Summary is done respectively to the corpus root directory:
+# /usr/local/share/corp, change it with option --corpdir=<dir>.
+# Resulting files are corpus-content.xml and corpus-summary.xml
+#
+# $id:$
+
+use utf8;
 
 use strict;
-use open ':locale';
-use encoding 'utf8';
-#binmode STDOUT, ":utf8";
-
 use bytes;
 
 use File::Find;
@@ -78,7 +86,7 @@ if ($dir) {
 }
 else {
 # Process the file given in command line.
-	process_file ($ARGV[$#ARGV]) if -f $ARGV[$#ARGV];
+	process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV];
 }
 
 sub process_file {
