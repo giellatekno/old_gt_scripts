@@ -175,7 +175,8 @@ sub process_file {
 				$whole .= $key;
 			}
 		}
-		
+
+		next if (!$whole);
 		$count{$whole} += 1;
 		$cohorts{$whole} = { %analyses_2 };
 		
