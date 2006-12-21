@@ -20,6 +20,7 @@ use Getopt::Long;
 use File::Find;
 use File::Basename;
 use Carp qw(cluck);
+use Encode;
 
 my $help;
 my $grammar;
