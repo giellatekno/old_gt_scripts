@@ -369,11 +369,11 @@ sub classify {
 		if ($wmodel{$language}{$key}) {
 			$b = sprintf("%.0f", ($wmodel{$language}{$key}**2*$wunknown{$key}*100/$results{$language}));
 			$p=$p-$b;
-			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
+#			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
 		} 
 			 ++$i;
 		 }
-		 print STDERR "short word: $language: $p\n" if $opt_v;
+		 #print STDERR "short word: $language: $p\n" if $opt_v;
 		 
 		 # The result of the word test is added to the results of
 		 # the trigram test.
@@ -446,7 +446,7 @@ sub create_wm {
 	my $text = shift @_;
 
 	$text =~ s/[^\pL_\- ]//og;
-	print "$text\n";
+	#print "$text\n";
 
 	foreach my $word (split(/\s+/, $text)) {
 		$wgram{lc($word)}++;
