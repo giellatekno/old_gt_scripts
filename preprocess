@@ -627,9 +627,11 @@ sub read_corr {
 		next if (/^!/);
 		next if (/^\s*$/);
 		next if (/^\#/);
+		s/\s$//;
 		
 		my ($error, $correct) = split(/\t+/);
 		if ($error && $correct) {
+			$error =~ s/\s$//;
 			$$corr_href{$error} = $correct;
 			my ($first, $last) = split(/ /, $error, 2);
 			$$corr_short_href{$first} = 1;
