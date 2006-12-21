@@ -154,6 +154,7 @@ sub guess_text_encoding() {
 	  my @text_array;
 	  my $error;
 	  # Read the file
+
 	  if (-f $file) {  
 		  $error = &read_file($file, \@text_array, 1); 
 		  if ($error) { last CORRECT; }
@@ -169,6 +170,7 @@ sub guess_text_encoding() {
 			  if( $count_table{$byte} ) { $count++; }
 		  }
 	  }
+
 	  if ($total_count != 0 ) {
 		  $correct = 100 * ($count / $total_count);
 	  }
@@ -249,6 +251,7 @@ sub decode_text_file() {
 	if($Test) {
 		print "Converting $file -> $outfile\n";
 	}
+
 	my $command="iconv -f $encoding -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
 	system($command) == 0 or return "Encoding failed: $!";
 
@@ -499,7 +502,7 @@ sub read_file {
     my ($file, $text_aref, $allow_nonutf) =  @_;
 
 	if ($allow_nonutf) {
-		if (! open (FH,"$file")) { 
+		if (! open (FH, "<$file")) { 
 			carp "Cannot open file $file";
 			return $ERROR;
 		} 
@@ -510,7 +513,7 @@ sub read_file {
 		}
 	}
     while (<FH>) {
-		if (! utf8::is_utf8($_)) { print $_; return "ERROR"; }
+		if (! utf8::is_utf8($_)) { return "ERROR"; }
 		push (@$text_aref, $_);
     }
     close (FH);
