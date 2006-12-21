@@ -20,6 +20,7 @@ use Getopt::Long;
 my @words;
 my %abbrs;
 my %corrections;
+my %corr_short;
 my $TRAB="TRAB";
 my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
@@ -78,7 +79,7 @@ if ($abbr_file) {
 }
 # Read the corrections file (typos.txt)
 if ($corr) {
-	&read_corr (\%corrections);
+	&read_corr (\%corrections, \%corr_short);
 }
 
 sub verbose {
@@ -134,8 +135,8 @@ sub process_words {
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster.
 		if ($word =~ /^[^\W\d\s\n]*$/) {
-			if($corr && $corrections{$word}) { $word = $corrections{$word}; }
-			if (! $idioms_short{$word}) {
+			if((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word}) {
+				verbose("no correction, no idiom", $word , __LINE__);
 				print "$word\n";
 				next;
 			}
@@ -205,7 +206,7 @@ sub process_word {
 	my $rest_punct;
 
 	# Correct the word, if corrections is defined
-	if ($corr ) { if ($corrections{$word}) { $word = $corrections{$word}; } }
+	if ($corr ) { if ($corr_short{$word}) { test_corr(\$word, $words_aref, $tokens_aref); } }
 
     # Test for multiword expression.
 	if ( $idioms_short{$word}) { test_idiom(\$word, $words_aref, $MULTIWORD_SIZE); }
@@ -236,7 +237,6 @@ sub process_word {
 	my @parts = split (/([^\pL\-\. \:\d])/o, $word);
 	if ($word !~ /$CONTAIN_PUNCT/o && scalar @parts > 1) {
 		$word = pop @parts;
-		if ($corr ) { if ($corrections{$word}) { $word = $corrections{$word}; } }
 		push (@{$tokens_aref}, @parts);
 		verbose ("process_word/contain_punct", "$word", __LINE__);
 
@@ -257,7 +257,7 @@ sub process_word {
 	  # ? or !, the word ends the sentence in any case, so the word can
 	  # be treated as a token.
 	  if ($end_punct =~ /[¶\?\!\.]/) {
-		  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
+		  if($corr) { if ($corr_short{$word}) { test_corr(\$word, $words_aref, $tokens_aref); } }
 		  push (@{$tokens_aref}, $word);
 		  last TEST;
 	  }
@@ -274,7 +274,7 @@ sub process_word {
 		  # There is a sentence boundary. todo: Remove this as irrelevant!!
 		  elsif ($abbr =~ /^[\p{Lu}]{2,3}$/o ) {
 			  if ($words_aref->[0] !~ /^[\p{Ll}]/o ) {
-				  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
+				  if($corr) { if ($corrections{$word}) { test_corr(\$word, $words_aref, $tokens_aref); } }
 				  push (@{$tokens_aref}, $abbr);
 				  push (@{$tokens_aref}, ".");
 				  last TEST;
@@ -290,8 +290,8 @@ sub process_word {
 	  # This operation is for taking the dot out.
 	  if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
 		  $rest_punct =  $1;
-		  verbose ("process_word/rest_punct", $rest_punct, __LINE__);
-		  if($corr) { if ($corrections{$word}) { $word = $corrections{$word}; } }
+		  verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
+		  if($corr) { if ($corrections{$word}) {test_corr(\$word, $words_aref, $tokens_aref); } }
 		  push (@{$tokens_aref}, $word);
 		  push (@{$tokens_aref}, $rest_punct);
 		  last TEST;
@@ -343,6 +343,92 @@ sub test_abbr {
 
 	return 0;
 }
+
+# If a word is in the typos-list, it is replaced by the correct reading.
+
+sub test_corr {
+	my ($word_ref, $words_aref, $tokens_aref) = @_;
+
+	my $size=2;
+	my $i=0;
+
+	# If the word is single part.
+	if (my $correct = $corrections{$$word_ref}) { 
+		my @parts = split (/ /o, $correct);
+		if (scalar @parts > 1) {
+			if ( $idioms{$correct}) { 
+				$$word_ref = $correct; 
+				verbose ("test_corr/split_words", "$correct", __LINE__);
+			}
+			else {
+				$$word_ref = pop @parts;
+				push (@{$tokens_aref}, @parts);
+				verbose ("test_corr/split_words", "$correct", __LINE__);
+			}
+		}
+		else { $$word_ref = $correct; }
+		return 0;
+	}
+
+	my $next;
+	my $last_part;
+	if( $words_aref->[0] ) { $last_part = $words_aref->[0];}
+	elsif ($next_words[0]) { $last_part = $next_words[0]; $next=1; }
+	else { return 0; }
+	while ($i <= $size) {
+
+		# Remove the punctuation at the end of the expression.
+		(my $last_part_2 = $last_part) =~ s/([^\w]*)$//;
+		my $end_punct = $1;
+
+		# If the expressions contains punctuation in the middle, return.
+		return if ($last_part_2 =~ /[^\w\s\d\.\-]/);
+
+		# Test if the formed multiword expression exists in the
+		# idiom list. Test also lower case version.
+		my $idiom = $$word_ref . " " . $last_part_2;
+
+		verbose ("test_corr", $idiom, __LINE__);
+
+		my $ucidiom = ucfirst($$word_ref) . " " . ucfirst($last_part_2);
+		if ($corrections{$idiom} || $corrections{lc($idiom)} || $corrections{($ucidiom)}) {
+			my $correct = $corrections{$idiom};
+			verbose ("test_corr/correction", "$correct", __LINE__);
+			CHECK_IDIOM : {
+				if ( $idioms{$correct}) {
+					$$word_ref = $correct;
+					$$word_ref .= $end_punct;
+					verbose ("test_corr/idiom", "$correct", __LINE__);
+					last CHECK_IDIOM
+					}
+				my @parts = split (/ /o, $correct);
+				if (scalar @parts > 1) {
+					$$word_ref = pop @parts;
+					$$word_ref .= $end_punct;
+					push (@{$tokens_aref}, @parts);
+					verbose ("test_corr/split_words", "$correct", __LINE__);
+				}
+			}
+			# Remove the parts of the multiword expression from
+			# the word array.
+			if($next) { splice (@next_words, 0, $i+1); }
+			else { splice (@{$words_aref}, 0, $i+1); }
+
+			return 1;
+		}
+		$i++;
+		if($words_aref->[$i]) { 
+			$last_part = $last_part . " " . $words_aref->[$i];
+			$last_part =~ s/\s+/ /g;
+		}
+		elsif(! $next && $next_words[0]) { 
+			$last_part = $last_part . " " . $words_aref->[0];
+			$next=1;
+		}
+		else { return 0; }
+	}
+}
+
 
 # If the word starts an multiword expression, it is replaced
 # with the expression. The other parts are
@@ -407,6 +493,8 @@ sub process_numeral {
 	my ($word, $words_aref, $tokens_aref) = @_;
 
 	verbose ("process_numeral", $word, __LINE__);
+
+	if ($corr ) { if ($corr_short{$word}) { test_corr(\$word, $words_aref, $tokens_aref); } }
 
 	# Combine punctuation with numeral if followed by other numeral.
 	# cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
@@ -527,7 +615,7 @@ sub process_numeral {
 }
 
 sub read_corr {
-	my ($corr_href) = @_;
+	my ($corr_href, $corr_short_href) = @_;
 
 	local $/="\n";
 
@@ -541,9 +629,16 @@ sub read_corr {
 		next if (/^\#/);
 		
 		my ($error, $correct) = split(/\t+/);
-		if ($error && $correct) { $$corr_href{$error} = $correct; }
+		if ($error && $correct) {
+			$$corr_href{$error} = $correct;
+			my ($first, $last) = split(/ /, $error, 2);
+			$$corr_short_href{$first} = 1;
+		}
 		else { print STDERR "preprocess warning: Line not included to typos: $_\n"; }
 	}
+#	for my $key (keys %$corr_href) {
+#		print "$key $$corr_href{$key}\n";
+#	}
 }
 
 
@@ -588,8 +683,8 @@ sub read_abbr {
 
 	close LEX;	
 
-#	for my $key (keys %$num_href) {
-#		print "$key $$num_href{$key}\n";
+#	for my $key (keys %$idiom_short_href) {
+#		print "$key $$idiom_short_href{$key}\n";
 #	}
 }
 
