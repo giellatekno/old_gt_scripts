@@ -70,7 +70,6 @@ fetch_giella_and_divvun()
 build_and_copy_sites()
 {
     cd
-    rm gt/doc/lang/corp/corpus-summary-2006-05-16.xml
     #rm gt/doc/lang/corp/corpus-summary.xml
     #rm gt/doc/lang/corp/corpus-content.xml
 
