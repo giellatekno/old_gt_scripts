@@ -91,6 +91,7 @@ while(<>) {
 		# Separate the base form from the analysis
 		my $base;
 		my $line2;
+		my $plus;
 		my $comp_rate = ($line =~ tr/\#//);
 		if ( $comp_rate > 0) {
 			$line =~ s/\#\+Der\d\+Der\//\#/g;
@@ -98,9 +99,13 @@ while(<>) {
 			$base = $1;
 			$line2 = $2;
 		}
-		else { ($base, $line2) = split(/\+/, $line, 2); }
+		else { 
+			if ($line =~ s/^\+//) { $plus = "+"; }
+			($base, $line2) = split(/\+/, $line, 2);
+		}
 		$line2 =~ tr/+/ /;
 		$base =~ tr/+/ /;
+		if ($plus) { $base = $plus . $base; }
 
 		# If line contains a compound
 		if ( $comp_rate > 0 && ! $der) {
