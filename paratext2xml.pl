@@ -155,7 +155,7 @@ while($i < $size && $text_array[$i]) {
 
 		my $title = XML::Twig::Elt->new('title');
 		my $text = $1;
-		print "$text\n";
+		#print "$text\n";
 		$title->set_text($text);
 		$title->paste( 'last_child', $header);
 
@@ -169,7 +169,7 @@ while($i < $size && $text_array[$i]) {
 	# Format chapter headings.
 	if ($line =~ /^\\c (\d+)(.*)$/) {
 
-		if (! $section && $p) { my $tex = $p->text; print "$tex\n"; }
+		if (! $section && $p) { my $tex = $p->text;  }
 		if($p) { $p->paste( 'last_child', $section); $p=undef; }
 		if($section) { $section->paste( 'last_child', $ch); $section=undef; }
 		if($ch) { $ch->paste( 'last_child', $book); $ch=undef; }
@@ -184,7 +184,7 @@ while($i < $size && $text_array[$i]) {
 		#}
 		#if( $text ) { $ch->set_att('title', $text); }
 		$ch->set_att('number', $number);
-		print "$number\n";
+		#print "$number\n";
 		$i++;
 		next;
 	}
@@ -220,7 +220,7 @@ while($i < $size && $text_array[$i]) {
 			if ($prev =~ /^\s*(\d+)(.*)$/) {
 				my $verse = XML::Twig::Elt->new('verse');
 				$verse->set_att('number', $1);
-				print "  $1\n";
+				#print "  $1\n";
 				if ($cur_text) { $cur_text .= " $2"; }
 				else { $cur_text = $2; }
 				$verse->set_text($cur_text);
@@ -233,7 +233,7 @@ while($i < $size && $text_array[$i]) {
 			my $verse = XML::Twig::Elt->new('verse');
 			$verse->set_att('number', $1);
 			my $number = $1;
-			print "  $number\n";
+			#print "  $number\n";
 			if ($cur_text) { $cur_text .= " $2"; }
 			else { $cur_text = $2; }
 			while($text_array[$i+1] && $text_array[$i+1] !~ /^\\/) {
