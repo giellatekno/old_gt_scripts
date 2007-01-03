@@ -145,7 +145,7 @@ sub add_tags {
 				if ($end_hyphen) {
 					if (! $jadahje{$word}) {
 						# otherwise join the two words with a tag. 
-						if ($all_hyphens || $first_word) {
+						if (! $all_hyphens && ! $first_word) {
 							my $hyph = XML::Twig::Elt->new( hyph => '#EMPTY');
 							push (@output, ($previous_word, $hyph));
 						}
