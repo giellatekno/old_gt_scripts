@@ -14,10 +14,11 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action);
+@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
 @EXPORT_OK   = qw(&process_paras);
 
 our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
+
 
 # Store the vislcg or lookup2cg output
 # to xml-structure.
@@ -49,20 +50,31 @@ sub dis2xml {
 			}
 			# Read the word and go to next line.
 			$out =~ s/^\"<(.*)?>\".*$/$1/;
+			$out =~ s/\"/\'/g;
 			$w = XML::Twig::Elt->new('w');
 			$w->set_att('form', $out);
 			next;
 		}
 
+		$out =~ s/\s+$//;
+		$out =~ s/^\s+//;
+		$out =~ s/<//g;
+		$out =~ /^(\".*?\")\s+(.*)$/;
+		my $lemma = $1;
+		my $analysis = $2;
+		next if (! $lemma);
+		next if (! $analysis);
+		
 		# If not at the start of the cohort, 
 		# read the analysis line
 		# Create a new XML element for each reading.
 		my $reading = XML::Twig::Elt->new('reading');
 		
-		$out =~ s/^\s+//;
-		my ($lemma, $analysis) = split(/\s/, $out, 2);
-
 		$lemma =~ s/\"//g;
+
+		# Remove ^ and # from lemma for now.
+		$lemma =~ s/[\^\#]//g;			
+
 		$reading->set_att('lemma', $lemma);
 		if ($analysis) {
 			$analysis =~ tr/ /+/;
@@ -74,7 +86,6 @@ sub dis2xml {
 	if ($w) { $w->paste('last_child', $output); }
 	
 	my $string = $output->sprint;
-	$output->print;
 	$output->delete;
 
 	return $string;
@@ -127,6 +138,9 @@ sub analyzer2xml {
 
 	my @input=split(/\n/, $text);
 	for my $out (@input) {
+
+		next if (! $out);
+
 		if ($out =~ /^\s*$/) {
 			if ($w) {
 				$w->set_att('form', $word);	
@@ -142,6 +156,7 @@ sub analyzer2xml {
 		my $line;
 		($word, $line) = split(/\t/, $out, 2);
 
+		next if (! $line);
 		my ($lemma, $analysis) = split(/\+/, $line, 2);
 		$lemma =~ s/\s+$//;
 		my $reading=XML::Twig::Elt->new('reading');
@@ -341,6 +356,52 @@ sub xml2preprocess {
 	return $text;
 }
 
+sub dis2corpus_xml {
+	my ($text, $tags_href, $w_num_ref) = @_;
+
+	my $xml = dis2xml($text);
+
+	#print $xml;
+
+	my $string;
+	my $twig = XML::Twig->new();
+	#my $twig = XML::Twig->new(keep_encoding => 1);
+	if (! $twig->safe_parse ($xml)) {
+		cluck("Couldn't parse xml");
+		return Carp::longmess("Could not parse xml");
+	}
+	$twig->set_pretty_print('record');
+	my $root=$twig->root;
+	my @words=$root->children;
+
+	for my $word (@words) {
+
+		my $id = "w" . $$w_num_ref++;
+		$word->set_att('id', $id);
+		for my $reading ($word->children) {
+			
+			my $reading_text = $reading->{'att'}->{'analysis'};
+
+			# Create a new XML element for each reading.
+			my (@tag_list) = split(/\+/, $reading_text);
+			
+			# Process each tag and store them to XML attributes
+			# for the reading.
+			for my $tag (@tag_list) {
+				for my $class (keys %$tags_href) {
+					if ( exists $$tags_href{$class}{$tag} ) {
+						# Store the tag to XML attribute of the reading
+						$reading->set_att($class, $tag);		
+					}
+				}
+			}
+			$reading->del_att('analysis');
+		} # end while readings
+	
+	}
+	return $root;
+}
+
 sub get_action{
 	my $line = shift @_;
 
@@ -355,6 +416,7 @@ sub get_action{
 
 	return $action;
 }
+
 
 
 # Processing instructions are parsed
