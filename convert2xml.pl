@@ -304,6 +304,7 @@ sub process_file {
 		copy ($tmp1, $int) ;
 	}
 
+
 	$error = character_encoding($file, $orig, $int, $no_decode_this_time);
 	if ($error) {
 		exec_com("rm -rf \"$int\"", $file);
@@ -351,7 +352,7 @@ sub convert_doc {
 	exec_com($command, $file);
 	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 	exec_com($command, $file);
-
+#	exit;
 	return 0;
 }
 
@@ -437,7 +438,9 @@ sub convert_txt {
 	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
   ENCODING:
 	if (! $no_decode && ! $$no_decode_this_time_ref ) {
+
 		my $coding = &guess_text_encoding($int, $tmp4, $language);
+
 		if ($coding eq 0) { 
 			if ($test) { print STDERR "Correct character encoding.\n"; }
 		}
@@ -450,7 +453,7 @@ sub convert_txt {
 			if ($test) { print STDERR "Character decoding: $coding\n"; }
 			my $error = &decode_text_file($tmp4, $coding, $int);
 			if ($error eq -1){ return "ERROR"; }
-			$$no_decode_this_time_ref=0;
+			$$no_decode_this_time_ref=1;
 		}
 	}
 	#return;
