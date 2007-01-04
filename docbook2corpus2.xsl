@@ -125,7 +125,6 @@ Find the book element, which then is converted to the "document" tag
 <xsl:template match="chapter">
         <xsl:apply-templates select="title"/>
         <xsl:apply-templates select="chapter"/>
-        <xsl:apply-templates select="sect1"/>
         <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
 	    <xsl:apply-templates select="para//informaltable"/>
 	    <xsl:apply-templates select="para//table"/>
@@ -134,38 +133,39 @@ Find the book element, which then is converted to the "document" tag
         <xsl:apply-templates select="para//itemizedlist"/>
         <xsl:apply-templates select="orderedlist"/>
         <xsl:apply-templates select="itemizedlist"/>
+        <xsl:apply-templates select="sect1"/>
  </xsl:template>
 
 <!-- Sect1 -->
 <xsl:template match="sect1">
     <xsl:apply-templates select="title"/>
-    <xsl:apply-templates select="sect2"/>
 	<xsl:call-template name="sect"/>
+    <xsl:apply-templates select="sect2"/>
  </xsl:template>
 
 <!-- Sect2 -->
 <xsl:template match="sect2">
     <xsl:apply-templates select="title"/>
-    <xsl:apply-templates select="sect3"/>
 	<xsl:call-template name="sect"/>
+    <xsl:apply-templates select="sect3"/>
  </xsl:template>
 
 <!-- Sect3 -->
 <xsl:template match="sect3">
-    <xsl:apply-templates select="title"/>
-    <xsl:apply-templates select="sect4"/>
+   <xsl:apply-templates select="title"/>
 	<xsl:call-template name="sect"/>
+    <xsl:apply-templates select="sect4"/>
  </xsl:template>
 
 <!-- Sect4 -->
-<xsl:template match="sect3">
+<xsl:template match="sect4">
     <xsl:apply-templates select="title"/>
-    <xsl:apply-templates select="sect5"/>
 	<xsl:call-template name="sect"/>
+    <xsl:apply-templates select="sect5"/>
  </xsl:template>
 
 <!-- Sect5 -->
-<xsl:template match="sect3">
+<xsl:template match="sect5">
     <xsl:apply-templates select="title"/>
 	<xsl:call-template name="sect"/>
  </xsl:template>
@@ -184,7 +184,7 @@ Find the book element, which then is converted to the "document" tag
 	<xsl:if test="normalize-space(.)">
            <xsl:element name="p">
               <xsl:attribute name="type">title</xsl:attribute>
-              <xsl:apply-templates mode="para" />
+			<xsl:apply-templates mode="para" />
            </xsl:element>
     </xsl:if>
 </xsl:template>
@@ -197,7 +197,8 @@ Find the book element, which then is converted to the "document" tag
     			<!-- Guessing whether a para is actually a title -->
     			<xsl:when test="emphasis[@role='bold'] and 130 > string-length(.)">
     				<xsl:element name="p">
-    					<xsl:attribute name="type">title</xsl:attribute>
+    					<xsl:attribute
+						name="type">title</xsl:attribute>
 	                 <xsl:apply-templates mode="para" />
     				</xsl:element>
     			</xsl:when>
@@ -223,8 +224,8 @@ Find the book element, which then is converted to the "document" tag
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="emphasis|em" mode="para">
-	<xsl:apply-templates />
+<xsl:template match="emphasis|em" mode="para">	
+<xsl:apply-templates />
 </xsl:template>
 
 <!-- Table -->
