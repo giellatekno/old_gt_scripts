@@ -35,31 +35,17 @@ Find the book element, which then is converted to the "document" tag
             <xsl:apply-templates select="bookinfo/author"/>
             <xsl:apply-templates select="bookinfo/date"/>
             <xsl:apply-templates select="bookinfo/corpname"/>
-            <xsl:apply-templates select="bookinfo"/>
             <!-- Use the function "info, DocBook V5.0" -->
             <xsl:apply-templates select="info/title"/>
             <xsl:apply-templates select="info/author"/>
             <xsl:apply-templates select="info/date"/>
             <xsl:apply-templates select="info/corpname"/>
-            <xsl:apply-templates select="info"/>
         <!-- Close the "header" tag -->
         </xsl:element>
 
         <!-- Then insert the "body" tag -->
         <xsl:element name="body">
-            <!-- Apply the following functions -->
-            <xsl:apply-templates select="title"/>
-            <xsl:apply-templates select="chapter"/>
-            <xsl:apply-templates select="section"/>
-            <xsl:apply-templates select="sect1"/>
-            <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
-            <xsl:apply-templates select="para//table"/>
-            <xsl:apply-templates select="para//informaltable"/>
-            <xsl:apply-templates select="table"/>
-            <xsl:apply-templates select="orderedlist"/>
-            <xsl:apply-templates select="itemizedlist"/>
-            <xsl:apply-templates select="para//orderedlist"/>
-            <xsl:apply-templates select="para//itemizedlist"/>
+			<xsl:apply-templates select="chapter"/>
         <!-- Close the "body" tag -->
         </xsl:element>
 
@@ -104,15 +90,12 @@ Find the book element, which then is converted to the "document" tag
 </xsl:template>
 
 <!-- Some additional info -->
-<xsl:template match="bookinfo|info">
-    <!-- wordcount, availability, completeness -->
+<!-- <xsl:template match="bookinfo|info">
     <xsl:element name="wordcount">
-    		<!-- ancestor::book/bookinfo/following-sibling::*/text() following::* ancestor::*-->
     		<xsl:value-of select="count(str:tokenize(string(ancestor::*))) - count(str:tokenize(string(self::*)))" />
-    </xsl:element>
+    </xsl:element> 
+</xsl:template> -->
 
-<!-- Close the "header" tag -->
-</xsl:template>
 
 
 
@@ -120,54 +103,34 @@ Find the book element, which then is converted to the "document" tag
     Corpus text body
 -->
 
-
 <!-- Chapter -->
 <xsl:template match="chapter">
-        <xsl:apply-templates select="title"/>
-        <xsl:apply-templates select="chapter"/>
-        <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
-	    <xsl:apply-templates select="para//informaltable"/>
-	    <xsl:apply-templates select="para//table"/>
-        <xsl:apply-templates select="table"/>
-        <xsl:apply-templates select="para//orderedlist"/>
-        <xsl:apply-templates select="para//itemizedlist"/>
-        <xsl:apply-templates select="orderedlist"/>
-        <xsl:apply-templates select="itemizedlist"/>
-        <xsl:apply-templates select="sect1"/>
+        <xsl:apply-templates/>
  </xsl:template>
 
 <!-- Sect1 -->
 <xsl:template match="sect1">
-    <xsl:apply-templates select="title"/>
-	<xsl:call-template name="sect"/>
-    <xsl:apply-templates select="sect2"/>
+    <xsl:apply-templates/>
  </xsl:template>
 
 <!-- Sect2 -->
 <xsl:template match="sect2">
-    <xsl:apply-templates select="title"/>
-	<xsl:call-template name="sect"/>
-    <xsl:apply-templates select="sect3"/>
+    <xsl:apply-templates/>
  </xsl:template>
 
 <!-- Sect3 -->
 <xsl:template match="sect3">
-   <xsl:apply-templates select="title"/>
-	<xsl:call-template name="sect"/>
-    <xsl:apply-templates select="sect4"/>
+    <xsl:apply-templates/>
  </xsl:template>
 
 <!-- Sect4 -->
 <xsl:template match="sect4">
-    <xsl:apply-templates select="title"/>
-	<xsl:call-template name="sect"/>
-    <xsl:apply-templates select="sect5"/>
+    <xsl:apply-templates/>
  </xsl:template>
 
 <!-- Sect5 -->
 <xsl:template match="sect5">
-    <xsl:apply-templates select="title"/>
-	<xsl:call-template name="sect"/>
+    <xsl:apply-templates/>
  </xsl:template>
 
 <xsl:template name="sect">
@@ -204,10 +167,17 @@ Find the book element, which then is converted to the "document" tag
     			</xsl:when>
     			<xsl:otherwise>
 				<xsl:element name="p">
-		            <xsl:apply-templates/>
+		            <xsl:apply-templates mode="inpara"/>
 				</xsl:element>
 		    </xsl:otherwise>
         </xsl:choose>
+    </xsl:if>
+</xsl:template>
+
+<!-- Para -->
+<xsl:template match="para" mode="inpara">
+    <xsl:if test="normalize-space(.)">
+	      <xsl:apply-templates mode="inpara"/>
     </xsl:if>
 </xsl:template>
 
@@ -228,13 +198,37 @@ Find the book element, which then is converted to the "document" tag
 <xsl:apply-templates />
 </xsl:template>
 
+<xsl:template match="emphasis|em" mode="inpara">	
+    <xsl:element name="em">
+			<xsl:if test="@role">
+            <xsl:attribute name="type">
+            <xsl:value-of select="@role"/>
+            </xsl:attribute>
+			</xsl:if>
+        <xsl:apply-templates mode="inpara"/>
+    </xsl:element>
+</xsl:template>
+
 <!-- Table -->
 
 <xsl:template match="informaltable|tgroup|colspec">
     <xsl:apply-templates />
 </xsl:template>
 
+<xsl:template match="informaltable|tgroup|colspec" mode="inpara">
+    <xsl:apply-templates mode="inpara"/>
+</xsl:template>
+
 <xsl:template match="tbody">
+    <xsl:element name="table">
+        <xsl:apply-templates select="row" />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="tbody" mode="inpara">
+</xsl:template>
+
+<xsl:template match="para//tbody">
     <xsl:element name="table">
         <xsl:apply-templates select="row" />
     </xsl:element>
@@ -244,6 +238,9 @@ Find the book element, which then is converted to the "document" tag
     <xsl:element name="row">
         <xsl:apply-templates select="entry" />
     </xsl:element>
+</xsl:template>
+
+<xsl:template match="row" mode="inpara">
 </xsl:template>
 
 <xsl:template match="row/entry">
@@ -276,6 +273,17 @@ Find the book element, which then is converted to the "document" tag
     </xsl:if>
 </xsl:template>
 
+<xsl:template match="para//orderedlist">
+    <xsl:if test="normalize-space(.)">
+        <xsl:element name="list">
+            <xsl:apply-templates select="listitem" />
+        </xsl:element>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="orderedlist" mode="inpara">
+</xsl:template>
+
 <xsl:template match="itemizedlist">
     <xsl:if test="normalize-space(.)">
         <xsl:element name="list">
@@ -284,11 +292,22 @@ Find the book element, which then is converted to the "document" tag
     </xsl:if>
 </xsl:template>
 
+<xsl:template match="para//itemizedlist">
+    <xsl:if test="normalize-space(.)">
+        <xsl:element name="list">
+            <xsl:apply-templates select="listitem" />
+        </xsl:element>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="itemizedlist" mode="inpara">
+</xsl:template>
+
 <xsl:template match="listitem">
     <xsl:if test="normalize-space(.)">
         <xsl:element name="p">
             <xsl:attribute name="type">listitem</xsl:attribute>
-            <xsl:apply-templates mode="listitem"/>
+            <xsl:apply-templates mode="inpara"/>
         </xsl:element>
     </xsl:if>
 </xsl:template>
