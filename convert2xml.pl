@@ -276,6 +276,14 @@ sub process_file {
 #		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
 		chmod 0660, $int;
 	}
+
+	$error = character_encoding($file, $int, $no_decode_this_time);
+	if ($error) {
+		exec_com("rm -rf \"$int\"", $file);
+		if (! $test) { remove_tmp_files($tmpdir, $file); }
+		return;
+	}
+
 	# Run the file specific xsl-script.
 	if (! $noxsl) { 
 		$error = file_specific_xsl($file, $orig, $int, $xsl_file, $doc_id); 
@@ -302,14 +310,6 @@ sub process_file {
 		else { $command = "$hyphenate --infile=\"$int\" --outfile=\"$tmp1\"";}
 		exec_com($command, $file);
 		copy ($tmp1, $int) ;
-	}
-
-
-	$error = character_encoding($file, $orig, $int, $no_decode_this_time);
-	if ($error) {
-		exec_com("rm -rf \"$int\"", $file);
-		if (! $test) { remove_tmp_files($tmpdir, $file); }
-		return;
 	}
 
 	# Text categorization
@@ -589,7 +589,7 @@ sub remove_tmp_files {
 }
 
 sub character_encoding {
-	my ($file, $orig, $int, $no_decode_this_time) = @_;
+	my ($file, $int, $no_decode_this_time) = @_;
 
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
