@@ -200,11 +200,9 @@ Find the book element, which then is converted to the "document" tag
 
 <xsl:template match="emphasis|em" mode="inpara">	
     <xsl:element name="em">
-			<xsl:if test="@role">
             <xsl:attribute name="type">
-            <xsl:value-of select="@role"/>
+			<xsl:text>italic</xsl:text>
             </xsl:attribute>
-			</xsl:if>
         <xsl:apply-templates mode="inpara"/>
     </xsl:element>
 </xsl:template>
