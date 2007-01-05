@@ -594,7 +594,7 @@ sub character_encoding {
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
 
-	if (! $no_decode && ! $no_decode_this_time ) {
+	if (! $no_decode ) {
 		&read_char_tables;
 		# guess encoding and decode each paragraph at the time.
 		if( $multi_coding ) {
@@ -640,6 +640,7 @@ sub character_encoding {
 				return;
 			}
 			# Continue decoding the file.
+			if ($no_decode_this_time && $coding eq "latin6") { return; }
 			if($test) { print STDERR "Character decoding: $coding\n"; }
 			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
 												 'title'=>sub{call_decode_para(@_, $coding);}
