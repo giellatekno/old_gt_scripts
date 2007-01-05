@@ -75,7 +75,8 @@ my $cap = $binpath ."/" . "cap-" . $lang;
 my $fst = $binpath ."/". $lang . ".fst";
 my $abbr = $binpath ."/abbr.txt";
 my $rle = $binpath ."/". $lang ."-dis.rle";
-my $preproc = "/usr/local/bin/preprocess";
+#my $preproc = "/usr/local/bin/preprocess";
+my $preproc = "/Users/saara/gt/script/preprocess";
 
 if(! $tagfile) { $tagfile = "/opt/smi/common/bin/korpustags.txt"; }
 
@@ -89,14 +90,14 @@ if ($host =~ /hum-tf4-ans142/) {
 $vislcg .= " --grammar=$rle --quiet";
 my $disamb = "$lookup2cg | $vislcg";
 
-my $analyze = "$preproc | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg";
-
 my $preprocess;
 if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --fst=$fst --corr=$corrtypos"; }
 elsif ($lang =~ /nob/) { 
 	$preprocess = "$preproc --abbr=$abbr";
 }
 else { $preprocess = "$preproc"; }
+
+my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg";
 
 my $SENT_DELIM = qq|.!?|;
 
@@ -110,59 +111,85 @@ if ($infile && ! $outfile) { $outfile = "out.tmp"; }  #$outfile=$infile . ".anal
 
 my $document;
 
-# Do not analyze, only add <s>-tags.
-if ($only_add_sentences) {
-	$document = XML::Twig->new(twig_handlers => {  'p' => sub { add_sentences(@_);
-																keep_encoding => 1 } });
-	if (! $document->safe_parsefile ($infile)) {
-		print STDERR "Couldn't parse file $infile: $@";
-	}
+if (! $only_add_sentences) { 
+	open (FH, ">/Users/saara/koe.out"); 
+	print "** Analyzing $infile:\n$analyze\n";
 }
-# Otherwise analyze each para and add sentences
-else {
-    print STDERR "$analyze\n";
-	open (FH, ">/Users/saara/koe.out");
-    
-  PARSE: {
-      if(($tables && $lists) | $all) {
-	      $document = XML::Twig->new(twig_handlers => {  
-			  'p' => sub { analyze_para(@_); 
-						   keep_encoding => 1 } });
-	      last PARSE;
-	  }
-	  if (! $tables && ! $lists) {
-		  $document = XML::Twig->new(twig_handlers => { 
-			  'table' => sub{ $_->delete; },
-			  'list' => sub{ $_->delete; },
-			  'p' => sub { analyze_para(@_); },
-			  keep_encoding => 1 });
-		  last PARSE;
-	  } 
-	  if ($tables && ! $lists) {
-		  $document = XML::Twig->new(twig_handlers => {  
-			  'list' => sub{ $_->delete; },
-			  'table' => sub { $_->erase; },
-			  'row' => sub { $_->erase; },
-			  'p' => sub { analyze_para(@_);
-						   keep_encoding => 1 } });	
-		  last PARSE;
-	  }
-	  if (! $tables && $lists) {
-		  $document = XML::Twig->new(twig_handlers => {  
-			  'table' => sub{ $_->delete; },
-			  'list' => sub { $_->erase; },
-			  'p' => sub { analyze_para(@_);
-						 keep_encoding => 1 } });	
-		  last PARSE;
-	  }
+else { 	print "** Preprocessing $infile:\n$preprocess\n"; }
+
+
+ PARSE: {
+	 if(($tables && $lists) | $all) {
+		 if ($only_add_sentences) {
+			 $document = XML::Twig->new(twig_handlers => {  
+				 'p' => sub { add_sentences(@_);
+							  keep_encoding => 1 } });
+			 last PARSE;
+		 }
+		 $document = XML::Twig->new(twig_handlers => {  
+			 'p' => sub { analyze_para(@_); 
+						  keep_encoding => 1 } });
+		 last PARSE;
+	 }
+	 if (! $tables && ! $lists) {
+		 if ($only_add_sentences) {
+			 $document = XML::Twig->new(twig_handlers => { 
+				 'table' => sub{ $_->delete; },
+				 'list' => sub{ $_->delete; },
+				 'p' => sub { add_sentences(@_); },
+				keep_encoding => 1 });
+			 last PARSE;
+		 }
+		 $document = XML::Twig->new(twig_handlers => { 
+			 'table' => sub{ $_->delete; },
+			 'list' => sub{ $_->delete; },
+			 'p' => sub { analyze_para(@_); },
+			 keep_encoding => 1 });
+		 last PARSE;
+	 } 
+	 if ($tables && ! $lists) {
+		 if ($only_add_sentences) {
+			 $document = XML::Twig->new(twig_handlers => {  
+				 'list' => sub{ $_->delete; },
+				 'table' => sub { $_->erase; },
+				 'row' => sub { $_->erase; },
+				 'p' => sub { add_sentences(@_);
+							  keep_encoding => 1 } });	
+			 last PARSE;
+		 }
+		 $document = XML::Twig->new(twig_handlers => {  
+			 'list' => sub{ $_->delete; },
+			 'table' => sub { $_->erase; },
+			 'row' => sub { $_->erase; },
+			 'p' => sub { analyze_para(@_);
+						  keep_encoding => 1 } });	
+		 last PARSE;
+
+	 }
+	 if (! $tables && $lists) {
+		 if ($only_add_sentences) {
+			 $document = XML::Twig->new(twig_handlers => {  
+				 'table' => sub{ $_->delete; },
+				 'list' => sub { $_->erase; },
+				 'p' => sub { add_sentences(@_);
+							  keep_encoding => 1 } });	
+			 last PARSE;
+		 }
+		 $document = XML::Twig->new(twig_handlers => {  
+			 'table' => sub{ $_->delete; },
+			 'list' => sub { $_->erase; },
+			 'p' => sub { analyze_para(@_);
+						  keep_encoding => 1 } });	
+		 last PARSE;
+	 }
   } # end of PARSE
-	if (! $document->safe_parsefile ($infile)) {
-		print STDERR "Couldn't parse file: $@";
-	}
-	
+
+if (! $document->safe_parsefile ($infile)) {
+	print STDERR "Couldn't parse file: $@";
 }
 
 open (FH, ">$outfile") or die "Cannot open $!";
+
 $document->set_pretty_print('record');
 $document->print( \*FH);
 $document->purge;
@@ -178,6 +205,11 @@ sub add_sentences {
 	my ($twig, $para) = @_;
 
 	my @answers;
+
+	for my $c ($para->children('error')) {
+		my $correct = $c->{'att'}->{'correct'};
+		$c->set_text($correct);
+	}
 
 	$para->set_asis;
 	my $text = $para->text;
@@ -204,6 +236,7 @@ sub add_sentences {
 	my $sentence;
 	my @words;
 	my $ans;
+	my @prev_sent;
 
   WORDS:
 	for $ans (@answers) {
@@ -211,6 +244,8 @@ sub add_sentences {
 		
 		# ignore empty lines
 		next WORDS if $ans =~ /^\s*$/;
+		$ans =~ s/\s*$//;
+		$ans =~ s/^\s*//;
 
 		if (! $sentence) {
 			# create an XML-element for a new sentence.
@@ -218,16 +253,21 @@ sub add_sentences {
 			my $id = "s" . $s_id++;
 			$sentence->set_att('id', $id);
 		}
-		
+
 		push (@words, $ans);
 		push (@words, " ");
 
 		# Skip empty sentences.
 		if ($ans =~ /^[$SENT_DELIM]$/) {
-			if($#words==1 && $words[0] =~ /^[\W\s]*$/) {
+			if($#words<5 && $words[0] !~ /^\w*$/) {
+				#print "@words \n";
+				push(@prev_sent, @words);
+				undef @words;
 				next;
 			}
-			$sentence->set_content(@words);
+
+			$sentence->set_content(@prev_sent, @words);
+			undef @prev_sent;
 			$sentence->paste('last_child', $para);
 			$sentence->DESTROY;
 			$sentence=undef;
@@ -239,7 +279,7 @@ sub add_sentences {
 	if ($ans) { push (@words, $ans); }
 
 	# Skip empty sentences.
-	if($#words==1 && $words[0] =~ /^[\W\s]*$/) {
+	if(@words && $#words<3 && $words[0] =~ /^[\W\s]*$/) {
 		return;
 	}
 	if (@words) {
@@ -248,13 +288,19 @@ sub add_sentences {
 			$sentence = XML::Twig::Elt->new('s');
 			$sentence->set_att('id', $s_id++);
 		}
-		$sentence->set_content(@words);
+		$sentence->set_content(@prev_sent, @words);
+		undef @prev_sent;
 		$sentence->paste('last_child', $para);
 	}
 }
 
 sub analyze_para {
 	my ($twig, $para) = @_;
+
+	for my $c ($para->children('error')) {
+		my $correct = $c->{'att'}->{'correct'};
+		$c->set_text($correct);
+	}
 
 	if (! $para->{'att'}->{'id'}) { 
 		my $id = "p" . $p_num++;
