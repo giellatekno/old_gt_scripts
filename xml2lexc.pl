@@ -53,23 +53,29 @@ sub generate_lexc {
 	my($twig, $entry) = @_;	
 
 	# Get the values of the fields.
-	my $lemma_text="";
+	my $lemma_text;
 	if ($entry->{'att'}{'id'}) {
 		$lemma_text = $entry->{'att'}{'id'};
 	}
 	else { die "No id for entry\n"; }
-	my $stem_text="";
+	my $stem_text;
 	if ($entry->first_child('stem')) {
 		$stem_text = $entry->first_child( 'stem')->text;
 		$stem_text =~ s/\s*$//g;
 	}
-	my $lexc_text = "";
+	my $lexc_text;
 	if (my $infl = $entry->first_child('infl')) {
 		$lexc_text = $infl->{'att'}->{'lexc'};
 	}
 
-	if ($stem_text) { print FH "$lemma_text:$stem_text $lexc_text \;\n"; }
-	else { print FH "$lemma_text $lexc_text \;\n"; }
+	if ($lexc_text) {
+		if ($stem_text) { print FH "$lemma_text:$stem_text $lexc_text \;\n"; }
+		else { print FH "$lemma_text $lexc_text \;\n"; }
+	}
+#	else { 
+#		if ($stem_text) { print FH "$lemma_text:$stem_text \;\n"; }
+#		else { print FH "$lemma_text \;\n"; }
+#	}
 }
 
 
