@@ -7618,3 +7618,4 @@ balov
 barnevernlov
 fagmiljø
 lokalmiljø
+tannklinikk
