@@ -48,6 +48,9 @@ if (! $twig->safe_parsefile("$xml_file")) {
 }
 $twig->purge;
 
+# Pick the elements and texts from the xml-structure
+# Function is called for each entry and the lexc-string
+# printed straight to the output file.
 
 sub generate_lexc {
 	my($twig, $entry) = @_;	
@@ -57,7 +60,7 @@ sub generate_lexc {
 	if ($entry->{'att'}{'id'}) {
 		$lemma_text = $entry->{'att'}{'id'};
 	}
-	else { die "No id for entry\n"; }
+	else { die "No id for entry.\n"; }
 	my $stem_text;
 	if ($entry->first_child('stem')) {
 		$stem_text = $entry->first_child( 'stem')->text;
@@ -67,7 +70,6 @@ sub generate_lexc {
 	if (my $infl = $entry->first_child('infl')) {
 		$lexc_text = $infl->{'att'}->{'lexc'};
 	}
-
 	if ($lexc_text) {
 		if ($stem_text) { print FH "$lemma_text:$stem_text $lexc_text \;\n"; }
 		else { print FH "$lemma_text $lexc_text \;\n"; }
@@ -78,7 +80,8 @@ sub generate_lexc {
 #	}
 }
 
-
+# Print some information and the name of the start lexicon
+# to the generated file.
 sub print_start{
 
 	my ($xml_file) = @_;
