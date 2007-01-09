@@ -364,6 +364,8 @@ sub convert_pdf {
 	my $title_styles;
 	my $main_font_elt;
 	my $col_num;
+	my $lower;
+	my $excluded;
 	if(! $noxsl) {
 		my $document = XML::Twig->new;
 		if (! $document->safe_parsefile("$xsl_file")) {
@@ -385,14 +387,30 @@ sub convert_pdf {
 		my $column_elt = $root->first_child('xsl:variable[@name="columns"]');
 		if ($column_elt) { $col_num = $column_elt->{'att'}{'select'}; }
 
+		my $lower_elt = $root->first_child('xsl:variable[@name="lower"]');
+		if ($lower_elt) { $lower = $lower_elt->{'att'}{'select'}; }
+		$lower =~ s/\'//g;
+
+		my $excluded_elt = $root->first_child('xsl:variable[@name="excluded"]');
+		if ($excluded_elt) { $excluded = $excluded_elt->{'att'}{'select'}; }
+		$excluded =~ s/\'//g;
+
 	}
 	if ($main_font_elt) {
+		
+		my $arguments="";
+		(my $base = $file ) =~ s/\.pdf//;
 
-		if ($col_num eq "'2'") { $command = "$jpedal $orig $tmpdir -Dcol 1>/dev/null"; }
-		else { $command = "$jpedal $orig $tmpdir  1>/dev/null"; }
+		$command = "rm -rf $tmpdir/$base/*";
+		exec_com($command, $file);
+		
+		if ($col_num eq "'2'") { $arguments .= "-Dcol"; }
+		if ($lower) { $arguments .= " -Dlower=$lower"; }
+		if ($excluded) { $arguments .= " -Dexcl=$excluded"; }
+		
+		$command = "$jpedal $orig $tmpdir $arguments";
 		exec_com($command, $file);
 
-		(my $base = $file ) =~ s/\.pdf//;
 		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
 		exec_com($command, $file);
 
