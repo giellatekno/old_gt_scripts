@@ -538,7 +538,7 @@ sub process_numeral {
 
 			if ( $num{$3} ) { last SPLIT_NUMERAL; }
 			if (! $2 ) { 
-				push (@$tokens_aref, $1); 
+				push (@$tokens_aref, $1);
 				process_word ($3, $words_aref, $tokens_aref);
 				return;
 			}
@@ -550,9 +550,9 @@ sub process_numeral {
 		# mispellings with headings, like 1.6.Vuonain 
 		if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) { 
 			$word =~ s/([^\W\d]+\.?)$//;
-			push (@$tokens_aref, $word);
-			$end_word = $1;
 			verbose ("process_numeral/end_word", $end_word, __LINE__);
+			process_numeral($word, $words_aref, $tokens_aref);
+			$end_word = $1;
 		}
 	} # end of SPLIT_NUMERAL
 	
@@ -581,11 +581,11 @@ sub process_numeral {
 	  DOT_TEST: {
 		  last DOT_TEST if ($word !~ /\.$/);
 		  (my $nopunct = $word) =~ s/\.$//;
-		  if(($nopunct =~ /^\d{4,}$/) || ( $nopunct =~ /[\pP\pL]/) && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)) {
+		  if($nopunct =~ /^\d{4,}$/ || ($nopunct =~ /[\pP\pL]/) && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
 			  $word = $nopunct;
 			 #$word =~ s/\.$//;
 		  }
-		  elsif ($word =~ /^\d{1,3}\.$/) {
+		  elsif ($word =~ /^\d{1,3}\.$/ ) {
 			  if ($words_aref->[0] !~ /^[\p{Lu}]/o) {
 				  last DOT_TEST;
 			  }
@@ -619,7 +619,7 @@ sub read_corr {
 
 	local $/="\n";
 
-	open CORR, "< $corr" or die "Cant open the file: $!\n";
+	open CORR, "< $corr" or die "Cant open the file $corr: $!\n";
 
 	while (<CORR>) {
 		chomp;
