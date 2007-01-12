@@ -37,7 +37,6 @@ use langTools::Util;
 my $tagfile;
 my $lang="sme";
 
-my $binpath="/opt/smi/$lang/bin";
 my $s_id=0;
 my $p_num=0;
 my $w_num=0;
@@ -67,6 +66,7 @@ if ($help) {
 	exit 1;
 }
 
+my $binpath="/opt/smi/$lang/bin";
 my $lookup2cg = "/usr/local/bin/lookup2cg";
 my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
 my $vislcg = "/opt/xerox/bin/vislcg";
@@ -76,7 +76,7 @@ my $fst = $binpath ."/". $lang . ".fst";
 my $abbr = $binpath ."/abbr.txt";
 my $rle = $binpath ."/". $lang ."-dis.rle";
 #my $preproc = "/usr/local/bin/preprocess";
-my $preproc = "/Users/saara/gt/script/preprocess";
+my $preproc = "/Users/saara/gt/script/preprocess --break='<<<'";
 
 if(! $tagfile) { $tagfile = "/opt/smi/common/bin/korpustags.txt"; }
 
@@ -100,6 +100,7 @@ else { $preprocess = "$preproc"; }
 my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg";
 
 my $SENT_DELIM = qq|.!?|;
+my $LEFT_QUOTE = qq|<([{«‹“‘|;
 
 # Read the tags
 my %tags;
@@ -214,9 +215,12 @@ sub add_sentences {
 	$para->set_asis;
 	my $text = $para->text;
 
-	for my $c ($para->children) {
-		$c->delete;
+	# Do some file-specific fixes.
+	if ($infile =~ /1999_\ds.doc.xml/) {
+		$text =~ s/\?(.+\b)/ŋ$2/g;
 	}
+
+	for my $c ($para->children) { $c->delete; }
 
 	$text =~ s/\n/ /g;
 	
@@ -237,6 +241,7 @@ sub add_sentences {
 	my @words;
 	my $ans;
 	my @prev_sent;
+	my $sentence_end = 0;
 
   WORDS:
 	for $ans (@answers) {
@@ -247,25 +252,13 @@ sub add_sentences {
 		$ans =~ s/\s*$//;
 		$ans =~ s/^\s*//;
 
-		if (! $sentence) {
-			# create an XML-element for a new sentence.
-			$sentence = XML::Twig::Elt->new('s');
-			my $id = "s" . $s_id++;
-			$sentence->set_att('id', $id);
+		if ($ans !~ /\w/ && $ans !~ /^[$SENT_DELIM]$/ && $ans !~ /<<</ && $ans !~ /[$LEFT_QUOTE\p{Pd}]/) {
+			push (@words, $ans);
+			push (@words, " ");
+			next;
 		}
 
-		push (@words, $ans);
-		push (@words, " ");
-
-		# Skip empty sentences.
-		if ($ans =~ /^[$SENT_DELIM]$/) {
-			if($#words<5 && $words[0] !~ /^\w*$/) {
-				#print "@words \n";
-				push(@prev_sent, @words);
-				undef @words;
-				next;
-			}
-
+		if ($sentence_end) {
 			$sentence->set_content(@prev_sent, @words);
 			undef @prev_sent;
 			$sentence->paste('last_child', $para);
@@ -273,13 +266,36 @@ sub add_sentences {
 			$sentence=undef;
 			@words=undef;
 			pop @words;
-			next WORDS;
+			$sentence_end = 0;
+		}
+
+		push (@words, $ans);
+		push (@words, " ");
+
+		if (! $sentence) {
+			# create an XML-element for a new sentence.
+			$sentence = XML::Twig::Elt->new('s');
+			my $id = "s" . $s_id++;
+			$sentence->set_att('id', $id);
+		}
+
+		# Skip empty sentences.
+		if ($ans =~ /^[$SENT_DELIM]$/ || $ans =~ /<<</) {
+			if ($ans =~ /<<</) { pop @words; pop @words; }
+			my $string = join ("", @words);
+			if($string !~ /\w/) {
+				push(@prev_sent, @words);
+				undef @words;
+				next;
+			}
+			$sentence_end=1;
 		}
 	}
 	if ($ans) { push (@words, $ans); }
 
 	# Skip empty sentences.
 	if(@words && $#words<3 && $words[0] =~ /^[\W\s]*$/) {
+		print "Empty: @words\n";
 		return;
 	}
 	if (@words) {
