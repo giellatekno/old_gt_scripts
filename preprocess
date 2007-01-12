@@ -55,10 +55,12 @@ my $hyph=0;
 my $use_hyph_tag=0;
 my $fst;
 my $corr;
+my $sentence_break=".";
 
 GetOptions ("abbr=s" => \$abbr_file,
 			"fst=s" => \$fst,
 			"corr=s" => \$corr,
+			"break=s" => \$sentence_break,
 			"help" => \$help,
 			"v" => \$verbose,
 
@@ -327,7 +329,7 @@ sub test_abbr {
 	elsif ($abbrs{$abbr} eq $TRNUMAB) {
 		push (@{$tokens_aref}, $word);
 		if ($next_word =~ /^[\p{Lu}]?[\p{Ll}]{2,}/o) {
-			push (@{$tokens_aref}, ".");
+			push (@{$tokens_aref}, $sentence_break);
 		}
 		return 1;
 	}
@@ -336,7 +338,7 @@ sub test_abbr {
 	elsif ($abbrs{$abbr} eq $ITRAB) {
 		push (@{$tokens_aref}, $word);
 		if ($next_word !~ /^[\p{Ll}\pP]/o) {
-			push (@{$tokens_aref}, ".");
+			push (@{$tokens_aref}, $sentence_break);
 		}
 		return 1;
 	}
@@ -694,12 +696,13 @@ sub print_usage {
 	print "Usage: preprocess [OPTIONS] --abbr=<file_name> FILES\n";
 	print "Split text in FILE into sentences and words.\n";
 	print "Options\n";
-	print "--hyph          show the hyphenation points, i.e. change the <hyph> tags\n";
-    print "                to hyphens. The default is to just remove the <hyph> tags.\n";
-    print "--use-hyph-tags leave the <hyph> tags untouched\n";
-    print "--help          prints the help text and exit.\n";
-    print " --v            prints information of the execution of the script\n";
-	print " --corr=<file>  list of common typos and their corrections (e.g. typos.txt)\n";
+	print "--hyph           show the hyphenation points, i.e. change the <hyph> tags\n";
+    print "                 to hyphens. The default is to just remove the <hyph> tags.\n";
+    print "--use-hyph-tags  leave the <hyph> tags untouched\n";
+    print "--break=<string> use <string> instead of . as sentence delimiter. \n";
+    print "--help           prints the help text and exit.\n";
+    print " --v             prints information of the execution of the script\n";
+	print " --corr=<file>   list of common typos and their corrections (e.g. typos.txt)\n";
 
 }
 
