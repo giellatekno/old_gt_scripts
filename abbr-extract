@@ -137,17 +137,23 @@ for my $file (@lex_file_names) {
 				my $read_anl = call_lookup(\$exp, $string);
 
 				my @analyses = split(/\n/, $read_anl);
-				push (@idioms,@analyses);
+				my @tmp;
+				for my $idi (@analyses) {
+					next if ($idi =~ /\+\?/);
+					next if ($idi =~ /[\:\-]/);
+					my ($word, $analysis) = split(/\t/, $idi);
+					next if (! $analysis);
+					push (@tmp, $analysis);
+				}
+				push (@idioms,@tmp);
 			}
 			#print "@idioms\n";
+			if (! @idioms) {
+				print ABB "$abbr\n";
+				next;
+			}
 			for my $idi (@idioms) {
-				#print $idi;
-				next if ($idi =~ /\+\?/);
-				next if ($idi =~ /[\:\-]/);
-				my ($word, $analysis) = split(/\t/, $idi);
-				next if (! $analysis);
-				#print $analysis, "\n";
-				print ABB "$analysis\n";
+				print ABB "$idi\n";
 			}
 		}
 	}
