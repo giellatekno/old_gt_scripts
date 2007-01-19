@@ -586,7 +586,7 @@ sub process_numeral {
 		  (my $nopunct = $word) =~ s/\.$//;
 		  # If the number contains other than digits or is a year,
 		  # Then the ending dot is removed.
-		  if($nopunct =~ /^\d{4,}$/ || ($nopunct =~ /[§\pP\pL]/) && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
+		  if($nopunct =~ /[§\d\pP\pL]/ && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
 			  $word = $nopunct;
 			 #$word =~ s/\.$//;
 		  }
