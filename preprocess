@@ -558,7 +558,7 @@ sub process_numeral {
 		}
 	} # end of SPLIT_NUMERAL
 	
-	verbose ("process_numeral/abbr", $word, __LINE__);
+	verbose ("process_numeral", $word, __LINE__);
 
 	my $rest_punct;
 
@@ -569,6 +569,7 @@ sub process_numeral {
 		# If there is an abbreviation with numeral, don't do checking.
 		# Otherwise belongs to the expression.
 		if ($end_word) {
+			verbose ("process_numeral/test_abbr", $word, __LINE__);
 			my $abbr = $end_word;
 			if (( $abbr =~ s/\.$//)  && $abbrs{$abbr}) {
 				test_abbr($end_word, $words_aref->[0], $tokens_aref);
@@ -583,10 +584,13 @@ sub process_numeral {
 	  DOT_TEST: {
 		  last DOT_TEST if ($word !~ /\.$/);
 		  (my $nopunct = $word) =~ s/\.$//;
-		  if($nopunct =~ /^\d{4,}$/ || ($nopunct =~ /[\pP\pL]/) && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
+		  # If the number contains other than digits or is a year,
+		  # Then the ending dot is removed.
+		  if($nopunct =~ /^\d{4,}$/ || ($nopunct =~ /[§\pP\pL]/) && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
 			  $word = $nopunct;
 			 #$word =~ s/\.$//;
 		  }
+		  # Otherwise dot is considered to be an ordinal.
 		  elsif ($word =~ /^\d{1,3}\.$/ ) {
 			  if ($words_aref->[0] !~ /^[\p{Lu}]/o) {
 				  last DOT_TEST;
