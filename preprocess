@@ -42,7 +42,7 @@ my $SINGLE_PUNCT = $quotations . $parentheses . quotemeta("?!,;/\\") . $other;
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SINGLE_PUNCT.
-my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt|²';
 
 # Punctuation that connects two or more numerals 
 # into one numeral expressions.
