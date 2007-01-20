@@ -363,7 +363,7 @@ sub convert_pdf {
 	my $title_sizes;
 	my $title_styles;
 	my $main_font_elt;
-	my $col_num;
+	my $col_num=1;
 	my $lower;
 	my $excluded;
 	if(! $noxsl) {
@@ -388,12 +388,11 @@ sub convert_pdf {
 		if ($column_elt) { $col_num = $column_elt->{'att'}{'select'}; }
 
 		my $lower_elt = $root->first_child('xsl:variable[@name="lower"]');
-		if ($lower_elt) { $lower = $lower_elt->{'att'}{'select'}; }
-		$lower =~ s/\'//g;
+		if ($lower_elt) { $lower = $lower_elt->{'att'}{'select'}; $lower =~ s/\'//g;}
 
 		my $excluded_elt = $root->first_child('xsl:variable[@name="excluded"]');
-		if ($excluded_elt) { $excluded = $excluded_elt->{'att'}{'select'}; }
-		$excluded =~ s/\'//g;
+		if ($excluded_elt) { $excluded = $excluded_elt->{'att'}{'select'}; $excluded =~ s/\'//g; }
+		
 
 	}
 	if ($main_font_elt) {
