@@ -133,14 +133,6 @@ Find the book element, which then is converted to the "document" tag
     <xsl:apply-templates/>
  </xsl:template>
 
-<xsl:template name="sect">
-    <xsl:apply-templates select="para[not(informaltable) and not(table) and not(orderedlist) and not(itemizedlist)]"/>
-    <xsl:apply-templates select="para//table"/>
-    <xsl:apply-templates select="para//informaltable"/>
-    <xsl:apply-templates select="table"/>
-    <xsl:apply-templates select="para//orderedlist"/>
-    <xsl:apply-templates select="para//itemizedlist"/>
-</xsl:template>
 
 <!-- Title -->
 <xsl:template match="title">
@@ -223,13 +215,9 @@ Find the book element, which then is converted to the "document" tag
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="tbody" mode="inpara">
-</xsl:template>
 
-<xsl:template match="para//tbody">
-    <xsl:element name="table">
-        <xsl:apply-templates select="row" />
-    </xsl:element>
+<xsl:template match="tbody" mode="inpara">
+        <xsl:apply-templates select="row" mode="inpara"/>
 </xsl:template>
 
 <xsl:template match="row">
@@ -239,6 +227,7 @@ Find the book element, which then is converted to the "document" tag
 </xsl:template>
 
 <xsl:template match="row" mode="inpara">
+        <xsl:apply-templates select="entry" mode="inpara" />
 </xsl:template>
 
 <xsl:template match="row/entry">
@@ -246,6 +235,10 @@ Find the book element, which then is converted to the "document" tag
         <xsl:attribute name="type">tablecell</xsl:attribute>
         <xsl:apply-templates />
     </xsl:element>
+</xsl:template>
+
+<xsl:template match="row/entry" mode="inpara">
+        <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="tr">
