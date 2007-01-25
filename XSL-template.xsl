@@ -145,11 +145,16 @@
             </xsl:attribute>
             </xsl:if>
 
-			<xsl:value-of select="translate($text,'ð','đ') "/>
-			
+            <xsl:call-template name="globalTextReplace">
+               <xsl:with-param name="inputString" select="$text"/>
+               <xsl:with-param name="target" select="'str1/str2/str3/'"/>
+               <xsl:with-param name="replacement" select="'rpl1/rpl2/rpl3/'"/>
+                <xsl:with-param name="continue" select="0"/>	
+            </xsl:call-template>
 </xsl:element>
 </xsl:template>
 -->
+
 
 <xsl:include href="/usr/local/share/corp/bin/common.xsl"/>
 
