@@ -127,12 +127,8 @@ sub add_tags {
 				# Skip expressions which contain non-alphabetic chars or digits.
 				# cases like pla-, ple- ja plipli, "-pla
 				# Proper names would be one class to be skipped, but not included here.
-				if ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W-/ || $word =~ /-\W/ || $word =~ /[<>]/) {
-					if ($end_hyphen) {
-						$previous_word .= $hyphen . " ";
-						push(@output, $previous_word);
-						$end_hyphen = 0;
-					}
+				if (! $end_hyphen && ($word =~ /^\W/ || $word =~ /\d/ || $word =~ /\W\p{Pd}\,$/ || $word =~ /\p{Pd}\W/ || $word =~ /[<>]/)) {
+
 					$word .= " ";
 					push( @output, $word);
 					$first_word = 0;
@@ -145,7 +141,8 @@ sub add_tags {
 				if ($end_hyphen) {
 					if (! $jadahje{$word}) {
 						# otherwise join the two words with a tag. 
-						if (! $all_hyphens && ! $first_word) {
+						#if (! $all_hyphens && ! $first_word) {
+						if (! $all_hyphens) {
 							my $hyph = XML::Twig::Elt->new( hyph => '#EMPTY');
 							push (@output, ($previous_word, $hyph));
 						}
