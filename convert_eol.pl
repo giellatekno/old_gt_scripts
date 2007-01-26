@@ -15,6 +15,8 @@ my $fdata;
 my $no_break = 160;
 my $no_break2 = 8239;
 my $no_break3 = 6527;
+my $en_space = 8194;
+my $em_space = 8195;
 
 # conversion to mac / pc / unix
 my $tostring = "\n";
@@ -54,11 +56,14 @@ foreach my $file(@ARGV){
 		my $i=0;
 		while ($unpacked[$i]) {
 			my $byte = $unpacked[$i];
-			if ($byte==$no_break || $byte==$no_break2 || $byte==$no_break3) {
+			if ($byte==$no_break || $byte==$no_break2 || $byte==$no_break3 ) {
 				splice(@unpacked, $i, 1);
 				next;
 			}
-				$i++;
+			if ($byte==$em_space || $byte==$en_space) {
+				$unpacked[$i]=32;
+			}
+			$i++;
 		}
 		$fdata = pack("U*", @unpacked);
 		print $fdata;
