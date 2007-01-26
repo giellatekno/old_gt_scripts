@@ -67,6 +67,9 @@
     <xsl:when test="$mainlang">
             <xsl:value-of select="$mainlang"/>
 	</xsl:when>
+    <xsl:when test="string-length(@xml:lang) = 0">
+            <xsl:value-of select="unknown"/>
+	</xsl:when>
 	<xsl:otherwise>
             <xsl:value-of select="@xml:lang"/>
 	</xsl:otherwise>
