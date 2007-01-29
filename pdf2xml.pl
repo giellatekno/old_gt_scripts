@@ -73,6 +73,7 @@ $title_sizes =~ s/\'//g;
 $main_sizes =~ s/\'//g;
 $title_styles =~ s/\'//g;
 
+
 if(! $main_sizes) { print STDERR "No main font size\n"; exit; }
 
 # Search the files in the directory $dir and process each one of them.
@@ -109,9 +110,11 @@ $header->paste('last_child', $outdocu);
 my $body = XML::Twig::Elt->new('body');
 
 my $title=0;
+my $prev_title=0;
+my $possible_end_para=0;
 
 # The files are named according to the page number
-# here they are sorted.
+# here they are sorted and processed one at the time.
 for my $key ( sort { $a <=> $b } keys %files ) {
 
 	next if ($key !~ /^\d+$/);
@@ -132,19 +135,6 @@ for my $key ( sort { $a <=> $b } keys %files ) {
 sub handle_para {
 	my ($twig,$para) = @_;
 
-	if($first_para) {
-		if(@final_output) {
-			my $cur_para = XML::Twig::Elt->new('p');
-			$cur_para->set_content(@final_output);
-			if($title) { $cur_para->set_att('type', "title"); }
-			$title=0;
-			$cur_para->paste('last_child', $body);
-			@final_output=undef;
-			pop @final_output;
-		}
-		$first_para=0;
-	}
-	
 	# remove nodes with font smaller than the main font.
 	my @font_nodes = $para->children('font');
 	for my $font_n (@font_nodes) {
@@ -159,15 +149,14 @@ sub handle_para {
 	my @font_nodes2 = $para->children('font');
 	for my $font_n (@font_nodes2) {
 		my $style = $font_n->{'att'}->{'style'};
+		my $face = $font_n->{'att'}->{'face'};
 		next if (! $style);
-		if(($style =~ /($title_sizes)/) and (! $title_styles or $style =~ /($title_styles)/)) {
-			
+		if(($style =~ /($title_sizes)/) and (! $title_styles or $style =~ /($title_styles)/ or $face =~ /($title_styles)/)) {
+
 			# If the para starts a title, print out the previous para.
-			if (! $title && @final_output) {
+			if (! $prev_title && @final_output) {
 				my $cur_para = XML::Twig::Elt->new('p');
 				$cur_para->set_content(@final_output);
-				if($title) { $cur_para->set_att('type', "title"); }
-				$title=0;
 				$cur_para->paste('last_child', $body);
 				@final_output=undef;
 				pop @final_output;
@@ -176,10 +165,10 @@ sub handle_para {
 		}
 		# If the para is not a title, print out the previous title.
 		else{
-			if ($title && @final_output) {
+			if (($prev_title || $possible_end_para ) && @final_output) {
 				my $cur_para = XML::Twig::Elt->new('p');
 				$cur_para->set_content(@final_output);
-				if($title) { $cur_para->set_att('type', "title"); }
+				if($prev_title) { $cur_para->set_att('type', "title"); }
 				$title=0;
 				$cur_para->paste('last_child', $body);
 				@final_output=undef;
@@ -189,22 +178,33 @@ sub handle_para {
 		}
 	}
 
+
 	my $text=$para->text;
 	return if ($text =~ /^\s*$/) ;
 	$text =~ s/\n+/\n/;
 
+	if(! $first_para && @final_output) {
+		if ($possible_end_para) {
+			my $cur_para = XML::Twig::Elt->new('p');
+			$cur_para->set_content(@final_output);
+			if($prev_title) { $cur_para->set_att('type', "title"); }
+			$title=0;
+			$cur_para->paste('last_child', $body);
+			@final_output=undef;
+			pop @final_output;
+		}
+	}
+
 	push (@final_output, $text);
 	push (@final_output, " ");
 
-	if($text =~ /\n/ && @final_output) {
-		my $cur_para = XML::Twig::Elt->new('p');
-		$cur_para->set_content(@final_output);
-		if($title) { $cur_para->set_att('type', "title"); }
-		$title=0;
-		$cur_para->paste('last_child', $body);
-		@final_output=undef;
-		pop @final_output;
-	}
+	$possible_end_para = 0;
+	if($text =~ /\n/) { $possible_end_para = 1; }
+
+	$first_para = 0;
+	$prev_title = 0;
+	if ($title) { $prev_title = 1; $title=0; }
+
 	$para->DESTROY;
 }
 
