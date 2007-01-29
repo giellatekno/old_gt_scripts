@@ -311,7 +311,7 @@ sub process_file {
 		exec_com($command, $file);
 		copy ($tmp1, $int) ;
 	}
-
+	#exit;
 	# Text categorization
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
@@ -352,7 +352,10 @@ sub convert_doc {
 	exec_com($command, $file);
 	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 	exec_com($command, $file);
-#	exit;
+
+	$command = "perl -pi -e \"s/\x{00B6}/<\\/p><p>/g\" \"$int\"";
+	exec_com($command, $file);
+
 	return 0;
 }
 
@@ -392,7 +395,6 @@ sub convert_pdf {
 
 		my $excluded_elt = $root->first_child('xsl:variable[@name="excluded"]');
 		if ($excluded_elt) { $excluded = $excluded_elt->{'att'}{'select'}; $excluded =~ s/\'//g; }
-		
 
 	}
 	if ($main_font_elt) {
@@ -406,7 +408,7 @@ sub convert_pdf {
 		if ($col_num eq "'2'") { $arguments .= "-Dcol"; }
 		if ($lower) { $arguments .= " -Dlower=$lower"; }
 		if ($excluded) { $arguments .= " -Dexcl=$excluded"; }
-		
+
 		$command = "$jpedal $orig $tmpdir $arguments";
 		exec_com($command, $file);
 
@@ -439,7 +441,10 @@ sub convert_pdf {
 	&pdfclean($html);
 	$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
 	exec_com($command, $file);
-	
+
+	$command = "perl -pi -e \"s/r vv/rvv/g\" \"$int\"";
+	exec_com($command, $file);
+
 	# remove temporary files unless testing.
 	if (! $test) {
 		$command = "rm -rf \"$html\"";
@@ -511,17 +516,31 @@ sub file_specific_xsl {
 	$command = "xsltproc --novalid --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
 	exec_com($command, $file);
 	
+	# Check the main language,  add if it is missing.
+	my $document = XML::Twig->new;
+	if (! $document->safe_parsefile("$tmp")) {
+		carp "ERROR parsing the XML-file failed ";		  
+		return "ERROR";
+	}	
+	my $root = $document->root;
+	my $mainlang = $root->{'att'}->{'xml:lang'};
+	my $id = $root->{'att'}->{'id'};
+
+	if(! $mainlang || $mainlang eq "unknown") { 
+		print "setting language: $language \n";
+		$root->set_att('xml:lang', $language); 
+	}
+	open (FH, ">$int") or die "Cannot open $int $!";
+	$document->set_pretty_print('indented');
+	$document->print( \*FH);
+
 	# Validate the xml-file unless web upload.
 	if(! $upload && ($file !~ /.ptx$/)) {
-		$command = "xmllint --valid --encode UTF-8 --noout \"$tmp\"";
+		$command = "xmllint --valid --encode UTF-8 --noout \"$int\"";
 		if( exec_com($command, $file) != 0 ) {
 			carp "ERROR: not valid xml, removing $int.. STOP.\n";
 			return "ERROR";
 		}
-	}
-	if (! copy ($tmp, $int) ) {
-		carp "ERROR: copy failed\n";
-		return "ERROR";
 	}
 	return 0;
 }
