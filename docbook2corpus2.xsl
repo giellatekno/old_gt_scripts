@@ -228,6 +228,7 @@ Find the book element, which then is converted to the "document" tag
 
 <xsl:template match="row" mode="inpara">
         <xsl:apply-templates select="entry" mode="inpara" />
+		<xsl:text>¶</xsl:text>
 </xsl:template>
 
 <xsl:template match="row/entry">
