@@ -103,6 +103,8 @@ my $client;
 				
 		# Start processing client input
 		my $input;
+
+
 	  CLIENT_REQUEST:
 		while ( <$client>) {
 			
@@ -119,6 +121,7 @@ my $client;
 			  
 			$input = $_;
 
+			
 			if (! $input) { next; }
 
 			# Find the action to be done with this input
@@ -268,6 +271,8 @@ sub init_tools {
 	# Paradigm generation, generate tag lists for the paradigms
 	if ($action{'para'}) {
 		generate_taglist($action{'para'}{'grammar'},$action{'para'}{'tags'},\%paradigms,$action{'para'}{'mode'});
+		print "$action{'para'}{'grammar'}\n";
+		print "$action{'para'}{'tags'}\n";
 	}
 
 	# Preprocessing, initialize command
