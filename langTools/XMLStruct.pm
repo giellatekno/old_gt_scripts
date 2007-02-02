@@ -453,12 +453,15 @@ sub process_paras {
 						 "gen_fst" => "/opt/smi/$language/bin/i$language-norm.fst",
 						 "para_fst" => "/opt/smi/$language/bin/i$language.fst",
 						 "para_grammar" => "/opt/smi/common/bin/paradigm.txt",
-						 "para_tags" => "/opt/smi/common/bin/korpustags.txt",
+						 "para_tags" => "/opt/smi/$language/bin/korpustags.$language.txt",
 						 "prep_fst" => "/opt/smi/$language/bin/$language.fst",
 						 "prep_abbr" => "/opt/smi/$language/bin/$language.fst",
 						 "prep_corr" => "/opt/smi/$language/bin/$language.fst",
 						 );
 
+	if (! -f $default_tools{'para_tags'} ) { 
+		$default_tools{'para_tags'} = "/opt/smi/common/bin/korpustags.txt";
+	}
 	$xml_in = $root->first_child('xml_in');
 	$xml_out = $root->first_child('xml_out');
 	my @actions = $root->children('action');
