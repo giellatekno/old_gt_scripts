@@ -42,7 +42,7 @@ my $SINGLE_PUNCT = $quotations . $parentheses . quotemeta("?!,;/\\") . $other;
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SINGLE_PUNCT.
-my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt|²|³';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt|²|³|™';
 
 # Punctuation that connects two or more numerals 
 # into one numeral expressions.
@@ -178,9 +178,9 @@ sub process_words {
 				push (@tokens, split(//, $1));
 			}
 			# Examine the type of the string. If the expression contains
-			# alphabetical characters optionally preceded by one non-alphabetic
+			# alphabetical characters optionally preceded by one punctuation
 			# character, it is a word.
-			if ($word =~ /^[\W]?[^\W\d]+/) {
+			if ($word =~ /^[\W]?\pL+/) {
 				verbose("if word", $word , __LINE__);
 				process_word ($word, \@words, \@tokens);
 			}
