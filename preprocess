@@ -287,7 +287,8 @@ sub process_word {
 		  verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
 		  if($corr) { if ($corrections{$word}) {test_corr(\$word, $words_aref, $tokens_aref); } }
 		  push (@{$tokens_aref}, $word);
-		  push (@{$tokens_aref}, $rest_punct);
+		  my @rest = split ("", $rest_punct);
+		  push (@{$tokens_aref}, @rest);
 		  last TEST;
 	  }
 	  push (@{$tokens_aref}, $word); 
