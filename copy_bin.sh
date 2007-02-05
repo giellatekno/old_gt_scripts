@@ -65,8 +65,11 @@ echo "Copying Perl modules.."
 for mod in $own_modules
 do
   echo "cp -r $script_dir/$mod $perl_libdir"
-  echo "cp -r $script_dir/$mod $perl_libdir2"
   sudo cp -r $script_dir/$mod $perl_libdir
-  sudo cp -r $script_dir/$mod $perl_libdir2
+  if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+	  then 
+	  echo "cp -r $script_dir/$mod $perl_libdir2"
+	  sudo cp -r $script_dir/$mod $perl_libdir2
+  fi
 done
 
