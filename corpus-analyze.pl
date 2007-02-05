@@ -45,6 +45,7 @@ my $only_add_sentences=0;
 my $tables=0;
 my $lists=0;
 my $all=0;
+my $onelang=0;
 
 my $infile;
 my $outfile;
@@ -57,7 +58,8 @@ GetOptions ("tags=s" => \$tagfile,
 			"lang=s" => \$lang,
 			"lists|l=s" => \$lists,
 			"tables|t=s" => \$tables,
-			"all|a=s" => \$all,
+			"all|a" => \$all,
+			"onelang" => \$onelang,
 			"help|h" => \$help,
 );
 
@@ -91,7 +93,7 @@ $vislcg .= " --grammar=$rle --quiet";
 my $disamb = "$lookup2cg | $vislcg";
 
 my $preprocess;
-if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --fst=$fst --corr=$corrtypos"; }
+if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos"; }
 elsif ($lang =~ /nob/) { 
 	$preprocess = "$preproc --abbr=$abbr";
 }
@@ -212,13 +214,16 @@ sub add_sentences {
 		$c->set_text($correct);
 	}
 
+	if($onelang && $para->{'att'}->{'xml:lang'}) {
+		my $paralang = $para->{'att'}->{'xml:lang'};
+		if ( $paralang ne $lang) {
+			$para->delete;
+			return;
+		}
+	}
+
 	$para->set_asis;
 	my $text = $para->text;
-
-	# Do some file-specific fixes.
-	if ($infile =~ /1999_\ds.doc.xml/) {
-		$text =~ s/\?(.+\b)/ŋ$2/g;
-	}
 
 	for my $c ($para->children) { $c->delete; }
 
