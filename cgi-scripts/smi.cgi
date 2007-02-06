@@ -13,6 +13,10 @@ $CGI::POST_MAX        = 1_024 * 1_024; # limit posts to 1 meg max
 # Forwarding warnings and fatal errors to browser window
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 
+# Use project's utility functions.
+use langTools::Util;
+use Expect;
+
 ########################################################################
 #
 #smi-cg.cgi
@@ -41,6 +45,7 @@ my $text="";  #The text to be analysed
 
 my $query = new CGI;
 $text = $query->param('text');
+my $pos = $query->param('pos');
 my $cg = $query->param('cg');
 my $charset = $query->param('charset');
 my $lang = $query->param('language');
@@ -67,6 +72,12 @@ my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
 my $fstdir = "/opt/smi/$lang/bin" ;
 # The directory for vislcg and lookup2cg
 my $bindir = "/opt/sami/cg/bin/";
+
+# Files to generate paradigm
+my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
+my $tagfile="/opt/smi/common/bin/korpustags.txt";
+
+my $tmpfile="/usr/local/share/corp/tmp/smi-test.txt";
 
 my $out = new CGI;
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -110,6 +121,9 @@ my $result;
 if ($action =~ /generate/) {
    $result = `echo $text | tr " " "\n" | \
 			$utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $fstdir/i$lang.fst` ;
+}
+elsif ($action =~ /paradigm/) {
+    $result = generate_paradigm($text, $pos);
 }
 else {
    if ($cg =~ /disamb/) {
@@ -210,6 +224,50 @@ else {
 #
 ######################################################################
 
+sub generate_paradigm {
+	my ($word, $pos) = @_;
+	
+    # Initialize paradigm and generator
+	my %paradigms;
+	my $analyze;
+	my $answer;
+
+	open (FH, ">$tmpfile");
+	print FH "$word $pos\n";
+
+	generate_taglist($paradigmfile,$tagfile,\%paradigms);
+	$analyze="$utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d \"$fstdir/i$lang.fst\" 2>/dev/null"; 
+
+	print FH "$analyze\n";
+
+	my $i=0;
+	shift @{$paradigms{$pos}};
+	for my $a ( @{$paradigms{$pos}} ) {
+
+		my $string = "$word+$a";
+		print FH "$string\n";
+		my $read_anl = `echo $string | $analyze`;
+
+		print FH "read_anl: $read_anl\n";
+		
+		# Take away the original input.
+		#$read_anl =~ s/^.*?\n//;
+		# Replace extra newlines.
+		$read_anl =~ s/\r\n/\n/g;
+		$read_anl =~ s/\r//g; 
+
+		next if ($read_anl =~ /\+\?/);
+
+		$answer .= "$read_anl\n";
+	}
+	print FH "answer: $answer\n";
+
+	print FH "JEE\n";
+	for my $a ( @{$paradigms{$pos}} ) {
+		print FH "$a\n";
+	}
+	return $answer;
+}
 
 sub printinitialhtmlcodes {
 
@@ -225,7 +283,7 @@ sub printinitialhtmlcodes {
 sub printfinalhtmlcodes
 {
     print $out->hr,
-	$out->p("S&aacute;mi giellateknologiija, Trond Trosterud"), 
+	$out->p("S&aacute;mi giellateknologiija"), 
 	$out->a({href=>"http://giellatekno.uit.no/"},"http://giellatekno.uit.no/"),
 	$out->br,
 	$out->end_html;
