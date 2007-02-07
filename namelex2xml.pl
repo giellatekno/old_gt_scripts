@@ -168,9 +168,11 @@ while ($line = <FH> ) {
 			$log->paste('last_child', $entry);
 			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
 			else { $lemma_2 = $lemma_text }
+			# The following cleaning should only be applied to the termc entry
 			$lemma_2 =~ s/[\^\#0]//g;
 			$lemma_2 =~ s/ /_/g;
 			$entry->set_att('id', $lemma_2);
+			$entry->set_att('lemma', $lemma_text);
 
 			my $sem = XML::Twig::Elt->new('sem');
 			if ($key ne "empty") {
@@ -187,9 +189,13 @@ while ($line = <FH> ) {
 	else {
 		my $entry = XML::Twig::Elt->new('entry');
 		my $log = XML::Twig::Elt->new('log');
+		my lemma = lemma_text;
 		$log->paste('last_child', $entry);
 
-		$entry->set_att('id', $lemma_text);
+		# Why isn't this one cleaned as well, cf lines 172-173 above
+		$lemma =~ s/[\^\#0]//g;
+    	$lemma =~ s/ /_/g;
+		$entry->set_att('id', $lemma);
 
 		$termc_entries{'empty'} = $entry;
 	}
@@ -217,10 +223,12 @@ while ($line = <FH> ) {
 		for my $key (keys %sem_texts) {
 			
 			my $id = $termc_entries{$key}->{'att'}->{'id'};
+			my $lemma = $termc_entries{$key}->{'att'}->{'lemma'};
 		  TERMS: {
 			  # If there is no terms-entry with the same id
 			  # add new element
-			  my $curid = $id;
+#			  my $curid = $id;
+			  my $curid = $lemma;
 			  $curid =~ s/\_\d+$//;
 			  if (! ${$term_entries{$mainlang}}{$curid}) { 
 			
@@ -317,6 +325,8 @@ while ($line = <FH> ) {
 	}
 	
 	for my $ent ( keys %termc_entries )	{
+	    # remove the entry/@lemma here:
+#	    $ent->del_att('lemma');
 		$termc_entries{$ent}->print($FH1);
 		$termc_entries{$ent}->DESTROY;
 	}
