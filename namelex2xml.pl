@@ -164,15 +164,13 @@ while ($line = <FH> ) {
 
 			# Create a new entry for each semantic category
 			my $entry = XML::Twig::Elt->new('entry');
-			my $log = XML::Twig::Elt->new('log');
-			$log->paste('last_child', $entry);
 			if ($i > 0) { $lemma_2 = $lemma_text . "_" . $i; }
 			else { $lemma_2 = $lemma_text }
 			# The following cleaning should only be applied to the termc entry
 			$lemma_2 =~ s/[\^\#0]//g;
 			$lemma_2 =~ s/ /_/g;
 			$entry->set_att('id', $lemma_2);
-			$entry->set_att('lemma', $lemma_text);
+			#$entry->set_att('lemma', $lemma_text);
 
 			my $sem = XML::Twig::Elt->new('sem');
 			if ($key ne "empty") {
@@ -181,7 +179,10 @@ while ($line = <FH> ) {
 			}
 			$sem->paste('last_child', $entry);
 
-			$termc_entries{$key} = $entry;
+			my $log = XML::Twig::Elt->new('log');
+			$log->paste('last_child', $entry);
+			$termc_entries{$key}{'entry'} = $entry;
+			$termc_entries{$key}{'lemma'} = $lemma_text;
 			$i++;
 		}
 	}
@@ -189,7 +190,7 @@ while ($line = <FH> ) {
 	else {
 		my $entry = XML::Twig::Elt->new('entry');
 		my $log = XML::Twig::Elt->new('log');
-		my lemma = lemma_text;
+		my $lemma = $lemma_text;
 		$log->paste('last_child', $entry);
 
 		# Why isn't this one cleaned as well, cf lines 172-173 above
@@ -197,7 +198,7 @@ while ($line = <FH> ) {
     	$lemma =~ s/ /_/g;
 		$entry->set_att('id', $lemma);
 
-		$termc_entries{'empty'} = $entry;
+		$termc_entries{'empty'}{'entry'} = $entry;
 	}
 
 	for my $cont (@contlexes) {
@@ -222,8 +223,8 @@ while ($line = <FH> ) {
 		# take the id.
 		for my $key (keys %sem_texts) {
 			
-			my $id = $termc_entries{$key}->{'att'}->{'id'};
-			my $lemma = $termc_entries{$key}->{'att'}->{'lemma'};
+			my $id = $termc_entries{$key}{'entry'}->{'att'}->{'id'};
+			my $lemma = $termc_entries{$key}{'lemma'};
 		  TERMS: {
 			  # If there is no terms-entry with the same id
 			  # add new element
@@ -236,8 +237,13 @@ while ($line = <FH> ) {
 				  for my $lang (@all_langs) {
 
 					  my $entry = XML::Twig::Elt->new('entry');
-					  my $log = XML::Twig::Elt->new('log');
-					  $log->paste('last_child', $entry);
+
+					  my $infl = XML::Twig::Elt->new('infl');
+					  # Add inflection information only for the main language.
+					  if ($lang eq $mainlang) {
+						  $infl->set_att('lexc', $infl_text);
+					  }
+				      $infl->paste('last_child', $entry);
 					  
 					  $entry->set_att('id', $curid);
 					  if ($sub) { $entry->set_att('type', "secondary"); }
@@ -255,6 +261,9 @@ while ($line = <FH> ) {
 					  }
 					  $sense->paste('last_child', $senses);
 					  $senses->paste('last_child', $entry);
+
+					  my $log = XML::Twig::Elt->new('log');
+					  $log->paste('last_child', $entry);
 					  
 					  # Alter termc entry by adding reference to terms
 					  my $langentry = XML::Twig::Elt->new('langentry');
@@ -263,16 +272,11 @@ while ($line = <FH> ) {
 					  my $ref = 'terms-'.$lang.".xml#xpointer(//entry[\@id='".$curid."'])";
 					  $include->set_att('href', $ref);
 					  $include->paste('last_child', $langentry);
-					  $langentry->paste('last_child', $termc_entries{$key});
+					  $langentry->paste('last_child', $termc_entries{$key}{'entry'});
 
 					  ${$term_entries{$lang}}{$curid} = $entry;
 					  
-					  my $infl = XML::Twig::Elt->new('infl');
-					  # Add inflection information only for the main language.
-					  if ($lang eq $mainlang) {
-						  $infl->set_att('lexc', $infl_text);
-					  }
-				      $infl->paste('last_child', ${$term_entries{$lang}}{$curid});
+
 		          }
 				  last TERMS;
 			  }
@@ -301,7 +305,7 @@ while ($line = <FH> ) {
 						  my $ref = 'terms-'.$lang.".xml#xpointer(//entry[\@id='".$curid."'])";
 						  $include->set_att('href', $ref);
 						  $include->paste('last_child', $langentry);
-						  $langentry->paste('last_child', $termc_entries{$key});
+						  $langentry->paste('last_child', $termc_entries{$key}{'entry'});
 						  
 					  }
 				  }
@@ -325,10 +329,8 @@ while ($line = <FH> ) {
 	}
 	
 	for my $ent ( keys %termc_entries )	{
-	    # remove the entry/@lemma here:
-#	    $ent->del_att('lemma');
-		$termc_entries{$ent}->print($FH1);
-		$termc_entries{$ent}->DESTROY;
+		$termc_entries{$ent}{'entry'}->print($FH1);
+		$termc_entries{$ent}{'entry'}->DESTROY;
 	}
 
 	for my $ent ( sort { $a cmp $b } keys %{$term_entries{$mainlang}} ) {
