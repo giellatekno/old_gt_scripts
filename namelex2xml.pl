@@ -240,7 +240,7 @@ while ($line = <FH> ) {
 
 					  my $infl = XML::Twig::Elt->new('infl');
 					  # Add inflection information only for the main language.
-					  if ($lang eq $mainlang) {
+					  if ($lang eq $mainlang or $lang eq 'smj') {
 						  $infl->set_att('lexc', $infl_text);
 					  }
 				      $infl->paste('last_child', $entry);
