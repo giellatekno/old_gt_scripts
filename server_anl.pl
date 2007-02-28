@@ -322,6 +322,7 @@ sub generate_paradigm {
 		if ( !$pos ) { return "ERROR: $line"; }
 
 		for my $a ( @{$paradigms{$pos}} ) {
+			$a =~ s/NACR/N+ACR/; 
 			my $string = "$word+$a";
 			#print "string $string\n";
 			my $analysis = call_analyze($exp, $string);
