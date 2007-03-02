@@ -17,6 +17,7 @@ my $help;
 my $infile;
 my $lang1;
 my $lang2;
+my $outdir = "";
 
 if ( -f $ARGV[$#ARGV] ) {
 	 $infile = $ARGV[$#ARGV]; 
@@ -24,6 +25,7 @@ if ( -f $ARGV[$#ARGV] ) {
 
 GetOptions ("lang1=s" => \$lang1,
 			"lang2=s" => \$lang2,
+			"outdir=s" => \$outdir,
 			"help" => \$help);
 
 if ($help) {
@@ -35,7 +37,10 @@ if(!($lang1 && $lang2)) {
 	print "Specify options --lang1=language and --lang2=language.\n";
 	exit;
 }
-my $outfile="anchor-" . $lang1 . $lang2 . ".txt";
+if ($outdir) { $outdir .= "/"; }
+my $outfile=$outdir . "anchor-" . $lang1 . $lang2 . ".txt";
+
+print "Generating anchor word list to $outfile..\n";
 
 my @languages=("eng", "nno", "sme", "fin", "smj" );
 my %langs;
@@ -47,6 +52,7 @@ while(<FH>) {
 
 	chomp;
 	next if (/^\#/);
+	next if (/^\&/);
 	my @words = split("/");
 	for my $lang (@languages) {
 		if (@words) { 
@@ -76,6 +82,7 @@ The output is printed to file anchor-lg1lg2.txt
 Options:
        	--lang1=lg1       First language in the word list.
        	--lang2=lg2       Second language in the word list.
+       	--outdir=<dir>    The output directory.
        	--help            Print this help text and exit.
 END
 }
