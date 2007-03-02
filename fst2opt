@@ -12,6 +12,8 @@
 tmpdir=/usr/tmp
 host=$(hostname)
 
+commonbin="/opt/smi/common/bin"
+
 # Set variables according to the current host.
 if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
 then
@@ -48,14 +50,16 @@ build_gt() {
 	  chmod g+w /opt/smi/$lang/bin/*
 	done
 
-	cp $tmpdir/gt/script/hyph-filter.pl /opt/smi/common/bin/
-	cp $tmpdir/gt/cwb/korpustags.txt /opt/smi/common/bin/
-	cp $tmpdir/gt/cwb/paradigm.txt /opt/smi/common/bin/
-	cp $tmpdir/gt/common/bin/allcaps.fst /opt/smi/common/bin/
+	cp $tmpdir/gt/script/hyph-filter.pl $commonbin
+	cp $tmpdir/gt/cwb/korpustags.txt $commonbin
+	cp $tmpdir/gt/cwb/paradigm.txt $commonbin
+	cp $tmpdir/gt/common/bin/allcaps.fst $commonbin
 	
-	chgrp $group /opt/smi/common/bin/*
-	chmod a+x /opt/smi/common/bin/*
-	chmod g+w /opt/smi/common/bin/*
+	$tmpdir/gt/script/generate-anchor-list.pl --lang1=sme --lang2=nno $tmpdir/gt/common/src/anchor.txt > $commonbinanchor-smenno.txt
+	
+	chgrp $group $commonbin/*
+	chmod a+x $commonbin/*
+	chmod g+w $commonbin/*
 	
 }
 
@@ -63,31 +67,52 @@ build_gt() {
 # st-catalog
 build_st() {
 
-	for lang in "foe" "kal"
-	  do
-        cd $tmpdir/st/$lang/src && make clean
-        cd $tmpdir/st/$lang/src && make 1>/dev/null
-		
-        cp $tmpdir/st/$lang/bin/$lang.fst /opt/smi/$lang/bin/
-        cp $tmpdir/st/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
-        cp $tmpdir/st/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
-        cp $tmpdir/st/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
+	if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
+		then
+		for lang in "foe" "kal"
+		  do
+		  cd $tmpdir/st/$lang/src && make clean
+		  cd $tmpdir/st/$lang/src && make 1>/dev/null
+		  
+		  cp $tmpdir/st/$lang/bin/$lang.fst /opt/smi/$lang/bin/
+		  cp $tmpdir/st/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
+		  cp $tmpdir/st/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
+		  cp $tmpdir/st/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
 #       cp $tmpdir/st/$lang/bin/abbr.txt /opt/smi/$lang/bin/
-		
-        chgrp cvs /opt/smi/$lang/bin/*
-        chmod a+x /opt/smi/$lang/bin/*
-        chmod g+w /opt/smi/$lang/bin/*
-	done
+		  
+		  chgrp cvs /opt/smi/$lang/bin/*
+		  chmod a+x /opt/smi/$lang/bin/*
+		  chmod g+w /opt/smi/$lang/bin/*
+		done
+	else
+		cd $tmpdir/st/nob/src && make abbr 
+		cp $tmpdir/st/nob/bin/abbr.txt /opt/smi/nob/bin/
+	fi
+	
+}
+
+# Generate the anchor word list for smenno
+anchor_list() {
+	
+	$tmpdir/gt/script/generate-anchor-list.pl --lang1=sme --lang2=nno --outdir=$commonbin $tmpdir/gt/common/src/anchor.txt
+
 }
 
 
-# Call subroutines for building gt- and st-hierarchies.
-build_gt
+case "$1" in
+	build_gt)
+        $@
+        ;;
+   build_st)
+        $@
+        ;;
+   anchor_list)
+        $@
+        ;;
+   *)
+        echo $"Usage: $0 {build_gt lang | build_st | anchor_list }"
+        exit 1
+        ;;
+esac
 
-if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
-then
-	build_st
-else
-	cd $tmpdir/st/nob/src && make abbr 
-	cp $tmpdir/st/nob/bin/abbr.txt /opt/smi/nob/bin/
-fi
+exit 0
