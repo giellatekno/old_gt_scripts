@@ -99,6 +99,7 @@ my $jpedal = $bindir . "/corpus_call_jpedal.sh";
 my $pdf2xml = $bindir . "/pdf2xml.pl";
 #my $pdf2xml = "/home/saara/gt/script/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
+#my $bible2xml = "/home/saara/gt/script/bible2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
 	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
@@ -304,6 +305,12 @@ sub process_file {
 		exec_com($command, $file);
 	}
 
+	# Do extra formatting for prooftest-directory.
+	if ($orig =~ /prooftest\/orig/) {
+		$command = "perl -pi -e \'s/\\b([^\\s]*)\x{00A7}(.*?)\\s/<error correct=\"\$2\">\$1<\\/error>/g\' $int";
+		exec_com($command, $file);
+	}
+	exit;
 	# hyphenate the file
 	if (! $no_hyph ) {
 		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$tmp1\""; }
@@ -418,7 +425,9 @@ sub convert_pdf {
 		
 		$command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
 		exec_com($command, $file);
-		
+
+
+		#exit;
 		if( -z $int && ! $upload ) {
 			print "ERROR $file: no pdf2xml output. STOP.\n";
 			return "ERROR";
@@ -440,9 +449,6 @@ sub convert_pdf {
 	}
 	&pdfclean($html);
 	$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-	exec_com($command, $file);
-
-	$command = "perl -pi -e \"s/r vv/rvv/g\" \"$int\"";
 	exec_com($command, $file);
 
 	# remove temporary files unless testing.
@@ -757,6 +763,7 @@ sub txtclean {
 
 	my $text=0;
 	my $notitle=1;
+	my $p;
 
     while(my $string=<INFH>){
 
@@ -785,7 +792,7 @@ sub txtclean {
 						# If the title is too long, there is probably an error
 						# and the text is treated as normal paragraph.
 						if(length($text) > $maxtitle) {
-							my $p = XML::Twig::Elt->new('p');
+							$p = XML::Twig::Elt->new('p');
 							$p->set_text($text);
 							$p->paste('last_child', $body);
 							next;
@@ -834,7 +841,6 @@ sub txtclean {
 		else {
 			$notitle=0;
 			my $p_continues=0;
-			my $p;
 			
 			my @text_array = split(/[\n\r]/, $string);
 			for my $line (@text_array) {
@@ -864,6 +870,9 @@ sub txtclean {
 		}
 	}
 	close INFH;
+
+	$p->paste('last_child', $body);
+
 	$header->print($FH1);
 	$body->print($FH1);
 
