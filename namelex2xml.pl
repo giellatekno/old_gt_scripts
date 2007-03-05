@@ -12,6 +12,7 @@ use XML::Twig;
 
 my $mainlang = "sme";
 my @other_langs = ("sme", "smj", "sma", "nor");
+#my @other_langs = ("sme");
 
 my $twig = XML::Twig->new;
 $twig->set_pretty_print('record');
@@ -23,7 +24,7 @@ $twig->set_pretty_print('record');
 
 my $infile = "../".$mainlang."/src/propernoun-".$mainlang."-lex.txt";
 #my $infile = "../smj/src/propernoun-smj-lex.txt";
-#my $infile = "prop-test.txt";
+#my $infile = "/home/saara/gt/script/prop-test.txt";
 my $outfile = "terms-" . $mainlang . ".xml";
 my $outfile_common = "termcenter.xml";
 
@@ -76,8 +77,12 @@ while( $line = <FH> ) {
 	}
 
 my $prev_word=undef;
+my $prev_contlex_text;
 my $prev_entry="";
-my @contlex_texts;
+my %infl_texts;
+my $comment_text;
+my $j=0;
+my $new_line;
 
 my $last=0;
 
@@ -98,6 +103,16 @@ while ($line = <FH> ) {
 	next if ($line =~ /^\s*$/);
 	next if ($line =~ /^LEXICON/);
 
+	if ($new_line) {
+		# Replace space in multipart names temporarily with $.
+		$new_line =~ s/% /\$/g;
+		
+		my ($prev_word, $prev_contlex_text) = split (/\s+/, $new_line, 2);
+		$prev_word =~ s/\$/ /g;
+
+		$new_line=undef;
+	}
+
 	chomp $line;
 	# Replace space in multipart names temporarily with $.
 	$line =~ s/% /\$/g;
@@ -105,45 +120,59 @@ while ($line = <FH> ) {
 	my ($word, $contlex_text) = split (/\s+/, $line, 2);
 	$word =~ s/\$/ /g;
 
+	# Take comment out
+	my $comment;
+	($contlex_text, $comment) = split(/\!/, $contlex_text);
+	$contlex_text =~ s/\s?\;\s?$//;
+	$contlex_text =~ s/^\s+//;
+	if ($comment) { $comment_text .= $comment; $comment_text =~ s/SUB//g;}
+	
 	# something wrong
 	if ( !$word || ! $contlex_text) {
 		print STDERR "Line not included: $line\n";
-		next;
-	}
-
-	# first line
-	if (! $prev_word ) {
-		$prev_word = $word;
-		push (@contlex_texts, $contlex_text);
-		next;
-	}
-
-	# consequtive identical entries are collected
-	while ( $prev_word eq $word && ! eof ) {
-		push (@contlex_texts, $contlex_text);
 		next FILE;
 	}
+	# first line or new word
+	if (! $prev_word) { 
+		$prev_word = $word;
+		%infl_texts=();
+		$comment_text=undef;
+		$j=0;
+		my ($real_word, $stem) = split(":", $word);
+		if (!$stem) { $stem = $j++; }
+		if ($comment) { ${$infl_texts{$contlex_text}}{$stem}=$comment; }
+	else  { ${$infl_texts{$contlex_text}}{$stem} = 1; }
+		next FILE;
+    }
+	# consequtive identical entries are collected
+	if ($prev_word) {
+		my ($real_prev_word, $prev_stem) = split(":", $prev_word);
+		if (!$prev_stem) { $prev_stem = $j++; }
+		my ($real_word, $stem) = split(":", $word);
+		if (!$stem) { $stem = $j++; }
+		if ($real_prev_word eq $real_word && ! eof ) {
+			if ($prev_contlex_text) {
+				if ($comment) { ${$infl_texts{$prev_contlex_text}}{$prev_stem}=$comment; }
+			    else  { ${$infl_texts{$prev_contlex_text}}{$prev_stem}=1; }
+		    }
+		   if ($comment) { ${$infl_texts{$contlex_text}}{$stem}=$comment; }
+           else  { ${$infl_texts{$contlex_text}}{$stem}=1; }
+		   next FILE;
+		}
+	}
+	# if the line starts a new word, store the line for next round
+	$new_line = $line;
 
 	my ($lemma_text, $stem_text) = split (/:/, $prev_word, 2);
+	$prev_word=undef;
 
 	# Find out all the semantic categories associated with this word.
-	my @contlexes;
-	my $sub;
-	for my $cont ( @contlex_texts ) {
-		
-		# Take comment out
-		my ($contlex, $comment) = split(/\!/, $cont);
-		$contlex =~ s/\s?\;\s?$//;
-		$contlex =~ s/^\s+//;
-	
-		if($comment && $comment =~ /SUB/) { $sub=1;}
-		
-		push (@contlexes, $contlex);
+	for my $cont ( keys %infl_texts ) {
 
-#		my ($infl_text, $sem_text) = split(/-/, $contlex);
-
+		if (! $cont) { next; }
+		
 		# split e.g. ACCRA-fem
-		$contlex =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
+		$cont =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
 		my $infl_text=$1;
 		my $sem_text=$2;
 
@@ -156,7 +185,8 @@ while ($line = <FH> ) {
 		}
 		else { $sem_texts{$sem_text} = 1; }
 
-	}
+}
+
 	# Create one termc entry for each semantic category.
 	my $i=0;
 	if (%sem_texts) {
@@ -201,11 +231,19 @@ while ($line = <FH> ) {
 		$termc_entries{'empty'}{'entry'} = $entry;
 	}
 
-	for my $cont (@contlexes) {
+    #Mark if there is only one inflection
+    my $only_one_infl=0;
+    if (scalar (keys %infl_texts == 1)){ $only_one_infl = 1; }
 
-#		my ($infl_text, $sem_text) = split(/-/, $cont);
+	for my $contlex (keys %infl_texts) {
 
-		$cont =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
+		#Take different stems
+		my @stems;
+		for my $key (keys %{$infl_texts{$contlex}}) {
+			push(@stems, $key);
+        }
+
+		$contlex =~ m/^([[:upper:]\-]*?)\-?([[:lower:]]*)$/;
 		my $infl_text=$1;
 		my $sem_text=$2;
 		
@@ -228,7 +266,6 @@ while ($line = <FH> ) {
 		  TERMS: {
 			  # If there is no terms-entry with the same id
 			  # add new element
-#			  my $curid = $id;
 			  my $curid = $lemma;
 			  $curid =~ s/\_\d+$//;
 			  if (! ${$term_entries{$mainlang}}{$curid}) { 
@@ -242,16 +279,30 @@ while ($line = <FH> ) {
 					  # Add inflection information only for the main language.
 					  if ($lang eq $mainlang or $lang eq 'smj') {
 						  $infl->set_att('lexc', $infl_text);
+                      for my $stem_text (@stems) {
+	                      if ($stem_text !~ /^\d$/) {
+							  my $stem = XML::Twig::Elt->new('stem');
+							  $stem->set_text($stem_text);
+							  
+							  if ($infl_texts{$contlex}->{$stem_text} =~ /SUB/) { 
+								  if (scalar(@stems) > 1) { $stem->set_att('type', "secondary"); }
+								  elsif (! $only_one_infl) { $infl->set_att('type', "secondary"); }
+								  else { $entry->set_att('type', "secondary"); }
+							  }
+							  $stem->paste('last_child', $infl);
+						  }
+                          elsif ($infl_texts{$contlex}->{$stem_text} =~ /SUB/) {
+							  if(! $only_one_infl) { $infl->set_att('type', "secondary"); }
+							  else { $entry->set_att('type', "secondary"); }
+						  }
+                      }
 					  }
+
+
 				      $infl->paste('last_child', $entry);
 					  
 					  $entry->set_att('id', $curid);
-					  if ($sub) { $entry->set_att('type', "secondary"); }
-					  if ($stem_text && ($stem_text ne $lemma_text)) {
-						  my $stem = XML::Twig::Elt->new('stem');
-						  $stem->set_text($stem_text);
-						  $stem->paste('last_child', $entry);
-					  }
+
 					  # Add reference to the termc
 					  my $senses = XML::Twig::Elt->new('senses');
 					  my $sense = XML::Twig::Elt->new('sense');
@@ -262,7 +313,13 @@ while ($line = <FH> ) {
 					  $sense->paste('last_child', $senses);
 					  $senses->paste('last_child', $entry);
 
+                      # Add log and comment field.
 					  my $log = XML::Twig::Elt->new('log');
+                      if($comment_text) {
+	                       my $comment = XML::Twig::Elt->new('comment');
+	                       $comment->set_text($comment_text);
+                           $comment->paste('last_child', $log);
+                      }
 					  $log->paste('last_child', $entry);
 					  
 					  # Alter termc entry by adding reference to terms
@@ -276,15 +333,47 @@ while ($line = <FH> ) {
 
 					  ${$term_entries{$lang}}{$curid} = $entry;
 					  
-
-		          }
+                  }
 				  last TERMS;
-			  }
+              }
 			  # If there was already an element
 			  # Add only inflection class and some references.
 			  my $senses_elt;
 			  my %sens_hash;
 			  my @sens_array;
+
+		      # Add inflection info only to the main language.
+			  my $curentry = ${$term_entries{$mainlang}}{$curid};
+              my $notfound=1;
+			  for my $curinfl ($curentry->children('infl')) {
+				  if($curinfl->{'att'}->{'lexc'} eq $infl_text) {
+					  $notfound = 0;
+				  }  
+			  }
+              if ($notfound) {
+                  #print "$curid\t adding multiple infl classes.\n";
+                  my $infl = XML::Twig::Elt->new('infl');
+                  $infl->set_att('lexc', $infl_text);
+                  for my $stem_text (@stems) {
+					  if ($stem_text !~ /^\d$/) {
+						  my $stem = XML::Twig::Elt->new('stem');
+						  $stem->set_text($stem_text);						  
+						  if ($infl_texts{$contlex}->{$stem_text} =~ /SUB/) { 
+							  if ($infl_texts{$contlex}->{$stem_text} =~ /SUB/) { 
+								  if (scalar(@stems) > 1) { $stem->set_att('type', "secondary"); }
+								  elsif (! $only_one_infl) { $infl->set_att('type', "secondary"); }
+								  else { $curentry->set_att('type', "secondary"); }
+							  }
+							  $stem->paste('last_child', $infl);
+						  }
+                     }
+                     elsif ($infl_texts{$contlex}->{$stem_text} =~ /SUB/) {
+			    	     if(! $only_one_infl) { $infl->set_att('type', "secondary"); }
+                         else { $curentry->set_att('type', "secondary"); }
+                    } 
+                 }
+                $infl->paste('first_child', $curentry);
+              }
 			  
 			  for my $lang (@all_langs) {
 				  
@@ -309,25 +398,11 @@ while ($line = <FH> ) {
 						  
 					  }
 				  }
-			  }
-			  
-			  # Add inflection info only to the main language.
-			  my $curentry = ${$term_entries{$mainlang}}{$curid};
-			  if ($curentry->first_child('infl')) {
-				  if($curentry->first_child('infl')->{'att'}->{'lexc'} ne $infl_text) {
-					  @sens_array=$senses_elt->children;
-					  if ( $#sens_array > 0 ) {
-						  print "$curid\tadding multiple infl classes.\n";
-					  }
-					  my $infl = XML::Twig::Elt->new('infl');
-					  $infl->set_att('lexc', $infl_text);		
-					  $infl->paste('last_child', $curentry);
-				  }
-			  }
-		  }	# TERMS
-		}
-	}
 	
+		  }	# TERMS
+       }
+    }
+   }
 	for my $ent ( keys %termc_entries )	{
 		$termc_entries{$ent}{'entry'}->print($FH1);
 		$termc_entries{$ent}{'entry'}->DESTROY;
@@ -355,9 +430,16 @@ while ($line = <FH> ) {
 
 	$prev_word = $word;
 
-	@contlex_texts=undef;
-	pop @contlex_texts;
-	push (@contlex_texts, $contlex_text);
+$j=0;
+
+my ($real_word, $stem) = split(":", $word);
+if (!$stem) { $stem = $j++;}
+
+%infl_texts=();
+$comment_text=undef;
+if ($comment) { $infl_texts{$contlex_text}{$stem}=$comment;}
+else { $infl_texts{$contlex_text}{$stem}=1; }
+
 }
 
 print $FH1 qq|\n</dict>|;
