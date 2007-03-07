@@ -75,7 +75,9 @@ my $bindir = "/opt/sami/cg/bin/";
 
 # Files to generate paradigm
 my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
-my $tagfile="/opt/smi/common/bin/korpustags.txt";
+
+my $tagfile="/opt/smi/$lang/bin/korpustags.$lang.txt";
+if (! -f $tagfile) { $tagfile="/opt/smi/common/bin/korpustags.txt"; }
 
 my $tmpfile="/usr/local/share/corp/tmp/smi-test.txt";
 
@@ -236,8 +238,10 @@ sub generate_paradigm {
 	print FH "$word $pos\n";
 
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
-	$analyze="$utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d \"$fstdir/i$lang.fst\" 2>/dev/null"; 
+	$analyze="$utilitydir/lookup -flags mbTT -utf8 -d \"$fstdir/i$lang.fst\" 2>/dev/null"; 
 
+	my $exp = init_lookup($analyze);
+	$exp->log_file("/usr/local/share/corp/tmp/exp.log", "w");
 	print FH "$analyze\n";
 
 	my $i=0;
@@ -246,7 +250,7 @@ sub generate_paradigm {
 
 		my $string = "$word+$a";
 		print FH "$string\n";
-		my $read_anl = `echo $string | $analyze`;
+		my $read_anl = call_lookup(\$exp, $string);
 
 		print FH "read_anl: $read_anl\n";
 		
@@ -261,11 +265,13 @@ sub generate_paradigm {
 		$answer .= "$read_anl\n";
 	}
 	print FH "answer: $answer\n";
-
-	print FH "JEE\n";
-	for my $a ( @{$paradigms{$pos}} ) {
-		print FH "$a\n";
+	$exp->hard_close();
+	if (! $answer) { 
+		$answer="No paradigm found. The word may not exist in our lexicon.\n";
+		$answer .= @{paradigms{$pos}}
 	}
+	else { $answer = "$word $pos\n\n" . $answer; }
+
 	return $answer;
 }
 
