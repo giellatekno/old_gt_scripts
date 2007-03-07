@@ -34,18 +34,18 @@ sub init_lookup {
 
 
 sub call_lookup {
-	my ($exp_ref, $string)  = @_;
+	my ($exp_ref, $string, $decode)  = @_;
 	
 	if (! $$exp_ref) { cluck "The expect object missing"; }
 
-	$string = Encode::encode_utf8($string);
+	if($decode) { $string = Encode::encode_utf8($string); }
 	
 	$$exp_ref->send("$string\n");
 	$$exp_ref->expect(undef, '-re', '\r?\n\r?\n' );
 
 	my $read_anl = $$exp_ref->before();
 
-	$read_anl = Encode::decode_utf8($read_anl);
+	if ($decode) { $read_anl = Encode::decode_utf8($read_anl); }
 
 	# Take away the original input.
 	$read_anl =~ s/^.*?\n//;
@@ -53,7 +53,7 @@ sub call_lookup {
 	$read_anl =~ s/\r\n/\n/g;
 	$read_anl =~ s/\r//g;
 
-	return $read_anl;
+	return "$read_anl\n";
 
 }
 
