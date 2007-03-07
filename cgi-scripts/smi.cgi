@@ -28,7 +28,7 @@ use Expect;
 # Original written by Ken Beesley, Xerox, for Aymara.
 # reviewed and modified 12 april 2002, Trond Trosterud
 # reviewed and modified 2006 Saara Huhmarniemi
-#
+# $Id$
 ########################################################################
 
 # this CGI script is called whenever a user submits an analysis request
