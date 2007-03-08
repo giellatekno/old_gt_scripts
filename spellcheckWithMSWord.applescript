@@ -59,9 +59,27 @@ on run argv
 		set theDocument to active document
 		set myRange to set range text object of active document start 0 end (end of content of text object of theDocument)
 		if testLang is "sme" then
-			set language ID of myRange to catalan
+			set language ID of myRange to catalan -- due to bug in MS Office 2004
 		else if testLang is "smj" then
-			set language ID of myRange to basque
+			set language ID of myRange to basque -- due to bug in MS Office 2004
+		else if testLang is "nob" then
+			set language ID of myRange to norwegian bokmol
+		else if testLang is "nno" then
+			set language ID of myRange to norwegian nynorsk
+		else if testLang is "swe" then
+			set language ID of myRange to swedish
+		else if testLang is "fin" then
+			set language ID of myRange to finnish
+		else if testLang is "isl" then
+			set language ID of myRange to icelandic
+		else if testLang is "dan" then
+			set language ID of myRange to danish
+		else if testLang is "eng" then
+			set language ID of myRange to english uk
+		else if testLang is "ger" then
+			set language ID of myRange to german
+		else if testLang is "deu" then
+			set language ID of myRange to german
 		end if
 		set wc to count of words of myRange
 		
