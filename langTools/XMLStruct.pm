@@ -14,7 +14,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
+@EXPORT = qw(&dis2html &hyph2html &gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
 @EXPORT_OK   = qw(&process_paras);
 
 our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
@@ -85,6 +85,26 @@ sub dis2xml {
 	}
 	if ($w) { $w->paste('last_child', $output); }
 	
+	my $string = $output->sprint;
+	$output->delete;
+
+	return $string;
+}
+
+# Store the vislcg or lookup2cg output
+# to xml-structure.
+sub dis2html {
+	my ($text) = @_;
+
+	my $output=XML::Twig::Elt->new('pre');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
+	$output->set_content($text);
+
 	my $string = $output->sprint;
 	$output->delete;
 
@@ -247,6 +267,58 @@ sub hyph2xml {
 	my $string = $output->sprint;
 	$output->delete;
 
+	return $string;
+}
+
+# Move hyphenator output to xml-structure.
+sub hyph2html {
+	my ($text) = @_;
+	
+	my $tr;
+	my $td;
+	my @content;
+	my $output=XML::Twig::Elt->new('table');
+	$output->set_pretty_print('record');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
+
+	my @input=split(/\n/, $text);
+
+	for my $out (@input) {
+		if ($out =~ /^\s*$/) {
+			if ($tr) {
+				my $td=XML::Twig::Elt->new('td');
+				$td->set_content(@content);
+				$td->paste('last_child', $tr);
+
+				$tr->paste('last_child', $output);
+				$tr->DESTROY;
+				undef $tr;
+				next;
+			}
+		}
+		chomp $out;
+
+		my ($word, $hyph) = split(/\t/, $out);
+
+		if (!$tr) { $tr=XML::Twig::Elt->new('tr'); }
+		if ($hyph) { push(@content,$hyph); next; }
+	}
+
+	if($tr) { 
+		my $td=XML::Twig::Elt->new('td');
+		$td->set_content(@content);
+		$td->paste('last_child', $tr);
+
+		$tr->paste('last_child', $output); 
+	}
+	my $string = $output->sprint;
+	$output->delete;
+	
 	return $string;
 }
 
