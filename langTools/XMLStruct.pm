@@ -273,9 +273,7 @@ sub hyph2xml {
 # Move hyphenator output to xml-structure.
 sub hyph2html {
 	my ($text) = @_;
-	
-	my $tr;
-	my $td;
+
 	my @content;
 	my $output=XML::Twig::Elt->new('p');
 	$output->set_pretty_print('record');
@@ -288,11 +286,12 @@ sub hyph2html {
 	my @input=split(/\n/, $text);
 	for my $out (@input) {
 		my ($word, $hyph) = split(/\t/, $out);
-		if ($hyph) { push(@content,$hyph); next; }
+		if ($hyph) { push(@content,$hyph); push (@content," "); next; }
 	}
 
 	$output->set_content(@content);
 	my $string = $output->sprint;
+
 	$output->delete;
 	
 	return $string;
