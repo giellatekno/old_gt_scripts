@@ -252,6 +252,7 @@ sub printinitialhtmlcodes {
 			<option value="N">Noun</option>
 			<option value="V">Verb</option>
 			<option value="A">Adjective</option>
+			<option value="Pron">Pronoun</option>
 			<option value="Adv">Adverb</option>
 			</select>
 			</td>
