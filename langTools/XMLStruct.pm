@@ -367,7 +367,8 @@ sub gen2html {
 		$td->paste('last_child', $tr);
 
 	}
-	$tr->paste('last_child', $output);
+	if ($tr) { $tr->paste('last_child', $output); }
+
 	my $string = $output->sprint;
 	$output->delete;
 
