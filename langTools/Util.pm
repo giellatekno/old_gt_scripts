@@ -93,11 +93,20 @@ sub generate_taglist {
 		my $pos = shift @classes;
 		my $tag = $pos;
 		my @taglist;
+
+		if ($mode && $mode eq "min" && $pos eq "N") {
+			push(@taglist, "N+Sg+Nom");
+			push(@taglist, "N+Sg+Gen");
+			push(@taglist, "N+Sg+Acc");
+			push(@taglist, "N+Pl+Gen");
+			$$taglist_aref{$pos}= [ @taglist ];
+			next;
+		}
 		generate_tag($tag, \%tags, \@classes, \@taglist);
 		$$taglist_aref{$pos}= [ @taglist ];
 	}
 #	for my $pos ( keys %$taglist_aref ) {
-#		print "JEE @{$$taglist_aref{'N'}} ";
+#		print "\nJEE @{$$taglist_aref{'N'}} ";
 #    }
 }
 
