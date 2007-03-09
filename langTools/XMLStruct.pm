@@ -346,7 +346,14 @@ sub gen2html {
 		
 		($lemma, $analysis) = split(/\+/, $line, 2);
 
-		if (! $tr) { $tr=XML::Twig::Elt->new('tr'); }
+		if ($tr) { 
+			$td=XML::Twig::Elt->new('td');
+			$td->set_text($form);
+			$td->paste('last_child', $tr);
+			next;
+		}
+		$tr=XML::Twig::Elt->new('tr');
+
 		$td=XML::Twig::Elt->new('td');
 		$td->set_text($lemma);
 		$td->paste('last_child', $tr);
