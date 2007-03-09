@@ -277,7 +277,7 @@ sub hyph2html {
 	my $tr;
 	my $td;
 	my @content;
-	my $output=XML::Twig::Elt->new('table');
+	my $output=XML::Twig::Elt->new('p');
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
@@ -285,37 +285,13 @@ sub hyph2html {
 		$output->delete;		
 		return $string;
 	}
-
 	my @input=split(/\n/, $text);
-
 	for my $out (@input) {
-		if ($out =~ /^\s*$/) {
-			if ($tr) {
-				my $td=XML::Twig::Elt->new('td');
-				$td->set_content(@content);
-				$td->paste('last_child', $tr);
-
-				$tr->paste('last_child', $output);
-				$tr->DESTROY;
-				undef $tr;
-				next;
-			}
-		}
-		chomp $out;
-
 		my ($word, $hyph) = split(/\t/, $out);
-
-		if (!$tr) { $tr=XML::Twig::Elt->new('tr'); }
 		if ($hyph) { push(@content,$hyph); next; }
 	}
 
-	if($tr) { 
-		my $td=XML::Twig::Elt->new('td');
-		$td->set_content(@content);
-		$td->paste('last_child', $tr);
-
-		$tr->paste('last_child', $output); 
-	}
+	$output->set_content(@content);
 	my $string = $output->sprint;
 	$output->delete;
 	
