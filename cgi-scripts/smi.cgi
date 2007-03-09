@@ -90,7 +90,7 @@ if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 my $tmpfile="/usr/local/share/corp/tmp/smi-test.txt";
 
 my $out = new CGI;
-&printinitialhtmlcodes ;         # see the subroutine below
+&printinitialhtmlcodes($action) ;         # see the subroutine below
                                  # prints out the usual HTML header info
 
 if($charset =~ /latin1/) {
@@ -232,23 +232,72 @@ sub generate_paradigm {
 }
 
 sub printinitialhtmlcodes {
+	my ($tool) = shift(@_);
 
     print $out->header(-type => 'text/html',
                           -charset => 'utf-8');
     print   $out->start_html('Sami morfologiija');
-
     print $out->h2("S&aacute;mi instituhtta, Romssa universitehta");
-    print $out->p("Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.");
-    print $out->hr;
+
+	if ($tool =~ /paradigm/) {
+
+		print <<END ;
+    <form ACTION="http://sami-cgi-bin.uit.no/cgi-bin/test/smi.cgi"
+          METHOD="get" TARGET="_top" name="form2">
+
+		<table border=0 >
+			<tr>
+			<td><textarea TYPE="text" NAME="text" VALUE="" ROWS="1" COLS="30" MAXLENGTH="10"></textarea>
+			<select name="pos">
+			<option value="N">Noun</option>
+			<option value="V">Verb</option>
+			<option value="A">Adjective</option>
+			<option value="Adv">Adverb</option>
+			</select>
+			</td>
+			</tr>
+
+			<tr>
+			<td>
+			<input type="radio" name="paradigm_mode" value="min"/>Give minimal
+			paradigm<br/>
+			<input type="radio" name="paradigm_mode" value="standard" checked />Standard<br/>
+			<input type="radio" name="paradigm_mode" value="full"/>Full<br/>
+			</td>
+			</tr>
+
+			<tr>
+			<td>
+			<input TYPE="submit" VALUE="Give paradigm"/><input TYPE="reset" VALUE="Reset"/>
+			</td>
+			</tr>
+
+			<tr>
+			<td>
+			<input TYPE="hidden" NAME="language" VALUE="sme" />
+			<input TYPE="hidden" NAME="action" VALUE="paradigm" />
+			</td>
+			</tr>
+
+			</table>
+			</form>
+			<hr>
+END
+
+}
+
 }
 
 sub printfinalhtmlcodes
 {
-    print $out->hr,
-	$out->p("S&aacute;mi giellateknologiija"), 
-	$out->a({href=>"http://giellatekno.uit.no/"},"http://giellatekno.uit.no/"),
-	$out->br,
-	$out->end_html;
+    print <<END;
+
+		<hr/>
+			<p>Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.</p>
+			<a href="http://giellatekno.uit.no/">http://giellatekno.uit.no/</a>
+			</body>
+			</html>
+END
 }
 
 sub printwordlimit {
