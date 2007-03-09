@@ -14,7 +14,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
+@EXPORT = qw(&gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
 @EXPORT_OK   = qw(&process_paras);
 
 our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
@@ -284,7 +284,6 @@ sub gen2xml {
 		}
 		chomp $out;
 
-		my $hyph;
 		my ($line, $form) = split(/\t/, $out, 2);
 		next if (! $form);
 		$form =~ s/^\s+//;
@@ -304,6 +303,64 @@ sub gen2xml {
 		$w->paste('last_child', $output);
 	}
 
+	my $string = $output->sprint;
+	$output->delete;
+
+	return $string;
+
+}
+
+# Move generator output to html-table.
+sub gen2html {
+	my ($text, $paradigm) = @_;
+
+	my $tr;
+	my $td;
+	my $lemma;
+	my $analysis;
+	my $output;
+	$output=XML::Twig::Elt->new('table');
+	$output->set_pretty_print('record');
+
+	if (! $text) { 
+		my $string = $output->sprint;
+		$output->delete;		
+		return $string;
+	}
+
+	my @input=split(/\n/, $text);
+	for my $out (@input) {
+		if ($out =~ /^\s*$/) {
+			if ($tr) {
+				$tr->paste('last_child', $output);
+				$tr->DESTROY;
+				undef $tr;
+			}
+			next;
+		}
+		chomp $out;
+		
+		my ($line, $form) = split(/\t/, $out, 2);
+		next if (! $form);
+		$form =~ s/^\s+//;
+		
+		($lemma, $analysis) = split(/\+/, $line, 2);
+
+		if (! $tr) { $tr=XML::Twig::Elt->new('tr'); }
+		$td=XML::Twig::Elt->new('td');
+		$td->set_text($lemma);
+		$td->paste('last_child', $tr);
+		
+		$td=XML::Twig::Elt->new('td');
+		$td->set_text($analysis);
+		$td->paste('last_child', $tr);
+		
+		$td=XML::Twig::Elt->new('td');
+		$td->set_text($form);
+		$td->paste('last_child', $tr);
+
+	}
+	$tr->paste('last_child', $output);
 	my $string = $output->sprint;
 	$output->delete;
 
