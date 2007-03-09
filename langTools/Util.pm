@@ -19,7 +19,8 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist);
 @EXPORT_OK   = qw();
 
-
+# Initialize expect object for analysis
+# Returns a pointer to the object.
 sub init_lookup {
 	my ($command) =  @_;
 
@@ -32,7 +33,8 @@ sub init_lookup {
 }
 
 
-
+# Call expect object with a string.
+# Returns the analysis.
 sub call_lookup {
 	my ($exp_ref, $string)  = @_;
 	
@@ -65,7 +67,7 @@ sub generate_taglist {
 	my ($gramfile, $tagfile, $taglist_aref, $mode) = @_;
 
 	my @grammar;
-	my %tags;
+    my %tags;
 
 	if ($gramfile) {
 		# Read from tag file and store to an array.
@@ -124,7 +126,7 @@ sub generate_tag {
 		generate_tag($new_tag, $tags_href, \@new_class, $taglist_aref);
 	}
 		
-	for my $t (keys %{$$tags_href{$class}}) {
+	for my $t (@{$$tags_href{$class}}) {
 		my $new_tag = $tag . "+" . $t;
 		my @new_class = @$classes_aref;
 		generate_tag($new_tag, $tags_href, \@new_class, $taglist_aref);
@@ -150,15 +152,13 @@ sub read_tags {
 		if (s/^#//) {
 
 			$tag_class = $_;
-			for my $tag (@tags) {
-				$$tags_href{$tag_class}{$tag} = 1;
-			}
+			push (@{$$tags_href{$tag_class}}, @tags);
 			undef @tags;
 			pop @tags;
 			next TAG_FILE;
 		}
 		my @tag_a = split (/\s+/, $_);
-		unshift @tags, $tag_a[0];
+		push @tags, $tag_a[0];
  	}
 
 	close TAGS;
