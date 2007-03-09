@@ -15,6 +15,7 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 
 # Use project's utility functions.
 use langTools::Util;
+use langTools::XMLStruct;
 use Expect;
 
 ########################################################################
@@ -27,7 +28,8 @@ use Expect;
 #
 # Original written by Ken Beesley, Xerox, for Aymara.
 # reviewed and modified 12 april 2002, Trond Trosterud
-# reviewed and modified 2006 Saara Huhmarniemi
+# reviewed and modified 2006,2007 Saara Huhmarniemi
+#
 # $Id$
 ########################################################################
 
@@ -50,16 +52,13 @@ my $cg = $query->param('cg');
 my $charset = $query->param('charset');
 my $lang = $query->param('language');
 
-# Action is either "generate" or "analyze"
+# Action is either "generate" or "analyze" or "paradigm"
 my $action = $query->param('action');
+my $paradigm_mode = $query->param('paradigm_mode');
 
-# Testing
-#$text = "Divvun lea";
-#$text = qq("Nissun St&aacute;jgos lij B&aring;d&oslash;djon ja man&aacute;j");
-#$lang = "sme";
-#$cg = "hyphenate";
-#$charset = "utf8";
-#$action = "analyze";
+# Input and output can be xml.
+my $xml_in = $query->param('xml_in');
+my $xml_out = $query->param('xml_out');
 
 if(! $lang) { die "No language specified.\n"; }
 if(! $text) { die "No text to be analyzed.\n"; }
@@ -70,14 +69,23 @@ if(! $text) { die "No text to be analyzed.\n"; }
 my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
 # The directory where fst is stored
 my $fstdir = "/opt/smi/$lang/bin" ;
+# Common binaries
+my $commondir = "/opt/smi/common/bin" ;
 # The directory for vislcg and lookup2cg
 my $bindir = "/opt/sami/cg/bin/";
 
 # Files to generate paradigm
 my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
+my %paradigmfiles = (
+					 min => "$commondir/paradigm_standard.txt",
+					 standard => "$commondir/paradigm_standard.txt",
+					 full => "$commondir/paradigm_full.txt",
+					 );
+
+$paradigmfile=$paradigmfiles{$paradigm_mode};
 
 my $tagfile="/opt/smi/$lang/bin/korpustags.$lang.txt";
-if (! -f $tagfile) { $tagfile="/opt/smi/common/bin/korpustags.txt"; }
+if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 
 my $tmpfile="/usr/local/share/corp/tmp/smi-test.txt";
 
@@ -119,13 +127,14 @@ if (@words) {
 # 3.  The output of lookup is assigned as the value of $result
 
 my $result;
+my $output;
 
 if ($action =~ /generate/) {
    $result = `echo $text | tr " " "\n" | \
 			$utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $fstdir/i$lang.fst` ;
 }
 elsif ($action =~ /paradigm/) {
-    $result = generate_paradigm($text, $pos);
+    $result = generate_paradigm($text, $pos, $paradigm_mode);
 }
 else {
    if ($cg =~ /disamb/) {
@@ -140,7 +149,7 @@ else {
   if ($lang eq "sme") {
    $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
 			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | \
-			$bindir/hyph-filter.pl | cut -f2 | tr '\012' ' '`;
+			$bindir/hyph-filter.pl`;
 }
 else {
    $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
@@ -154,65 +163,12 @@ else {
 			$bindir/lookup2cg`; }
 }
 
+if ($action =~ /generate/ || $action =~ /paradigm/) { $output = gen2html($result);  } 
+elsif ($cg =~ /hyphenate/) { $output = hyph2html($result); }
+else { $output = dis2html($result); }
 
-# first split the $result into solutiongroups 
-# (one solutiongroup for each input word)
-# given the input that 'vislcg' gets (output of lookup2cg), solutiongroups are 
-# separated by the marking of the first word: "<.
+print $output;
 
-    # splits the result using "< as a delimiter between the groups
-    # removes "<
-	my @solutiongroups;
-
-if( $action =~ /analyze/) {
-    @solutiongroups = split(/\"</, $result) ;
-}
-elsif($action =~ /generate/){
-    @solutiongroups = split(/\n\n/, $result) ;
-}
-else {
-    @solutiongroups = $result ;
-}
-
-
-# the following is basically a loop over the original input words, now 
-# associated with their solutions
-
-    foreach my $group (@solutiongroups) {
-		next if (! $group);
-		
-		my $cnt = 0 ;
-		
-		# each $group contains the analysis
-		# or analyses for a single input word.  Multiple
-		# analyses are separated by a newline
-		
-		my @lexicalstrings;
-		@lexicalstrings = split(/\n/, $group) ;
-		
-		# now loop through the analyses for a single input word
-		
-		print $out->start_dl;
-
-		foreach my $string (@lexicalstrings) {
-
-			# Print the word
-			if ( $string =~ />/ ) {
-				$string =~ s/>\"//g;
-				print $out->dt($string);
-			}
-			else {
-				# print solutions
-				$string =~ s/\"//g;
-				print $out->dd($string);
-			}
-		}
-		print $out->end_dl();
-
-		# these subroutines print out suitable HTML codes
-	}
-
-	
 # print out the final HTML codes and end
 &printfinalhtmlcodes ;
 
@@ -227,7 +183,7 @@ else {
 ######################################################################
 
 sub generate_paradigm {
-	my ($word, $pos) = @_;
+	my ($word, $pos, $paradigm_mode) = @_;
 	
     # Initialize paradigm and generator
 	my %paradigms;
@@ -237,15 +193,15 @@ sub generate_paradigm {
 	open (FH, ">$tmpfile");
 	print FH "$word $pos\n";
 
-	generate_taglist($paradigmfile,$tagfile,\%paradigms);
-	$analyze="$utilitydir/lookup -flags mbTT -utf8 -d \"$fstdir/i$lang.fst\" 2>/dev/null"; 
+	generate_taglist($paradigmfile,$tagfile,\%paradigms, $paradigm_mode);
+	$analyze="$utilitydir/lookup -flags mbTT -utf8 -d \"$fstdir/i$lang-norm.fst\" 2>/dev/null"; 
 
 	my $exp = init_lookup($analyze);
 	$exp->log_file("/usr/local/share/corp/tmp/exp.log", "w");
 	print FH "$analyze\n";
 
 	my $i=0;
-	shift @{$paradigms{$pos}};
+
 	for my $a ( @{$paradigms{$pos}} ) {
 
 		my $string = "$word+$a";
