@@ -77,7 +77,7 @@ my $bindir = "/opt/sami/cg/bin/";
 # Files to generate paradigm
 my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
 my %paradigmfiles = (
-					 min => "$commondir/paradigm_standard.txt",
+					 min => "$commondir/paradigm_min.txt",
 					 standard => "$commondir/paradigm_standard.txt",
 					 full => "$commondir/paradigm_full.txt",
 					 );
@@ -134,7 +134,7 @@ if ($action =~ /generate/) {
 			$utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $fstdir/i$lang.fst` ;
 }
 elsif ($action =~ /paradigm/) {
-    $result = generate_paradigm($text, $pos, $paradigm_mode);
+    $result = generate_paradigm($text, $pos);
 }
 else {
    if ($cg =~ /disamb/) {
@@ -183,7 +183,7 @@ print $output;
 ######################################################################
 
 sub generate_paradigm {
-	my ($word, $pos, $paradigm_mode) = @_;
+	my ($word, $pos) = @_;
 	
     # Initialize paradigm and generator
 	my %paradigms;
@@ -193,7 +193,7 @@ sub generate_paradigm {
 	open (FH, ">$tmpfile");
 	print FH "$word $pos\n";
 
-	generate_taglist($paradigmfile,$tagfile,\%paradigms, $paradigm_mode);
+	generate_taglist($paradigmfile,$tagfile,\%paradigms);
 	$analyze="$utilitydir/lookup -flags mbTT -utf8 -d \"$fstdir/i$lang-norm.fst\" 2>/dev/null"; 
 
 	my $exp = init_lookup($analyze);
