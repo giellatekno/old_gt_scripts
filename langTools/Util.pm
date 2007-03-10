@@ -64,7 +64,7 @@ sub call_lookup {
 # Read the grammar for  paradigm tag list.
 # Call the recursive function that generates the tag list.
 sub generate_taglist {
-	my ($gramfile, $tagfile, $taglist_aref, $mode) = @_;
+	my ($gramfile, $tagfile, $taglist_aref) = @_;
 
 	my @grammar;
     my %tags;
@@ -96,20 +96,12 @@ sub generate_taglist {
 		my $tag = $pos;
 		my @taglist;
 
-		if ($mode && $mode eq "min" && $pos eq "N") {
-			push(@taglist, "N+Sg+Nom");
-			push(@taglist, "N+Sg+Gen");
-			push(@taglist, "N+Sg+Acc");
-			push(@taglist, "N+Pl+Gen");
-			$$taglist_aref{$pos}= [ @taglist ];
-			next;
-		}
 		generate_tag($tag, \%tags, \@classes, \@taglist);
-		$$taglist_aref{$pos}= [ @taglist ];
+		push(@{$$taglist_aref{$pos}}, @taglist );
 	}
 #	for my $pos ( keys %$taglist_aref ) {
-#		print "\nJEE @{$$taglist_aref{'N'}} ";
-#    }
+#		print "\nJEE $pos OK @{$$taglist_aref{'Pron'}} ";
+#	}
 }
 
 # Ttravel recursively the taglists and generate
@@ -125,7 +117,14 @@ sub generate_tag {
 		my @new_class = @$classes_aref;
 		generate_tag($new_tag, $tags_href, \@new_class, $taglist_aref);
 	}
-		
+
+	if (! $$tags_href{$class}) { 
+		my $new_tag = $tag . "+" . $class;
+		my @new_class = @$classes_aref;
+		generate_tag($new_tag, $tags_href, \@new_class, $taglist_aref);
+		return;
+	}
+
 	for my $t (@{$$tags_href{$class}}) {
 		my $new_tag = $tag . "+" . $t;
 		my @new_class = @$classes_aref;
