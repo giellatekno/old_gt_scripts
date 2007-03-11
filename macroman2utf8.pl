@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Converting text from plain text mac-files that are sent to Linux.
 
 while (<>) 
@@ -9,6 +9,7 @@ while (<>)
 # as such, here these 'wherever' positions are translated to the
 # digraphs that are in use in the morphological analyser.
 
+s/a/x/g;
 s/∏/č/g;
 s/π/đ/g;
 s/∫/ŋ/g;
@@ -26,7 +27,7 @@ s/∑/Ž/g;
 
 # remove punctuation, should be omitted when a preprocessor
 # is in place.
-s/[".,:;\?\*\(\)]//g ;
+#s/[".,:;\?\*\(\)]//g ;
 #s/[2-9]//g ;
 #s/ 1//g ;
 print ;
