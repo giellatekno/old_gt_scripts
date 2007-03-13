@@ -723,7 +723,7 @@
   </xsl:when>
   <xsl:otherwise>
 	<xsl:choose>
-	<!-- if partial input, the search for the target continues at the -->
+	<!-- if a replacement was made, the search for the target continues at the -->
 	<!-- end of the string -->
 	<xsl:when test="$continue=1">
 	  <xsl:choose>
@@ -741,6 +741,7 @@
 	  </xsl:when>
 	  <xsl:otherwise>
 
+
 	  	  <xsl:call-template name="globalTextReplace">
 			<xsl:with-param name="continue" select="0"/>
 			<xsl:with-param name="inputString" select="$inputString"/>
@@ -752,7 +753,8 @@
 	</xsl:when>
 	<xsl:otherwise>	
 
-	  <!-- Otherwise the whole text is searched --> 
+	<!-- When the text is encountered first time, -->
+	  <!-- the whole text is searched --> 
 	  <xsl:choose>
 	  <xsl:when test="contains($inputString, $1Target)">
 		<xsl:variable name="before" select="substring-before($inputString,$1Target)"/>
@@ -763,11 +765,12 @@
 			<xsl:call-template name="globalTextReplace">
 			  <xsl:with-param name="continue" select="1"/>
 			  <xsl:with-param name="inputString" select="$whole"/>
-			  <xsl:with-param name="target" select="$restTarget"/>
-			  <xsl:with-param name="replacement" select="$restReplacement"/>
+			  <xsl:with-param name="target" select="$target"/>
+			  <xsl:with-param name="replacement" select="$replacement"/>
 			</xsl:call-template>
 	  </xsl:when>
 	  <xsl:otherwise>
+
 			<xsl:call-template name="globalTextReplace">
 			  <xsl:with-param name="continue" select="0"/>
 			  <xsl:with-param name="inputString" select="$inputString"/>
