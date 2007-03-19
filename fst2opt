@@ -39,11 +39,13 @@ build_gt() {
 	  cp $tmpdir/gt/$lang/bin/$lang.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/i$lang-norm.fst /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/hi$lang-norm.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/$lang-dis.rle /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/abbr.txt /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/src/typos.txt /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/cwb/korpustags.$lang.txt /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/cwb/korpustags.$lang.txt /opt/smi/$lang/bin
+	  cp $tmpdir/gt/cwb/paradigm.$lang.txt /opt/smi/$lang/bin/
 
 	  chgrp $group /opt/smi/$lang/bin/*
 	  chmod a+x /opt/smi/$lang/bin/*
