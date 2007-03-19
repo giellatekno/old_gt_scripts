@@ -564,7 +564,7 @@ sub process_paras {
 						 "hyph_filter" => "/opt/smi/common/bin/hyph-filter.pl",
 						 "gen_fst" => "/opt/smi/$language/bin/i$language-norm.fst",
 						 "para_fst" => "/opt/smi/$language/bin/i$language.fst",
-						 "para_grammar" => "/opt/smi/common/bin/paradigm.txt",
+						 "para_grammar" => "/opt/smi/$language/bin/paradigm.$language.txt",
 						 "para_tags" => "/opt/smi/$language/bin/korpustags.$language.txt",
 						 "prep_fst" => "/opt/smi/$language/bin/$language.fst",
 						 "prep_abbr" => "/opt/smi/$language/bin/$language.fst",
@@ -573,6 +573,9 @@ sub process_paras {
 
 	if (! -f $default_tools{'para_tags'} ) { 
 		$default_tools{'para_tags'} = "/opt/smi/common/bin/korpustags.txt";
+	}	
+	if (! -f $default_tools{'para_grammar'} ) { 
+		$default_tools{'para_grammar'} = "/opt/smi/common/bin/paradigm.txt";
 	}
 	$xml_in = $root->first_child('xml_in');
 	$xml_out = $root->first_child('xml_out');
