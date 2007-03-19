@@ -307,8 +307,8 @@ sub process_file {
 
 	# Do extra formatting for prooftest-directory.
 	if ($orig =~ /prooftest\/orig/) {
-		$command = "perl -pi -e \'s/\\b([^\\s]*)\x{00A7}(.*?)\\s/<error correct=\"\$2\">\$1<\\/error>/g\' $int";
-		exec_com($command, $file);
+		$command = "perl -pi -e \'s/\\b([^\\s]*)\x{00A7}([^\\s\\p{P}]*?)(\\p{\P}?)\\s/<error correct=\"\$2\">\$1<\\/error>\$3 /g\' $int";
+	exec_com($command, $file);
 	}
 	exit;
 	# hyphenate the file
@@ -379,7 +379,7 @@ sub convert_pdf {
 	if(! $noxsl) {
 		my $document = XML::Twig->new;
 		if (! $document->safe_parsefile("$xsl_file")) {
-			carp "ERROR parsing the XML-file failed: $@\n";		  
+			carp "ERROR parsing the XSL-file failed: $@\n";		  
 			return "ERROR";
 		}
 		
@@ -934,7 +934,7 @@ sub pdfclean {
 			}
 			# Headers are guessed and marked
 			# This should be done after the decoding to get the characters correctly.
-			$string =~ s/^([\d\.]+[A-ZÄÅÖÁŊČŦŽĐa-zöäåáčŧšđ\s]*)$/\n<\/p>\n<h2>$1<\/h2>\n<p>\n/;
+			$string =~ s/^([\d\.]+[\w\s]*)$/\n<\/p>\n<h2>$1<\/h2>\n<p>\n/;
 			$number = 0;
 			
 			push (@text_array, $string);
