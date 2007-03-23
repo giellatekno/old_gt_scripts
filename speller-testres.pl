@@ -229,7 +229,7 @@ Usage: speller-testres.pl [OPTIONS]
 -h
 --input=<file>  The original speller input.
 -i <file>
---ccat          The input is from ccat, the default is typos.txt.
+--ccat          The input is from ccat, the default is typos.txt. not yet in use.
 -c
 --output=<file> The speller output.
 -o <file>
@@ -237,7 +237,7 @@ Usage: speller-testres.pl [OPTIONS]
 -P
 --AS            The speller output is in AplleScript-format.
 -A
---xml           Print output in xml.
+--xml           Print output in xml. not yet in use.
 -x
 --forced        The speller was forced to make suggestions.
 -f
