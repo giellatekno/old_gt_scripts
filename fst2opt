@@ -35,6 +35,7 @@ build_gt() {
 	  cd $tmpdir/gt/ && make TARGET=$lang 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang hyph-$lang.fst 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang ifst-norm 1>/dev/null
+	  cd $tmpdir/gt/ && make TARGET=$lang hi-norm 1>/dev/null
 	  
 	  cp $tmpdir/gt/$lang/bin/$lang.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
