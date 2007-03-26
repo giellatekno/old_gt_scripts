@@ -93,6 +93,7 @@ if (! $language || ! $languages{$language}) { $language = "sme"; }
 my $tidy = "tidy -config $bindir/tidy-config.txt -quiet -asxml -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
+my $add_error_marking = $bindir . "/add_error_marking.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
 my $jpedal = $bindir . "/corpus_call_jpedal.sh";
@@ -307,10 +308,11 @@ sub process_file {
 
 	# Do extra formatting for prooftest-directory.
 	if ($orig =~ /prooftest\/orig/) {
-		$command = "perl -pi -e \'s/\\b([^\\s]*)\x{00A7}([^\\s\\p{P}]*?)(\\p{\P}?)\\s/<error correct=\"\$2\">\$1<\\/error>\$3 /g\' $int";
-	exec_com($command, $file);
+		$command = "$add_error_marking $int > $tmp1";
+		exec_com($command, $file);
+		copy($tmp1,$int);
 	}
-	exit;
+
 	# hyphenate the file
 	if (! $no_hyph ) {
 		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$tmp1\""; }
@@ -318,7 +320,7 @@ sub process_file {
 		exec_com($command, $file);
 		copy ($tmp1, $int) ;
 	}
-	#exit;
+
 	# Text categorization
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
