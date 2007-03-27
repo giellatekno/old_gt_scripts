@@ -83,12 +83,12 @@ on run argv
 		end if
 		set wc to count of words of myRange
 		
+		-- Word does for some reason count linebreaks as words,
+		-- thus we skip every other "word", ie every linebreak
+		-- This assumes that the text begins on line one, and that the
+		-- first real word is "word" 1 in the MS Word sense. Also, the final EOF char is
+		-- counted as a "word", thus we stop repeating before we reach it.
 		repeat with i from 1 to wc - 1 by 2
-			-- Word does for some reason count linebreaks as words,
-			-- thus we skip every other "word", ie every linebreak
-			-- This assumes that the text begins on line one, and that the
-			-- first real word is "word" 1 in the MS Word sense. Also, the final EOF char is
-			-- counted as a "word", thus we stop repeating before we reach it.
 			set SugRec to text range spelling suggestions of word i of myRange
 			set checkedWord to content of word i of myRange
 			if type class of SugRec = spelling correct then
@@ -101,6 +101,7 @@ on run argv
 			set suggestions to list of SugRec
 			tell me -- necessary to put the file-out commands in the domain of the script, and not of MS Word
 				if (count of suggestions) = 0 then
+					-- we add a newline by appending a literal newline:
 					write checkedWord & "	" & spellType & "	" & "
 " to ufile
 				else
