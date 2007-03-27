@@ -15,7 +15,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&decode_text_file &decode_file &guess_text_encoding &guess_encoding &read_char_tables &decode_para &decode_title %Char_Tables);
+@EXPORT = qw(&decode_text_file &decode_file &guess_text_encoding &guess_encoding &read_char_tables &decode_para &decode_title &decode_amp_para %Char_Tables);
 @EXPORT_OK   = qw(&find_dec &combine_two_codings %Sami_Chars);
 
 our %Char_Files = (
@@ -396,6 +396,23 @@ sub decode_para (){
 	}
 	$$para_ref = pack("U*", @unpacked);
 	return 0;
+}
+
+
+sub decode_amp_para {
+	my ($para) = shift @_;
+	
+	my $newpara = $para;
+
+	if ($para =~ /(.*?)\&\#(\d{2,4})\;(.*)/){	
+		$newpara = $1;
+
+		my $rest = $3;
+		my $char =  pack("U*", $2);
+
+		if ($rest) { $newpara .= decode_amp_para($rest);}
+	} 
+	return $newpara;
 }
 
 # Preliminary code table, hope to get better later.
