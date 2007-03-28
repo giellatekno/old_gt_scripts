@@ -18,6 +18,8 @@ bool bPrintPara = true;
 bool bPrintTitle = false;
 bool bPrintList = false;
 bool bPrintTable = false;
+bool bPrintCorr = false;
+bool bPrintTypos = false;
 bool bAddID = false;
 
 int iParaNum = 0;
@@ -29,6 +31,7 @@ void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
 void ProcessWord (TagParser &parse);
 void ProcessTag (TagParser &parse);
+void ProcessCorrection (TagParser &parse);
 void DumpTag (int Spaces, int id, TagParser &parse, bool bEofLine = true);
 void print_help();
 //const string& Version() const;
@@ -78,6 +81,14 @@ main (int argc, char *argv[])
         else if (strcmp(argv[i], "-t") == 0) {
             bPrintTable = true;
             bPrintPara = false;
+        }
+        
+        else if (strcmp(argv[i], "-C") == 0) {
+            bPrintCorr = true;
+        }
+
+        else if (strcmp(argv[i], "-typos") == 0) {
+            bPrintTypos = true;
         }
 
         else if (strstr(argv[i], ".xml\0") != NULL) ProcessFile (argv[i]);
@@ -161,7 +172,9 @@ void ProcessFile(const char *pFile)
                 ProcessTag (parse);
                 break;
             case TagParser::TAG_WORD:
-                ProcessWord (parse);
+                if (!bPrintTypos)
+                    ProcessWord (parse);
+                break;
         }
     }
 }
@@ -226,6 +239,24 @@ void ProcessTag (TagParser &parse)
             bPrintEndTag = false;
         }
     }
+    else if (parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG)
+    {
+        ProcessCorrection(parse);
+    }
+}
+
+void ProcessCorrection (TagParser &parse)
+{
+    string corr = parse.sGetValue("correct");
+    parse.GetNextToken();
+    string err = parse.Value();
+    
+    if (bPrintTypos)
+        cout << err << "\t" << corr << endl;
+    else if (bPrintCorr && corr != "") 
+        cout << corr << " ";
+    else
+        cout << err << " ";
 }
 
 void DumpTag(int Spaces, int id, TagParser &parse, bool bEofLine)
@@ -285,6 +316,8 @@ void print_help()
     cout << "\t-T\t Print paragraphs with title type.\n";
     cout << "\t-L\t Print paragraphs with list type.\n";
     cout << "\t-t\t Print paragraphs with table type.\n";
+    cout << "\t-C\t Print corrected xml-files with corrections.\n";
+    cout << "\t-typos\t Print corrections in tabs separated file.\n";
     cout << "\t-r <dir> Recursively process directory dir and subdirs encountered.\n";
     cout << "\t-h\t Print this help message.\n";
 
