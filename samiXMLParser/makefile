@@ -1,22 +1,26 @@
+
+LDFLAGS=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386
+CC=g++
+
 all: ccat
 
 clean:
 	-rm *.o *.gch
 
 ccat: main.o tagfile.o basic.o
-	g++ -g -o ccat main.o tagfile.o basic.o tmplcoll.h
+	$(CC) -g $(LDFLAGS) -o ccat main.o tagfile.o basic.o tmplcoll.h
 
 main.o: main.cpp
-	g++ -c -g main.cpp
+	$(CC) -c -g main.cpp
 	
 #tagparser: tagfile.o
-#	g++ -g -o tagparser tagfile.o basic.o tmplcoll.h
+#	$(CC) -g -o tagparser tagfile.o basic.o tmplcoll.h
 
 tagfile.o: basic.o tagfile.cpp
-	g++ -c -g tagfile.cpp tmplcoll.h stdafx.h
+	$(CC) -c -g tagfile.cpp tmplcoll.h stdafx.h
 
 basic.o: basic.cpp
-	g++ -c -g basic.cpp
+	$(CC) -c -g basic.cpp
 
 #tmplcoll.o:
-#	g++ -c -g tmplcoll.h
+#	$(CC) -c -g tmplcoll.h
