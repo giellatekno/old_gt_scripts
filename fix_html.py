@@ -5,7 +5,7 @@ import sys
 def fix_file(origname):
     try:
         origfile = open(origname)
-        newfile = open(origname + '.html', 'w')
+        newfile = open(origname.replace('?','_') + '.html', 'w')
         inside_article = 0
         
         newfile.write('<html>\n<body>\n')
