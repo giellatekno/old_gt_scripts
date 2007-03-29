@@ -4,8 +4,9 @@ A script to run the spell checker in MS Word on the input file, using MS Word it
 INPUT:
 - ARGV #1: LANGUAGE code
 - ARGV #2: input file
+- ARGV #3: output file
 
-The input file is expected to have one word on each line. It is possible that the script would work without this limitation, but that is not tested. Also, due to limitations in Word and in the speller, certain input strings are removed before being sent to Word (this is done in the Makefile). This includes strings containing spaces, full stops and hyphens.
+The INPUT file is expected to have one word on each line. It is possible that the script would work without this limitation, but that is not tested. Also, due to limitations in Word and in the speller, certain input strings are removed before being sent to Word (this is done in the Makefile). This includes strings containing spaces, full stops and hyphens.
 
 Spaces in input string: these are considered separate words by the speller (and by MS Word), and can't be corrected by a spell checker. Thus, such cases are irrelevant for testing the spell checker.
 Full stops and hyphens: MS Word treats these chars as word-breaking chars, which means that one can't reliably send such strings through the speller. There might be some way around this, but none found so far. If we could be sure to send the whole string to the speller, it would certainly be able to deal with them. For now it is best to remove such data.
@@ -23,6 +24,8 @@ SpellerCategory = either one of:
 	- SplErr (spelling error according to the speller
 	- CapErr (capitalization error, don't know exactly what this means)
 Suggestions = list of suggestions given by the speller, potentially empty
+
+The INPUT and OUTPUT files are / need to be UTF-16 encoded.
 
 This AppleScript file is best edited using Script Editor - it will give great help with syntax colouring & checking etc.
 *)
