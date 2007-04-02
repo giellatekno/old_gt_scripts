@@ -60,9 +60,9 @@ else { print "Give the speller output type: --Polderland or --AS\n"; exit; }
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
 
-sub read_polderland {
+sub read_applescript {
 	
-	print STDERR "Reading PLX output from $output\n";
+	print STDERR "Reading AppleScript output from $output\n";
 	open(FH, $output);
 
 	my $i=0;
@@ -71,7 +71,7 @@ sub read_polderland {
 		chomp;
 
 		if (/Prompt\:/) { 
-			print STDERR "Probably reading AppleScript format, start again with option --AS\n\n";
+			print STDERR "Probably reading Polderland format, start again with option --PLX\n\n";
 			return;
 		} 
 		my ($orig, $error, $sugg) = split(/\t/);
@@ -112,9 +112,9 @@ sub read_polderland {
 }
 
 
-sub read_applescript {
+sub read_polderland {
 
-	print STDERR "Reading AppleScript output from $output\n";
+	print STDERR "Reading Polderland output from $output\n";
 	open(FH, $output);
 
 	while(<FH>) {
@@ -123,6 +123,10 @@ sub read_applescript {
 
 	my $i=0;
 	(my $orig = $_) =~ s/.*?Getting suggestions for (.*?)\.\.\.\s?$/$1/;
+	if (!$orig) { 
+		print "Probably wrong format, start again with --AS\n";
+		return;
+	}
 
 	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
 		#print STDERR "Input and output mismatch, removing $originals[$i]{'orig'}.\n"; 			
@@ -240,7 +244,7 @@ sub print_xml_output {
 			$expected->paste('last_child', $word);
 		}
 		if ($rec->{'error'}){ 
-			my $error = XML::Twig::Elt->new('error'); 
+			my $error = XML::Twig::Elt->new('status'); 
 			$error->set_text($rec->{'error'});
 			$error->paste('last_child', $word);
 		}
