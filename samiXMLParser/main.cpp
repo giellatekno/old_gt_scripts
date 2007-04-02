@@ -20,6 +20,7 @@ bool bPrintList = false;
 bool bPrintTable = false;
 bool bPrintCorr = false;
 bool bPrintTypos = false;
+bool bPrintSpeller = false;
 bool bAddID = false;
 
 int iParaNum = 0;
@@ -89,6 +90,11 @@ main (int argc, char *argv[])
 
         else if (strcmp(argv[i], "-typos") == 0) {
             bPrintTypos = true;
+        }
+
+        else if (strcmp(argv[i], "-S") == 0) {
+            bPrintTypos = true;
+            bPrintSpeller = true;
         }
 
         else if (strstr(argv[i], ".xml\0") != NULL) ProcessFile (argv[i]);
@@ -172,7 +178,7 @@ void ProcessFile(const char *pFile)
                 ProcessTag (parse);
                 break;
             case TagParser::TAG_WORD:
-                if (!bPrintTypos)
+                if (bPrintSpeller || !bPrintTypos)
                     ProcessWord (parse);
                 break;
         }
@@ -191,7 +197,11 @@ void ProcessWord (TagParser &parse)
        (bPrintTable && bInTable))
    {
      bPrintEndTag = true;
-     cout << word << " ";
+     
+     if (bPrintSpeller)
+          cout << word << "\n";
+     else
+         cout << word << " ";
    }
 }
 
@@ -317,7 +327,8 @@ void print_help()
     cout << "\t-L\t Print paragraphs with list type.\n";
     cout << "\t-t\t Print paragraphs with table type.\n";
     cout << "\t-C\t Print corrected xml-files with corrections.\n";
-    cout << "\t-typos\t Print corrections in tabs separated file.\n";
+    cout << "\t-typos\t Print corrections with tabs separated output.\n";
+    cout << "\t-S\t Print the whole text in a word per line. Errors are tab separated. \n";
     cout << "\t-r <dir> Recursively process directory dir and subdirs encountered.\n";
     cout << "\t-h\t Print this help message.\n";
 
