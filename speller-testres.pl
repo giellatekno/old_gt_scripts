@@ -11,6 +11,7 @@
 # $id:$
 
 use strict;
+use XML::Twig;
 
 my $help;
 my $input;
@@ -22,6 +23,7 @@ my $forced=0;
 my $polderland;
 my $applescript;
 my $ccat;
+my $out_file;
 my $typos=1;
 my @originals;
 
@@ -34,7 +36,7 @@ GetOptions ("help|h" => \$help,
 			"ccat|c" => \$ccat,
 			"typos|t" => \$typos,
 			"output|o=s" => \$output,
-			"xml|x" => \$print_xml,
+			"xml|x=s" => \$print_xml,
 			"forced|f" => \$forced,
 			);
 
@@ -55,7 +57,8 @@ if ($polderland) { read_polderland(); }
 elsif ($applescript) { read_applescript(); }
 else { print "Give the speller output type: --Polderland or --AS\n"; exit; }
 
-print_output();
+if ($print_xml) { print_xml_output(); }
+else { print_output(); }
 
 sub read_polderland {
 	
@@ -211,12 +214,81 @@ sub read_typos {
 	close(FH);
 }
 
+sub print_xml_output {
+
+	if (! $print_xml) {
+		print "Specify the output file with option --xml=<file>\n";
+	}
+	my $FH1;
+	open($FH1,  ">$print_xml");
+	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+	my $results = XML::Twig::Elt->new('results');
+	$results->set_pretty_print('record');
+
+	for my $rec (@originals) {
+        my @suggestions;
+		
+		my $word = XML::Twig::Elt->new('word'); 
+		if ($rec->{'orig'}) { 
+			my $original = XML::Twig::Elt->new('original'); 
+			$original->set_text($rec->{'orig'});
+			$original->paste('last_child', $word);
+		}
+		if ($rec->{'expected'}){ 
+			my $expected = XML::Twig::Elt->new('expected'); 
+			$expected->set_text($rec->{'expected'});
+			$expected->paste('last_child', $word);
+		}
+		if ($rec->{'error'}){ 
+			my $error = XML::Twig::Elt->new('error'); 
+			$error->set_text($rec->{'error'});
+			$error->paste('last_child', $word);
+		}
+		if ($forced){ $word->set_att('forced', "yes"); }
+		
+		if ($rec->{'sugg'}) {
+
+			my $suggestions = XML::Twig::Elt->new('suggestions'); 
+			my @suggestions = @{$rec->{'sugg'}};
+
+			for my $sugg (@suggestions) {
+				my $suggestion = XML::Twig::Elt->new('suggestion');
+				$suggestion->set_text($sugg);
+				if ($sugg eq $rec->{'expected'}) {
+					$suggestion->set_att('expected', "yes");
+				}
+				$suggestion->paste('last_child', $suggestions);
+			} 
+			my $i=0;
+			while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
+			if ($suggestions[$i]) { 
+				my $position = XML::Twig::Elt->new('position');
+				my $pos = $i+1;
+				$position->set_text($pos);
+				$position->paste('last_child', $word);
+			}
+			else {
+				my $position = XML::Twig::Elt->new('position');
+				my $pos=0;
+				$position->set_text($pos);
+				$position->paste('last_child', $word);
+			}
+			$suggestions->paste('last_child', $word);
+		}
+		$word->paste('last_child', $results);
+	}
+
+	$results->print($FH1);
+	close($FH1);
+}
+
 sub print_output {
+
 
 	for my $rec (@originals) {
 		my @suggestions;
 		if ($rec->{'orig'}) { print "$rec->{'orig'} | "; }
-		if ($rec->{'orig'}) { print "$rec->{'expected'} | "; }
+		if ($rec->{'expected'}) { print "$rec->{'expected'} | "; }
 		if ($rec->{'error'}) { print "$rec->{'error'} | "; }
 		print "$forced | ";
 		if ($rec->{'sugg'}) {
@@ -248,7 +320,7 @@ Usage: speller-testres.pl [OPTIONS]
 -P
 --AS            The speller output is in AplleScript-format.
 -A
---xml           Print output in xml. not yet in use.
+--xml=<file>    Print output in xml to file <file>.
 -x
 --forced        The speller was forced to make suggestions.
 -f
