@@ -43,11 +43,13 @@ if ($help) {
 	exit 1;
 }
 
-if (! $input) { print "No input file specified.\n"; exit; }
+if (! $input || ! -f $input) { print "No input file specified.\n"; exit; }
 if (! $output) { print "No speller output file specified.\n"; exit; }
 
 if ($ccat) { read_ccat(); }
 else { read_typos(); }
+
+if(! @originals) { exit;}
 
 if ($polderland) { read_polderland(); }
 elsif ($applescript) { read_applescript(); }
@@ -64,6 +66,11 @@ sub read_polderland {
 	my @suggestions;
 	while(<FH>) {
 		chomp;
+
+		if (/Prompt\:/) { 
+			print STDERR "Probably reading AppleScript format, start again with option --AS\n\n";
+			return;
+		} 
 		my ($orig, $error, $sugg) = split(/\t/);
 		if ($sugg) { @suggestions = split(", ", $sugg); }
 
@@ -97,7 +104,8 @@ sub read_polderland {
 			$originals[$i]{'sugg'} = [ @suggestions ];
 		}
 		$i++
-	}
+		}
+	close(FH);
 }
 
 
@@ -170,6 +178,7 @@ sub read_applescript {
 		#print "$_ SUGG $suggestion\n";
 		push (@suggestions, $suggestion);
 	}
+	close(FH);
 	if ($orig) {
 		#Store the suggestions from the last round.
 		if (@suggestions) {
@@ -183,9 +192,10 @@ sub read_applescript {
 
 sub read_typos {
 
-	open(FH2, $input);
+	print "$input\n";
+	open(FH, "<$input");
 
-	while(<FH2>) {
+	while(<FH>) {
 		chomp;
 		next if (/^\#/);
 		next if (/^\s*$/);
@@ -198,6 +208,7 @@ sub read_typos {
 		$rec->{'orig'} = $orig;
 		push @originals, $rec;
 	}
+	close(FH);
 }
 
 sub print_output {
