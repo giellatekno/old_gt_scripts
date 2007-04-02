@@ -90,7 +90,7 @@ my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, swe
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
 
-my $tidy = "tidy -config $bindir/tidy-config.txt -quiet -asxml -language $language";
+my $tidy = "tidy -config $bindir/tidy-config.txt -utf8 -quiet -asxml -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $bindir . "/text_cat";
 my $add_error_marking = $bindir . "/add_error_marking.pl";
@@ -227,7 +227,7 @@ sub process_file {
 
 	# xhtml documents
 	elsif ($file =~ /\.html$/) {
-		$error = convert_html($file, $orig, $int);		
+		$error = convert_html($file, $orig, $int, $xsl_file);		
 	}
 	
 	# pdf documents	
@@ -497,16 +497,38 @@ sub convert_txt {
 }
 
 sub convert_html {
-	my ($file, $orig, $int) = @_;
+	my ($file, $orig, $int, $xsl_file) = @_;
+
+	my $coding;
+	if(! $noxsl) {
+		my $document = XML::Twig->new;
+		if (! $document->safe_parsefile("$xsl_file")) {
+			carp "ERROR parsing the XSL-file failed: $@\n";		  
+			return "ERROR";
+		}
+		
+		my $root = $document->root;
+		
+		my $coding_elt = $root->first_child('xsl:variable[@name="text_encoding"]');
+		if ($coding_elt) { $coding = $coding_elt->{'att'}{'select'}; }
+	}
 
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 
+	if (! $no_decode && $coding) {
+		my $error = &decode_text_file($orig, $coding, $tmp4);
+		print "OOOK\n";
+		if ($error eq -1){ return "ERROR"; }
+	}
+
+	if (! $tmp4) { copy($orig,$tmp4); }
 	my $xsl;
 	if ($convxsl) { $xsl = $convxsl; }
 	else { $xsl = $htmlxsl; }
-	$command = "$tidy \"$orig\" > \"$tmp3\" 2>/dev/null";
+	$command = "$tidy \"$tmp4\" > \"$tmp3\" 2>/dev/null";
 	exec_com($command, $file);
-	
+
 	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 	exec_com($command, $file);
 
@@ -615,7 +637,7 @@ sub exec_com {
 	if ($test) {
 		print STDERR "$com\n";
 	}
-	if ( system($com) != 0 ) { 
+	if ( system($com) != 0) { 
 		print STDERR "$file: ERROR errors in $com: $!\n";
 		return $?;
 	}
@@ -797,6 +819,7 @@ sub txtclean {
 							$p = XML::Twig::Elt->new('p');
 							$p->set_text($text);
 							$p->paste('last_child', $body);
+							$p=undef;
 							next;
 						}
 						if ($notitle) {
@@ -809,12 +832,14 @@ sub txtclean {
 						$p->set_att('type', "title");
 						$p->set_text($text);
 						$p->paste('last_child', $body);
+						$p=undef;
 						next;
 					}
 					if ( $tag =~ /(tekst|ingress)/ ) {
 						my $p = XML::Twig::Elt->new('p');
 						$p->set_text($text);
 						$p->paste('last_child', $body);
+						$p=undef;
 						next;
 					}
 					if ( $tag =~ /(byline)/ ) {
@@ -823,6 +848,7 @@ sub txtclean {
 						$p->set_att('firstname', "");
 						$p->set_att('lastname', "$text");
 						$p->paste( 'last_child', $a);
+						$p=undef;
 						$a->paste( 'last_child', $header);
 						next;
 					}
@@ -830,6 +856,7 @@ sub txtclean {
 					$p->set_text($text);
 					$p->set_att('type', "title");
 					$p->paste('last_child', $body);
+					$p=undef;
 					next;
 				}
 				else { 
@@ -864,6 +891,7 @@ sub txtclean {
 				}
 				else {
 					$p->paste('last_child', $body);
+					$p=undef;
 					$p = XML::Twig::Elt->new('p');
 					$p->set_text($line);
 					$p_continues = 1;
@@ -873,8 +901,9 @@ sub txtclean {
 	}
 	close INFH;
 
-	$p->paste('last_child', $body);
-
+	if ($p && $body) {
+		$p->paste('last_child', $body);
+	}
 	$header->print($FH1);
 	$body->print($FH1);
 
