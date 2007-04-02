@@ -148,7 +148,7 @@ sub process_file {
 	print STDERR "$file\n";
 
 	# Check the filename
-	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml)$/);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml|corr\.xml)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return;
@@ -250,6 +250,17 @@ sub process_file {
 	# Conversion of text documents
 	elsif ($file =~ /\.txt$/) {
 		$error = convert_txt($file, $orig, $int, \$no_decode_this_time);
+	}
+
+	# Conversion of documents with error markup
+	elsif ($file =~ /\.corr\.xml$/) {
+		$int =~ s/\.corr//;
+		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+		# Do extra formatting for prooftest-directory.
+		$command = "$add_error_marking $orig > $tmp1";
+		exec_com($command, $file);
+		copy($tmp1,$int);
+		return;
 	}
 	else { $error = 1; }
 	
