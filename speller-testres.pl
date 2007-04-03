@@ -64,7 +64,7 @@ if(! @originals) { exit;}
 
 if ($polderland) { $input_type="PLX"; read_polderland(); }
 elsif ($applescript) { $input_type="AS"; read_applescript(); }
-else { print "Give the speller output type: --Polderland or --AS\n"; exit; }
+else { print "Give the speller output type: --PLX or --AS\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -235,6 +235,7 @@ sub print_xml_output {
 	my $FH1;
 	open($FH1,  ">$print_xml");
 	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+	print $FH1 qq|<spelltestresult>|;
 
 	# Print some header information
 	my $header = XML::Twig::Elt->new('header');
@@ -321,6 +322,7 @@ sub print_xml_output {
 	}
 
 	$results->print($FH1);
+	print $FH1 qq|</spelltestresult>|;
 	close($FH1);
 }
 
