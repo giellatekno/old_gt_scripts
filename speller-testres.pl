@@ -13,11 +13,14 @@
 use strict;
 use XML::Twig;
 
+use File::stat;
+use Time::localtime;
+use File::Basename;
+
 my $help;
 my $input;
 my $input_type;
 my $output;
-my $output_type;
 my $print_xml;
 my $forced=0;
 my $polderland;
@@ -25,14 +28,20 @@ my $applescript;
 my $ccat;
 my $out_file;
 my $typos=1;
+my $document;
+my $version;
+my $date;
 my @originals;
 
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 GetOptions ("help|h" => \$help,
 			"input|i=s" => \$input,
+			"document|d=s" => \$document,
 			"PLX|P" => \$polderland,
 			"AS|A" => \$applescript,
+			"version|v=s" => \$version,
+			"date|t=s" => \$date,
 			"ccat|c" => \$ccat,
 			"typos|t" => \$typos,
 			"output|o=s" => \$output,
@@ -53,8 +62,8 @@ else { read_typos(); }
 
 if(! @originals) { exit;}
 
-if ($polderland) { read_polderland(); }
-elsif ($applescript) { read_applescript(); }
+if ($polderland) { $input_type="PLX"; read_polderland(); }
+elsif ($applescript) { $input_type="AS"; read_applescript(); }
 else { print "Give the speller output type: --Polderland or --AS\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
@@ -226,6 +235,35 @@ sub print_xml_output {
 	my $FH1;
 	open($FH1,  ">$print_xml");
 	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+
+	# Print some header information
+	my $header = XML::Twig::Elt->new('header');
+	$header->set_pretty_print('record');
+
+	# Print some header information
+	my $tool = XML::Twig::Elt->new('tool');
+	$tool->set_att('version', $version);
+	$tool->set_att('type', $input_type);
+	$tool->paste('last_child', $header);
+	
+	# what was the checked document
+	my $docu = XML::Twig::Elt->new('document');
+	if (!$document) { $document=basename($input); }
+	$docu->set_text($document);
+	$docu->paste('last_child', $header);
+
+    # The date is the timestamp of speller output file if not given.
+	my $date_elt = XML::Twig::Elt->new('date');
+	if (!$date ) { 
+		$date = ctime(stat($output)->mtime);
+		#print "file $input updated at $date\n";
+	}
+	$date_elt->set_text($date);
+	$date_elt->paste('last_child', $header);
+
+	$header->print($FH1);
+
+	# Start the results-section
 	my $results = XML::Twig::Elt->new('results');
 	$results->set_pretty_print('record');
 
@@ -307,27 +345,32 @@ sub print_output {
 }
 
 
-
 sub print_help {
 	print << "END";
 Combines speller input and output.
 Usage: speller-testres.pl [OPTIONS]
---help          Print this help text and exit.
+--help            Print this help text and exit.
 -h
---input=<file>  The original speller input.
+--input=<file>    The original speller input.
 -i <file>
---ccat          The input is from ccat, the default is typos.txt. not yet in use.
+--document=<name> The name of the original speller input, if not the input file name.
+-d <name>
+--ccat            The input is from ccat, the default is typos.txt. not yet in use.
 -c
---output=<file> The speller output.
+--output=<file>   The speller output.
 -o <file>
---PLX           The speller output is in PLX-format.
+--PLX             The speller output is in PLX-format.
 -P
---AS            The speller output is in AplleScript-format.
+--AS              The speller output is in AplleScript-format.
 -A
---xml=<file>    Print output in xml to file <file>.
+--xml=<file>      Print output in xml to file <file>.
 -x
---forced        The speller was forced to make suggestions.
+--forced          The speller was forced to make suggestions.
 -f
+--version=<num>   Speller version information.
+-v <num>
+--date <date>     Date when the test was run, if not the output file timestamp.
+-t
 END
 
 }
