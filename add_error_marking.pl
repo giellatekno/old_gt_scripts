@@ -24,25 +24,32 @@ sub handle_para {
 
 	my $newpara;
 	if ($para =~ m/^
-		(.*?)              # match the text without corrections
-		\b
-		([^\s]*)           # string before the error-correction separator
+		(.*?)            # match the text without corrections
+		\s
+		(<.*?>)?          # skip xml-tags.
+		([^\s]*?)           # string before the error-correction separator
 		\x{00A7}           # separator
 		(                  # either
 		\(.*?\)|         # string after separator, possible parentheses
 		[^\s]*?\s         # string after separator, no parentheses
 		)
-		(.*)            # rest of the string.
+		(.*)           # rest of the string.
 		$/x ) {
 
-		$newpara = $1;
-		my $error = $2;
-		my $rest = $4;
+		my $start = $1;
+		my $tag = $2;
+		my $error = $3;
+		my $correct = $4;
+		$error =~ s/\s$//g;
+		my $rest = $5;
 
-		(my $corr = $3) =~ s/\s?$//;
+		(my $corr = $4) =~ s/\s?$//;
 		$corr =~ s/[\(\)]//g;
-		$newpara .= "<error correct=\"$corr\">$error</error> ";
-		if ($rest) { $newpara .= handle_para($rest); }
+		$newpara = $start;
+		$newpara .= $tag . " <error correct=\"$corr\">$error</error> ";
+		if ($rest =~ /\x{00A7}/) { $newpara .= handle_para($rest); }
+		else { $newpara .= $rest; }
 	}
+	else { $newpara = $para; }
 	return $newpara;
 }
