@@ -41,7 +41,7 @@ GetOptions ("help|h" => \$help,
 			"PLX|P" => \$polderland,
 			"AS|A" => \$applescript,
 			"version|v=s" => \$version,
-			"date|t=s" => \$date,
+			"date|a=s" => \$date,
 			"ccat|c" => \$ccat,
 			"typos|t" => \$typos,
 			"output|o=s" => \$output,
@@ -54,8 +54,8 @@ if ($help) {
 	exit 1;
 }
 
-if (! $input || ! -f $input) { print "No input file specified.\n"; exit; }
-if (! $output) { print "No speller output file specified.\n"; exit; }
+if (! $input || ! -f $input) { print STDERR "$0: No input file specified.\n"; exit; }
+if (! $output) { print STDERR "$0: No speller output file specified.\n"; exit; }
 
 if ($ccat) { read_ccat(); }
 else { read_typos(); }
@@ -64,7 +64,7 @@ if(! @originals) { exit;}
 
 if ($polderland) { $input_type="PLX"; read_polderland(); }
 elsif ($applescript) { $input_type="AS"; read_applescript(); }
-else { print "Give the speller output type: --PLX or --AS\n"; exit; }
+else { print STDERR "$0: Give the speller output type: --PLX or --AS\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -80,7 +80,7 @@ sub read_applescript {
 		chomp;
 
 		if (/Prompt\:/) { 
-			print STDERR "Probably reading Polderland format, start again with option --PLX\n\n";
+			print STDERR "$0: Probably reading Polderland format, start again with option --PLX\n\n";
 			return;
 		} 
 		my ($orig, $error, $sugg) = split(/\t/);
@@ -93,7 +93,7 @@ sub read_applescript {
 
 		# If the output word was not found from the input list, ignore it.
 		if (! $originals[$j]) {
-			print STDERR "Output word $orig was not found from the input list.\n";
+			print STDERR "$0: Output word $orig was not found from the input list.\n";
 			next;
 		}
 		# If it was found later, remove the extra lines from the input list.
@@ -104,7 +104,7 @@ sub read_applescript {
 				for (my $p=$i; $p<$j; $p++){
 					$originals[$p]{'error'}="SplCor";
 					$originals[$p]{'sugg'}=();
-					#print STDERR "Removing input word $originals[$p]{'orig'}.\n";
+					#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
 				}
 				$i=$j;
 			}
@@ -123,7 +123,7 @@ sub read_applescript {
 
 sub read_polderland {
 
-	print STDERR "Reading Polderland output from $output\n";
+	print STDERR "$0: Reading Polderland output from $output\n";
 	open(FH, $output);
 
 	while(<FH>) {
@@ -138,13 +138,13 @@ sub read_polderland {
 	}
 
 	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
-		#print STDERR "Input and output mismatch, removing $originals[$i]{'orig'}.\n"; 			
+		#print STDERR "$0: Input and output mismatch, removing $originals[$i]{'orig'}.\n"; 			
 		splice(@originals,$i,1);
 	}
 
 	my @suggestions;
 	while(<FH>) {
-		next if (/Suggestions:/);
+		if (/Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
 		next if (/End of suggestions/);
 		my $line = $_;
 		if (/Getting suggestions/) {
@@ -155,10 +155,7 @@ sub read_polderland {
 				@suggestions = ();
 				pop @suggestions;
 			}
-			else {
-				$originals[$i]{'sugg'} = ();
-				$originals[$i]{'error'} = "SplCor";
-			}
+			elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
 			$i++;
 			($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s?$/$1/;
 			# Some simple adjustments to the input and output lists.
@@ -168,7 +165,7 @@ sub read_polderland {
 			
 			# If the output word was not found from the input list, ignore it.
 			if (! $originals[$j]) {
-				print STDERR "Output word $orig was not found from the input list.\n";
+				print STDERR "$0: Output word $orig was not found from the input list.\n";
 				$orig=undef;
 				$i--;
 				next;
@@ -181,7 +178,8 @@ sub read_polderland {
 					for (my $p=$i; $p<$j; $p++){
 						$originals[$p]{'error'}="SplCor";
 						$originals[$p]{'sugg'}=();
-						#print STDERR "Removing input word $originals[$p]{'orig'}.\n";
+						pop @{ $originals[$p]{'sugg'} };
+						#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
 					}
 					$i=$j;
 				}
@@ -192,7 +190,7 @@ sub read_polderland {
 		next if (! $orig);
 		my ($num, $suggestion) = split(/\s+/, $line);
 		#print "$_ SUGG $suggestion\n";
-		push (@suggestions, $suggestion);
+		if ($suggestion) { push (@suggestions, $suggestion); }
 	}
 	close(FH);
 	if ($orig) {
@@ -217,9 +215,12 @@ sub read_typos {
 		next if (/^\s*$/);
 		my ($orig, $expected) = split(/\t+/);
 		next if (! $orig );
+		my $rec = {};
+		# if the word starts with comma (,), 
+		# the suggestions are forced.
+		if ($orig =~ s/^\,//) { $rec->{'forced'} = 1; }
 		$orig =~ s/\s*$//;
 		$expected =~ s/\s*$//;
-		my $rec = {};
 		$rec->{'expected'} = $expected;
 		$rec->{'orig'} = $orig;
 		push @originals, $rec;
@@ -269,7 +270,6 @@ sub print_xml_output {
 	$results->set_pretty_print('record');
 
 	for my $rec (@originals) {
-        my @suggestions;
 		
 		my $word = XML::Twig::Elt->new('word'); 
 		if ($rec->{'orig'}) { 
@@ -287,37 +287,37 @@ sub print_xml_output {
 			$error->set_text($rec->{'error'});
 			$error->paste('last_child', $word);
 		}
-		if ($forced){ $word->set_att('forced', "yes"); }
+		if ($rec->{'forced'}){ $word->set_att('forced', "yes"); }
 		
-		if ($rec->{'sugg'}) {
-
-			my $suggestions = XML::Twig::Elt->new('suggestions'); 
-			my @suggestions = @{$rec->{'sugg'}};
-
-			for my $sugg (@suggestions) {
-				my $suggestion = XML::Twig::Elt->new('suggestion');
-				$suggestion->set_text($sugg);
-				if ($sugg eq $rec->{'expected'}) {
-					$suggestion->set_att('expected', "yes");
-				}
-				$suggestion->paste('last_child', $suggestions);
-			} 
-			my $i=0;
-			while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
-			if ($suggestions[$i]) { 
-				my $position = XML::Twig::Elt->new('position');
-				my $pos = $i+1;
-				$position->set_text($pos);
-				$position->paste('last_child', $word);
+		if ($rec->{'error'} eq "SplErr") {
+			my $suggestions_elt = XML::Twig::Elt->new('suggestions'); 
+			my $sugg_count=0;
+			if ($rec->{'sugg'}) { $sugg_count = scalar @{ $rec->{'sugg'}} };
+			$suggestions_elt->set_att('count', $sugg_count);
+			my $position = XML::Twig::Elt->new('position');
+			my $pos=0;
+			
+			if ($rec->{'sugg'}) {
+				
+				my @suggestions = @{$rec->{'sugg'}};			
+				for my $sugg (@suggestions) {
+					next if (! $sugg);
+					my $suggestion = XML::Twig::Elt->new('suggestion');
+					$suggestion->set_text($sugg);
+					if ($sugg eq $rec->{'expected'}) {
+						$suggestion->set_att('expected', "yes");
+					}
+					$suggestion->paste('last_child', $suggestions_elt);
+				} 
+				my $i=0;
+				while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
+				if ($suggestions[$i]) { $pos = $i+1; }
 			}
-			else {
-				my $position = XML::Twig::Elt->new('position');
-				my $pos=0;
-				$position->set_text($pos);
-				$position->paste('last_child', $word);
-			}
-			$suggestions->paste('last_child', $word);
+			$position->set_text($pos);
+			$position->paste('last_child', $word);
+			$suggestions_elt->paste('last_child', $word);
 		}
+
 		$word->paste('last_child', $results);
 	}
 
@@ -372,7 +372,7 @@ Usage: speller-testres.pl [OPTIONS]
 --version=<num>   Speller version information.
 -v <num>
 --date <date>     Date when the test was run, if not the output file timestamp.
--t
+-a
 END
 
 }
