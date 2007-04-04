@@ -46,7 +46,7 @@ GetOptions ("output=s" => \$abbr_file,
 
 
 my $noparadigm;
-if(! $fst) { $noparadigm=1; }
+if(! $fst || !$paradigmfile || ! -f $paradigmfile) { $noparadigm=1; }
 
 @lex_file_names = split (/,/, $lex_files);
 
@@ -99,10 +99,10 @@ my %lex_pos = ( 'noun' => 'N',
 
 # Initialize paradigm and generator
 my %paradigms;
-generate_taglist($paradigmfile,$tagfile,\%paradigms);
 my $analyze;
 my $exp;
 if (! $noparadigm) {
+	generate_taglist($paradigmfile,$tagfile,\%paradigms);
 	$analyze="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
 	$exp = init_lookup($analyze);
 }
