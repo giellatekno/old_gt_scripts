@@ -136,7 +136,7 @@ if ($dir) {
 }
 
 # Process the file given in command line.
-process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV];
+process_file (Encode::decode_utf8($ARGV[$#ARGV])) if $ARGV[$#ARGV];
 
 close STDERR;
 
@@ -148,12 +148,16 @@ sub process_file {
 	print STDERR "$file\n";
 
 	# Check the filename
-	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml|corr\.xml)$/);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml|correct\.xml|correct\.xml,v)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return;
 	}
-	return if (! -f $file);
+	my $vfile  = $file . ",v";
+	return if (! -f $file && ! -f $vfile);
+	
+	# correct.xml is not converted.
+	if ($file =~ /(correct\.xml|correct\.xml,v)/) { $noxsl=1; }
 
 	# Search with find gives some unwanted files which are ignored
     return if ($file =~ /[\~]$/);
@@ -170,7 +174,7 @@ sub process_file {
 
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
-	if ( -s $file < 200) {
+	if (-f $file && -s $file < 200) {
 		print STDERR "$file: ERROR. File is too small for processing. STOP\n";
 		return;
 	}
@@ -253,13 +257,29 @@ sub process_file {
 	}
 
 	# Conversion of documents with error markup
-	elsif ($file =~ /\.corr\.xml$/) {
-		$int =~ s/\.corr//;
+	# Conversion of documents with manual error markup
+	elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) {
+		# check out the file-specific xsl-file for processing
+		my $corr_vfile = $orig . ",v";
+		my $cnt = chown -1, $orig_gid, $file;
+		print "$corr_vfile\n";
+		if (! -f $corr_vfile) {
+			$command = "ci -t-\"added under version control by convert2xml.pl\" -q -i \"$orig\"";
+			exec_com($command, $file);
+		}
+
+		# Check out the corr-file for editing.
+		$command = "co -f -q \"$orig\"";
+		exec_com($command, $file);
+
+		$int =~ s/\.correct//;
 		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 		# Do extra formatting for prooftest-directory.
 		$command = "$add_error_marking $orig > $tmp1";
 		exec_com($command, $file);
+		print "copying $tmp1 $int\n";
 		copy($tmp1,$int);
+
 		return;
 	}
 	else { $error = 1; }
