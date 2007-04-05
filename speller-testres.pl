@@ -211,8 +211,9 @@ sub read_typos {
 
 	while(<FH>) {
 		chomp;
-		next if (/^\#/);
+		next if (/^[\#\!]/);
 		next if (/^\s*$/);
+		s/[\#\!].*$//;
 		my ($orig, $expected) = split(/\t+/);
 		next if (! $orig );
 		my $rec = {};
