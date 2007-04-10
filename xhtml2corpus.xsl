@@ -169,7 +169,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- inline formatting -->
 <xsl:template match="html:b">
 <xsl:choose>
-<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em">
+<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u">
   <xsl:apply-templates/>
 </xsl:when>
 <xsl:when test="not(ancestor::html:p|ancestor::html:a)">
@@ -187,9 +187,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:i|html:em">
+<xsl:template match="html:i|html:em|html:u">
 <xsl:choose>
-<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em">
+<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u">
   <xsl:apply-templates/>
 </xsl:when>
 <xsl:when test="not(ancestor::html:p|ancestor::html:a)">
