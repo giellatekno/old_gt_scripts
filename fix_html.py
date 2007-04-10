@@ -11,13 +11,14 @@ def fix_file(origname):
         newfile.write('<html>\n<body>\n')
         
         for line in origfile:
+	    line = unicode(line,'latin1')
             if line.find('<table class="nyhet3"') != -1:
                 inside_article = 1
             
             if inside_article == 1:
                 if line.find('</table') != -1 :
                     inside_article = inside_article - 1
-                newfile.write(line)
+                newfile.write(line.encode('utf8'))
     
         origfile.close()
         newfile.write('</body>\n</html>\n')
