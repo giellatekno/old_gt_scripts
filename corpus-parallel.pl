@@ -8,6 +8,8 @@ use File::Basename;
 use Getopt::Long;
 use XML::Twig;
 use File::Find;
+use Carp qw(cluck croak);
+use File::Copy;
 
 my $corpus_analyze="corpus-analyze.pl";
 my $corpdir = "/usr/local/share/corp";
@@ -20,9 +22,6 @@ if ($host =~ /hum-tf4-ans142/) {
 }
 
 my $tmpdir = $corpdir . "/tmp";
-my $gtbound_dir = "bound";
-my $gtfree_dir = "free";
-my $orig_dir = "orig";
 my $lang = "sme";
 my $para_lang = "nob";
 my $list;
@@ -50,10 +49,12 @@ if ($help) {
 
 if(! $outdir) { $outdir=$tmpdir; }
 
-#my $anchor_file = $bindir . "anchor-" . $lang1 . $lang2
-my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
+#my $anchor_file = "/opt/smi/common/bin/anchor-" . $lang . $para_lang . ".txt";
+#my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
+my $anchor_file = "/Users/saara/anchor-smenno.txt";
 
-# Search the files in the directory $dir and process each one of them.
+# Search the files in the directory $dir and list the files
+# that have parallel file.
 if ($dir) {
 	if ($list) {
 		print STDERR "listing..\n";
@@ -61,11 +62,20 @@ if ($dir) {
 		else { print "$dir ERROR: Directory did not exit.\n"; }		
 
 		for my $file (sort keys %file_list) {
-			print "$file";
-			for my $plang (keys %{ $file_list{$file} } ) {
-				print ",$file_list{$file}{$plang}.xml";
+			if ($para_lang){
+				if($file_list{$file}{$para_lang}) {
+					print "$file";
+					print ",$file_list{$file}{$para_lang}.xml";
+					print "\n";
+				}
+			} else {
+				print "$file";
+				for my $plang (keys %{ $file_list{$file} } ) {
+					print ",$file_list{$file}{$plang}.xml";
+				}
+				print "\n";
+
 			}
-			print "\n";
 		}
 	}
 	else {
@@ -85,11 +95,14 @@ elsif ($file) { process_file($file); }
 # Process the file given in command line.
 else { process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV]; }
 
-
+# Subroutine to take the parallel files for a file
+# Routine examines xml-header of the file.
 sub list_files {
 	my $file = $_;
-	return if (! -f $file );
-
+	if (! -f $file ) {
+		print STDERR "No such file: $file\n";
+		return;
+	}
 	return if ($file =~ /~$/);
 	
 	my %para_files;
@@ -99,7 +112,7 @@ sub list_files {
 
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile ("$file") ) {
-		print STDERR "$file: ERROR parsing the XML-file failed.\n";
+		cluck "Parsing the XML-file failed: $file";
 		return;
 	}
 	my $location;
@@ -113,6 +126,13 @@ sub list_files {
 		if($para_file) {
 			(my $para_path = $path) =~ s/$lang/$plang/o;
 			$para_file = $para_path . "/" . $para_file;
+			my $para_xml = $para_file . ".xml";
+			if (! -f $para_xml) {
+				if (!$para_lang || $para_lang eq $plang) {
+					print STDERR "$file: Parallel file $para_xml does not exsist.\n";
+					next;
+				}
+			}
 			$para_files{$plang} = $para_file;
 		}
 	}
@@ -121,16 +141,19 @@ sub list_files {
 	$file_list{$full} = { %para_files };
 }
 
+# The file and it's parallel counterpart are splitted to sentences,
+# aligned and analyzed.
 sub process_file {
 	my $file = $_;
     $file = shift (@_) if (!$file);
 
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile ("$file") ) {
-		print STDERR "$file: ERROR parsing the XML-file failed.\n";
+		cluck "parsing the XML-file failed.\n";
 		return;
 	}
 	
+	# Find the parallel files for the document.
 	my $location;
 	my $root = $document->root;
 	my $header = $root->first_child('header');
@@ -156,32 +179,44 @@ sub process_file {
 	my 	@para_files = split(",", $location);
 	my @full_paths;
 	for my $p (@para_files) {
-		$p = $para_path . "/" . $p . ".xml";
+		$p = $para_path . "/" . $p;
+		if ($p !~ /\.xml/) {
+			$p = $p . ".xml";
+		}
 		push (@full_paths, $p);
 	}
 	
+
 	# Prepare files for further processing by 
 	# adding <s> tags and sentence ids.
     # The output goes to tmp.
 
     # Take only the file name without path.
 	(my $base = $file) =~ s/.*[\/\\](.*).xml/$1/;
-	my $outfile=$outdir . "/" . $base . ".sent.xml";
-	my $command="$corpus_analyze --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
-#	print STDERR "$command\n";
-#	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
-	
+	my $newfile = $outdir . "/" . $base . ".xml";
+	if (! -f $newfile) { copy($file,$newfile); }
+	$file=$newfile;
+	my $outfile = $outdir . "/" . $base . ".sent.xml";
+
+	my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
+	print STDERR "$0: $command\n";
+	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
+
     # If there are more than one parallel file, these files are combined to one.
 	if ($#full_paths > 0) { return "Cannot process more than one parallel file\n"; }
-	
 	my $pfile=$full_paths[0];
 	(my $pbase = $pfile) =~ s/.*[\/\\](.*).xml/$1/;
+	my $newpfile = $outdir . "/" . $pbase . ".xml";
+	if (! -f $newpfile) { copy($pfile,$newpfile); }
+	$pfile = $newpfile;
+	
 	my $poutfile=$outdir . "/" . $pbase . ".sent.xml";
-	$command="$corpus_analyze --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
-	print STDERR "$command\n";
+	$command="$corpus_analyze --all --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
+	print STDERR "$0: $command\n";	
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 
 	$command="tca2 -a $anchor_file $outfile $poutfile";
+	print STDERR "$0: $command\n";
 	system($command);
 
 }
