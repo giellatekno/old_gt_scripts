@@ -68,7 +68,8 @@ if ($help) {
 	exit 1;
 }
 
-my $binpath="/opt/smi/$lang/bin";
+#my $binpath="/opt/smi/$lang/bin";
+my $binpath="/Users/saara/opt/smi/$lang/bin";
 my $lookup2cg = "/usr/local/bin/lookup2cg";
 my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
 my $vislcg = "/opt/xerox/bin/vislcg";
@@ -103,40 +104,62 @@ my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lo
 
 my $SENT_DELIM = qq|.!?|;
 my $LEFT_QUOTE = qq|<([{«‹“‘|;
-
+						 
 # Read the tags
 my %tags;
-&read_tags($tagfile, \%tags);
-
+my %tmptags;
+if (! $only_add_sentences) {
+	&read_tags($tagfile, \%tmptags);
+	for my $class (keys %tmptags) {
+		for my $tag (@{$tmptags{$class}}) { $tags{$class}{$tag}=1; }
+	}
+}
+						 
 # Process the file given in command line.
 if ( -f $ARGV[$#ARGV]) { $infile = $ARGV[$#ARGV]; }
-if ($infile && ! $outfile) { $outfile = "out.tmp"; }  #$outfile=$infile . ".analyzed"; }
-
+if ($infile && ! $outfile) { $outfile = "out.tmp"; }
+						 
 my $document;
 
-if (! $only_add_sentences) { 
-	open (FH, ">/Users/saara/koe.out"); 
-	print "** Analyzing $infile:\n$analyze\n";
+my $OFH;						 
+open ($OFH, ">$outfile");
+print $OFH qq|<?xml version='1.0'  encoding="UTF-8"?>|;
+print $OFH qq|\n<!DOCTYPE document PUBLIC "-//UIT//DTD Corpus V1.0//EN" "http://giellatekno.uit.no/dtd/corpus.dtd">\n|;
+print $OFH qq|<document>|;
+
+$document = XML::Twig->new(twig_handlers => {  
+	'header' => sub { $_->set_pretty_print("record"); $_->print($OFH); }
+});
+
+if (! $document->safe_parsefile ($infile)) {
+	print STDERR "Couldn't parse file: $@";
 }
+
+print $OFH qq|<body>|;
+
+if (! $only_add_sentences) { print "** Analyzing $infile:\n$analyze\n"; }
 else { 	print "** Preprocessing $infile:\n$preprocess\n"; }
+						 
 
-
- PARSE: {
+PARSE: {
 	 if(($tables && $lists) | $all) {
-		 if ($only_add_sentences) {
-			 $document = XML::Twig->new(twig_handlers => {  
-				 'p' => sub { add_sentences(@_);
-							  keep_encoding => 1 } });
-			 last PARSE;
-		 }
+	 if ($only_add_sentences) {
 		 $document = XML::Twig->new(twig_handlers => {  
-			 'p' => sub { analyze_para(@_); 
-						  keep_encoding => 1 } });
+			 'p' => sub { add_sentences(@_);
+						  keep_encoding => 1 } }
+									);
 		 last PARSE;
 	 }
+	 $document = XML::Twig->new(twig_handlers => { 
+		 'p' => sub { analyze_para(@_); 
+					  keep_encoding => 1 } }
+								);
+	 last PARSE;
+ }
 	 if (! $tables && ! $lists) {
 		 if ($only_add_sentences) {
 			 $document = XML::Twig->new(twig_handlers => { 
+			 'header'=> sub { $_->set_pretty_print('indented'); $_->print(\*OFH); print OFH qq|\n<body>|; },
 				 'table' => sub{ $_->delete; },
 				 'list' => sub{ $_->delete; },
 				 'p' => sub { add_sentences(@_); },
@@ -144,6 +167,7 @@ else { 	print "** Preprocessing $infile:\n$preprocess\n"; }
 			 last PARSE;
 		 }
 		 $document = XML::Twig->new(twig_handlers => { 
+			 'header'=> sub { $_->set_pretty_print('indented'); $_->print(\*OFH); print OFH qq|\n<body>|; },
 			 'table' => sub{ $_->delete; },
 			 'list' => sub{ $_->delete; },
 			 'p' => sub { analyze_para(@_); },
@@ -191,12 +215,9 @@ if (! $document->safe_parsefile ($infile)) {
 	print STDERR "Couldn't parse file: $@";
 }
 
-open (FH, ">$outfile") or die "Cannot open $!";
-
-$document->set_pretty_print('record');
-$document->print( \*FH);
-$document->purge;
-close(FH);
+print $OFH "\n</body>";
+print $OFH "\n</document>";
+close $OFH;
 
 my $error = system("xmllint --valid --encode UTF-8 --noout \"$outfile\"");
 if ($error) { print STDERR "ERROR: $error\n"; }
@@ -257,10 +278,15 @@ sub add_sentences {
 		$ans =~ s/\s*$//;
 		$ans =~ s/^\s*//;
 
+		# Add lonely punctuation to the end of the previous sentence.
 		if ($ans !~ /\w/ && $ans !~ /^[$SENT_DELIM]$/ && $ans !~ /<<</ && $ans !~ /[$LEFT_QUOTE\p{Pd}]/) {
 			push (@words, $ans);
 			push (@words, " ");
 			next;
+		}
+		# Change too long capitalized strings to small letters.
+		if ($ans =~ /\b.*?[\p{isUpper}]{18,}.*?\b/) {
+			$ans = ucfirst(lc($ans));
 		}
 
 		if ($sentence_end) {
@@ -312,7 +338,11 @@ sub add_sentences {
 		$sentence->set_content(@prev_sent, @words);
 		undef @prev_sent;
 		$sentence->paste('last_child', $para);
-	}
+	  }
+	
+	$para->set_pretty_print("record");
+	$para->print($OFH);
+	$para->delete;
 }
 
 sub analyze_para {
@@ -335,7 +365,9 @@ sub analyze_para {
 			analyze_sent($s);
 		}
 	}
-	$para->print(\*FH)
+	$para->set_pretty_print("record");
+	$para->print($OFH);
+	$para->delete;
 }
 
 sub analyze_sent {
