@@ -13,29 +13,42 @@
 source /Users/saara/.profile
 
 # add the analyzed languages here
-languages="sme nob"
+languages="sme"
 
-crondir="/Users/saara/cron"
+crondir="/Users/saara"
 tmpdir=$corproot/tmp
 corproot="/Users/hoavda/Public/corp"
+parallel_dir="parallel_new"
+#parallel_dir="parallel"
+distdir=$corproot/dist
+
 gt=bound
+group=staff
 
 umask=0112
 
-files="/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_1_01.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_1_01.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_1_02.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_1_02.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_1_98.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_1_98.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_2_01.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_2_01.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_2_02.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_2_02.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_2_98.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_2_98.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_3_01.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_3_01.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_3_05.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_3_05.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_3_98.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_3_98.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_4_01.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_4_01.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_4_98.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_4_98.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_5_05.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sp_5_05.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/spr_1_04.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/sprd_1_04.doc.xml
-/Users/hoavda/Public/corp/bound/sme/admin/sd/vl_1_05.doc.xml,/Users/hoavda/Public/corp/bound/nob/admin/sd/vn_1_05.doc.xml"
+parallel=1
+
+#files="/Users/hoavda/Public/corp/bound/sme/admin/sd/2000_1s.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/2000_2s.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/2000_3s.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/1999_1s.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/1999_2s.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/1999_3s.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/1999_4s.doc.xml"
+
+#files="/Users/hoavda/Public/corp/bound/sme/admin/others/samisk_strategiplan_samisk.doc.xml"
+#files="/Users/hoavda/Public/corp/bound/sme/admin/depts/NAC_1994_21.pdf.xml"
+#/Users/hoavda/Public/corp/bound/sme/admin/depts/STM_TS007SA.pdf.xml"
+#
+#files="/Users/hoavda/Public/corp/bound/sme/admin/depts/NAC_2001_35.pdf.xml"
+
+#files="/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_02_1.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_05_1.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_05_3.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_05_4.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/dc_05_5.doc.xml
+#/Users/hoavda/Public/corp/bound/sme/admin/sd/spr_04_1.doc.xml"
 
 
 # Copy the gt-directory from victorio for each language.
@@ -48,52 +61,44 @@ copy_gt ()
     return 0
 }
 
-# Build an up-to-date analyzator and cg and
-# analyze the contents of the corpus-hierarchy.
-# The results are stored under /usr/local/share/corp/ga
-
-make_gt ()
+# Create directory for the file.
+preprocess ()
 {
-    for lang in "$@"
-      do 
-      cd $crondir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
-#      cd $crondir/gt && make TARGET=$lang 
-
-      cd $crondir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
-      cd $crondir/st/nob/src && make abbr 
-    done
-}
-
-sent ()
-{
-    for file in $files
+    for file in "$@"
     do
-      file1=$(echo $file | sed -e "s/\,.*$//")
-      file2=$(echo $file | sed -e "s/^.*\,//")
 
-      base01=$(basename $file1 .xml)
-      base1=$(basename $file1)
+      base01=$(basename $file .xml)
+      base1=$(basename $file)
 
-      base2=$(basename $file2)
-
-      dir=$corproot/parallel/$base01
+      dir=$corproot/$parallel_dir/$base01
       mkdir -p $dir
-      
-      if [ ! -e $dir/$base1.sent.xml ]
-	  then
-	  perl /Users/saara/cron/gt/script/corpus-parallel.pl --lang=sme --outdir="$dir" "$file1"
-      fi
+
+#      newfile=$dir/$base1
+#	  echo "NEW $newfile"
+
+	  if [ "$parallel" ]
+		  then
+		  echo "perl /Users/saara/gt/script/corpus-parallel.pl --lang=sme --para_lang=nob --outdir=\"$dir\" \"$file\""
+		  perl /Users/saara/gt/script/corpus-parallel.pl --lang=sme --para_lang=nob --outdir="$dir" "$file"
+	  else
+		  echo "jee2"
+		  perl $corpus_analyze --all --output="$outfile" --only_add_sentences --lang="$lang" "$file"
+	  fi
+
+	  chmod -R g+w $dir
+	  #chgrp -R $group $dir
 
     done
+
+	return 0
 }
 
 analyze ()
 { 
-    for file in $files
+    for file in "$@"
 
       do
-      file1=$(echo $file | sed -e "s/\,.*$//")
-      fs[$i]=$file1
+      fs[$i]=$file
       (( i += 1 ))
     done
 
@@ -119,23 +124,62 @@ analyze ()
 	return 0
     }
     
+# function that is called to get multiple processes.
 process ()
 {
     file="$1"
 
     base=$(basename $file .xml)
-    in=$corproot/parallel/$base/$base.sent.xml
-    out=$corproot/parallel/$base/$base.analyzed.xml
-    echo "$crondir/gt/script/corpus-analyze.pl --output=$out $in"
+    in=$corproot/$parallel_dir/$base/$base.sent.xml
+    out=$corproot/$parallel_dir/$base/$base.analyzed.xml
+    echo "perl -I /Users/saara/gt/script $crondir/gt/script/corpus-analyze.pl --all --output=$out $in"
 
-    $crondir/gt/script/corpus-analyze.pl --output=$out $in
+    perl -I /Users/saara/gt/script $crondir/gt/script/corpus-analyze.pl --all --output=$out $in
     
     return 0
 }
 
-#copy_gt $languages
-#make_gt $languages
-#sent
-analyze
+pack ()
+{
+
+	mkdir -p $distdir
+	echo "Files with sent.xml are unanalyzed." > readme
+	tar -c --file=$distdir/$1 readme
+	echo tar -c $distdir/$1
+
+    for file in $files
+    do
+      base01=$(basename $file .xml)
+	  sentfiles=$(find $corproot/$parallel_dir/$base01/ -name "*.sent.xml" -or -name "*.analyzed.xml")
+	  for sent in $sentfiles
+		do
+		echo perl -pi -e "s/\/home\/saara\/lcorp\/orig\///" $sent
+		perl -pi -e "s/\/home\/saara\/lcorp\/orig\///" $sent
+		
+		sentbase=$(basename $sent)
+		tar --file=$distdir/$1 -C $corproot/$parallel_dir/$base01/ -r $sentbase
+		echo tar --file=$distdir/$1 -C $corproot/$parallel_dir/$base01/ -r $sentbase
+		done
+	done
+}
+
+case "$1" in
+	copy_gt)
+        $@
+        ;;
+   preprocess)
+        $@
+        ;;
+   analyze)
+        $@
+        ;;
+   pack)
+        $@
+        ;;
+   *)
+        echo $"Usage: $0 {copy_gt lang | preprocess files.. | analyze files.. | pack tarfile }"
+        exit 1
+        ;;
+esac
 
 exit 0
