@@ -53,7 +53,7 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-my $test=0; #preserves temporary files and prints extra info.
+my $test=1; #preserves temporary files and prints extra info.
 
 # set the permissions for created files: -rw-rw-r--
 #umask 0112;
@@ -273,6 +273,7 @@ sub process_file {
 		exec_com($command, $file);
 
 		$int =~ s/\.correct//;
+
 		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 		# Do extra formatting for prooftest-directory.
 		$command = "$add_error_marking $orig > $tmp1";
@@ -497,10 +498,11 @@ sub convert_txt {
 
 	copy($orig,$int);
 	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
+	my $coding;
   ENCODING:
 	if (! $no_decode && ! $$no_decode_this_time_ref ) {
 
-		my $coding = &guess_text_encoding($int, $tmp4, $language);
+		$coding = &guess_text_encoding($int, $tmp4, $language);
 
 		if ($coding eq 0) { 
 			if ($test) { print STDERR "Correct character encoding.\n"; }
@@ -517,13 +519,27 @@ sub convert_txt {
 			$$no_decode_this_time_ref=1;
 		}
 	}
-	#return;
+
 	# Simple html-tags are added in subroutine txtclean
 	# and then converted to confront the corpus structure
 	
 	txtclean($int, $tmp4, $language);
 	copy($tmp4,$int);
-
+	my $amp_para=0;
+	if ($amp_para) {
+		my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_amp_para(@_); } });
+		if (! $document->safe_parsefile ("$int") ) {
+			carp "ERROR parsing the XML-file failed. STOP\n";
+			return "ERROR";
+		}
+		if (! open (FH, ">$tmp4")) {
+			carp "ERROR cannot open file STOP";
+			return "ERROR";
+		} 
+		$document->set_pretty_print('indented');
+		$document->print( \*FH);
+		copy($tmp4,$int);
+	}
 	return 0;
 }
 
@@ -553,8 +569,9 @@ sub convert_html {
 		if ($error eq -1){ return "ERROR"; }
 	}
 
-	if (! $tmp4) { copy($orig,$tmp4); }
+	if (! -f $tmp4) { copy($orig,$tmp4); }
 	my $xsl;
+
 	if ($convxsl) { $xsl = $convxsl; }
 	else { $xsl = $htmlxsl; }
 	$command = "$tidy \"$tmp4\" > \"$tmp3\" 2>/dev/null";
@@ -766,6 +783,18 @@ sub call_decode_para {
 	my $error = &decode_para($language, \$text, $coding);
 
 	$para->set_text($text);
+	
+	return 0;
+}
+
+# change &amp;#230; etc. to normal characters.
+sub call_decode_amp_para {
+	my ( $twig, $para) = @_;
+
+	my $text = $para->text;
+	my $newpara = &decode_amp_para($text);
+
+	$para->set_text($newpara);
 	
 	return 0;
 }
