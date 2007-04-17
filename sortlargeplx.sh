@@ -1,5 +1,5 @@
 #!/bin/sh
-gunzip -c $1 | split -l 25000000 - large
+split -l 25000000 $1 large
 for i in large*
 do
 	LANG= sort -ru $i > $i-sorted
