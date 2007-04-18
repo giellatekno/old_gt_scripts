@@ -5,7 +5,7 @@
 # $3 = sorted output
 
 # 1 get the initial chars from sigma
-print "load stack < $2/bin/spellernonrec-$2.fst \n \
+echo "load stack < $2/bin/spellernonrec-$2.fst \n \
 sigma \n \
 quit \n " > tmp/sigma-script
 
