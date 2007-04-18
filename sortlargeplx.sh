@@ -36,3 +36,10 @@ done
 cat $2/int/num-init-sorted.plx >> tmp/large-$2-sorted.plx
 
 
+# Børre pseudo:
+# for each line, 
+# split line into $firstchar $rest
+# write line to file large-$firstchar
+# 
+# sed 's/(^.)(.*$)/$1$2/g
+# write $1$2 to large-$1
