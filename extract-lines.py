@@ -6,7 +6,6 @@ import os,string,sys
 def main():
     foundChars = []
     openFiles = {}
-    sortFiles = {}
     largefile = open(sys.argv[1])
     
     for line in largefile:
@@ -15,7 +14,8 @@ def main():
             foundChars = foundChars + [line[0]]
             #openFiles = 
             openFiles[line[0]] = open(line[0] + '-init.plx', 'w')
-            sortFiles[line[0]] = open(line[0] + '-sorted-init.plx', 'w')
+            print line.encode('utf8')
+            
         openFiles[line[0]].write(line.encode('utf8'))
             
      # rev, uniq sort the files, delete the old files
