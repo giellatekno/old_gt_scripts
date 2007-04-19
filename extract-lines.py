@@ -29,12 +29,12 @@ def main():
     foundChars.sort()
     foundChars.reverse()
     
-    filefile = open("filefile",'w')
+    charfile = open("charfile",'w')
     for i in foundChars:
     	if i != i.lower():
-            filefile.write( unicode(i.lower() + "_-sorted-init.plx ").encode('utf8'))
+            charfile.write( unicode(i.lower() + '_ ').encode('utf8'))
         else:
-            filefile.write( unicode(i + "_-sorted-init.plx ").encode('utf8'))
+            charfile.write( unicode(i + ' ').encode('utf8'))
 
 
 if __name__ == "__main__":
