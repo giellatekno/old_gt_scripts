@@ -6,16 +6,17 @@ import os,string,sys
 def main():
     foundChars = []
     openFiles = {}
-    largefile = open(sys.argv[1])
+    if (sys.argv[1] == '-'):
+	largefile = sys.stdin
+    else:
+    	largefile = open(sys.argv[1])
+	
     firstchar = ''
     
     for line in largefile:
         line = unicode(line, 'utf8')
         firstChar = line[0]
         
-        #
-         #   firstChar = firstChar.lower() + '_'
-            
         if firstChar not in foundChars:
             foundChars = foundChars + [firstChar]
             if firstChar != firstChar.lower():
