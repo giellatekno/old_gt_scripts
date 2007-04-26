@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import os.path
+import os
 import shutil
 import string
 import sys
 
 def generate_nums(max_limit):
-	plxfile = open(os.path.join(os.path.expanduser("~"),"gt/common/polderland/generated_nums-plx.txt"),"w")
+	plxfile = open(os.path.join(os.getcwd(),"common/polderland/generated_nums-plx.txt"),"w")
 	for x in range(1,max_limit + 1):
-		plxfile.write(`x` + '\t' + 'UILH\n')
+		plxfile.write(`x` + '\t' + 'UIL\n')
+		plxfile.write(`x` + '--\t' + 'NL\n')
 
 def usage():
 	print "This script generates numerals."
