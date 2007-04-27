@@ -8,6 +8,7 @@ def main():
 	foundChars = []
 	openFiles = {}
 	for fname in sys.argv[1:]:
+		print "Now extracting from: ", fname
 		if (fname == '-'):
 			largefile = sys.stdin
 		elif (fname[-2:] == 'gz'):
