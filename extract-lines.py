@@ -36,7 +36,9 @@ def main():
 	
 	charfile = open("charfile",'w')
 	for i in foundChars:
-		if i != i.lower():
+		if i == '-':
+			pass
+		elif i != i.lower():
 			charfile.write( unicode(i.lower() + '_ ').encode('utf8'))
 		else:
 			charfile.write( unicode(i + ' ').encode('utf8'))
