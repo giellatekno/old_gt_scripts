@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os,string,sys,gzip
+import os,string,sys
 
 
 def main():
@@ -12,13 +12,17 @@ def main():
 		if (fname == '-'):
 			largefile = sys.stdin
 		elif (fname[-2:] == 'gz'):
-			largefile = gzip.GzipFile(fname)
+			#largefile = gzip.GzipFile(fname)
+			cmd = 'zcat ' + fname
+			largefile = os.popen(cmd)
 		else:
 			largefile = open(fname)
 		
 		firstchar = ''
+		count = 0
 		
 		for line in largefile:
+			count += 1
 			line = unicode(line, 'utf8')
 			firstChar = line[0]
 			
