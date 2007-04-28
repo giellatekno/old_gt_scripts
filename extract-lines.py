@@ -13,7 +13,7 @@ def main():
 			largefile = sys.stdin
 		elif (fname[-2:] == 'gz'):
 			#largefile = gzip.GzipFile(fname)
-			cmd = 'zcat ' + fname
+			cmd = 'gunzip -c ' + fname
 			largefile = os.popen(cmd)
 		else:
 			largefile = open(fname)
