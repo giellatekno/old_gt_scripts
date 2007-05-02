@@ -24,30 +24,30 @@ def main():
 		for line in largefile:
 			count += 1
 			line = unicode(line, 'utf8')
-			firstChars = line[0:2]
-			print firstChars
+			firstChars = line[0]
+			#print firstChars
 			
 			if firstChars not in foundChars:
 				foundChars += [firstChars]
-				if firstChars[0] != firstChars[0].lower():
-					openFiles[firstChars] = open('tmp/' + firstChars[0].lower() + '_' + firstChars[1] + '-init.plx', 'w')
-				else:
+				if firstChars == firstChars.lower():
 					openFiles[firstChars] = open('tmp/' + firstChars + '-init.plx', 'w')
+				else:
+					openFiles[firstChars] = open('tmp/' + firstChars.lower() + '_-init.plx', 'w')
 				#print line.encode('utf8')
 			
 			openFiles[firstChars].write(line.encode('utf8'))
-			
+	
 	foundChars.sort()
 	foundChars.reverse()
-	
+
 	charfile = open("charfile",'w')
 	for i in foundChars:
 		if i == '-':
 			pass
-		elif i[0] != i[0].lower():
-			charfile.write( unicode(i[0].lower() + '_ ' + i[1]).encode('utf8'))
-		else:
+		elif i == i.lower():
 			charfile.write( unicode(i + ' ').encode('utf8'))
+		else:
+			charfile.write( unicode(i + '_ ').encode('utf8'))
 
 
 if __name__ == "__main__":
