@@ -30,7 +30,7 @@ my $IDIOM="IDIOM";
 my $MULTIWORD_SIZE = 3;
 
 my $quotations = quotemeta("«»‹›“”„‘’‚´`'\"");
-my $other = quotemeta("…•¶"); # dash to be added
+my $other = quotemeta("…•¶½¾¼"); # dash to be added
 my $parentheses = quotemeta("|{}[]()<>");
 my $general_punct = quotemeta("$.*?!,;:.%");
 
@@ -46,7 +46,7 @@ my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\
 
 # Punctuation that connects two or more numerals 
 # into one numeral expressions.
-my $NUM_PUNCT=quotemeta("-+*=/");
+my $NUM_PUNCT=quotemeta("-+*=/≈·");
 
 my $abbr_file;
 my $help=0;
