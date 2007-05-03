@@ -51,9 +51,9 @@ if(! $fst || !$paradigmfile || ! -f $paradigmfile) { $noparadigm=1; }
 @lex_file_names = split (/,/, $lex_files);
 
 # Read from lex-file and write to abbr file.
-open ABB, "> $abbr_file" or die "Cant open the file: $!\n";
+open ABB, "> $abbr_file" or die "Cant open the output file: $!\n";
 
-open LEX, "< $abbr_lex_file" or die "Cant open the file: $!\n";
+open LEX, "< $abbr_lex_file" or die "Cant open the abbreviation file: $!\n";
 
 
 # read from the beginning of the file.
@@ -134,7 +134,7 @@ for my $file (@lex_file_names) {
 			for my $a ( @{$paradigms{$pos}} ) {
 				my $string = "$abbr+$a";
 
-				my $read_anl = call_lookup(\$exp, $string);
+				my $read_anl = call_lookup(\$exp, $string, 1);
 
 				my @analyses = split(/\n/, $read_anl);
 				my @tmp;
@@ -168,9 +168,7 @@ if( ! $noparadigm) {
 		for my $a ( @{$paradigms{"Num"}} ) {
 			my $string = "$n+$a";
 			
-			#print $string;
-			
-			my $read_anl = call_lookup(\$exp, $string);
+			my $read_anl = call_lookup(\$exp, $string, 1);
 			
 			my @analyses = split(/\n/, $read_anl);
 			for my $a (@analyses) { 
