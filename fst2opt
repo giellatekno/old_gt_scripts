@@ -56,6 +56,9 @@ build_gt() {
 	cp $tmpdir/gt/script/hyph-filter.pl $commonbin
 	cp $tmpdir/gt/cwb/korpustags.txt $commonbin
 	cp $tmpdir/gt/cwb/paradigm.txt $commonbin
+	cp $tmpdir/gt/cwb/paradigm_min.txt $commonbin
+	cp $tmpdir/gt/cwb/paradigm_standard.txt $commonbin
+	cp $tmpdir/gt/cwb/paradigm_full.txt $commonbin
 	cp $tmpdir/gt/common/bin/allcaps.fst $commonbin
 	
 	$tmpdir/gt/script/generate-anchor-list.pl --lang1=sme --lang2=nno $tmpdir/gt/common/src/anchor.txt --outdir=$commonbin
