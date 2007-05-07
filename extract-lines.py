@@ -7,7 +7,8 @@ import os,string,sys
 def main():
 	foundChars = []
 	openFiles = {}
-	for fname in sys.argv[1:]:
+	lang = sys.argv[1]
+	for fname in sys.argv[2:]:
 		print "Now extracting from: ", fname
 		if (fname == '-'):
 			largefile = sys.stdin
@@ -30,9 +31,9 @@ def main():
 			if firstChars not in foundChars:
 				foundChars += [firstChars]
 				if firstChars == firstChars.lower():
-					openFiles[firstChars] = open('tmp/' + firstChars + '-init.plx', 'w')
+					openFiles[firstChars] = open('tmp/' + firstChars + '-' + lang + '-init.plx', 'w')
 				else:
-					openFiles[firstChars] = open('tmp/' + firstChars.lower() + '_-init.plx', 'w')
+					openFiles[firstChars] = open('tmp/' + firstChars.lower() + '_-' + lang + '-init.plx', 'w')
 				#print line.encode('utf8')
 			
 			openFiles[firstChars].write(line.encode('utf8'))
