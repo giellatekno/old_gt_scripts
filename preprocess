@@ -29,9 +29,38 @@ my $IDIOM="IDIOM";
 # Max size of a multi-word expression.
 my $MULTIWORD_SIZE = 3;
 
+my $abbr_file;
+my $help=0;
+my $verbose=0;
+my $hyph=0;
+my $use_hyph_tag=0;
+my $fst;
+my $corr;
+my $sentence_break=".";
+my $xml;
+my $line;
+my $next_line;
+
+GetOptions ("abbr=s" => \$abbr_file,
+			"fst=s" => \$fst,
+			"corr=s" => \$corr,
+			"break=s" => \$sentence_break,
+			"xml" => \$xml,
+			"help" => \$help,
+			"v" => \$verbose,
+
+			"hyph" => \$hyph,
+			"use-hyph-tag" => \$use_hyph_tag) ;
+
+if ($help) {
+	&print_usage;
+	exit;}
+
+
 my $quotations = quotemeta("«»‹›“”„‘’‚´`'\"");
 my $other = quotemeta("…•¶½¾¼"); # dash to be added
 my $parentheses = quotemeta("|{}[]()<>");
+if ($xml) { $parentheses = quotemeta("|{}[]()"); }
 my $general_punct = quotemeta("$.*?!,;:.%");
 
 # Punctuation marks that are always their own tokens,
@@ -42,34 +71,12 @@ my $SINGLE_PUNCT = $quotations . $parentheses . quotemeta("?!,;/\\") . $other;
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SINGLE_PUNCT.
-my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt|²|³|™';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt|¹|²|³|™';
+if ($xml) { $CONTAIN_PUNCT .= "|<.*>"; }
 
 # Punctuation that connects two or more numerals 
 # into one numeral expressions.
 my $NUM_PUNCT=quotemeta("-+*=/≈·");
-
-my $abbr_file;
-my $help=0;
-my $verbose=0;
-my $hyph=0;
-my $use_hyph_tag=0;
-my $fst;
-my $corr;
-my $sentence_break=".";
-
-GetOptions ("abbr=s" => \$abbr_file,
-			"fst=s" => \$fst,
-			"corr=s" => \$corr,
-			"break=s" => \$sentence_break,
-			"help" => \$help,
-			"v" => \$verbose,
-
-			"hyph" => \$hyph,
-			"use-hyph-tag" => \$use_hyph_tag) ;
-
-if ($help) {
-	&print_usage;
-	exit;}
 
 my %idioms;
 my %idioms_short;
@@ -96,8 +103,6 @@ sub verbose {
 
 # Read one line at a time but keep track on the next line.
 
-my $next_line=undef;
-my $cur_line=undef;
 my @next_words;
 my @words;
 
@@ -105,6 +110,7 @@ while (<>) {
 	chomp;
 
 	next if (/^\s*$/);
+	s/^\s*//;
 	
 	# Process the <hyph> tag.
 	if (! $use_hyph_tag) {
@@ -113,17 +119,55 @@ while (<>) {
 	}
 
 	# Process always the previous line, unless first line.
-	if(!@words) { 
-		@words = split(/\s+/);
+	if(!$line) { 
+		$line = $_;
 		if (!eof) { next; }
-		else { @next_words=undef; pop @next_words; }
+		else { $next_line = undef; }
 	}
-	else { @next_words = split; }
+	elsif(eof) { $next_line = undef; }
+	else { $next_line = $_; }
 
+	if(! $xml) {
+		if (! @words) { @words = split (/\s+/, $line); }
+		@next_words = split (/\s+/, $next_line);
+	}
+	else {
+		# If the xml-tags are included in the preprocessor output they are 
+		# left untouched and just added to the tokens array.
+		# The xml-markup without space, like in <italics>word</italics>
+		# is taken into account.
+		
+		if (!@words) { xml_tags($line, \@words); }
+		xml_tags($next_line, \@next_words)
+		} 
+	
 	process_words();
+	@words = @next_words;
+
 }
 
 process_words();
+
+sub xml_tags {
+	my ($line, $aref) = @_;
+
+	@$aref = undef;
+	pop @$aref;
+
+	while ($line) {
+		verbose("processing xml-tag", $line , __LINE__);	
+		if ($line =~ s/^\s*([^<\s]*?)\s+//) { push (@$aref, $1); next; }
+		elsif ($line =~ s/^(.*?)\s*(<[^<]*?>)\s*//) { 
+			if ($1) { push (@$aref, $1); } 
+			push (@$aref, $2); 
+			next; 
+		}
+		else { 
+			push (@$aref, split(/\s+/, $line));
+			last; 
+		}
+	}
+}
 
 sub process_words {
 	
@@ -133,6 +177,9 @@ sub process_words {
 		
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
+
+		# Leave xml-tags untouched.
+		if($xml && $word =~ /^<.*>$/) { print "$word\n"; next; }
 		
 		# Move forward if the word is nothing special. 
         # This is for making preprocessing faster.
@@ -194,7 +241,6 @@ sub process_words {
 			print "$token\n" unless ($token =~ /^$/);
 		}
 	}
-	@words=@next_words;
 }
 
 
@@ -700,6 +746,7 @@ sub print_usage {
     print "--help           prints the help text and exit.\n";
     print " --v             prints information of the execution of the script\n";
 	print " --corr=<file>   list of common typos and their corrections (e.g. typos.txt)\n";
+	print " --xml           leave the xml-tag untouched as their own tokens\n";
 
 }
 
