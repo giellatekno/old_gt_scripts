@@ -87,7 +87,8 @@ $paradigmfile=$paradigmfiles{$paradigm_mode};
 my $tagfile="/opt/smi/$lang/bin/korpustags.$lang.txt";
 if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 
-my $tmpfile="/usr/local/share/corp/tmp/smi-test.txt";
+my $tmpfile="/usr/local/share/corp/tmp/smi-test2.txt";
+open (FH, ">$tmpfile");
 
 my $out = new CGI;
 &printinitialhtmlcodes($action) ;         # see the subroutine below
@@ -163,7 +164,8 @@ else {
 			$bindir/lookup2cg`; }
 }
 
-if ($action =~ /generate/ || $action =~ /paradigm/) { $output = gen2html($result);  } 
+if ($result =~ s/ERROR//) { print "<p>$result</p>"; }
+elsif ($action =~ /generate/ || $action =~ /paradigm/) { $output = gen2html($result);  } 
 elsif ($cg =~ /hyphenate/) { $output = hyph2html($result); }
 else { $output = dis2html($result); }
 
@@ -189,10 +191,12 @@ sub generate_paradigm {
 	my %paradigms;
 	my $analyze;
 	my $answer;
+	my %all_ans;
 
 	open (FH, ">$tmpfile");
 	print FH "$word $pos\n";
 
+	print "<p><b>$word: $pos</b></p>\n";
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
 	$analyze="$utilitydir/lookup -flags mbTT -utf8 -d \"$fstdir/i$lang-norm.fst\" 2>/dev/null"; 
 
@@ -200,16 +204,90 @@ sub generate_paradigm {
 	$exp->log_file("/usr/local/share/corp/tmp/exp.log", "w");
 	print FH "$analyze\n";
 
-	my $i=0;
+	# Genrate paradigm for the given word class
+	if ($pos ne "Any") {
+		$answer = call_para($word, \$exp, \@{$paradigms{$pos}});
+		
+		# If there was no answer, try to analyze the input word.
+		# Pick up the POS-tag and send it pack to the paradigm generator.
+		if($answer) { $all_ans{$answer} = "1"; }
+	}
+	# Check for the other POS and derivations
+	my $result = `echo $word | $utilitydir/lookup -flags mbTT -utf8 $fstdir/$lang.fst`;
+	my @answers = split("\n", $result);
+	print FH "ANALYSIS $result";
+	print FH "echo $word | $utilitydir/lookup -flags mbTT -utf8 $fstdir/$lang.fst";
+	shift @answers;
+	
+	# Check the pos tag and derivation
+	my %poses;
+	my %derivations;
+	for my $ans (@answers) {
+		next if ($ans =~ /\?/);
+		my ($lemma, $anl) = split(/\s+/, $ans);
+		my @line = split (/\+/, $anl);
+		if ($anl !~ /Der/) { 
+			my $p = $line[1];
+			my $w = $line[0];
+			$poses{$p} = $w;
+			print FH "POS $p\n WORD $w\n";
+		}
+		else {
+			$anl =~ m/^(.*?(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/;
+			my $word_der=$1;
+			my $word_pos=$2;
+			$derivations{$word_der} = $word_pos;
+			print FH "POS $word_pos\n WORD_DER $word_der\n";
+		}
+	}
+	# Generate paradigm for any word class
+	if (! %all_ans || $pos eq "Any") {
+		print "<p>Searching for base form..</p>";
+		for my $p (keys %poses) {
+			if ($p eq $pos) {
+				$answer = call_para($poses{$p}, \$exp, \@{$paradigms{$p}});
+				$all_ans{$answer}="2";
+			}
+			if ($pos eq "Any") {
+				$answer = call_para($poses{$p}, \$exp, \@{$paradigms{$p}});
+				$all_ans{$answer}="2";
+			}
+		}
+	}
+	#print "<p>Checking derivations..</p>";
+	for my $d (keys %derivations) {
+		my $p = $derivations{$d};
+		$answer = call_para($d, \$exp, \@{$paradigms{$p}});
+		$all_ans{$answer}="3";
+	}
+	if(! %all_ans) {
+		$answer="ERROR No paradigm found. The word may not exist in our lexicon.\n";
+		print FH "ANSWER $answer OK\n";
+	}
+	else {
+		$answer="";
+		for my $key (sort { $all_ans{$a} <=> $all_ans{$b} } keys %all_ans) {
+			$answer .= $key;
+			$answer .= "\n";
+			print FH "ANSWER2 $key OK\n";
+		}		
+	}
+	$exp->hard_close();
 
-	for my $a ( @{$paradigms{$pos}} ) {
+	return $answer;
+}
+
+sub call_para {
+
+	my ($word, $exp_ref, $para_aref) = @_;
+
+	my $answer;
+	for my $a ( @$para_aref ) {
 
 		my $string = "$word+$a";
 		print FH "$string\n";
-		my $read_anl = call_lookup(\$exp, $string);
+		my $read_anl = call_lookup($exp_ref, $string);
 
-		print FH "read_anl: $read_anl\n";
-		
 		# Take away the original input.
 		#$read_anl =~ s/^.*?\n//;
 		# Replace extra newlines.
@@ -218,16 +296,10 @@ sub generate_paradigm {
 
 		next if ($read_anl =~ /\+\?/);
 
+		print FH "read_anl: $read_anl\n";
+		
 		$answer .= "$read_anl\n";
 	}
-	print FH "answer: $answer\n";
-	$exp->hard_close();
-	if (! $answer) { 
-		$answer="No paradigm found. The word may not exist in our lexicon.\n";
-		$answer .= @{paradigms{$pos}}
-	}
-	else { $answer = "$word $pos\n\n" . $answer; }
-
 	return $answer;
 }
 
