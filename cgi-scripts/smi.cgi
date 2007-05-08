@@ -131,7 +131,7 @@ my $output;
 
 if ($action =~ /generate/) {
    $result = `echo $text | tr " " "\n" | \
-			$utilitydir/lookup -flags mbLTT -utf8 -d $fstdir/i$lang.fst` ;
+			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/i$lang.fst` ;
 }
 elsif ($action =~ /paradigm/) {
     $result = generate_paradigm($text, $pos);
