@@ -217,7 +217,7 @@ sub generate_paradigm {
 	my @answers = split("\n", $result);
 	print FH "ANALYSIS $result";
 	print FH "echo $word | $utilitydir/lookup -flags mbTT -utf8 $fstdir/$lang.fst";
-	shift @answers;
+	#shift @answers;
 	
 	# Check the pos tag and derivation
 	my %poses;
