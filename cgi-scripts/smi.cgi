@@ -314,13 +314,14 @@ sub printinitialhtmlcodes {
 	if ($tool =~ /paradigm/) {
 
 		print <<END ;
-    <form ACTION="http://sami-cgi-bin.uit.no/cgi-bin/test/smi.cgi"
+    <form ACTION="http://sami-cgi-bin.uit.no/cgi-bin/smi.cgi"
           METHOD="get" TARGET="_top" name="form2">
 
 		<table border=0 >
 			<tr>
 			<td><textarea TYPE="text" NAME="text" VALUE="" ROWS="1" COLS="30" MAXLENGTH="10"></textarea>
 			<select name="pos">
+			<option value="Any">Any</option>
 			<option value="N">Noun</option>
 			<option value="V">Verb</option>
 			<option value="A">Adjective</option>
