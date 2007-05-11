@@ -19,24 +19,22 @@ def main():
 		else:
 			largefile = open(fname)
 		
-		firstChars = ''
+		firstChar = ''
 		count = 0
 		
 		for line in largefile:
 			count += 1
 			line = unicode(line, 'utf8')
-			firstChars = line[0]
-			#print firstChars
+			firstChar = line[0]
 			
-			if firstChars not in foundChars:
-				foundChars += [firstChars]
-				if firstChars == firstChars.lower():
-					openFiles[firstChars] = open('tmp/' + firstChars + '-' + lang + '-init.plx', 'w')
+			if firstChar not in foundChars:
+				foundChars += [firstChar]
+				if firstChar == firstChar.lower():
+					openFiles[firstChar] = open('tmp/' + firstChar + '-' + lang + '-init.plx', 'w')
 				else:
-					openFiles[firstChars] = open('tmp/' + firstChars.lower() + '_-' + lang + '-init.plx', 'w')
-				#print line.encode('utf8')
+					openFiles[firstChar] = open('tmp/' + firstChar + '_-' + lang + '-init.plx', 'w')
 			
-			openFiles[firstChars].write(line.encode('utf8'))
+			openFiles[firstChar].write(line.encode('utf8'))
 	
 	foundChars.sort()
 	foundChars.reverse()
