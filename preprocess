@@ -40,12 +40,15 @@ my $sentence_break=".";
 my $xml;
 my $line;
 my $next_line;
+my %connecting;
+my $connect;
 
 GetOptions ("abbr=s" => \$abbr_file,
 			"fst=s" => \$fst,
 			"corr=s" => \$corr,
 			"break=s" => \$sentence_break,
 			"xml" => \$xml,
+			"connect=s" => \$connect,
 			"help" => \$help,
 			"v" => \$verbose,
 
@@ -56,6 +59,9 @@ if ($help) {
 	&print_usage;
 	exit;}
 
+if ($connect) {
+	for my $w ( split(",", $connect)){ $connecting{$w} = 1; }
+}
 
 my $quotations = quotemeta("«»‹›“”„‘’‚´`'\"");
 my $other = quotemeta("…•¶½¾¼"); # dash to be added
@@ -109,7 +115,7 @@ my @words;
 while (<>) {
 	chomp;
 
-	next if (/^\s*$/);
+	if (/^\s*$/ && !eof) { next; }
 	s/^\s*//;
 	
 	# Process the <hyph> tag.
@@ -119,7 +125,7 @@ while (<>) {
 	}
 
 	# Process always the previous line, unless first line.
-	if(!$line) { 
+	if(!$line && ! @words) { 
 		$line = $_;
 		if (!eof) { next; }
 		else { $next_line = undef; }
@@ -127,9 +133,11 @@ while (<>) {
 	elsif(eof) { $next_line = undef; }
 	else { $next_line = $_; }
 
+	# If no XML-processing, split line to tokens.
 	if(! $xml) {
-		if (! @words) { @words = split (/\s+/, $line); }
+		if (! @words) { @words = split (/\s+/, $line); $line = undef; }
 		@next_words = split (/\s+/, $next_line);
+		$next_line = undef;
 	}
 	else {
 		# If the xml-tags are included in the preprocessor output they are 
@@ -175,6 +183,7 @@ sub process_words {
 		
 		my $word = shift @words;
 		
+		verbose("NEW", $word , __LINE__);
 		# An array for storing the tokens, each token in its own slot.
 		my @tokens;
 
@@ -188,6 +197,24 @@ sub process_words {
 				verbose("no correction, no idiom", $word , __LINE__);
 				print "$word\n";
 				next;
+			}
+		}
+		# Process "word1- og word2" strings.
+		if ($word =~ /\w+\p{Pd}$/) {
+			if (@words) {
+				if ($connecting{$words[0]}) {
+					$word .= " " . shift @words;
+					verbose("connecting", $word , __LINE__);
+					if ($words[0]) { $word .= " " . shift @words; }
+					elsif (@next_words) { $word .= " " . shift @next_words; }
+				}
+			}
+			elsif(@next_words) {
+				verbose("connecting", $word , __LINE__);
+				if ($connecting{$next_words[0]} && $next_words[1]) {
+					$word .= " " . shift @next_words;
+					$word .= " " . shift @next_words;
+				}
 			}
 		}
 		PROCESS_WORD: {
@@ -743,6 +770,8 @@ sub print_usage {
     print "                 to hyphens. The default is to just remove the <hyph> tags.\n";
     print "--use-hyph-tags  leave the <hyph> tags untouched\n";
     print "--break=<string> use <string> instead of . as sentence delimiter. \n";
+    print "--connect=<list> comma separated list of words which connect expressions\n";
+    print "                 like fisk- og vilthandelen \n";
     print "--help           prints the help text and exit.\n";
     print " --v             prints information of the execution of the script\n";
 	print " --corr=<file>   list of common typos and their corrections (e.g. typos.txt)\n";
