@@ -314,7 +314,7 @@ sub printinitialhtmlcodes {
 	if ($tool =~ /paradigm/) {
 
 		print <<END ;
-    <form ACTION="http://sami-cgi-bin.uit.no/cgi-bin/smi.cgi"
+    <form ACTION="http://sami-cgi-bin.uit.no/cgi-bin/smi/smi.cgi"
           METHOD="get" TARGET="_top" name="form2">
 
 		<table border=0 >
