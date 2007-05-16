@@ -16,7 +16,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist);
+@EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist &win_digr &digr_utf8);
 @EXPORT_OK   = qw();
 
 # Initialize expect object for analysis
@@ -162,6 +162,43 @@ sub read_tags {
 
 	close TAGS;
 }
+
+
+# Some character set conversion routines, rarely used nowadays.
+# Convert windows charachters to Sami digraphs
+sub win_digr {
+	my $ctext  = shift(@_);
+
+	$ctext =~ s/\212/S1/g ;
+	$ctext =~ s/\232/s1/g ;
+	$ctext =~ s/\216/Z1/g ;
+	$ctext =~ s/\236/z1/g ;
+
+	return $ctext;
+}
+
+
+sub digr_utf8 {
+	my $ctext = shift(@_);
+
+	$ctext =~ s/A1/Á/g ;
+	$ctext =~ s/a1/á/g ;
+	$ctext =~ s/C1/Č/g ;
+	$ctext =~ s/c1/č/g ;
+	$ctext =~ s/D1/Đ/g ;
+	$ctext =~ s/d1/đ/g ;
+	$ctext =~ s/N1/Ŋ/g ;
+	$ctext =~ s/n1/ŋ/g ;
+	$ctext =~ s/S1/Š/g ;
+	$ctext =~ s/s1/š/g ;
+	$ctext =~ s/T1/Ŧ/g ;
+	$ctext =~ s/t1/ŧ/g ;
+	$ctext =~ s/Z1/Ž/g ;
+	$ctext =~ s/z1/ž/g ;
+	
+	return $ctext;
+}
+
 
 
 
