@@ -1,22 +1,30 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
-use warnings;
+use CGI::Debug;
 use strict;
 
+use utf8;
 use HTML::Entities;
 use Unicode::String qw(utf8 latin1);
+use XML::Twig;
 
-use CGI qw/:standard :html3 *table *dl/;
+use CGI::Minimal;
+
+#use CGI qw/:standard :html3 *table *dl/;
 $CGI::DISABLE_UPLOADS = 0;
-$CGI::POST_MAX        = 1_024 * 1_024; # limit posts to 1 meg max
+# limit posts to 1 meg max
+$CGI::POST_MAX        = 1_024 * 1_024; 
+use CGI::Alert;
 
 # Forwarding warnings and fatal errors to browser window
-use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
+#use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 
 # Use project's utility functions.
 use langTools::Util;
 use langTools::XMLStruct;
-use Expect;
+
+# Configuration: variable definitions etc.
+require "conf.pl";
 
 ########################################################################
 #
@@ -39,67 +47,77 @@ use Expect;
 # The script uses Perl module CGI.pm to retrieve and handle 
 # information from HTML form and generating new HTML pages.
 
-my $wordlimit = 250 ;       # adjust as appropriate; prevent large-scale (ab)use
+# Variables retrieved from the query.
+our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode);
+# Variable definitions, included in smi.cgi
+our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$generate,$hyphenate,%avail_pos);
 
-# GET THE INPUT
+##### GET THE INPUT #####
 
-my $text="";  #The text to be analysed
+$text="";  #The text to be analysed
+my $query = CGI::Minimal->new;
 
-my $query = new CGI;
 $text = $query->param('text');
-my $pos = $query->param('pos');
-my $cg = $query->param('cg');
-my $charset = $query->param('charset');
-my $lang = $query->param('language');
+$pos = $query->param('pos');
+$charset = $query->param('charset');
+$lang = $query->param('lang');
+$plang = $query->param('plang');
 
 # Action is either "generate" or "analyze" or "paradigm"
-my $action = $query->param('action');
-my $paradigm_mode = $query->param('paradigm_mode');
+$action = $query->param('action');
+$mode = $query->param('mode');
 
 # Input and output can be xml.
-my $xml_in = $query->param('xml_in');
-my $xml_out = $query->param('xml_out');
+$xml_in = $query->param('xml_in');
+$xml_out = $query->param('xml_out');
 
 if(! $lang) { die "No language specified.\n"; }
+if(! $plang) { die "No page language specified.\n"; }
 if(! $text) { die "No text to be analyzed.\n"; }
 
-# System-Specific directories
-# The directory where utilities like 'lookup' are stored
-#my $utilitydir = "/opt/xerox/bin" ;
-my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
-# The directory where fst is stored
-my $fstdir = "/opt/smi/$lang/bin" ;
-# Common binaries
-my $commondir = "/opt/smi/common/bin" ;
-# The directory for vislcg and lookup2cg
-my $bindir = "/opt/sami/cg/bin/";
+##### INITIALIZE  ####
 
-# Files to generate paradigm
-my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
-my %paradigmfiles = (
-					 min => "$commondir/paradigm_min.txt",
-					 standard => "$commondir/paradigm_standard.txt",
-					 full => "$commondir/paradigm_full.txt",
-					 );
+&init_variables;
 
-$paradigmfile=$paradigmfiles{$paradigm_mode};
-
-my $tagfile="/opt/smi/$lang/bin/korpustags.$lang.txt";
-if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
-
-my $tmpfile="/usr/local/share/corp/tmp/smi-test2.txt";
+# temporary files
 open (FH, ">$tmpfile");
+open (LFH, ">>$logfile");
 
-my $out = new CGI;
-&printinitialhtmlcodes($action) ;         # see the subroutine below
-                                 # prints out the usual HTML header info
+my @candidates;
+my $document;
+my $page;
+my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/test/smi.cgi";
 
-if($charset =~ /latin1/) {
-	$text = Unicode::String::latin1( $text);
+# Initialize HTML-page
+if(! $xml_out) {
+	# Parse language file.
+	$document = XML::Twig->new(keep_encoding => 1);
+	if (! $document->safe_parsefile ("$langfile")) {
+		print "parsing the XML-file failed: $@\n";
+		exit;
+	}                                                                                                   
+	$page = $document->root;
+	
+	&printinitialhtmlcodes($action, $page);
 }
+
+# Process input XML
+if ($xml_in) {
+	if ($action eq "analyze" || $action eq "disamb" || $action eq "hyphenate") {
+		$text = xml2preprocess($text);
+	}
+	if ($action eq "generate" || $action eq "paradigm") { $text = xml2words($text); }
+}
+
+if($charset eq "latin1") { $text = Unicode::String::latin1( $text); }
 
 # Convert html-entity to unicode
 decode_entities( $text );
+
+print LFH "PARAM $action, $lang, $plang";
+if ($action eq "paradigm") { print LFH "$pos, $mode"; }
+print LFH "\n$text\n";
 
 # Special characters in the text (e.g. literal ampersands, plus signs
 # and equal signs 
@@ -116,9 +134,7 @@ $text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g;
 # Change linebreaks to space and check the word limit
 my @words = split(/[\s]+/, $text);
 $text = join(' ', splice(@words,0,$wordlimit));
-if (@words) {
-     &printwordlimit;
-}
+if (@words && ! $xml_out) { &printwordlimit; }
 
 # And here is where the actual lookup gets done:
 # ###############################################
@@ -128,51 +144,63 @@ if (@words) {
 # 3.  The output of lookup is assigned as the value of $result
 
 my $result;
+my %answer;
+if ($action eq "generate")  { $result = `echo $text | $generate`; }
+elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer); }
+elsif ($action eq "disamb") { $result = `echo $text | $disamb`; }
+elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
+elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate | cut -f2 | tr '\012' ' '`; }
+else { 
+if (!$xml_out)  { print "<p>No action given</p>"; }
+else { print "<error>No parameter for action recieved</error>"; }
+}
+
+# Formatting of the output:
+######################################
+
 my $output;
 
-if ($action =~ /generate/) {
-   $result = `echo $text | tr " " "\n" | \
-			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/i$lang.fst` ;
-}
-elsif ($action =~ /paradigm/) {
-    $result = generate_paradigm($text, $pos);
+if (! $xml_out) {
+	if ($action eq "analyze" || $action eq "disamb") { 
+          $result =~ s/</&lt\;/g; 
+          $output = dis2html($result);
+    }
+	elsif ($action eq "generate") { $output = gen2html($result);  } 
+    elsif ($action eq "paradigm") {
+      my $grammar = $page->first_child("grammar");
+
+      if ($answer{noparadigm}) {
+	     my $no_result = $page->first_child_text("noresult[\@tool='paradigm']");
+         if (! $no_result) { $page->first_child_text("no_result"); }
+  	     my $pos_text = $grammar->first_child_text("pos[\@type='$pos']");
+         $output .= "<p>$no_result <b>$text $pos_text ($pos)</b>.</p>"; 
+      }
+      if ($answer{pos} && $answer{form}) { 
+	      my $pos_text = $grammar->first_child_text("pos[\@type='$answer{pos}']");
+          $output .= "<p><b>$answer{form} $pos_text ($answer{pos})</b></p>"; 
+      }
+      if ($result) { $output .= gen2html($result); }
+	  if ($answer{candidates}) { 
+	    my $other_forms = $page->first_child_text("otherforms[\@tool='paradigm']");
+		$output .= "<p><b>$other_forms:</b><br/>";
+		for my $c (keys %{$answer{candidates}}) { $output .= "$c<br/>\n"; }
+		$output .= "</p>";
+	  }
+    }
+	elsif ($action eq "hyphenate") { $output = hyph2html($result); }
+	else { $result =~ s/<(.*)>/$1/g; $output = dis2html($result); }
+
+    # print out the final HTML codes and end
+	if ($output) { print $output };
+	&printfinalhtmlcodes($page) ;
 }
 else {
-   if ($cg =~ /disamb/) {
-     $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
-			$bindir/lookup2cg | $bindir/vislcg --grammar=$fstdir/$lang-dis.rle`;  }
-  elsif ($cg =~ /analyse/) {
-  	$result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
-			$bindir/lookup2cg`; }
-  elsif ($cg =~ /hyphenate/) {
-  if ($lang eq "sme") {
-   $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | \
-			$bindir/hyph-filter.pl`;
-}
-else {
-   $result = `echo $text | $bindir/preprocess --abbr=$fstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 $fstdir/hyph-$lang.fst | \
-			cut -f2 | tr '\012' ' '`;
-}
-		}
-   else {
-	 $result = `echo $text | $bindir/preprocess | \
-			$utilitydir/lookup -flags mbTT -utf8 -d $fstdir/$lang.fst | \ 
-			$bindir/lookup2cg`; }
-}
-
-if ($result =~ s/ERROR//) { print "<p>$result</p>"; }
-elsif ($action =~ /generate/ || $action =~ /paradigm/) { $output = gen2html($result);  } 
-elsif ($cg =~ /hyphenate/) { $output = hyph2html($result); }
-else { $output = dis2html($result); }
-
+	if ($result =~ s/ERROR//) { print "<error>$result</error>"; }
+	elsif ($action eq "generate" || $action =~ /paradigm/) { $output = gen2xml($result);  } 
+	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
+	else { $output = dis2xml($result); }
 print $output;
-
-# print out the final HTML codes and end
-&printfinalhtmlcodes ;
+}
 
 # end
 
@@ -185,84 +213,117 @@ print $output;
 ######################################################################
 
 sub generate_paradigm {
-	my ($word, $pos) = @_;
+	my ($word, $pos, $answer_href) = @_;
 	
-    # Initialize paradigm and generator
-	my %paradigms;
-	my $analyze;
-	my $answer;
-	my %all_ans;
-
-	open (FH, ">$tmpfile");
 	print FH "$word $pos\n";
 
-	print "<p><b>$word: $pos</b></p>\n";
+	my %paradigms;
+	my $gen_call;
+	my %all_ans;
+	my $anypos;
+	my $answer;
+	if ($pos eq "Any") { $anypos = 1; }
+
+    # Initialize paradigm list
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
-	$analyze="$utilitydir/lookup -flags mbTT -utf8 -d \"$fstdir/i$lang-norm.fst\" 2>/dev/null"; 
 
-	my $exp = init_lookup($analyze);
-	$exp->log_file("/usr/local/share/corp/tmp/exp.log", "w");
-	print FH "$analyze\n";
-
-	# Genrate paradigm for the given word class
-	if ($pos ne "Any") {
-		$answer = call_para($word, \$exp, \@{$paradigms{$pos}});
-		
-		# If there was no answer, try to analyze the input word.
-		# Pick up the POS-tag and send it pack to the paradigm generator.
-		if($answer) { $all_ans{$answer} = "1"; }
+	# Generate paradigm for the given word class
+	if (! $anypos) {
+		$answer = call_para($word, \@{$paradigms{$pos}});
+		if($answer) { 	
+			$all_ans{$answer} = 1;
+			$$answer_href{form} = "$text";
+			$$answer_href{pos} = "$pos";
+			if ($xml_out) { return $answer; }
+		}
 	}
-	# Check for the other POS and derivations
-	my $result = `echo $word | $utilitydir/lookup -flags mbTT -utf8 $fstdir/$lang.fst`;
-	my @answers = split("\n", $result);
-	print FH "ANALYSIS $result";
-	print FH "echo $word | $utilitydir/lookup -flags mbTT -utf8 $fstdir/$lang.fst";
-	#shift @answers;
+	# If there was no answer, try to analyze the input word.
+	# Pick the POS-tag and send it pack to the paradigm generator.
+	my $result = `echo $word | $analyze`;
+	my @answers = split(/\n+/, $result);
+
+	print FH "echo $word | $analyze\n";
+	print FH "ANALYSIS $result\n";
 	
 	# Check the pos tag and derivation
 	my %poses;
 	my %derivations;
+	my @answers_clean;
 	for my $ans (@answers) {
-		next if ($ans =~ /\?/);
-		my ($lemma, $anl) = split(/\s+/, $ans);
-		my @line = split (/\+/, $anl);
-		if ($anl !~ /Der/) { 
+		next if ($ans =~ /\+\?/);
+		my ($lemma, $ans) = split(/\s+/, $ans);
+		if ($ans !~ /Der/) { 
+			my @line = split (/\+/, $ans);
 			my $p = $line[1];
 			my $w = $line[0];
-			$poses{$p} = $w;
-			print FH "POS $p\n WORD $w\n";
+
+			next if (! $anypos && $pos ne $p);
+			$poses{$ans}{'lemma'} = $w;
+			$poses{$ans}{'pos'} = $p;
+			push (@answers_clean, $ans);
 		}
-		else {
-			$anl =~ m/^(.*?(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/;
+	    elsif ($ans =~ m/^(.*?(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/) {
 			my $word_der=$1;
 			my $word_pos=$2;
+            next if (! $anypos && $pos ne $word_pos);
 			$derivations{$word_der} = $word_pos;
 			print FH "POS $word_pos\n WORD_DER $word_der\n";
 		}
 	}
-	# Generate paradigm for any word class
-	if (! %all_ans || $pos eq "Any") {
-		print "<p>Searching for base form..</p>";
-		for my $p (keys %poses) {
-			if ($p eq $pos) {
-				$answer = call_para($poses{$p}, \$exp, \@{$paradigms{$p}});
-				$all_ans{$answer}="2";
-			}
-			if ($pos eq "Any") {
-				$answer = call_para($poses{$p}, \$exp, \@{$paradigms{$p}});
-				$all_ans{$answer}="2";
+	# Search the analyses for the best match for the user input.
+	my $first_cand;
+	my $cand_p;
+	my $cand_w;
+	if (! %all_ans || $anypos) {
+		for my $ans (@answers_clean) {
+			if ($poses{$ans}{pos} eq $pos || $anypos) {
+				if ($poses{$ans}{lemma} eq $word && $avail_pos{$poses{$ans}{pos}}) {
+					print FH "FIRST $ans\n";
+					$first_cand = $poses{$ans};
+					$cand_p = $poses{$ans}{pos};
+					$cand_w = $poses{$ans}{lemma};
+				}
+				else {
+					print FH "CAND $ans\n";
+					push (@candidates, $ans);
+                }
+            }
+		}
+		# If the lemma matches to the input, generate paradigm
+		if ($first_cand) {
+			$$answer_href{form} = "$text";
+			$$answer_href{pos} = "$cand_p";
+			$answer = call_para($cand_w, \@{$paradigms{$cand_p}});
+			if ($answer) { $all_ans{$answer}=2; }
+		}
+		# If there was no exact match pick the first analysis.
+		elsif(@candidates) {
+			my $ans = shift(@candidates);
+			$$answer_href{form} = "$text";
+			$$answer_href{pos} = "$poses{$ans}{pos}";
+			$answer = call_para($poses{$ans}{lemma}, \@{$paradigms{$poses{$ans}{pos}}});
+			if ($answer) { $all_ans{$answer}=2; }
+		}
+    }
+	for my $c (@candidates) {
+		if ($$answer_href{pos} ne $poses{$c}{pos}) { $$answer_href{candidates}{$c}=1; }
+	}
+	for my $d (keys %derivations) {
+		my $p = $derivations{$d};
+		$answer = call_para($d, \@{$paradigms{$p}});
+		if ($answer) { 
+			$all_ans{$answer}=3; 
+			if (! $$answer_href{form} ) {
+				$$answer_href{form} = "$text";
+				$$answer_href{pos} = "$p";
 			}
 		}
 	}
-	#print "<p>Checking derivations..</p>";
-	for my $d (keys %derivations) {
-		my $p = $derivations{$d};
-		$answer = call_para($d, \$exp, \@{$paradigms{$p}});
-		$all_ans{$answer}="3";
-	}
 	if(! %all_ans) {
-		$answer="ERROR No paradigm found. The word may not exist in our lexicon.\n";
-		print FH "ANSWER $answer OK\n";
+		$$answer_href{noparadigm}=1;
+		$$answer_href{form}="";
+		$$answer_href{pos}="";
+		print FH "NOANSWER\n";
 	}
 	else {
 		$answer="";
@@ -272,143 +333,195 @@ sub generate_paradigm {
 			print FH "ANSWER2 $key OK\n";
 		}		
 	}
-	$exp->hard_close();
-
 	return $answer;
 }
 
+# Call paradigm generator
 sub call_para {
 
-	my ($word, $exp_ref, $para_aref) = @_;
+	my ($word, $para_aref) = @_;
 
 	my $answer;
+	my $all;
 	for my $a ( @$para_aref ) {
-
 		my $string = "$word+$a";
-		print FH "$string\n";
-		my $read_anl = call_lookup($exp_ref, $string);
-
-		# Take away the original input.
-		#$read_anl =~ s/^.*?\n//;
-		# Replace extra newlines.
-		$read_anl =~ s/\r\n/\n/g;
-		$read_anl =~ s/\r//g; 
-
-		next if ($read_anl =~ /\+\?/);
-
-		print FH "read_anl: $read_anl\n";
-		
-		$answer .= "$read_anl\n";
+		$all .= $string . "\n";
 	}
+	print FH "FORMS $all";
+	my $generated = `echo \"$all\" | $gen_lookup`;
+	my @all_cand = split(/\n+/, $generated);
+	for my $a (@all_cand) { if ($a !~ /\+\?/) { $answer .= $a . "\n\n"; } }
+	if ($answer) { print FH "ANS $answer";}
+
 	return $answer;
 }
 
 sub printinitialhtmlcodes {
-	my ($tool) = shift(@_);
+	my ($tool,$texts) = @_;
 
-    print $out->header(-type => 'text/html',
-                          -charset => 'utf-8');
-    print   $out->start_html('Sami morfologiija');
-    print $out->h2("S&aacute;mi instituhtta, Romssa universitehta");
+	my $tmp_tool = $tool;
+	if ($tool =~ /hyphenate|disamb/) { $tmp_tool = "analyze"; }
+	print FH "TOOL $tool $tmp_tool\n";
 
-	if ($tool =~ /paradigm/) {
+	# Read the texts from the XML-file.
 
-		print <<END ;
-    <form ACTION="http://sami-cgi-bin.uit.no/cgi-bin/smi/smi.cgi"
-          METHOD="get" TARGET="_top" name="form2">
+	# Header title
+	my $title = $texts->first_child_text("title[ \@tool='$tmp_tool' and \@lang='$lang']");
+	if (! $title) { $title = $texts->first_child_text("title[\@tool='$tmp_tool']"); }
+	
+	# First title on the texts
+	my $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool' and \@lang='$lang']");
+	if (! $h1) { $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool']"); }
+	
+	# References to the form texts
+	my $selection = $texts->first_child("selection[\@tool='$tmp_tool' and \@lang='$lang']"); 
+	if (! $selection) { $selection = $texts->first_child("selection[\@tool='$tmp_tool']"); }
 
-		<table border=0 >
-			<tr>
-			<td><textarea TYPE="text" NAME="text" VALUE="" ROWS="1" COLS="30" MAXLENGTH="10"></textarea>
-			<select name="pos">
-			<option value="Any">Any</option>
-			<option value="N">Noun</option>
-			<option value="V">Verb</option>
-			<option value="A">Adjective</option>
-			<option value="Pron">Pronoun</option>
-			<option value="Adv">Adverb</option>
-			</select>
-			</td>
-			</tr>
+	# Instructions for the user
+	my $instruction = $texts->first_child_text("instruction[\@tool='$tmp_tool' and \@lang='$lang']"); 
+	if (! $instruction) { $instruction = $texts->first_child_text("instruction[\@tool='$tmp_tool']"); }
 
-			<tr>
-			<td>
-			<input type="radio" name="paradigm_mode" value="min"/>Give minimal
-			paradigm<br/>
-			<input type="radio" name="paradigm_mode" value="standard" checked />Standard<br/>
-			<input type="radio" name="paradigm_mode" value="full"/>Full<br/>
-			</td>
-			</tr>
+	# Header and main titles are the same for all tools
+	print_header($title);
+	print "<h2>$h1</h2>";
+    print "<form ACTION=\"$form_action\" METHOD=\"get\" TARGET=\"_top\" name=\"form3\">";
 
-			<tr>
-			<td>
-			<input TYPE="submit" VALUE="Give paradigm"/><input TYPE="reset" VALUE="Reset"/>
-			</td>
-			</tr>
+	###### PARADIGM
+	if ($tmp_tool =~ /paradigm/) {
+		
+		# Get the texts for selection menu
+		my %labels;
+		my @modes = qw(minimal standard full);
+		for my $m (@modes) { $labels{$m} = $selection->first_child_text("\@type='$m'"); }
 
-			<tr>
-			<td>
-			<input TYPE="hidden" NAME="language" VALUE="sme" />
-			<input TYPE="hidden" NAME="action" VALUE="paradigm" />
-			</td>
-			</tr>
+		my %pos_labels;
+		my @poses;
+		my $grammar = $texts->first_child('grammar');
+		for my $p ($grammar->children('pos')) {
+			my $type = $p->{'att'}->{'type'};
+			push (@poses, $type);
+			$pos_labels{$type} = $p->text;
+		}
+		print "<table border=0 cellspacing=\"1\" cellpadding=\"2\" ><tr><td>";
+		print "<p>$instruction</p></br>";
+		print "<textarea TYPE=\"text\" NAME=\"text\" ROWS=\"1\" COLS=\"30\"></textarea>";
+		print "<select name=\"pos\">";
+		for my $label (@poses) {
+			print "<option value=\"$label\">$pos_labels{$label}</option>";
+		}
+		print "</select>";
 
-			</table>
-			</form>
-			<hr>
+		print "</td></tr><tr><td>";
+		for my $m (@modes) {
+			if ($mode eq $m ) {
+				print "<input checked TYPE=\"radio\" NAME=\"mode\" VALUE=\"$m\" />$labels{$m}<br/>";
+			}
+			else {
+				print "<input TYPE=\"radio\" NAME=\"mode\" VALUE=\"$m\" />$labels{$m}<br/>";
+			}
+		}
+        print "<input TYPE=\"hidden\" NAME=\"lang\" VALUE=\"$lang\" />";
+        print "<input TYPE=\"hidden\" NAME=\"plang\" VALUE=\"$plang\" />";
+        print "<input TYPE=\"hidden\" NAME=\"action\" VALUE=\"paradigm\" />";
+
+	} # end of PARADIGM
+	
+	##### GENERATOR
+	elsif ($tmp_tool =~ /generate/) {
+		print "<table border=\"0\" cellspacing=\"1\" cellpadding=\"2\" ><tr><td>";
+		print "$instruction<br/>";
+		print "<textarea TYPE=\"text\" NAME=\"text\" ROWS=\"1\" COLS=\"30\"></textarea>";
+        print "<input TYPE=\"hidden\" NAME=\"lang\" VALUE=\"$lang\" />";
+        print "<input TYPE=\"hidden\" NAME=\"plang\" VALUE=\"$plang\" />";
+        print "<input TYPE=\"hidden\" NAME=\"action\" VALUE=\"generate\" />";
+
+	} # end of GENERATOR
+
+	##### analyze/hyphenate/disambiguate
+	else {
+		# Get the texts for selection menu
+		my %labels;
+		$labels{analyze} = $selection->first_child_text('@tool="analyze"');
+		$labels{disamb} = $selection->first_child_text('@tool="disamb"');
+		$labels{hyphenate} = $selection->first_child_text('@tool="hyphenate"');
+
+		print "<table border=0 cellspacing=\"1\" cellpadding=\"2\"><tr><td>";
+		print "$instruction<br/>";
+		print <<EOH;
+		<textarea TYPE="text" NAME="text" VALUE="" ROWS="6" COLS="50" MAXLENGTH="10"></textarea>
+EOH
+		print "</td></tr><tr><td>";
+		for my $l (sort { $a cmp $b } keys %labels) {
+			if ($tool eq $l ) {
+				print "<input checked TYPE=\"radio\" NAME=\"action\" VALUE=\"$l\" />$labels{$l}<br/>";
+			}
+			else {
+				print "<input TYPE=\"radio\" NAME=\"action\" VALUE=\"$l\" />$labels{$l}<br/>";
+			}
+		}
+		print "</td></tr><tr><td>";
+        print "<input TYPE=\"hidden\" NAME=\"lang\" VALUE=\"$lang\" />";
+        print "<input TYPE=\"hidden\" NAME=\"plang\" VALUE=\"$plang\" />";
+			
+		} # end of analyze/hyphenate/disambiguate
+
+	# Submit and reset texts
+	my $submit = $texts->first_child_text("input[\@type='submit']");
+	my $reset = $texts->first_child_text("input[\@type='reset']");
+
+	print "</td></tr><tr><td>";
+	if ($charset eq "latin-1") {
+		print "<input name=\"charset\" type=\"radio\" value=\"utf-8\">utf-8</input>";
+		print "<input checked=\"1\" name=\"charset\" type=\"radio\" value=\"latin-1\">latin 1</input>";
+	}
+	else {
+		print "<input checked=\"1\" name=\"charset\" type=\"radio\" value=\"utf-8\">utf-8</input>";
+		print "<input name=\"charset\" type=\"radio\" value=\"latin-1\">latin 1</input>";
+	}
+	print "</td></tr><tr><td>";
+    print "<input TYPE=\"submit\" VALUE=\"$submit\"/><input TYPE=\"reset\" VALUE=\"$reset\"/>";
+
+    print <<END;
+	</td></tr></table>
+	</form>
+	<hr/>
 END
+}
+
+sub print_header
+{
+	my ($title) = shift @_;
+	print <<EOH ;
+Content-type: text/html
+
+	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+		<html>
+		<head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+EOH
+	print "<title>$title</title></head><body>";
 
 }
 
-}
 
 sub printfinalhtmlcodes
 {
-    print <<END;
+	my ($texts) = shift @_;
 
-		<hr/>
-			<p>Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.</p>
-			<a href="http://giellatekno.uit.no/">http://giellatekno.uit.no/</a>
-			</body>
-			</html>
+	my $copyright = $texts->first_child_text("copyright");
+	print <<END;
+	<hr/>
+		<p>$copyright</p>
+		<a href="http://giellatekno.uit.no/">http://giellatekno.uit.no/</a>
+		</body>
+		</html>
 END
 }
 
+
+
 sub printwordlimit {
-    print $out->b("\nWord limit is $wordlimit.\n");	
+#    print $out->b("\nWord limit is $wordlimit.\n");	
 }
 
-# Convert windows charachters to Sami digraphs
-sub win_digr {
-	my $ctext  = shift(@_);
-
-	$ctext =~ s/\212/S1/g ;
-	$ctext =~ s/\232/s1/g ;
-	$ctext =~ s/\216/Z1/g ;
-	$ctext =~ s/\236/z1/g ;
-
-	return $ctext;
-}
-
-
-sub digr_utf8 {
-	my $ctext = shift(@_);
-
-	$ctext =~ s/A1/Á/g ;
-	$ctext =~ s/a1/á/g ;
-	$ctext =~ s/C1/Č/g ;
-	$ctext =~ s/c1/č/g ;
-	$ctext =~ s/D1/Đ/g ;
-	$ctext =~ s/d1/đ/g ;
-	$ctext =~ s/N1/Ŋ/g ;
-	$ctext =~ s/n1/ŋ/g ;
-	$ctext =~ s/S1/Š/g ;
-	$ctext =~ s/s1/š/g ;
-	$ctext =~ s/T1/Ŧ/g ;
-	$ctext =~ s/t1/ŧ/g ;
-	$ctext =~ s/Z1/Ž/g ;
-	$ctext =~ s/z1/ž/g ;
-	
-	return $ctext;
-}
 
