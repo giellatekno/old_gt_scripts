@@ -27,8 +27,11 @@ my @lex_file_names;
 my $lex_files;
 my $abbr_file;
 my $abbr_lex_file;
-my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
-my $tagfile="/opt/smi/common/bin/korpustags.txt";
+# Not all the languages are using paradigm generator, so no default for these.
+#my $paradigmfile="/opt/smi/common/bin/paradigm.txt";
+#my $tagfile="/opt/smi/common/bin/korpustags.txt";
+my $paradigmfile;
+my $tagfile;
 my $fst;
 
 # The numbers which are used as examples of number inflection in the preprocessor.
