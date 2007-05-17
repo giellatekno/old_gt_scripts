@@ -99,6 +99,7 @@ sub dis2html {
 	my $output=XML::Twig::Elt->new('pre');
 
 	if (! $text) { 
+		if ($structure) { return $output; }
 		my $string = $output->sprint;
 		$output->delete;		
 		return $string;
@@ -106,10 +107,11 @@ sub dis2html {
 	$output->set_content($text);
 
 	if ($structure) { return $output; }
-
-	my $string = $output->sprint;
-	$output->delete;
-	return $string;
+	else{
+		my $string = $output->sprint;
+		$output->delete;
+		return $string;
+	}
 }
 
 # Convert the xml-output of analyzator or lookup2cg to
@@ -280,6 +282,8 @@ sub hyph2html {
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
+		if ($structure) { return $output; }
+
 		my $string = $output->sprint;
 		$output->delete;		
 		return $string;
@@ -292,10 +296,11 @@ sub hyph2html {
 
 	$output->set_content(@content);
 	if ($structure) { return $output; }
-
-	my $string = $output->sprint;
-	$output->delete;
-	return $string;
+	else {
+		my $string = $output->sprint;
+		$output->delete;
+		return $string;
+	}
 }
 
 # Move generator output to xml-structure.
@@ -369,6 +374,7 @@ sub gen2html {
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
+		if ($structure) { return $output; }
 		my $string = $output->sprint;
 		$output->delete;		
 		return $string;
@@ -416,10 +422,11 @@ sub gen2html {
 	if ($tr) { $tr->paste('last_child', $output); }
 
 	if ($structure) { return $output; }
-
-	my $string = $output->sprint;
-	$output->delete;
-	return $string;
+	else {
+		my $string = $output->sprint;
+		$output->delete;
+		return $string;
+	}
 }
 
 
