@@ -105,10 +105,11 @@ sub dis2html {
 	}
 	$output->set_content($text);
 
-	my $string = $output->sprint;
-	$output->delete;
+	return $output;
 
-	return $string;
+#	my $string = $output->sprint;
+#	$output->delete;
+#	return $string;
 }
 
 # Convert the xml-output of analyzator or lookup2cg to
@@ -290,11 +291,11 @@ sub hyph2html {
 	}
 
 	$output->set_content(@content);
-	my $string = $output->sprint;
-
-	$output->delete;
+	return $output;
 	
-	return $string;
+#	my $string = $output->sprint;
+#	$output->delete;
+#	return $string;
 }
 
 # Move generator output to xml-structure.
@@ -305,10 +306,8 @@ sub gen2xml {
 	my $lemma;
 	my $analysis;
 	my $output;
-	if ($paradigm)
-		{ $output=XML::Twig::Elt->new('paradigm'); }
-	else
-		{ $output=XML::Twig::Elt->new('generation'); }
+	if ($paradigm) { $output=XML::Twig::Elt->new('paradigm'); }
+	else { $output=XML::Twig::Elt->new('generation'); }
 	$output->set_pretty_print('record');
 
 	if (! $text) { 
@@ -416,11 +415,11 @@ sub gen2html {
 	}
 	if ($tr) { $tr->paste('last_child', $output); }
 
-	my $string = $output->sprint;
-	$output->delete;
+	return $output;
 
-	return $string;
-
+#	my $string = $output->sprint;
+#	$output->delete;
+#	return $string;
 }
 
 
