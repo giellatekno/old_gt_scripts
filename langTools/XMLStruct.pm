@@ -94,7 +94,7 @@ sub dis2xml {
 # Store the vislcg or lookup2cg output
 # to xml-structure.
 sub dis2html {
-	my ($text) = @_;
+	my ($text, $structure) = @_;
 
 	my $output=XML::Twig::Elt->new('pre');
 
@@ -105,11 +105,11 @@ sub dis2html {
 	}
 	$output->set_content($text);
 
-	return $output;
+	if ($structure) { return $output; }
 
-#	my $string = $output->sprint;
-#	$output->delete;
-#	return $string;
+	my $string = $output->sprint;
+	$output->delete;
+	return $string;
 }
 
 # Convert the xml-output of analyzator or lookup2cg to
@@ -273,7 +273,7 @@ sub hyph2xml {
 
 # Move hyphenator output to xml-structure.
 sub hyph2html {
-	my ($text) = @_;
+	my ($text,$structure) = @_;
 
 	my @content;
 	my $output=XML::Twig::Elt->new('p');
@@ -291,11 +291,11 @@ sub hyph2html {
 	}
 
 	$output->set_content(@content);
-	return $output;
-	
-#	my $string = $output->sprint;
-#	$output->delete;
-#	return $string;
+	if ($structure) { return $output; }
+
+	my $string = $output->sprint;
+	$output->delete;
+	return $string;
 }
 
 # Move generator output to xml-structure.
@@ -358,7 +358,7 @@ sub gen2xml {
 
 # Move generator output to html-table.
 sub gen2html {
-	my ($text, $paradigm) = @_;
+	my ($text, $paradigm,$structure) = @_;
 
 	my $tr;
 	my $td;
@@ -415,11 +415,11 @@ sub gen2html {
 	}
 	if ($tr) { $tr->paste('last_child', $output); }
 
-	return $output;
+	if ($structure) { return $output; }
 
-#	my $string = $output->sprint;
-#	$output->delete;
-#	return $string;
+	my $string = $output->sprint;
+	$output->delete;
+	return $string;
 }
 
 
