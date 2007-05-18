@@ -14,10 +14,7 @@ use CGI::Minimal;
 $CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
 $CGI::POST_MAX        = 1_024 * 1_024; 
-use CGI::Alert;
-
-# Forwarding warnings and fatal errors to browser window
-#use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
+use CGI::Alert ('saara', 'http_die');
 
 # Use project's utility functions.
 use langTools::Util;
@@ -50,8 +47,9 @@ require "conf.pl";
 # Variables retrieved from the query.
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode);
 # Variable definitions, included in smi.cgi
-our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$generate,$hyphenate,%avail_pos);
+our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$generate,$hyphenate,%avail_pos,%languages);
+our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
 
@@ -72,11 +70,12 @@ $mode = $query->param('mode');
 $xml_in = $query->param('xml_in');
 $xml_out = $query->param('xml_out');
 
-if(! $lang) { die "No language specified.\n"; }
-if(! $plang) { die "No page language specified.\n"; }
-if(! $text) { die "No text to be analyzed.\n"; }
+if (! $lang) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
+if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
 
 ##### INITIALIZE  ####
+
+
 
 &init_variables;
 
@@ -88,6 +87,8 @@ my @candidates;
 my $document;
 my $page;
 my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/test/smi.cgi";
+my $body;
+my $giellatekno_logo;
 
 # Initialize HTML-page
 if(! $xml_out) {
@@ -98,9 +99,31 @@ if(! $xml_out) {
 		exit;
 	}                                                                                                   
 	$page = $document->root;
+
+	$body = XML::Twig::Elt->new("body");
+	$body->set_pretty_print('record');
+	$body->set_empty_tag_style ('expand');
+
+	my $a = XML::Twig::Elt->new(a=>{href=>$uit_href},'The University of Troms&oslash; >');
+	$a->paste('last_child',$body);
+	$a = XML::Twig::Elt->new(a=>{href=>$giellatekno_href},'Giellatekno >');
+	$a->paste('last_child',$body);
+	my $br = XML::Twig::Elt->new('br');
+	$br->paste('last_child', $body);
+
+#	$a = XML::Twig::Elt->new(a=>{href=>$uit_href});
+#	my $img = XML::Twig::Elt->new(img=>{src=>$unilogo, title=>'The University of Tromsø'});
+#	$img->paste('last_child',$a);
+#	$a->paste('last_child',$body);
 	
-	&printinitialhtmlcodes($action, $page);
+	$giellatekno_logo = XML::Twig::Elt->new(a=>{href=>$giellatekno_href});
+	my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, title=>'Giellatekno'});
+	$img->paste('last_child',$giellatekno_logo);
+
+	&printinitialhtmlcodes($action, $page,$body);
 }
+
+	
 
 # Process input XML
 if ($xml_in) {
@@ -143,6 +166,7 @@ if (@words && ! $xml_out) { &printwordlimit; }
 #         (which has some flags set, and which accesses sme.fst)
 # 3.  The output of lookup is assigned as the value of $result
 
+
 my $result;
 my %answer;
 if ($action eq "generate")  { $result = `echo $text | $generate`; }
@@ -163,9 +187,11 @@ my $output;
 if (! $xml_out) {
 	if ($action eq "analyze" || $action eq "disamb") { 
           $result =~ s/</&lt\;/g; 
-          $output = dis2html($result);
+          $output = dis2html($result,1);
     }
-	elsif ($action eq "generate") { $output = gen2html($result);  } 
+	elsif ($action eq "generate") { $output = gen2html($result,0,1);  } 
+	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
+
     elsif ($action eq "paradigm") {
       my $grammar = $page->first_child("grammar");
 
@@ -173,26 +199,51 @@ if (! $xml_out) {
 	     my $no_result = $page->first_child_text("noresult[\@tool='paradigm']");
          if (! $no_result) { $page->first_child_text("no_result"); }
   	     my $pos_text = $grammar->first_child_text("pos[\@type='$pos']");
-         $output .= "<p>$no_result <b>$text $pos_text ($pos)</b>.</p>"; 
+
+         $pos_text = "$text $pos_text ($pos)";
+         my $p=XML::Twig::Elt->new(p=>$no_result);
+         my $b=XML::Twig::Elt->new(b=>$pos_text);
+         $b->paste('last_child',$p);
+         $p->paste('last_child',$body);
+
       }
       if ($answer{pos} && $answer{form}) { 
-	      my $pos_text = $grammar->first_child_text("pos[\@type='$answer{pos}']");
-          $output .= "<p><b>$answer{form} $pos_text ($answer{pos})</b></p>"; 
+         my $text2 = $answer{form} . " ";
+	     $text2 .= $grammar->first_child_text("pos[\@type='$answer{pos}']");
+         $text2 .= " ($answer{pos})";
+         my $p=XML::Twig::Elt->new('p');
+         my $b=XML::Twig::Elt->new(b=>$text2);
+         $b->paste('last_child',$p);
+         $p->paste('last_child',$body);
       }
-      if ($result) { $output .= gen2html($result); }
+      if ($result) { 
+           $output = gen2html($result,0,1); 
+           $output->paste('last_child', $body); 
+      }
 	  if ($answer{candidates}) { 
-	    my $other_forms = $page->first_child_text("otherforms[\@tool='paradigm']");
-		$output .= "<p><b>$other_forms:</b><br/>";
-		for my $c (keys %{$answer{candidates}}) { $output .= "$c<br/>\n"; }
-		$output .= "</p>";
-	  }
-    }
-	elsif ($action eq "hyphenate") { $output = hyph2html($result); }
-	else { $result =~ s/<(.*)>/$1/g; $output = dis2html($result); }
+	     my $other_forms = $page->first_child_text("otherforms[\@tool='paradigm']");
+         my @content;
+         my $p=XML::Twig::Elt->new('p');
+         my $b=XML::Twig::Elt->new(b=>$other_forms);
+         push(@content, $b);
+         my $br=XML::Twig::Elt->new('br');
+         push(@content, $br);
 
-    # print out the final HTML codes and end
-	if ($output) { print $output };
-	&printfinalhtmlcodes($page) ;
+		for my $c (keys %{$answer{candidates}}) { 
+            push(@content, $c);
+            my $br_copy = $br->copy;
+            push (@content, $br_copy);
+	    }
+        $p->set_content(@content);
+        $p->paste('last_child', $body);
+    }
+    }
+
+    # Paste the result to the html-structure, print final html-codes.
+    if ($output && $action ne "paradigm") { $output->paste('last_child', $body); }
+	printfinalhtmlcodes($page, $body) ;
+    $body->print;
+    print "</html>";
 }
 else {
 	if ($result =~ s/ERROR//) { print "<error>$result</error>"; }
@@ -347,17 +398,19 @@ sub call_para {
 		my $string = "$word+$a";
 		$all .= $string . "\n";
 	}
-	print FH "FORMS $all";
-	my $generated = `echo \"$all\" | $gen_lookup`;
-	my @all_cand = split(/\n+/, $generated);
-	for my $a (@all_cand) { if ($a !~ /\+\?/) { $answer .= $a . "\n\n"; } }
-	if ($answer) { print FH "ANS $answer";}
+	if ($all) {
+		print FH "FORMS $all";
+		my $generated = `echo \"$all\" | $gen_lookup`;
+		my @all_cand = split(/\n+/, $generated);
+		for my $a (@all_cand) { if ($a !~ /\+\?/) { $answer .= $a . "\n\n"; } }
+		if ($answer) { print FH "ANS $answer";}
+	}
 
 	return $answer;
 }
 
 sub printinitialhtmlcodes {
-	my ($tool,$texts) = @_;
+	my ($tool,$texts,$body) = @_;
 
 	my $tmp_tool = $tool;
 	if ($tool =~ /hyphenate|disamb/) { $tmp_tool = "analyze"; }
@@ -370,8 +423,10 @@ sub printinitialhtmlcodes {
 	if (! $title) { $title = $texts->first_child_text("title[\@tool='$tmp_tool']"); }
 	
 	# First title on the texts
-	my $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool' and \@lang='$lang']");
-	if (! $h1) { $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool']"); }
+#	my $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool' and \@lang='$lang']");
+#	if (! $h1) { $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool']"); }
+#	if ($h1) { my $h1_new=XML::Twig::Elt->new(p=>$h1);
+#			   $h1_new->paste( 'last_child', $body); }
 	
 	# References to the form texts
 	my $selection = $texts->first_child("selection[\@tool='$tmp_tool' and \@lang='$lang']"); 
@@ -381,10 +436,16 @@ sub printinitialhtmlcodes {
 	my $instruction = $texts->first_child_text("instruction[\@tool='$tmp_tool' and \@lang='$lang']"); 
 	if (! $instruction) { $instruction = $texts->first_child_text("instruction[\@tool='$tmp_tool']"); }
 
+	my $p = XML::Twig::Elt->new(p => $instruction);
+	$p->paste('last_child', $body);
 	# Header and main titles are the same for all tools
-	print_header($title);
-	print "<h2>$h1</h2>";
-    print "<form ACTION=\"$form_action\" METHOD=\"get\" TARGET=\"_top\" name=\"form3\">";
+	print_header($title,$body);
+	my $form = XML::Twig::Elt->new(form => {action=>$form_action,method=>'get',target=>'top',name=>'form3'});
+
+	my $table = XML::Twig::Elt->new(table => {border=> 0,cellspacing=> 1,cellpadding=> 2});
+	my $tr = XML::Twig::Elt->new("tr");
+	my $td = XML::Twig::Elt->new("td");
+
 
 	###### PARADIGM
 	if ($tmp_tool =~ /paradigm/) {
@@ -402,38 +463,69 @@ sub printinitialhtmlcodes {
 			push (@poses, $type);
 			$pos_labels{$type} = $p->text;
 		}
-		print "<table border=0 cellspacing=\"1\" cellpadding=\"2\" ><tr><td>";
-		print "<p>$instruction</p></br>";
-		print "<textarea TYPE=\"text\" NAME=\"text\" ROWS=\"1\" COLS=\"30\"></textarea>";
-		print "<select name=\"pos\">";
-		for my $label (@poses) {
-			print "<option value=\"$label\">$pos_labels{$label}</option>";
-		}
-		print "</select>";
+		my $tr = XML::Twig::Elt->new('tr');
+		my $td = XML::Twig::Elt->new('td');
+		my $textarea = XML::Twig::Elt->new(input => {type=>'text',name=>'text','rows'=>2,'cols'=>50});
+		$textarea->paste('last_child', $td);
 
-		print "</td></tr><tr><td>";
-		for my $m (@modes) {
-			if ($mode eq $m ) {
-				print "<input checked TYPE=\"radio\" NAME=\"mode\" VALUE=\"$m\" />$labels{$m}<br/>";
-			}
-			else {
-				print "<input TYPE=\"radio\" NAME=\"mode\" VALUE=\"$m\" />$labels{$m}<br/>";
-			}
+		my $select = XML::Twig::Elt->new(select => {name => 'pos'});
+
+		for my $label (@poses) {
+			my $option = XML::Twig::Elt->new(option=>{value=>$label},$pos_labels{$label});
+			$option->paste('last_child', $select);
 		}
-        print "<input TYPE=\"hidden\" NAME=\"lang\" VALUE=\"$lang\" />";
-        print "<input TYPE=\"hidden\" NAME=\"plang\" VALUE=\"$plang\" />";
-        print "<input TYPE=\"hidden\" NAME=\"action\" VALUE=\"paradigm\" />";
+		$select->paste('last_child', $td);
+		$td->paste('last_child', $tr);
+		$td = XML::Twig::Elt->new('td');
+		$giellatekno_logo->paste('last_child',$td);
+
+		$td->paste('last_child', $tr);
+		$tr->paste('last_child', $table);
+
+		$tr = XML::Twig::Elt->new("tr");
+		$td = XML::Twig::Elt->new("td");
+		
+		for my $m (@modes) {
+			my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'mode',value=> $m},$labels{$m});
+			if ($mode eq $m ) { $input->set_att("checked", 1); }
+			$input->paste('last_child', $td);
+			my $br = XML::Twig::Elt->new('br');
+			$br->paste('last_child', $td);
+
+		}
+		my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
+		$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
+		$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'action',value=> 'paradigm'});
+		$input->paste('last_child', $td);
+
+		$td->paste('last_child', $tr);
+		$tr->paste('last_child', $table);
 
 	} # end of PARADIGM
 	
 	##### GENERATOR
 	elsif ($tmp_tool =~ /generate/) {
-		print "<table border=\"0\" cellspacing=\"1\" cellpadding=\"2\" ><tr><td>";
-		print "$instruction<br/>";
-		print "<textarea TYPE=\"text\" NAME=\"text\" ROWS=\"1\" COLS=\"30\"></textarea>";
-        print "<input TYPE=\"hidden\" NAME=\"lang\" VALUE=\"$lang\" />";
-        print "<input TYPE=\"hidden\" NAME=\"plang\" VALUE=\"$plang\" />";
-        print "<input TYPE=\"hidden\" NAME=\"action\" VALUE=\"generate\" />";
+		
+		my $tr = XML::Twig::Elt->new("tr");
+		my $td = XML::Twig::Elt->new("td");
+		my $textarea = XML::Twig::Elt->new(input => {type=>'text',name=>'text','size'=>50});
+		$textarea->paste('last_child', $td);
+		
+		my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
+		$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
+		$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'action',value=> 'generate'});
+		$input->paste('last_child', $td);
+
+		$td->paste('last_child', $tr);
+		$td = XML::Twig::Elt->new('td');
+		$giellatekno_logo->paste('last_child',$td);
+
+		$td->paste('last_child', $tr);
+		$tr->paste('last_child', $table);
 
 	} # end of GENERATOR
 
@@ -441,51 +533,72 @@ sub printinitialhtmlcodes {
 	else {
 		# Get the texts for selection menu
 		my %labels;
+
 		$labels{analyze} = $selection->first_child_text('@tool="analyze"');
 		$labels{disamb} = $selection->first_child_text('@tool="disamb"');
 		$labels{hyphenate} = $selection->first_child_text('@tool="hyphenate"');
 
-		print "<table border=0 cellspacing=\"1\" cellpadding=\"2\"><tr><td>";
-		print "$instruction<br/>";
-		print <<EOH;
-		<textarea TYPE="text" NAME="text" VALUE="" ROWS="6" COLS="50" MAXLENGTH="10"></textarea>
-EOH
-		print "</td></tr><tr><td>";
+		my $tr = XML::Twig::Elt->new("tr");
+		my $td = XML::Twig::Elt->new("td");
+		my $textarea = XML::Twig::Elt->new(textarea => {wrap=>'virtual',type=>'text',name=>'text','rows'=>6,'cols'=>50});
+		$textarea->paste('last_child', $td);
+
+		$td->paste('last_child', $tr);
+		$td = XML::Twig::Elt->new('td');
+		$giellatekno_logo->paste('last_child',$td);
+
+
+		$td->paste('last_child',$tr);
+		$tr->paste('last_child', $table);
+		$tr = XML::Twig::Elt->new("tr");
+		$td = XML::Twig::Elt->new("td");
+
 		for my $l (sort { $a cmp $b } keys %labels) {
-			if ($tool eq $l ) {
-				print "<input checked TYPE=\"radio\" NAME=\"action\" VALUE=\"$l\" />$labels{$l}<br/>";
-			}
-			else {
-				print "<input TYPE=\"radio\" NAME=\"action\" VALUE=\"$l\" />$labels{$l}<br/>";
-			}
+			my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'action',value=> $l},$labels{$l});
+			if ($tool eq $l ) { $input->set_att('checked', 1); }
+			$input->paste('last_child', $td);
+			my $br = XML::Twig::Elt->new('br');
+			$br->paste('last_child', $td);
 		}
-		print "</td></tr><tr><td>";
-        print "<input TYPE=\"hidden\" NAME=\"lang\" VALUE=\"$lang\" />";
-        print "<input TYPE=\"hidden\" NAME=\"plang\" VALUE=\"$plang\" />";
+		my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
+		$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
+		$input->paste('last_child', $td);
+
+		$td->paste('last_child', $tr);
+		$tr->paste('last_child', $table);
 			
 		} # end of analyze/hyphenate/disambiguate
 
 	# Submit and reset texts
-	my $submit = $texts->first_child_text("input[\@type='submit']");
-	my $reset = $texts->first_child_text("input[\@type='reset']");
+	my $submit_text = $texts->first_child_text("input[\@type='submit']");
+	my $reset_text = $texts->first_child_text("input[\@type='reset']");
 
-	print "</td></tr><tr><td>";
-	if ($charset eq "latin-1") {
-		print "<input name=\"charset\" type=\"radio\" value=\"utf-8\">utf-8</input>";
-		print "<input checked=\"1\" name=\"charset\" type=\"radio\" value=\"latin-1\">latin 1</input>";
-	}
-	else {
-		print "<input checked=\"1\" name=\"charset\" type=\"radio\" value=\"utf-8\">utf-8</input>";
-		print "<input name=\"charset\" type=\"radio\" value=\"latin-1\">latin 1</input>";
-	}
-	print "</td></tr><tr><td>";
-    print "<input TYPE=\"submit\" VALUE=\"$submit\"/><input TYPE=\"reset\" VALUE=\"$reset\"/>";
+#	$tr = XML::Twig::Elt->new("tr");
 
-    print <<END;
-	</td></tr></table>
-	</form>
-	<hr/>
-END
+#	$tr->paste('last_child', $table);
+
+	$tr = XML::Twig::Elt->new("tr");
+	$td = XML::Twig::Elt->new("td");
+	my $input = XML::Twig::Elt->new(input=>{type=> 'submit',value=> $submit_text});
+	$input->paste('last_child', $td);
+	$input = XML::Twig::Elt->new(input=>{type=> 'reset',value=> $reset_text});
+	$input->paste('last_child', $td);
+
+	my $input_utf8 = XML::Twig::Elt->new(input=> {type=> 'radio',name=> 'charset',value=>'utf-8'},'utf-8');
+	my $input_l1 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'charset',value=> 'latin-1'},'latin-1');
+
+	if ($charset eq "latin-1") { $input_l1->set_att('checked'=>1); }
+	else { $input_utf8->set_att('checked'=>1); }
+
+	$input_utf8->paste('last_child',$td);
+	$input_l1->paste('last_child',$td);
+	$td->paste('last_child', $tr);
+
+	$tr->paste('last_child', $table);
+	$table->paste('last_child', $form);
+	$form->paste('last_child', $body);
+	
 }
 
 sub print_header
@@ -494,28 +607,31 @@ sub print_header
 	print <<EOH ;
 Content-type: text/html
 
-	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-		<html>
-		<head>
-		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+                <html>
+                <head>
+                <meta http-equiv="Content-type" content="text/html; charset=UTF-8">
 EOH
-	print "<title>$title</title></head><body>";
+	print "<title>$title</title></head>";
 
 }
 
 
 sub printfinalhtmlcodes
 {
-	my ($texts) = shift @_;
+	my ($texts, $body) = @_;
 
-	my $copyright = $texts->first_child_text("copyright");
-	print <<END;
-	<hr/>
-		<p>$copyright</p>
-		<a href="http://giellatekno.uit.no/">http://giellatekno.uit.no/</a>
-		</body>
-		</html>
-END
+	my $copyright = $texts->first_child_text('copyright');
+
+	my $hr = XML::Twig::Elt->new('hr');
+	$hr->paste('last_child', $body);
+	my $p = XML::Twig::Elt->new(p=> $copyright);
+	my $br = XML::Twig::Elt->new('br');
+	$br->paste('last_child', $p);
+	my $a = XML::Twig::Elt->new(a=> {href=>'http://giellatekno.uit.no/'},'http://giellatekno.uit.no/');
+	$a->paste('last_child', $p);
+	$p->paste('last_child', $body);
+
 }
 
 
