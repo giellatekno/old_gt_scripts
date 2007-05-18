@@ -15,14 +15,20 @@ use utf8;
 
 while(<>) {
 
-	if (! /\!\s*\+/) { print; next; }
+	if (! /\!.*\+/) { print; next; }
 	if (/^\!/) { print; next; }
 	chomp;
-	my $line = $_;
 
-	my ($entry, $tags) = split (/\;/, $line);
-	(my $new_tags = $tags) =~ s/[\!\s]//g;
-	my $new_line = $new_tags . $entry . ";" . $tags . "\n";
+	my ($entry, $comments) = split (/\;/, $_);
+	(my $new_comments = $comments) =~ s/\!//g;
+	my @strings = split(/\s+/,$new_comments);
+	#print "jee @strings";
+	my @tagset;
+	for my $t (@strings) {
+		if ($t =~ /^\+/) { push @tagset, $t; }
+	}
+	my $new_tags = join ("",@tagset);
+	my $new_line = $new_tags . $entry . ";" . $comments . "\n";
 	print $new_line;
 }
 	
