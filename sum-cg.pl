@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
 use utf8;
@@ -26,12 +26,17 @@ my $help;
 my $grammar;
 my $print_words;
 my $string="";
+my $numbers = "11858|1186num|12488|1249num|125numnum|126numnum|127numnum|128numnum|129numnum|131numnum|132numnum|133numnum|134numnum|2351num|1352num|1353num|1354num|13563|15207|15211";
+$numbers =~ s/num/\\d/g;
+my $minimal;
 my $dir;
+my %num_total;
 
 GetOptions ("help" => \$help,
 			"grammar" => \$grammar,
 			"words" => \$print_words,
 			"string=s" => \$string,
+			"minimal" => \$minimal,
 			"dir=s" => \$dir,
 			) ;
 
@@ -95,7 +100,7 @@ if ($grammar) {
 }
 elsif ($string) {
 	for my $cohort (sort { $count{$b} <=> $count{$a} } keys %count) {
-		next if ($cohort !~ /$string/);
+		next if ($cohort !~ /$string/m);
 		print "$count{$cohort}\n";
 		my $word = $cohort;
 		$word =~ s/^(\"<.*?>\").*$/$1/s;
@@ -109,10 +114,15 @@ elsif ($string) {
 	}
 }
 else {
+	for my $num (sort { $num_total{$b} <=> $num_total{$a} } keys %num_total) {
+		print "$num: $num_total{$num}\n";
+	}
 	for my $cohort (sort { $count{$b} <=> $count{$a} } keys %count) {
-		print "$count{$cohort}\n";
+		if ($minimal && $cohort !~ /($numbers)/) {next;}
 		my $word = $cohort;
-		$word =~ s/^(\"<.*?>\").*$/$1/s;
+		$word =~ s/^(\"<.*?>\")(.*?)(\n)?/$1/s;
+		$word =~ s/\n//g;
+		print "$count{$cohort}\n";
 		print "$word\n";
 		for my $base (keys % {$cohorts{$cohort}}) {
 			for my $anal (keys %{ $cohorts{$cohort}{$base} }){
@@ -181,14 +191,17 @@ sub process_file {
 		$count{$whole} += 1;
 		$cohorts{$whole} = { %analyses_2 };
 		
-		if ($whole && $anal_count == 1) {
+		# If there is only one analysis, then delete the cohort.
+		# If the matching rules are searched for, then leave all.
+		if (! $minimal && $whole && $anal_count == 1) {
 			delete($cohorts{$whole});
 			delete($count{$whole});
 		}
 
-		if ($line =~ /^\"<.*?>\".*$/) {
+		if ($line =~ /^\"<.*?>\"(.*)$/) {
 			# Start with the new word
-			$whole = $line;
+			if ($1 =~ /($numbers)/) { $num_total{$1} +=1; }
+			$whole = $line . "\n";
 			$anal_count = 0;
 		} else { cluck "Error, $line in wrong place."; }
 
