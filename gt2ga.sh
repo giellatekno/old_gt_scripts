@@ -13,7 +13,8 @@
 #source /Users/saara/.profile
 
 # add the analyzed languages here
-languages="sme"
+languages="sme
+smj"
 
 corproot="/Users/hoavda/Public/corp"
 
@@ -33,10 +34,13 @@ copy_gt ()
       echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt"
 	  scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt
 
+      echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/prooftest/$gt/$lang $corproot/prooftest/$gt"
+	  scp -r $USER@victorio.uit.no:/usr/local/share/corp/prooftest/$gt/$lang $corproot/prooftest/$gt
+
       # Delete the files that were not updated
-	  echo "deleting files that were not updated.."
-	  echo "find $corproot/$gt/$lang ! -mtime 1 -type f -delete"
-	  find $corproot/$gt/$lang ! -mtime 1 -type f -delete
+	  #echo "deleting files that were not updated.."
+	  #echo "find $corproot/$gt/$lang ! -mtime 1 -type f -delete"
+	  #find $corproot/$gt/$lang ! -mtime 1 -type f -delete
 
     done
     return 0
@@ -102,7 +106,7 @@ process ()
 	fst="$optdir/$lang.fst"
 	preprocess="preprocess --abbr=$abbr --corr=$corr"
 	lookup="lookup -flags mbTT -utf8 $optdir/$lang.fst"
-	vislcg="vislcg --grammar=$optdir/$lang-dis.rle"
+	vislcg="vislcg --grammar=$optdir/$lang-dis.rle --minimal"
 	ccat="ccat -l $lang -r $corproot/$gt/$lang/$dir/"
 
     echo "$ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed"
@@ -113,6 +117,6 @@ process ()
 }
 
 copy_gt $languages
-analyze_gt $languages
+#analyze_gt $languages
 
 exit 0
