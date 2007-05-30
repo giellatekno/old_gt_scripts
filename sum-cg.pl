@@ -26,11 +26,14 @@ my $help;
 my $grammar;
 my $print_words;
 my $string="";
-my $numbers = "11858|1186num|12488|1249num|125numnum|126numnum|127numnum|128numnum|129numnum|131numnum|132numnum|133numnum|134numnum|2351num|1352num|1353num|1354num|13563|15207|15211";
-$numbers =~ s/num/\\d/g;
 my $minimal;
 my $dir;
 my %num_total;
+
+# The rule numbers that are matched when the option --minimal is used.
+my $numbers = "11858|1186num|12488|1249num|125numnum|126numnum|127numnum|128numnum|129numnum|131numnum|132numnum|133numnum|134numnum|2351num|1352num|1353num|1354num|13563|15207|15211";
+$numbers =~ s/num/\\d/g;
+
 
 GetOptions ("help" => \$help,
 			"grammar" => \$grammar,
@@ -212,12 +215,16 @@ sub process_file {
 
 
 sub print_usage {
-	print "Usage: sum-cg [OPTIONS] FILE\n";
-	print "Summarize cg-output.\n";
-	print "Options\n";
-	print "--dir=<dir>     Search files from directory <dir>.\n";
-	print "--grammar       Compare only grammatical analyzes.\n";
-	print "--words         Print words associated with analyzes.\n";
-    print "--help          Print the help text and exit.\n";
+	print <<END ;
+Usage: sum-cg [OPTIONS] FILE
+Summarize cg-output. Only ambiguous analyzes are counted.
+Options
+	--dir=<dir>     Search files from directory <dir>.
+	--grammar       Compare only grammatical analyzes.
+	--words         Print words associated with analyzes.
+	--minimal       Assume rule numbers in the input, consider all analyzes
+	                pick the analyzes that match the numbers in variable "numbers".
+	--help          Print the help text and exit
+END
 }
 
