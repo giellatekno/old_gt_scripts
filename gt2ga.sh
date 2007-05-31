@@ -24,8 +24,16 @@ languages="sme"
 
 corproot="/Users/hoavda/Public/corp"
 
-gadir="$corproot/ga"
+minimal="1"
+if [ "$minimal" -eq "1" ]
+	then
+	gadir="$corproot/ga-num"
+else
+	gadir="$corproot/ga"
+fi
+
 gt="bound"
+
 
 directories="admin facta news laws bible ficti" 
 if [ -z "$3" ]; then
@@ -131,7 +139,14 @@ process ()
 	fst="$optdir/$lang.fst"
 	preprocess="preprocess --abbr=$abbr --corr=$corr"
 	lookup="lookup -flags mbTT -utf8 $optdir/$lang.fst"
-	vislcg="vislcg --grammar=$optdir/sme-dis.rle"
+	if [ "$minimal" -eq "1" ]
+		then
+		vislcg="vislcg --grammar=$optdir/sme-dis.rle --minimal"
+	else
+		vislcg="vislcg --grammar=$optdir/sme-dis.rle"
+	fi
+	echo $vislcg
+
 	ccat="ccat -l $lang -r $corproot/$gt/$lang/$dir/"
 
     echo "$ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed"
