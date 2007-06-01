@@ -29,10 +29,10 @@ my $string="";
 my $minimal;
 my $dir;
 my %num_total;
+my $num;
 
 # The rule numbers that are matched when the option --minimal is used.
-my $numbers = "11858|1186num|12488|1249num|125numnum|126numnum|127numnum|128numnum|129numnum|131numnum|132numnum|133numnum|134numnum|2351num|1352num|1353num|1354num|13563|15207|15211";
-$numbers =~ s/num/\\d/g;
+my $numbers = "11858|1186n|12488|1249n|125nn|126nn|127nn|128nn|129nn|131nn|132nn|133nn|134nn|2351n|1352n|1353n|1354n|13563|15207|15211";
 
 
 GetOptions ("help" => \$help,
@@ -40,6 +40,7 @@ GetOptions ("help" => \$help,
 			"words" => \$print_words,
 			"string=s" => \$string,
 			"minimal" => \$minimal,
+			"num=s" => \$num,
 			"dir=s" => \$dir,
 			) ;
 
@@ -47,6 +48,12 @@ if ($help) {
 	&print_usage;
 	exit;
 }
+
+if ($num) {
+	$minimal=1;
+	$numbers=$num;
+}
+$numbers =~ s/n/\\d/g;
 
 my $anal_count = 0;
 my %cohorts;
@@ -121,7 +128,7 @@ else {
 		print "$num: $num_total{$num}\n";
 	}
 	for my $cohort (sort { $count{$b} <=> $count{$a} } keys %count) {
-		if ($minimal && $cohort !~ /($numbers)/) {next;}
+		if ($minimal && $cohort !~ /($numbers)[,\s]/) {next;}
 		my $word = $cohort;
 		$word =~ s/^(\"<.*?>\")(.*?)(\n)?/$1/s;
 		$word =~ s/\n//g;
@@ -222,8 +229,13 @@ Options
 	--dir=<dir>     Search files from directory <dir>.
 	--grammar       Compare only grammatical analyzes.
 	--words         Print words associated with analyzes.
+	--string=regex  Searches for a string or regex from the analyses. E.g. to find
+                    Com/Loc ambiguity: --string="(Com .*Loc|Loc.*Com)"
 	--minimal       Assume rule numbers in the input, consider all analyzes
 	                pick the analyzes that match the numbers in variable "numbers".
+    --num=string    Searches for specific rule numbers from the analysis. E.g.
+                    --num="18565|125nn", implies --minimal and overrides the variable.
+                    The letter n is replaced by "any digit" in the search.
 	--help          Print the help text and exit
 END
 }
