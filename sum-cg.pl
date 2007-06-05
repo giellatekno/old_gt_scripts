@@ -223,7 +223,7 @@ sub process_file {
 
 sub print_usage {
 	print <<END ;
-Usage: sum-cg [OPTIONS] FILE
+Usage: sum-cg.pl [OPTIONS] FILE
 Summarize cg-output. Only ambiguous analyzes are counted.
 Options
 	--dir=<dir>     Search files from directory <dir>.
