@@ -3,7 +3,9 @@ s/SUND/BERN/g
 s/HEIM/BERN/g
 s/NIKOSIIJA/ACCRA/g
 s/SIJTE/ACCRA/g
-s/9//g
+s/7 / /g
+s/8 / /g
+s/9 / /g
 s/BALAK/ANAR/g
 s/HAWAII/ACCRA/g
 s/SIEINNUS/DUORTNUS/g
