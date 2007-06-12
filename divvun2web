@@ -38,11 +38,6 @@ checkout()
         cd
     fi
     if [ "$?" != "0" ]; then
-            echo "cvs up failed in $TEMPDIR ..."
-        (echo "From: $MAIL_FROM"
-        echo "Subject: cvs update error"
-        echo "TO:$MAIL_TO"
-        echo "")|/usr/lib/sendmail -t
         exit 1
     fi
     cd
@@ -69,55 +64,27 @@ fetch_giella_and_divvun()
 
 build_and_copy_sites()
 {
-    cd
-    #rm gt/doc/lang/corp/corpus-summary.xml
-    #rm gt/doc/lang/corp/corpus-content.xml
+	cd $HOME/xtdoc/$SITE
+		sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
 
-    for SITE in gtuit
-    do
-        cd $HOME/xtdoc/$SITE
-#         if [ "$SITE" == "sd" ]; then
-#             sed -i 's/<search provider="lucene" name="Divvun" \/>/<search provider="google" domain="www.divvun.no" name="Divvun" \/>/g' src/documentation/skinconf.xml
-#         else
-            sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
-#         fi
-
-        # Build the site, at the same time checking the docs
-        echo "Cleaning old build ..."
-        #forrest clean
-        echo "Validating $SITE ..."
-        forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
-
-        # $? is the status of the last executed program.
-        # 0 is success, anything else indicates some kind of error
-        if [ "$?"  == "0" ]
-        then
-            echo "Building site ..."
-            nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
-            echo "Copying file to $SITE..."
-            cd build/site
-            scp -rq * $SITE@giellatekno.uit.no:public_html/.
-            if [ "$?"  != "0" ]
-            then
-                (
-                echo "From: $MAIL_FROM"
-                echo "Subject: Error copying files to webapps dir"
-                echo "TO:$MAIL_TO"
-                echo ""
-                )|/usr/lib/sendmail -t
-                echo "copying files to $SITE failed..."
-            fi
-        else
-            echo "Sending error mail ..."
-            (
-            echo "From: $MAIL_FROM"
-            echo "Subject: Error validating files in $SITE"
-            echo "TO:$MAIL_TO"
-            echo ""
-            #cat $ERROR_FILE
-            )|/usr/lib/sendmail -t
-        fi
-    done
+	# Build the site, at the same time checking the docs
+	forrest clean
+	forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
+	if [ "$?"  == "0" ]
+	then
+		nice -n 10 forrest -quiet -Dforrest.jvmargs=-Djava.awt.headless=true
+		if [ "$?"  == "0" ]
+		then
+			cd build/site
+			scp -rq * $SITE@giellatekno.uit.no:public_html/.
+		else
+			echo "Build failed ..."
+			exit 1
+		fi
+		
+	else
+		exit 1
+	fi
 }
 
 fetch_giella_and_divvun
