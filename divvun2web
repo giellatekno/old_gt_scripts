@@ -57,14 +57,12 @@ fetch_giella_and_divvun()
 
 }
 
-# This function validates the documents in the xtdoc/sd and xtdoc/gt 
-# directories.
-# If successfull it copies the relevant files to the tomcat-servers 
-# directories, else it sends an e-mail to the site administrator.
+# This function validates the documents in xtdoc/gt 
+# directory.
 
 build_and_copy_sites()
 {
-	cd $HOME/xtdoc/$SITE
+	cd $HOME/xtdoc/gtuit
 		sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
 
 	# Build the site, at the same time checking the docs
