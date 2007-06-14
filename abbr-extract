@@ -20,7 +20,6 @@ use utf8;
 use Getopt::Long;
 
 # Module to communicate with program's user interfaces
-use Expect;
 use langTools::Util;
 
 my @lex_file_names;
@@ -102,12 +101,10 @@ my %lex_pos = ( 'noun' => 'N',
 
 # Initialize paradigm and generator
 my %paradigms;
-my $analyze;
-my $exp;
+my $gen_lookup;
 if (! $noparadigm) {
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
-	$analyze="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
-	$exp = init_lookup($analyze);
+	$gen_lookup="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
 }
 
 for my $file (@lex_file_names) {
@@ -133,23 +130,23 @@ for my $file (@lex_file_names) {
 
 			my @idioms;
 			if (! $pos || $noparadigm) { print ABB "$abbr\n"; next; }
-
-			for my $a ( @{$paradigms{$pos}} ) {
+			my $all;
+ 			for my $a ( @{$paradigms{$pos}} ) {
 				my $string = "$abbr+$a";
-
-				my $read_anl = call_lookup(\$exp, $string, 1);
-
-				my @analyses = split(/\n/, $read_anl);
-				my @tmp;
-				for my $idi (@analyses) {
-					next if ($idi =~ /\+\?/);
-					next if ($idi =~ /[\:\-]/);
-					my ($word, $analysis) = split(/\t/, $idi);
-					next if (! $analysis);
-					push (@tmp, $analysis);
-				}
-				push (@idioms,@tmp);
+				$all .= $string . "\n";
 			}
+			my $generated = `echo \"$all\" | $gen_lookup`;
+			my @analyses = split(/\n+/, $generated);
+			my @tmp;
+			for my $idi (@analyses) {
+				next if ($idi =~ /\+\?/);
+				next if ($idi =~ /[\:\-]/);
+				my ($word, $analysis) = split(/\t/, $idi);
+				next if (! $analysis);
+				push (@tmp, $analysis);
+			}
+			push (@idioms,@tmp);
+
 			#print "@idioms\n";
 			if (! @idioms) {
 				print ABB "$abbr\n";
@@ -166,26 +163,28 @@ for my $file (@lex_file_names) {
 if( ! $noparadigm) {
 	print ABB "\nLEXICON NUM\n";
 	
+	my $all;
 	my %num_suffix;
 	for my $n (@numbers) {
 		for my $a ( @{$paradigms{"Num"}} ) {
 			my $string = "$n+$a";
+			$all .= $string . "\n";
+		}
+		my $generated = `echo \"$all\" | $gen_lookup`;
+		my @analyses = split(/\n+/, $generated);
+		
+		for my $a (@analyses) { 
+			next if ($a =~ /\+\?/);
+			next if ($a =~ /[\:\-]/);
+			#print "$a\n";
+			my ($word, $analysis) = split(/\t/, $a);
+			next if (! $analysis);
 			
-			my $read_anl = call_lookup(\$exp, $string, 1);
+			next if ($analysis =~ /^\s*$/);
 			
-			my @analyses = split(/\n/, $read_anl);
-			for my $a (@analyses) { 
-				next if ($a =~ /\+\?/);
-				next if ($a =~ /[\:\-]/);
-				#print "$a\n";
-				my ($word, $analysis) = split(/\t/, $a);
-				next if (! $analysis);
-				
-				next if ($analysis =~ /^\s*$/);
-				
-				$analysis =~ s/$n//;
-				$num_suffix{$analysis} = 1; 
-			}
+			$analysis =~ s/$n//g;
+			$analysis =~ s/1//g;
+			$num_suffix{$analysis} = 1; 
 		}
 	}
 	for my $idi (keys %num_suffix) {
