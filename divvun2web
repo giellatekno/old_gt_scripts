@@ -70,7 +70,7 @@ build_and_copy_sites()
 	forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
 	if [ "$?"  == "0" ]
 	then
-		nice -n 10 forrest -quiet -Dforrest.jvmargs=-Djava.awt.headless=true
+		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
 		if [ "$?"  == "0" ]
 		then
 			cd build/site
