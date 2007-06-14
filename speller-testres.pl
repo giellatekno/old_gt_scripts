@@ -89,6 +89,7 @@ sub read_applescript {
 		# Some simple adjustments to the input and output lists.
 		# First search the output word from the input list.
 		my $j = $i;
+		print "$originals[$j]{'orig'}\n";
 		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
 
 		# If the output word was not found from the input list, ignore it.
@@ -126,13 +127,15 @@ sub read_polderland {
 	print STDERR "$0: Reading Polderland output from $output\n";
 	open(FH, $output);
 
-	while(<FH>) {
-		last if (/Prompt/);
-	}
+	# Read until "Prompt"
+	while(<FH>) { last if (/Prompt/); }
 
 	my $i=0;
-	(my $orig = $_) =~ s/.*?Getting suggestions for (.*?)\.\.\.\s?$/$1/;
-	if (!$orig) { 
+	my $line = $_;
+
+	next if ($line !~ /Check returns/);
+	(my $orig = $line) =~ s/.*?Check returns .*? for \'(.*?)\'\s*$/$1/;
+	if (!$orig || $orig eq $line) { 
 		print "Probably wrong format, start again with --AS\n";
 		return;
 	}
@@ -144,10 +147,14 @@ sub read_polderland {
 
 	my @suggestions;
 	while(<FH>) {
-		if (/Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
-		next if (/End of suggestions/);
-		my $line = $_;
-		if (/Getting suggestions/) {
+
+		$line = $_;
+		next if ($line =~ /Getting suggestions/);
+		next if ($line =~ /End of suggestions/);
+
+		if ($line =~ /Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
+
+		if ($line =~ /Check returns/) {
 			#Store the suggestions from the last round.
 			if (@suggestions) {
 				$originals[$i]{'sugg'} = [ @suggestions ];
@@ -157,7 +164,7 @@ sub read_polderland {
 			}
 			elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
 			$i++;
-			($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s?$/$1/;
+			($orig = $line) =~ s/^.*?Check returns .* for \'(.*?)\'\s*$/$1/;
 			# Some simple adjustments to the input and output lists.
 			# First search the output word from the input list.
 			my $j = $i;
@@ -186,7 +193,6 @@ sub read_polderland {
 			}
 			next;
 		}
-		next if ($line =~ /Prompt/);
 		next if (! $orig);
 		my ($num, $suggestion) = split(/\s+/, $line);
 		#print "$_ SUGG $suggestion\n";
@@ -206,7 +212,7 @@ sub read_polderland {
 
 sub read_typos {
 
-	print "$input\n";
+	print STDERR "Reading typos from $input\n";
 	open(FH, "<$input");
 
 	while(<FH>) {
@@ -221,8 +227,10 @@ sub read_typos {
 		# the suggestions are forced.
 		if ($orig =~ s/^\,//) { $rec->{'forced'} = 1; }
 		$orig =~ s/\s*$//;
-		$expected =~ s/\s*$//;
-		$rec->{'expected'} = $expected;
+		if ($expected) {
+			$expected =~ s/\s*$//;
+			$rec->{'expected'} = $expected;
+		}
 		$rec->{'orig'} = $orig;
 		push @originals, $rec;
 	}
