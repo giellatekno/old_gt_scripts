@@ -1,7 +1,10 @@
 #!/usr/bin/perl -w
 use strict;
-
 use utf8;
+
+binmode( STDIN, ':utf8' );
+binmode( STDOUT, ':utf8' );
+use open 'utf8';
 
 # abbr-extract
 # Perl-script for extracting abbreviations from lexicon files.
