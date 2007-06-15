@@ -16,6 +16,7 @@ use XML::Twig;
 use File::stat;
 use Time::localtime;
 use File::Basename;
+use Text::Brew qw(distance);
 
 my $help;
 my $input;
@@ -290,6 +291,10 @@ sub print_xml_output {
 			my $expected = XML::Twig::Elt->new('expected'); 
 			$expected->set_text($rec->{'expected'});
 			$expected->paste('last_child', $word);
+			my $distance=distance($rec->{'orig'},$rec->{'expected'},{-output=>'distance'});
+			my $edit_dist = XML::Twig::Elt->new('edit_dist'); 
+			$edit_dist->set_text($distance);
+			$edit_dist->paste('last_child', $word);
 		}
 		if ($rec->{'error'}){ 
 			my $error = XML::Twig::Elt->new('status'); 
