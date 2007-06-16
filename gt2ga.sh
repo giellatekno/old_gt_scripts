@@ -26,10 +26,10 @@ corproot="/Users/hoavda/Public/corp"
 
 minimal="1"
 if [ "$minimal" -eq "1" ]
-	then
-	gadir="$corproot/ga-num"
+    then
+    gadir="$corproot/ga-num"
 else
-	gadir="$corproot/ga"
+    gadir="$corproot/ga"
 fi
 
 gt="bound"
@@ -37,7 +37,7 @@ gt="bound"
 
 directories="admin facta news laws bible ficti" 
 if [ -z "$3" ]; then
-	directories="$3"
+    directories="$3"
 fi
 
 umask=0112
@@ -45,16 +45,16 @@ umask=0112
 copy ()
 {
     lang="$1"
-	echo "copying $1 $2 files from victorio.."
-	if [ -z "$2" ]
-		then
-		echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt"
-		scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt
-	else
-		echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang/$2 $corproot/$gt/$lang"
-	    scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang/$2 $corproot/$gt/$lang
-	fi
-	
+    echo "copying $1 $2 files from victorio.."
+    if [ -z "$2" ]
+	then
+	echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt"
+	scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang $corproot/$gt
+    else
+	echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang/$2 $corproot/$gt/$lang"
+	scp -r $USER@victorio.uit.no:/usr/local/share/corp/$gt/$lang/$2 $corproot/$gt/$lang
+    fi
+    
       # Delete the files that were not updated
 	  #echo "deleting files that were not updated.."
 	  #echo "find $corproot/$gt/$lang ! -mtime 1 -type f -delete"
@@ -68,9 +68,9 @@ copy_prooftest ()
 	
     lang="$1"
     echo "copying $1 prooftest files from victorio.."
-	
-	echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/prooftest/$gt/$lang $corproot/prooftest/$gt"
-	scp -r $USER@victorio.uit.no:/usr/local/share/corp/prooftest/$gt/$lang $corproot/prooftest/$gt
+    
+    echo "scp -r $USER@victorio.uit.no:/usr/local/share/corp/prooftest/$gt/$lang $corproot/prooftest/$gt"
+    scp -r $USER@victorio.uit.no:/usr/local/share/corp/prooftest/$gt/$lang $corproot/prooftest/$gt
 }
 
 
@@ -82,13 +82,13 @@ analyze ()
 {
     lang="$1"
 
-	mkdir -p $gadir/$lang
+        mkdir -p $gadir/$lang
 	echo "processing $lang $2..."
 	if [ -z "$2" ]
-		then
-		directories=`find $corproot/$gt/$lang -maxdepth 1 -mindepth 1 -type d`
+	    then
+	    directories=`find $corproot/$gt/$lang -maxdepth 1 -mindepth 1 -type d`
 	else
-		directories=$corproot/$gt/$lang/$2
+	    directories=$corproot/$gt/$lang/$2
 	fi
 	
 	i=0
