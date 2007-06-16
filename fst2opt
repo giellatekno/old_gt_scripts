@@ -9,29 +9,43 @@
 # $Id$
 #****************************************************************
 
-tmpdir=/usr/tmp
 host=$(hostname)
 
 commonbin="/opt/smi/common/bin"
+tmpdir=/usr/tmp
 
-# Set variables according to the current host.
-if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
-then
-	group=staff
-	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
-	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
-else
-	PATH=$PATH:/opt/xerox/bin
-	group=cvs
-	cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
-	cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
+if [ ! -d $tmpdir ]
+    then
+    tmpdir=/tmp
 fi
+
+scripts=$tmpdir/gt/script
+
+copy() {
+
+    if [ "$host" == "hum-stud113.hum.uit.no" ]
+	then
+		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
+		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
+    else	
+		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
+		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
+    fi
+}
 
 build_gt() {
 
-	for lang in "sme" "smj" "sma"
+    if [ -z "$@" ]
+	then
+	langs="sme smj sma"
+    else
+	langs="$@"
+    fi
+
+    echo LANGUAGES $langs
+    for lang in $langs
 	  do
-	  cd $tmpdir/gt/ && make clean TARGET=$lang 
+	  #cd $tmpdir/gt/ && make clean TARGET=$lang 
 	  cd $tmpdir/gt/ && make TARGET=$lang 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang hyph-$lang.fst 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang ifst-norm 1>/dev/null
@@ -42,7 +56,7 @@ build_gt() {
 	  cp $tmpdir/gt/$lang/bin/i$lang-norm.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/hi$lang-norm.fst /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/bin/$lang-dis.rle /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/bin/abbr.txt /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/$lang/src/typos.txt /opt/smi/$lang/bin/
 	  cp $tmpdir/gt/cwb/korpustags.$lang.txt /opt/smi/$lang/bin
@@ -53,15 +67,16 @@ build_gt() {
 	  chmod g+w /opt/smi/$lang/bin/*
 	done
 
-	cp $tmpdir/gt/script/hyph-filter.pl $commonbin
+	cp $scripts/hyph-filter.pl $commonbin
 	cp $tmpdir/gt/cwb/korpustags.txt $commonbin
 	cp $tmpdir/gt/cwb/paradigm.txt $commonbin
 	cp $tmpdir/gt/cwb/paradigm_min.txt $commonbin
 	cp $tmpdir/gt/cwb/paradigm_standard.txt $commonbin
 	cp $tmpdir/gt/cwb/paradigm_full.txt $commonbin
 	cp $tmpdir/gt/common/bin/allcaps.fst $commonbin
-	
-	$tmpdir/gt/script/generate-anchor-list.pl --lang1=sme --lang2=nno $tmpdir/gt/common/src/anchor.txt --outdir=$commonbin
+
+	anchor_list sme nno
+	anchor_list sme smj
 	
 	chgrp $group $commonbin/*
 	chmod a+x $commonbin/*
@@ -99,14 +114,21 @@ build_st() {
 
 # Generate the anchor word list for smenno
 anchor_list() {
+
+	if [ -z "$1" -o -z "$2" ]
+		then
+		echo "Usage: $0 anchor_list lang1 lang2"
+		exit 1
+	fi
 	
-	$tmpdir/gt/script/generate-anchor-list.pl --lang1=sme --lang2=nno --outdir=$commonbin $tmpdir/gt/common/src/anchor.txt
+	$scripts/generate-anchor-list.pl --lang1=$1 --lang2=$2 --outdir=$commonbin $tmpdir/gt/common/src/anchor.txt
 
 }
 
 
 case "$1" in
 	build_gt)
+
         $@
         ;;
    build_st)
@@ -115,8 +137,11 @@ case "$1" in
    anchor_list)
         $@
         ;;
+   copy)
+        $@
+        ;;
    *)
-        echo $"Usage: $0 {build_gt lang | build_st | anchor_list }"
+        echo $"Usage: $0 {build_gt langs | build_st | anchor_list lang1 lang2 | copy }"
         exit 1
         ;;
 esac
