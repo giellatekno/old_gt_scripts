@@ -45,8 +45,8 @@ print "Generating anchor word list to $outfile..\n";
 my @languages=("eng", "nno", "sme", "fin", "smj" );
 my %langs;
 
-open (FH, "<$infile");
-open (FH2, ">$outfile");
+open (FH, "<$infile") or die "Could not open $infile";
+open (FH2, ">$outfile") or die "Could not open $outfile";
 
 while(<FH>) {
 
