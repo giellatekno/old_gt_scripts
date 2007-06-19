@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use CGI::Debug;
+#use CGI::Debug;
 use strict;
 
 use utf8;
@@ -11,9 +11,9 @@ use XML::Twig;
 use CGI::Minimal;
 
 #use CGI qw/:standard :html3 *table *dl/;
-$CGI::DISABLE_UPLOADS = 0;
+#$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
-$CGI::POST_MAX        = 1_024 * 1_024; 
+#$CGI::POST_MAX        = 1_024 * 1_024; 
 use CGI::Alert ('saara', 'http_die');
 
 # Use project's utility functions.
@@ -48,7 +48,7 @@ require "conf.pl";
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$generate,$hyphenate,%avail_pos,%languages);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,%avail_pos,%languages);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -117,7 +117,7 @@ if(! $xml_out) {
 #	$a->paste('last_child',$body);
 	
 	$giellatekno_logo = XML::Twig::Elt->new(a=>{href=>$giellatekno_href});
-	my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, title=>'Giellatekno'});
+	my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, style=>'border: none;', title=>'Giellatekno'});
 	$img->paste('last_child',$giellatekno_logo);
 
 	&printinitialhtmlcodes($action, $page,$body);
@@ -169,11 +169,12 @@ if (@words && ! $xml_out) { &printwordlimit; }
 
 my $result;
 my %answer;
-if ($action eq "generate")  { $result = `echo $text | $generate`; }
-elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer); }
+my %candidates;
+if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
+elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candidates); }
 elsif ($action eq "disamb") { $result = `echo $text | $disamb`; }
 elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
-elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate | cut -f2 | tr '\012' ' '`; }
+elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
 else { 
 if (!$xml_out)  { print "<p>No action given</p>"; }
 else { print "<error>No parameter for action recieved</error>"; }
@@ -192,35 +193,46 @@ if (! $xml_out) {
 	elsif ($action eq "generate") { $output = gen2html($result,0,1);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
 
+    # PARADIGM OUTPUT
     elsif ($action eq "paradigm") {
       my $grammar = $page->first_child("grammar");
 
-      if ($answer{noparadigm}) {
+      if ($result == -1) {
 	     my $no_result = $page->first_child_text("noresult[\@tool='paradigm']");
-         if (! $no_result) { $page->first_child_text("no_result"); }
+         if (! $no_result) { $no_result = $page->first_child_text("no_result"); }
+         if (! $no_result) { $no_result = "No paradigm found."; }
   	     my $pos_text = $grammar->first_child_text("pos[\@type='$pos']");
 
          $pos_text = "$text $pos_text ($pos)";
-         my $p=XML::Twig::Elt->new(p=>$no_result);
+         my $p=XML::Twig::Elt->new('p');
          my $b=XML::Twig::Elt->new(b=>$pos_text);
          $b->paste('last_child',$p);
          $p->paste('last_child',$body);
 
-      }
-      if ($answer{pos} && $answer{form}) { 
-         my $text2 = $answer{form} . " ";
-	     $text2 .= $grammar->first_child_text("pos[\@type='$answer{pos}']");
-         $text2 .= " ($answer{pos})";
-         my $p=XML::Twig::Elt->new('p');
-         my $b=XML::Twig::Elt->new(b=>$text2);
-         $b->paste('last_child',$p);
+         $p=XML::Twig::Elt->new(p=>$no_result);
          $p->paste('last_child',$body);
+
       }
-      if ($result) { 
-           $output = gen2html($result,0,1); 
-           $output->paste('last_child', $body); 
+      for (my $j=0; $j<$result; $j++) {
+         if ($answer{$j}{pos} && $answer{$j}{form}) { 
+            my $text2 = $answer{$j}{form} . ": ";
+            if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
+            else {
+	          $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
+              $text2 .= " ($answer{$j}{pos})";
+            }
+            my $p=XML::Twig::Elt->new('p');
+            my $b=XML::Twig::Elt->new(b=>$text2);
+            $b->paste('last_child',$p);
+            $p->paste('last_child',$body);
+         }
+		# If minimal mode, show only first paradigm
+        $output = gen2html($answer{$j}{para},0,1); 
+        $output->paste('last_child', $body); 
+		last if ($mode eq "minimal");
       }
-	  if ($answer{candidates}) { 
+
+	  if (%candidates) { 
 	     my $other_forms = $page->first_child_text("otherforms[\@tool='paradigm']");
          my @content;
          my $p=XML::Twig::Elt->new('p');
@@ -229,7 +241,7 @@ if (! $xml_out) {
          my $br=XML::Twig::Elt->new('br');
          push(@content, $br);
 
-		for my $c (keys %{$answer{candidates}}) { 
+		for my $c (keys %candidates) { 
             push(@content, $c);
             my $br_copy = $br->copy;
             push (@content, $br_copy);
@@ -264,128 +276,166 @@ print $output;
 ######################################################################
 
 sub generate_paradigm {
-	my ($word, $pos, $answer_href) = @_;
+	my ($word, $pos, $answer_href, $cand_href) = @_;
 	
 	print FH "$word $pos\n";
 
 	my %paradigms;
 	my $gen_call;
-	my %all_ans;
 	my $anypos;
 	my $answer;
+	my $i=0;
 	if ($pos eq "Any") { $anypos = 1; }
 
+	print FH "GEN-NORM: $gen_norm_lookup\n";
+	print FH "GEN: $gen_lookup\n";
+	print FH "MODE: $mode\n";
     # Initialize paradigm list
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
+
+	my $result = `echo $word | $analyze`;
+	my @analyzes = split(/\n+/, $result);
 
 	# Generate paradigm for the given word class
 	if (! $anypos) {
 		$answer = call_para($word, \@{$paradigms{$pos}});
-		if($answer) { 	
-			$all_ans{$answer} = 1;
-			$$answer_href{form} = "$text";
-			$$answer_href{pos} = "$pos";
-			if ($xml_out) { return $answer; }
+		if($answer) {
+			$$answer_href{$i}{form} = $text;
+			$$answer_href{$i}{pos} = $pos;
+			$$answer_href{$i}{para} = $answer;
+			for my $a (@analyzes) { 
+				if ($pos eq "Pron" && $a =~ /$pos/) {
+					my $rest;
+					($rest, $$answer_href{$i}{anl}) = split(/\s+/, $a);
+				}
+			}
+			$i++;
+			format_pron($answer_href, 0);
+			return $i;
 		}
 	}
-	# If there was no answer, try to analyze the input word.
-	# Pick the POS-tag and send it pack to the paradigm generator.
-	my $result = `echo $word | $analyze`;
-	my @answers = split(/\n+/, $result);
 
-	print FH "echo $word | $analyze\n";
-	print FH "ANALYSIS $result\n";
-	
-	# Check the pos tag and derivation
+	# Pick the POS-tag and send it pack to the paradigm generator.	
 	my %poses;
 	my %derivations;
-	my @answers_clean;
-	for my $ans (@answers) {
-		next if ($ans =~ /\+\?/);
-		my ($lemma, $ans) = split(/\s+/, $ans);
-		if ($ans !~ /Der/) { 
-			my @line = split (/\+/, $ans);
+	my @der_anl;
+	my @analyzes_noder;
+	for my $anl (@analyzes) {
+		next if ($anl =~ /\+\?/);
+		my ($lemma, $anl) = split(/\s+/, $anl);
+		if ($anl !~ /Der/) { 
+			my @line = split (/\+/, $anl);
 			my $p = $line[1];
 			my $w = $line[0];
 
+			# Skip analyzes that are not the same pos
 			next if (! $anypos && $pos ne $p);
-			$poses{$ans}{'lemma'} = $w;
-			$poses{$ans}{'pos'} = $p;
-			push (@answers_clean, $ans);
+			$poses{$anl}{lemma} = $w;
+			$poses{$anl}{pos} = $p;
+			push (@analyzes_noder, $anl);
 		}
-	    elsif ($ans =~ m/^(.*?(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/) {
+		# The derivations are treated separately
+	    elsif ($anl =~ m/^(.*?(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/) {
 			my $word_der=$1;
 			my $word_pos=$2;
             next if (! $anypos && $pos ne $word_pos);
-			$derivations{$word_der} = $word_pos;
+			$derivations{$anl}{lemma} = $word_der;
+			$derivations{$anl}{pos} = $word_pos;
+            push (@der_anl, $anl);
 			print FH "POS $word_pos\n WORD_DER $word_der\n";
 		}
 	}
-	# Search the analyses for the best match for the user input.
+	# Select the analyses for the best match for the user input.
 	my $first_cand;
 	my $cand_p;
 	my $cand_w;
-	if (! %all_ans || $anypos) {
-		for my $ans (@answers_clean) {
-			if ($poses{$ans}{pos} eq $pos || $anypos) {
-				if ($poses{$ans}{lemma} eq $word && $avail_pos{$poses{$ans}{pos}}) {
-					print FH "FIRST $ans\n";
-					$first_cand = $poses{$ans};
-					$cand_p = $poses{$ans}{pos};
-					$cand_w = $poses{$ans}{lemma};
+	my $cand_anl;
+	if (! %$answer_href || $anypos) {
+		for my $anl (@analyzes_noder) {
+			if ($poses{$anl}{pos} eq $pos || $anypos) {
+				if ($poses{$anl}{lemma} eq $word && $avail_pos{$poses{$anl}{pos}}) {
+					print FH "FIRST $anl\n";
+					$first_cand = $poses{$anl};
+					$cand_p = $poses{$anl}{pos};
+					$cand_w = $poses{$anl}{lemma};
+					$cand_anl = $anl;
+                    last;
 				}
 				else {
-					print FH "CAND $ans\n";
-					push (@candidates, $ans);
+					print FH "CAND $anl\n";
+					push (@candidates, $anl);
                 }
             }
 		}
 		# If the lemma matches to the input, generate paradigm
 		if ($first_cand) {
-			$$answer_href{form} = "$text";
-			$$answer_href{pos} = "$cand_p";
+			$$answer_href{$i}{form} = $text;
+			$$answer_href{$i}{pos} = $cand_p;
+			$$answer_href{$i}{anl} = $cand_anl;
 			$answer = call_para($cand_w, \@{$paradigms{$cand_p}});
-			if ($answer) { $all_ans{$answer}=2; }
+			$$answer_href{$i}{para} = $answer;
+			$i++;
 		}
 		# If there was no exact match pick the first analysis.
 		elsif(@candidates) {
-			my $ans = shift(@candidates);
-			$$answer_href{form} = "$text";
-			$$answer_href{pos} = "$poses{$ans}{pos}";
-			$answer = call_para($poses{$ans}{lemma}, \@{$paradigms{$poses{$ans}{pos}}});
-			if ($answer) { $all_ans{$answer}=2; }
+			my $anl = shift(@candidates);
+			$$answer_href{$i}{form} = $text;
+			$$answer_href{$i}{pos} = $poses{$anl}{pos};
+			$$answer_href{$i}{anl} = $anl;
+			$answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
+			$$answer_href{$i}{para} = $answer;
+			$i++;
 		}
     }
 	for my $c (@candidates) {
-		if ($$answer_href{pos} ne $poses{$c}{pos}) { $$answer_href{candidates}{$c}=1; }
-	}
-	for my $d (keys %derivations) {
-		my $p = $derivations{$d};
-		$answer = call_para($d, \@{$paradigms{$p}});
-		if ($answer) { 
-			$all_ans{$answer}=3; 
+		if ($$answer_href{0}{pos} ne $poses{$c}{pos}) { $$cand_href{$c}=1; }
+	}	
+
+    
+	for my $d (@der_anl) {
+
+        # If one derivations is included, next ones go to candidates.
+        if ($$answer_href{$i-1}{der}) {  $$cand_href{$d}=1; next; }
+		my $p = $derivations{$d}{pos};
+		my $lemma = $derivations{$d}{lemma};
+		$answer = call_para($lemma, \@{$paradigms{$p}});
+
+		if ($answer) {
 			if (! $$answer_href{form} ) {
-				$$answer_href{form} = "$text";
-				$$answer_href{pos} = "$p";
+				$$answer_href{$i}{form} = $text;
+				$$answer_href{$i}{pos} = $p;
+				$$answer_href{$i}{anl} = $d;
+				$$answer_href{$i}{para} = $answer;
+				$$answer_href{$i}{der} = 1;
+				$i++;
 			}
 		}
 	}
-	if(! %all_ans) {
-		$$answer_href{noparadigm}=1;
-		$$answer_href{form}="";
-		$$answer_href{pos}="";
-		print FH "NOANSWER\n";
-	}
+	if (! $$answer_href{0}) { $i=-1; }
 	else {
-		$answer="";
-		for my $key (sort { $all_ans{$a} <=> $all_ans{$b} } keys %all_ans) {
-			$answer .= $key;
-			$answer .= "\n";
-			print FH "ANSWER2 $key OK\n";
-		}		
+		for (my $j=0; $j<$i; $j++) {
+			if ($$answer_href{$j}{pos} eq "Pron") { format_pron($answer_href, $j); }
+		}
 	}
-	return $answer;
+	return $i;
 }
+
+
+# Don't include pronouns in all persons, just the asked one.
+sub format_pron {
+	my ($answer_href, $j) = @_;
+
+	my @tags=split(/\+/, $$answer_href{$j}{anl});
+	my $number = $tags[3];
+	my @paras = split (/\n/, $$answer_href{$j}{para});
+	my @newparas;
+	for my $p (@paras) {
+		next if ($mode ne "full" && $p !~ /$number/);
+		push (@newparas, $p);
+	}
+	$$answer_href{$j}{para} = join("\n\n", @newparas);
+}
+
 
 # Call paradigm generator
 sub call_para {
@@ -398,9 +448,16 @@ sub call_para {
 		my $string = "$word+$a";
 		$all .= $string . "\n";
 	}
+
 	if ($all) {
-		print FH "FORMS $all";
-		my $generated = `echo \"$all\" | $gen_lookup`;
+		#print FH "FORMS $all";
+		my $generated;
+        if ($mode eq "dialect") { print FH "GEN $gen_lookup\n";
+								  $generated = `echo \"$all\" | $gen_lookup`;
+							  }
+        else { $generated = `echo \"$all\" | $gen_norm_lookup`; 
+								  print FH "GEN $gen_norm_lookup\n";
+}
 		my @all_cand = split(/\n+/, $generated);
 		for my $a (@all_cand) { if ($a !~ /\+\?/) { $answer .= $a . "\n\n"; } }
 		if ($answer) { print FH "ANS $answer";}
@@ -452,7 +509,7 @@ sub printinitialhtmlcodes {
 		
 		# Get the texts for selection menu
 		my %labels;
-		my @modes = qw(minimal standard full);
+		my @modes = qw(minimal standard full dialect);
 		for my $m (@modes) { $labels{$m} = $selection->first_child_text("\@type='$m'"); }
 
 		my %pos_labels;
@@ -465,7 +522,7 @@ sub printinitialhtmlcodes {
 		}
 		my $tr = XML::Twig::Elt->new('tr');
 		my $td = XML::Twig::Elt->new('td');
-		my $textarea = XML::Twig::Elt->new(input => {type=>'text',name=>'text','rows'=>2,'cols'=>50});
+		my $textarea = XML::Twig::Elt->new(input => {type=>'text',name=>'text','size'=>50});
 		$textarea->paste('last_child', $td);
 
 		my $select = XML::Twig::Elt->new(select => {name => 'pos'});
@@ -573,10 +630,6 @@ sub printinitialhtmlcodes {
 	# Submit and reset texts
 	my $submit_text = $texts->first_child_text("input[\@type='submit']");
 	my $reset_text = $texts->first_child_text("input[\@type='reset']");
-
-#	$tr = XML::Twig::Elt->new("tr");
-
-#	$tr->paste('last_child', $table);
 
 	$tr = XML::Twig::Elt->new("tr");
 	$td = XML::Twig::Elt->new("td");
