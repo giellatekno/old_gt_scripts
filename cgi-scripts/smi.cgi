@@ -430,7 +430,8 @@ sub format_pron {
 	my @paras = split (/\n/, $$answer_href{$j}{para});
 	my @newparas;
 	for my $p (@paras) {
-		next if ($mode ne "full" && $p !~ /$number/);
+		if ($p =~ /Refl/)  { push (@newparas, $p); next; }
+ 		next if ($mode ne "full" && $p !~ /$number/);
 		push (@newparas, $p);
 	}
 	$$answer_href{$j}{para} = join("\n\n", @newparas);
