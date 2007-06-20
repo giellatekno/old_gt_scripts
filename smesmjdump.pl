@@ -48,12 +48,3 @@ while(<>) {
 	}
 	print $line;
 }
-
-# Pære ACCRA ;
-
-# Pære:Pæ9re ACCRA ;
-  word new_word rest
-  
- Kusipää
- Kusipää:Kusipä9ä9 
-  
