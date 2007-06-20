@@ -25,6 +25,7 @@ use Getopt::Long;
 use Cwd;
 use XML::Twig;
 use samiChar::Decode;
+use langTools::Corpus;
 use Carp qw(cluck carp);
 
 my $no_decode = 0;
@@ -275,11 +276,20 @@ sub process_file {
 		$int =~ s/\.correct//;
 		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 		# Do extra formatting for prooftest-directory.
-		$command = "$add_error_marking $orig > $tmp1";
-		exec_com($command, $file);
+		my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
+		if (! $document->safe_parsefile ("$orig") ) {
+			carp "ERROR parsing the XML-file $orig failed. $@ STOP\n";
+			return "ERROR";
+		}
+		if (! open (FH, ">$tmp1")) {
+			carp "ERROR cannot open file STOP";
+			return "ERROR";
+		} 
+		$document->set_pretty_print('indented');
+		$document->print( \*FH);
 		print "copying $tmp1 $int\n";
-		copy($tmp1,$int);
-
+		exec_com("cp \"$tmp1\" \"$int\"", $file);
+		
 		return;
 	}
 	else { $error = 1; }
@@ -339,8 +349,17 @@ sub process_file {
 
 	# Do extra formatting for prooftest-directory.
 	if ($orig =~ /prooftest\/orig/) {
-		$command = "$add_error_marking $int > $tmp1";
-		exec_com($command, $file);
+		my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
+		if (! $document->safe_parsefile ("$int") ) {
+			carp "ERROR parsing the XML-file $int failed. STOP\n";
+			return "ERROR";
+		}
+		if (! open (FH, ">$tmp1")) {
+			carp "ERROR cannot open file STOP";
+			return "ERROR";
+		} 
+		$document->set_pretty_print('indented');
+		$document->print( \*FH);
 		copy($tmp1,$int);
 	}
 
@@ -659,7 +678,6 @@ sub copyfree {
 
 	return 0;
 }
-
 
 # Subroutine to execute system commands and handle return values.
 sub exec_com {
