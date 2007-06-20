@@ -35,14 +35,25 @@ while(<>) {
 		my ($word, $rest) = split (/\s+/, $line, 2);
 		$word =~ s/\$/% /g;
 		if ($line !~ /\:/) {
-			( my $new_word = $word ) =~ s/æ/æ9/g;
+			( my $int_word = $word )     =~ s/æ/æ9/g;
+			( my $new_word = $int_word ) =~ s/ä/ä9/g;
 			$line = $word . ":" . $new_word . " " . $rest;
 		}
 		else {
 			my ($upper, $lower) = split(/\:/, $word);
-			( my $new_lower = $lower ) =~ s/æ/æ9/g;				
+			( my $int_word = $word )     =~ s/æ/æ9/g;
+			( my $new_word = $int_word ) =~ s/ä/ä9/g;
 			$line = $upper . ":" . $new_lower . " " . $rest;
 		}
 	}
 	print $line;
 }
+
+# Pære ACCRA ;
+
+# Pære:Pæ9re ACCRA ;
+  word new_word rest
+  
+ Kusipää
+ Kusipää:Kusipä9ä9 
+  
