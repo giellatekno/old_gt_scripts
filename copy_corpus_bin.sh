@@ -27,7 +27,6 @@ common.xsl
 empty.xsl
 xhtml2corpus.xsl
 docbook2corpus2.xsl
-add_error_marking.pl
 tidy-config.txt"
 
 makefile="corpus.make"
