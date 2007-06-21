@@ -36,15 +36,16 @@ while(<>) {
 		$word =~ s/\$/% /g;
 		if ($line !~ /\:/) {
 			( my $int_word = $word )     =~ s/æ/æ9/g;
-			( my $new_word = $int_word ) =~ s/ä/ä9/g;
-			$line = $word . ":" . $new_word . " " . $rest;
+			$int_word =~ s/ä/ä9/g;
+			$line = $word . ":" . $int_word . " " . $rest;
 		}
 		else {
 			my ($upper, $lower) = split(/\:/, $word);
-			( my $int_word = $word )     =~ s/æ/æ9/g;
-			( my $new_word = $int_word ) =~ s/ä/ä9/g;
-			$line = $upper . ":" . $new_lower . " " . $rest;
+			( my $int_word = $lower )     =~ s/æ/æ9/g;
+			$int_word =~ s/ä/ä9/g;
+			$line = $upper . ":" . $int_word . " " . $rest;
 		}
 	}
 	print $line;
 }
+
