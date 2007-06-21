@@ -22,7 +22,8 @@ while (<STDIN>) {
 	if (/\+Pron/) { print; next; }
 	chomp;
 	
-	my @strings = split (/\%\ /, $_);
+	my ($entry, $comments) = split (/\;/), $_);
+	my @strings = split (/\%\ /, $entry);
 	my $end = 0;
 	
 	for my $i (@strings) {
