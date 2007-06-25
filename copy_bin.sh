@@ -11,7 +11,15 @@
 # $Id$
 #****************************************************************
 
-tmpdir=/usr/tmp
+host=$(hostname)
+# Set variables according to the current host.
+if [ "$host" == "hum-stud113.hum.uit.no" ]
+then
+	group=staff
+	tmpdir=/tmp
+else
+    tmpdir=/usr/tmp
+fi
 script_dir=$tmpdir/gt/script
 bindir=$tmpdir/gt/bin
 srcdir=$tmpdir/gt/src
@@ -29,7 +37,7 @@ binaries="ccat"
 scripts="preprocess lookup2cg text_cat cgi-export"
 
 # If we are in G5
-if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+if [ "$host" == "hum-stud113.hum.uit.no" ]
 then 
 	perl_libdir=/Library/Perl/5.8.6
 	perl_libdir2=/sw/lib/perl5/5.8.6
@@ -66,7 +74,7 @@ for mod in $own_modules
 do
   echo "cp -r $script_dir/$mod $perl_libdir"
   sudo cp -r $script_dir/$mod $perl_libdir
-  if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+  if [ "$host" == "hum-stud113.hum.uit.no" ]
 	  then 
 	  echo "cp -r $script_dir/$mod $perl_libdir2"
 	  sudo cp -r $script_dir/$mod $perl_libdir2
