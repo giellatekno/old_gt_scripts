@@ -13,6 +13,7 @@
 use strict;
 use XML::Twig;
 
+use Carp qw(cluck confess);
 use File::stat;
 use Time::localtime;
 use File::Basename;
@@ -81,8 +82,7 @@ sub read_applescript {
 		chomp;
 
 		if (/Prompt\:/) { 
-			print STDERR "$0: Probably reading Polderland format, start again with option --PLX\n\n";
-			return;
+			confess "Probably reading Polderland format, start again with option --PLX\n\n";
 		} 
 		my ($orig, $error, $sugg) = split(/\t/);
 		if ($sugg) { @suggestions = split(", ", $sugg); }
@@ -126,7 +126,7 @@ sub read_applescript {
 sub read_polderland {
 
 	print STDERR "$0: Reading Polderland output from $output\n";
-	open(FH, $output);
+	open(FH, $output) or die "Could not open file $output. $!";
 
 	# Read until "Prompt"
 	while(<FH>) { last if (/Prompt/); }
@@ -134,11 +134,10 @@ sub read_polderland {
 	my $i=0;
 	my $line = $_;
 
-	next if ($line !~ /Check returns/);
+    if ($line !~ /Check returns/) { confess "could not read $output";}
 	(my $orig = $line) =~ s/.*?Check returns .*? for \'(.*?)\'\s*$/$1/;
 	if (!$orig || $orig eq $line) { 
-		print "Probably wrong format, start again with --AS\n";
-		return;
+		confess "Probably wrong format, start again with --AS\n";
 	}
 
 	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
@@ -173,7 +172,7 @@ sub read_polderland {
 			
 			# If the output word was not found from the input list, ignore it.
 			if (! $originals[$j]) {
-				print STDERR "$0: Output word $orig was not found from the input list.\n";
+				cluck "Output word $orig was not found from the input list.\n";
 				$orig=undef;
 				$i--;
 				next;
@@ -214,7 +213,7 @@ sub read_polderland {
 sub read_typos {
 
 	print STDERR "Reading typos from $input\n";
-	open(FH, "<$input");
+	open(FH, "<$input") or die "Could not open $input";
 
 	while(<FH>) {
 		chomp;
@@ -241,7 +240,7 @@ sub read_typos {
 sub print_xml_output {
 
 	if (! $print_xml) {
-		print "Specify the output file with option --xml=<file>\n";
+		die "Specify the output file with option --xml=<file>\n";
 	}
 	my $FH1;
 	open($FH1,  ">$print_xml");
