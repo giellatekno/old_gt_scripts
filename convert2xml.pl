@@ -133,11 +133,13 @@ if (! $nolog) {
 # Search the files in the directory $dir and process each one of them.
 if ($dir) {
 	if (-d $dir) { find (\&process_file, $dir) }
-	else { print "$dir ERROR: Directory did not exit.\n"; }
+	else { print "$dir ERROR: Directory does not exist.\n"; }
 }
-
+else {
 # Process the file given in command line.
-process_file (Encode::decode_utf8($ARGV[$#ARGV])) if $ARGV[$#ARGV];
+	my $error =  process_file (Encode::decode_utf8($ARGV[$#ARGV])) if $ARGV[$#ARGV];
+	if ($error) { print_log($log_file, $ARGV[$#ARGV]); }
+}
 
 close STDERR;
 
@@ -152,11 +154,14 @@ sub process_file {
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml|correct\.xml|correct\.xml,v)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
-		return;
+		return "ERROR";
 	}
 	my $vfile  = $file . ",v";
-	return if (! -f $file && ! -f $vfile);
-	
+	if (! -f $file && ! -f $vfile) {
+		print STDERR "$file: ERROR. File does not exist. STOP\n";
+		return "ERROR" 
+		}
+
 	# correct.xml is not converted.
 	if ($file =~ /(correct\.xml|correct\.xml,v)/) { $noxsl=1; }
 
@@ -176,8 +181,8 @@ sub process_file {
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
 	if (-f $file && -s $file < 200) {
-		print STDERR "$file: ERROR. File is too small for processing. STOP\n";
-		return;
+		carp "$file: ERROR. File is too small for processing. STOP\n";
+		return "ERROR";
 	}
 
 	# Take the basename of the file.
@@ -196,8 +201,8 @@ sub process_file {
 	# Check that the xml-file is available for writing.
 	if(-f $int && ! -w $int) {
 		print "$file: ERROR: permission denied to $int. STOP.\n";
-		print STDERR "$file: ERROR: permission denied to $int. STOP.\n";
-		return;
+		carp "$file: ERROR: permission denied to $int. STOP.\n";
+		return "ERROR";
 	}
 
 	# check out the file-specific xsl-file for processing
@@ -225,36 +230,38 @@ sub process_file {
 
 	##### Start conversion ############
 	my $error;
+	my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
+
 	# Word documents
 	if ($file =~ /\.doc$/) {
-		$error = convert_doc($file, $orig, $int);
+		$error = convert_doc($file, $orig, $tmp0);
 	}
 
 	# xhtml documents
 	elsif ($file =~ /\.html$/) {
-		$error = convert_html($file, $orig, $int, $xsl_file);		
+		$error = convert_html($file, $orig, $tmp0, $xsl_file);		
 	}
 	
 	# pdf documents	
 	elsif ($file =~ /\.pdf$/) {
-		$error = convert_pdf($file, $orig, $int, $xsl_file);
+		$error = convert_pdf($file, $orig, $tmp0, $xsl_file);
 	}
 
 	# paratext documents
 	elsif ($file =~ /\.ptx$/) {
-		$command = "$paratext2xml \"$orig\" --out=\"$int\"";
+		$command = "$paratext2xml \"$orig\" --out=\"$tmp0\"";
 		$error = exec_com($command, $file);
 	}
 
 	# bibles
 	elsif ($file =~ /\.bible\.xml$/) {
-		$command = "$bible2xml --out=\"$int\" \"$orig\"";
+		$command = "$bible2xml --out=\"$tmp0\" \"$orig\"";
 		$error = exec_com($command, $file);
 	}
 
 	# Conversion of text documents
 	elsif ($file =~ /\.txt$/) {
-		$error = convert_txt($file, $orig, $int, \$no_decode_this_time);
+		$error = convert_txt($file, $orig, $tmp0, \$no_decode_this_time);
 	}
 
 	# Conversion of documents with error markup
@@ -267,18 +274,23 @@ sub process_file {
 		if (! -f $corr_vfile) {
 			$command = "ci -t-\"added under version control by convert2xml.pl\" -q -i \"$orig\"";
 			exec_com($command, $file);
+			my $cnt = chown -1, $orig_gid, $corr_vfile;	
+			if ($cnt == 0) { print STDERR "ERROR: chgrp failed for $orig.\n"};
 		}
 
 		# Check out the corr-file for editing.
 		$command = "co -f -q \"$orig\"";
-		exec_com($command, $file);
+		if( exec_com($command, $file) != 0 ) {
+			carp "ERROR cannot checkout file: $corr_vfile STOP";
+			return "ERROR";
+		}
 
 		$int =~ s/\.correct//;
 		my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
 		# Do extra formatting for prooftest-directory.
 		my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
 		if (! $document->safe_parsefile ("$orig") ) {
-			carp "ERROR parsing the XML-file $orig failed. $@ STOP\n";
+			carp "ERROR parsing the XML-file $orig failed. STOP\n";
 			return "ERROR";
 		}
 		if (! open (FH, ">$tmp1")) {
@@ -288,52 +300,44 @@ sub process_file {
 		$document->set_pretty_print('indented');
 		$document->print( \*FH);
 		print "copying $tmp1 $int\n";
-		exec_com("cp \"$tmp1\" \"$int\"", $file);
+		exec_com("cp \"$tmp1\" \"$tmp0\"", $file);
+
+		print_log($log_file, $file);
 		
-		return;
+		return 0;
 	}
 	else { $error = 1; }
 	
 	# If there were errors in the conversion, remove
 	# the xml-file and proceed to the next file.
-	if ($error || ! -f $int || -z $int ) {
+	if ($error || ! -f $tmp0 || -z $tmp0 ) {
 		print "ERROR: First conversion step from original failed. STOP.\n";
 		if ($log_file) { print "See $log_file for details.\n"; }
 		if (! $upload) {
 			carp "ERROR: First conversion step from original failed. STOP.\n";
 		}
-		exec_com("rm -rf \"$int\"", $file);
 		if (! $test) { remove_tmp_files($tmpdir, $file); }
-		return;
+		return "ERROR";
 	}
 
 	# end of line conversion.
 	my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-	my $command = "$convert_eol \"$int\" > \"$tmp1\"";
+	my $command = "$convert_eol \"$tmp0\" > \"$tmp1\"";
 	exec_com($command, $file);
-	copy ($tmp1, $int) ;	
+	copy ($tmp1, $tmp0) ;	
 
-	# chmod and chgrp the new xml-file.
-	if(! $upload) {
-		my $cnt = chown -1, $gt_gid, $int;
-#		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
-		chmod 0660, $int;
-	}
-
-	$error = character_encoding($file, $int, $no_decode_this_time);
+	$error = character_encoding($file, $tmp0, $no_decode_this_time);
 	if ($error) {
-		exec_com("rm -rf \"$int\"", $file);
 		if (! $test) { remove_tmp_files($tmpdir, $file); }
-		return;
+		return "ERROR";
 	}
 
 	# Run the file specific xsl-script.
 	if (! $noxsl) { 
-		$error = file_specific_xsl($file, $orig, $int, $xsl_file, $doc_id); 
+		$error = file_specific_xsl($file, $orig, $tmp0, $xsl_file, $doc_id); 
 		if ($error) {
-			exec_com("rm -rf \"$int\"", $file);
 			if (! $test) { remove_tmp_files($tmpdir, $file); }
-			return;
+			return "ERROR";
 		}
 	}
 
@@ -350,8 +354,8 @@ sub process_file {
 	# Do extra formatting for prooftest-directory.
 	if ($orig =~ /prooftest\/orig/) {
 		my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
-		if (! $document->safe_parsefile ("$int") ) {
-			carp "ERROR parsing the XML-file $int failed. STOP\n";
+		if (! $document->safe_parsefile ("$tmp0") ) {
+			carp "ERROR parsing the XML-file $tmp0 failed. STOP\n";
 			return "ERROR";
 		}
 		if (! open (FH, ">$tmp1")) {
@@ -360,33 +364,51 @@ sub process_file {
 		} 
 		$document->set_pretty_print('indented');
 		$document->print( \*FH);
-		copy($tmp1,$int);
+		copy($tmp1,$tmp0);
 	}
 
 	# hyphenate the file
 	if (! $no_hyph ) {
-		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$int\" --outfile=\"$tmp1\""; }
-		else { $command = "$hyphenate --infile=\"$int\" --outfile=\"$tmp1\"";}
+		if ($all_hyph) { $command = "$hyphenate --all --infile=\"$tmp0\" --outfile=\"$tmp1\""; }
+		else { $command = "$hyphenate --infile=\"$tmp0\" --outfile=\"$tmp1\"";}
 		exec_com($command, $file);
-		copy ($tmp1, $int) ;
+		copy ($tmp1, $tmp0) ;
 	}
 
 	# Text categorization
 	if (! $upload) {
 		my $lmdir = $bindir . "/LM";
-		my $command = "$text_cat -q -x -d $lmdir \"$int\"";
+		my $command = "$text_cat -q -x -d $lmdir \"$tmp0\"";
 		exec_com($command, $file);
 	}
 
 	# Copy the freely available texts to the corp/free -catalog
 	if (! $upload) {
-		copyfree($file, $orig, $int, $intfree);
+		copyfree($file, $orig, $tmp0, $intfree);
+	}
+	
+	# If gone this far, copy the temporary file to the correct directory.
+	exec_com("cp $tmp0 $int", $file);
+
+	# chmod and chgrp the new xml-file.
+	if(! $upload) {
+		my $cnt = chown -1, $gt_gid, $int;
+#		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
+		chmod 0660, $int;
 	}
 
 	# Remove temporary files unless testing.
 	if (! $test) { remove_tmp_files($tmpdir, $file); }
 
-	# Print log message to STDOUT in case of fatal ERROR
+	print_log($log_file, $file);
+
+	return 0;
+}
+
+sub print_log {
+	my ($log_file, $file) = @_;
+
+# Print log message to STDOUT in case of fatal ERROR
 	if (! $nolog) {
 		open FH, $log_file;
 		while (<FH>) {
@@ -395,7 +417,6 @@ sub process_file {
 				}
 		}
 	}
-	return 0;
 }
 
 
@@ -467,13 +488,15 @@ sub convert_pdf {
 		if ($col_num eq "'2'") { $arguments .= "-Dcol"; }
 		if ($lower) { $arguments .= " -Dlower=$lower"; }
 		if ($excluded) { $arguments .= " -Dexcl=$excluded"; }
+		else { $arguments .=" -Dexcl=\"0\""; }
 
 		$command = "$jpedal $orig $tmpdir $arguments";
-		exec_com($command, $file);
+		my $error = exec_com($command, $file);
+
+		if ($error) { carp "$error"; return "ERROR"; }
 
 		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
 		exec_com($command, $file);
-
 		
 		$command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
 		exec_com($command, $file);
@@ -484,7 +507,7 @@ sub convert_pdf {
 			print "ERROR $file: no pdf2xml output. STOP.\n";
 			return "ERROR";
 		}
-		return;
+		return 0;
 	}
 	
 	my $xsl;
@@ -568,7 +591,6 @@ sub convert_html {
 
 	if (! $no_decode && $coding) {
 		my $error = &decode_text_file($orig, $coding, $tmp4);
-		print "OOOK\n";
 		if ($error eq -1){ return "ERROR"; }
 	}
 
@@ -618,7 +640,7 @@ sub file_specific_xsl {
 	if(! $upload && ($file !~ /.ptx$/)) {
 		$command = "xmllint --valid --encode UTF-8 --noout \"$int\"";
 		if( exec_com($command, $file) != 0 ) {
-			carp "ERROR: not valid xml, removing $int.. STOP.\n";
+			carp "ERROR: not valid xml. STOP.\n";
 			return "ERROR";
 		}
 	}
@@ -752,10 +774,10 @@ sub character_encoding {
 					$d->set_pretty_print('indented');
 					$d->print( \*FH);
 				}
-				return;
+				return 0;
 			}
 			# Continue decoding the file.
-			if ($no_decode_this_time && $coding eq "latin6") { return; }
+			if ($no_decode_this_time && $coding eq "latin6") { return 0; }
 			if($test) { print STDERR "Character decoding: $coding\n"; }
 			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
 												 'title'=>sub{call_decode_para(@_, $coding);}
@@ -805,226 +827,6 @@ sub call_decode_title {
 	return 0;
 }
 
-# Add prelimnary xml-structure for the text files.
-sub txtclean {
-
-    my ($file, $outfile, $lang) = @_;
-
-	my $replaced = qq(\^\@\;|–&lt;|\!q|&gt);
-	my $maxtitle=30;
-
-    # Open file for printing out the summary.
-	my $FH1;
-	open($FH1,  ">$outfile");
-	print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|, "\n";
-	print $FH1 qq|<document xml:lang="$lang">|, "\n";
-
-	# Initialize XML-structure
-	my $twig = XML::Twig->new();
-	$twig->set_pretty_print('indented');
-
-	my $header = XML::Twig::Elt->new('header');
-	my $body = XML::Twig::Elt->new('body');
-
-	# Start reading the text
-	# enable slurp mode
-	local $/ = undef;
-    if (! open (INFH, "$file")) {
-        print STDERR "$file: ERROR open failed: $!. ";
-        return;
-    }
-
-	my $text=0;
-	my $notitle=1;
-	my $p;
-
-    while(my $string=<INFH>){
-
-#		print "string: $string\n";
-		$string =~ s/($replaced)//g;
-		$string =~ s/\\//g;
-		# remove all the xml-tags.
-		$string =~ s/<.*?>//g;
-		my @text_array;
-		my $title;
-
-		return if (! $string);
-		# The text contains newstext tags:
-		if ($string =~ /\@(.*?)\:/) {
-			while ($string =~ s/(\@(.*?)\:[^\@]*)//) {
-				push @text_array, $1;
-			}
-			for my $line (@text_array) {
-				if ($line =~ /^\@(.*?)\:(.*?)$/) {
-					my $tag = $1;
-					my $text = $2;
-					
-					if ( $tag =~ /(tittel|m.titt)/ && $text ) {
-						$text =~ s/[\r\n]+//;
-						
-						# If the title is too long, there is probably an error
-						# and the text is treated as normal paragraph.
-						if(length($text) > $maxtitle) {
-							$p = XML::Twig::Elt->new('p');
-							$p->set_text($text);
-							$p->paste('last_child', $body);
-							$p=undef;
-							next;
-						}
-						if ($notitle) {
-							$title = XML::Twig::Elt->new('title');
-							$title->set_text($text);
-							$title->paste( 'last_child', $header);
-							$notitle=0;
-						}
-						my $p = XML::Twig::Elt->new('p');
-						$p->set_att('type', "title");
-						$p->set_text($text);
-						$p->paste('last_child', $body);
-						$p=undef;
-						next;
-					}
-					if ( $tag =~ /(tekst|ingress)/ ) {
-						my $p = XML::Twig::Elt->new('p');
-						$p->set_text($text);
-						$p->paste('last_child', $body);
-						$p=undef;
-						next;
-					}
-					if ( $tag =~ /(byline)/ ) {
-						my $a = XML::Twig::Elt->new('author');
-						my $p = XML::Twig::Elt->new('person');
-						$p->set_att('firstname', "");
-						$p->set_att('lastname', "$text");
-						$p->paste( 'last_child', $a);
-						$p=undef;
-						$a->paste( 'last_child', $header);
-						next;
-					}
-					my $p = XML::Twig::Elt->new('p');
-					$p->set_text($text);
-					$p->set_att('type', "title");
-					$p->paste('last_child', $body);
-					$p=undef;
-					next;
-				}
-				else { 
-					carp "ERROR: line did not match: $line\n"; 
-					return "ERROR";
-				}
-			}
-		}
-
-		# The text does not contain newstext tags:
-		else {
-			$notitle=0;
-			my $p_continues=0;
-			
-			my @text_array = split(/[\n\r]/, $string);
-			for my $line (@text_array) {
-				$line .= "\n";
-				if (! $p ) {
-					$p = XML::Twig::Elt->new('p');
-					$p->set_text($line);
-					$p_continues = 1;
-					next;
-				}
-				if( $line =~ /^\s*\n/  ) {
-					$p_continues = 0;
-					next;
-				}
-				if($p_continues ) {
-					my $orig_text = $p->text;
-					$line = $orig_text . $line;
-					$p->set_text($line);
-				}
-				else {
-					$p->paste('last_child', $body);
-					$p=undef;
-					$p = XML::Twig::Elt->new('p');
-					$p->set_text($line);
-					$p_continues = 1;
-				}
-			}
-		}
-	}
-	close INFH;
-
-	if ($p && $body) {
-		$p->paste('last_child', $body);
-	}
-	$header->print($FH1);
-	$body->print($FH1);
-
-	print $FH1 qq|</document>|;
-	close $FH1;
-}
-
-# routine for printing out header in the middle of processing
-# used in subroutine txtclean.
-sub printheader {
-	my ($header, $fh) = @_;
-
-	$header->print($fh);
-	$header->DESTROY;
-	print $fh qq|<body>|;
-
-}	
-
-
-sub pdfclean {
-
-		my $file = shift @_;
-		
-		if (! open (INFH, "$file")) {
-			print STDERR "$file: ERROR open failed: $!. ";
-			return;
-			}
-
-		my $number=0;
-		my $string;
-		my @text_array;
-		while ($string = <INFH>) {
-
-			# Clean the <pre> tags
-			next if ($string =~ /pre>/);
-			# Leave  the line as is if it starts with html tag.
-			if ($string =~ m/^\</) {
-				push (@text_array,$string);
-				next;
-			}
-
-			$string =~ s/[\n\r]/ /;
-			
-			# This if-construction is for finding the line numbers 
-			# (which generally are in their own line and even separated by empty lines
-			# The text before and after the line number is connected.
-			
-			if ( $string =~ /^\s*$/) {
-				if ($number==1) {
-					next;
-				}
-				else {
-					$string = "<\/p>\n<p>";
-				}
-			}
-			if ($string =~ /^\d+\s*$/) {
-				$number=1;
-				next;
-			}
-			# Headers are guessed and marked
-			# This should be done after the decoding to get the characters correctly.
-			$string =~ s/^([\d\.]+[\w\s]*)$/\n<\/p>\n<h2>$1<\/h2>\n<p>\n/;
-			$number = 0;
-			
-			push (@text_array, $string);
-		}
-		close (INFH);
-
-		open (OUTFH, ">$file") or die "Cannot open file $file: $!";
-		print(OUTFH @text_array); 
-		close (OUTFH);
-}
 
 sub print_help {
 	print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
