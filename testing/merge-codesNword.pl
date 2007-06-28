@@ -17,19 +17,27 @@
 # Date:		$d
 # Version:	$i
 
+use utf8;
+use Encode;
+
 $baseform = "";
 if (($file, $baseform) = @ARGV) {
 	open (TAGFILE,   $file) or die "Can't find file $file: $!\n";
 } else {
-	print "Too many arguments in input! Should be only:\n";
-	print "Code file, and the test word in base form.";
+	print "Too many arguments in input! Usage is:\n";
+	print "merge-codesNword.pl <FileWithCodes> <WordToInflect>.\n";
 }
 
-# print STDERR "Baseform: $baseform\n";
+# print STDERR "Baseform: '$baseform'\n";
 if ($baseform eq "") {
 	print STDERR "*** Word to inflect not specified!\n";
 	die "*** Please type: make n-para WORD=wordToInflect\n";
 }
+
+# The input string is interpreted as Latin1 although it is UTF-8, thus
+# we decode it to get it right:
+$baseform = Encode::decode_utf8($baseform);
+#print STDERR "*** Word decoded is: $baseform\n";
 
 chop (@codes  = <TAGFILE>);
 
