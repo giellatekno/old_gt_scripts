@@ -63,7 +63,7 @@ build_gt() {
 	  cp $tmpdir/gt/cwb/korpustags.$lang.txt /opt/smi/$lang/bin
 	  cp $tmpdir/gt/cwb/paradigm.$lang.txt /opt/smi/$lang/bin/
 
-	  chgrp $group /opt/smi/$lang/bin/*
+	  #chgrp $group /opt/smi/$lang/bin/*
 	  chmod a+x /opt/smi/$lang/bin/*
 	  chmod g+w /opt/smi/$lang/bin/*
 	done
@@ -79,7 +79,7 @@ build_gt() {
 	anchor_list sme nno
 	anchor_list sme smj
 	
-	chgrp $group $commonbin/*
+	#chgrp $group $commonbin/*
 	chmod a+x $commonbin/*
 	chmod g+w $commonbin/*
 	
