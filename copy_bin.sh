@@ -43,7 +43,7 @@ then
 	perl_libdir2=/sw/lib/perl5/5.8.6
 	cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
 else
-	perl_libdir=/usr/lib/perl5/5.8.5
+	perl_libdir=/usr/lib/perl5/5.8.8
 	echo "Check out gt from cvs"
 	cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
 fi
