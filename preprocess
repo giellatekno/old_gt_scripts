@@ -632,15 +632,17 @@ sub process_numeral {
 	} # end of SPLIT_NUMERAL
 	
 	verbose ("process_numeral", $word, __LINE__);
-
 	my $rest_punct;
 
 	NUM_TEST: {
+
+    # Check for ending dot, it is a separate token if 
+	# the following word starts with capital letter.
+	# If there is an abbreviation with numeral, don't do checking.
+	# Otherwise the dot belongs to the expression.
 		
-		# Check for ending dot, it is a separate token if 
-		# the following word starts with capital letter.
-		# If there is an abbreviation with numeral, don't do checking.
-		# Otherwise belongs to the expression.
+		# Process first the abbreviation or word 
+		# that is attached to the numeral
 		if ($end_word) {
 			verbose ("process_numeral/test_abbr", $word, __LINE__);
 			my $abbr = $end_word;
@@ -661,7 +663,6 @@ sub process_numeral {
 		  # Then the ending dot is removed.
 		  if($nopunct =~ /[§\d\pP\pL]/ && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
 			  $word = $nopunct;
-			 #$word =~ s/\.$//;
 		  }
 		  # Otherwise dot is considered to be an ordinal.
 		  elsif ($word =~ /^\d{1,3}\.$/ ) {
