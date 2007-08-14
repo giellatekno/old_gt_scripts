@@ -30,6 +30,7 @@ sub init_variables {
 					 sma => {analyze => 1, generate => 1, paradigm => 1},
 					 kal => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1},
 					 foe => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1}
+					 ipk => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1}
 					 );
 
 	my %page_languages = (sme => 1,
