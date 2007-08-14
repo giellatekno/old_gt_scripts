@@ -91,7 +91,7 @@ build_st() {
 
 	if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
 		then
-		for lang in "foe" "kal"
+		for lang in "foe" "kal" "ipk" 
 		  do
 		  cd $tmpdir/st/$lang/src && make clean
 		  cd $tmpdir/st/$lang/src && make 1>/dev/null
