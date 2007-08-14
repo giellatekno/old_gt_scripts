@@ -10,14 +10,25 @@
 EXPORTDIR="/opt/sami/www/cgi-bin/smi"
 #EXPORTDIR="koe"
 MODULE="gt/script/cgi-scripts"
-USER=`whoami`
 
-#if [ $USER != "root" ]; then
-#   echo "Error: You must be a root to run the script"
-#   exit
-#fi
-
-rm -rf $EXPORTDIR/*.cgi
+### Export all the cgi-scripts
+sudo rm -rf $EXPORTDIR/*.cgi
 echo "**** Exporting module $MODULE to directory: $EXPORTDIR"
-cvs -d /usr/local/cvs/repository export -r release -d $EXPORTDIR $MODULE
-chmod 755 $EXPORTDIR/*
+sudo cvs -d /usr/local/cvs/repository export -r release -d $EXPORTDIR $MODULE
+sudo chmod 755 $EXPORTDIR/*
+
+## Copy the language files to the official location
+
+tmpdir="/usr/tmp"
+optdir="/opt/smi/common/bin"
+xdocsdir="xtdoc/gtuit/src/documentation/content/xdocs/cgi"
+
+cd $tmpdir && cvs -d /usr/local/cvs/repository checkout xtdoc
+
+langs="eng nno sme"
+for lang in $langs
+  do
+  echo "cp $tmpdir/$xdocsdir/cgi-$lang.xml $optdir/"
+  cp $tmpdir/$xdocsdir/cgi-$lang.xml $optdir/
+done
+
