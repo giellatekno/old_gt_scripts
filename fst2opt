@@ -64,8 +64,8 @@ build_gt() {
 	  cp $tmpdir/gt/cwb/paradigm.$lang.txt /opt/smi/$lang/bin/
 
 	  #chgrp $group /opt/smi/$lang/bin/*
-	  chmod a+x /opt/smi/$lang/bin/*
-	  chmod g+w /opt/smi/$lang/bin/*
+	  #chmod a+x /opt/smi/$lang/bin/*
+	  #chmod g+w /opt/smi/$lang/bin/*
 	done
 
 	cp $scripts/hyph-filter.pl $commonbin
@@ -80,8 +80,8 @@ build_gt() {
 	anchor_list sme smj
 	
 	#chgrp $group $commonbin/*
-	chmod a+x $commonbin/*
-	chmod g+w $commonbin/*
+	#chmod a+x $commonbin/*
+	#chmod g+w $commonbin/*
 	
 }
 
@@ -102,9 +102,9 @@ build_st() {
 		  cp $tmpdir/st/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
 #       cp $tmpdir/st/$lang/bin/abbr.txt /opt/smi/$lang/bin/
 		  
-		  chgrp cvs /opt/smi/$lang/bin/*
-		  chmod a+x /opt/smi/$lang/bin/*
-		  chmod g+w /opt/smi/$lang/bin/*
+		  #chgrp cvs /opt/smi/$lang/bin/*
+		  #chmod a+x /opt/smi/$lang/bin/*
+		  #chmod g+w /opt/smi/$lang/bin/*
 		done
 	else
 		cd $tmpdir/st/nob/src && make abbr 
