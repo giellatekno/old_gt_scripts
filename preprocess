@@ -571,13 +571,32 @@ sub process_numeral {
 
 	if ($corr ) { if ($corr_short{$word}) { test_corr(\$word, $words_aref, $tokens_aref); } }
 
-	# Combine punctuation with numeral if followed by other numeral.
-	# cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
-	while (($word =~ /^[\d$NUM_PUNCT\- ]+$/o) && ($words_aref->[0] =~ /^[\d$NUM_PUNCT\- ]+$/o)) {
-		$word = $word . " " . $words_aref->[0];
-		verbose ("process_numeral/combine", $word, __LINE__);
-		shift @{$words_aref};
-	}
+	# Search for numeral expressions with spaces.
+
+  COMBINE: {
+	  # Consider date expressions first.
+	  # at the moment covers years: 1984-2000, 1984- 2000 etc.
+	  if ($word =~ /^\d{4}\p{Pd}?$/o) {
+		  while ($words_aref->[0] =~ /^(?:\p{Pd}|\p{Pd}?(?:\d{4}|\d{2}))\.?$/o) {
+			  if ($word =~ /\-/ || $words_aref->[0] =~ /\-/) { 
+				  $word = $word . " " . $words_aref->[0];
+				  verbose ("process_numeral/combine date", $word, __LINE__);
+				  shift @{$words_aref};
+			  }
+			  else { last COMBINE; }
+		  }
+		  last COMBINE;
+	  }
+	  
+	  # Combine punctuation with numeral if followed by other numeral.
+	  # cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
+	  while (($word =~ /^[\d$NUM_PUNCT\- ]+$/o) && ($words_aref->[0] =~ /^[\d$NUM_PUNCT\- ]+\.?$/o)) {
+		  $word = $word . " " . $words_aref->[0];
+		  verbose ("process_numeral/combine", $word, __LINE__);
+		  shift @{$words_aref};
+	  }
+
+  } # end of COMBINE
 
 	# Combine percent sign to the numeral when separate.
 	# covers cases like: 50 %
