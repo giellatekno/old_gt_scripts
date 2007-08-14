@@ -212,8 +212,12 @@ sub process_words {
 				if ($connecting{$words[0]}) {
 					$word .= " " . shift @words;
 					verbose("connecting", $word , __LINE__);
-					if ($words[0]) { $word .= " " . shift @words; }
-					elsif (@next_words) { $word .= " " . shift @next_words; }
+					if ($words[0] && (! $xml || $words[0] !~ /^</)) {
+						$word .= " " . shift @words;
+					}
+					elsif (@next_words && (! $xml || $next_words[0] !~ /^</)) { 
+						$word .= " " . shift @next_words;
+					}
 				}
 			}
 			elsif(@next_words) {
