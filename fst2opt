@@ -89,7 +89,7 @@ build_gt() {
 # st-catalog
 build_st() {
 
-	if [ "$host" != "hum-tf4-ans142.hum.uit.no" ]
+	if [ "$host" != "Hoavdas-Power-Mac-G5" ]
 		then
 		for lang in "foe" "kal" "ipk" 
 		  do
