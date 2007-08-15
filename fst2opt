@@ -24,7 +24,7 @@ scripts=$tmpdir/gt/script
 
 copy() {
 
-    if [ "$host" == "hum-stud113.hum.uit.no" ]
+    if [ "$host" == "Hoavdas-Power-Mac-G5" ]
 	then
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
