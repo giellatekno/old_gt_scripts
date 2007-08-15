@@ -24,15 +24,6 @@ sub init_variables {
 	$projectlogo = "http://giellatekno.uit.no/images/project.png";
 	$unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
 
-	#supported languages and tools
-	my %languages = (sme => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1, paradigm => 1},
-					 smj => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1, paradigm => 1},
-					 sma => {analyze => 1, generate => 1, paradigm => 1},
-					 kal => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1},
-					 foe => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1},
-					 ipk => {analyze => 1, disamb => 1, hyphenate => 1, generate => 1}
-					 );
-
 	my %page_languages = (sme => 1,
 						  eng => 1,
 						  nno => 1);
@@ -45,10 +36,6 @@ sub init_variables {
 				  Pron => 1,
 				  Num => 1);
 
-	if (! $languages{$lang}) { http_die '--no-alert','404 Not Found',"The language \"$lang\" is not available."; }
-	if (! $languages{$lang}{$action}){ http_die '--no-alert','404 Not Found',"The tool \"$action\" is not available for $lang."; }
-	if ($pos && ! $avail_pos{$pos}) { http_die '--no-alert','404 Not Found',"The word class \"$pos\" is not available."; }
-	if (!$plang || ! $page_languages{$plang}) { $plang = "eng"; }
 	
 	$wordlimit = 250 ;       # adjust as appropriate; prevent large-scale use
 	
@@ -74,35 +61,47 @@ sub init_variables {
 						  );
 		
 		$paradigmfile=$paradigmfiles{$mode};
-	}
+	}	
+
 	my $tmpdir = "/tmp";
 	$tmpfile=$tmpdir . "/smi-test2.txt";
 	my $time = `date +%m-%d-%H-%M`;
 	chomp $time;
 	$logfile = $tmpdir . "/cgi-" . $time . ".log";
-	
-	
+		
 	$tagfile="$optdir/$lang/bin/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
     my $gen_fst = "$fstdir/i$lang.fst";
     my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
+	if (! -f $gen_norm_fst) { $gen_norm_fst = $gen_fst; }
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
     my $dis_rle = "$fstdir/$lang-dis.rle";
 
+	if ($action eq "analyze" && ! -f $fst) { 
+		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
+	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
-		http_die '--no-alert','404 Not Found',"$dis_rle: Disambiguation is not supported";
+		http_die '--no-alert','404 Not Found',"$lang-dis.rle: Disambiguation is not supported";
 	}
-	if ($action eq "gen" && ! -f $gen_fst) {
-		http_die '--no-alert','404 Not Found',"$gen_fst: Generation is not supported";
+	if ($action eq "generate" && ! -f $gen_fst) {
+		http_die '--no-alert','404 Not Found',"i$lang.fst: Generation is not supported";
 	}
-	if ($action eq "gen" && ! -f $hyph_fst) {
-		http_die '--no-alert','404 Not Found',"$hyph_fst: Hyphenation is not supported";
+	if ($action eq "hyphenate" && ! -f $hyph_fst) {
+		http_die '--no-alert','404 Not Found',"hyph-$lang.fst: Hyphenation is not supported";
 	}
+	if ($action eq "paradigm" && ! -f $gen_fst) {
+		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
+	}
+	if (!$plang || ! $page_languages{$plang}) { $plang = "eng"; }
 
-    $preprocess = "$bindir/preprocess --abbr=$fstdir/abbr.txt";
+	if (-f "$fstdir/abbr.txt") {
+		$preprocess = "$bindir/preprocess --abbr=$fstdir/abbr.txt";
+	}
+	else { $preprocess = "$bindir/preprocess"; }
+
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg --grammar=$dis_rle"; 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
