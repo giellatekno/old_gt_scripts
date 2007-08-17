@@ -24,13 +24,13 @@ scripts=$tmpdir/gt/script
 
 copy() {
 
-    if [ "$host" == "Hoavdas-Power-Mac-G5" ]
+    if [ "$host" == "victorio.uit.no" ]
 	then
-		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
-		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
-    else	
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
+    else	
+		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
+		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
     fi
 }
 
@@ -89,7 +89,7 @@ build_gt() {
 # st-catalog
 build_st() {
 
-	if [ "$host" != "Hoavdas-Power-Mac-G5" ]
+	if [ "$host" == "victorio.uit.no" ]
 		then
 		for lang in "foe" "kal" "ipk" 
 		  do
