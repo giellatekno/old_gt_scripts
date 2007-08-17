@@ -32,6 +32,7 @@ my $TRAB="TRAB";
 my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
+my $NOAB="NOAB";
 
 # Max size of a multi-word expression.
 my $MULTIWORD_SIZE = 3;
@@ -338,6 +339,7 @@ sub process_word {
 		  # If followed by a capital letter or number,
 		  # There is a sentence boundary. todo: Remove this as irrelevant!!
 		  elsif ($abbr =~ /^[\p{Lu}]{2,3}$/o ) {
+			  verbose ("process_word/test_two_three_cap_letters", $abbr, __LINE__);
 			  if ($words_aref->[0] !~ /^[\p{Ll}]/o ) {
 				  if($corr) { if ($corrections{$word}) { test_corr(\$word, $words_aref, $tokens_aref); } }
 				  push (@{$tokens_aref}, $abbr);
@@ -395,7 +397,6 @@ sub test_abbr {
 	# Transitive abbreviations are never followed
 	# by sentence boundary.
 	if ($abbrs{$abbr} eq $TRAB || $abbrs{lc($abbr)} eq $TRAB) {
-
 		push (@{$tokens_aref}, $word);
 		return 1;
 	}
@@ -417,6 +418,17 @@ sub test_abbr {
 		if ($next_word !~ /^[\p{Ll}\pP]/o) {
 			push (@{$tokens_aref}, $sentence_break);
 		}
+		return 1;
+	}
+	# 
+	#
+	elsif ($abbrs{$abbr} eq $NOAB || $abbrs{lc($abbr)} eq $NOAB) {
+		if ($next_word !~ /^[\p{Ll}\pP]/o) {
+			$word =~ s/\.$//;
+			push (@{$tokens_aref}, $word);
+			push (@{$tokens_aref}, $sentence_break);
+		}
+		else { push (@{$tokens_aref}, $word); }
 		return 1;
 	}
 
