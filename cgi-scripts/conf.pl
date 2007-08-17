@@ -80,6 +80,10 @@ sub init_variables {
     my $fstflags = "-flags mbTT -utf8";
     my $dis_rle = "$fstdir/$lang-dis.rle";
 
+	if (-f $fst) { $lang_actions{analyze} = 1; }
+	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
+	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
+
 	if ($action eq "analyze" && ! -f $fst) { 
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
 	}
