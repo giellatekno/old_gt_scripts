@@ -11,12 +11,14 @@ use File::Find;
 use Carp qw(cluck croak);
 use File::Copy;
 
-my $corpus_analyze="corpus-analyze.pl";
+my $corpus_analyze="/Users/saara/gt/script/corpus-analyze.pl";
+my $tca2 = "/Users/saara/gt/script/tca2";
+
 my $corpdir = "/usr/local/share/corp";
 
 my $host=`hostname`;
 # If we are in G5
-if ($host =~ /hum-tf4-ans142/) {
+if ($host !~ /victorio.uit.no/) {
     $corpdir = "/Users/hoavda/Public/corp";
     $corpus_analyze = "/Users/saara/gt/script/corpus-analyze.pl";
 }
@@ -49,9 +51,10 @@ if ($help) {
 
 if(! $outdir) { $outdir=$tmpdir; }
 
-#my $anchor_file = "/opt/smi/common/bin/anchor-" . $lang . $para_lang . ".txt";
+my $anchor_file = "/Users/saara/opt/smi/common/bin/anchor-" . $lang . $para_lang . ".txt";
 #my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
-my $anchor_file = "/Users/saara/anchor-smenno.txt";
+#my $anchor_file = "/Users/saara/anchor-smenno.txt";
+
 
 # Search the files in the directory $dir and list the files
 # that have parallel file.
@@ -215,7 +218,7 @@ sub process_file {
 	print STDERR "$0: $command\n";	
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 
-	$command="tca2 -a $anchor_file $outfile $poutfile";
+	$command="$tca2 -a $anchor_file $outfile $poutfile";
 	print STDERR "$0: $command\n";
 	system($command);
 
