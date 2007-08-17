@@ -48,7 +48,7 @@ require "conf.pl";
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,%avail_pos,%languages);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,%avail_pos, %lang_actions);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -592,9 +592,15 @@ sub printinitialhtmlcodes {
 		# Get the texts for selection menu
 		my %labels;
 
-		$labels{analyze} = $selection->first_child_text('@tool="analyze"');
-		$labels{disamb} = $selection->first_child_text('@tool="disamb"');
-		$labels{hyphenate} = $selection->first_child_text('@tool="hyphenate"');
+		if ($lang_actions{analyze}) {
+			$labels{analyze} = $selection->first_child_text('@tool="analyze"');
+		}
+		if ($lang_actions{disamb}) {
+			$labels{disamb} = $selection->first_child_text('@tool="disamb"');
+		}
+		if ($lang_actions{hyphenate}) {
+			$labels{hyphenate} = $selection->first_child_text('@tool="hyphenate"');
+		} 
 
 		my $tr = XML::Twig::Elt->new("tr");
 		my $td = XML::Twig::Elt->new("td");
