@@ -71,8 +71,9 @@ if ($help) {
 #my $binpath="/opt/smi/$lang/bin";
 my $binpath="/Users/saara/opt/smi/$lang/bin";
 my $lookup2cg = "/usr/local/bin/lookup2cg";
-my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
-my $vislcg = "/opt/xerox/bin/vislcg";
+#my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
+my $lookup = "/usr/local/bin/lookup";
+my $vislcg = "/usr/local/bin/vislcg";
 my  $corrtypos = $binpath . "/". "typos.txt";
 my $cap = $binpath ."/" . "cap-" . $lang;
 my $fst = $binpath ."/". $lang . ".fst";
@@ -81,11 +82,16 @@ my $rle = $binpath ."/". $lang ."-dis.rle";
 #my $preproc = "/usr/local/bin/preprocess";
 my $preproc = "/Users/saara/gt/script/preprocess --break='<<<'";
 
-if(! $tagfile) { $tagfile = "/opt/smi/common/bin/korpustags.txt"; }
+if(! $tagfile) { 
+	$tagfile = "/Users/saara/opt/smi/$lang/bin/korpustags.$lang.txt";
+}
+if(! $tagfile) { 
+	$tagfile = "/Users/saara/opt/smi/common/bin/korpustags.txt"; 
+}
 
 my $host=`hostname`;
 # If we are in G5
-if ($host =~ /hum-tf4-ans142/) {
+if ($host !~ /victorio.uit.no/) {
     $lookup="lookup";
     $vislcg="vislcg";
 }
