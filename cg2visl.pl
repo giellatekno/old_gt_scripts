@@ -43,29 +43,54 @@ while (<>) {
 #		goto target;
 
 #		print "***$output\n";  # debugging line, nice.
-		$output =~ s/\@CC/CO/g;
-		$output =~ s/\@CS/SUB/g;
-		$output =~ s/\@ADVL/A/g;
-		$output =~ s/\@SUBJ/S/g;
+		$output =~ s/\@<GQ/=D/g;   	    
+		$output =~ s/\@ADV-A/=D/g;         #new, adv modifying adj
+		$output =~ s/\@ADV-ADV/=D/g;       #new, adv modifying adv
+		$output =~ s/\@ADVL/A/g;           #ok
+		$output =~ s/\@AN>/=D/g;           #ok
+		$output =~ s/\@APP/=D/g;           #new, check this one.
+		$output =~ s/\@ActioN/=D/g;        #new
+		$output =~ s/\@CC-NP/CO/g; 	       #new
+		$output =~ s/\@CC-VP/CO/g; 	       #new
+		$output =~ s/\@CC/CO/g;			   #new
+		$output =~ s/\@CMPND/CJT/g;        #new, should be one word A-_ja_B?
+		$output =~ s/\@CS-NP/SUB/g;        #new
+		$output =~ s/\@CS-VP/SUB/g;        #new
+		$output =~ s/\@CS/SUB/g;           #ok
+		$output =~ s/\@DN>/=D/g;           #ok
+		$output =~ s/\@GA>/=D/g;           #new
+		$output =~ s/\@GN>/=D/g;           #ok
+		$output =~ s/\@GP</=D/g;           #new
+		$output =~ s/\@GP>/=D/g;   	       #ok
+		$output =~ s/\@GQ</=D/g;           #new
+		$output =~ s/\@HNOUN/X/g;          #new
+		$output =~ s/\@INTERJ/Ainterj/g;   #ok
+		$output =~ s/\@NNum>/X/g;
+		$output =~ s/\@NPron</X/g;
+		$output =~ s/\@NQ</X/g;
+		$output =~ s/\@NumN</X/g;
+		$output =~ s/\@NUM-PRON/X/g;
 		$output =~ s/\@OBJ/Od/g;
-		$output =~ s/\@\+FAUXV/Vaux/g;
-		$output =~ s/\@\+FMAINV/P/g;
-		$output =~ s/\@\-FMAINV/P/g;
-		$output =~ s/\@INTERJ/Ainterj/g;
+		$output =~ s/\@OPRED/Co/g; 	    
 		$output =~ s/\@PCLE/Apcle/g;
-		$output =~ s/\@GN>/=D/g;
-		$output =~ s/\@GP>/=D/g;
-		$output =~ s/\@<GQ/=D/g;
-		$output =~ s/\@QN>/=H/g;
-		$output =~ s/\@PronN>/=D/g;
-		$output =~ s/\@PronN</=D/g;
-		$output =~ s/\@AN>/=D/g;
-		$output =~ s/\@DN>/=D/g;
-		$output =~ s/\@SPRED/Cs/g;
-		$output =~ s/\@OPRED/Co/g;
+		$output =~ s/\@PCLE-COMPL/Apcle/g;
+		$output =~ s/\@PROP>/=D/g;         #new, check this one.
+		$output =~ s/\@PrcN>/=D/g;
+		$output =~ s/\@PronN</=D/g;	    
+		$output =~ s/\@PronN>/=D/g;	    
+		$output =~ s/\@PronN</=D/g;	    
+		$output =~ s/\@QN>/=H/g;   	       #ok, check this   
+		$output =~ s/\@QN</=D/g;	    
+		$output =~ s/\@SPRED/Cs/g; 	    
+		$output =~ s/\@SUBJ/S/g;
+		$output =~ s/\@SUBJ-QH/S/g;
+		$output =~ s/\@TITLE/=D/g;         #ok, check this
+		$output =~ s/\@VOC/X/g;
 		$output =~ s/\@X/X/g;
-		$output =~ s/\@X/X/g;
-		$output =~ s/\@X/X/g;
+		$output =~ s/\@\+FAUXV/Vaux/g;     #ok
+		$output =~ s/\@\+FMAINV/P/g;       #ok
+		$output =~ s/\@\-FMAINV/P/g;       #ok
+		$output =~ s/\@\-FSUBJ/S/g;        #new, non-finite subj
 
 $output =~ s/([ ,:])adda,/$1der,/g ;
 $output =~ s/([ ,:])ahtti,/$1der,/g ;
@@ -88,7 +113,7 @@ $output =~ s/[ ,:]isuf//g ;
 $output =~ s/([ ,:])j,/$1der,/g ;
 $output =~ s/([ ,:])l,/$1der,/g ;
 $output =~ s/([ ,:])las1,/$1der,/g ;
-$output =~ s/([ ,:])lágan,/$1der,/g ;
+$output =~ s/([ ,:])lÂ·gan,/$1der,/g ;
 $output =~ s/([ ,:])meahttun,/$1der,/g ;
 $output =~ s/([ ,:])mus1,/$1der,/g ;
 $output =~ s/([ ,:])n,/$1der,/g ;
