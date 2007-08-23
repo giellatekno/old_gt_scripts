@@ -23,6 +23,9 @@ A head-final phrase has dependants pointing at it, such as:
 "<bargui>"
         "bargu" N Sg Ill @ADVL
 
+All syntactic tags of the format @...> are right pointing. Also some other tags, such as @ADV-A are right-pointing.
+
+
 Here, we want a structure
 
 A:g
@@ -137,11 +140,11 @@ Od:cl
 ===H:n('dihtor',sg,acc)	dihtora
 .
 
-.
-(@ADV-A is also right-pointing)
+Thus, at three points in the sentence, we knew we should embed. The cumulated level of embedding is thus 3.
 
-@CS-VP: bija ":cl\n" ja "=" dasa ja gait sániide mat bohtet maŋŋil:
-(Mun dieđán ahte Máhtte diehtá ahte Máret lea dáppe.)
+The tag @CS-VP is a trigger for adding a group and then one level of embedding to the rest of the sentence.
+
+
 Sáhtášii go @CS-VP vuođul mearridit makkár cealkkalahttu oalgecealkka lea?
 Omd. jus ("jus" "dannego" "go" "ovdalgo" "dasgo" "vai" @CS-VP), de oalgecealkka lea A (ADV).
 "ahte" - sáhttá leat sihke S ja O
