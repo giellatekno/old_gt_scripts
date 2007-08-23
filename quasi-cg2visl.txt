@@ -1,0 +1,186 @@
+Quasicode for improving the gt/script/cg2visl.pl script
+=======================================================
+
+The script takes text analysed by vislcg as input and gives visl-formatted text as output. At present, it gives a good linear output, but the treatment of phrases is bad. This document gives an explicit description of how we want the perl script to be improved.
+
+The structure of the cg output is linear, but it contains clues as to how to convert it to a two-dimensional representation. The visl formalism for the classical [PP P [NP D A N] is
+
+A:g
+=H:pr
+=D:g
+==D:det
+==D:adj
+==H:n
+
+
+
+Normally, phrases in Sámi are either head-initial or head-final (as opposed to head-medial).
+
+A head-final phrase has dependants pointing at it, such as:
+
+"<dan>"
+        "dat" Pron Dem Sg Gen @DN>
+"<bargui>"
+        "bargu" N Sg Ill @ADVL
+
+Here, we want a structure
+
+A:g
+=D:pron('dat',<dem>,sg,gen)     dan
+=H:n('bargu',sg,ill)     bargui
+
+Thus:
+a leftmost right-pointing syntactic tag should be preceeded with
+:g\n
+a constituent with a right-pointing syntactic tag which itself is not right-pointing, should have the syntactic tag =H. Its ordinary syntactic tag should be placed to the left of the :g\n string preceeding the right-pointing lines to the left.
+
+In this example, "dat" is right-pointing, and preceeded by :g, itself a =D.
+Since the constituent to the right is @ADVL, the :g line should be prefixed by A, and be A:g. Since the syntactic tag of the head is lifted to group level, the head should get the tag =H.
+
+Here comes a similar example, with a string of right-pointing constituents:
+
+"<Mu>"
+        "mun" Pron Pers Sg1 Gen @GN>
+"<stuora>"
+        "stuoris" A Attr @AN>
+"<dorskit>"
+        "dorski" N Pl Nom @SUBJ
+
+Target is:
+
+S:g
+=D:pron('mun',<pers>,1sg,gen)   Mu
+=D:adj('stuoris',attr)  stuora
+=H:n('dorski',pl,nom)    dorskit
+
+Coordination of phrases
+
+Coordination of phrases
+
+
+Embedding of embedded phrases.
+
+Phrases embed into each other.
+
+
+A phrase embedded under another phrase inherits the embedding level of the other one.
+
+The original analysis is:
+
+"<Mun>"
+	"mun" Pron Pers Sg1 Nom @SUBJ
+"<dieđán>"
+	"diehtit" V TV Ind Prs Sg1 @+FMAINV
+"<,>"
+	"," CLB
+"<ahte>"
+	"ahte" CS @CS-VP
+"<don>"
+	"don" Pron Pers Sg2 Nom @SUBJ
+"<dieđát>"
+	"diehtit" V TV Ind Prs Sg2 @+FMAINV
+"<,>"
+	"," CLB
+"<ahte>"
+	"ahte" CS @CS-VP
+"<son>"
+	"son" Pron Pers Sg3 Nom @SUBJ
+"<geavaha>"
+	"geavahit" V TV Ind Prs Sg3 @+FMAINV
+"<boares>"
+	"boaris" A Attr @AN>
+"<dihtora>"
+	"dihtor" N Sg Acc @OBJ
+"<.>"
+	"." CLB <<<
+	
+At present, we get:
+
+
+SOURCE: text
+SME1 Mun dieđán, ahte don dieđát, ahte son geavaha boares dihtora.
+A1
+S:pron('mun',<pers>,1sg,nom)	Mun
+P:v('diehtit',TV,ind,pr,1sg)	dieđán
+,
+:cl
+=SUB:conj-c('ahte')	ahte
+S:pron('don',<pers>,2sg,nom)	don
+P:v('diehtit',TV,ind,pr,2sg)	dieđát
+,
+:cl
+=SUB:conj-c('ahte')	ahte
+S:pron('son',<pers>,3sg,nom)	son
+P:v('geavahit',TV,ind,pr,3sg)	geavaha
+=D:adj('boaris',attr)	boares
+Od:n('dihtor',sg,acc)	dihtora
+.
+	
+
+What we want is:
+
+SOURCE: text
+SME1 Mun dieđán, ahte don dieđát, ahte son boahtá.
+A1
+S:pron('mun',<pers>,1sg,nom)	Mun
+P:v('diehtit',TV,ind,pr,1sg)	dieđán
+Od:cl
+=SUB:conj-c('ahte')	ahte
+=S:pron('don',<pers>,2sg,nom)	don
+=P:v('diehtit',TV,ind,pr,2sg)	dieđát
+=Od:cl
+==SUB:conj-c('ahte')	ahte
+==S:pron('son',<pers>,3sg,nom)	son
+==P:v('geavahit',TV,ind,pr,3sg)	geavaha
+==Od:g
+===D:adj('boaris',attr)	boares
+===H:n('dihtor',sg,acc)	dihtora
+.
+
+.
+(@ADV-A is also right-pointing)
+
+@CS-VP: bija ":cl\n" ja "=" dasa ja gait sániide mat bohtet maŋŋil:
+(Mun dieđán ahte Máhtte diehtá ahte Máret lea dáppe.)
+Sáhtášii go @CS-VP vuođul mearridit makkár cealkkalahttu oalgecealkka lea?
+Omd. jus ("jus" "dannego" "go" "ovdalgo" "dasgo" "vai" @CS-VP), de oalgecealkka lea A (ADV).
+"ahte" - sáhttá leat sihke S ja O
+
+Guokte finihta vearbba: @+FAUXV @+FAUXV dahje  @+FAUXV @+FMAINV dahje @+FMAINV @+FAUXV dahje @+FMAINV @+FMAINV:
+Máret ii diehtán, boahtágo Máhtte.
+Máret diehtá, boahtágo Máhtte.
+
+
+Relatiivva oalgecealkka: (Son gii diehtá dan, boahtá dál.)
+(Pron Rel): bija ":cl\n" nuppi @SUBJii ja "=" gait sániide dassážii nuppi háve boahtá +FAUX dahje +FMAIN (?)
+
+Liemashádja leavggehii šilljui, gos beatnagat cille boahttiid ja manniid. 
+gos - relatiiva oalgecealkka muhto ii leat (Pron Rel)
+
+
+
+"Mun lohken girjji ja Niillas guldalii ođđasiid." sideordning av setninger - dovdomearka lea @CC-VP.
+Galgá lasihit CJT cealkagiidda.
+
+
+"Máhtte oinnii Máreha ja Juhána." siderordning - dovdomearka lea @CC-NP.
+Máreha ja Juhána -  par (paratagme) ?
+
+Ferte lasihit = nu ahte sáhttet šaddat eanet dásit, nugo dán cealkagis leat golbma dási:
+Boares áhkku ja šiega áddjá bođiiga siidii.
+
+Special cases - A vai =D ? Mo earuhit?
+Mun dolvon báhpa-guovtto eamidiin.   "eamit" N Sg Com S:4315 @ADVL
+Mun dolvon báhpa biillain. 				"biila" N Sg Com S:4315 @ADVL
+
+Munnos leat golbma máná, guokte nieidda ja okta bárdni. 
+Mu vánhemat, sihke áhčči ja eadni, leaba jápmán. 
+
+
+
+
+
+
+
+
+
