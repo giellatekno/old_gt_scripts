@@ -133,9 +133,16 @@ sub read_polderland {
 
 	my $i=0;
 	my $line = $_;
+	my $orig;
 
-    if ($line !~ /Check returns/) { confess "could not read $output";}
-	(my $orig = $line) =~ s/.*?Check returns .*? for \'(.*?)\'\s*$/$1/;
+    if ($line =~ /Check returns/) { 	
+		($orig = $line) =~ s/.*?Check returns .*? for \'(.*?)\'\s*$/$1/;
+	}
+	elsif ($line =~ /Getting suggestions/) {
+		($orig = $line) =~ s/.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
+	}
+	else { confess "could not read $output: $line"; }
+
 	if (!$orig || $orig eq $line) { 
 		confess "Probably wrong format, start again with --AS\n";
 	}
@@ -146,25 +153,36 @@ sub read_polderland {
 	}
 
 	my @suggestions;
+
+	# variable to check whether the suggestions are already started.
+	# this is because the line "check returns" may be missing.
+	my $reading=0;
 	while(<FH>) {
 
 		$line = $_;
-		next if ($line =~ /Getting suggestions/);
+		next if ($reading && /Getting suggestions/);
 		next if ($line =~ /End of suggestions/);
 
 		if ($line =~ /Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
 
-		if ($line =~ /Check returns/) {
+		if ($line =~ /Check returns/ || $line =~ /Getting suggestions/) {
 			#Store the suggestions from the last round.
 			if (@suggestions) {
 				$originals[$i]{'sugg'} = [ @suggestions ];
 				$originals[$i]{'error'} = "SplErr";
 				@suggestions = ();
 				pop @suggestions;
+				$reading = 0;
 			}
 			elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
 			$i++;
-			($orig = $line) =~ s/^.*?Check returns .* for \'(.*?)\'\s*$/$1/;
+			if ($line =~ /Check returns/) {
+				$reading = 1;
+				($orig = $line) =~ s/^.*?Check returns .* for \'(.*?)\'\s*$/$1/;
+			}
+			elsif (! $reading && $line =~ /Getting suggestions/) {
+				($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
+			}
 			# Some simple adjustments to the input and output lists.
 			# First search the output word from the input list.
 			my $j = $i;
