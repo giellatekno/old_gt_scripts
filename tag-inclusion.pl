@@ -13,9 +13,44 @@ use utf8;
 #
 # $Id$
 
-while(<>) {
+my $file_name = $ARGV[$#ARGV];
+my $inroot = 0;
+if ($file_name =~ /\/src\/sm[ej]-lex.txt/) { $inroot = 1; }
 
-	if (! /\!.*\+/) { print; next; }
+my $root_comments = "";
+
+if ( $inroot ) {
+    # Skip the definitions in the beginning of the file
+    # Start processing the first lexicon
+    while(<>) {
+        print;
+        last if (/LEXICON/);
+    }
+}
+
+while (<>) {
+
+	#Pitäisi hypätä tyhjien rivien yli
+    if (/^\s*$/) { print; next; }
+
+	if (/LEXICON/ && $inroot) {
+		if (! /\!.*\+/) { $root_comments = ""; print; next; }
+		else {
+			my ($entry, $comments) = split (/\!/, $_);
+			(my $new_comments = $comments) =~ s/\+/\+/g;
+			my @strings = split(/\s+/,$new_comments);
+			#print "jee @strings";
+			my @tagset;
+			for my $t (@strings) {
+				if ($t =~ /^\+/) { push @tagset, $t; }
+			}
+			$root_comments = join ("",@tagset);
+			print;
+			next;
+		}
+	}
+	
+	if ((! /\!.*\+/) && ($root_comments eq "")) { print; next; }
 	if (/^\!/) { print; next; }
 	chomp;
 
@@ -28,7 +63,8 @@ while(<>) {
 		if ($t =~ /^\+/) { push @tagset, $t; }
 	}
 	my $new_tags = join ("",@tagset);
-	my $new_line = $new_tags . $entry . ";" . $comments . "\n";
+    $entry =~ s/^\s*//;
+	my $new_line = $root_comments . $new_tags . $entry . ";" . $comments . "\n";
 	print $new_line;
 }
 	
