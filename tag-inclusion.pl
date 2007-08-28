@@ -15,7 +15,7 @@ use utf8;
 
 my $file_name = $ARGV[$#ARGV];
 my $inroot = 0;
-if ($file_name =~ /\/src\/sm[ej]-lex.txt/) { $inroot = 1; }
+if ($file_name =~ /\/sm[ej]-lex./) { $inroot = 1; }
 
 my $root_comments = "";
 
