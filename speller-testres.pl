@@ -212,7 +212,8 @@ sub read_polderland {
 			next;
 		}
 		next if (! $orig);
-		my ($num, $suggestion) = split(/\s+/, $line);
+		chomp $line;
+		my ($num, $suggestion) = split(/\s+/, $line, 2);
 		#print "$_ SUGG $suggestion\n";
 		if ($suggestion) { push (@suggestions, $suggestion); }
 	}
@@ -268,6 +269,22 @@ sub print_xml_output {
 	# Print some header information
 	my $header = XML::Twig::Elt->new('header');
 	$header->set_pretty_print('record');
+
+    # Get version info if it's available
+    my $rec = $originals[0];
+	if ($rec->{'orig'} eq "nuvviD") {
+		shift @originals;
+		if ($rec->{'sugg'}) {
+			my @suggestions = @{$rec->{'sugg'}};
+			for my $sugg (@suggestions) {
+				print "SUGG $sugg\n";
+				if ($sugg && $sugg =~ /\, /) {
+					$version = $sugg;
+					last;
+				}
+			}
+		}
+	}
 
 	# Print some header information
 	my $tool = XML::Twig::Elt->new('tool');
