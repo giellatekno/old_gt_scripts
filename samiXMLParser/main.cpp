@@ -165,7 +165,7 @@ void ProcessFile(const char *pFile)
     ifstream in(pFile);
     
     // Create parse object
-    TagParser parse(&in,true,false);
+    TagParser parse(&in,false,false);
     
 //    cout << parse.GetFullText() << endl;
     
@@ -249,7 +249,8 @@ void ProcessTag (TagParser &parse)
             bPrintEndTag = false;
         }
     }
-    else if (parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG)
+    else if ((parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG) 
+    		  && (parse.sGetValue("xml:lang") == sLang || sLang[0] == '\0'))
     {
         ProcessCorrection(parse);
     }
