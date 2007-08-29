@@ -34,7 +34,7 @@ while (<>) {
     if (/^\s*$/) { print; next; }
 
 	if (/LEXICON/ && $inroot) {
-		if (! /\!.*\+/) { $root_comments = ""; print; next; }
+		if (! /\!.*\+^\ /) { $root_comments = ""; print; next; }
 		else {
 			my ($entry, $comments) = split (/\!/, $_);
 			(my $new_comments = $comments) =~ s/\+/\+/g;
