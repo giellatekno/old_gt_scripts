@@ -310,7 +310,7 @@ sub generate_paradigm {
 				}
 			}
 			$i++;
-			format_pron($answer_href, 0);
+			if ($pos eq "Pron") { format_pron($answer_href, 0); }
 			return $i;
 		}
 	}
