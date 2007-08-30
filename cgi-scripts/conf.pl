@@ -37,7 +37,7 @@ sub init_variables {
 				  Num => 1);
 
 	
-	$wordlimit = 250 ;       # adjust as appropriate; prevent large-scale use
+	$wordlimit = 450 ;       # adjust as appropriate; prevent large-scale use
 	
     # System-Specific directories
     # The directory where utilities like 'lookup' are stored
