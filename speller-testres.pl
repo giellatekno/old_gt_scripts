@@ -184,13 +184,13 @@ sub read_polderland {
 				($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
 			}
 			# Some simple adjustments to the input and output lists.
-			# First search the output word from the input list.
+			# First search the output word in the input list.
 			my $j = $i;
 			while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
 			
-			# If the output word was not found from the input list, ignore it.
+			# If the output word was not found in the input list, ignore it.
 			if (! $originals[$j]) {
-				cluck "Output word $orig was not found from the input list.\n";
+				cluck "WARNING: Output word $orig was not found in the input list.\n";
 				$orig=undef;
 				$i--;
 				next;
@@ -273,16 +273,21 @@ sub print_xml_output {
     # Get version info if it's available
     my $rec = $originals[0];
 	if ($rec->{'orig'} eq "nuvviD") {
+		cluck "INFO: nuvviD found.\n";
 		shift @originals;
 		if ($rec->{'sugg'}) {
+			cluck "INFO: nuvviD contains suggestions.\n";
 			my @suggestions = @{$rec->{'sugg'}};
 			for my $sugg (@suggestions) {
 				print "SUGG $sugg\n";
 				if ($sugg && $sugg =~ /\, /) {
 					$version = $sugg;
+					cluck "INFO: Version string is: $version\n";
 					last;
 				}
 			}
+		} else {
+			cluck "INFO: nuvviD contains NO suggestions.\n";
 		}
 	}
 
