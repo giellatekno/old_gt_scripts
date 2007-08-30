@@ -134,11 +134,16 @@ sub read_polderland {
 	my $i=0;
 	my $line = $_;
 	my $orig;
+	# variable to check whether the suggestions are already started.
+	# this is because the line "check returns" may be missing.
+	my $reading=0;
 
     if ($line =~ /Check returns/) { 	
 		($orig = $line) =~ s/.*?Check returns .*? for \'(.*?)\'\s*$/$1/;
+		$reading=1;
 	}
 	elsif ($line =~ /Getting suggestions/) {
+		$reading=1;
 		($orig = $line) =~ s/.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
 	}
 	else { confess "could not read $output: $line"; }
@@ -154,9 +159,6 @@ sub read_polderland {
 
 	my @suggestions;
 
-	# variable to check whether the suggestions are already started.
-	# this is because the line "check returns" may be missing.
-	my $reading=0;
 	while(<FH>) {
 
 		$line = $_;
@@ -166,6 +168,7 @@ sub read_polderland {
 		if ($line =~ /Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
 
 		if ($line =~ /Check returns/ || $line =~ /Getting suggestions/) {
+			$reading=1;
 			#Store the suggestions from the last round.
 			if (@suggestions) {
 				$originals[$i]{'sugg'} = [ @suggestions ];
@@ -279,7 +282,7 @@ sub print_xml_output {
 			cluck "INFO: nuvviD contains suggestions.\n";
 			my @suggestions = @{$rec->{'sugg'}};
 			for my $sugg (@suggestions) {
-				print "SUGG $sugg\n";
+				#print "SUGG $sugg\n";
 				if ($sugg && $sugg =~ /\, /) {
 					$version = $sugg;
 					cluck "INFO: Version string is: $version\n";
@@ -357,14 +360,16 @@ sub print_xml_output {
 					next if (! $sugg);
 					my $suggestion = XML::Twig::Elt->new('suggestion');
 					$suggestion->set_text($sugg);
-					if ($sugg eq $rec->{'expected'}) {
+					if ($rec->{'expected'} && $sugg eq $rec->{'expected'}) {
 						$suggestion->set_att('expected', "yes");
 					}
 					$suggestion->paste('last_child', $suggestions_elt);
 				} 
 				my $i=0;
-				while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
-				if ($suggestions[$i]) { $pos = $i+1; }
+				if ($rec->{'expected'}) {
+					while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
+					if ($suggestions[$i]) { $pos = $i+1; }
+				}
 			}
 			$position->set_text($pos);
 			$position->paste('last_child', $word);
@@ -381,7 +386,6 @@ sub print_xml_output {
 
 sub print_output {
 
-
 	for my $rec (@originals) {
 		my @suggestions;
 		if ($rec->{'orig'}) { print "$rec->{'orig'} | "; }
@@ -392,8 +396,10 @@ sub print_output {
 			print "@{$rec->{'sugg'}} | ";
 			my @suggestions = @{$rec->{'sugg'}};
 			my $i=0;
-			while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
-			if ($suggestions[$i]) { print $i+1; }
+			if ($rec->{'expected'}) {
+				while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
+				if ($suggestions[$i]) { print $i+1; }
+			}
 		}
 		print "\n";
 	} 
