@@ -184,6 +184,7 @@ sub read_polderland {
 				($orig = $line) =~ s/^.*?Check returns .* for \'(.*?)\'\s*$/$1/;
 			}
 			elsif (! $reading && $line =~ /Getting suggestions/) {
+				$reading = 1;
 				($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
 			}
 			# Some simple adjustments to the input and output lists.
@@ -345,7 +346,7 @@ sub print_xml_output {
 		}
 		if ($rec->{'forced'}){ $word->set_att('forced', "yes"); }
 		
-		if ($rec->{'error'} eq "SplErr") {
+		if ($rec->{'error'} && $rec->{'error'} eq "SplErr") {
 			my $suggestions_elt = XML::Twig::Elt->new('suggestions'); 
 			my $sugg_count=0;
 			if ($rec->{'sugg'}) { $sugg_count = scalar @{ $rec->{'sugg'}} };
