@@ -46,34 +46,38 @@ build_gt() {
     echo LANGUAGES $langs
     for lang in $langs
 	  do
+
+	  fstdir=/opt/smi/$lang/bin/
 	  #cd $tmpdir/gt/ && make clean TARGET=$lang 
 	  cd $tmpdir/gt/ && make TARGET=$lang 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang hyph-$lang.fst 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang ifst-norm 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang hi-norm 1>/dev/null
 	  
-	  cp $tmpdir/gt/$lang/bin/$lang.fst /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/bin/i$lang-norm.fst /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/bin/hi$lang-norm.fst /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/bin/abbr.txt /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/$lang/src/typos.txt /opt/smi/$lang/bin/
-	  cp $tmpdir/gt/cwb/korpustags.$lang.txt /opt/smi/$lang/bin
-	  cp $tmpdir/gt/cwb/paradigm.$lang.txt /opt/smi/$lang/bin/
+	  cp $tmpdir/gt/$lang/bin/$lang.fst $fstdir
+	  cp $tmpdir/gt/$lang/bin/i$lang.fst $fstdir
+	  cp $tmpdir/gt/$lang/bin/i$lang-norm.fst $fstdir
+	  cp $tmpdir/gt/$lang/bin/hi$lang-norm.fst $fstdir
+	  cp $tmpdir/gt/$lang/bin/hyph-$lang.fst $fstdir
+	  cp $tmpdir/gt/$lang/src/$lang-dis.rle $fstdir
+	  cp $tmpdir/gt/$lang/bin/abbr.txt $fstdir
+	  cp $tmpdir/gt/$lang/src/typos.txt $fstdir
+	  cp $tmpdir/gt/$lang/res/korpustags.$lang.txt $fstdir
+	  cp $tmpdir/gt/$lang/res/paradigm.$lang.txt $fstdir
 
-	  #chgrp $group /opt/smi/$lang/bin/*
-	  #chmod a+x /opt/smi/$lang/bin/*
-	  #chmod g+w /opt/smi/$lang/bin/*
+	  cp $tmpdir/gt/$lang/res/paradigm_min.$lang.txt $fstdir
+	  cp $tmpdir/gt/$lang/res/paradigm_standard.$lang.txt $fstdir
+	  cp $tmpdir/gt/$lang/res/paradigm_full.$lang.txt $fstdir
+
+
+	  #chgrp $group $fstdir*
+	  #chmod a+x $fstdir*
+	  #chmod g+w $fstdir*
 	done
 
 	cp $scripts/hyph-filter.pl $commonbin
 	cp $tmpdir/gt/cwb/korpustags.txt $commonbin
 	cp $tmpdir/gt/cwb/paradigm.txt $commonbin
-	cp $tmpdir/gt/cwb/paradigm_min.txt $commonbin
-	cp $tmpdir/gt/cwb/paradigm_standard.txt $commonbin
-	cp $tmpdir/gt/cwb/paradigm_full.txt $commonbin
 	cp $tmpdir/gt/common/bin/allcaps.fst $commonbin
 
 	anchor_list sme nno
@@ -93,18 +97,19 @@ build_st() {
 		then
 		for lang in "foe" "kal" "ipk" 
 		  do
+
+		  fstdir=/opt/smi/$lang/bin/
 		  cd $tmpdir/st/$lang/src && make clean
 		  cd $tmpdir/st/$lang/src && make 1>/dev/null
 		  
-		  cp $tmpdir/st/$lang/bin/$lang.fst /opt/smi/$lang/bin/
-		  cp $tmpdir/st/$lang/bin/i$lang.fst /opt/smi/$lang/bin/
-		  cp $tmpdir/st/$lang/bin/hyph-$lang.fst /opt/smi/$lang/bin/
-		  cp $tmpdir/st/$lang/src/$lang-dis.rle /opt/smi/$lang/bin/
-#       cp $tmpdir/st/$lang/bin/abbr.txt /opt/smi/$lang/bin/
-		  
-		  #chgrp cvs /opt/smi/$lang/bin/*
-		  #chmod a+x /opt/smi/$lang/bin/*
-		  #chmod g+w /opt/smi/$lang/bin/*
+		  cp $tmpdir/st/$lang/bin/$lang.fst $fstdir
+		  cp $tmpdir/st/$lang/bin/i$lang.fst $fstdir
+		  cp $tmpdir/st/$lang/bin/hyph-$lang.fst $fstdir
+		  cp $tmpdir/st/$lang/src/$lang-dis.rle $fstdir
+#       cp $tmpdir/st/$lang/bin/abbr.txt $fstdir
+
+		  cp $tmpdir/st/$lang/res/paradigm.$lang.txt $fstdir
+		  cp $tmpdir/st/$lang/res/korpustags.$lang.txt $fstdir
 		done
 	else
 		cd $tmpdir/st/nob/src && make abbr 
