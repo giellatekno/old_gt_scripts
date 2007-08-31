@@ -51,31 +51,32 @@ sub init_variables {
 	my $fstdir = "$optdir/$lang/bin" ;
 
     # Files to generate paradigm
+	# Search first the language-specific paradigms, otherwise use
+	# the paradigmfiles for sme.
 	if ($action eq "paradigm") {
-		$paradigmfile="/opt/smi/common/bin/paradigm.txt";
 		%paradigmfiles = (
-						  minimal => "$commondir/paradigm_min.txt",
-						  standard => "$commondir/paradigm_standard.txt",
-						  full => "$commondir/paradigm_full.txt",
-						  dialect => "$commondir/paradigm_full.txt",
+						  minimal => "$fstdir/paradigm_min.$lang.txt",
+						  standard => "$fstdir/paradigm_standard.$lang.txt",
+						  full => "$fstdir/paradigm_full.$lang.txt",
+						  dialect => "$fstdir/paradigm_full.$lang.txt",
 						  );
-		
-		$paradigmfile=$paradigmfiles{$mode};
-	}	
-
+		if ($mode) { $paradigmfile = $paradigmfiles{$mode}; }
+		if (! $mode || ! -f $paradigmfile) { $paradigmfile="$fstdir/paradigm.$lang.txt"; }
+		if (! -f $paradigmfile) { $paradigmfile="$commondir/paradigm.txt"; }
+	}
+	
 	my $tmpdir = "/tmp";
 	$tmpfile=$tmpdir . "/smi-test2.txt";
 	my $time = `date +%m-%d-%H-%M`;
 	chomp $time;
 	$logfile = $tmpdir . "/cgi-" . $time . ".log";
 		
-	$tagfile="$optdir/$lang/bin/korpustags.$lang.txt";
+	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
     my $gen_fst = "$fstdir/i$lang.fst";
     my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
-	if (! -f $gen_norm_fst) { $gen_norm_fst = $gen_fst; }
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
     my $dis_rle = "$fstdir/$lang-dis.rle";
@@ -83,6 +84,12 @@ sub init_variables {
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
+	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
+	else { $gen_norm_fst = $gen_fst; }
+
+	if (-f $paradigmfiles{minimal}) { $lang_actions{minimal} = 1; }
+	if (-f $paradigmfiles{standard}) { $lang_actions{standard} = 1; }
+	if (-f $paradigmfiles{full}) { $lang_actions{full} = 1; }
 
 	if ($action eq "analyze" && ! -f $fst) { 
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
