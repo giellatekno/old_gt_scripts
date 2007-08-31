@@ -139,7 +139,7 @@ if($charset eq "latin1") { $text = Unicode::String::latin1( $text); }
 decode_entities( $text );
 
 print LFH "PARAM $action, $lang, $plang";
-if ($action eq "paradigm") { print LFH "$pos, $mode"; }
+if ($action eq "paradigm") { print LFH "$pos"; }
 print LFH "\n$text\n";
 
 # Special characters in the text (e.g. literal ampersands, plus signs
@@ -229,7 +229,7 @@ if (! $xml_out) {
 		# If minimal mode, show only first paradigm
         $output = gen2html($answer{$j}{para},0,1); 
         $output->paste('last_child', $body); 
-		last if ($mode eq "minimal");
+		last if (! $mode || $mode eq "minimal");
       }
 
 	  if (%candidates) { 
@@ -289,7 +289,8 @@ sub generate_paradigm {
 
 	print FH "GEN-NORM: $gen_norm_lookup\n";
 	print FH "GEN: $gen_lookup\n";
-	print FH "MODE: $mode\n";
+	print FH "PARADIGMFILE: $paradigmfile\n";
+	if ($mode) { print FH "MODE: $mode\n"; }
     # Initialize paradigm list
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
 
@@ -431,7 +432,7 @@ sub format_pron {
 	my @newparas;
 	for my $p (@paras) {
 		if ($p =~ /Refl/)  { push (@newparas, $p); next; }
- 		next if ($mode ne "full" && $p !~ /$number/);
+ 		next if (($mode && $mode ne "full") && $p !~ /$number/);
 		push (@newparas, $p);
 	}
 	$$answer_href{$j}{para} = join("\n\n", @newparas);
@@ -451,9 +452,9 @@ sub call_para {
 	}
 
 	if ($all) {
-		#print FH "FORMS $all";
+		print FH "FORMS $all";
 		my $generated;
-        if ($mode eq "dialect") { print FH "GEN $gen_lookup\n";
+        if ($mode && $mode eq "dialect") { print FH "GEN $gen_lookup\n";
 								  $generated = `echo \"$all\" | $gen_lookup`;
 							  }
         else { $generated = `echo \"$all\" | $gen_norm_lookup`; 
@@ -512,7 +513,6 @@ sub printinitialhtmlcodes {
 		my %labels;
 		my @modes = qw(minimal standard full dialect);
 		for my $m (@modes) { $labels{$m} = $selection->first_child_text("\@type='$m'"); }
-
 		my %pos_labels;
 		my @poses;
 		my $grammar = $texts->first_child('grammar');
@@ -544,12 +544,13 @@ sub printinitialhtmlcodes {
 		$td = XML::Twig::Elt->new("td");
 		
 		for my $m (@modes) {
-			my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'mode',value=> $m},$labels{$m});
-			if ($mode eq $m ) { $input->set_att("checked", 1); }
-			$input->paste('last_child', $td);
-			my $br = XML::Twig::Elt->new('br');
-			$br->paste('last_child', $td);
-
+			if ($lang_actions{$m}) {
+				my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'mode',value=> $m},$labels{$m});
+				if ($mode && $mode eq $m ) { $input->set_att("checked", 1); }
+				$input->paste('last_child', $td);
+				my $br = XML::Twig::Elt->new('br');
+				$br->paste('last_child', $td);
+			}
 		}
 		my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
 		$input->paste('last_child', $td);
