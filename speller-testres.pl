@@ -101,16 +101,11 @@ sub read_applescript {
 		# If it was found later, remove the extra lines from the input list.
 		elsif($j != $i) {
 			my $k=$j-$i;
-			if ($k>20) { next; }
-			else {
-				for (my $p=$i; $p<$j; $p++){
-					$originals[$p]{'error'}="SplCor";
-					$originals[$p]{'sugg'}=();
-					#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
-				}
-				$i=$j;
+			for (my $p=$i; $p<$j; $p++){
+				$originals[$p]{'error'}="SplCor";
+				$originals[$p]{'sugg'}=();
+				#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
 			}
-			
 		}
 		if ($originals[$i] && $originals[$i]{'orig'} eq $orig) {
 			if ($error) { $originals[$i]{'error'} = $error; }
@@ -164,6 +159,7 @@ sub read_polderland {
 		$line = $_;
 		next if ($reading && /Getting suggestions/);
 		next if ($line =~ /End of suggestions/);
+		last if ($line =~ /Terminate/);
 
 		if ($line =~ /Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
 
@@ -227,7 +223,10 @@ sub read_polderland {
 			@suggestions = ();
 			pop @suggestions;
 		}
+		elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
 	}
+	$i++;
+	while($originals[$i]) { $originals[$i]{'error'} = "SplCor"; $i++; }
 }
 
 sub read_typos {
