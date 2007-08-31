@@ -202,16 +202,13 @@ sub read_polderland {
 			# If it was found later, mark the intermediate input as correct.
 			elsif($j != $i) {
 				my $k=$j-$i;
-				if ($k>20) { next; }
-				else {
-					for (my $p=$i; $p<$j; $p++){
-						$originals[$p]{'error'}="SplCor";
-						$originals[$p]{'sugg'}=();
-						pop @{ $originals[$p]{'sugg'} };
-						#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
-					}
-					$i=$j;
+				for (my $p=$i; $p<$j; $p++){
+					$originals[$p]{'error'}="SplCor";
+					$originals[$p]{'sugg'}=();
+					pop @{ $originals[$p]{'sugg'} };
+					#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
 				}
+				$i=$j;
 			}
 			next;
 		}
