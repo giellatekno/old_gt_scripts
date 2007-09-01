@@ -50,21 +50,6 @@ sub init_variables {
 	my $commondir = "/opt/smi/common/bin";
 	my $fstdir = "$optdir/$lang/bin" ;
 
-    # Files to generate paradigm
-	# Search first the language-specific paradigms, otherwise use
-	# the paradigmfiles for sme.
-	if ($action eq "paradigm") {
-		%paradigmfiles = (
-						  minimal => "$fstdir/paradigm_min.$lang.txt",
-						  standard => "$fstdir/paradigm_standard.$lang.txt",
-						  full => "$fstdir/paradigm_full.$lang.txt",
-						  dialect => "$fstdir/paradigm_full.$lang.txt",
-						  );
-		if ($mode) { $paradigmfile = $paradigmfiles{$mode}; }
-		if (! $mode || ! -f $paradigmfile) { $paradigmfile="$fstdir/paradigm.$lang.txt"; }
-		if (! -f $paradigmfile) { $paradigmfile="$commondir/paradigm.txt"; }
-	}
-	
 	my $tmpdir = "/tmp";
 	$tmpfile=$tmpdir . "/smi-test2.txt";
 	my $time = `date +%m-%d-%H-%M`;
@@ -84,12 +69,27 @@ sub init_variables {
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
-	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
-	else { $gen_norm_fst = $gen_fst; }
+
+    # Files to generate paradigm
+	# Search first the language-specific paradigms, otherwise use
+	# the paradigmfiles for sme.
+	if ($action eq "paradigm") {
+		%paradigmfiles = (
+						  minimal => "$fstdir/paradigm_min.$lang.txt",
+						  standard => "$fstdir/paradigm_standard.$lang.txt",
+						  full => "$fstdir/paradigm_full.$lang.txt",
+						  dialect => "$fstdir/paradigm_full.$lang.txt",
+						  );
+		if ($mode) { $paradigmfile = $paradigmfiles{$mode}; }
+		if (! $mode || ! -f $paradigmfile) { $paradigmfile="$fstdir/paradigm.$lang.txt"; }
+		if (! -f $paradigmfile) { $paradigmfile="$commondir/paradigm.txt"; }
+	}
 
 	if (-f $paradigmfiles{minimal}) { $lang_actions{minimal} = 1; }
 	if (-f $paradigmfiles{standard}) { $lang_actions{standard} = 1; }
-	if (-f $paradigmfiles{full}) { $lang_actions{full} = 1; }
+	if (-f $paradigmfiles{full} || -f $gen_norm_fst ) { $lang_actions{full} = 1; }
+	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
+	else { $gen_norm_fst = $gen_fst; }
 
 	if ($action eq "analyze" && ! -f $fst) { 
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
