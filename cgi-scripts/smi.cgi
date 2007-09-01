@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use CGI::Debug;
+#use CGI::Debug;
 use strict;
 
 use utf8;
