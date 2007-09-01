@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#use CGI::Debug;
+use CGI::Debug;
 use strict;
 
 use utf8;
@@ -325,6 +325,12 @@ sub generate_paradigm {
 		next if ($anl =~ /\+\?/);
 		my ($lemma, $anl) = split(/\s+/, $anl);
 		if ($anl !~ /Der/) { 
+			
+			# If the word is a compound with no tags in the first parts.
+			# e.g. sáme#giel+A+Attr remove the boundary marks.
+			if ($anl =~ /^([^\+]+\#)+[^\+\#]+\+([^\#])+$/) {
+				$anl =~ s/\#//g;
+			}
 			my @line = split (/\+/, $anl);
 			my $p = $line[1];
 			my $w = $line[0];
@@ -379,13 +385,21 @@ sub generate_paradigm {
 		}
 		# If there was no exact match pick the first analysis.
 		elsif(@candidates) {
-			my $anl = shift(@candidates);
-			$$answer_href{$i}{form} = $text;
-			$$answer_href{$i}{pos} = $poses{$anl}{pos};
-			$$answer_href{$i}{anl} = $anl;
-			$answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
-			$$answer_href{$i}{para} = $answer;
-			$i++;
+			while(@candidates) {
+				my $anl = shift(@candidates);
+				# try to avoid compounds
+				if ($anl =~ /\#/ && @candidates) {
+					$$cand_href{$anl}=1;
+					next;
+				}
+				$$answer_href{$i}{form} = $text;
+				$$answer_href{$i}{pos} = $poses{$anl}{pos};
+				$$answer_href{$i}{anl} = $anl;
+				$answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
+				$$answer_href{$i}{para} = $answer;
+				$i++;
+				last;
+			}
 		}
     }
 	for my $c (@candidates) {
