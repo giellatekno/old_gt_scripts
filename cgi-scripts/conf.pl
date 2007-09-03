@@ -83,11 +83,11 @@ sub init_variables {
 		if ($mode) { $paradigmfile = $paradigmfiles{$mode}; }
 		if (! $mode || ! -f $paradigmfile) { $paradigmfile="$fstdir/paradigm.$lang.txt"; }
 		if (! -f $paradigmfile) { $paradigmfile="$commondir/paradigm.txt"; }
-	}
 
 	if (-f $paradigmfiles{minimal}) { $lang_actions{minimal} = 1; }
 	if (-f $paradigmfiles{standard}) { $lang_actions{standard} = 1; }
 	if (-f $paradigmfiles{full} || -f $gen_norm_fst ) { $lang_actions{full} = 1; }
+	}
 	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
 	else { $gen_norm_fst = $gen_fst; }
 
