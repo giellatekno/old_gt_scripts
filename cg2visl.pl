@@ -26,6 +26,7 @@ my $output;
 my $wordform;
 my $num;
 my $sentence;
+my $embed="";
 while (<>) {
 	
 	# This is a multi-tag, both N and Prop	
@@ -45,8 +46,10 @@ while (<>) {
 
 	# When in clause boundary or similar, print output
 	if ($pos =~ /(CLB|PUNCT|LEFT|RIGHT|clb|punct|left|right)/) {
+
 		$sentence .= " $wordform";
-		$output .= "$wordform\n";	
+		$output .= "$wordform\n";
+
 		if ($wordform =~ /^[\.\!\?:\;]/) {
 			
 			$sentence =~ s/ ([,\;\.\!\?:])/$1/g;
@@ -58,7 +61,7 @@ while (<>) {
 			
 			# First detect the level of embedding for heads (based upon < or > symbols)
 			# ... still not written
-			
+
 			# Then change symbols, and replace directed symbols 
 			# (@GN> etc.) with undirected =D.
 			$output = replace_tags($output);
@@ -66,6 +69,7 @@ while (<>) {
 			print "$output";
 			$output ="";
 			$sentence ="";
+			$embed = "";
 		}
 	}
 	# Format the analysis line
@@ -81,9 +85,15 @@ while (<>) {
 		} 
 		else { $secondary =""; }
 		
-		# Add syntactic tag to the front
-		if ($syn) { $output .=$syn; $syn =""; }
-		else { $syn =""; }
+		# Check if there is an object embedded clause @CS-VP
+		if ($syn) {
+			if ($syn eq '@CS-VP') { 
+				$output .= $embed . "Od:cl\n";
+				$embed .= "="; 
+			}
+			$output .= $embed . $syn;
+		}
+		$syn = "";
 		
 		# Add POS-tag
 		$output .= ":$pos";
@@ -119,7 +129,7 @@ sub replace_tags {
 	$output =~ s/\@CC/CO/g;			  
 	$output =~ s/\@CMPND/CJT/g;            # one word A-_ja_B?
 	$output =~ s/\@CS-NP/:cl\n=SUB/g;       
-	$output =~ s/\@CS-VP/:cl\n=SUB/g;       
+	$output =~ s/\@CS-VP/SUB/g;   # trying to get embedding to work
 	$output =~ s/\@CS/:cl\n=SUB/g;           
 	$output =~ s/\@DN>/:g\n=D/g;           
 	$output =~ s/\@GA>/=D/g;      
