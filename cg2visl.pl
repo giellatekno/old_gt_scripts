@@ -32,16 +32,16 @@ while (<>) {
 	s/ N Prop/ prop/g ;
 	
 	if (/^\"<(.*?)>/) { $wordform =$1; next; }
-	if (! /^\t\"(.*?)\" +(([A-Za-z]+\*( [a-z]+| s1 Dimin)? )?[A-Za-z]+)( +([^\@]*?))?( (\@.*))? *$/) {
-		print STDERR "Input did not match: $_\n"; next;
+	if (! /^\t\"(.*?)\" +(\?|((\p{L}+\*( \p{Ll}+| s1 Dimin)? )?\p{L}+))( +([^\@]*?))?( (\@.*))? *$/) {
+		print STDERR "Input did not match: $_\n"; 
+		next; 
 	}
 	my $morf;
 	my $syn;
 	my $base =$1;
 	my $pos =$2;
-	if ($5) { $morf =$6; }
-	else { $morf =""; }
-	if ($7) { $syn =$8; }
+	$morf =$7;
+	$syn =$9;
 
 	# When in clause boundary or similar, print output
 	if ($pos =~ /(CLB|PUNCT|LEFT|RIGHT|clb|punct|left|right)/) {
