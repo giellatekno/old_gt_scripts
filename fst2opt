@@ -46,9 +46,9 @@ build_gt() {
     echo LANGUAGES $langs
     for lang in $langs
 	  do
-
 	  fstdir=/opt/smi/$lang/bin/
-	  #cd $tmpdir/gt/ && make clean TARGET=$lang 
+
+	  cd $tmpdir/gt/ && make clean TARGET=$lang 
 	  cd $tmpdir/gt/ && make TARGET=$lang 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang hyph-$lang.fst 1>/dev/null
 	  cd $tmpdir/gt/ && make TARGET=$lang ifst-norm 1>/dev/null
