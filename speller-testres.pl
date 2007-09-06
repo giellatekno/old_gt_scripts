@@ -84,18 +84,19 @@ sub read_applescript {
 		if (/Prompt\:/) { 
 			confess "Probably reading Polderland format, start again with option --PLX\n\n";
 		} 
-		my ($orig, $error, $sugg) = split(/\t/);
-		if ($sugg) { @suggestions = split(", ", $sugg); }
+		my ($orig, $error, $sugg) = split(/\t/, $_, 3);
+		if ($sugg) { @suggestions = split /\t/, $sugg; }
+		$orig =~ s/^\s*(.*?)\s*$/$1/;
 
 		# Some simple adjustments to the input and output lists.
 		# First search the output word from the input list.
 		my $j = $i;
-		print "$originals[$j]{'orig'}\n";
+#		print "$originals[$j]{'orig'}\n";
 		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
 
-		# If the output word was not found from the input list, ignore it.
+		# If the output word was not found in the input list, ignore it.
 		if (! $originals[$j]) {
-			print STDERR "$0: Output word $orig was not found from the input list.\n";
+			print STDERR "$0: Output word $orig was not found in the input list.\n";
 			next;
 		}
 		# If it was found later, remove the extra lines from the input list.
@@ -112,7 +113,7 @@ sub read_applescript {
 			else { $originals[$i]{'error'} = "not_known"; }
 			$originals[$i]{'sugg'} = [ @suggestions ];
 		}
-		$i++
+		$i++;
 		}
 	close(FH);
 }
@@ -148,7 +149,7 @@ sub read_polderland {
 	}
 
 	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
-		#print STDERR "$0: Input and output mismatch, removing $originals[$i]{'orig'}.\n"; 			
+		#print STDERR "$0: Input and output mismatch, removing $originals[$i]{'orig'}.\n";
 		splice(@originals,$i,1);
 	}
 
