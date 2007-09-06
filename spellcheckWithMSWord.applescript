@@ -4,6 +4,7 @@ A script to run the spell checker in MS Word on the input file, using MS Word it
 INPUT:
 - ARGV #1: LANGUAGE code
 - ARGV #2: input file
+- ARGV #3: output file
 
 The input file is expected to have one word on each line. It is possible that the script would work without this limitation, but that is not tested. Also, due to limitations in Word and in the speller, certain input strings are removed before being sent to Word (this is done in the Makefile). This includes strings containing spaces, full stops and hyphens.
 
@@ -22,28 +23,18 @@ SpellerCategory = either one of:
 	- SplCor (correct spelling according to the speller)
 	- SplErr (spelling error according to the speller
 	- CapErr (capitalization error, don't know exactly what this means)
-Suggestions = list of suggestions given by the speller, potentially empty
+Suggestions = list of suggestions given by the speller, potentially empty. The list is tab separated
 
 This AppleScript file is best edited using Script Editor - it will give great help with syntax colouring & checking etc.
 *)
 
 on run argv
-	-- First, we identify the common parent folder = the gt/ dir
-	set the scriptpath to the path to me as string -- the pathname of the script file, in MacOS style: :HD:Users:...
-	set {TID, text item delimiters} to {text item delimiters, ":"}
-	-- remove the last two items in that string, ie the script filename, and the enclosing folder (ie script/):
-	-- set gtmappe to scriptpath's text items's items 1 thru -3 as string
-	set text item delimiters to TID
-	-- convert the path to a Unix path, ie /Users/..., ready for concatetantion with the file arguments:
-	-- set x to POSIX path of the gtmappe
-	
 	-- we set up a reference to the indata file:
 	set f1 to item 2 of argv -- input file
-	-- set p1 to x & "/" & f1 -- concat the gt/ dir and the input file
 	set infile to POSIX file f1 -- infile is a file object again
+	
 	-- we set up a reference to the output file:
 	set f2 to item 3 of argv -- output file
-	-- set p2 to x & "/" & f2 -- concat the gt/ dir and the output file
 	set outfile to POSIX file f2 -- outfile is a file object again
 	
 	try
@@ -53,6 +44,9 @@ on run argv
 	end try
 	
 	set testLang to item 1 of argv
+	
+	set savedTextItemDelimiters to AppleScript's text item delimiters
+	set AppleScript's text item delimiters to {"	"}
 	
 	tell application "Microsoft Word"
 		open infile
@@ -83,7 +77,7 @@ on run argv
 		end if
 		set wc to count of words of myRange
 		
-		repeat with i from 1 to wc - 1 by 2
+		repeat with i from 1 to wc - 1
 			-- Word does for some reason count linebreaks as words,
 			-- thus we skip every other "word", ie every linebreak
 			-- This assumes that the text begins on line one, and that the
@@ -104,16 +98,14 @@ on run argv
 					write checkedWord & "	" & spellType & "	" & "
 " to ufile
 				else
-					set savedTextItemDelimiters to AppleScript's text item delimiters
-					set AppleScript's text item delimiters to {", "}
 					set suggText to (suggestions as string)
-					set AppleScript's text item delimiters to savedTextItemDelimiters
 					write checkedWord & "	" & spellType & "	" & suggText & "
 " to ufile
 				end if
 			end tell
 		end repeat
 		close active document saving no
-		close access ufile
 	end tell
+	set AppleScript's text item delimiters to savedTextItemDelimiters
+	close access ufile
 end run
