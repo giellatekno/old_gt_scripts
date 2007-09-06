@@ -35,7 +35,10 @@ sub add_error_markup {
 			if ($text =~ m/^
 				(.*?         # match the text without corrections
 				\s?)
-				([^\s]*?)           # string before the error-correction separator
+				(                # either
+				\(.*\) |         # string before separator with parentheses
+				[^\s]*?           # string before the error-correction separator withoug parentheses
+				)
 				\x{00A7}           # separator
 				(                  # either
 				\(.*?\)|         # string after separator, possible parentheses or
@@ -52,6 +55,7 @@ sub add_error_markup {
 				my $rest = $5;
 				
 				(my $corr = $correct) =~ s/\s?$//;
+				$error =~ s/[\(\)]//g;
 				$corr =~ s/[\(\)]//g;
 				push (@new_content, $start);
 
