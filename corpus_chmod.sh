@@ -15,15 +15,15 @@
 host=$(hostname)
 
 # Set variables according to the current host.
-if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+if [ "$host" == "victorio.uit.no" ]
 then
-	corpdir=/Users/hoavda/Public/corp
-	corpus_group="staff"
-	free_group="staff"
-else
-	corpdir=/usr/local/share/corp
+	corpdir="/usr/local/share/corp"
 	corpus_group="corpus"
 	free_group="cvs"
+else
+	corpdir="/Users/hoavda/Public/corp"
+	corpus_group="staff"
+	free_group="staff"
 fi
 
 orig="$corpdir/orig"
@@ -41,26 +41,22 @@ orig ()
 	for dir in "$@"
 	do
 	  echo "fixing $orig/$dir..."
-	  files=`find $orig/$dir -type f ! -name "*.xsl*"` 
-	  for file in $files
-	  do
-		chgrp $corpus_group $file
-		chmod 0640 $file
-	  done
 
-	  xslfiles=`find $orig/$dir -type f -name "*.xsl,v"`
-	  for file in $xslfiles
-	  do 
-		chgrp $corpus_group $file
-		chmod 0440 $file
-	  done
+	  echo "fixing original-documents.."
 
-	  subdirs=$(find $orig/$dir -type d)
-	  for sub in $subdirs
-	  do
-		chgrp $corpus_group $sub
-		chmod 0770 $sub
-	  done
+	  find $orig/$dir -type f ! -name "*.xsl*" | while read I; \
+		  do chgrp $corpus_group "$I"; \
+		  chmod 0640 "$I"; done
+
+	  echo "fixing xsl,v-files.."
+	  find $orig/$dir -type f -name "*.xsl,v" | while read I; \
+		  do chgrp $corpus_group "$I"; \
+		  chmod 0440 "$I"; done
+
+	  echo "fixing directories.."
+	  find $orig/$dir -type d | while read I; \
+		do chgrp $corpus_group "$I"; \
+		chmod 0770 "$I"; done
 	done
 }
 
@@ -70,18 +66,13 @@ gtbound ()
 	for dir in "$@"
 	do
 	  echo "fixing $bound/$dir..."
-	  files=`find $bound/$dir -name "*.xml"`
-	  for file in $files
-	  do
-		chgrp $corpus_group $file
-		chmod 0660 $file
-	  done
-	  subdirs=$(find $bound/$dir -type d)
-	  for sub in $subdirs
-	  do
-		chgrp $corpus_group $sub
-		chmod 0770 $sub
-	  done
+	  find $bound/$dir -name "*.xml" |while read I; \
+		  do chgrp $corpus_group "$I"; \
+		  chmod 0660 "$I"; done
+
+	  find $bound/$dir -type d |while read I; \
+		  do chgrp $corpus_group "$I"; \
+		  chmod 0770 "$I"; done
 	 done
 }
 
@@ -91,29 +82,23 @@ gtfree ()
 	for dir in "$@"
 	do
 	  echo "fixing $free/$dir..."
-	  files=`find $free/$dir -name "*.xml"`
-	  for file in $files
-	  do
-		chgrp $free_group $file
-		chmod 0664 $file
-	  done
+	  find $free/$dir -name "*.xml" | while read I; \
+		do chgrp $free_group "$I"; \
+		chmod 0664 "$I"; done
 
-	  subdirs=$(find $free/$dir -type d)
-	  for sub in $subdirs
-	  do
-		chgrp $free_group $sub
-		chmod 0775 $sub
-	  done
+	  find $free/$dir -type d | while read I; \
+		do chgrp $free_group "$I"; \
+		chmod 0775 "$I"; done
 	done
 }
 
-if [ "$host" == "hum-tf4-ans142.hum.uit.no" ]
+if [ "$host" == "victorio.uit.no"  ]
 then
-	gtbound $langdirs
-else
 	orig $langdirs
 	gtbound $langdirs
 	gtfree $langdirs
+else
+	gtbound $langdirs
 fi
 
 exit 0
