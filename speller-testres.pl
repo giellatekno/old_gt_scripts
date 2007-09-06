@@ -99,15 +99,12 @@ sub read_applescript {
 			print STDERR "$0: Output word $orig was not found in the input list.\n";
 			next;
 		}
-		# If it was found later, remove the extra lines from the input list.
-		elsif($j != $i) {
-			my $k=$j-$i;
-			for (my $p=$i; $p<$j; $p++){
-				$originals[$p]{'error'}="SplCor";
-				$originals[$p]{'sugg'}=();
-				#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
-			}
+		# If it was found, mark the words in between.
+		elsif ($originals[$j] && $originals[$j]{'orig'} eq $orig) {
+			for (my $p=$i; $p<$j; $p++){ $originals[$p]{'error'} = "Error"; }
+			$i=$j;
 		}
+
 		if ($originals[$i] && $originals[$i]{'orig'} eq $orig) {
 			if ($error) { $originals[$i]{'error'} = $error; }
 			else { $originals[$i]{'error'} = "not_known"; }
