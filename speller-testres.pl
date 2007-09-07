@@ -40,10 +40,10 @@ Getopt::Long::Configure ("bundling");
 GetOptions ("help|h" => \$help,
 			"input|i=s" => \$input,
 			"document|d=s" => \$document,
-			"PLX|P" => \$polderland,
-			"AS|A" => \$applescript,
+			"pl|p" => \$polderland,
+			"as|a" => \$applescript,
 			"version|v=s" => \$version,
-			"date|a=s" => \$date,
+			"date|e=s" => \$date,
 			"ccat|c" => \$ccat,
 			"typos|t" => \$typos,
 			"output|o=s" => \$output,
@@ -64,9 +64,9 @@ else { read_typos(); }
 
 if(! @originals) { exit;}
 
-if ($polderland) { $input_type="PLX"; read_polderland(); }
-elsif ($applescript) { $input_type="AS"; read_applescript(); }
-else { print STDERR "$0: Give the speller output type: --PLX or --AS\n"; exit; }
+if ($polderland) { $input_type="pl"; read_polderland(); }
+elsif ($applescript) { $input_type="as"; read_applescript(); }
+else { print STDERR "$0: Give the speller output type: --pl or --as\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -82,7 +82,7 @@ sub read_applescript {
 		chomp;
 
 		if (/Prompt\:/) { 
-			confess "Probably reading Polderland format, start again with option --PLX\n\n";
+			confess "Probably reading Polderland format, start again with option --pl\n\n";
 		} 
 		my ($orig, $error, $sugg) = split(/\t/, $_, 3);
 		if ($sugg) { @suggestions = split /\t/, $sugg; }
@@ -142,7 +142,7 @@ sub read_polderland {
 	else { confess "could not read $output: $line"; }
 
 	if (!$orig || $orig eq $line) { 
-		confess "Probably wrong format, start again with --AS\n";
+		confess "Probably wrong format, start again with --as\n";
 	}
 
 	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
@@ -415,9 +415,9 @@ Usage: speller-testres.pl [OPTIONS]
 -c
 --output=<file>   The speller output.
 -o <file>
---PLX             The speller output is in PLX-format.
+--pl             The speller output is in PLX-format.
 -P
---AS              The speller output is in AplleScript-format.
+--as              The speller output is in AppleScript-format.
 -A
 --xml=<file>      Print output in xml to file <file>.
 -x
