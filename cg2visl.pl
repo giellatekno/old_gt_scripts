@@ -195,7 +195,6 @@ sub replace_tags {
 	$output =~ s/\@N>/CJT/g;            # one word A-_ja_B?
 	$output =~ s/\@CNP/:cl\n=SUB/g;       
 	$output =~ s/\@CVP/SUB/g;   # trying to get embedding to work
-	$output =~ s/\@CS/:cl\n=SUB/g;           
 	$output =~ s/\@N>/:g\n=D/g;           
 	$output =~ s/\@A>/=D/g;      
 	$output =~ s/\@N>/=D/g;           
@@ -204,6 +203,7 @@ sub replace_tags {
 	$output =~ s/\@Q</=D/g;      
 	$output =~ s/\@HNOUN/X/g;         
 	$output =~ s/\@INTERJ/Ainterj/g;   
+	$output =~ s/\@Num</=D/g;
 	$output =~ s/\@Num>/=D/g;
 	$output =~ s/\@Pron</=D/g;
 	$output =~ s/\@Q</=D/g;
