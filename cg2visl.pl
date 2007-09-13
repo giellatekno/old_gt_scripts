@@ -176,7 +176,7 @@ sub sentence_initial_d {
 	}
 	return 1;
 }
-cd
+
 # Replace all the cg-tags with visl-tags.
 sub replace_tags {
 	my $output = shift @_;
