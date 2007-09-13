@@ -20,13 +20,13 @@ binmode( STDOUT, ':utf8' );
 binmode( STDERR, ':utf8' );
 use open 'utf8';
 
-my $output;
-
 # Translate the tags to visl format
 my $wordform;
 my $num;
 my $sentence;
 my $embed="";
+my @output;
+
 while (<>) {
 	
 	# This is a multi-tag, both N and Prop	
@@ -48,12 +48,11 @@ while (<>) {
 	if ($pos =~ /(CLB|PUNCT|LEFT|RIGHT|clb|punct|left|right)/) {
 
 		$sentence .= " $wordform";
-		$output .= "$wordform\n";
+		push (@output, $wordform);
 
 		if ($wordform =~ /^[\.\!\?:\;]/) {
 			
 			$sentence =~ s/ ([,\;\.\!\?:])/$1/g;
-			$output .= "\n";
 			$num++;
 			print "SOURCE: text\n";
 			print "SME$num$sentence\n";
@@ -64,10 +63,33 @@ while (<>) {
 
 			# Then change symbols, and replace directed symbols 
 			# (@GN> etc.) with undirected =D.
-			$output = replace_tags($output);
-			
-			print "$output";
-			$output ="";
+			my $output_string;
+			my @new_output;
+
+			my $prev;
+			my $i=0;
+			for my $out (@output) {
+				my $output_str .= replace_tags($out);
+				# If there was newline added, everything that comes 
+				# after that, belongs actually to the previous output_line
+				if ($output_str =~ s/(.+)\n\s*(.+)$/$2/) {
+					$prev = $1;
+					splice(@new_output, $i,0, $prev);
+					$i++;
+				}
+				push (@new_output, $output_str);
+				$i++;
+			}
+			local $, = "\n";
+			#print @new_output;
+			# Fix sentence initial D's
+			my $result = sentence_initial_d(\@new_output);
+			#if (! $result) { print STDERR "Sentence initial D, but no reformatting.\n"; }
+
+			print @new_output;
+			print "\n";
+			@output = undef;
+			pop @output;
 			$sentence ="";
 			$embed = "";
 		}
@@ -76,8 +98,11 @@ while (<>) {
 	else {
 		# Parse derivational pos-tags.
 		my $secondary;
+		my $anl_line;
 		if ($pos =~ s/^([A-Za-z]+)\* //) {
 			$secondary = "<$1>";
+
+			# We are not actually using this
 			if ($pos =~ s/^([a-z]+|s1 Dimin) //) {
 				$secondary .= " <$1>";
 				$secondary =~ s/s1 /s1_/;
@@ -88,31 +113,71 @@ while (<>) {
 		# Check if there is an object embedded clause @CS-VP
 		if ($syn) {
 			if ($syn eq '@CS-VP') { 
-				$output .= $embed . "Od:cl\n";
+				my $str = $embed . "Od:cl";
+				push (@output, $str);
 				$embed .= "="; 
 			}
-			$output .= $embed . $syn;
+			$anl_line = $embed . $syn;
 		}
 		$syn = "";
 		
 		# Add POS-tag
-		$output .= ":$pos";
+		$anl_line .= ":$pos";
 
 		# Add baseform and morphological tags separated with commas.
 		if ($base) {
-			$output .= "\(\'$base\'";
+			$anl_line .= "\(\'$base\'";
 			if ($morf) {
 				$morf =~ s/ /,/g;
-				$output .= ",$morf";
+				$anl_line .= ",$morf";
 			}
-			if ($secondary) { $output .= ",$secondary"; }
-			$output .= "\)";
+			if ($secondary) { $anl_line .= ",$secondary"; }
+			$anl_line .= "\)";
 		}
 		$sentence .= " $wordform";
-		$output .= "\t$wordform\n";
+		$anl_line .= "\t$wordform";
+		push (@output, $anl_line);
     }
 }
 
+# If there is a sentence-initial D, it is safe to assume
+# that there is a group of elements forming a DP. E.g
+# A1
+# :g
+# =D:pron('mun',<pers>,1sg,gen)   Mu
+# =D:adj('boaris',sup,attr)       boarrÃ¡seamos
+# S:n('viellja',sg,nom)   viellja
+#
+# is converted to:
+# A1
+# S:g
+# =D:pron('mun',<pers>,1sg,gen)   Mu
+# =D:adj('boaris',sup,attr)       boarrÃ¡seamos
+# =H:n('viellja',sg,nom)   viellja
+#
+#
+sub sentence_initial_d {
+	my $out_aref = shift @_;
+
+	my $num=0;
+	my $i=$num;
+	if ($$out_aref[$num] =~ /^S/) { $num++; }
+	if ($$out_aref[$num] && $$out_aref[$num] =~ /^=D/) {
+		my $length = scalar @$out_aref;
+		while ($i < $length && $$out_aref[$i] =~ /^=D/) { $i++; }
+		if ($i == $length) { return 0; }
+		if ($$out_aref[$i] !~ /^S/) { return 0; }
+
+		$$out_aref[$i] =~ s/^S/=H/;
+		if ($num>0 && $$out_aref[$num-1]) { $$out_aref[$num-1] = "S:g"; }
+		else { splice(@$out_aref, $num,0, "S:g"); }
+
+		return 1;
+	}
+	return 1;
+}
+
+# Replace all the cg-tags with visl-tags.
 sub replace_tags {
 	my $output = shift @_;
 	
