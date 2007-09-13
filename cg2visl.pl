@@ -62,7 +62,7 @@ while (<>) {
 			# ... still not written
 
 			# Then change symbols, and replace directed symbols 
-			# (@GN> etc.) with undirected =D.
+			# (@N> etc.) with undirected =D.
 			my $output_string;
 			my @new_output;
 
@@ -110,9 +110,9 @@ while (<>) {
 		} 
 		else { $secondary =""; }
 		
-		# Check if there is an object embedded clause @CS-VP
+		# Check if there is an object embedded clause @CVP
 		if ($syn) {
-			if ($syn eq '@CS-VP') { 
+			if ($syn eq '@CVP') { 
 				my $str = $embed . "Od:cl";
 				push (@output, $str);
 				$embed .= "="; 
@@ -182,48 +182,48 @@ sub replace_tags {
 	my $output = shift @_;
 	
 #		print "***$output***\n";  # debugging line, nice.
-	$output =~ s/\@<GQ/=D/g;   	    
+	$output =~ s/\@<Q/=D/g;   	    
 	$output =~ s/\@ADV-ADV/=D/g;       # adv modifying adv
 	$output =~ s/\@ADV-A/=D/g;         # adv modifying adj
 	$output =~ s/\@ADVL/A/g;           
-	$output =~ s/\@AN>/=D/g;           
+	$output =~ s/\@N>/=D/g;           
 	$output =~ s/\@APP/=D/g;           # check this one.
 	$output =~ s/\@ActioN/=D/g;   
-	$output =~ s/\@CC-NP/CO/g; 	      
-	$output =~ s/\@CC-VP/CO/g; 	      
+	$output =~ s/\@CNP/CO/g; 	      
+	$output =~ s/\@CVP/CO/g; 	      
 	$output =~ s/\@CC/CO/g;			  
-	$output =~ s/\@CMPND/CJT/g;            # one word A-_ja_B?
-	$output =~ s/\@CS-NP/:cl\n=SUB/g;       
-	$output =~ s/\@CS-VP/SUB/g;   # trying to get embedding to work
+	$output =~ s/\@N>/CJT/g;            # one word A-_ja_B?
+	$output =~ s/\@CNP/:cl\n=SUB/g;       
+	$output =~ s/\@CVP/SUB/g;   # trying to get embedding to work
 	$output =~ s/\@CS/:cl\n=SUB/g;           
-	$output =~ s/\@DN>/:g\n=D/g;           
-	$output =~ s/\@GA>/=D/g;      
-	$output =~ s/\@GN>/=D/g;           
-	$output =~ s/\@GP</=D/g;      
-	$output =~ s/\@GP>/=D/g;   	       
-	$output =~ s/\@GQ</=D/g;      
+	$output =~ s/\@N>/:g\n=D/g;           
+	$output =~ s/\@A>/=D/g;      
+	$output =~ s/\@N>/=D/g;           
+	$output =~ s/\@P</=D/g;      
+	$output =~ s/\@P>/=D/g;   	       
+	$output =~ s/\@Q</=D/g;      
 	$output =~ s/\@HNOUN/X/g;         
 	$output =~ s/\@INTERJ/Ainterj/g;   
-	$output =~ s/\@NNum>/=D/g;
-	$output =~ s/\@NPron</=D/g;
-	$output =~ s/\@NQ</=D/g;
-	$output =~ s/\@NumN</=D/g;
-	$output =~ s/\@NUM-PRON/X/g;
+	$output =~ s/\@Num>/=D/g;
+	$output =~ s/\@Pron</=D/g;
+	$output =~ s/\@Q</=D/g;
+	$output =~ s/\@N</=D/g;
+	$output =~ s/\@Pron</X/g;
 	$output =~ s/\@OBJ/Od/g;
 	$output =~ s/\@OPRED/Co/g; 	    
 	$output =~ s/\@PCLE/Apcle/g;
 	$output =~ s/\@PCLE-COMPL/Apcle/g;
-	$output =~ s/\@PROP>/=D/g;         # check this one.
-	$output =~ s/\@PrcN>/=D/g;
-	$output =~ s/\@PronN</=D/g;	    
-	$output =~ s/\@PronN>/:g\n=D/g;	    
-	$output =~ s/\@QN>/=H/g;   	           # check this   
-	$output =~ s/\@QN</=D/g;	    
+	$output =~ s/\@N>/=D/g;         # check this one.
+	$output =~ s/\@N>/=D/g;
+	$output =~ s/\@N</=D/g;	    
+	$output =~ s/\@N>/:g\n=D/g;	    
+	$output =~ s/\@N>/=H/g;   	           # check this   
+	$output =~ s/\@N</=D/g;	    
 	$output =~ s/\@SPRED/Cs/g; 	    
-	$output =~ s/\@SUBJ-QH/S:g\n=H:Num/g;
+	$output =~ s/\@SUBJ/S:g\n=H:Num/g;
 	$output =~ s/\@SUBJ/S/g;
-	$output =~ s/\@TITLE/=D/g;         # check this
-	$output =~ s/\@VOC/X/g;
+	$output =~ s/\@N>/=D/g;         # check this
+	$output =~ s/\@APP/X/g;
 	$output =~ s/\@X/X/g;
 	$output =~ s/\@\+FAUXV/P:g\n=D:Vaux/g;
 	$output =~ s/\@\-FAUXV/=D:Vaux/g;
