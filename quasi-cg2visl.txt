@@ -1,6 +1,10 @@
 Quasicode for improving the gt/script/cg2visl.pl script
 =======================================================
 
+
+Intro
+=====
+
 The script takes text analysed by vislcg as input and gives visl-formatted text as output. At present, it gives a good linear output, but the treatment of phrases is bad. This document gives an explicit description of how we want the perl script to be improved.
 
 The structure of the cg output is linear, but it contains clues as to how to convert it to a two-dimensional representation. The visl formalism for the classical [PP P [NP D A N] is
@@ -13,32 +17,47 @@ A:g
 ==H:n
 
 
+Finding head of simple phrases
+==============================
 
-Normally, phrases in Sámi are either head-initial or head-final (as opposed to head-medial).
-
-A head-final phrase has dependants pointing at it, such as:
+Normally, phrases in Sámi are either head-initial or head-final (as opposed to head-medial). A head-final phrase has dependants pointing at it, such as:
 
 "<dan>"
         "dat" Pron Dem Sg Gen @DN>
 "<bargui>"
         "bargu" N Sg Ill @ADVL
 
-All syntactic tags of the format @...> are right pointing. Also some other tags, such as @ADV-A are right-pointing.
-
-
-Here, we want a structure
+All syntactic tags of the format @...> are right pointing.  Here, we want a structure
 
 A:g
 =D:pron('dat',<dem>,sg,gen)     dan
 =H:n('bargu',sg,ill)     bargui
+
 
 Thus:
 a leftmost right-pointing syntactic tag should be preceeded with
 :g\n
 a constituent with a right-pointing syntactic tag which itself is not right-pointing, should have the syntactic tag =H. Its ordinary syntactic tag should be placed to the left of the :g\n string preceeding the right-pointing lines to the left.
 
-In this example, "dat" is right-pointing, and preceeded by :g, itself a =D.
+or, in general terms, in a structure:
+
+word1 x @y
+word2 z @w<
+
+the target structure is
+Y:g
+=D:X(...)
+=H:Z
+
+where 
+ x, z are POS in cg format
+ X, Z are POS in visl format
+ @y, @w< are syntags in cg format
+ Y is syntag in cg format (in this structure, @w< will be only indirectly represented in the visl output
+
+In this particular example, "dat" is right-pointing, and preceeded by :g, itself a =D.
 Since the constituent to the right is @ADVL, the :g line should be prefixed by A, and be A:g. Since the syntactic tag of the head is lifted to group level, the head should get the tag =H.
+
 
 Here comes a similar example, with a string of right-pointing constituents:
 
@@ -56,17 +75,356 @@ S:g
 =D:adj('stuoris',attr)  stuora
 =H:n('dorski',pl,nom)    dorskit
 
-Coordination of phrases
+
+
+
+managing GROUPS - VERBS and others 
+==================================
+
+- P:v as a group
+In several cases we have this pattern:
+
+EXAMPLE:
+S:n('ruhta',pl,nom)     Ruđat
+P:v('leat',IV,ind,pr,3pl)       leat
+=H:v('nohkat',IV,pcp2)  nohkan
+
+EXAMPLE:
+P:v('leat',IV,cond,pr,1sg)      livččen
+=H:v('boahtit',IV,pcp2) boahtán
+.
+
+Target, in each case, is:
+
+TARGET:
+P:g
+=D:v('leat',IV,cond,pr,1sg)      livččen
+=H:v('boahtit',IV,pcp2) boahtán
+.
+
+So, the quasicode is:
+In a structure
+P:v
+=H:v
+expand to
+P:g
+=D:v
+=H:v
+
+or, more general
+A:x
+=H:y
+.
+assume that A is the group and go for
+A:g
+=D:x
+=H:y
+
+Head-final-phrases
+==================
+
+This seems to be a problem with head-final phrases:
+
+EXAMPLE:
+=D:pron('mun',<pers>,1sg,gen)   Mu
+=D:adj('ođas',attr)     ođđa
+S:n('ustit',sg,nom)     ustit
+P:v('boahtit',IV,ind,pr,3sg)    boahtá
+.
+
+Here, we want the head of the phrase to be picked up by the group:
+
+TARGET:
+S:g
+=D:pron('mun',<pers>,1sg,gen)   Mu
+=D:adj('ođas',attr)     ođđa
+=H:n('ustit',sg,nom)     ustit
+P:v('boahtit',IV,ind,pr,3sg)    boahtá
+.
+
+
+
+
+Sentence-initial =D-s
+=====================
+
+Since they are sentence-initial, we know that their H must come to the right. Thus, the following structures 
+
+EXAMPLE:
+:g
+=D:pron('buot',<idef>)  Buot
+S:n('oahppi',pl,nom)    oahppit
+P:v('leat',IV,ind,pr,3pl)       leat
+=H:v('mannat',IV,pcp2)  mannan
+
+EXAMPLE:
+:g
+=D:pron('juohke',<idef>)        Juohke
+S:n('loddi',sg,nom)     loddi
+
+EXAMPLE:
+=D:pron('mun',<pers>,1sg,gen)   Mu
+=D:adj('boaris',sup,attr)       boarráseamos
+S:n('viellja',sg,nom)   viellja
+
+may safely be made into
+
+TARGET:
+S:g
+=D:pron('buot',<idef>)  Buot
+=H:n('oahppi',pl,nom)    oahppit
+P:v('leat',IV,ind,pr,3pl)       leat
+=H:v('mannat',IV,pcp2)  mannan
+
+TARGET:
+S:g
+=D:pron('juohke',<idef>)        Juohke
+=H:n('loddi',sg,nom)     loddi
+
+TARGET:
+S:g
+=D:pron('mun',<pers>,1sg,gen)   Mu
+=D:adj('boaris',sup,attr)       boarráseamos
+=H:n('viellja',sg,nom)   viellja
+
+BOS and chain of =D:
+Take the first non-=D constituent and make into head of the :g
+
+EXAMPLE:
+:g
+=D:n Pekan    Det @N>
+=D:adj vanha  Adj @N>
+S:n kaveri    @SUBJ
+on
+tullut
+
+TARGET:
+S:g
+=D:n Pekan    @DN>
+=D:adj vanha  @AN>
+=H:n kaveri    @SUBJ
+
+
+
+Finding the head of preposition and postposition
+================================================
+
+@ADVL     tänään
+@GP>      ilman
+@ADVL     maitoa
+
+@ADVL     maidon
+@GP<      takia
+@ADVL     tänään
+
+
+
+A:g
+=D:n
+=H:po
+A:adv
+
+A:adv
+A:g
+=D:n
+=H:po
+
+EXAMPLE:
+SME97 Vuolgge mu mielde!
+A1
+P:v('vuolgit',IV,imp,pr,2sg)    Vuolgge
+=D:pron('mun',<pers>,1sg,gen)   mu
+A:prp-post('mielde')    mielde
+!
+
+TARGET:
+SME97 Vuolgge mu mielde!
+A1
+P:v('vuolgit',IV,imp,pr,2sg)    Vuolgge
+A:g
+=D:pron('mun',<pers>,1sg,gen)   mu
+=H:post('mielde')    mielde
+!
+
+
+- Discontinuous constituents:
+=============================
+
+VERBS:
+
+AUXV make group with the coming MAINV (or AUXV + MAINV) even if there are other contituents between:
+
+EXAMPLE:
+SME42 In monge háliidivčče.
+A1
+P:g
+=D:vaux:v('ii',IV,neg,ind,1sg)  In
+S:pron('mun',<pers>,1sg,nom,foc/ge)     monge
+=H:v('háliidit',TV,cond,pr,conneg)      háliidivčče
+.
+
+@+FAUX > P:g-, usually forward to @-FMAINV > -P:g 
+
+TARGET:
+P:g-
+=D:vaux:v('ii',IV,neg,ind,1sg)  In
+S:pron('mun',<pers>,1sg,nom,foc/ge)     monge
+-P:g
+=H:v('háliidit',TV,cond,pr,conneg)      háliidivčče
+.
+
+
+EXAMPLE:
+SME63 Sáhtášiigo du boarráseamos oabbá boahtit?
+A1
+P:g
+=D:vaux:v('sáhttit',IV,cond,pr,3sg,qst) Sáhtášiigo
+=D:pron('don',<pers>,2sg,gen)   du
+=D:adj('boaris',sup,attr)       boarráseamos
+S:n('oabbá',sg,nom)     oabbá
+=H:v('boahtit',IV,inf)  boahtit
+?
+
+TARGET:
+P:g-
+=D:vaux:v('sáhttit',IV,cond,pr,3sg,qst) Sáhtášiigo
+S:g
+=D:pron('don',<pers>,2sg,gen)   du
+=D:adj('boaris',sup,attr)       boarráseamos
+=H:n('oabbá',sg,nom)     oabbá
+-P:g
+=H:v('boahtit',IV,inf)  boahtit
+?
+
+There can be more than one AUXV:
+
+AUXV + AUXV and then MAINV 
+EXAMPLE:
+SME102 Bassin ii galggaše kantuvrras čohkkát.
+A1
+A:n('bassi',ess)        Bassin
+P:g
+=D:vaux:v('ii',IV,neg,ind,3sg)  ii
+=D:vaux:v('galgat',IV,cond,pr,conneg)   galggaše
+A:n('kantuvra',sg,loc)  kantuvrras
+=H:v('čohkkát',IV,inf)  čohkkát
+.
+
+TARGET:
+SME102 Bassin ii galggaše kantuvrras čohkkát.
+A1
+A:n('bassi',ess)        Bassin
+P:g-
+=D:vaux:v('ii',IV,neg,ind,3sg)  ii
+=D:vaux:v('galgat',IV,cond,pr,conneg)   galggaše
+A:n('kantuvra',sg,loc)  kantuvrras
+-P:g
+=H:v('čohkkát',IV,inf)  čohkkát
+.
+
+AUXV and then AUXV + MAINV
+EXAMPLE:
+P:g
+=D:vaux:v('ii',IV,neg,ind,3pl)  Eai
+S:n('guovttis',num,sg,nom,foc/ge)       guovttisge
+=D:vaux:v('nagodit',IV,ind,pr,conneg)   nagot
+=H:v('loktet',TV,inf)   loktet
+:g
+=D:pron('dat',<dem>,sg,acc)     dan
+Od:n('geađgi',sg,acc)   geađggi
+.
+
+TARGET:
+P:g-
+=D:vaux:v('ii',IV,neg,ind,3pl)  Eai
+S:n('guovttis',num,sg,nom,foc/ge)       guovttisge
+-P:g
+=D:vaux:v('nagodit',IV,ind,pr,conneg)   nagot
+=H:v('loktet',TV,inf)   loktet
+O:g
+=D:pron('dat',<dem>,sg,acc)     dan
+=H:n('geađgi',sg,acc)   geađggi
+.
+ 
+
 
 Coordination of phrases
+=======================
+
+- Coordination
+==============
+
+EXAMPLE:
+S:n('juolgi',pl,nom)    Juolggit
+CO:conj-s('ja') ja
+S:n('giehta',pl,nom)    gieđat
+P:v('leat',IV,ind,pr,3pl)       leat
+=H:v('seargat',IV,pcp2) seargan
+.
+
+Coordination structures should be collected into one phrase, of type X:par (not X:g), like this:
+
+TARGET:
+S:par
+=CJT:n('juolgi',pl,nom)    Juolggit
+=CO:conj-s('ja') ja
+=CJT:n('giehta',pl,nom)    gieđat
+Pg
+=D:v('leat',IV,ind,pr,3pl)       leat
+=H:v('seargat',IV,pcp2) seargan
+.
+
+Rule:
+For a constituent CO, identify the identical constituents X before and after it, and make a par group X:par.
 
 
-Embedding of embedded phrases.
 
-Phrases embed into each other.
 
+
+
+
+
+Phrases embedded into each other.
+=================================
 
 A phrase embedded under another phrase inherits the embedding level of the other one.
+
+EXAMPLE:
+
+"<Heasta>"
+        "heasta" N Sg Nom @SPRED
+"<čuožžu>"
+        "čuožžut" V* IV Der2 Actor N Sg Nom @HNOUN
+"<golmma>"
+        "golbma" Num Sg Gen @N>
+"<juolggi>"
+        "juolgi" N Sg Gen @P>
+"<nalde>"
+        "nalde" Po @ADVL
+"<.>"
+        "." CLB <<<
+
+Today:        
+SME162 Heasta čuožžu golmma juolggi nalde.
+A1
+S:n('heasta',sg,nom)    Heasta
+P:v('čuožžut',IV,ind,pr,3sg)    čuožžu
+=H:num('golbma',sg,gen) golmma
+=D:n('juolgi',sg,gen)   juolggi
+A:prp-post('nalde')     nalde
+.
+
+TARGET:
+SME162 Heasta čuožžu golmma juolggi nalde.
+A1
+S:n('heasta',sg,nom)    Heasta
+P:v('čuožžut',IV,ind,pr,3sg)    čuožžu
+A:g
+=D:g
+==H:num('golbma',sg,gen) golmma
+==D:n('juolgi',sg,gen)   juolggi
+=H:prp-post('nalde')     nalde
+
 
 The original analysis is:
 
@@ -100,7 +458,7 @@ The original analysis is:
 At present, we get:
 
 
-SOURCE: text
+EXAMPLE:
 SME1 Mun dieđán, ahte don dieđát, ahte son geavaha boares dihtora.
 A1
 S:pron('mun',<pers>,1sg,nom)	Mun
@@ -120,9 +478,7 @@ Od:n('dihtor',sg,acc)	dihtora
 .
 	
 
-What we want is:
-
-SOURCE: text
+TARGET:
 SME1 Mun dieđán, ahte don dieđát, ahte son boahtá.
 A1
 S:pron('mun',<pers>,1sg,nom)	Mun
@@ -153,6 +509,74 @@ Guokte finihta vearbba: @+FAUXV @+FAUXV dahje  @+FAUXV @+FMAINV dahje @+FMAINV @
 Máret ii diehtán, boahtágo Máhtte.
 Máret diehtá, boahtágo Máhtte.
 
+Here comes an example, but the analyze is not good. Have to correct the analyze first.
+
+EXAMPLE:
+"<Maŋimus>"
+        "maŋit" A Superl Sg Nom @SUBJ
+"<maid>"
+        "mii" Pron Rel Sg Acc @OBJ
+"<Will>"
+        "Will" N Prop Mal Sg Attr @N>
+"<Turneris>"
+        "Turner" N Prop Sur Sg Loc @ADVL
+"<oinniimet>"
+        "oaidnit" V TV Ind Prt Pl1 @+FMAINV
+"<lei>"
+        "leat" V IV Ind Prt Sg3 @+FMAINV
+"<go>"
+        "go" CS @CVP
+"<son>"
+        "son" Pron Pers Sg3 Nom @SUBJ
+"<vuojui>"
+        "vuodjut" V IV Ind Prt Sg3 @+FMAINV
+"<meara>"
+        "mearra" N Sg Gen @N>
+"<bodnái>"
+        "bodni" N Sg Ill @ADVL
+"<.>"
+        "." CLB <<<
+
+
+Today:
+SME1 Maŋimus maid Will Turneris oinniimet lei go son vuojui meara bodnái.
+A1
+S:adj('maŋit',sup,sg,nom)       Maŋimus
+Od:pron('mii',<rel>,sg,acc)     maid
+=D:prop('Will',Mal,sg,attr)     Will
+A:prop('Turner',Sur,sg,loc)     Turneris
+P:v('oaidnit',TV,ind,impf,1pl)  oinniimet
+P:v('leat',IV,ind,impf,3sg)     lei
+Od:cl
+=SUB:conj-c('go')       go
+=S:pron('son',<pers>,3sg,nom)   son
+=P:v('vuodjut',IV,ind,impf,3sg) vuojui
+==D:n('mearra',sg,gen)  meara
+=A:n('bodni',sg,ill)    bodnái
+.
+
+TARGET:
+SME1 Maŋimus maid Will Turneris oinniimet lei go son vuojui meara bodnái.
+A1
+S:g
+=H:adj('maŋit',sup,sg,nom)       Maŋimus
+=D:cl
+==Od:pron('mii',<rel>,sg,acc)     maid
+==A:g
+===D:prop('Will',Mal,sg,attr)     Will
+===H:prop('Turner',Sur,sg,loc)     Turneris
+==P:v('oaidnit',TV,ind,impf,1pl)  oinniimet
+P:v('leat',IV,ind,impf,3sg)     lei
+A:cl
+=SUB:conj-c('go')       go
+=S:pron('son',<pers>,3sg,nom)   son
+=P:v('vuodjut',IV,ind,impf,3sg) vuojui
+=A:g
+==D:n('mearra',sg,gen)  meara
+==A:n('bodni',sg,ill)    bodnái
+.
+
+
 
 Relatiivva oalgecealkka: (Son gii diehtá dan, boahtá dál.)
 (Pron Rel): bija ":cl\n" nuppi @SUBJii ja "=" gait sániide dassážii nuppi háve boahtá +FAUX dahje +FMAIN (?)
@@ -169,15 +593,217 @@ Galgá lasihit CJT cealkagiidda.
 "Máhtte oinnii Máreha ja Juhána." siderordning - dovdomearka lea @CC-NP.
 Máreha ja Juhána -  par (paratagme) ?
 
+COORDINATION with (neg foc/ge)
+
+EXAMPLE:
+SME39 In máhte juoigat inge lávlut.
+A1
+P:g
+=D:vaux:v('ii',IV,neg,ind,1sg)  In
+=D:vaux:v('máhttit',TV,ind,pr,conneg)   máhte
+=H:v('juoigat',IV,inf)  juoigat
+P:g
+=D:vaux:v('ii',IV,neg,ind,1sg,foc/ge)   inge
+=H:v('lávlut',TV,inf)   lávlut
+
+"neg,foc/ge" > 
+=CJT:cl
+==D:vaux:v(neg,foc/ge)
+==H:v ....
+and the same to the "neg" before it, like:   
+
+TARGET:
+Centence:par
+A1
+STA:par
+=CJT:cl
+==D:vaux:v('ii',IV,neg,ind,1sg)  In
+==D:vaux:v('máhttit',TV,ind,pr,conneg)   máhte
+==H:v('juoigat',IV,inf)  juoigat
+=CJT:cl
+==D:vaux:v('ii',IV,neg,ind,1sg,foc/ge)   inge
+==H:v('lávlut',TV,inf)   lávlut
+
+
+
 Ferte lasihit = nu ahte sáhttet šaddat eanet dásit, nugo dán cealkagis leat golbma dási:
 Boares áhkku ja šiega áddjá bođiiga siidii.
 
-Special cases - A vai =D ? Mo earuhit?
+
+
+
+This one to fix in sme-dis.rle
+================================
+Special cases - A vai =D ? Mo earuhit? I´ll fix this one in sme-dis.rle so the Com in the first sentence gets @N<.
 Mun dolvon báhpa-guovtto eamidiin.   "eamit" N Sg Com S:4315 @ADVL
 Mun dolvon báhpa biillain. 				"biila" N Sg Com S:4315 @ADVL
 
+
+EXAMPLE:
+
+"<Moai>"
+        "mun" Pron Pers Du1 Nom @SUBJ
+"<Birehiin>"
+        "Biret" N Prop Fem Sg Com @N<   (today @ADVL, but will be @N<) sme-dis.rleas berrešii leat @N< ??)na
+"<barge>"
+        "bargat" V TV Ind Prs Du1 @+FMAINV
+"<mánáidgárddis>"
+        "mánáid#gárdi" N Sg Loc @ADVL
+"<.>"
+        "." CLB <<<
+
+SME168 Moai Birehiin barge mánáidgárddis.
+A1
+S:pron('mun',<pers>,1du,nom)    Moai
+A:prop('Biret',Fem,sg,com)      Birehiin
+P:v('bargat',TV,ind,pr,1du)     barge
+A:n('mánáid#gárdi',sg,loc)      mánáidgárddis
+.
+
+1du/2du/3du + @ADVL Fem/Mal com > H + D
+
+TARGET:
+SME168 Moai Birehiin barge mánáidgárddis.
+A1
+S:g
+=H:pron('mun',<pers>,1du,nom)    Moai
+=D:prop('Biret',Fem,sg,com)      Birehiin
+P:v('bargat',TV,ind,pr,1du)     barge
+A:n('mánáid#gárdi',sg,loc)      mánáidgárddis
+.
+
+
+EXAMPLE:
+SME189 Ándde-guovttos Rihtáin gávnnadeigga gávpogis.
+A1
+S:n('Ándde-#guovttos',sg,nom)   Ándde-guovttos
+A:prop('Rihttá',Fem,sg,com)     Rihtáin
+P:v('gávnnadit',TV,ind,impf,3du)        gávnnadeigga
+A:n('gávpot',sg,loc)    gávpogis
+.
+
+
 Munnos leat golbma máná, guokte nieidda ja okta bárdni. 
 Mu vánhemat, sihke áhčči ja eadni, leaba jápmán. 
+
+Quasicode:
+
+For a tag @N< following some NP-head-tag (N or Pron as POS), 
+the target structure is:
+X:g
+=H:Y
+=D:Z
+where:
+X is the visl pendant of the syntactic tag of the head
+Y is the POS of the head (here: pron)
+X is the POS of the dependant (here: prop)
+
+
+
+
+
+More than one adverbial
+=======================
+
+Two @ADVL, the latter one is Gen and contents no > or <. That makes it a H
+
+EXAMPLE:
+SME205 Áddjá lei soggái čalmmiid.
+A1
+S:n('áddjá',sg,nom)     Áddjá
+P:v('leat',IV,ind,impf,3sg)     lei
+A:n('soggi',sg,ill)     soggái         (sme-dis.rleas berrešii @ADVL> ???)
+A:n('čalbmi',pl,gen)    čalmmiid
+.
+
+
+TARGET:
+SME205 Áddjá lei soggái čalmmiid.
+A1
+S:n('áddjá',sg,nom)     Áddjá
+P:v('leat',IV,ind,impf,3sg)     lei
+A:g
+=D:n('soggi',sg,ill)     soggái
+=H:n('čalbmi',pl,gen)    čalmmiid
+.
+
+
+This one to be fixed in sme-dis.rle:
+EXAMPLE:
+SOURCE: textSME244 Mun maid ferten málestit guktii vahkus.
+A1
+S:pron('mun',<pers>,1sg,nom)    Mun
+A:adv('maid')   maid
+P:g
+=D:vaux:v('fertet',IV,ind,pr,1sg)       ferten
+=H:v('málestit',TV,inf) málestit
+A:adv('guktii') guktii
+A:n('vahkku',sg,loc)    vahkus.     (sme-dis.rleas berrešii @ADVL<???)
+
+TARGET:
+SOURCE: textSME244 Mun maid ferten málestit guktii vahkus.
+A1
+S:pron('mun',<pers>,1sg,nom)    Mun
+A:adv('maid')   maid
+P:g
+=D:vaux:v('fertet',IV,ind,pr,1sg)       ferten
+=H:v('málestit',TV,inf) málestit
+A:g
+=H:adv('guktii') guktii
+=D:n('vahkku',sg,loc)    vahkus.
+
+
+
+
+EXAMPLE:
+SME255 Eanaš mearrasámit heite gávtti geavaheames badjel 100 jagi dás ovdal.
+A1
+:g
+=D:pron('eanaš',<idef>,sg,nom)  Eanaš
+S:n('mearra#sápmi',pl,nom)      mearrasámit
+P:v('heaitit',TV,ind,impf,3pl)  heite
+Od:n('gákti',sg,acc)    gávtti
+A:v('geavahit',TV,actio,loc)    geavaheames
+A:prp-pre('badjel')     badjel
+=H:num('100',sg,gen)    100
+=D:n('jahki',sg,gen)    jagi
+A:adv('dás')    dás
+A:adv('ovdal')  ovdal
+.
+
+This one is not finished - how should the A-groups be - on same level? or do they make to group? How to mark them?
+
+TARGET:
+SME255 Eanaš mearrasámit heite gávtti geavaheames badjel 100 jagi dás ovdal.
+A1
+S:g
+=D:pron('eanaš',<idef>,sg,nom)  Eanaš
+=H:n('mearra#sápmi',pl,nom)      mearrasámit
+P:v('heaitit',TV,ind,impf,3pl)  heite
+Od:n('gákti',sg,acc)    gávtti
+A:v('geavahit',TV,actio,loc)    geavaheames
+A:g
+=D
+=A:g
+==Dprp-pre('badjel')     badjel
+==H:num('100',sg,gen)    100
+==D:n('jahki',sg,gen)    jagi
+=H
+=A:g
+==D:adv('dás')    dás
+==H:adv('ovdal')  ovdal
+.
+
+
+Neutralised homonymy
+====================
+Words are represented twice when there are several homonym analyses. But in several cases these are neutralised during cg2visl, e.g.
+
+SOURCE: textSME222 Son fárrii Finnmárkkus Tromsii Tromsii.A1S:pron('son',<pers>,3sg,nom)    SonP:v('fárret',IV,ind,impf,3sg)   fárriiA:prop('Finnmárku',plc,sg,loc)  FinnmárkkusA:prop('Tromsa',plc,sg,ill)     TromsiiA:prop('Troms',Sur,sg,ill)      Tromsii.
+In those cases, the resulting structure may be uniq-ed.
+
+
+
 
 
 
