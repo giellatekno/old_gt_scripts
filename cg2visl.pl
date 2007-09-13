@@ -182,48 +182,49 @@ sub replace_tags {
 	my $output = shift @_;
 	
 #		print "***$output***\n";  # debugging line, nice.
-	$output =~ s/\@<Q/=D/g;   	    
-	$output =~ s/\@ADV-ADV/=D/g;       # adv modifying adv
-	$output =~ s/\@ADV-A/=D/g;         # adv modifying adj
+
+# After the tag revision, there is some revision to do. 
+# Earlier, we specified a lot, now we generalise. For some conversions
+# we will have to think again.
+
+# Many of the following rules remove directional tags and replace them with =D.
+# But the phrase they belong to must be headed before we apply these rules, 
+# so that we know whether to look to the right or left for the =H.
+
+# All tags pointing rightwards and not having a rightwards-pointing tag to 
+# the left should get a :g tag on the previous line.
+
+	$output =~ s/\@ADVL>/=D/g;       #  modifying ADVL
+	$output =~ s/\@ADVL</=D/g;       # complement of ADVL
 	$output =~ s/\@ADVL/A/g;           
-	$output =~ s/\@N>/=D/g;           
+	$output =~ s/\@N>/=D/g;     
+###	$output =~ s/\@N>/=H/g;   	     # Revise!!   	      
+###	$output =~ s/\@N>/:g\n=D/g;      # Revise!!
+	$output =~ s/\@N</=D/g;
 	$output =~ s/\@APP/=D/g;           # check this one.
-	$output =~ s/\@ActioN/=D/g;   
-	$output =~ s/\@CNP/CO/g; 	      
-	$output =~ s/\@CVP/CO/g; 	      
-	$output =~ s/\@CC/CO/g;			  
-	$output =~ s/\@N>/CJT/g;            # one word A-_ja_B?
+#	$output =~ s/\@CNP/CO/g; # Must be revised, POS-sensitive	      
+#	$output =~ s/\@CVP/CO/g; # Must be revised, POS-sensitive	      
+#	$output =~ s/\@N>/CJT/g;            # one word A-_ja_B?
 	$output =~ s/\@CNP/:cl\n=SUB/g;       
 	$output =~ s/\@CVP/SUB/g;   # trying to get embedding to work
-	$output =~ s/\@N>/:g\n=D/g;           
 	$output =~ s/\@A>/=D/g;      
-	$output =~ s/\@N>/=D/g;           
 	$output =~ s/\@P</=D/g;      
-	$output =~ s/\@P>/=D/g;   	       
+	$output =~ s/\@P>/=D/g;     	       
 	$output =~ s/\@Q</=D/g;      
-	$output =~ s/\@HNOUN/X/g;         
+	$output =~ s/\@HNOUN/X/g;         # hmm, is it really X?        
 	$output =~ s/\@INTERJ/Ainterj/g;   
 	$output =~ s/\@Num</=D/g;
 	$output =~ s/\@Num>/=D/g;
 	$output =~ s/\@Pron</=D/g;
-	$output =~ s/\@Q</=D/g;
-	$output =~ s/\@N</=D/g;
+	$output =~ s/\@Q</=D/g; 
 	$output =~ s/\@Pron</X/g;
 	$output =~ s/\@OBJ/Od/g;
 	$output =~ s/\@OPRED/Co/g; 	    
 	$output =~ s/\@PCLE/Apcle/g;
-	$output =~ s/\@PCLE-COMPL/Apcle/g;
-	$output =~ s/\@N>/=D/g;         # check this one.
-	$output =~ s/\@N>/=D/g;
-	$output =~ s/\@N</=D/g;	    
-	$output =~ s/\@N>/:g\n=D/g;	    
-	$output =~ s/\@N>/=H/g;   	           # check this   
-	$output =~ s/\@N</=D/g;	    
-	$output =~ s/\@SPRED/Cs/g; 	    
-	$output =~ s/\@SUBJ/S:g\n=H:Num/g;
+	$output =~ s/\@SPRED/Cs/g; 
+	$output =~ s/\@COMP-CS/=D/g; 
+###	$output =~ s/\@SUBJ/S:g\n=H:Num/g;   # Revise! This must be contextually used.
 	$output =~ s/\@SUBJ/S/g;
-	$output =~ s/\@N>/=D/g;         # check this
-	$output =~ s/\@APP/X/g;
 	$output =~ s/\@X/X/g;
 	$output =~ s/\@\+FAUXV/P:g\n=D:Vaux/g;
 	$output =~ s/\@\-FAUXV/=D:Vaux/g;
