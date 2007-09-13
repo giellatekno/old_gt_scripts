@@ -74,7 +74,7 @@ s/\@VOC/\@APP/g;
 #s/\@\-FAUXV/\@\-FAUXV/g;
 #s/\@\+FMAINV/\@\+FMAINV/g;       
 #s/\@\-FMAINV/\@\-FMAINV/g;       
-s/\@-FSUBJ/\@SUBJ/g;          # non-finite subj
+s/\@-FSUBJ/\@-FSUBJ/g;          # non-finite subj
 
 print ;
 }
