@@ -283,7 +283,7 @@ sub read_typos {
 		push @originals, $rec;
 	}
 	close(FH);
-	print STDERR " - end of bugs.\n";
+#	print STDERR " - end of bugs.\n";
 }
 
 sub print_xml_output {
@@ -413,7 +413,7 @@ sub print_xml_output {
 			my $bugID = XML::Twig::Elt->new('bug'); 
 			$bugID->set_text($rec->{'bugID'});
 			$bugID->paste('last_child', $word);
-			print STDERR ".";
+#			print STDERR ".";
 		}
 		if ($rec->{'comment'}){ 
 			my $comment = XML::Twig::Elt->new('comment'); 
