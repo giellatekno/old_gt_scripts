@@ -78,6 +78,7 @@ sub read_applescript {
 
 	my $i=0;
 	my @suggestions;
+	my @numbers;
 	while(<FH>) {
 		chomp;
 
@@ -109,6 +110,7 @@ sub read_applescript {
 			if ($error) { $originals[$i]{'error'} = $error; }
 			else { $originals[$i]{'error'} = "not_known"; }
 			$originals[$i]{'sugg'} = [ @suggestions ];
+			$originals[$i]{'num'} = [ @numbers ];
 		}
 		$i++;
 		}
@@ -126,12 +128,14 @@ sub read_polderland {
 
 	my $i=0;
 	my $line = $_;
+
+	return if (! $line);
 	my $orig;
 	# variable to check whether the suggestions are already started.
 	# this is because the line "check returns" may be missing.
 	my $reading=0;
 
-    if ($line =~ /Check returns/) { 	
+    if ($line =~ /Check returns/) {
 		($orig = $line) =~ s/.*?Check returns .*? for \'(.*?)\'\s*$/$1/;
 		$reading=1;
 	}
@@ -151,6 +155,7 @@ sub read_polderland {
 	}
 
 	my @suggestions;
+	my @numbers;
 
 	while(<FH>) {
 
@@ -166,9 +171,12 @@ sub read_polderland {
 			#Store the suggestions from the last round.
 			if (@suggestions) {
 				$originals[$i]{'sugg'} = [ @suggestions ];
+				$originals[$i]{'num'} = [ @numbers ];
 				$originals[$i]{'error'} = "SplErr";
 				@suggestions = ();
 				pop @suggestions;
+				@numbers = ();
+				pop @numbers;
 				$reading = 0;
 			}
 			elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
@@ -193,6 +201,7 @@ sub read_polderland {
 				$i--;
 				next;
 			}
+
 			# If it was found later, mark the intermediate input as correct.
 			elsif($j != $i) {
 				my $k=$j-$i;
@@ -206,20 +215,27 @@ sub read_polderland {
 			}
 			next;
 		}
+
 		next if (! $orig);
 		chomp $line;
 		my ($num, $suggestion) = split(/\s+/, $line, 2);
-		#print "$_ SUGG $suggestion\n";
-		if ($suggestion) { push (@suggestions, $suggestion); }
+		#print STDERR "$_ SUGG $suggestion\n";
+		if ($suggestion) {
+			push (@suggestions, $suggestion);
+			push (@numbers, $num);
+		}
 	}
 	close(FH);
 	if ($orig) {
 		#Store the suggestions from the last round.
 		if (@suggestions) {
 			$originals[$i]{'sugg'} = [ @suggestions ];
+			$originals[$i]{'num'} = [ @numbers ];
 			$originals[$i]{'error'} = "SplErr";
 			@suggestions = ();
 			pop @suggestions;
+			@numbers = ();
+			pop @numbers;
 		}
 		elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
 	}
@@ -236,22 +252,38 @@ sub read_typos {
 		chomp;
 		next if (/^[\#\!]/);
 		next if (/^\s*$/);
-		s/[\#\!].*$//;
-		my ($orig, $expected) = split(/\t+/);
+#		s/[\#\!].*$//; # not applicable anymore - we want to preserve comments
+		my ($testpair, $comment) = split(/[\#\!]\s*/);
+		my ($orig, $expected) = split(/\t+/,$testpair);
+#		print STDERR "Original: $orig\n";
+#		print STDERR "Expected: $expected\n" if $expected;
+#		print STDERR "Comment:  $comment\n" if $comment;
 		next if (! $orig );
 		my $rec = {};
-		# if the word starts with comma (,), 
-		# the suggestions are forced.
-		if ($orig =~ s/^\,//) { $rec->{'forced'} = 1; }
 		$orig =~ s/\s*$//;
+		$rec->{'orig'} = $orig;
 		if ($expected) {
 			$expected =~ s/\s*$//;
 			$rec->{'expected'} = $expected;
 		}
-		$rec->{'orig'} = $orig;
+		if ($comment) {
+			$comment =~ s/\s*$//;
+			$comment =~ s/^\s*//;
+			if ($comment =~ m/^[\#\!]*\d+\s/) {
+				my ($bugID, $restcomment) = split(/\s+/,$comment,2);
+				$bugID =~ s/^[\#\!]//;
+				$rec->{'bugID'} = $bugID;
+				#print STDERR $bugID.".";
+				$comment = $restcomment;
+			}
+			$comment =~ s/^[-\!\# ]*//;
+#			print STDERR $comment.".";
+			$rec->{'comment'} = $comment;
+		}
 		push @originals, $rec;
 	}
 	close(FH);
+	print STDERR " - end of bugs.\n";
 }
 
 sub print_xml_output {
@@ -351,6 +383,7 @@ sub print_xml_output {
 			if ($rec->{'sugg'}) {
 				
 				my @suggestions = @{$rec->{'sugg'}};			
+				my @numbers = @{$rec->{'num'}};
 				for my $sugg (@suggestions) {
 					next if (! $sugg);
 					my $suggestion = XML::Twig::Elt->new('suggestion');
@@ -358,6 +391,12 @@ sub print_xml_output {
 					if ($rec->{'expected'} && $sugg eq $rec->{'expected'}) {
 						$suggestion->set_att('expected', "yes");
 					}
+					my $num;
+					if (@numbers) { 
+						$num = shift @numbers; 
+						$suggestion->set_att('penscore', $num);
+					}
+
 					$suggestion->paste('last_child', $suggestions_elt);
 				} 
 				my $i=0;
@@ -369,6 +408,17 @@ sub print_xml_output {
 			$position->set_text($pos);
 			$position->paste('last_child', $word);
 			$suggestions_elt->paste('last_child', $word);
+		}
+		if ($rec->{'bugID'}){ 
+			my $bugID = XML::Twig::Elt->new('bug'); 
+			$bugID->set_text($rec->{'bugID'});
+			$bugID->paste('last_child', $word);
+			print STDERR ".";
+		}
+		if ($rec->{'comment'}){ 
+			my $comment = XML::Twig::Elt->new('comment'); 
+			$comment->set_text($rec->{'comment'});
+			$comment->paste('last_child', $word);
 		}
 
 		$word->paste('last_child', $results);
