@@ -175,20 +175,26 @@ sub reformat_verbs {
 		$$out_aref[$i] =~ s/\@\-FMAINV\:/P:/;
 		return 1;
 	}
-	my $group = "P:g";
 
-	# Move the participle verb next to main verb (skipping adverbials)
-	splice(@$out_aref, $j,0, $group);
-	$i++;
-	$j++;
-	splice(@$out_aref, $j+1,0, $$out_aref[$i]);
-	$i++;
-	$j++;
-	splice(@$out_aref, $i,1);
-
+	# Format discontinuous constituents
+	if ($i != $j+1) {
+		my $group = "P:g-";
+		splice(@$out_aref, $j,0, $group);
+		$i++;
+		$j++;
+		$group = "-P:g";
+		splice(@$out_aref, $i,0, $group);
+		$i++;
+	}
+	else {
+		my $group = "P:g";
+		splice(@$out_aref, $j,0, $group);
+		$i++;
+		$j++;
+	}
 	# Mark the head as =H.
-	$$out_aref[$j-1] =~ s/\@\+FMAINV/P/;
-	$$out_aref[$j] =~ s/\@\-FMAINV/=H/;
+	$$out_aref[$j] =~ s/\@\+FMAINV/=D/;
+	$$out_aref[$i] =~ s/\@\-FMAINV/=H/;
 
 	#print "** P $$out_aref[$j-1]\n";
 	#print "** head $$out_aref[$j]\n";
