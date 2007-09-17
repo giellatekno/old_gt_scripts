@@ -27,12 +27,22 @@ my $sentence;
 my $embed="";
 my @output;
 
+my %groups = (
+		  "\@SUBJ" => "S",
+			  "\@ADVL" => "A",
+			  "\@OBJ" => "O",
+			  );
+
 while (<>) {
 	
 	# This is a multi-tag, both N and Prop	
 	s/ N Prop/ prop/g ;
-	
+
+	# Take the wordform and read the analysis for it
+	# straight aways
 	if (/^\"<(.*?)>/) { $wordform =$1; next; }
+
+	# Take the analysis line proceed to format the output.
 	if (! /^\t\"(.*?)\" +(\?|((\p{L}+\*( \p{Ll}+| s1 Dimin)? )?\p{L}+))( +([^\@]*?))?( (\@.*))? *$/) {
 		print STDERR "Input did not match: $_\n"; 
 		next; 
@@ -44,46 +54,52 @@ while (<>) {
 	$morf =$7;
 	$syn =$9;
 
-	# When in clause boundary or similar, print output
+	# If the input is punctuation, just add it to the output
+	# without analysis.
 	if ($pos =~ /(CLB|PUNCT|LEFT|RIGHT|clb|punct|left|right)/) {
 
 		$sentence .= " $wordform";
 		push (@output, $wordform);
 
-		if ($wordform =~ /^[\.\!\?:\;]/) {
+		# If sentence boundary then format the tags
+		# and print out everything
+		if ($wordform =~ /^[\.\!\?:\;¶]/) {
 			
-			$sentence =~ s/ ([,\;\.\!\?:])/$1/g;
+			$sentence =~ s/ ([,\;\.\!\?:¶])/$1/g;
 			$num++;
 			print "SOURCE: text\n";
 			print "SME$num$sentence\n";
 			print "A1\n";
-			
-			# First detect the level of embedding for heads (based upon < or > symbols)
-			# ... still not written
 
+			# What kind of reformatting is done:
+			my $coord = 1;
+			my $modifiers = 1;
+			my $verbs = 1;
+			
+			# Detect coordintated structures
+			# again, not recursive, perhaps should be.
+			while ($coord) { $coord = reformat_coordination(\@output); }
+
+			# Detect modifiers and heads (only right pointing at the moment)
+			# This should be recursive, but for the time being, it is not.
+			while ($modifiers) { $modifiers = reformat_groups(\@output); }
+
+			while ($verbs) { $verbs = reformat_verbs(\@output); }
+			
 			# Then change symbols, and replace directed symbols 
 			# (@N> etc.) with undirected =D.
-			my $output_string;
 			my @new_output;
 
 			my $prev;
 			my $i=0;
-			for my $out (@output) {
+			for my $out (@output) { 
 				my $output_str .= replace_tags($out);
-				# If there was newline added, everything that comes 
-				# after that, belongs actually to the previous output_line
-				if ($output_str =~ s/(.+)\n\s*(.+)$/$2/) {
-					$prev = $1;
-					splice(@new_output, $i,0, $prev);
-					$i++;
-				}
 				push (@new_output, $output_str);
-				$i++;
 			}
 			local $, = "\n";
 			#print @new_output;
 			# Fix sentence initial D's
-			my $result = sentence_initial_d(\@new_output);
+			#my $result = sentence_initial_d(\@new_output);
 			#if (! $result) { print STDERR "Sentence initial D, but no reformatting.\n"; }
 
 			print @new_output;
@@ -138,6 +154,130 @@ while (<>) {
 		$anl_line .= "\t$wordform";
 		push (@output, $anl_line);
     }
+}
+
+sub reformat_verbs {
+	my $out_aref = shift @_;
+
+	my $i=0;
+	# Read until the -FMAINV tag.
+	while ($$out_aref[$i] && $$out_aref[$i] !~ /\@\-FMAINV\:/) { $i++; next; }
+	return 0 if (! $$out_aref[$i] || $$out_aref[$i] !~ /\@\-FMAINV/ );
+
+	my $j=$i;
+	# Read packwards until the main verb
+	while ($j>=0 && $$out_aref[$j] && ($$out_aref[$j] !~ /\@\+FMAINV\:/)) { 
+		#print "** searching $$out_aref[$j]**\n"; 
+		$j--; 
+		next; 
+	}
+	if (! $$out_aref[$j] || $$out_aref[$j] !~ /\@\+FMAINV\:/) {
+		$$out_aref[$i] =~ s/\@\-FMAINV\:/P:/;
+		return 1;
+	}
+	my $group = "P:g";
+
+	# Move the participle verb next to main verb (skipping adverbials)
+	splice(@$out_aref, $j,0, $group);
+	$i++;
+	$j++;
+	splice(@$out_aref, $j+1,0, $$out_aref[$i]);
+	$i++;
+	$j++;
+	splice(@$out_aref, $i,1);
+
+	# Mark the head as =H.
+	$$out_aref[$j-1] =~ s/\@\+FMAINV/P/;
+	$$out_aref[$j] =~ s/\@\-FMAINV/=H/;
+
+	#print "** P $$out_aref[$j-1]\n";
+	#print "** head $$out_aref[$j]\n";
+
+	return 1;
+}
+
+sub reformat_coordination {
+	my $out_aref = shift @_;
+
+	my $i=0;
+	# Read until a coordination tag is found.
+	while ($$out_aref[$i] && $$out_aref[$i] !~ /\@CNP\:/) { $i++; next; }
+	return 0 if (! $$out_aref[$i]);
+
+	(my $prev_tag = $$out_aref[$i-1] ) =~ s/^(.*?)\:.*$/$1/;
+	(my $next_tag = $$out_aref[$i+1] ) =~ s/^(.*?)\:.*$/$1/;
+
+	if ($prev_tag eq $next_tag) {
+
+		#print "** tag $prev_tag\n";
+		my $group;
+		if ($groups{$prev_tag}) { $group = $groups{$prev_tag} . ":par"; }
+		else { $group = $prev_tag . ":par"; }
+
+		#print "** group $group\n";
+		splice(@$out_aref, $i-1,0, $group);
+		$i++;
+		$$out_aref[$i-1] =~ s/$prev_tag/=CJT/;
+		$$out_aref[$i+1] =~ s/$prev_tag/=CJT/;
+		$$out_aref[$i] =~ s/^.*?\:/=CO:/;
+
+		# collapse the coordinated constituents into one line.
+		$$out_aref[$i-2] .= "\n$$out_aref[$i-1]\n$$out_aref[$i]\n$$out_aref[$i+1]";
+		splice(@$out_aref, $i-1,3);
+		#print "*** OUT_AREF $$out_aref[$i-2] ***\n";
+		return 1;
+	}
+	else { $$out_aref[$i] =~ s/^.*?\:/=CO:/; }
+	# change this to return 0 until there are enought tests.
+	return 1;
+}
+
+sub reformat_groups {
+	my $out_aref = shift @_;
+	
+	my $i=0;
+	# Read until a right-pointing tag is found.
+	while ($$out_aref[$i] && $$out_aref[$i] !~ /^\=*\@.*?>\:/) { 
+		#print "** skipping $$out_aref[$i]**\n"; 
+		$i++; 
+		next; 
+	}
+	return 0 if (! $$out_aref[$i] || $$out_aref[$i] !~ />\:/ );	
+	my $j=$i;
+	# Read until there is a first analysis without right pointing tag.
+	while ($$out_aref[$j] && ($$out_aref[$j] =~ /^\=*\@.*?>\:/ || $$out_aref[$j] =~ /^[\(\)\.\:\!\?]/)) { 
+		#print "** searching $$out_aref[$j]**\n"; 
+		$j++; 
+		next; 
+	}
+	return 0 if (! $$out_aref[$j]);
+	
+	# Add the correct grouping tag.
+	(my $tag = $$out_aref[$j] ) =~ s/^(.*?)\:.*$/$1/;
+	
+	# set this to return 1 when the right-pointing tags are found.
+	return 0 if (! $tag);
+	
+	##print "** tag $tag\n";
+	my $group;
+	if ($groups{$tag}) { $group = $groups{$tag} . ":g"; }
+	else { $group = $tag . ":g"; } 
+	##print "** group $group\n";
+	splice(@$out_aref, $i,0, $group);
+	$i++;
+	$j++;
+	# Replace the tags that point to the right.
+	# so that they are not considered next time the script is called.
+	for (my $k=$i; $k<$j; $k++) {
+		$$out_aref[$k] = replace_tags($$out_aref[$k]);
+		##print "** replaced $$out_aref[$k]\n";
+	}
+		   
+	# Mark the head as =H.
+	## print "** head $$out_aref[$j]\n";
+	$$out_aref[$j] =~ s/$tag/=H/;
+	
+	return 1;
 }
 
 # If there is a sentence-initial D, it is safe to assume
@@ -197,7 +337,7 @@ sub replace_tags {
 	$output =~ s/\@ADVL>/=D/g;       #  modifying ADVL
 	$output =~ s/\@ADVL</=D/g;       # complement of ADVL
 	$output =~ s/\@ADVL/A/g;           
-	$output =~ s/\@N>/=D/g;     
+	$output =~ s/\@N>/=D/g;
 ###	$output =~ s/\@N>/=H/g;   	     # Revise!!   	      
 ###	$output =~ s/\@N>/:g\n=D/g;      # Revise!!
 	$output =~ s/\@N</=D/g;
@@ -205,7 +345,7 @@ sub replace_tags {
 #	$output =~ s/\@CNP/CO/g; # Must be revised, POS-sensitive	      
 #	$output =~ s/\@CVP/CO/g; # Must be revised, POS-sensitive	      
 #	$output =~ s/\@N>/CJT/g;            # one word A-_ja_B?
-	$output =~ s/\@CNP/:cl\n=SUB/g;       
+##	$output =~ s/\@CNP/:cl\n=SUB/g;       # --sh
 	$output =~ s/\@CVP/SUB/g;   # trying to get embedding to work
 	$output =~ s/\@A>/=D/g;      
 	$output =~ s/\@P</=D/g;      
@@ -226,7 +366,7 @@ sub replace_tags {
 ###	$output =~ s/\@SUBJ/S:g\n=H:Num/g;   # Revise! This must be contextually used.
 	$output =~ s/\@SUBJ/S/g;
 	$output =~ s/\@X/X/g;
-	$output =~ s/\@\+FAUXV/P:g\n=D:Vaux/g;
+##	$output =~ s/\@\+FAUXV/P:g\n=D:Vaux/g;  # --sh
 	$output =~ s/\@\-FAUXV/=D:Vaux/g;
 	$output =~ s/\@\+FMAINV/P/g;       
 	$output =~ s/\@\-FMAINV/=H/g;       
