@@ -28,7 +28,7 @@ my $embed="";
 my @output;
 
 my %groups = (
-		  "\@SUBJ" => "S",
+			  "\@SUBJ" => "S",
 			  "\@ADVL" => "A",
 			  "\@OBJ" => "O",
 			  );
@@ -75,6 +75,7 @@ while (<>) {
 			my $coord = 1;
 			my $modifiers = 1;
 			my $verbs = 1;
+			my $aux = 1;
 			
 			# Detect coordintated structures
 			# again, not recursive, perhaps should be.
@@ -83,6 +84,8 @@ while (<>) {
 			# Detect modifiers and heads (only right pointing at the moment)
 			# This should be recursive, but for the time being, it is not.
 			while ($modifiers) { $modifiers = reformat_groups(\@output); }
+
+			while ($aux) { $aux = reformat_aux(\@output); }
 
 			while ($verbs) { $verbs = reformat_verbs(\@output); }
 			
@@ -156,6 +159,56 @@ while (<>) {
     }
 }
 
+sub reformat_aux {
+	my $out_aref = shift @_;
+
+	my $i=0;
+	# Read until the -FAUXV tag.
+	while ($$out_aref[$i] && $$out_aref[$i] !~ /\@\-FAUXV\:/) { $i++; next; }
+	return 0 if (! $$out_aref[$i] || $$out_aref[$i] !~ /\@\-FAUXV/ );
+
+	my $j=$i;
+	# Read packwards until the main aux
+	while ($j>=0 && $$out_aref[$j] && ($$out_aref[$j] !~ /\@\+FAUXV\:/)) { 
+		#print "** searching $$out_aref[$j]**\n"; 
+		$j--; 
+		next; 
+	}
+	if (! $$out_aref[$j] || $$out_aref[$j] !~ /\@\+FAUXV\:/) {
+		$$out_aref[$i] =~ s/\@\-FAUXV\:/P:/;
+		return 1;
+	}
+
+	# Format discontinuous constituents
+	if ($i != $j+1) {
+		my $group = "\@+FAUXV:g-";
+		splice(@$out_aref, $j,0, $group);
+		$i++;
+		$j++;
+		$group = "-P:g";
+		splice(@$out_aref, $i,0, $group);
+		$i++;
+	}
+	else {
+		my $group = "\@+FAUXV:g";
+		splice(@$out_aref, $j,0, $group);
+		$i++;
+		$j++;
+	}
+	# Mark the head as =H.
+	$$out_aref[$i] =~ s/\@\-FAUXV/=D:Vaux/;
+	$$out_aref[$j] =~ s/\@\+FAUXV/=D:Vaux/;
+
+	#print "** P $$out_aref[$j-1]\n";
+	#print "** Daux $$out_aref[$i]\n";
+
+	#local $, = "\n";
+	#print @$out_aref;
+	#print "\n\n";
+	return 1;
+
+}
+
 sub reformat_verbs {
 	my $out_aref = shift @_;
 
@@ -166,34 +219,40 @@ sub reformat_verbs {
 
 	my $j=$i;
 	# Read packwards until the main verb
-	while ($j>=0 && $$out_aref[$j] && ($$out_aref[$j] !~ /\@\+FMAINV\:/)) { 
+	while ($j>=0 && $$out_aref[$j] && ($$out_aref[$j] !~ /(\@\+FMAINV|\@\+FAUXV)\:/)) { 
 		#print "** searching $$out_aref[$j]**\n"; 
 		$j--; 
 		next; 
 	}
-	if (! $$out_aref[$j] || $$out_aref[$j] !~ /\@\+FMAINV\:/) {
+	if (! $$out_aref[$j] || $$out_aref[$j] !~ /(\@\+FMAINV|\@\+FAUXV)\:/) {
 		$$out_aref[$i] =~ s/\@\-FMAINV\:/P:/;
 		return 1;
 	}
 
-	# Format discontinuous constituents
-	if ($i != $j+1) {
-		my $group = "P:g-";
-		splice(@$out_aref, $j,0, $group);
-		$i++;
-		$j++;
-		$group = "-P:g";
-		splice(@$out_aref, $i,0, $group);
-		$i++;
-	}
-	else {
-		my $group = "P:g";
-		splice(@$out_aref, $j,0, $group);
-		$i++;
-		$j++;
+	# If there already is a verb group, just replace the tags
+	if ($$out_aref[$j] !~ /\@\+FAUXV\:g/) {
+
+		# Format discontinuous constituents
+		if ($i != $j+1) {
+			my $group = "P:g-";
+			splice(@$out_aref, $j,0, $group);
+			$i++;
+			$j++;
+			$group = "-P:g";
+			splice(@$out_aref, $i,0, $group);
+			$i++;
+		}
+		else {
+			my $group = "P:g";
+			splice(@$out_aref, $j,0, $group);
+			$i++;
+			$j++;
+		}
 	}
 	# Mark the head as =H.
 	$$out_aref[$j] =~ s/\@\+FMAINV/=D/;
+	$$out_aref[$j] =~ s/\@\+FAUXV:g/P:g/;
+	$$out_aref[$j] =~ s/\@\+FAUXV/=D:Vaux/;
 	$$out_aref[$i] =~ s/\@\-FMAINV/=H/;
 
 	#print "** P $$out_aref[$j-1]\n";
@@ -372,7 +431,8 @@ sub replace_tags {
 ###	$output =~ s/\@SUBJ/S:g\n=H:Num/g;   # Revise! This must be contextually used.
 	$output =~ s/\@SUBJ/S/g;
 	$output =~ s/\@X/X/g;
-##	$output =~ s/\@\+FAUXV/P:g\n=D:Vaux/g;  # --sh
+	$output =~ s/\@\+FAUXV:g/P:g/g;
+	$output =~ s/\@\+FAUXV/=D:Vaux/g; 
 	$output =~ s/\@\-FAUXV/=D:Vaux/g;
 	$output =~ s/\@\+FMAINV/P/g;       
 	$output =~ s/\@\-FMAINV/=H/g;       
