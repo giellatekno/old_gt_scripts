@@ -41,7 +41,7 @@ GetOptions ("help|h" => \$help,
 			"input|i=s" => \$input,
 			"document|d=s" => \$document,
 			"pl|p" => \$polderland,
-			"as|a" => \$applescript,
+			"mw|m" => \$applescript,
 			"version|v=s" => \$version,
 			"date|e=s" => \$date,
 			"ccat|c" => \$ccat,
@@ -65,7 +65,7 @@ else { read_typos(); }
 if(! @originals) { exit;}
 
 if ($polderland) { $input_type="pl"; read_polderland(); }
-elsif ($applescript) { $input_type="as"; read_applescript(); }
+elsif ($applescript) { $input_type="mw"; read_applescript(); }
 else { print STDERR "$0: Give the speller output type: --pl or --as\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
@@ -146,7 +146,7 @@ sub read_polderland {
 	else { confess "could not read $output: $line"; }
 
 	if (!$orig || $orig eq $line) { 
-		confess "Probably wrong format, start again with --as\n";
+		confess "Probably wrong format, start again with --mw\n";
 	}
 
 	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
@@ -466,9 +466,9 @@ Usage: speller-testres.pl [OPTIONS]
 --output=<file>   The speller output.
 -o <file>
 --pl             The speller output is in PLX-format.
--P
---as              The speller output is in AppleScript-format.
--A
+-p
+--mw              The speller output is in AppleScript-format.
+-m
 --xml=<file>      Print output in xml to file <file>.
 -x
 --forced          The speller was forced to make suggestions.
@@ -476,7 +476,7 @@ Usage: speller-testres.pl [OPTIONS]
 --version=<num>   Speller version information.
 -v <num>
 --date <date>     Date when the test was run, if not the output file timestamp.
--a
+-e
 END
 
 }
