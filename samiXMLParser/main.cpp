@@ -19,6 +19,9 @@ bool bPrintTitle = false;
 bool bPrintList = false;
 bool bPrintTable = false;
 bool bPrintCorr = false;
+bool bPrintOrtCorr = false;
+bool bPrintSyntCorr = false;
+bool bPrintLexCorr = false;
 bool bPrintTypos = false;
 bool bPrintSpeller = false;
 bool bAddID = false;
@@ -86,6 +89,18 @@ main (int argc, char *argv[])
         
         else if (strcmp(argv[i], "-C") == 0) {
             bPrintCorr = true;
+        }
+
+        else if (strcmp(argv[i], "-ort") == 0) {
+            bPrintOrtCorr = true;
+        }
+
+        else if (strcmp(argv[i], "-synt") == 0) {
+            bPrintSyntCorr = true;
+        }
+
+        else if (strcmp(argv[i], "-lex") == 0) {
+            bPrintLexCorr = true;
         }
 
         else if (strcmp(argv[i], "-typos") == 0) {
@@ -258,6 +273,7 @@ void ProcessTag (TagParser &parse)
 
 void ProcessCorrection (TagParser &parse)
 {
+	string type = parse.sGetValue("type");
     string corr = parse.sGetValue("correct");
     parse.GetNextToken();
     string err = parse.Value();
@@ -265,6 +281,12 @@ void ProcessCorrection (TagParser &parse)
     if (bPrintTypos)
         cout << err << "\t" << corr << endl;
     else if (bPrintCorr && corr != "") 
+        cout << corr << " ";
+    else if ((bPrintOrtCorr && type == "ort") && corr != "") 
+        cout << corr << " ";
+    else if ((bPrintSyntCorr && type == "synt") && corr != "") 
+        cout << corr << " ";
+    else if ((bPrintLexCorr && type == "lex") && corr != "") 
         cout << corr << " ";
     else
         cout << err << " ";
