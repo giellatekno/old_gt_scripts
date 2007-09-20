@@ -338,8 +338,11 @@ sub reformat_groups {
 		#print "** replaced $$out_aref[$k]\n";
 	}
 	# Mark the head as =H.
-	#print "** head $$out_aref[$j]\n";
-	$$out_aref[$j] =~ s/$tag/=H/;
+	#print "** head $$out_aref[$j] ***\n";
+	($embed = $tag) =~ s/^(\=+).*$/$1/;
+	if ($embed eq $tag) { $embed = "="; }
+	$$out_aref[$j] =~ s/$tag/H/;
+	$$out_aref[$j] =~ s/^(.*)$/$embed$1/;
 
 	# Sometimes the line may contain several tags,
 	# add an embedding to all of them.
