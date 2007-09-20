@@ -318,16 +318,16 @@ sub reformat_groups {
 	return 0 if (! $$out_aref[$j]);
 	
 	# Add the correct grouping tag.
-	(my $tag = $$out_aref[$j] ) =~ s/^(.*?)\:.*$/$1/;
+	(my $tag = $$out_aref[$j] ) =~ s/^(.*?)\:.*$/$1/s;
 	
 	# set this to return 1 when the right-pointing tags are found.
 	return 0 if (! $tag);
 	
-	##print "** tag $tag\n";
+	#print "** tag $tag ***\n";
 	my $group;
 	if ($groups{$tag}) { $group = $groups{$tag} . ":g"; }
 	else { $group = $tag . ":g"; } 
-	##print "** group $group\n";
+	#print "** group $group\n";
 	splice(@$out_aref, $i,0, $group);
 	$i++;
 	$j++;
@@ -335,13 +335,16 @@ sub reformat_groups {
 	# so that they are not considered next time the script is called.
 	for (my $k=$i; $k<$j; $k++) {
 		$$out_aref[$k] = replace_tags($$out_aref[$k]);
-		##print "** replaced $$out_aref[$k]\n";
+		#print "** replaced $$out_aref[$k]\n";
 	}
-		   
 	# Mark the head as =H.
-	## print "** head $$out_aref[$j]\n";
+	#print "** head $$out_aref[$j]\n";
 	$$out_aref[$j] =~ s/$tag/=H/;
-	
+
+	# Sometimes the line may contain several tags,
+	# add an embedding to all of them.
+	$$out_aref[$j] =~ s/(=+)(?=[^H])/$1=/g;
+
 	return 1;
 }
 
