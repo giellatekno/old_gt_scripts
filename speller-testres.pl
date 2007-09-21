@@ -269,16 +269,20 @@ sub read_typos {
 		if ($comment) {
 			$comment =~ s/\s*$//;
 			$comment =~ s/^\s*//;
-			if ($comment =~ m/^[\#\!]*\d+\s/) {
+			# IF BUG ID: either numbers only, or numbers followed by whitespace
+			if ($comment =~ m/^[\#\!]*\d+$/ || $comment =~ m/^[\#\!]*\d+\s/) {
 				my ($bugID, $restcomment) = split(/\s+/,$comment,2);
 				$bugID =~ s/^[\#\!]//;
 				$rec->{'bugID'} = $bugID;
 				#print STDERR $bugID.".";
 				$comment = $restcomment;
 			}
-			$comment =~ s/^[-\!\# ]*//;
-#			print STDERR $comment.".";
-			$rec->{'comment'} = $comment;
+			# If the comment was a bug ID only, there's no comment any more
+			if ($comment) {
+				$comment =~ s/^[-\!\# ]*//;
+#				print STDERR $comment.".";
+				$rec->{'comment'} = $comment;
+			}
 		}
 		push @originals, $rec;
 	}
