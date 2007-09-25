@@ -210,8 +210,6 @@ sub xml2words {
 		return Carp::longmess("Could not parse xml");
 	}
 	my $root=$twig->root;
-	if (!$root) {
-	}
 	my @words=$root->children;
 
 	for my $word (@words) {
@@ -339,7 +337,7 @@ sub gen2xml {
 		next if (! $form);
 		$form =~ s/^\s+//;
 		
-		($lemma, $analysis) = split(/\+/, $line, 2);
+		($lemma, $analysis) = split(/§/, $line, 2);
 
 		if (! $w) { $w=XML::Twig::Elt->new('w'); }
 		my $surface=XML::Twig::Elt->new('surface');
