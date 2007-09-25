@@ -121,7 +121,6 @@ my $client;
 			  
 			$input = $_;
 
-			
 			if (! $input) { next; }
 
 			# Find the action to be done with this input
@@ -328,6 +327,7 @@ sub generate_paradigm {
 			my $analysis = call_analyze($exp, $string);
 			chomp $analysis;
 			next if ($analysis =~ /\+\?/);
+			$output =~ s/$word+$a/$word§$a/;
 			$output .= $analysis;
 		}
 	}
