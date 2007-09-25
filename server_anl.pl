@@ -327,7 +327,8 @@ sub generate_paradigm {
 			my $analysis = call_analyze($exp, $string);
 			chomp $analysis;
 			next if ($analysis =~ /\+\?/);
-			$output =~ s/$word+$a/$word\x{00A7}$a/;
+			$output =~ s/$word\+$pos/$word\x{00A7}$pos/g;
+			print "OUTPUT $output\n";
 			$output .= $analysis;
 		}
 	}
