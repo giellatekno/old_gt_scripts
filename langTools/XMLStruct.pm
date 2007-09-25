@@ -337,7 +337,7 @@ sub gen2xml {
 		next if (! $form);
 		$form =~ s/^\s+//;
 		
-		($lemma, $analysis) = split(/\x{00A7}/, $line, 2);
+		($lemma, $analysis) = split(/§/, $line, 2);
 
 		if (! $w) { $w=XML::Twig::Elt->new('w'); }
 		my $surface=XML::Twig::Elt->new('surface');
