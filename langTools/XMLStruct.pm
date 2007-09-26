@@ -404,10 +404,10 @@ sub gen2html {
 		if($prev_analysis eq $analysis) {
 			$td=XML::Twig::Elt->new('td');
 			$td->set_text($form);
-			$td->paste('last_child', $tr);
+			if ($tr) { $td->paste('last_child', $tr); }
 			next;
 		}
-		if ($tr) { $tr->paste('last_child', $output); }
+		if ($tr) { $tr->paste('last_child', $output); $tr=undef; }
 
 		$tr=XML::Twig::Elt->new('tr');
 
