@@ -299,12 +299,10 @@ sub process_file {
 		} 
 		$document->set_pretty_print('indented');
 		$document->print( \*FH);
-		print "copying $tmp1 $int\n";
 		exec_com("cp \"$tmp1\" \"$tmp0\"", $file);
 
 		print_log($log_file, $file);
 		
-		return 0;
 	}
 	else { $error = 1; }
 	
@@ -318,6 +316,10 @@ sub process_file {
 		}
 		if (! $test) { remove_tmp_files($tmpdir, $file); }
 		return "ERROR";
+	}
+	elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) { 
+		copy ($tmp0, $int); 
+		return 0;
 	}
 
 	# end of line conversion.
