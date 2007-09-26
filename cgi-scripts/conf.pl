@@ -63,8 +63,8 @@ sub init_variables {
     my $gen_fst = "$fstdir/i$lang.fst";
     my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
-	my $phon fst = "$fstdir/phon-$lang.fst";
-	my $orth fst = "$fstdir/orth-$lang.fst";
+	my $phon_fst = "$fstdir/phon-$lang.fst";
+	my $orth_fst = "$fstdir/orth-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
     my $dis_rle = "$fstdir/$lang-dis.rle";
 
@@ -107,10 +107,10 @@ sub init_variables {
 	if ($action eq "hyphenate" && ! -f $hyph_fst) {
 		http_die '--no-alert','404 Not Found',"hyph-$lang.fst: Hyphenation is not supported";
 	}
-	if ($action eq "transcribe" && ! -f $hyph_fst) {
+	if ($action eq "transcribe" && ! -f $phon_fst) {
 		http_die '--no-alert','404 Not Found',"phon-$lang.fst: Phonetic representation is not supported";
 	}
-	if ($action eq "convert" && ! -f $hyph_fst) {
+	if ($action eq "convert" && ! -f $orth_fst) {
 		http_die '--no-alert','404 Not Found',"orth-$lang.fst: Orthographic representatoin is not supported";
 	}
 	if ($action eq "paradigm" && ! -f $gen_fst) {
@@ -130,6 +130,8 @@ sub init_variables {
     $generate = "tr ' ' '\n' | $gen_lookup";
     $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
     $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl";
+    $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
+    $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
 
     # File where the language is stored.
 	$langfile="$commondir/cgi-$plang.xml";
