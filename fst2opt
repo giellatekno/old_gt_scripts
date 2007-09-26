@@ -98,7 +98,7 @@ build_st() {
 
 	if [ "$host" == "victorio.uit.no" ]
 		then
-		for lang in "foe" "kal" "ipk" 
+		for lang in "fao" "kal" "ipk" 
 		  do
 
 		  fstdir=/opt/smi/$lang/bin/
