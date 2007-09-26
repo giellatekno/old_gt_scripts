@@ -26,12 +26,17 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 sub add_error_markup {
 	my ($twig, $para) = @_;
 
+	my %types = ("£" => "synt",
+				 "€" => "lex",
+				 "\$" => "ort");
+
+
 	my @new_content;
 	for my $c ($para->children) {
 		my $text = $c->text;
 		my $new_text;
 		my $nomatch = 0;
-		while ($text =~ /\x{00A7}/) {
+		while ($text =~ /[\x{00A7}\$€\x{00A3}]/) {
 			if ($text =~ m/^
 				(.*?         # match the text without corrections
 				\s?)
@@ -39,34 +44,37 @@ sub add_error_markup {
 				\(.*\) |         # string before separator with parentheses
 				[^\s]*?           # string before the error-correction separator withoug parentheses
 				)
-				\x{00A7}           # separator
+		        ([\x{00A7}\$€\x{00A3}])  # separator: either §, $,€ or £
 				(                  # either
 				\(.*?\)|         # string after separator, possible parentheses or
 			    [^\s]*?([\s\n]+)   # string after separator, no parentheses
 				)
 				(.*)           # rest of the string.
-				$/xm ) {
+				$/xs ) {
 
 				my $start = $1;
 				my $error = $2;
-				my $correct = $3;
+				my $separator = $3;
+				#print STDERR "JEE $separator\nERROR $error\nCORRECT $4\n";
+				my $correct = $4;
 				$error =~ s/\s$//g;
-				my $space = $4;
-				my $rest = $5;
-				
+				my $space = $5;
+				my $rest = $6;
+
 				(my $corr = $correct) =~ s/\s?$//;
 				$error =~ s/[\(\)]//g;
 				$corr =~ s/[\(\)]//g;
 				push (@new_content, $start);
 
 				my $error_elt = XML::Twig::Elt->new(error=>{correct=>$corr}, $error);
+                if ($types{$separator}) { $error_elt->set_att('type', $types{$separator}); }
 				push (@new_content, $error_elt);
 
 				# Add space back to the string.
 				if ($space) { $rest = $space . $rest; }
 
 				# If there is no more text or error marking process next element.
-				if (! $rest || $rest !~ /\x{00A7}/) {
+				if (! $rest || $rest !~ /[\x{00A7}\$€\x{00A3}]/) {
 					push (@new_content, $rest);
 					last;
 				}
@@ -74,12 +82,12 @@ sub add_error_markup {
 			} else { 
 				print "Did not match: $text\n"; 
 				push(@new_content, $text); 
+				$text="";
 				last;
 			}
 		}
 	}
 	$para->set_content(@new_content);
-
 }
 
 # Clean the output of an extracted pdf-file
