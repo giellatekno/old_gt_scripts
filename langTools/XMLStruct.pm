@@ -382,14 +382,6 @@ sub gen2html {
 
 	my $prev_analysis="";
 	for my $out (@input) {
-		if ($out =~ /^\s*$/) {
-			if ($tr) {
-				$tr->paste('last_child', $output);
-				$tr->DESTROY;
-				undef $tr;
-			}
-			next;
-		}
 		chomp $out;
 		
 		my ($line, $form) = split(/\t/, $out, 2);
@@ -407,7 +399,10 @@ sub gen2html {
 			if ($tr) { $td->paste('last_child', $tr); }
 			next;
 		}
-		if ($tr) { $tr->paste('last_child', $output); $tr=undef; }
+		if ($tr) { 
+			$tr->paste('last_child', $output); 
+			undef $tr;
+		}
 
 		$tr=XML::Twig::Elt->new('tr');
 
