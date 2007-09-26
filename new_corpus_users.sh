@@ -13,7 +13,8 @@ cvs co xtdoc gt words st kt; \
 ln -s /home/$1/words/doc xtdoc/sd/src/documentation/content/xdocs/wordsdoc; \
 ln -s /home/$1/gt/doc xtdoc/sd/src/documentation/content/xdocs/.; \
 ln -s /home/$1/gt/doc xtdoc/gtuit/src/documentation/content/xdocs/.;\
-ln -s /home/$1/st/foe/doc xtdoc/gtuit/src/documentation/content/xdocs/foedoc;\
+ln -s /home/$1/st/fao/doc xtdoc/gtuit/src/documentation/content/xdocs/faodoc;\
 ln -s /home/$1/st/kal/doc xtdoc/gtuit/src/documentation/content/xdocs/kaldoc;\
+ln -s /home/$1/st/ipk/doc xtdoc/gtuit/src/documentation/content/xdocs/ipkdoc;\
 ln -s /home/$1/kt/kom/doc xtdoc/gtuit/src/documentation/content/xdocs/komdoc;\
 ln -s /home/$1/words xtdoc/gtuit/src/documentation/content/xdocs/."
