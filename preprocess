@@ -351,6 +351,14 @@ sub process_word {
 				  last TEST;
 			  }
 		  }
+		  # If an abbreviation like b.
+		  elsif ($abbr =~ /^\p{Ll}$/){
+			  push (@{$tokens_aref}, $word); 
+			  if ($words_aref->[0] !~ /^[\p{Ll}]/o ) {
+				  push (@{$tokens_aref}, ".");
+			  }
+			  last TEST;
+		  }
 	  }
 	  # Cut the word into tokens if there is punctuation in the middle.
 	  # e.g. gielddat/guovllut
@@ -647,7 +655,6 @@ sub process_numeral {
 		if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)/o ) {
 
 			verbose ("process_numeral/inflected", $word, __LINE__);
-
 			if ( $num{$3} ) { last SPLIT_NUMERAL; }
 			if (! $2 ) { 
 				push (@$tokens_aref, $1);
@@ -662,9 +669,11 @@ sub process_numeral {
 		# mispellings with headings, like 1.6.Vuonain 
 		if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) { 
 			$word =~ s/([^\W\d]+\.?)$//;
-			verbose ("process_numeral/end_word", $end_word, __LINE__);
+			verbose ("process_numeral/end_word", $1, __LINE__);
 			process_numeral($word, $words_aref, $tokens_aref);
-			$end_word = $1;
+			my $new_word = $1 . $end_punct;
+			unshift (@$words_aref, $new_word);
+			return;
 		}
 	} # end of SPLIT_NUMERAL
 	
@@ -681,13 +690,24 @@ sub process_numeral {
 		# Process first the abbreviation or word 
 		# that is attached to the numeral
 		if ($end_word) {
-			verbose ("process_numeral/test_abbr", $word, __LINE__);
+			verbose ("process_numeral/test_abbr", $end_word, __LINE__);
 			my $abbr = $end_word;
 			if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
+				verbose ("process_numeral/test_abbr", $abbr, __LINE__);
 				test_abbr($end_word, $words_aref->[0], $tokens_aref);
 				last NUM_TEST;
 			}
-			else { 
+			# Case with 3.b.
+			#elsif ( $end_word =~ /^\p{Lc}\.$/) {
+			#	verbose ("process_numeral/test_abbr", $abbr, __LINE__);
+			#	push (@{$tokens_aref}, $end_word);
+			#	if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
+			#		push (@{$tokens_aref}, ".");
+			#	}
+			#	last NUM_TEST;
+			#}
+			else {
+				verbose ("process_numeral/test_abbr", $abbr, __LINE__);
 				process_word ($end_word, $words_aref, $tokens_aref);
 				last NUM_TEST;
 			}
@@ -696,8 +716,18 @@ sub process_numeral {
 	  DOT_TEST: {
 		  last DOT_TEST if ($word !~ /\.$/);
 		  (my $nopunct = $word) =~ s/\.$//;
+		  # Try to spot dates and other experssions 31.10.
+		  # preserve ending dot and and find sentence boundary
+		  #if ($word =~ /^(\d{1,2}\.){2,}$/) {
+		 #		verbose ("process_numeral/test_date", $word, __LINE__);
+		 #	  if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
+		 #		  $end_punct = "." . $end_punct;
+		 #	  }
+		 #	  last DOT_TEST;
+		 # }
+
 		  # If the number contains other than digits or is a year,
-		  # Then the ending dot is removed.
+		  # and the next word does not start uppercase Then the ending dot is removed.
 		  if($nopunct =~ /[§\d\pP\pL]/ && ($words_aref->[0] !~ /^[\p{Ll}\d]/o)){
 			  $word = $nopunct;
 		  }
