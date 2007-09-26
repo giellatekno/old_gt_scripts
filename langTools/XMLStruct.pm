@@ -379,6 +379,7 @@ sub gen2html {
 	}
 
 	my @input=split(/\n/, $text);
+#	my $prev_analysis="";
 	for my $out (@input) {
 		if ($out =~ /^\s*$/) {
 			if ($tr) {
@@ -399,12 +400,12 @@ sub gen2html {
 		# There may be more than one form for an analysis
 		# to separate different paradigms,
 		# try to group them.
-		if($prev_analysis eq $analysis) {
-			$td=XML::Twig::Elt->new('td');
-			$td->set_text($form);
-			$td->paste('last_child', $tr);
-			next;
-		}
+#		if($prev_analysis eq $analysis) {
+#			$td=XML::Twig::Elt->new('td');
+#			$td->set_text($form);
+#			$td->paste('last_child', $tr);
+#			next;
+#		}
 		if ($tr) { 
 			$td=XML::Twig::Elt->new('td');
 			$td->set_text($form);
@@ -425,7 +426,7 @@ sub gen2html {
 		$td->set_text($form);
 		$td->paste('last_child', $tr);
 
-		$prev_analysis = $analysis;
+#		$prev_analysis = $analysis;
 	}
 	if ($tr) { $tr->paste('last_child', $output); }
 
