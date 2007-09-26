@@ -48,7 +48,7 @@ require "conf.pl";
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,%avail_pos, %lang_actions);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -127,7 +127,7 @@ if(! $xml_out) {
 
 # Process input XML
 if ($xml_in) {
-	if ($action eq "analyze" || $action eq "disamb" || $action eq "hyphenate") {
+	if ($action eq "analyze" || $action eq "disamb" || $action eq "hyphenate" || $action eq "transcribe" || $action eq "convert" ) {
 		$text = xml2preprocess($text);
 	}
 	if ($action eq "generate" || $action eq "paradigm") { $text = xml2words($text); }
@@ -175,6 +175,8 @@ elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answe
 elsif ($action eq "disamb") { $result = `echo $text | $disamb`; }
 elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
+elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
+elsif ($action eq "convert") { $result = `echo $text | $convert`; }
 else { 
 if (!$xml_out)  { print "<p>No action given</p>"; }
 else { print "<error>No parameter for action recieved</error>"; }
@@ -192,6 +194,8 @@ if (! $xml_out) {
     }
 	elsif ($action eq "generate") { $output = gen2html($result,0,1);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
+	elsif ($action eq "transcribe") { $output = hyph2html($result,1); }
+	elsif ($action eq "convert") { $output = hyph2html($result,1); }
 
     # PARADIGM OUTPUT
     elsif ($action eq "paradigm") {
@@ -261,6 +265,8 @@ else {
 	if ($result =~ s/ERROR//) { print "<error>$result</error>"; }
 	elsif ($action eq "generate" || $action =~ /paradigm/) { $output = gen2xml($result);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
+	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
+	elsif ($action eq "convert") { $output = hyph2xml($result); }
 	else { $output = dis2xml($result); }
 print $output;
 }
@@ -486,7 +492,7 @@ sub printinitialhtmlcodes {
 	my ($tool,$texts,$body) = @_;
 
 	my $tmp_tool = $tool;
-	if ($tool =~ /hyphenate|disamb/) { $tmp_tool = "analyze"; }
+	if ($tool =~ /hyphenate|transcribe|convert|disamb/) { $tmp_tool = "analyze"; }
 	print FH "TOOL $tool $tmp_tool\n";
 
 	# Read the texts from the XML-file.
@@ -602,7 +608,7 @@ sub printinitialhtmlcodes {
 
 	} # end of GENERATOR
 
-	##### analyze/hyphenate/disambiguate
+	##### analyze/hyphenate/transcribe/convert/disambiguate
 	else {
 		# Get the texts for selection menu
 		my %labels;
@@ -615,6 +621,12 @@ sub printinitialhtmlcodes {
 		}
 		if ($lang_actions{hyphenate}) {
 			$labels{hyphenate} = $selection->first_child_text('@tool="hyphenate"');
+		} 
+		if ($lang_actions{transcribe}) {
+			$labels{transcribe} = $selection->first_child_text('@tool="transcribe"');
+		} 
+		if ($lang_actions{convert}) {
+			$labels{convert} = $selection->first_child_text('@tool="convert"');
 		} 
 
 		my $tr = XML::Twig::Elt->new("tr");
@@ -647,7 +659,7 @@ sub printinitialhtmlcodes {
 		$td->paste('last_child', $tr);
 		$tr->paste('last_child', $table);
 			
-		} # end of analyze/hyphenate/disambiguate
+		} # end of analyze/hyphenate/transcribe/convert/disambiguate
 
 	# Submit and reset texts
 	my $submit_text = $texts->first_child_text("input[\@type='submit']");

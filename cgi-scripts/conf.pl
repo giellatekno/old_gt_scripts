@@ -63,12 +63,16 @@ sub init_variables {
     my $gen_fst = "$fstdir/i$lang.fst";
     my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
+	my $phon fst = "$fstdir/phon-$lang.fst";
+	my $orth fst = "$fstdir/orth-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
     my $dis_rle = "$fstdir/$lang-dis.rle";
 
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
+	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
+	if (-f $orth_fst) { $lang_actions{convert} = 1; }
 
     # Files to generate paradigm
 	# Search first the language-specific paradigms, otherwise use
@@ -102,6 +106,12 @@ sub init_variables {
 	}
 	if ($action eq "hyphenate" && ! -f $hyph_fst) {
 		http_die '--no-alert','404 Not Found',"hyph-$lang.fst: Hyphenation is not supported";
+	}
+	if ($action eq "transcribe" && ! -f $hyph_fst) {
+		http_die '--no-alert','404 Not Found',"phon-$lang.fst: Phonetic representation is not supported";
+	}
+	if ($action eq "convert" && ! -f $hyph_fst) {
+		http_die '--no-alert','404 Not Found',"orth-$lang.fst: Orthographic representatoin is not supported";
 	}
 	if ($action eq "paradigm" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
