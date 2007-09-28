@@ -288,7 +288,7 @@ sub format_rp_modifiers {
 	(my $pos = $modifier ) =~ s/^\@[DG]?(.*?)>\:.*$/$1/s;
 
 	my $out = shift @$out_aref;
-	while ($out && ($out =~ /^$tag\:/ || $out !~ /^.*?\:$pos/ || $out !~ /^[\(\)\.\:\!\?\-]/)) { 
+	while ($out && ($out =~ /^$tag\:/ || $out !~ /^.*?\:$pos/ || $out =~ /^[\(\)\.\:\!\?\-]/)) { 
 		push (@tmp_array, $out);
 		$out = shift @$out_aref;
 	}
