@@ -13,6 +13,9 @@ use strict;
 # usage of utf8 in the perl-code
 use utf8;
 
+# Trees are build
+use Tree::Simple;
+
 # These definitions ensure that the script works 
 # also in environments, where PERL_UNICODE is not set.
 binmode( STDIN, ':utf8' );
@@ -24,14 +27,7 @@ use open 'utf8';
 my $wordform;
 my $num;
 my $sentence;
-my $embed="";
 my @output;
-
-my %groups = (
-			  "\@SUBJ" => "S",
-			  "\@ADVL" => "A",
-			  "\@OBJ" => "O",
-			  );
 
 while (<>) {
 	
@@ -71,46 +67,23 @@ while (<>) {
 			print "SME$num$sentence\n";
 			print "A1\n";
 
-			# What kind of reformatting is done:
-			my $coord = 1;
-			my $modifiers = 1;
-			my $verbs = 1;
-			my $aux = 1;
-			
-			# Detect coordintated structures
-			# again, not recursive, perhaps should be.
-			while ($coord) { $coord = reformat_coordination(\@output); }
+			my $tree = Tree::Simple->new("0", Tree::Simple->ROOT);
+			build_tree(\@output, $tree);
 
-			# Detect modifiers and heads (only right pointing at the moment)
-			# This should be recursive, but for the time being, it is not.
-			while ($modifiers) { $modifiers = reformat_groups(\@output); }
-
-			while ($aux) { $aux = reformat_aux(\@output); }
-
-			while ($verbs) { $verbs = reformat_verbs(\@output); }
-			
-			# Then change symbols, and replace directed symbols 
-			# (@N> etc.) with undirected =D.
+			# Then change symbols
 			my @new_output;
 
-			my $prev;
-			my $i=0;
-			for my $out (@output) { 
-				my $output_str .= replace_tags($out);
-				push (@new_output, $output_str);
-			}
-			local $, = "\n";
-			#print @new_output;
-			# Fix sentence initial D's
-			#my $result = sentence_initial_d(\@new_output);
-			#if (! $result) { print STDERR "Sentence initial D, but no reformatting.\n"; }
+			$tree->traverse(sub {
+				my ($_tree) = @_;
+				my $value = $_tree->getNodeValue();
+				my $new_value = replace_tags($value); 
+				#my $new_value = $_tree->getNodeValue();
+				print (("=" x $_tree->getDepth()), $new_value, "\n");
+			});
 
-			print @new_output;
-			print "\n";
 			@output = undef;
 			pop @output;
 			$sentence ="";
-			$embed = "";
 		}
 	}
 	# Format the analysis line
@@ -130,14 +103,7 @@ while (<>) {
 		else { $secondary =""; }
 		
 		# Check if there is an object embedded clause @CVP
-		if ($syn) {
-			if ($syn eq '@CVP') { 
-				my $str = $embed . "Od:cl";
-				push (@output, $str);
-				$embed .= "="; 
-			}
-			$anl_line = $embed . $syn;
-		}
+		if ($syn) { $anl_line = $syn; }
 		$syn = "";
 		
 		# Add POS-tag
@@ -159,234 +125,300 @@ while (<>) {
     }
 }
 
-sub reformat_aux {
-	my $out_aref = shift @_;
-
-	my $i=0;
-	# Read until the -FAUXV tag.
-	while ($$out_aref[$i] && $$out_aref[$i] !~ /\@\-FAUXV\:/) { $i++; next; }
-	return 0 if (! $$out_aref[$i] || $$out_aref[$i] !~ /\@\-FAUXV/ );
-
-	my $j=$i;
-	# Read packwards until the main aux
-	while ($j>=0 && $$out_aref[$j] && ($$out_aref[$j] !~ /\@\+FAUXV\:/)) { 
-		#print "** searching $$out_aref[$j]**\n"; 
-		$j--; 
-		next; 
+# Main function for building a tree out of a sentence
+sub build_tree {
+	my ($out_aref, $tree) = @_;
+	
+	while (my $out = shift @$out_aref) {
+		# Detect modifiers and heads (only right pointing at the moment)
+		# This should be recursive, but for the time being, it is not.
+		if ( $out =~ /^\=*\@.*?\>\:/) {
+			format_rp_modifiers($out, $out_aref, $tree);
+			next;
+		}
+		elsif ( $out =~ /^\=*\@.*?\<\:/) {
+		    format_lp_modifiers($out, $out_aref, $tree);
+            next;
+		}
+	    elsif ($out =~ /\@CVP:/) { 
+			# Create a node for the embedded clause
+            if ($out =~ /CS/) {
+			     my $ecl = Tree::Simple->new('Od:cl', $tree);
+			     $tree=$ecl;
+            }
+            else { $tree->addChild(Tree::Simple->new($out)); }
+			next;
+        }
+		# Detect coordinated structures
+		elsif ( $out =~ /\@CNP\:/) {
+			format_coordination($out, $out_aref, $tree);
+            next;
+		}				
+		elsif ($out =~ /\@\+FAUXV\:/) {
+			format_auxiliary($out, $out_aref, $tree);
+            next;
+        }
+		else { $tree->addChild(Tree::Simple->new($out)); }
 	}
-	if (! $$out_aref[$j] || $$out_aref[$j] !~ /\@\+FAUXV\:/) {
-		$$out_aref[$i] =~ s/\@\-FAUXV\:/P:/;
-		return 1;
+}
+
+sub format_coordination {
+	my ($coord, $out_aref, $subtree) = @_;
+
+	my $c_aref = $subtree->getAllChildren;
+	my $index = scalar @$c_aref;
+	if ($index == 0) {return 0;}
+	my $left_coord = $$c_aref[$index-1];
+	if (! $left_coord) { print "$index\n"; }
+	my $left_value = $left_coord->getNodeValue();
+
+	(my $prev_tag = $left_value) =~ s/^(.*?)\:.*$/$1/;
+
+	# Search for the same syntactic tag as in the left coordinator
+	my @tmp_array;
+	my $out = shift @$out_aref;
+	my $quoted = quotemeta $prev_tag;
+	while ($out && $out !~ /$quoted/) { 
+		push (@tmp_array, $out);
+		$out = shift @$out_aref;
+	}
+	if (! $out || $out !~ $quoted) { unshift(@$out_aref, @tmp_array); return 0; }
+	push (@tmp_array, $out);
+
+	my $group = $prev_tag . ":par";
+
+	$subtree->removeChild ($index-1);
+
+	$left_value =~ s/$quoted/CJT/;
+	$left_coord->setNodeValue($left_value);
+
+	# Create a node for the coordinated constituent
+	my $par = Tree::Simple->new($group, $subtree);
+	$par->addChild($left_coord);
+	my $cnp = Tree::Simple->new($coord, $par);
+
+	# Create the right coordinator.
+	build_tree(\@tmp_array, $par);
+
+	my $p_aref = $par->getAllChildren;
+	my $ind = scalar @$p_aref;
+	my $right_coord = $$p_aref[$ind-1];
+	my $right_value = $right_coord->getNodeValue();
+	$right_value =~ s/$quoted/CJT/;
+	$right_coord->setNodeValue($right_value);
+	#$par->addChild($right_coord);
+
+}
+
+sub format_lp_modifiers {
+	my ($modifier, $out_aref, $subtree, $constituent) = @_;
+
+	my @tmp_array;
+
+	#print "OUT *** @$out_aref **\n";
+	# If the right pointing tag is a constituent and not a string.
+	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
+
+	# Read until all the modifiers are taken.
+	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
+	(my $pos = $modifier ) =~ s/^\@[DG]?(.*?)[><]\:.*$/$1/s;
+	
+	my $out = shift @$out_aref;
+	while ($out && $out =~ /^$tag\:/) {
+		push (@tmp_array, $out);
+		$out = shift @$out_aref;
+	}
+	if ($out && $out !~ /^$tag\:/) { unshift (@$out_aref, $out);  }
+
+	my $left = get_last_child($subtree);
+	if ($left == 0) { $subtree->addChild(Tree::Simple->new($modifier)); return 0; }
+	my $left_value = $left->getNodeValue();
+
+	# If the first constituent to the left was not the correct pos
+	# Put everything back and return.
+	if ($left_value !~ /^.*?\:$pos/) { 
+		$subtree->addChild($left);
+		$subtree->addChild(Tree::Simple->new($modifier));
+		return 0; 
+	}
+	# Create a node for the complex constituent
+	(my $htag = $left_value ) =~ s/^(.*?)\:.*$/$1/s;
+	my $group = $htag . ":g";
+	my $dp = Tree::Simple->new($group);
+
+	# create a phrase
+	$left_value =~ s/$htag/H/;
+	$left->setNodeValue($left_value);
+	$dp->addChild($left);
+
+	if (! $constituent) { $dp->addChild(Tree::Simple->new($modifier)); }
+	else { $dp->addChild($constituent); }
+	for my $tmp (@tmp_array) {
+		$dp->addChild(Tree::Simple->new($tmp));
+	}
+	$subtree->addChild($dp); 	
+}
+
+sub get_last_child {
+	my $tree = shift @_;
+
+	my $c_aref = $tree->getAllChildren;
+	my $index = scalar @$c_aref;
+	if ($index == 0) { return 0; }
+	my $left_coord = $$c_aref[$index-1];
+	if (! $left_coord) { return 0; }
+
+	$tree->removeChild ($index-1);
+
+	return $left_coord;
+	
+}
+
+sub format_rp_modifiers {
+	my ($modifier, $out_aref, $subtree, $constituent) = @_;
+	
+	my @tmp_array;
+
+	#print "OUT *** @$out_aref **\n";
+	# If the right pointing tag is a constituent and not a string.
+	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
+
+	# Read until the head is found
+	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
+	(my $pos = $modifier ) =~ s/^\@[DG]?(.*?)>\:.*$/$1/s;
+
+	my $out = shift @$out_aref;
+	while ($out && ($out =~ /^$tag\:/ || $out !~ /^.*?\:$pos/ || $out =~ /^[\(\)\.\:\!\?]/)) { 
+		push (@tmp_array, $out);
+		$out = shift @$out_aref;
+	}
+	if (! $out) { $subtree->addChild(Tree::Simple->new($modifier)); return 0;}
+
+
+	# Create a node for the complex constituent
+	(my $htag = $out ) =~ s/^(.*?)\:.*$/$1/s;
+	my $group = $htag . ":g";
+	my $dp = Tree::Simple->new($group);
+
+	# create a phrase
+	if (! $constituent) { $dp->addChild(Tree::Simple->new($modifier)); }
+	else { $dp->addChild($constituent); }
+	while (@tmp_array) {
+		my $tmp =  shift @tmp_array;
+		last if ! $tmp;
+		# Format left-pointing modifiers
+		if ($tmp =~ /<\:/) { format_lp_modifiers($tmp, \@tmp_array, $dp); }
+		elsif ( $tmp =~ /\@CNP\:/) { format_coordination($tmp, \@tmp_array, $dp); }
+		else { $dp->addChild(Tree::Simple->new($tmp)); }
+	}
+#	$dp->traverse(sub {
+#		my ($_tree) = @_;
+		#my $value = $_tree->getNodeValue();
+		#my $new_value = replace_tags($value); 
+#		my $new_value = $_tree->getNodeValue();
+#		print (("     =" x $_tree->getDepth()), $new_value, "\n");
+#	});
+
+	if ($htag =~ />/) {
+		format_rp_modifiers (0, $out_aref, $subtree, $dp);
+		$out =~ s/$htag/H/;
+	    $dp->addChild(Tree::Simple->new($out));
+	}
+	elsif ($htag =~ /</) {
+        print "TÄÄLLÄ\n";
+		format_lp_modifiers (0, $out_aref, $subtree, $dp);
+		$out =~ s/$htag/H/;
+	    $dp->addChild(Tree::Simple->new($out));
+	}
+	else { 
+	    $out =~ s/$htag/H/;
+	    $dp->addChild(Tree::Simple->new($out));
+        $subtree->addChild($dp); 
+    }
+}
+
+sub format_auxiliary {
+	my ($aux, $out_aref, $subtree) = @_;
+
+	# Search for the same syntactic tag as in the left coordinator
+	my @tmp_array;
+	my @tmp_array2;
+	my $out2;
+	my $out = shift @$out_aref;
+	while ($out && ($out !~ /\@\-FAUXV/ && $out !~ /\@\-FMAINV/ )) { 
+		push (@tmp_array, $out);
+		$out = shift @$out_aref;
+	}
+	if (! $out) { 
+		unshift(@$out_aref, @tmp_array); 
+		$subtree->addChild(Tree::Simple->new($aux));
+		return;
+	}
+	#print "OUT $out\n";
+
+	$aux =~ s/\@\+FAUXV/D:Vaux/;
+	$out =~ s/\@\-FMAINV/H/;
+	$out =~ s/\@\-FAUXV/D:Vaux/;
+
+	# If the predicate was not discontinuous
+	# Create a group node and return.
+	if (! @tmp_array && $out =~ /H/) {
+		my $group = "P:g";
+		my $p = Tree::Simple->new($group, $subtree);
+		$p->addChild(Tree::Simple->new($aux));
+		$p->addChild(Tree::Simple->new($out));
+		return;
+	}
+	# Search for main verb if it was not already found.
+	if ($out =~ /Vaux/) {
+		$out2 = shift @$out_aref;
+		while ($out2 && ($out2 !~ /\@\-FMAINV/ )) {
+			push (@tmp_array2, $out2);
+			$out2 = shift @$out_aref;
+		}
+		if (! $out2) { 
+			unshift(@$out_aref, @tmp_array2); 
+			$subtree->addChild(Tree::Simple->new($out));
+			return;
+		}
+		$out2 =~ s/\@\-FMAINV/H/;
 	}
 
-	# Format discontinuous constituents
-	if ($i != $j+1) {
-		my $group = "\@+FAUXV:g-";
-		splice(@$out_aref, $j,0, $group);
-		$i++;
-		$j++;
+	# If everything is grouped:
+	if (! @tmp_array && ! @tmp_array2) {
+		my $group = "P:g";
+		my $p = Tree::Simple->new($group, $subtree);
+		$p->addChild(Tree::Simple->new($aux));
+		$p->addChild(Tree::Simple->new($out));
+		$p->addChild(Tree::Simple->new($out2));
+		return;
+	}
+	# If the auxiliaries were discontinuous
+	# Create a node for the continuing predicate
+	my $group = "P:g-";
+	my $p = Tree::Simple->new($group, $subtree);
+	
+	$p->addChild(Tree::Simple->new($aux));
+	
+	# Create the constituents in the middle of the discontinuous constituents
+	if (@tmp_array) {
+		build_tree(\@tmp_array, $subtree); 
 		$group = "-P:g";
-		splice(@$out_aref, $i,0, $group);
-		$i++;
+		$p = Tree::Simple->new($group, $subtree);
 	}
-	else {
-		my $group = "\@+FAUXV:g";
-		splice(@$out_aref, $j,0, $group);
-		$i++;
-		$j++;
-	}
-	# Mark the head as =H.
-	$$out_aref[$i] =~ s/\@\-FAUXV/=D:Vaux/;
-	$$out_aref[$j] =~ s/\@\+FAUXV/=D:Vaux/;
+	$p->addChild(Tree::Simple->new($out));
 
-	#print "** P $$out_aref[$j-1]\n";
-	#print "** Daux $$out_aref[$i]\n";
-
-	#local $, = "\n";
-	#print @$out_aref;
-	#print "\n\n";
-	return 1;
-
-}
-
-sub reformat_verbs {
-	my $out_aref = shift @_;
-
-	my $i=0;
-	# Read until the -FMAINV tag.
-	while ($$out_aref[$i] && $$out_aref[$i] !~ /\@\-FMAINV\:/) { $i++; next; }
-	return 0 if (! $$out_aref[$i] || $$out_aref[$i] !~ /\@\-FMAINV/ );
-
-	my $j=$i;
-	# Read packwards until the main verb
-	while ($j>=0 && $$out_aref[$j] && ($$out_aref[$j] !~ /(\@\+FMAINV|\@\+FAUXV)\:/)) { 
-		#print "** searching $$out_aref[$j]**\n"; 
-		$j--; 
-		next; 
-	}
-	if (! $$out_aref[$j] || $$out_aref[$j] !~ /(\@\+FMAINV|\@\+FAUXV)\:/) {
-		$$out_aref[$i] =~ s/\@\-FMAINV\:/P:/;
-		return 1;
-	}
-
-	# If there already is a verb group, just replace the tags
-	if ($$out_aref[$j] !~ /\@\+FAUXV\:g/) {
-
-		# Format discontinuous constituents
-		if ($i != $j+1) {
-			my $group = "P:g-";
-			splice(@$out_aref, $j,0, $group);
-			$i++;
-			$j++;
+	if ($out2) {
+		# Create a node for the continuing predicate	
+		if (@tmp_array2) {
+			build_tree(\@tmp_array2, $subtree); 
 			$group = "-P:g";
-			splice(@$out_aref, $i,0, $group);
-			$i++;
+			$p = Tree::Simple->new($group, $subtree);
 		}
-		else {
-			my $group = "P:g";
-			splice(@$out_aref, $j,0, $group);
-			$i++;
-			$j++;
-		}
+		$p->addChild(Tree::Simple->new($out2));		
 	}
-	# Mark the head as =H.
-	$$out_aref[$j] =~ s/\@\+FMAINV/=D/;
-	$$out_aref[$j] =~ s/\@\+FAUXV:g/P:g/;
-	$$out_aref[$j] =~ s/\@\+FAUXV/=D:Vaux/;
-	$$out_aref[$i] =~ s/\@\-FMAINV/=H/;
-
-	#print "** P $$out_aref[$j-1]\n";
-	#print "** head $$out_aref[$j]\n";
-
-	return 1;
 }
 
-sub reformat_coordination {
-	my $out_aref = shift @_;
-
-	my $i=0;
-	# Read until a coordination tag is found.
-	while ($$out_aref[$i] && $$out_aref[$i] !~ /\@CNP\:/) { $i++; next; }
-	return 0 if (! $$out_aref[$i]);
-
-	(my $prev_tag = $$out_aref[$i-1] ) =~ s/^(.*?)\:.*$/$1/;
-	(my $next_tag = $$out_aref[$i+1] ) =~ s/^(.*?)\:.*$/$1/;
-
-	if ($prev_tag eq $next_tag) {
-
-		#print "** tag $prev_tag\n";
-		my $group;
-		if ($groups{$prev_tag}) { $group = $groups{$prev_tag} . ":par"; }
-		else { $group = $prev_tag . ":par"; }
-
-		#print "** group $group\n";
-		splice(@$out_aref, $i-1,0, $group);
-		$i++;
-		$$out_aref[$i-1] =~ s/$prev_tag/=CJT/;
-		$$out_aref[$i+1] =~ s/$prev_tag/=CJT/;
-		$$out_aref[$i] =~ s/^.*?\:/=CO:/;
-
-		# collapse the coordinated constituents into one line.
-		$$out_aref[$i-2] .= "\n$$out_aref[$i-1]\n$$out_aref[$i]\n$$out_aref[$i+1]";
-		splice(@$out_aref, $i-1,3);
-		#print "*** OUT_AREF $$out_aref[$i-2] ***\n";
-		return 1;
-	}
-	else { $$out_aref[$i] =~ s/^.*?\:/=CO:/; }
-	# change this to return 0 until there are enought tests.
-	return 1;
-}
-
-sub reformat_groups {
-	my $out_aref = shift @_;
-	
-	my $i=0;
-	# Read until a right-pointing tag is found.
-	while ($$out_aref[$i] && $$out_aref[$i] !~ /^\=*\@.*?>\:/) { 
-		#print "** skipping $$out_aref[$i]**\n"; 
-		$i++; 
-		next; 
-	}
-	return 0 if (! $$out_aref[$i] || $$out_aref[$i] !~ />\:/ );	
-	my $j=$i;
-	# Read until there is a first analysis without right pointing tag.
-	while ($$out_aref[$j] && ($$out_aref[$j] =~ /^\=*\@.*?>\:/ || $$out_aref[$j] =~ /^[\(\)\.\:\!\?]/)) { 
-		#print "** searching $$out_aref[$j]**\n"; 
-		$j++; 
-		next; 
-	}
-	return 0 if (! $$out_aref[$j]);
-	
-	# Add the correct grouping tag.
-	(my $tag = $$out_aref[$j] ) =~ s/^(.*?)\:.*$/$1/s;
-	
-	# set this to return 1 when the right-pointing tags are found.
-	return 0 if (! $tag);
-	
-	#print "** tag $tag ***\n";
-	my $group;
-	if ($groups{$tag}) { $group = $groups{$tag} . ":g"; }
-	else { $group = $tag . ":g"; } 
-	#print "** group $group\n";
-	splice(@$out_aref, $i,0, $group);
-	$i++;
-	$j++;
-	# Replace the tags that point to the right.
-	# so that they are not considered next time the script is called.
-	for (my $k=$i; $k<$j; $k++) {
-		$$out_aref[$k] = replace_tags($$out_aref[$k]);
-		#print "** replaced $$out_aref[$k]\n";
-	}
-	# Mark the head as =H.
-	#print "** head $$out_aref[$j] ***\n";
-	($embed = $tag) =~ s/^(\=+).*$/$1/;
-	if ($embed eq $tag) { $embed = "="; }
-	$$out_aref[$j] =~ s/$tag/H/;
-	$$out_aref[$j] =~ s/^(.*)$/$embed$1/;
-
-	# Sometimes the line may contain several tags,
-	# add an embedding to all of them.
-	$$out_aref[$j] =~ s/(=+)(?=[^H])/$1=/g;
-
-	return 1;
-}
-
-# If there is a sentence-initial D, it is safe to assume
-# that there is a group of elements forming a DP. E.g
-# A1
-# :g
-# =D:pron('mun',<pers>,1sg,gen)   Mu
-# =D:adj('boaris',sup,attr)       boarrÃ¡seamos
-# S:n('viellja',sg,nom)   viellja
-#
-# is converted to:
-# A1
-# S:g
-# =D:pron('mun',<pers>,1sg,gen)   Mu
-# =D:adj('boaris',sup,attr)       boarrÃ¡seamos
-# =H:n('viellja',sg,nom)   viellja
-#
-#
-sub sentence_initial_d {
-	my $out_aref = shift @_;
-
-	my $num=0;
-	my $i=$num;
-	if ($$out_aref[$num] =~ /^S/) { $num++; }
-	if ($$out_aref[$num] && $$out_aref[$num] =~ /^=D/) {
-		my $length = scalar @$out_aref;
-		while ($i < $length && $$out_aref[$i] =~ /^=D/) { $i++; }
-		if ($i == $length) { return 0; }
-		if ($$out_aref[$i] !~ /^S/) { return 0; }
-
-		$$out_aref[$i] =~ s/^S/=H/;
-		if ($num>0 && $$out_aref[$num-1]) { $$out_aref[$num-1] = "S:g"; }
-		else { splice(@$out_aref, $num,0, "S:g"); }
-
-		return 1;
-	}
-	return 1;
-}
 
 # Replace all the cg-tags with visl-tags.
 sub replace_tags {
@@ -405,43 +437,43 @@ sub replace_tags {
 # All tags pointing rightwards and not having a rightwards-pointing tag to 
 # the left should get a :g tag on the previous line.
 
-	$output =~ s/\@ADVL>/=D/g;       #  modifying ADVL
-	$output =~ s/\@ADVL</=D/g;       # complement of ADVL
+	$output =~ s/\@ADVL>/D/g;       #  modifying ADVL
+	$output =~ s/\@ADVL</D/g;       # complement of ADVL
 	$output =~ s/\@ADVL/A/g;           
-	$output =~ s/\@N>/=D/g;
-###	$output =~ s/\@N>/=H/g;   	     # Revise!!   	      
+	$output =~ s/\@N>/D/g;
+### $output =~ s/\@N>/=H/g;   	     # Revise!!   	      
 ###	$output =~ s/\@N>/:g\n=D/g;      # Revise!!
-	$output =~ s/\@N</=D/g;
-	$output =~ s/\@APP/=D/g;           # check this one.
+	$output =~ s/\@N</D/g;
+	$output =~ s/\@APP/D/g;           # check this one.
 #	$output =~ s/\@CNP/CO/g; # Must be revised, POS-sensitive	      
 #	$output =~ s/\@CVP/CO/g; # Must be revised, POS-sensitive	      
 #	$output =~ s/\@N>/CJT/g;            # one word A-_ja_B?
-##	$output =~ s/\@CNP/:cl\n=SUB/g;       # --sh
+	$output =~ s/\@CNP/SUB/g;       # --sh
 	$output =~ s/\@CVP/SUB/g;   # trying to get embedding to work
-	$output =~ s/\@A>/=D/g;      
-	$output =~ s/\@P</=D/g;      
-	$output =~ s/\@P>/=D/g;     	       
-	$output =~ s/\@Q</=D/g;      
+	$output =~ s/\@A>/D/g;      
+	$output =~ s/\@P</D/g;      
+	$output =~ s/\@P>/D/g;     	       
+	$output =~ s/\@Q</D/g;      
 	$output =~ s/\@HNOUN/X/g;         # hmm, is it really X?        
 	$output =~ s/\@INTERJ/Ainterj/g;   
-	$output =~ s/\@Num</=D/g;
-	$output =~ s/\@Num>/=D/g;
-	$output =~ s/\@Pron</=D/g;
-	$output =~ s/\@Q</=D/g; 
+	$output =~ s/\@Num</D/g;
+	$output =~ s/\@Num>/D/g;
+	$output =~ s/\@Pron</D/g;
+	$output =~ s/\@Q</D/g; 
 	$output =~ s/\@Pron</X/g;
 	$output =~ s/\@OBJ/Od/g;
 	$output =~ s/\@OPRED/Co/g; 	    
 	$output =~ s/\@PCLE/Apcle/g;
 	$output =~ s/\@SPRED/Cs/g; 
-	$output =~ s/\@COMP-CS/=D/g; 
+	$output =~ s/\@COMP-CS/D/g; 
 ###	$output =~ s/\@SUBJ/S:g\n=H:Num/g;   # Revise! This must be contextually used.
 	$output =~ s/\@SUBJ/S/g;
 	$output =~ s/\@X/X/g;
 	$output =~ s/\@\+FAUXV:g/P:g/g;
-	$output =~ s/\@\+FAUXV/=D:Vaux/g; 
-	$output =~ s/\@\-FAUXV/=D:Vaux/g;
+	$output =~ s/\@\+FAUXV/D:Vaux/g; 
+	$output =~ s/\@\-FAUXV/D:Vaux/g;
 	$output =~ s/\@\+FMAINV/P/g;       
-	$output =~ s/\@\-FMAINV/=H/g;       
+	$output =~ s/\@\-FMAINV/H/g;       
 	$output =~ s/\@\-FSUBJ/S/g;            # non-finite subj
 	
 	$output =~ s/([ ,:])adda,/$1der,/g ;
