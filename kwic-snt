@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+#use strict;
+use encoding 'utf-8';
+use open ':utf8';
+#
+# kwic.pl
+# K. Koskenniemi, 36.2.2000
+# Modified 1.8.2005 to UTF-8 by Seppo Nyrkkö and Trond Trosterud
+
+require "getopts.pl";
+
+&Getopts('m:w:l:bh');
+
+if ($opt_h) {
+    print "
+usage:
+  kwic.pl <options> <regexp> file...
+
+options:
+  -m nnn : at most first nnn occurences taken (default 100)
+  -w nnn : total width of the kwic listing (default 80)
+  -l nnn : width reserved for the left context (default 0.6 of total)
+  -b : sort identical keys according to characters before
+  -h : this help text
+
+regexp:
+  a regular expression for identifying keys in sentences
+
+file...:
+  zero or more input text files (one sentence per line)
+
+";
+    exit;
+}
+
+$maxocc = $opt_m ? $opt_m : 100;
+$columns = $opt_w ? $opt_w : 80;
+$leftcols = $opt_l ? $opt_l : (int(0.6 * $columns));
+
+#print "columns=$columns\n";
+#print "leftcols=$leftcols\n";
+
+sub revutf8($){
+    my ($slr)=@_;
+    my $srl="";
+    my $ci;
+    for($ci=0;$ci<length($slr);$ci++) {
+	$srl .= substr($slr,length($slr)-1-$ci,1); }
+    return $srl;
+}
+
+$PAT = $ARGV[0];
+shift @ARGV;
+print $PAT, "\n";
+
+$occurences = 0;
+SENT:
+while (<>) {
+    chop;
+    while (m/($PAT)/go) {
+	$key = $1;
+	$rest = substr($_, pos());
+	$start = substr($_, 0, pos() - length($key));
+	if ($opt_b) {
+	    $r[$occurences] = $key . "&" .  revutf8($start) . "&" . $rest;
+	}
+	else {
+	    $r[$occurences] = $key . "&" . $rest . "&" .  $start;
+	}
+#	print $start, ":", $key, ":", $rest, "\n";
+#	print $r[$occurences], "\n";
+	last SENT if ++$occurences > $maxocc;
+    }
+}
+
+@s = sort(@r);
+
+$rightcols = $columns - $leftcols;
+$fmt = "%$leftcols". "s%-" . "$rightcols" . "s\n";
+#print $fmt;
+
+for ($j = 0; $j < $occurences; $j++) {
+    if ($opt_b) {
+	($mid, $leftr, $right) = ($s[$j] =~ /^([^&]*)&([^&]*)&([^&]*)/o);
+	$left = revutf8($leftr);
+    }
+    else {
+	($mid, $right, $left) = ($s[$j] =~ /^([^&]*)&([^&]*)&([^&]*)/o);
+    }
+    $leftpart = substr($left,-$leftcols,$leftcols);
+    $rightpart = substr($mid . $right, 0, $rightcols);
+    printf($fmt, $leftpart, $rightpart);
+}
