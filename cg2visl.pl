@@ -288,12 +288,15 @@ sub format_rp_modifiers {
 	(my $pos = $modifier ) =~ s/^\@[DG]?(.*?)>\:.*$/$1/s;
 
 	my $out = shift @$out_aref;
-	while ($out && ($out =~ /^$tag\:/ || $out !~ /^.*?\:$pos/ || $out =~ /^[\(\)\.\:\!\?]/)) { 
+	while ($out && ($out =~ /^$tag\:/ || $out !~ /^.*?\:$pos/ || $out !~ /^[\(\)\.\:\!\?\-]/)) { 
 		push (@tmp_array, $out);
 		$out = shift @$out_aref;
 	}
-	if (! $out) { $subtree->addChild(Tree::Simple->new($modifier)); return 0;}
-
+	if (! $out) { 
+		unshift(@$out_aref, @tmp_array); 
+		$subtree->addChild(Tree::Simple->new($modifier)); 
+		return 0;
+	}
 
 	# Create a node for the complex constituent
 	(my $htag = $out ) =~ s/^(.*?)\:.*$/$1/s;
