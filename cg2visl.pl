@@ -222,6 +222,7 @@ sub format_lp_modifiers {
 	# Read until all the modifiers are taken.
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
 	(my $pos = $modifier ) =~ s/^\@[DG]?(.*?)[><]\:.*$/$1/s;
+	if ($tag =~ /PRON/) { $pos = "Pron"; }
 	
 	my $out = shift @$out_aref;
 	while ($out && $out =~ /^$tag\:/) {
@@ -286,6 +287,7 @@ sub format_rp_modifiers {
 	# Read until the head is found
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
 	(my $pos = $modifier ) =~ s/^\@[DG]?(.*?)>\:.*$/$1/s;
+	if ($tag =~ /PRON/) { $pos = "Pron"; }
 
 	my $out = shift @$out_aref;
 	while ($out && ($out =~ /^$tag\:/ || $out !~ /^.*?\:$pos/ || $out =~ /^[\(\)\.\:\!\?\-]/)) { 
