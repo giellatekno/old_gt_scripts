@@ -13,7 +13,11 @@ use strict;
 # usage of utf8 in the perl-code
 use utf8;
 
-# Trees are build
+# Trees are build. If you don't have the package in your computer,
+# issue the following command:
+# sudo perl -MCPAN -e 'install Tree::Simple'
+# The default answer to all the questions presented by the
+# installation program should be ok.
 use Tree::Simple;
 
 # These definitions ensure that the script works 
