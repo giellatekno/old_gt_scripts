@@ -74,9 +74,9 @@ my $corrlang = &correscape($langstring);
 my $corrversion = &correscape($versionstring);
 
 # Create the final correction rules:
-my $corrdatestring = "/".$corrdate."<=>i\$D/	twin" ;
-my $corrlangstring = "/".$corrlang."<=>nu/	twin" ;
-my $corrversionstring = "/".$corrversion."<=>vv/	twin" ;
+my $corrlangstring = "/".$corrlang."<=>nuvv/	twin" ;
+my $corrversionstring = "/".$corrversion."<=>i\$Dspe/	twin" ;
+my $corrdatestring = "/".$corrdate."<=>ller/	twin" ;
 
 # Print the PLX entry to a file:
 open (FH, ">$plxfile") or die "Cannot open $plxfile $!";
