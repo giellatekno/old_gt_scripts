@@ -306,7 +306,7 @@ sub print_xml_output {
 
     # Get version info if it's available
     my $rec = $originals[0];
-	if ($rec->{'orig'} eq "nuvviD") {
+	if ($rec->{'orig'} eq "nuvviD" || $rec->{'orig'} eq "nuvviDspeller") {
 #		cluck "INFO: nuvviD found.\n";
 		shift @originals;
 		if ($rec->{'sugg'}) {
