@@ -307,10 +307,10 @@ sub print_xml_output {
     # Get version info if it's available
     my $rec = $originals[0];
 	if ($rec->{'orig'} eq "nuvviD" || $rec->{'orig'} eq "nuvviDspeller") {
-#		cluck "INFO: nuvviD found.\n";
+#		cluck "INFO: nuvviDspeller found.\n";
 		shift @originals;
 		if ($rec->{'sugg'}) {
-#			cluck "INFO: nuvviD contains suggestions.\n";
+#			cluck "INFO: nuvviDspeller contains suggestions.\n";
 			my @suggestions = @{$rec->{'sugg'}};
 			for my $sugg (@suggestions) {
 				#print "SUGG $sugg\n";
@@ -321,7 +321,7 @@ sub print_xml_output {
 				}
 			}
 		} else {
-#			cluck "INFO: nuvviD contains NO suggestions.\n";
+#			cluck "INFO: nuvviDspeller contains NO suggestions.\n";
 		}
 	}
 
