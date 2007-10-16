@@ -45,10 +45,10 @@ require "conf.pl";
 # information from HTML form and generating new HTML pages.
 
 # Variables retrieved from the query.
-our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode);
+our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions, $translate);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -64,7 +64,11 @@ $plang = $query->param('plang');
 
 # Action is either "generate" or "analyze" or "paradigm"
 $action = $query->param('action');
+# Paradigm mode: minimal, standard, full, full with dialectal variation
 $mode = $query->param('mode');
+# The language for lemma translation in disambiguation.
+$tr_lang = $query->param('translate');
+if (! $tr_lang) { $tr_lang = "none"; }
 
 # Input and output can be xml.
 $xml_in = $query->param('xml_in');
@@ -86,7 +90,7 @@ open (LFH, ">>$logfile");
 my @candidates;
 my $document;
 my $page;
-my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/smi/smi.cgi";
+my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/test/smi.cgi";
 my $body;
 my $giellatekno_logo;
 
@@ -111,11 +115,6 @@ if(! $xml_out) {
 	my $br = XML::Twig::Elt->new('br');
 	$br->paste('last_child', $body);
 
-#	$a = XML::Twig::Elt->new(a=>{href=>$uit_href});
-#	my $img = XML::Twig::Elt->new(img=>{src=>$unilogo, title=>'The University of Tromsø'});
-#	$img->paste('last_child',$a);
-#	$a->paste('last_child',$body);
-	
 	$giellatekno_logo = XML::Twig::Elt->new(a=>{href=>$giellatekno_href});
 	my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, style=>'border: none;', title=>'Giellatekno'});
 	$img->paste('last_child',$giellatekno_logo);
@@ -172,7 +171,11 @@ my %answer;
 my %candidates;
 if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
 elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candidates); }
-elsif ($action eq "disamb") { $result = `echo $text | $disamb`; }
+elsif ($action eq "disamb") { 
+    if ($translate) { $result = `echo $text | $disamb | $translate`; }
+    else { $result = `echo $text | $disamb`; }
+}
+
 elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
 elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
@@ -253,7 +256,7 @@ if (! $xml_out) {
         $p->set_content(@content);
         $p->paste('last_child', $body);
     }
-    }
+    } # End of paradigm output
 
     # Paste the result to the html-structure, print final html-codes.
     if ($output && $action ne "paradigm") { $output->paste('last_child', $body); }
@@ -611,24 +614,20 @@ sub printinitialhtmlcodes {
 	##### analyze/hyphenate/transcribe/convert/disambiguate
 	else {
 		# Get the texts for selection menu
+		my @tools = qw(analyze disamb hyphenate convert transcribe);
 		my %labels;
 
-		if ($lang_actions{analyze}) {
-			$labels{analyze} = $selection->first_child_text('@tool="analyze"');
+		for my $t (@tools) {
+			next if (! $lang_actions{$t});
+			$labels{$t} = $selection->first_child_text("\@tool='$t'" );
+			if ($t eq "disamb" && $lang_actions{translate}) {
+				my $lang_texts = $texts->first_child("selection[\@tool='translate']");
+				for my $l (keys %{$lang_actions{translate}}) {
+					$labels{translate}{$l} = $lang_texts->first_child_text("select[\@lang='$l']");
+				}
+				$labels{translate}{none} = $lang_texts->first_child_text("select[\@lang='none']");
+			}
 		}
-		if ($lang_actions{disamb}) {
-			$labels{disamb} = $selection->first_child_text('@tool="disamb"');
-		}
-		if ($lang_actions{hyphenate}) {
-			$labels{hyphenate} = $selection->first_child_text('@tool="hyphenate"');
-		} 
-		if ($lang_actions{transcribe}) {
-			$labels{transcribe} = $selection->first_child_text('@tool="transcribe"');
-		} 
-		if ($lang_actions{convert}) {
-			$labels{convert} = $selection->first_child_text('@tool="convert"');
-		} 
-
 		my $tr = XML::Twig::Elt->new("tr");
 		my $td = XML::Twig::Elt->new("td");
 		my $textarea = XML::Twig::Elt->new(textarea => {wrap=>'virtual',type=>'text',name=>'text','rows'=>6,'cols'=>50});
@@ -642,19 +641,43 @@ sub printinitialhtmlcodes {
 		$td->paste('last_child',$tr);
 		$tr->paste('last_child', $table);
 		$tr = XML::Twig::Elt->new("tr");
-		$td = XML::Twig::Elt->new("td");
+		my @tmp;
 
-		for my $l (sort { $a cmp $b } keys %labels) {
+		# Print the radiobuttons for the available tools
+		for my $l ( @tools) {
+			next if ( ! $lang_actions{$l});
 			my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'action',value=> $l},$labels{$l});
 			if ($tool eq $l ) { $input->set_att('checked', 1); }
-			$input->paste('last_child', $td);
+ 			push (@tmp, $input);
+
+			# Add translation radio buttons besides the
+			# disambiguation button.
+			if ($l eq "disamb" && $lang_actions{translate}) {
+				my $text = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[";
+				push (@tmp, $text);
+				$text = $labels{translate}{none};
+				my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>'none'},$text);
+				if ($tr_lang eq 'none') { $input2->set_att(checked=>'yes'); }
+				push (@tmp, $input2);
+				for my $lg (keys %{$lang_actions{translate}}) {
+					my $text = $labels{translate}{$lg};
+					my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>$lg},$text);
+					if ($tr_lang eq $lg ) { $input2->set_att('checked', 1); }
+					push (@tmp, $input2);
+				}
+				$text = "&#160;]";
+				push (@tmp, $text);
+			}
 			my $br = XML::Twig::Elt->new('br');
-			$br->paste('last_child', $td);
+			push (@tmp, $br);
 		}
 		my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
-		$input->paste('last_child', $td);
+		push (@tmp, $input);
 		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
-		$input->paste('last_child', $td);
+		push (@tmp, $input);
+
+		$td = XML::Twig::Elt->new("td");
+		$td->set_content(@tmp);
 
 		$td->paste('last_child', $tr);
 		$tr->paste('last_child', $table);
