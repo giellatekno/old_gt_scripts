@@ -1,11 +1,18 @@
 #!/usr/bin/perl
 #use strict;
-use encoding 'utf-8';
-use open ':utf8';
-#
+use utf8;
+
+# utf-8 definitions, some extra (file opens etc.) to be on the safe side.
+binmode( STDIN, ':utf8' );
+binmode( STDOUT, ':utf8' );
+binmode( STDERR, ':utf8' );
+use open 'utf8';
+use Encode;
+
 # kwic.pl
 # K. Koskenniemi, 36.2.2000
 # Modified 1.8.2005 to UTF-8 by Seppo Nyrkkö and Trond Trosterud
+# Modified 28.9.2007 utf-8 compatibility check by Saara Huhmarniemi
 
 require "getopts.pl";
 
@@ -14,7 +21,7 @@ require "getopts.pl";
 if ($opt_h) {
     print "
 usage:
-  kwic.pl <options> <regexp> file...
+  kwic-snt <options> <regexp> file...
 
 options:
   -m nnn : at most first nnn occurences taken (default 100)
@@ -51,6 +58,9 @@ sub revutf8($){
 
 $PAT = $ARGV[0];
 shift @ARGV;
+# Command line arguments have to be explicitely
+# decoded to utf8.
+$PAT = Encode::decode_utf8($PAT);
 print $PAT, "\n";
 
 $occurences = 0;
