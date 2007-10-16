@@ -90,7 +90,7 @@ open (LFH, ">>$logfile");
 my @candidates;
 my $document;
 my $page;
-my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/test/smi.cgi";
+my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/smi/smi.cgi";
 my $body;
 my $giellatekno_logo;
 
