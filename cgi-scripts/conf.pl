@@ -67,12 +67,26 @@ sub init_variables {
 	my $orth_fst = "$fstdir/orth-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
     my $dis_rle = "$fstdir/$lang-dis.rle";
+	my $translate_script;
+	my $translate_lex;
+	if ($tr_lang ne "none") { 
+		$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
+		$translate_lex = "$fstdir/$lang$tr_lang-lex.txt";
+		$translate = "$translate_script $translate_lex";
+	}
 
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
+
+	# Find out which of the translated languages are available for this lang.
+	my $translated_langs = qw(dan);
+	for my $tr_avail_lang ( $translated_langs ) {
+		$lex = "$fstdir/$lang$tr_avail_lang" . "-lex.txt";
+		if (-f $lex) { $lang_actions{translate}{$tr_avail_lang} = 1; }
+	}
 
     # Files to generate paradigm
 	# Search first the language-specific paradigms, otherwise use
@@ -115,6 +129,9 @@ sub init_variables {
 	}
 	if ($action eq "paradigm" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
+	}
+	if ($tr_lang ne "none" && ( ! -f $translate_script || ! -f $translate_lex ) ) { 
+		http_die '--no-alert','404 Not Found', "Translation to language \"$tr_lang\" is not supported";
 	}
 	if (!$plang || ! $page_languages{$plang}) { $plang = "eng"; }
 
