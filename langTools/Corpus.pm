@@ -36,12 +36,13 @@ sub add_error_markup {
 		my $text = $c->text;
 		my $new_text;
 		my $nomatch = 0;
+        # separator: either §, $,€ or £
 		while ($text =~ /[\x{00A7}\$€\x{00A3}]/) {
 			if ($text =~ m/^
 				(.*?         # match the text without corrections
 				\s?)
 				(                # either
-				\(.*\) |         # string before separator with parentheses
+				\(.*?\) |         # string before separator with parentheses
 				[^\s]*?           # string before the error-correction separator withoug parentheses
 				)
 		        ([\x{00A7}\$€\x{00A3}])  # separator: either §, $,€ or £
