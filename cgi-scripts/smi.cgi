@@ -655,16 +655,16 @@ sub printinitialhtmlcodes {
 			if ($l eq "disamb" && $lang_actions{translate}) {
 				my $text = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[";
 				push (@tmp, $text);
-				$text = $labels{translate}{none};
-				my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>'none'},$text);
-				if ($tr_lang eq 'none') { $input2->set_att(checked=>'yes'); }
-				push (@tmp, $input2);
 				for my $lg (keys %{$lang_actions{translate}}) {
 					my $text = $labels{translate}{$lg};
 					my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>$lg},$text);
 					if ($tr_lang eq $lg ) { $input2->set_att('checked', 1); }
 					push (@tmp, $input2);
 				}
+				$text = $labels{translate}{none};
+				my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>'none'},$text);
+				if ($tr_lang eq 'none') { $input2->set_att(checked=>'yes'); }
+				push (@tmp, $input2);
 				$text = "&#160;]";
 				push (@tmp, $text);
 			}
