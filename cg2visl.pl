@@ -235,16 +235,19 @@ sub format_coordination {
 	# Doppe mii sáhttit oastit gáfe, deaja, sávtta dahje bruvssa.
 	# commas may intervene
 	my $rest = get_last_child($subtree);
-	my $rest_value = $rest->getNodeValue();
 	my @rest_array;
-	#print "REST $rest_value\n";
-	#print "QUOTED $quoted\n";
-	while ($rest_value && ($rest_value =~ /$quoted/ || $rest_value =~ /^\,$/)) { 
-		push (@rest_array, $rest);
-		$rest = get_last_child($subtree);
-		last if ($rest == 0);
+	my $rest_value;
+	if ($rest) {
 		$rest_value = $rest->getNodeValue();
 		#print "REST $rest_value\n";
+		#print "QUOTED $quoted\n";
+		while ($rest_value && ($rest_value =~ /$quoted/ || $rest_value =~ /^\,$/)) { 
+			push (@rest_array, $rest);
+			$rest = get_last_child($subtree);
+			last if ($rest == 0);
+			$rest_value = $rest->getNodeValue();
+			#print "REST $rest_value\n";
+		}
 	}
 
 	# put back the last node, since it did not match anyway.
