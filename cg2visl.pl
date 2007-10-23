@@ -32,6 +32,9 @@ my $wordform;
 my $num;
 my $sentence;
 my @output;
+my $punct = quotemeta("[().:!?-,");
+my $verbose=0;
+
 
 my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@PRON<" => "Pron",
@@ -160,14 +163,17 @@ sub build_tree {
 	my ($out_aref, $tree) = @_;
 	
 	while (my $out = shift @$out_aref) {
+
 		# Detect modifiers and heads (only right pointing at the moment)
 		# This should be recursive, but for the time being, it is not.
 		#print "NEE $out\n";
 		if ( $out =~ /^\@\>.*?\:/) {
+			verbose("format_rp_modifiers", $out , __LINE__);	
 			format_rp_modifiers($out, $out_aref, $tree);
 			next;
 		}
 		elsif ( $out =~ /^\@.*?\<\:/) {
+			verbose("format_lp_modifiers", $out , __LINE__);	
 		    format_lp_modifiers($out, $out_aref, $tree);
             next;
 		}
@@ -179,6 +185,7 @@ sub build_tree {
 			     $tree=$ecl;
             }
             else { 
+			    verbose("format_coordination", $out , __LINE__);	
 			    format_coordination($out, $out_aref, $tree);
                 next;
             }
@@ -186,35 +193,42 @@ sub build_tree {
         }
 		# Detect coordinated structures
 		elsif ( $out =~ /\@CNP\:/) {
+			verbose("format_coordination", $out , __LINE__);	
 			format_coordination($out, $out_aref, $tree);
             next;
 		}				
 		elsif ($out =~ /\@\+FAUXV\:/) {
+			verbose("format_auxiliary", $out , __LINE__);	
 			format_auxiliary($out, $out_aref, $tree);
             next;
         }
 		elsif ($out =~ /\@\+FMAINV\:/) {
+			verbose("format_mainv", $out , __LINE__);	
 			format_mainv($out, $out_aref, $tree);
             next;
         }
 		elsif ($out =~ /\@\-FOBJ\:/) {
+			verbose("format_lp_modifiers", $out , __LINE__);	
 			format_lp_modifiers($out, $out_aref, $tree);
             next;
         }
-		else { $tree->addChild(Tree::Simple->new($out)); }
+		else { 
+			verbose("add_to_tree", $out , __LINE__);	
+            $tree->addChild(Tree::Simple->new($out)); }
 	}
 }
 
 sub format_coordination {
 	my ($coord, $out_aref, $subtree) = @_;
 
-	#print "OUT *** @$out_aref **\n";
-	my $c_aref = $subtree->getAllChildren;
-	my $index = scalar @$c_aref;
-	if ($index == 0) {return 0;}
-	my $left_coord = $$c_aref[$index-1];
-	if (! $left_coord) { print "$index\n"; }
+
+	my $left_coord = get_last_child($subtree);
+	if (! $left_coord) { return; }
 	my $left_value = $left_coord->getNodeValue();
+	if ($left_value =~ /^[$punct]$/ ) {
+		$subtree->addChild($left_coord);
+		return;
+	}
 
 	(my $prev_tag = $left_value) =~ s/^(.*?)\:.*$/$1/;
 
@@ -226,10 +240,13 @@ sub format_coordination {
 		push (@tmp_array, $out);
 		$out = shift @$out_aref;
 	}
-	if (! $out || $out !~ $quoted) { unshift(@$out_aref, @tmp_array); return 0; }
+	if (! $out || $out !~ $quoted) { 
+		unshift(@$out_aref, @tmp_array); 
+		unshift(@$out_aref, $coord); 
+		$subtree->addChild($left_coord);
+		return 0;
+	}
 	push (@tmp_array, $out);
-
-	$subtree->removeChild ($index-1);
 
 	# Search the same syntactic tag on the same level to the left
 	# Doppe mii sáhttit oastit gáfe, deaja, sávtta dahje bruvssa.
@@ -242,7 +259,7 @@ sub format_coordination {
 		#print "REST $rest_value\n";
 		#print "QUOTED $quoted\n";
 		while ($rest_value && ($rest_value =~ /$quoted/ || $rest_value =~ /^\,$/)) { 
-			push (@rest_array, $rest);
+			unshift (@rest_array, $rest);
 			$rest = get_last_child($subtree);
 			last if ($rest == 0);
 			$rest_value = $rest->getNodeValue();
@@ -252,7 +269,10 @@ sub format_coordination {
 
 	# put back the last node, since it did not match anyway.
 	if ($rest) { $subtree->addChild($rest); }
-
+	if (@rest_array) { 
+		$rest = shift(@rest_array);
+		if ($rest =~ /^\,$/) { $subtree->addChild($rest); }
+	}
 	my $group = $prev_tag . ":par";
 	if (@rest_array) { $group = $prev_tag . ":g"; }
 
@@ -262,11 +282,11 @@ sub format_coordination {
 	# Create a node for the coordinated constituent
 	my $par = Tree::Simple->new($group, $subtree);
 	while (@rest_array) {
-		$rest = pop(@rest_array);
 		$rest_value = $rest->getNodeValue();
 		$rest_value =~ s/$quoted/CJT/;
 		$rest->setNodeValue($rest_value);
 		$par->addChild($rest);
+		$rest = pop(@rest_array);
 	}
 	$par->addChild($left_coord);
 	my $cnp = Tree::Simple->new($coord, $par);
@@ -290,18 +310,6 @@ sub format_lp_modifiers {
 	my @tmp_array;
 
 #	print "OUT *** @$out_aref **\n";
-#	if ($constituent) {
-#		print "_______________\n";
-#	$constituent->traverse(sub {
-#		my ($_tree) = @_;
-		#my $value = $_tree->getNodeValue();
-		#my $new_value = replace_tags($value); 
-#		my $new_value = $_tree->getNodeValue();
-#		print (("     =" x $_tree->getDepth()), $new_value, "\n");
-#	});
-#		print "\n_______________\n";
-#}
-#	print "OUTKO *** @$out_aref **\n";
 
 	# If the right pointing tag is a constituent and not a string.
 	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
@@ -329,9 +337,14 @@ sub format_lp_modifiers {
 	my @left_array;
 	#print "JOO $tagpos{$tag}\n";
 	while ($left_value !~ /$tagpos{$tag}/) {
-		push (@left_array, $left);
+		#print "JEE $left_value\n";
+		unshift (@left_array, $left);
 		$left = get_last_child($subtree);
-		if ($left == 0) { $subtree->addChild(Tree::Simple->new($modifier)); return 0; }
+		if ($left == 0) { 
+			for my $tmp (@left_array) { $subtree->addChild($tmp); }
+			$subtree->addChild(Tree::Simple->new($modifier)); 
+			return 0;
+		}
 		$left_value = $left->getNodeValue();
 	}
 
@@ -343,6 +356,7 @@ sub format_lp_modifiers {
 		$subtree->addChild(Tree::Simple->new($modifier));
 		return 0; 
 	}
+
 
 	# Create a node for the complex constituent
 	# Create groupings for OBJ-groups
@@ -776,3 +790,25 @@ sub replace_tags {
 	return $output;
 }
 
+sub print_tree {
+	my $tree = shift @_;
+
+	print "_______________\n";
+	$tree->traverse(sub {
+		my ($_tree) = @_;
+		my $new_value = $_tree->getNodeValue();
+		print (("     =" x $_tree->getDepth()), $new_value, "\n");
+	});
+	print "\n_______________\n";
+	
+}
+
+sub verbose {
+	my ($from, $word, $linenumber) = @_;
+	
+	if (!$verbose) {
+		return;
+	}
+	
+	print STDERR "[$from:$linenumber] $word\n";
+}
