@@ -38,8 +38,6 @@ sub process_commandline {
     my @length_file1 = split(/ /, `$command  $ARGV[0]`);
     my @length_file2 = split(/ /, `$command  $ARGV[1]`);
     
-    print STDERR "@length_file1 and @length_file2";
-    
     if ( $length_file1[0] ne $length_file2[0] ) {
         print "Error: files don't have equally many lines.\n";
         print "Fix that, and then try this script again\n";
@@ -133,11 +131,8 @@ sub add_changes_to_xmlfile {
     }
     
     # Take a backup of the current smenob.xml, and print the twig to smenob.xml
-    `mv smenob.xml smenob.xml.backup"`;
+    `mv smenob.xml smenob.xml.backup`;
     open (TEMPORARY_XML_FILE, ">smenob.xml");
-    print TEMPORARY_XML_FILE "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    print TEMPORARY_XML_FILE "<!DOCTYPE r PUBLIC \"-//XMLmind//DTD smenob//SE\" \"smenob.dtd\">\n";
-    print TEMPORARY_XML_FILE "<?xml-stylesheet type=\"text/css\" href=\"smenob.css\"?>\n";
 
     $xmldoc->print( \*TEMPORARY_XML_FILE);
     close TEMPORARY_XML_FILE;
