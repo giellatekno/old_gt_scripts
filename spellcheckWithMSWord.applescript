@@ -75,14 +75,10 @@ on run argv
 		else if testLang is "deu" then
 			set language ID of myRange to german
 		end if
-		set wc to count of words of myRange
+		-- The final EOF char is counted as a "word", thus the word count is actually one less
+		set wc to (count of words of myRange) - 1
 		
-		repeat with i from 1 to wc - 1
-			-- Word does for some reason count linebreaks as words,
-			-- thus we skip every other "word", ie every linebreak
-			-- This assumes that the text begins on line one, and that the
-			-- first real word is "word" 1 in the MS Word sense. Also, the final EOF char is
-			-- counted as a "word", thus we stop repeating before we reach it.
+		repeat with i from 1 to wc
 			set SugRec to text range spelling suggestions of word i of myRange
 			set checkedWord to content of word i of myRange
 			if type class of SugRec = spelling correct then
