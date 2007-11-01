@@ -221,7 +221,6 @@ sub build_tree {
 sub format_coordination {
 	my ($coord, $out_aref, $subtree) = @_;
 
-
 	my $left_coord = get_last_child($subtree);
 	if (! $left_coord) { return; }
 	my $left_value = $left_coord->getNodeValue();
@@ -311,8 +310,13 @@ sub format_lp_modifiers {
 
 #	print "OUT *** @$out_aref **\n";
 
-	# If the right pointing tag is a constituent and not a string.
-	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
+	# If the left pointing tag is a constituent and not a string.
+	my $mod;
+	if(! $modifier) { 
+		$modifier = $constituent->getNodeValue();
+		$mod = $constituent;
+	}
+	else { $mod = Tree::Simple->new($modifier); }
 
 	# Read until all the modifiers are taken.
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
@@ -326,75 +330,101 @@ sub format_lp_modifiers {
 	}
 	if ($out && $out !~ /^$tag\:/) { unshift (@$out_aref, $out);  }
 
-	my $left = get_last_child($subtree);
-	if ($left == 0) { $subtree->addChild(Tree::Simple->new($modifier)); return 0; }
-	my $left_value = $left->getNodeValue();
+	# Insert complex node.
+	if (! insert_complex_node ($subtree, $tagpos{$tag},$mod, 0)) {
+		$subtree->addChild($mod);
+		return 0;
+	}
+	#print "PÄÄLLÄ\n";
+	#print_tree($subtree);
 
-	#print "JOO $left_value\n";
+	return 1;
+}
 
-	# If the first constituent to the left was not the correct pos
-	# go searching to the left.
-	my @left_array;
-	#print "JOO $tagpos{$tag}\n";
-	while ($left_value !~ /$tagpos{$tag}/) {
-		#print "JEE $left_value\n";
-		unshift (@left_array, $left);
-		$left = get_last_child($subtree);
-		if ($left == 0) { 
-			for my $tmp (@left_array) { $subtree->addChild($tmp); }
-			$subtree->addChild(Tree::Simple->new($modifier)); 
-			return 0;
+sub insert_complex_node {
+	my ($tree, $criterion, $sibling, $num) = @_;
+
+	#print "NUM $num\n";
+	my $last = get_last_child($tree);
+	if (! $last) { return 0; }
+	my $last_value = $last->getNodeValue();
+	my $cont_grp;
+	if ($last_value =~ /$criterion/) {
+		my $group;
+		if ($criterion =~ "Inf") {
+			$last_value =~ s/^.*?:V/P:v(nfin)/;
+			$group = "Od:cl";
 		}
-		$left_value = $left->getNodeValue();
+		else {
+			(my $htag = $last_value ) =~ s/^(.*?)\:.*$/$1/s;
+			$group = $htag . ":g";
+			# if there were nodes in between.
+			if ($num != 0) { $cont_grp = "-$group"; $group .= "-"; }
+			$last_value =~ s/$htag/H/;
+		}
+		#print "GROUP $group\n";
+		my $new_node = Tree::Simple->new($group);
+		$last->setNodeValue($last_value);
+		$new_node->addChild($last); 
+		# if there were nodes in between.
+		# Add continuation group node.
+		if ($num == 0) { 
+			$new_node->addChild($sibling); 
+			$tree->addChild($new_node);
+			#print "ALLA\n";
+			#print_tree($tree);
+			return 1;
+		}
+		else { 
+			$tree->addChild($new_node);
+			#print "ALLA\n";
+			#print_tree($tree);
+			return $cont_grp;
+		 }
 	}
-
-	# If the correct pos was not found
-	# put everything back, store the modifier and return.
-	if ($left_value !~ /$tagpos{$tag}/) {
-		$subtree->addChild($left);
-		for my $tmp (@left_array) { $subtree->addChild($tmp); }
-		$subtree->addChild(Tree::Simple->new($modifier));
-		return 0; 
+	if (! $last->isLeaf ) {
+		$cont_grp = insert_complex_node($last, $criterion, $sibling, $num);
+		if ($cont_grp) {
+			#print "CONT $cont_grp\n";
+			if($num == 0) {	
+				if ($cont_grp ne "1") {
+					my $new_node = Tree::Simple->new($cont_grp);
+					$new_node->addChild($sibling); 
+					$last->addChild($new_node);	
+				}
+				else {  $tree->addChild($last); }
+				#print "ALLA2 second\n";
+				#print_tree($tree);
+				return 1; 
+			}
+		}
 	}
-
-
-	# Create a node for the complex constituent
-	# Create groupings for OBJ-groups
-	# Dál de viimmat asttan čállit reivve.
-	my $group;
-	if ($tag eq "\@-FOBJ") {
-		$left_value =~ s/^.*?:V/P:v(nfin)/;
-		$group = "Od:cl";
+	$cont_grp = insert_complex_node($tree, $criterion, $sibling, $num+1);
+	if ( $cont_grp) { 
+		if($num == 0) {
+			#print "CONT $cont_grp\n";
+			$tree->addChild($last); 
+			if ($cont_grp ne "1") {
+				my $new_node = Tree::Simple->new($cont_grp);
+				$new_node->addChild($sibling); 
+				$tree->addChild($new_node);	
+			}
+			else { $tree->addChild($sibling); }
+			
+#			print "ALLA3 second\n";
+#			print_tree($tree);
+			return $cont_grp; 
+		}
 	}
 	else {
-		(my $htag = $left_value ) =~ s/^(.*?)\:.*$/$1/s;
-		$group = $htag . ":g";
-		$left_value =~ s/$htag/H/;
+		$tree->addChild($last); 
+#		print "ALLA3 first\n";
+#		print_tree($tree);
+		return $cont_grp; 
 	}
-	$left->setNodeValue($left_value);
-
-	# Store everything to the subtree.
-	if (@left_array) { $group .= "-"; }
-	my $dp = Tree::Simple->new($group);
-	
-	$dp->addChild($left);
-
-	if (@left_array) {
-		$subtree->addChild($dp);
-		for my $tmp (@left_array) { $subtree->addChild($tmp); }	
-		$group =~ s/-$//;
-		$group = "-" . $group;
-		$dp = Tree::Simple->new($group);
-	}
-
-	if (! $constituent) { $dp->addChild(Tree::Simple->new($modifier)); }
-	else { $dp->addChild($constituent); }
-	for my $tmp (@tmp_array) {
-		$dp->addChild(Tree::Simple->new($tmp));
-	}
-	$subtree->addChild($dp);
-	
+	return 0;
 }
+
 
 sub get_last_child {
 	my $tree = shift @_;
@@ -453,13 +483,6 @@ sub format_rp_modifiers {
 		elsif ( $tmp =~ /\@CNP\:/) { format_coordination($tmp, \@tmp_array, $dp); }
 		else { $dp->addChild(Tree::Simple->new($tmp)); }
 	}
-#	$dp->traverse(sub {
-#		my ($_tree) = @_;
-		#my $value = $_tree->getNodeValue();
-		#my $new_value = replace_tags($value); 
-#		my $new_value = $_tree->getNodeValue();
-#		print (("     =" x $_tree->getDepth()), $new_value, "\n");
-#	});
 
 	if ($htag =~ />/) {
 		format_rp_modifiers (0, $out_aref, $subtree, $dp);
@@ -470,7 +493,7 @@ sub format_rp_modifiers {
 		format_lp_modifiers (0, $out_aref, $subtree, $dp);
 		$out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
-#	    $subtree->addChild($dp);
+	    #$subtree->addChild($dp);
 	}
 	else { 
 	    $out =~ s/$htag/H/;
@@ -565,7 +588,6 @@ sub format_auxiliary {
 
 sub format_mainv {
 	my ($mainv, $out_aref, $subtree) = @_;
-
 
 	# Search for the same syntactic tag as in the left coordinator
 	my @tmp_array;
