@@ -58,6 +58,7 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@APP-Pron<" => "Pron",
 			   "\@APP>Num" => "Num",
 			   "\@APP-Num<" => "Num",
+			   "\@COMP-CS<" => "CS",
 			   "\@-FADVL" => "ADVL",
 			   "\@-FOBJ" => "V.*Inf",
 			   );
@@ -219,11 +220,17 @@ sub build_tree {
 sub format_coordination {
 	my ($coord, $out_aref, $subtree) = @_;
 
+	if ($coord =~ /go/) { 
+		$subtree->addChild(Tree::Simple->new($coord));
+		return;
+	}
+
 	my $left_coord = get_last_child($subtree);
 	if (! $left_coord) { return; }
 	my $left_value = $left_coord->getNodeValue();
 	if ($left_value =~ /^[$punct]$/ ) {
 		$subtree->addChild($left_coord);
+		$subtree->addChild(Tree::Simple->new($coord));
 		return;
 	}
 
@@ -239,8 +246,8 @@ sub format_coordination {
 	}
 	if (! $out || $out !~ $quoted) { 
 		unshift(@$out_aref, @tmp_array); 
-		unshift(@$out_aref, $coord); 
 		$subtree->addChild($left_coord);
+		$subtree->addChild(Tree::Simple->new($coord));
 		return 0;
 	}
 	push (@tmp_array, $out);
@@ -258,7 +265,6 @@ sub format_coordination {
 			$rest = get_last_child($subtree);
 			last if ($rest == 0);
 			$rest_value = $rest->getNodeValue();
-			print "REST $rest_value\n";
 		}
 	}
 
@@ -311,6 +317,7 @@ sub format_coordination {
 	}
 	#my $value = $par->getNodeValue();
     #print "VALUE $value\n";
+
 
 #	if ($group =~ />/) {
 #		format_rp_modifiers (0, $out_aref, $subtree, $par);
