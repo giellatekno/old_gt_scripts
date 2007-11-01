@@ -258,7 +258,7 @@ sub format_coordination {
 			$rest = get_last_child($subtree);
 			last if ($rest == 0);
 			$rest_value = $rest->getNodeValue();
-			#print "REST $rest_value\n";
+			print "REST $rest_value\n";
 		}
 	}
 
@@ -304,7 +304,13 @@ sub format_coordination {
 	#print "COORD2\n";
 	#print_tree($par);
 
-	my $value = $par->getNodeValue();
+	# If there are more constituents to come
+	if ($$out_aref[0] =~ /CC/) {
+		my $coord2 = shift @$out_aref;
+		format_coordination($coord2, $out_aref, $subtree);
+	}
+	#my $value = $par->getNodeValue();
+    #print "VALUE $value\n";
 
 #	if ($group =~ />/) {
 #		format_rp_modifiers (0, $out_aref, $subtree, $par);
@@ -312,6 +318,8 @@ sub format_coordination {
 #	elsif ($group =~ /</) {
 #		format_lp_modifiers (0, $out_aref, $subtree, $par);
 #   }
+
+	return $par;
 }
 
 sub format_lp_modifiers {
@@ -521,7 +529,7 @@ sub format_auxiliary {
 	my @tmp_array2;
 	my $out2;
 	my $out = shift @$out_aref;
-	while ($out && ($out !~ /\@\-FAUXV/ && $out !~ /\@\-FMAINV/ )) { 
+	while ($out && ($out !~ /\@\-FAUXV/ && $out !~ /\@\-FMAINV/)) { 
 		push (@tmp_array, $out);
 		$out = shift @$out_aref;
 	}
@@ -531,11 +539,22 @@ sub format_auxiliary {
 		return;
 	}
 	#print "OUT $out\n";
+	# If next constituent in the list is coordination,
+	# Format that constituent first
+	my $out_node;
+	if ($$out_aref[0] =~ /CVP/) {
+		my $coord = shift @$out_aref;
+		$subtree->addChild(Tree::Simple->new($out));
+		format_coordination($coord, $out_aref, $subtree);
+		$out_node = get_last_child($subtree);
+        $out = $out_node->getNodeValue();
+	}
 
 	$aux =~ s/\@\+FAUXV/D:Vaux/;
 	$out =~ s/\@\-FMAINV/H/;
 	$out =~ s/\:T?V/\:VInf/;
 	$out =~ s/\@\-FAUXV/D:Vaux/;
+	if ($out_node) { $out_node-> setNodeValue($out); }
 
 	# If the predicate was not discontinuous
 	# Create a group node and return.
@@ -543,7 +562,10 @@ sub format_auxiliary {
 		my $group = "P:g";
 		my $p = Tree::Simple->new($group, $subtree);
 		$p->addChild(Tree::Simple->new($aux));
-		$p->addChild(Tree::Simple->new($out));
+
+		if ($out_node) { $p->addChild($out_node)} 
+		else { $p->addChild(Tree::Simple->new($out)); }
+
 		return;
 	}
 	# Search for main verb if it was not already found.
@@ -555,7 +577,8 @@ sub format_auxiliary {
 		}
 		if (! $out2) { 
 			unshift(@$out_aref, @tmp_array2); 
-			$subtree->addChild(Tree::Simple->new($out));
+			if ($out_node) { $subtree->addChild($out_node)} 
+			else { $subtree->addChild(Tree::Simple->new($out)); }
 			return;
 		}
 		$out2 =~ s/\@\-FMAINV/H/;
@@ -567,7 +590,10 @@ sub format_auxiliary {
 		my $group = "P:g";
 		my $p = Tree::Simple->new($group, $subtree);
 		$p->addChild(Tree::Simple->new($aux));
-		$p->addChild(Tree::Simple->new($out));
+
+		if ($out_node) { $p->addChild($out_node)} 
+		else { $p->addChild(Tree::Simple->new($out)); }
+
 		$p->addChild(Tree::Simple->new($out2));
 		return;
 	}
@@ -584,7 +610,8 @@ sub format_auxiliary {
 		$group = "-P:g";
 		$p = Tree::Simple->new($group, $subtree);
 	}
-	$p->addChild(Tree::Simple->new($out));
+	if ($out_node) { $p->addChild($out_node)} 
+	else { $p->addChild(Tree::Simple->new($out)); }
 
 	if ($out2) {
 		# Create a node for the continuing predicate	
