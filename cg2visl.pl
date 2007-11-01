@@ -253,8 +253,6 @@ sub format_coordination {
 	my $rest_value;
 	if ($rest) {
 		$rest_value = $rest->getNodeValue();
-		#print "REST $rest_value\n";
-		#print "QUOTED $quoted\n";
 		while ($rest_value && ($rest_value =~ /$quoted/ || $rest_value =~ /^\,$/)) { 
 			unshift (@rest_array, $rest);
 			$rest = get_last_child($subtree);
@@ -288,8 +286,13 @@ sub format_coordination {
 	$par->addChild($left_coord);
 	my $cnp = Tree::Simple->new($coord, $par);
 
+	#print "COORD1\n";
+	#print_tree($par);
+
 	# Create the right coordinator.
-	build_tree(\@tmp_array, $par);
+	my $right_node = Tree::Simple->new();
+	build_tree(\@tmp_array, $right_node);
+	for my $n ($right_node->getAllChildren) { $par->addChild($n); }
 
 	my $p_aref = $par->getAllChildren;
 	my $ind = scalar @$p_aref;
@@ -297,8 +300,18 @@ sub format_coordination {
 	my $right_value = $right_coord->getNodeValue();
 	$right_value =~ s/$quoted/CJT/;
 	$right_coord->setNodeValue($right_value);
-	#$par->addChild($right_coord);
 
+	#print "COORD2\n";
+	#print_tree($par);
+
+	my $value = $par->getNodeValue();
+
+#	if ($group =~ />/) {
+#		format_rp_modifiers (0, $out_aref, $subtree, $par);
+#	}
+#	elsif ($group =~ /</) {
+#		format_lp_modifiers (0, $out_aref, $subtree, $par);
+#   }
 }
 
 sub format_lp_modifiers {
