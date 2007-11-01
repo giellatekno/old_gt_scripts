@@ -164,9 +164,7 @@ sub build_tree {
 	
 	while (my $out = shift @$out_aref) {
 
-		# Detect modifiers and heads (only right pointing at the moment)
-		# This should be recursive, but for the time being, it is not.
-		#print "NEE $out\n";
+		# Detect modifiers and heads 
 		if ( $out =~ /^\@\>.*?\:/) {
 			verbose("format_rp_modifiers", $out , __LINE__);	
 			format_rp_modifiers($out, $out_aref, $tree);
@@ -599,6 +597,7 @@ sub format_mainv {
 		$out = shift @$out_aref;
 	}
 	if (! $out || $out !~ /\@-FMAINV/) { 
+		if ($out) { push(@tmp_array, $out); }
 		unshift(@$out_aref, @tmp_array); 
 		$subtree->addChild(Tree::Simple->new($mainv));
 		return;
