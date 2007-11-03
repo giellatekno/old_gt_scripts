@@ -27,6 +27,7 @@ my $print_xml;
 my $forced=0;
 my $polderland;
 my $applescript;
+my $hunspell;
 my $ccat;
 my $out_file;
 my $typos=1;
@@ -42,6 +43,7 @@ GetOptions ("help|h" => \$help,
 			"document|d=s" => \$document,
 			"pl|p" => \$polderland,
 			"mw|m" => \$applescript,
+			"hu|u" => \$hunspell,
 			"version|v=s" => \$version,
 			"date|e=s" => \$date,
 			"ccat|c" => \$ccat,
@@ -66,7 +68,8 @@ if(! @originals) { exit;}
 
 if ($polderland) { $input_type="pl"; read_polderland(); }
 elsif ($applescript) { $input_type="mw"; read_applescript(); }
-else { print STDERR "$0: Give the speller output type: --pl or --as\n"; exit; }
+elsif ($hunspell) { $input_type="hu"; read_hunspell(); }
+else { print STDERR "$0: Give the speller output type: --pl, --mw or --hu\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -82,12 +85,88 @@ sub read_applescript {
 	while(<FH>) {
 		chomp;
 
-		if (/Prompt\:/) { 
+		if (/Prompt\:/) {
 			confess "Probably reading Polderland format, start again with option --pl\n\n";
 		} 
 		my ($orig, $error, $sugg) = split(/\t/, $_, 3);
 		if ($sugg) { @suggestions = split /\t/, $sugg; }
 		$orig =~ s/^\s*(.*?)\s*$/$1/;
+
+		# Some simple adjustments to the input and output lists.
+		# First search the output word from the input list.
+		my $j = $i;
+#		print "$originals[$j]{'orig'}\n";
+		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
+
+		# If the output word was not found in the input list, ignore it.
+		if (! $originals[$j]) {
+			print STDERR "$0: Output word $orig was not found in the input list.\n";
+			next;
+		}
+		# If it was found, mark the words in between.
+		elsif ($originals[$j] && $originals[$j]{'orig'} eq $orig) {
+			for (my $p=$i; $p<$j; $p++){ $originals[$p]{'error'} = "Error"; }
+			$i=$j;
+		}
+
+		if ($originals[$i] && $originals[$i]{'orig'} eq $orig) {
+			if ($error) { $originals[$i]{'error'} = $error; }
+			else { $originals[$i]{'error'} = "not_known"; }
+			$originals[$i]{'sugg'} = [ @suggestions ];
+			$originals[$i]{'num'} = [ @numbers ];
+		}
+		$i++;
+		}
+	close(FH);
+}
+
+
+sub read_hunspell {
+	
+	print STDERR "Reading Hunspell output from $output\n";
+	open(FH, $output);
+
+	my $i=0;
+	my @suggestions;
+	my @numbers;
+	my $hunspellversion = <FH>;
+	# hunspell/ispell/aspell etc uses empty lines as separator when run in -a mode:
+	$/ = "";
+	while(<FH>) {
+		chomp;
+
+		if (/Prompt\:/) {
+			confess "Probably reading Polderland format, start again with option --pl\n\n";
+		}
+		# Typical input:
+		# & Eskil 4 0: Esski, Eskaleri, Skilla, Eskaperi
+		# & = misspelling with suggestions
+		# Eskil = original input
+		# 4 = number of suggestions
+		# 0: offset in input line of orig word
+		# The rest is the comma-separated list of suggestions
+		my $sugg;
+		my ($error, $orig, $suggs) = split(/ /, $_, 3);
+		my ($suggnr, $ofset, $sugglist) = split(/ /, $suggs, 3);
+		print "Error: $error\n";
+		print "Orig: $orig\n";
+		print "Suggs: $suggs\n";
+		if ($i == 10) {exit;}
+#		if ($suggnr > 0) { @suggestions = split /, /, $sugg, $suggnr; }
+		$orig =~ s/^\s*(.*?)\s*$/$1/;
+
+		# Error symbol conversion:
+		if ($error eq '*') {
+		  $error = 'SplCor' ;
+        } elsif ($error eq '+') {
+		  $error = 'SplCor' ;
+        } elsif ($error eq '-') {
+		  $error = 'SplCor' ;
+        } elsif ($error eq '&') {
+		  $error = 'SplErr' ;
+        } elsif ($error eq '#') {
+		  $error = 'SplErr' ;
+        }
 
 		# Some simple adjustments to the input and output lists.
 		# First search the output word from the input list.
@@ -473,6 +552,8 @@ Usage: speller-testres.pl [OPTIONS]
 -p
 --mw              The speller output is in AppleScript-format.
 -m
+--hu              The speller output is in hunspell format.
+-u
 --xml=<file>      Print output in xml to file <file>.
 -x
 --forced          The speller was forced to make suggestions.
