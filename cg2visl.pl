@@ -13,6 +13,9 @@ use strict;
 # usage of utf8 in the perl-code
 use utf8;
 
+use Getopt::Long;
+Getopt::Long::Configure ("bundling");
+
 # Trees are build. If you don't have the package in your computer,
 # issue the following command:
 # sudo perl -MCPAN -e 'install Tree::Simple'
@@ -27,14 +30,24 @@ binmode( STDOUT, ':utf8' );
 binmode( STDERR, ':utf8' );
 use open 'utf8';
 
+my $help;
+my $verbose=0;
+my $embedding = 0;
+
+GetOptions ("e|embedding" => \$embedding,
+			"v|verbose" => \$verbose,
+			"h|help" => \$help);
+
+if ($help) {
+	&print_usage;
+	exit;}
+
 # Translate the tags to visl format
 my $wordform;
 my $num;
 my $sentence;
 my @output;
 my $punct = quotemeta("[().:!?-,");
-my $verbose=0;
-
 
 my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@PRON<" => "Pron",
@@ -482,9 +495,20 @@ sub format_rp_modifiers {
 	#(my $pos = $modifier ) =~ s/^\@\>[DG]?(.*?)\:.*$/$1/s;
 
 	my $out = shift @$out_aref;
-	while ($out && ($out =~ /^$tag\:/ || $out !~ /$tagpos{$plaintag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) { 
-		push (@tmp_array, $out);
-		$out = shift @$out_aref;
+	# All the modifiers are for the same head
+	if ($embedding == 0) {
+		while ($out && ($out =~ /^$tag\:/ || $out !~ /$tagpos{$plaintag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) 
+		{ 
+			push (@tmp_array, $out);
+			$out = shift @$out_aref;
+		}
+	}
+	# Try to find the closest head for each modifier
+	elsif ($embedding == 1) {
+		while ($out && ($out !~ /$tagpos{$plaintag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) { 
+			push (@tmp_array, $out);
+			$out = shift @$out_aref;
+		}
 	}
 	if (! $out) { 
 		unshift(@$out_aref, @tmp_array); 
