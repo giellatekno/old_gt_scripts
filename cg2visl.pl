@@ -55,8 +55,8 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@ADVL<" => "ADVL",
 			   "\@>Q" => "Num",
 			   "\@Q<" => "Num",
-			   "\@>A" => "Adj",
-			   "\@A<" => "Adj",
+			   "\@>A" => "\:(Adj|A)\\(",
+			   "\@A<" => "\:(Adj|A)\\(",
 			   "\@>N" => "\:(N|prop)\\(",
 			   "\@N<" => "\:(N|prop)\\(",
 			   "\@>P" => "P[or]",
@@ -72,8 +72,8 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@APP>Num" => "Num",
 			   "\@APP-Num<" => "Num",
 			   "\@COMP-CS<" => "CS",
-			   "\@-FADVL" => "ADVL",
-			   "\@-FOBJ" => "V.*Inf",
+			   "\@-FADVL" => "\:(ADVL|V)\\(",
+			   "\@-FOBJ" => "V.*\,Inf",
 			   );
 
 while (<>) {
@@ -123,7 +123,10 @@ while (<>) {
 			$tree->traverse(sub {
 				my ($_tree) = @_;
 				my $value = $_tree->getNodeValue();
-				my $new_value = replace_tags($value); 
+				my $new_value = $value;
+				if (! $verbose) {
+					$new_value = replace_tags($value); 
+				}
 				#my $new_value = $_tree->getNodeValue();
 				print (("=" x $_tree->getDepth()), $new_value, "\n");
 			});
@@ -219,7 +222,7 @@ sub build_tree {
 			format_mainv($out, $out_aref, $tree);
             next;
         }
-		elsif ($out =~ /\@\-FOBJ\:/) {
+		elsif ($out =~ /\@\-(FOBJ|FADVL)\:/) {
 			verbose("format_lp_modifiers", $out , __LINE__);	
 			format_lp_modifiers($out, $out_aref, $tree);
             next;
@@ -370,7 +373,7 @@ sub format_lp_modifiers {
 	if ($out && $out !~ /^$tag\:/) { unshift (@$out_aref, $out);  }
 
 	# Insert complex node.
-	if (! insert_complex_node ($subtree, $tagpos{$tag},$mod, 0)) {
+	if (! insert_complex_node ($subtree, $tag,$mod, 0)) {
 		$subtree->addChild($mod);
 		return 0;
 	}
@@ -381,21 +384,23 @@ sub format_lp_modifiers {
 }
 
 sub insert_complex_node {
-	my ($tree, $criterion, $sibling, $num) = @_;
+	my ($tree, $tag, $sibling, $num) = @_;
 
 	#print "NUM $num\n";
+	my $criterion = $tagpos{$tag};
 	my $last = get_last_child($tree);
 	if (! $last) { return 0; }
 	my $last_value = $last->getNodeValue();
 	my $cont_grp;
 	if ($last_value =~ /$criterion/) {
 		my $group;
-		if ($criterion =~ "Inf") {
+		(my $htag = $last_value ) =~ s/^(.*?)\:.*$/$1/s;
+		if ($tag =~ /(FOBJ|FADVL)/) {
 			$last_value =~ s/^.*?:V/P:v(nfin)/;
-			$group = "Od:cl";
+			$group = $htag . ":cl";
+			#$group = "Od:cl";
 		}
 		else {
-			(my $htag = $last_value ) =~ s/^(.*?)\:.*$/$1/s;
 			$group = $htag . ":g";
 			# if there were nodes in between.
 			if ($num != 0) { $cont_grp = "-$group"; $group .= "-"; }
@@ -422,7 +427,7 @@ sub insert_complex_node {
 		 }
 	}
 	if (! $last->isLeaf ) {
-		$cont_grp = insert_complex_node($last, $criterion, $sibling, $num);
+		$cont_grp = insert_complex_node($last, $tag, $sibling, $num);
 		if ($cont_grp) {
 			#print "CONT $cont_grp\n";
 			if($num == 0) {	
@@ -438,7 +443,7 @@ sub insert_complex_node {
 			}
 		}
 	}
-	$cont_grp = insert_complex_node($tree, $criterion, $sibling, $num+1);
+	$cont_grp = insert_complex_node($tree, $tag, $sibling, $num+1);
 	if ( $cont_grp) { 
 		if($num == 0) {
 			#print "CONT $cont_grp\n";
@@ -539,7 +544,7 @@ sub format_rp_modifiers {
 		$out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
 	}
-	elsif ($htag =~ /</) {
+	elsif ($htag =~ /(<|\@\-)/) {
 		format_lp_modifiers (0, $out_aref, $subtree, $dp);
 		$out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
@@ -548,7 +553,7 @@ sub format_rp_modifiers {
 	else { 
 	    $out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
-        $subtree->addChild($dp); 
+        $subtree->addChild($dp);
     }
 }
 
@@ -734,6 +739,7 @@ sub replace_tags {
 	$output =~ s/\@CNP/SUB/g;       # --sh
 	$output =~ s/\@CVP/CO/g;   # trying to get embedding to work
 	$output =~ s/\@>A/D/g;      
+	$output =~ s/\@A</D/g;      
 	$output =~ s/\@P</D/g;      
 	$output =~ s/\@>P/D/g;     	       
 	$output =~ s/\@Q</D/g;      
