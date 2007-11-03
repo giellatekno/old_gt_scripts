@@ -75,7 +75,8 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@-FADVL" => "\:(ADVL|V)\\(",
 			   "\@-FOBJ" => "V.*(Inf|VAbess|Ger)",
 			   "\@-FSUBJ" => "V.*(Inf|VAbess|Ger)",
-			   "\@-FAUXV" => "V.*(Inf|VAbess|Ger)",
+			   "\@-FAUXV" => "(V.*(Inf|VAbess|Ger)|\\+FAUXV)",
+			   "\@-FMAINV" => "(FAUXV|FMAINV)",
 			   );
 
 while (<>) {
@@ -210,25 +211,22 @@ sub build_tree {
         }
 		# Detect coordinated structures
 		elsif ( $out =~ /\@CNP\:/) {
-			verbose("format_coordination", $out , __LINE__);	
 			format_coordination($out, $out_aref, $tree);
             next;
 		}				
-		elsif ($out =~ /\@\+FAUXV\:/) {
-			verbose("format_auxiliary", $out , __LINE__);	
-			format_auxiliary($out, $out_aref, $tree);
-            next;
-        }
-		elsif ($out =~ /\@\+FMAINV\:/) {
-			verbose("format_mainv", $out , __LINE__);	
-			format_mainv($out, $out_aref, $tree);
-            next;
-        }
-		elsif ($out =~ /\@\-(FOBJ|FADVL|FSUBJ|FAUXV)\:/) {
-			verbose("format_lp_modifiers", $out , __LINE__);	
+#		elsif ($out =~ /\@\+FAUXV\:/) {
+#			verbose("format_auxiliary", $out , __LINE__);	
+#			format_auxiliary($out, $out_aref, $tree);
+#            next;
+#        }
+#		elsif ($out =~ /\@\+FMAINV\:/) {
+#			verbose("format_mainv", $out , __LINE__);	
+#			format_mainv($out, $out_aref, $tree);
+#            next;
+#        }
+		elsif ($out =~ /\@\-(FOBJ|FADVL|FSUBJ|FAUXV|FMAINV)\:/) {
 			if (! format_lp_modifiers($out, $out_aref, $tree)) {
                 get_last_child($tree);
-			    verbose("format_rp_modifiers", $out , __LINE__);	
 			    format_rp_modifiers($out, $out_aref, $tree);
             }
             next;
@@ -241,6 +239,8 @@ sub build_tree {
 
 sub format_coordination {
 	my ($coord, $out_aref, $subtree) = @_;
+
+	verbose("format_coordination", $coord , __LINE__);	
 
 	if ($coord =~ /go/) { 
 		$subtree->addChild(Tree::Simple->new($coord));
@@ -354,6 +354,7 @@ sub format_coordination {
 sub format_lp_modifiers {
 	my ($modifier, $out_aref, $subtree, $constituent) = @_;
 
+
 	my @tmp_array;
 
 #	print "OUT *** @$out_aref **\n";
@@ -365,6 +366,8 @@ sub format_lp_modifiers {
 		$mod = $constituent;
 	}
 	else { $mod = Tree::Simple->new($modifier); }
+
+	verbose("format_lp_modifiers", $modifier , __LINE__);
 
 	# Read until all the modifiers are taken.
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
@@ -397,14 +400,21 @@ sub insert_complex_node {
 	my $last = get_last_child($tree);
 	if (! $last) { return 0; }
 	my $last_value = $last->getNodeValue();
+	my $sibling_value = $sibling->getNodeValue();
 
 	verbose("insert_complex_node", $last_value , __LINE__);	
 
 	my $cont_grp;
+
+	# Don't form verb groups that cross commas.
+	if ($tag =~ /FAUXV/ && $last_value =~ /^\,/) { 
+		$tree->addChild($last); 
+		return 0;
+	}
 	if ($last_value =~ /$criterion/) {
 		my $group;
 		(my $htag = $last_value ) =~ s/^(.*?)\:.*$/$1/s;
-		if ($tag =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/) {
+		if ($tag =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/ && $last_value !~ /\+FAUXV/) {
 			$last_value =~ s/^.*?:V/P:v(nfin)/;
 			$group = $htag . ":icl";
 			#$group = "Od:cl";
@@ -417,14 +427,19 @@ sub insert_complex_node {
 		}
 		#print "GROUP $group\n";
 		my $new_node = Tree::Simple->new($group);
+		$last_value =~ s/^\-//;
+		$last_value =~ s/\@\+FAUXV/D:vaux/;
+
 		$last->setNodeValue($last_value);
+
+		$sibling->setNodeValue($sibling_value);
 		$new_node->addChild($last); 
 		# if there were nodes in between.
 		# Add continuation group node.
 		if ($num == 0) { 
 			$new_node->addChild($sibling); 
 			$tree->addChild($new_node);
-			#print "ALLA\n";
+			#print "ALLA0\n";
 			#print_tree($tree);
 			return 1;
 		}
@@ -464,15 +479,15 @@ sub insert_complex_node {
 			}
 			else { $tree->addChild($sibling); }
 			
-#			print "ALLA3 second\n";
-#			print_tree($tree);
+			#print "ALLA3 second\n";
+			#print_tree($tree);
 			return $cont_grp; 
 		}
 	}
 	else {
 		$tree->addChild($last); 
-#		print "ALLA3 first\n";
-#		print_tree($tree);
+		#print "ALLA3 first\n";
+		#print_tree($tree);
 		return $cont_grp; 
 	}
 	return 0;
@@ -502,6 +517,8 @@ sub format_rp_modifiers {
 	#print "OUT *** @$out_aref **\n";
 	# If the right pointing tag is a constituent and not a string.
 	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
+
+	verbose("format_rp_modifiers", $modifier , __LINE__);	
 
 	# Read until the head is found
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
@@ -776,7 +793,7 @@ sub replace_tags {
 	$output =~ s/\@SUBJ/S/g;
 	$output =~ s/\@X/X/g;
 	$output =~ s/\@\+FAUXV:g/P:g/g;
-	$output =~ s/\@\+FAUXV/D:Vaux/g; 
+	$output =~ s/\@\+FAUXV/P:Vaux/g; 
 	$output =~ s/\@\-FAUXV/D:Vaux/g;
 	$output =~ s/\@\+FMAINV/P/g;       
 	$output =~ s/\@\-FMAINV\:T?V/H\:v(nfin)/g;       
