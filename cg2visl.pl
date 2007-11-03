@@ -502,13 +502,11 @@ sub format_rp_modifiers {
 
 	# Read until the head is found
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
-	(my $plaintag = $tag) =~ s/[<>]$//;
 	#(my $pos = $modifier ) =~ s/^\@\>[DG]?(.*?)\:.*$/$1/s;
-
 	my $out = shift @$out_aref;
 	# All the modifiers are for the same head
 	if ($embedding == 0) {
-		while ($out && ($out =~ /^$tag\:/ || $out !~ /$tagpos{$plaintag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) 
+		while ($out && ($out =~ /^$tag\:/ || $out !~ /$tagpos{$tag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) 
 		{ 
 			push (@tmp_array, $out);
 			$out = shift @$out_aref;
@@ -516,7 +514,7 @@ sub format_rp_modifiers {
 	}
 	# Try to find the closest head for each modifier
 	elsif ($embedding == 1) {
-		while ($out && ($out !~ /$tagpos{$plaintag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) { 
+		while ($out && ($out !~ /$tagpos{$tag}/ || $out =~ /^[\(\)\.\:\!\?\-]/)) { 
 			push (@tmp_array, $out);
 			$out = shift @$out_aref;
 		}
