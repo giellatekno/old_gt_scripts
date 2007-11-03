@@ -73,7 +73,9 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@APP-Num<" => "Num",
 			   "\@COMP-CS<" => "CS",
 			   "\@-FADVL" => "\:(ADVL|V)\\(",
-			   "\@-FOBJ" => "V.*\,Inf",
+			   "\@-FOBJ" => "V.*(Inf|VAbess|Ger)",
+			   "\@-FSUBJ" => "V.*(Inf|VAbess|Ger)",
+			   "\@-FAUXV" => "V.*(Inf|VAbess|Ger)",
 			   );
 
 while (<>) {
@@ -222,9 +224,13 @@ sub build_tree {
 			format_mainv($out, $out_aref, $tree);
             next;
         }
-		elsif ($out =~ /\@\-(FOBJ|FADVL)\:/) {
+		elsif ($out =~ /\@\-(FOBJ|FADVL|FSUBJ|FAUXV)\:/) {
 			verbose("format_lp_modifiers", $out , __LINE__);	
-			format_lp_modifiers($out, $out_aref, $tree);
+			if (! format_lp_modifiers($out, $out_aref, $tree)) {
+                get_last_child($tree);
+			    verbose("format_rp_modifiers", $out , __LINE__);	
+			    format_rp_modifiers($out, $out_aref, $tree);
+            }
             next;
         }
 		else { 
@@ -395,9 +401,9 @@ sub insert_complex_node {
 	if ($last_value =~ /$criterion/) {
 		my $group;
 		(my $htag = $last_value ) =~ s/^(.*?)\:.*$/$1/s;
-		if ($tag =~ /(FOBJ|FADVL)/) {
+		if ($tag =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/) {
 			$last_value =~ s/^.*?:V/P:v(nfin)/;
-			$group = $htag . ":cl";
+			$group = $htag . ":icl";
 			#$group = "Od:cl";
 		}
 		else {
@@ -523,7 +529,13 @@ sub format_rp_modifiers {
 
 	# Create a node for the complex constituent
 	(my $htag = $out ) =~ s/^(.*?)\:.*$/$1/s;
-	my $group = $htag . ":g";
+	my $group;
+	if ($modifier =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/) {
+		$out =~ s/^.*?:V/P:v(nfin)/;
+		$group = $htag . ":icl";
+		#$group = "Od:cl";
+	}
+	else { $group = $htag . ":g"; }
 	my $dp = Tree::Simple->new($group);
 	#print "GROUP $group\n";
 
@@ -539,16 +551,19 @@ sub format_rp_modifiers {
 		else { $dp->addChild(Tree::Simple->new($tmp)); }
 	}
 
-	if ($htag =~ />/) {
-		format_rp_modifiers (0, $out_aref, $subtree, $dp);
-		$out =~ s/$htag/H/;
-	    $dp->addChild(Tree::Simple->new($out));
-	}
-	elsif ($htag =~ /(<|\@\-)/) {
-		format_lp_modifiers (0, $out_aref, $subtree, $dp);
+	if ($htag =~ /(<|\@\-)/) {
+		if (! format_lp_modifiers (0, $out_aref, $subtree, $dp)) {
+			get_last_child($subtree);
+			format_rp_modifiers (0, $out_aref, $subtree, $dp);
+		}
 		$out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
 	    #$subtree->addChild($dp);
+	}
+	elsif ($htag =~ />|\@\-/) {
+		format_rp_modifiers (0, $out_aref, $subtree, $dp);
+		$out =~ s/$htag/H/;
+	    $dp->addChild(Tree::Simple->new($out));
 	}
 	else { 
 	    $out =~ s/$htag/H/;
