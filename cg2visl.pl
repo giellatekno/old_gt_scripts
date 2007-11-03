@@ -397,6 +397,9 @@ sub insert_complex_node {
 	my $last = get_last_child($tree);
 	if (! $last) { return 0; }
 	my $last_value = $last->getNodeValue();
+
+	verbose("insert_complex_node", $last_value , __LINE__);	
+
 	my $cont_grp;
 	if ($last_value =~ /$criterion/) {
 		my $group;
@@ -749,7 +752,7 @@ sub replace_tags {
 #	$output =~ s/\@CNP/CO/g; # Must be revised, POS-sensitive	      
 #	$output =~ s/\@CVP/CO/g; # Must be revised, POS-sensitive	      
 #	$output =~ s/\@>N/CJT/g;            # one word A-_ja_B?
-	$output =~ s/\@CNP/SUB/g;       # --sh
+	$output =~ s/\@CNP/CC/g;       # --sh
 	$output =~ s/\@CVP/CO/g;   # trying to get embedding to work
 	$output =~ s/\@>A/D/g;      
 	$output =~ s/\@A</D/g;      
