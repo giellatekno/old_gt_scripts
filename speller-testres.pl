@@ -217,6 +217,7 @@ sub read_hunspell {
 			if ($error) { $originals[$i]{'error'} = $error; }
 			else { $originals[$i]{'error'} = "not_known"; }
 			$originals[$i]{'sugg'} = [ @suggestions ];
+			if ($suggnr) { $originals[$i]{'suggnr'} = $suggnr; }
 			#$originals[$i]{'num'} = [ @numbers ];
 		}
 	}
@@ -490,7 +491,8 @@ sub print_xml_output {
 			$suggestions_elt->set_att('count', $sugg_count);
 			my $position = XML::Twig::Elt->new('position');
 			my $pos=0;
-			
+			my $near_miss_count = 0;
+			if ($rec->{'suggnr'}) { $near_miss_count = $rec->{'suggnr'}; }
 			if ($rec->{'sugg'}) {
 				
 				my @suggestions = @{$rec->{'sugg'}};			
@@ -507,6 +509,10 @@ sub print_xml_output {
 					if (@numbers) { 
 						$num = shift @numbers; 
 						$suggestion->set_att('penscore', $num);
+					}
+					if ($near_miss_count > 0) {
+						$suggestion->set_att('miss', "yes");
+						$near_miss_count--;
 					}
 
 					$suggestion->paste('last_child', $suggestions_elt);
