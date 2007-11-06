@@ -184,9 +184,9 @@ sub read_hunspell {
 		  }
 	  }
 		# Debug prints
-		print "Flag: $flag\n";
-		print "ERROR: $error\n";
-		if ($orig) { print "Orig: $orig\n"; }
+		#print "Flag: $flag\n";
+		#print "ERROR: $error\n";
+		#if ($orig) { print "Orig: $orig\n"; }
 		#if (@suggestions) { print "Suggs: @suggestions\n"; }
 
 		# remove extra space from original
@@ -197,7 +197,7 @@ sub read_hunspell {
 		# First search the output word from the input list.
 		my $j = $i;
 		# If there was no original in the output, skip it from the typos list.
-		print "JJJ $j: $originals[$j]{'orig'}\n";
+
 		if (! $orig) { $j++; }
 		else {
 
