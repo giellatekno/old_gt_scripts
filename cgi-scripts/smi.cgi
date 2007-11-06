@@ -623,10 +623,12 @@ sub printinitialhtmlcodes {
 			$labels{$t} = $selection->first_child_text("\@tool='$t'" );
 			if ($t eq "disamb" && $lang_actions{translate}) {
 				my $lang_texts = $texts->first_child("selection[\@tool='translate']");
-				for my $l (keys %{$lang_actions{translate}}) {
-					$labels{translate}{$l} = $lang_texts->first_child_text("select[\@lang='$l']");
+				if ($lang_texts) {
+					for my $l (keys %{$lang_actions{translate}}) {
+						$labels{translate}{$l} = $lang_texts->first_child_text("select[\@lang='$l']");
+					}
+					$labels{translate}{none} = $lang_texts->first_child_text("select[\@lang='none']");
 				}
-				$labels{translate}{none} = $lang_texts->first_child_text("select[\@lang='none']");
 			}
 		}
 		my $tr = XML::Twig::Elt->new("tr");
