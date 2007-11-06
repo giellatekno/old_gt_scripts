@@ -128,71 +128,99 @@ sub read_hunspell {
 
 	my $i=0;
 	my @suggestions;
-	my @numbers;
+	my $error;
+	#my @numbers;
 	my $hunspellversion = <FH>;
 	# hunspell/ispell/aspell etc uses empty lines as separator when run in -a mode:
-	$/ = "";
+	#$/ = "";
 	while(<FH>) {
 		chomp;
-
-		if (/Prompt\:/) {
-			confess "Probably reading Polderland format, start again with option --pl\n\n";
+		# An empty line marks the beginning of next input
+		if (/^\s*$/) { 
+			if (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "Error"; }
+			$i++; 
+			next;
 		}
+
 		# Typical input:
 		# & Eskil 4 0: Esski, Eskaleri, Skilla, Eskaperi
 		# & = misspelling with suggestions
 		# Eskil = original input
 		# 4 = number of suggestions
 		# 0: offset in input line of orig word
-		# The rest is the comma-separated list of suggestions
-		my $sugg;
-		my ($error, $orig, $suggs) = split(/ /, $_, 3);
-		my ($suggnr, $ofset, $sugglist) = split(/ /, $suggs, 3);
-		print "Error: $error\n";
-		print "Orig: $orig\n";
-		print "Suggs: $suggs\n";
-		if ($i == 10) {exit;}
-#		if ($suggnr > 0) { @suggestions = split /, /, $sugg, $suggnr; }
-		$orig =~ s/^\s*(.*?)\s*$/$1/;
+		# The rest is the comma-separated list of suggestion
+		my $root;
+		my $suggnr;
+		my $compound;
+		my $orig;
+		my $offset;
+		my ($flag, $rest) = split(/ /, $_, 2);
+	  READ_OUTPUT: {
+		  # Error symbol conversion:
+		  if ($flag eq '*') {
+			  $error = 'SplCor' ;
+			  last READ_OUTPUT;
+		  }
+		  if ($flag eq '+') {
+			  $error = 'SplCor' ;
+			  $root = $rest;
+			  last READ_OUTPUT;
+		  } 
+		  if ($flag eq '-') {
+			  $error = 'SplCor' ;
+			  $compound =1;
+			  last READ_OUTPUT;
+		  }
+		  if ($flag eq '#') {
+			  $error = 'SplErr' ;
+			  ($orig, $offset) = split(/ /, $rest, 2);
+			  last READ_OUTPUT;
+		  }
+		  if ($flag eq '&') {
+			  $error = 'SplErr' ;
+			  my $sugglist;
+			  ($orig, $suggnr, $offset, $sugglist) = split(/ /, $rest, 4);
+			  @suggestions = split(/\, /, $sugglist);
+		  }
+	  }
+		# Debug prints
+		#print "Flag: $flag\n";
+		#print "ERROR: $error\n";
+		#if ($orig) { print "Orig: $orig\n"; }
+		#if (@suggestions) { print "Suggs: @suggestions\n"; }
 
-		# Error symbol conversion:
-		if ($error eq '*') {
-		  $error = 'SplCor' ;
-        } elsif ($error eq '+') {
-		  $error = 'SplCor' ;
-        } elsif ($error eq '-') {
-		  $error = 'SplCor' ;
-        } elsif ($error eq '&') {
-		  $error = 'SplErr' ;
-        } elsif ($error eq '#') {
-		  $error = 'SplErr' ;
-        }
+		# remove extra space from original
+		if ($orig) { $orig =~ s/^\s*(.*?)\s*$/$1/; }
+		if ($offset) { $offset =~ s/\://; }
 
 		# Some simple adjustments to the input and output lists.
 		# First search the output word from the input list.
 		my $j = $i;
+		# If there was no original in the output, skip it from the typos list.
 #		print "$originals[$j]{'orig'}\n";
-		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
+		if (! $orig) { $j++; }
+		else {
+			while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
 
-		# If the output word was not found in the input list, ignore it.
-		if (! $originals[$j]) {
-			print STDERR "$0: Output word $orig was not found in the input list.\n";
-			next;
+			# If the output word was not found in the input list, ignore it.
+			if (! $originals[$j]) {
+				print STDERR "$0: Output word $orig was not found in the input list.\n";
+				next;
+			}
+			# If it was found, mark the words in between.
+			elsif ($originals[$j] && $originals[$j]{'orig'} eq $orig) {
+				for (my $p=$i; $p<$j; $p++){ $originals[$p]{'error'} = "Error"; }
+				$i=$j;
+			}
 		}
-		# If it was found, mark the words in between.
-		elsif ($originals[$j] && $originals[$j]{'orig'} eq $orig) {
-			for (my $p=$i; $p<$j; $p++){ $originals[$p]{'error'} = "Error"; }
-			$i=$j;
-		}
-
-		if ($originals[$i] && $originals[$i]{'orig'} eq $orig) {
+		if ($originals[$i] && (! $orig || $originals[$i]{'orig'} eq $orig)) {
 			if ($error) { $originals[$i]{'error'} = $error; }
 			else { $originals[$i]{'error'} = "not_known"; }
 			$originals[$i]{'sugg'} = [ @suggestions ];
-			$originals[$i]{'num'} = [ @numbers ];
+			#$originals[$i]{'num'} = [ @numbers ];
 		}
-		$i++;
-		}
+	}
+	if (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "Error"; }
 	close(FH);
 }
 
@@ -466,7 +494,8 @@ sub print_xml_output {
 			if ($rec->{'sugg'}) {
 				
 				my @suggestions = @{$rec->{'sugg'}};			
-				my @numbers = @{$rec->{'num'}};
+				my @numbers;
+				if ($rec->{'num'}) { @numbers =  @{$rec->{'num'}}; }
 				for my $sugg (@suggestions) {
 					next if (! $sugg);
 					my $suggestion = XML::Twig::Elt->new('suggestion');
