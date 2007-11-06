@@ -336,8 +336,9 @@ sub gen2xml {
 		my ($line, $form) = split(/\t/, $out, 2);
 		next if (! $form);
 		$form =~ s/^\s+//;
-		
+
 		($lemma, $analysis) = split(/§/, $line, 2);
+		if (! $analysis) { ($lemma, $analysis) = split(/\+/, $line, 2); }
 
 		if (! $w) { $w=XML::Twig::Elt->new('w'); }
 		my $surface=XML::Twig::Elt->new('surface');
@@ -348,7 +349,7 @@ sub gen2xml {
 	}
 	if ($w) {
 		$w->set_att('lemma', $lemma);	
-		$w->set_att('analysis', $analysis);	
+		#$w->set_att('analysis', $analysis);	
 		$w->paste('last_child', $output);
 	}
 
