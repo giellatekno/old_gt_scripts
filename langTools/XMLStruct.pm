@@ -393,7 +393,7 @@ sub gen2html {
 		# There may be more than one form for an analysis
 		# to separate different paradigms,
 		# try to group them.
-		if($prev_analysis eq $analysis) {
+		if($analysis && $prev_analysis eq $analysis) {
 			$td=XML::Twig::Elt->new('td');
 			$td->set_text($form);
 			if ($tr) { $td->paste('last_child', $tr); }
@@ -409,10 +409,12 @@ sub gen2html {
 		$td=XML::Twig::Elt->new('td');
 		$td->set_text($lemma);
 		$td->paste('last_child', $tr);
-		
-		$td=XML::Twig::Elt->new('td');
-		$td->set_text($analysis);
-		$td->paste('last_child', $tr);
+
+		if ($analysis) {
+			$td=XML::Twig::Elt->new('td');
+			$td->set_text($analysis);
+			$td->paste('last_child', $tr);
+		}
 		
 		$td=XML::Twig::Elt->new('td');
 		$td->set_text($form);
