@@ -76,6 +76,7 @@ $xml_out = $query->param('xml_out');
 
 if (! $lang) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
 if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
+if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 
 ##### INITIALIZE  ####
 
