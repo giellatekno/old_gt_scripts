@@ -29,6 +29,9 @@ while(<>) {
 	s/SIEINNUS/DUORTNUS/g ;
 	s/SKANIK/SULLOT/g ;
 	s/t:(.*)h /t:$1d9 /g ;
+	s/čč/ttj/g ;
+	s/Č/Tj/g ;
+	s/č/tj/g ;
 	s/šž/sjtj/g ;
 	s/Šž/Sjtj/g ;
 	s/šš/ssj/g ;
