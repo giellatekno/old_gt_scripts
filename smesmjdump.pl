@@ -31,6 +31,8 @@ while(<>) {
 	s/t:(.*)h /t:$1d9 /g ;
 	s/čč/ttj/g ;
 	s/Č/Tj/g ;
+	# Andreevič -> Andreevitj:
+	s/^(.*)č /$1tj:$1t9j /g ;
 	s/č/tj/g ;
 	s/šž/sjtj/g ;
 	s/Šž/Sjtj/g ;
@@ -39,8 +41,10 @@ while(<>) {
 	s/Š/Sj/g ;
 	s/š/sj/g ;
 	s/ž/dj/g ;
+	# j->i || Vow i .* : .* Vow _ ; Heaika:Heajka -> Heaika:Heaika. But Majken 	
+	s/([ÁAEIOUaáeiou])i(.*):(.*)([ÁAEIOUaáeiou])j/$1i$2:$3$4i/g ;
 	my $line = $_;
-	
+
 	if ($line =~ /æ/) {
 			# Replace space in multipart names temporarily with $.
 		$line =~ s/% /\$/g;
