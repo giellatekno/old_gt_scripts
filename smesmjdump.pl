@@ -18,14 +18,24 @@ while(<>) {
 	s/HEIM/BERN/g ;
 	s/NIKOSIIJA/ACCRA/g ;
 	s/SIJTE/ACCRA/g ;
+	s/j9/j/g ;
 	s/7 / /g ;
 	s/8 / /g ;
 	s/9 / /g ;
+	s/ss /ss9 /g ;
+	s/st /st9 /g ;
 	s/BALAK/ANAR/g ;
 	s/HAWAII/ACCRA/g ;
 	s/SIEINNUS/DUORTNUS/g ;
 	s/SKANIK/SULLOT/g ;
-	
+	s/t:(.*)h /t:$1d9 /g ;
+	s/šž/sjtj/g ;
+	s/Šž/Sjtj/g ;
+	s/šš/ssj/g ;
+	s/žž/dtj/g ;
+	s/Š/Sj/g ;
+	s/š/sj/g ;
+	s/ž/dj/g ;
 	my $line = $_;
 	
 	if ($line =~ /æ/) {
