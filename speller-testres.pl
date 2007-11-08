@@ -133,15 +133,25 @@ sub read_hunspell {
 	my $hunspellversion = <FH>;
 	# hunspell/ispell/aspell etc uses empty lines as separator when run in -a mode:
 	#$/ = "";
+	my @tokens;
 	while(<FH>) {
 		chomp;
 		# An empty line marks the beginning of next input
 		if (/^\s*$/) { 
-			if (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "Error"; }
+			if ($originals[$i] && ! $originals[$i]{'error'}) { 
+				$originals[$i]{'error'} = "TokErr";
+				$originals[$i]{'tokens'} =  [ @tokens ];
+			}
+			@tokens = undef;
+			pop @tokens;
 			$i++; 
 			next;
 		}
-
+		if (! $originals[$i]) {
+			cluck "Warning: the number of output words did not match the input\n";
+			cluck "Skipping part of the output..\n";
+			last;
+		}
 		# Typical input:
 		# & Eskil 4 0: Esski, Eskaleri, Skilla, Eskaperi
 		# & = misspelling with suggestions
@@ -193,24 +203,16 @@ sub read_hunspell {
 		if ($orig) { $orig =~ s/^\s*(.*?)\s*$/$1/; }
 		if ($offset) { $offset =~ s/\://; }
 
+		if ($error eq "SplCor") {
+			$originals[$i]{'error'} = $error; 
+			next;
+		}
 		# Some simple adjustments to the input and output lists.
 		# First search the output word from the input list.
-		my $j = $i;
-		# If there was no original in the output, skip it from the typos list.
-
-		if (! $orig) { $j++; }
-		else {
-
-			# If the output word was not found in the input list, ignore it.
-			if (! $originals[$j]) {
-				print STDERR "$0: Output word $orig was not found in the input list.\n";
-				next;
-			}
-			# If it was found, mark the words in between.
-			elsif ($originals[$j] && $originals[$j]{'orig'} eq $orig) {
-				for (my $p=$i; $p<$j; $p++){ $originals[$p]{'error'} = "Error"; }
-				$i=$j;
-			}
+		if (! $orig) { next; }
+		if ($originals[$i] && $originals[$i]{'orig'} ne $orig) {
+			push (@tokens, $orig);
+			next;
 		}
 		if ($originals[$i] && (! $orig || $originals[$i]{'orig'} eq $orig)) {
 			if ($error) { $originals[$i]{'error'} = $error; }
@@ -220,7 +222,6 @@ sub read_hunspell {
 			#$originals[$i]{'num'} = [ @numbers ];
 		}
 	}
-	if (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "Error"; }
 	close(FH);
 }
 
@@ -525,6 +526,16 @@ sub print_xml_output {
 			$position->set_text($pos);
 			$position->paste('last_child', $word);
 			$suggestions_elt->paste('last_child', $word);
+		}
+		if ($rec->{'tokens'}) {
+			my @tokens = @{$rec->{'tokens'}};
+			my $tokens_num = scalar @tokens;
+			my $tokens_elt = XML::Twig::Elt->new(tokens=>{ count=>$tokens_num }); 
+			for my $t (@tokens) {
+				my $token_elt = XML::Twig::Elt->new('token', $t); 
+				$token_elt->paste('last_child', $tokens_elt);
+			}
+			$tokens_elt->paste('last_child', $word);
 		}
 		if ($rec->{'bugID'}){ 
 			my $bugID = XML::Twig::Elt->new('bug'); 
