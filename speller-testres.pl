@@ -131,8 +131,6 @@ sub read_hunspell {
 	my $error;
 	#my @numbers;
 	my $hunspellversion = <FH>;
-	# hunspell/ispell/aspell etc uses empty lines as separator when run in -a mode:
-	#$/ = "";
 	my @tokens;
 	while(<FH>) {
 		chomp;
@@ -208,7 +206,7 @@ sub read_hunspell {
 			next;
 		}
 		# Some simple adjustments to the input and output lists.
-		# First search the output word from the input list.
+		# First search the output word in the input list.
 		if (! $orig) { next; }
 		if ($originals[$i] && $originals[$i]{'orig'} ne $orig) {
 			push (@tokens, $orig);
