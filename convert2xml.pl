@@ -86,7 +86,7 @@ if ($help) {
 	exit 1;
 }
 
-my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, swe => 1,
+my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, fkv => 1, swe => 1,
 				 eng => 1, oth => 1, );
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
