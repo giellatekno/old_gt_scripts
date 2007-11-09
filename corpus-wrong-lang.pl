@@ -19,7 +19,7 @@ my $help;
 my $dir;
 my $wmdir="/usr/local/share/corp/bin/LM";
 my $lang;
-my @languages=("eng","nno","nob","sme","fin","smj","sma","ger","swe" );
+my @languages=("eng","nno","nob","sme","fin","fkv","smj","sma","ger","swe" );
 my %langs;
 my $mainlang="sme";
 
