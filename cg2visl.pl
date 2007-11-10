@@ -186,17 +186,15 @@ while (<>) {
 # Main function for building a tree out of a sentence
 sub build_tree {
 	my ($out_aref, $tree) = @_;
-	
+
 	while (my $out = shift @$out_aref) {
 
 		# Detect modifiers and heads 
 		if ( $out =~ /^\@\>.*?\:/) {
-			verbose("format_rp_modifiers", $out , __LINE__);	
 			format_rp_modifiers($out, $out_aref, $tree);
 			next;
 		}
 		elsif ( $out =~ /^\@.*?\<\:/) {
-			verbose("format_lp_modifiers", $out , __LINE__);	
 		    format_lp_modifiers($out, $out_aref, $tree);
             next;
 		}
@@ -208,7 +206,6 @@ sub build_tree {
 			     $tree=$ecl;
             }
             else { 
-			    verbose("format_coordination", $out , __LINE__);	
 			    format_coordination($out, $out_aref, $tree);
                 next;
             }
@@ -220,12 +217,10 @@ sub build_tree {
             next;
 		}				
 		elsif ($out =~ /\@\+FAUXV\:/) {
-			verbose("format_auxiliary", $out , __LINE__);	
 			format_auxiliary($out, $out_aref, $tree);
             next;
         }
 		elsif ($out =~ /\@\+FMAINV\:/) {
-			verbose("format_mainv", $out , __LINE__);	
 			format_mainv($out, $out_aref, $tree);
             next;
         }
@@ -252,6 +247,10 @@ sub format_coordination {
 		return;
 	}
 
+	#print "*** COORD_OUT @$out_aref\n";
+	#print "*** COORD_LÄHTÖ @$out_aref\n";
+	#print_tree($subtree);
+
 	my $left_coord = get_last_child($subtree);
 	if (! $left_coord) { return; }
 	my $left_value = $left_coord->getNodeValue();
@@ -262,22 +261,21 @@ sub format_coordination {
 	}
 
 	(my $prev_tag = $left_value) =~ s/^(.*?)\:.*$/$1/;
-
-	# Search for the same syntactic tag as in the left coordinator
-	my @tmp_array;
-	my $out = shift @$out_aref;
 	my $quoted = quotemeta $prev_tag;
-	while ($out && $out !~ /$quoted/) { 
-		push (@tmp_array, $out);
-		$out = shift @$out_aref;
-	}
-	if (! $out || $out !~ $quoted) { 
-		unshift(@$out_aref, @tmp_array); 
+
+	# build the right coordinator
+	my $right_coord;
+	my $tmp_sub = Tree::Simple->new();	
+	build_tree($out_aref, $tmp_sub);
+	my $c_aref = $tmp_sub->getAllChildren;	
+	my $rvalue = $$c_aref[0]->getNodeValue();
+	#print "RVALLUE $rvalue $quoted\n";
+	if (! $rvalue || $rvalue !~ /$quoted/) {		
 		$subtree->addChild($left_coord);
 		$subtree->addChild(Tree::Simple->new($coord));
-		return 0;
+		for my $c (@$c_aref) { $subtree->addChild($c); }
+		return;
 	}
-	push (@tmp_array, $out);
 
 	# Search the same syntactic tag on the same level to the left
 	# Doppe mii sáhttit oastit gáfe, deaja, sávtta dahje bruvssa.
@@ -296,13 +294,13 @@ sub format_coordination {
 	}
 
 	# put back the last node, since it did not match anyway.
-	if ($rest) { $subtree->addChild($rest); }
+	if ($rest_value && $rest_value !~ /$quoted/) { $subtree->addChild($rest); }
 	if (@rest_array) { 
 		$rest = shift(@rest_array);
 		if ($rest =~ /^\,$/) { $subtree->addChild($rest); }
+		else { unshift(@rest_array, $rest); }
 	}
 	my $group = $prev_tag . ":par";
-	if (@rest_array) { $group = $prev_tag . ":g"; }
 
 	$left_value =~ s/$quoted/CJT/;
 	$left_coord->setNodeValue($left_value);
@@ -322,36 +320,16 @@ sub format_coordination {
 	#print "COORD1\n";
 	#print_tree($par);
 
-	# Create the right coordinator.
-	my $right_node = Tree::Simple->new();
-	build_tree(\@tmp_array, $right_node);
-	for my $n ($right_node->getAllChildren) { $par->addChild($n); }
-
-	my $p_aref = $par->getAllChildren;
-	my $ind = scalar @$p_aref;
-	my $right_coord = $$p_aref[$ind-1];
-	my $right_value = $right_coord->getNodeValue();
-	$right_value =~ s/$quoted/CJT/;
-	$right_coord->setNodeValue($right_value);
-
+	# Add the right coordinator.
+	$rvalue =~ s/$quoted/CJT/;
+	$$c_aref[0]->setNodeValue($rvalue);
+	$par->addChild($$c_aref[0]);
+	my $num = scalar @$c_aref;
+	for (my $i=1; $i<$num; $i++) {
+		$subtree->addChild($$c_aref[$i]);
+	}
 	#print "COORD2\n";
 	#print_tree($par);
-
-	# If there are more constituents to come
-	if ($$out_aref[0] =~ /CC/) {
-		my $coord2 = shift @$out_aref;
-		format_coordination($coord2, $out_aref, $subtree);
-	}
-	#my $value = $par->getNodeValue();
-    #print "VALUE $value\n";
-
-
-#	if ($group =~ />/) {
-#		format_rp_modifiers (0, $out_aref, $subtree, $par);
-#	}
-#	elsif ($group =~ /</) {
-#		format_lp_modifiers (0, $out_aref, $subtree, $par);
-#   }
 
 	return $par;
 }
@@ -359,10 +337,9 @@ sub format_coordination {
 sub format_lp_modifiers {
 	my ($modifier, $out_aref, $subtree, $constituent) = @_;
 
-
 	my @tmp_array;
 
-#	print "OUT *** @$out_aref **\n";
+	#print "OUT *** @$out_aref **\n";
 
 	# If the left pointing tag is a constituent and not a string.
 	my $mod;
@@ -378,20 +355,14 @@ sub format_lp_modifiers {
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
 	(my $pos = $modifier ) =~ s/^\@\>?[DG]?(.*?)\<?\:.*$/$1/s;
 
-	#print "TAG *** $tag **\n";
-	my $out = shift @$out_aref;
-	while ($out && $out =~ /^$tag\:/) {
-		push (@tmp_array, $out);
-		$out = shift @$out_aref;
-	}
-	if ($out && $out !~ /^$tag\:/) { unshift (@$out_aref, $out);  }
-
 	# Insert complex node.
 	#print "LÄHTÖ\n";
 	#print_tree($subtree);
-	if (! insert_complex_node ($subtree, $tag,$mod, 0)) {
+
+	if (! insert_complex_node ($subtree, $tag, $mod, 0)) {
 		$subtree->addChild($mod);
-		#print "FAILED\n";
+		#my $modval= $mod->getNodeValue();
+		#print "FAILED $modval\n";
 		return 0;
 	}
 	#print "PAALLA\n";
@@ -403,12 +374,13 @@ sub format_lp_modifiers {
 sub insert_complex_node {
 	my ($tree, $tag, $sibling, $num) = @_;
 
-	#print "NUM $num\n";
 	my $criterion = $tagpos{$tag};
 	my $last = get_last_child($tree);
 	if (! $last) { return 0; }
 	my $last_value = $last->getNodeValue();
 	my $sibling_value = $sibling->getNodeValue();
+
+	#print "NUM $num $last_value CRIT $criterion\n";
 
 	verbose("insert_complex_node", $last_value , __LINE__);	
 
@@ -458,7 +430,7 @@ sub insert_complex_node {
 			return $cont_grp;
 		 }
 	}
-	if (! $last->isLeaf ) {
+	elsif (! $last->isLeaf ) {
 		$cont_grp = insert_complex_node($last, $tag, $sibling, $num);
 		if ($cont_grp) {
 			#print "CONT $cont_grp\n";
@@ -475,7 +447,8 @@ sub insert_complex_node {
 			}
 		}
 	}
-	$cont_grp = insert_complex_node($tree, $tag, $sibling, $num+1);
+	$cont_grp = insert_complex_node($tree, $tag, $sibling, $num+1); 
+
 	if ( $cont_grp) { 
 		if($num == 0) {
 			#print "CONT $cont_grp\n";
@@ -495,9 +468,11 @@ sub insert_complex_node {
 	else {
 		$tree->addChild($last); 
 		#print "ALLA3 first\n";
+		#print_tree($last);
 		#print_tree($tree);
 		return $cont_grp; 
 	}
+	$tree->addChild($last);
 	return 0;
 }
 
@@ -519,10 +494,10 @@ sub get_last_child {
 
 sub format_rp_modifiers {
 	my ($modifier, $out_aref, $subtree, $constituent) = @_;
-	
+
 	my @tmp_array;
 
-	#print "OUT *** @$out_aref **\n";
+	#print "RIGHTOUT *** @$out_aref **\n";
 	# If the right pointing tag is a constituent and not a string.
 	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
 
@@ -603,6 +578,8 @@ sub format_rp_modifiers {
 
 sub format_auxiliary {
 	my ($aux, $out_aref, $subtree) = @_;
+
+	verbose("format_auxiliary", $aux , __LINE__);	
 
 	# Search for the same syntactic tag as in the left coordinator
 	my @tmp_array;
@@ -706,6 +683,8 @@ sub format_auxiliary {
 
 sub format_mainv {
 	my ($mainv, $out_aref, $subtree) = @_;
+
+	verbose("format_mainv", $mainv , __LINE__);	
 
 	# Search for the same syntactic tag as in the left coordinator
 	my @tmp_array;
