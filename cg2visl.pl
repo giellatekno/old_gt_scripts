@@ -75,12 +75,14 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@-FADVL" => "\:(ADVL|V)\\(",
 			   "\@-FOBJ" => "V.*(Inf|VAbess|Ger)",
 			   "\@-FSUBJ" => "V.*(Inf|VAbess|Ger)",
-			   "\@-FAUXV" => "(V.*(Inf|VAbess|Ger)|\\+FAUXV)",
-			   "\@-FMAINV" => "(FAUXV|FMAINV)",
+			   "\@-FAUXV" => "(V.*(Inf|VAbess|Ger))",
 			   );
 
 while (<>) {
 	
+	next if (/^\#/);
+	next if (/^\s*$/);
+
 	# This is a multi-tag, both N and Prop	
 	s/ N Prop/ prop/g ;
 
@@ -118,6 +120,9 @@ while (<>) {
 			print "A1\n";
 
 			my $tree = Tree::Simple->new("0", Tree::Simple->ROOT);
+			if ($wordform =~ /\?/) { $tree->addChild(Tree::Simple->new("QUE:cl")); }
+			elsif ($wordform =~ /\!/) { $tree->addChild(Tree::Simple->new("COM:cl")); }
+			else { $tree->addChild(Tree::Simple->new("STA:cl")); }
 			build_tree(\@output, $tree);
 
 			# Then change symbols
@@ -214,17 +219,17 @@ sub build_tree {
 			format_coordination($out, $out_aref, $tree);
             next;
 		}				
-#		elsif ($out =~ /\@\+FAUXV\:/) {
-#			verbose("format_auxiliary", $out , __LINE__);	
-#			format_auxiliary($out, $out_aref, $tree);
-#            next;
-#        }
-#		elsif ($out =~ /\@\+FMAINV\:/) {
-#			verbose("format_mainv", $out , __LINE__);	
-#			format_mainv($out, $out_aref, $tree);
-#            next;
-#        }
-		elsif ($out =~ /\@\-(FOBJ|FADVL|FSUBJ|FAUXV|FMAINV)\:/) {
+		elsif ($out =~ /\@\+FAUXV\:/) {
+			verbose("format_auxiliary", $out , __LINE__);	
+			format_auxiliary($out, $out_aref, $tree);
+            next;
+        }
+		elsif ($out =~ /\@\+FMAINV\:/) {
+			verbose("format_mainv", $out , __LINE__);	
+			format_mainv($out, $out_aref, $tree);
+            next;
+        }
+		elsif ($out =~ /\@\-(FOBJ|FADVL|FSUBJ|FAUXV)\:/) {
 			if (! format_lp_modifiers($out, $out_aref, $tree)) {
                 get_last_child($tree);
 			    format_rp_modifiers($out, $out_aref, $tree);
@@ -382,11 +387,14 @@ sub format_lp_modifiers {
 	if ($out && $out !~ /^$tag\:/) { unshift (@$out_aref, $out);  }
 
 	# Insert complex node.
+	#print "LÄHTÖ\n";
+	#print_tree($subtree);
 	if (! insert_complex_node ($subtree, $tag,$mod, 0)) {
 		$subtree->addChild($mod);
+		#print "FAILED\n";
 		return 0;
 	}
-	#print "PÄÄLLÄ\n";
+	#print "PAALLA\n";
 	#print_tree($subtree);
 
 	return 1;
@@ -551,6 +559,7 @@ sub format_rp_modifiers {
 	if ($modifier =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/) {
 		$out =~ s/^.*?:V/P:v(nfin)/;
 		$group = $htag . ":icl";
+		#print "RP_mod $modifier out $out $group\n";
 		#$group = "Od:cl";
 	}
 	else { $group = $htag . ":g"; }
@@ -582,12 +591,14 @@ sub format_rp_modifiers {
 		format_rp_modifiers (0, $out_aref, $subtree, $dp);
 		$out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
+
 	}
 	else { 
 	    $out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
         $subtree->addChild($dp);
     }
+
 }
 
 sub format_auxiliary {
@@ -745,7 +756,9 @@ sub format_mainv {
 # Replace all the cg-tags with visl-tags.
 sub replace_tags {
 	my $output = shift @_;
-	
+
+	return if (! $output);
+
 #		print "***$output***\n";  # debugging line, nice.
 
 # After the tag revision, there is some revision to do. 
@@ -759,7 +772,7 @@ sub replace_tags {
 # All tags pointing rightwards and not having a rightwards-pointing tag to 
 # the left should get a :g tag on the previous line.
 
-	$output =~ s/\@ADVL>/D/g;       #  modifying ADVL
+	$output =~ s/\@>ADVL/D/g;       #  modifying ADVL
 	$output =~ s/\@ADVL</D/g;       # complement of ADVL
 	$output =~ s/\@ADVL/A/g;           
 	$output =~ s/\@>N/D/g;
