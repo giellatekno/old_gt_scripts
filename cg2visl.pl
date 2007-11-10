@@ -78,6 +78,26 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@-FAUXV" => "(V.*(Inf|VAbess|Ger))",
 			   );
 
+my $header;
+my $footer; 
+
+$header = ("<\?xml version='1.0' encoding='UTF-8'\?>
+<corpus lang=\"smi\" sentenceCode=\"SMEB\\d+\">\n
+<note></note>\n
+<corpussource>\n
+<icon>/icons/5svans.gif</icon>\n
+<title>PRE-ANALYZED SÁMI SENTENCES</title>\n
+<authors></authors>\n
+</corpussource>\n
+<section name=\"\">\n
+<![CDATA[\n\n");
+
+$footer = ("]]>\n
+</section>\n
+</corpus>\n");
+
+print $header ;
+
 while (<>) {
 	
 	next if (/^\#/);
@@ -117,7 +137,7 @@ while (<>) {
 			$sentence =~ s/ ([,\;\.\!\?:¶])/$1/g;
 			$num++;
 			print "SOURCE: text\n";
-			print "SME$num$sentence\n";
+			print "SMEB$num$sentence\n"; # SMEB to differ from first file
 			print "A1\n";
 
 			my $tree = Tree::Simple->new("0", Tree::Simple->ROOT);
@@ -909,6 +929,8 @@ sub replace_tags {
 	
 	return $output;
 }
+
+print $footer;
 
 sub print_tree {
 	my $tree = shift @_;
