@@ -33,6 +33,8 @@ use open 'utf8';
 my $help;
 my $verbose=0;
 my $embedding = 0;
+my $print_header=1;
+my $test=1;
 
 GetOptions ("e|embedding" => \$embedding,
 			"v|verbose" => \$verbose,
@@ -93,10 +95,11 @@ $header = ("<\?xml version='1.0' encoding='UTF-8'\?>
 <![CDATA[\n\n");
 
 $footer = ("]]>\n
-</section>\n
+</section>\n
 </corpus>\n");
 
-print $header ;
+# Added conditionals so that header is not printed when debugging.
+if (! $verbose && ! $test) { print $header ; }
 
 while (<>) {
 	
@@ -203,6 +206,9 @@ while (<>) {
 		push (@output, $anl_line);
     }
 }
+
+if (! $verbose && ! $test) { print $footer; }
+
 
 # Main function for building a tree out of a sentence
 sub build_tree {
@@ -361,8 +367,6 @@ sub format_lp_modifiers {
 
 	my @tmp_array;
 
-	#print "OUT *** @$out_aref **\n";
-
 	# If the left pointing tag is a constituent and not a string.
 	my $mod;
 	if(! $modifier) { 
@@ -372,6 +376,7 @@ sub format_lp_modifiers {
 	else { $mod = Tree::Simple->new($modifier); }
 
 	verbose("format_lp_modifiers", $modifier , __LINE__);
+	#print "OUT *** @$out_aref **\n";
 
 	# Read until all the modifiers are taken.
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
@@ -519,11 +524,11 @@ sub format_rp_modifiers {
 
 	my @tmp_array;
 
-	#print "RIGHTOUT *** @$out_aref **\n";
 	# If the right pointing tag is a constituent and not a string.
 	if(! $modifier) { $modifier = $constituent->getNodeValue(); }
 
 	verbose("format_rp_modifiers", $modifier , __LINE__);	
+	#print "RIGHTOUT *** @$out_aref **\n";
 
 	# Read until the head is found
 	(my $tag = $modifier ) =~ s/^(.*?)\:.*$/$1/s;
@@ -556,12 +561,9 @@ sub format_rp_modifiers {
 	if ($modifier =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/) {
 		$out =~ s/^.*?:V/P:v(nfin)/;
 		$group = $htag . ":icl";
-		#print "RP_mod $modifier out $out $group\n";
-		#$group = "Od:cl";
 	}
 	else { $group = $htag . ":g"; }
 	my $dp = Tree::Simple->new($group);
-	#print "GROUP $group\n";
 
 	# create a phrase
 	if (! $constituent) { $dp->addChild(Tree::Simple->new($modifier)); }
@@ -570,19 +572,25 @@ sub format_rp_modifiers {
 		my $tmp =  shift @tmp_array;
 		last if ! $tmp;
 		# Format left-pointing modifiers
-		if ($tmp =~ /\<\:/) { format_lp_modifiers($tmp, \@tmp_array, $dp); }
+		if ($tmp =~ /\<\:/) { 
+			if (! format_lp_modifiers($tmp, \@tmp_array, $dp)) {
+				print "OKOK\n";
+			}
+			
+		}
 		elsif ( $tmp =~ /\@CNP\:/) { format_coordination($tmp, \@tmp_array, $dp); }
 		else { $dp->addChild(Tree::Simple->new($tmp)); }
 	}
 
 	if ($htag =~ /(<|\@\-)/) {
 		if (! format_lp_modifiers (0, $out_aref, $subtree, $dp)) {
-			get_last_child($subtree);
-			format_rp_modifiers (0, $out_aref, $subtree, $dp);
+			if ($htag =~ /(\@\-)/) {
+				get_last_child($subtree);
+				format_rp_modifiers (0, $out_aref, $subtree, $dp);
+			}
 		}
 		$out =~ s/$htag/H/;
 	    $dp->addChild(Tree::Simple->new($out));
-	    #$subtree->addChild($dp);
 	}
 	elsif ($htag =~ />|\@\-/) {
 		format_rp_modifiers (0, $out_aref, $subtree, $dp);
@@ -595,6 +603,8 @@ sub format_rp_modifiers {
 	    $dp->addChild(Tree::Simple->new($out));
         $subtree->addChild($dp);
     }
+#print "RP\n";
+#print_tree($subtree);
 
 }
 
@@ -930,7 +940,6 @@ sub replace_tags {
 	return $output;
 }
 
-print $footer;
 
 sub print_tree {
 	my $tree = shift @_;
