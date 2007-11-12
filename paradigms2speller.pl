@@ -1,4 +1,4 @@
-#!/bin/perl
+#!/bin/perl -w
 # Perl script that parses generated paradigms, and convert them to
 # typos-like output format.
 
@@ -44,14 +44,14 @@ while ( <> ) {
 	if (/^\s*$/ || /Closing file/) {
         # print found input in the wanted format
         # if no wordforsm, print wordform placeholder + taglist
-        if ( $wordforms[0] eq "" ) {
-            print "--no-generated-wf--		# $taglist\n";
+        if (! $wordforms[0]) {
+            print "--no-generated-wf--		#$taglist\n";
         } else {
         # otherwise:
         # for each wordform
             foreach $wordform (@wordforms) {
                 # print wordform + taglist
-                print "$wordform		# $taglist\n";
+                print "$wordform		#$taglist\n";
             }
         }
         $noise = 1 if $_ =~ /Closing file/;
