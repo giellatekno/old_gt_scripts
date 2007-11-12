@@ -576,6 +576,16 @@
 						</xsl:attribute>	  
 					</xsl:element>
 				</xsl:if>
+				<xsl:if test="$para_fkv">
+					<xsl:element name="parallel_text">
+						<xsl:attribute name="xml:lang">
+						<xsl:text>fkv</xsl:text>
+						</xsl:attribute>	  
+						<xsl:attribute name="location">
+							<xsl:value-of select="$para_fkv"/>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
 			</xsl:if>
 
 			<xsl:choose>
