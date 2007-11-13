@@ -33,6 +33,9 @@ while (<>) {
 	#Pitäisi hypätä tyhjien rivien yli
     if (/^\s*$/) { print; next; }
 
+	#Pitäisi hypätä rivien yli, jotka alkaa '!' -merkillä
+    if (/^\!/) { print; next; }
+
 	if (/LEXICON/ && $inroot) {
 		if (! /\!.*\+/) { $root_comments = ""; print; next; }
 		else {
@@ -49,9 +52,9 @@ while (<>) {
 			next;
 		}
 	}
-	
+
 	if ((! /\!.*\+/) && ($root_comments eq "")) { print; next; }
-	if (/^\!/) { print; next; }
+#	if (/^\!/) { print; next; }
 	chomp;
 
 	my ($entry, $comments) = split (/\;/, $_);
@@ -67,8 +70,8 @@ while (<>) {
 	my $new_line = $root_comments . $new_tags . $entry . ";" . $comments . "\n";
 	print $new_line;
 }
-	
-	
+
+
 
 
 
