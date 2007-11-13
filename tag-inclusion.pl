@@ -34,7 +34,8 @@ while (<>) {
     if (/^\s*$/) { print; next; }
 
 	#Pitäisi hypätä rivien yli, jotka alkaa '!' -merkillä
-    if (/^\!/) { print; next; }
+	# but allow whitespace chars in front of the !
+    if (/^\s*\!/) { print; next; }
 
 	if (/LEXICON/ && $inroot) {
 		if (! /\!.*\+/) { $root_comments = ""; print; next; }
