@@ -375,9 +375,18 @@ sub read_typos {
 		if ($comment) {
 			$comment =~ s/\s*$//;
 			$comment =~ s/^\s*//;
-			# IF BUG ID: either numbers only, or numbers followed by whitespace
-			if ($comment =~ m/^[\#\!]*\d+$/ || $comment =~ m/^[\#\!]*\d+\s/) {
-				my ($bugID, $restcomment) = split(/\s+/,$comment,2);
+			# IF BUG ID: either numbers only, or numbers followed by whitespace,
+			# or, IF PARADIGM, string followed by inflection tags, no whitespace
+			if ($comment =~ m/^[\#\!]*\d+$/  ||
+			    $comment =~ m/^[\#\!]*\d+\s/ ||
+			    $comment =~ m/^[\#\!]*\w+\+/) {
+			    my $bugID = "";
+			    my $restcomment = "";
+			    if ($comment =~ m/\s+/ ) {
+					($bugID, $restcomment) = split(/\s+/,$comment,2);
+			    } else {
+					($bugID, $restcomment) = split(/\+/,$comment,2);
+			    }
 				$bugID =~ s/^[\#\!]//;
 				$rec->{'bugID'} = $bugID;
 				#print STDERR $bugID.".";
