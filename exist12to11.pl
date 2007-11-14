@@ -5,5 +5,6 @@ while (<>) {
     if ( m/xi\:include/ ) {
         s/\" xpointer=\"/\#/g ;
     }
+    print ;
 }
 
