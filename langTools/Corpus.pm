@@ -199,6 +199,7 @@ sub txtclean {
 		$string =~ s/\\//g;
 		# remove all the xml-tags.
 		$string =~ s/<.*?>//g;
+		$string =~ s/[<>]//g;
 		my @text_array;
 		my $title;
 
