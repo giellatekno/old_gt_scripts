@@ -139,7 +139,7 @@ while (<>) {
 			
 			$sentence =~ s/ ([,\;\.\!\?:¶])/$1/g;
 			$num++;
-			print "SOURCE: text\n";
+			print "\nSOURCE: text\n";
 			print "SMEB$num$sentence\n"; # SMEB to differ from first file
 			print "A1\n";
 
