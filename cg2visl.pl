@@ -53,6 +53,8 @@ my $punct = quotemeta("[().:!?-,");
 
 my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@PRON<" => "Pron",
+			   "\@Pron<" => "Pron",
+			   "\@>Pron" => "Pron",
 			   "\@>ADVL" => "ADVL",
 			   "\@ADVL<" => "ADVL",
 			   "\@>Q" => "Num",
@@ -261,8 +263,9 @@ sub build_tree {
                      $ecl->addChild(Tree::Simple->new($out));
 			         $tree=$ecl;
                  }
-                 else { 
-                    if($tree->getNodeValue =~ /^A\:cl/) {
+                 else {
+                    my $tvalue = $tree->getNodeValue; 
+                    if($tvalue && $tvalue =~ /^A\:cl/) {
                         my $p = $tree->getParent;
                         $tree=$p;
                     }
@@ -308,7 +311,7 @@ sub build_tree {
                  my $lvalue = $last->getNodeValue();
                  $tree->addChild($last);
                  if ($lvalue =~ /TV/) {
-                     if ($cso{$lemma} || $out =~ /(Rel|Interr)/) { $group = "Od:cl"; }
+                     if (($lemma && $cso{$lemma}) || $out =~ /(Rel|Interr)/) { $group = "Od:cl"; }
                 }     
             }
             if ($group) {
@@ -465,6 +468,10 @@ sub insert_complex_node {
 	my $last = get_last_child($tree);
 	if (! $last) { return 0; }
 	my $last_value = $last->getNodeValue();
+	if (! $criterion || ! $last_value) { 
+		$tree->addChild($last); 
+		return 0;
+	}
 	my $sibling_value = $sibling->getNodeValue();
 
 	#print "NUM $num $last_value CRIT $criterion\n";
