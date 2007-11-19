@@ -49,14 +49,6 @@ sub add_error_markup {
 				get_error($2, \@new_content);
 			}
 
-			# If parentheses but no nested errors.			
-			#elsif ($text =~ s/^([^$sep\(\)]*\s)?($par_err)//) {
-			#	if ($1) { push @new_content, $1; }
-			#	my $tmp = $2;
-			#	(my $error = $tmp) =~ s/[\(\)]//g;
-			#	get_error($error, \@new_content);
-			#}
-			# nested errors
 			elsif ($text =~ s/^([^$sep\(\)]*\s)?(?:\()($plainerr)(?=[$sep])//) {
 				if ($1) { push @new_content, $1; }
 				my $tmp = $2;
