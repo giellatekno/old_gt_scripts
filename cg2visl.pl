@@ -80,6 +80,18 @@ my %tagpos = ( "\@>PRON" => "Pron",
 			   "\@-FAUXV" => "(V.*(Inf|VAbess|Ger))",
 			   );
 
+my @csa_a = ("go", "goas", "ovdal", "dassá go", "dassážii go", "dan rájes go", "dan botta go", "dalle go", "ovdalgo", "maŋŋilgo", "jus", "jos", "juos", "joas", "nu ahte", "nuvt ahte", "dainna go", "danne go", "danin go", "dan dihte go", "dan dihtii go", "dasgo", "vai", "mađe", "vaikko", "nugo", "dego");
+my %csa;
+for my $c (@csa_a) { $csa{$c}=1; }
+
+my %cso;
+my @cso_a = ("ahte", "goas", "govt", "mo", "gos", "gosa", "guđe", "guđemuš", "vaikko");
+for my $c (@cso_a) { $cso{$c}=1; }
+
+my %csd;
+my @csd_a = ("gos", "gosa", "mas", "masa");
+for my $c (@csd_a) { $csd{$c}=1; }
+
 my $header;
 my $footer; 
 
@@ -159,6 +171,7 @@ while (<>) {
 				if (! $verbose) {
 					$new_value = replace_tags($value); 
 				}
+				$new_value =~ s/^\=*(\.)/$1/;
 				#my $new_value = $_tree->getNodeValue();
 				print (("=" x $_tree->getDepth()), $new_value, "\n");
 			});
@@ -228,9 +241,35 @@ sub build_tree {
 	    elsif ($out =~ /\@CVP:/) { 
 			# Create a node for the embedded clause
             if ($out =~ /CS/) {
-			     my $ecl = Tree::Simple->new('Od:cl', $tree);
-                 $ecl->addChild(Tree::Simple->new($out));
-			     $tree=$ecl;
+                 $out =~ /\(\'(.*?)\'\)/;
+                 my $lemma = $1;
+                 my $group;
+                 my $last = get_last_child($tree);
+                 if ($last) {
+                     my $lvalue = $last->getNodeValue();
+                     $tree->addChild($last);
+                     if ($lvalue =~ /(Dem|Adj)/) {
+                         if ($lemma eq "ahte") { $group = "D:cl"; }
+                     }
+                 }
+                 if(! $group) {
+                     if ($csa{$lemma}) { $group = "A:cl"; }
+                     elsif ($cso{$lemma}) { $group = "Od:cl"; }
+                 }
+                 if ($group) {
+			         my $ecl = Tree::Simple->new($group, $tree);
+                     $ecl->addChild(Tree::Simple->new($out));
+			         $tree=$ecl;
+                 }
+                 else { 
+                    if($tree->getNodeValue =~ /^A\:cl/) {
+                        my $p = $tree->getParent;
+                        $tree=$p;
+                    }
+			        verbose("add_to_tree", $out , __LINE__);	
+                    $tree->addChild(Tree::Simple->new($out));
+                    next;
+                }
             }
             else { 
 			    format_coordination($out, $out_aref, $tree);
@@ -258,7 +297,28 @@ sub build_tree {
             }
             next;
         }
-		else { 
+		else {
+             $out =~ /\(\'(.*?)\'/;
+             my $lemma = $1;
+             my $group;
+             if ($lemma && $csd{$lemma} && $out =~ /\@ADVL/) { $group = "D:cl"; }
+                 
+             my $last = get_last_child($tree);
+             if ($last) {
+                 my $lvalue = $last->getNodeValue();
+                 $tree->addChild($last);
+                 if ($lvalue =~ /TV/) {
+                     if ($cso{$lemma} || $out =~ /(Rel|Interr)/) { $group = "Od:cl"; }
+                }     
+            }
+            if ($group) {
+			     my $ecl = Tree::Simple->new($group, $tree);
+			     verbose("add_to_tree", $out , __LINE__);	
+                 $ecl->addChild(Tree::Simple->new($out));
+			     $tree=$ecl;
+                 next;
+            }
+
 			verbose("add_to_tree", $out , __LINE__);	
             $tree->addChild(Tree::Simple->new($out)); }
 	}
@@ -422,9 +482,8 @@ sub insert_complex_node {
 		my $group;
 		(my $htag = $last_value ) =~ s/^(.*?)\:.*$/$1/s;
 		if ($tag =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/ && $last_value !~ /\+FAUXV/) {
-			$last_value =~ s/^.*?:V/P:v(nfin)/;
+			$last_value =~ s/^.*?:V/P:v/;
 			$group = $htag . ":icl";
-			#$group = "Od:cl";
 		}
 		else {
 			$group = $htag . ":g";
@@ -559,7 +618,7 @@ sub format_rp_modifiers {
 	(my $htag = $out ) =~ s/^(.*?)\:.*$/$1/s;
 	my $group;
 	if ($modifier =~ /(FOBJ|FADVL|FSUBJ|FAUXV)/) {
-		$out =~ s/^.*?:V/P:v(nfin)/;
+		$out =~ s/^.*?:V/P:v/;
 		$group = $htag . ":icl";
 	}
 	else { $group = $htag . ":g"; }
@@ -805,18 +864,22 @@ sub replace_tags {
 	$output =~ s/\@OBJ/Od/g;
 	$output =~ s/\@-FOBJ/Od/g;
 	$output =~ s/\@OPRED/Co/g; 	    
+	$output =~ s/\@HAB/HAB/g; 	    
+	$output =~ s/\@VOC/VOC/g; 	    
 	$output =~ s/\@PCLE/Apcle/g;
 	$output =~ s/\@SPRED/Cs/g; 
 	$output =~ s/\@COMP-CS/D/g; 
 ###	$output =~ s/\@SUBJ/S:g\n=H:Num/g;   # Revise! This must be contextually used.
 	$output =~ s/\@SUBJ/S/g;
 	$output =~ s/\@X/X/g;
+	$output =~ s/^P:TV/P:v/g;
 	$output =~ s/\@\+FAUXV:g/P:g/g;
 	$output =~ s/\@\+FAUXV/P:Vaux/g; 
 	$output =~ s/\@\-FAUXV/D:Vaux/g;
 	$output =~ s/\@\+FMAINV/P/g;       
-	$output =~ s/\@\-FMAINV\:T?V/H\:v(nfin)/g;       
+	$output =~ s/\@\-FMAINV\:T?V/H\:v/g;       
 	$output =~ s/\@\-FSUBJ/S/g;            # non-finite subj
+	$output =~ s/\:Comp/:adj/g ;
 	
 	$output =~ s/([ ,:])adda,/$1der,/g ;
 	$output =~ s/([ ,:])ahtti,/$1der,/g ;
@@ -932,7 +995,7 @@ sub replace_tags {
 	$output =~ s/([ ,:])Sup/$1supi/g ;
 	$output =~ s/([ ,:])VAbess/$1vabe/g ;
 	$output =~ s/([ ,:])VGen/$1vgen/g ;
-	$output =~ s/([ ,:])VInf/$1v\(nfin\)/g ;
+	$output =~ s/([ ,:])VInf/$1v/g ;
 	$output =~ s/([ ,:])V/$1v/g ;
 		
 	$output =~ s/--//g;
