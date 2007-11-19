@@ -20,16 +20,20 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 #our ($fst);
 
+our %types = ("£" => "synt",
+			  "€" => "lex",
+			  "\$" => "ort");
+
+our $sep = "\x{00A7}\$€\x{00A3}\§\£";
+our $sep_c = "\x{00A7}|\$|€|\x{00A3}|\§|\£";
+our $str = "[^$sep\\s\\(\\)]+?";
+our $str_par = "\\([^$sep\\(\\)]+?\\)";
+our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
 
 # Change the manual error markup § to xml-structure.
-#
+
 sub add_error_markup {
 	my ($twig, $para) = @_;
-
-	my %types = ("£" => "synt",
-				 "€" => "lex",
-				 "\$" => "ort");
-
 
 	my @new_content;
 	for my $c ($para->children) {
@@ -37,59 +41,77 @@ sub add_error_markup {
 		my $new_text;
 		my $nomatch = 0;
         # separator: either §, $,€ or £
-		while ($text =~ /[\x{00A7}\$€\x{00A3}]/) {
-			if ($text =~ m/^
-				(.*?         # match the text without corrections
-				\s?)
-				(                # either
-				\(.*?\) |         # string before separator with parentheses
-				[^\s]*?           # string before the error-correction separator withoug parentheses
-				)
-		        ([\x{00A7}\$€\x{00A3}])  # separator: either §, $,€ or £
-				(                  # either
-				\(.*?\)|         # string after separator, possible parentheses or
-			    [^\s]*?([\s\n]+)   # string after separator, no parentheses
-				)
-				(.*)           # rest of the string.
-				$/xs ) {
+		while ($text && $text =~ /[$sep]/) {
 
-				my $start = $1;
-				my $error = $2;
-				my $separator = $3;
-				#print STDERR "JEE $separator\nERROR $error\nCORRECT $4\n";
-				my $correct = $4;
-				$error =~ s/\s$//g;
-				my $space = $5;
-				my $rest = $6;
+			# No nested errors, no parentheses
+			if ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
+				if($1) { push @new_content, $1; }
+				get_error($2, \@new_content);
+			}
 
-				(my $corr = $correct) =~ s/\s?$//;
-				$error =~ s/[\(\)]//g;
-				$corr =~ s/[\(\)]//g;
-				push (@new_content, $start);
-
-				my $error_elt = XML::Twig::Elt->new(error=>{correct=>$corr}, $error);
-                if ($types{$separator}) { $error_elt->set_att('type', $types{$separator}); }
-				push (@new_content, $error_elt);
-
-				# Add space back to the string.
-				if ($space) { $rest = $space . $rest; }
-
-				# If there is no more text or error marking process next element.
-				if (! $rest || $rest !~ /[\x{00A7}\$€\x{00A3}]/) {
-					push (@new_content, $rest);
-					last;
+			# If parentheses but no nested errors.			
+			#elsif ($text =~ s/^([^$sep\(\)]*\s)?($par_err)//) {
+			#	if ($1) { push @new_content, $1; }
+			#	my $tmp = $2;
+			#	(my $error = $tmp) =~ s/[\(\)]//g;
+			#	get_error($error, \@new_content);
+			#}
+			# nested errors
+			elsif ($text =~ s/^([^$sep\(\)]*\s)?(?:\()($plainerr)(?=[$sep])//) {
+				if ($1) { push @new_content, $1; }
+				my $tmp = $2;
+				(my $error = $tmp) =~ s/[\(\)]//g;
+				get_error($error, \@new_content);
+				my $last_err = pop @new_content;
+				if ($text =~ s/^([$sep](?:\()?[^$sep\\(\\)]+?)(?:\))?(?=$|\n|\s)//) {
+					my $tmp = $1;
+					(my $error = $tmp) =~ s/[\(\)]//g;
+					get_error($error, \@new_content, $last_err);
 				}
-				$text = $rest;
-			} else { 
-				print "Did not match: $text\n"; 
-				push(@new_content, $text); 
-				$text="";
-				last;
+			}
+			else {
+				#print "NOT MATCH $text\n";
+				push @new_content, $text;
+				$text ="";
 			}
 		}
+		if ($text) { push @new_content, $text; }
+		
 	}
 	$para->set_content(@new_content);
 }
+
+
+sub get_error {
+	my ($text, $cont_ref, $first_err) = @_;
+
+	if ($text =~ m/^(.*?)([$sep])(.*)$/ ) {
+		
+		my $error = $1;
+		my $separator = $2;
+		my $correct = $3;
+		#print "JEE $separator\nERROR $error\nCORRECT $correct\n";
+
+		$error =~ s/\s$//g;
+		
+		(my $corr = $correct) =~ s/\s?$//;
+		$error =~ s/[\(\)]//g;
+		$corr =~ s/[\(\)]//g;
+
+		my $error_elt;
+		if ($first_err && ! $error) {
+			$error_elt = XML::Twig::Elt->new(error=>{correct=>$corr});
+			$first_err->paste('last_child', $error_elt);
+		}
+		else {
+			$error_elt = XML::Twig::Elt->new(error=>{correct=>$corr}, $error);
+		}
+		if ($types{$separator}) { $error_elt->set_att('type', $types{$separator}); }
+		push (@$cont_ref, $error_elt);		
+	} 
+	#else { print "NOT MATCH get_error: $text\n"; }
+}
+
 
 # Clean the output of an extracted pdf-file
 sub pdfclean {
