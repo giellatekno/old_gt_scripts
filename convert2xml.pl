@@ -79,6 +79,7 @@ GetOptions ("no-decode" => \$no_decode,
 			"all-hyph" => \$all_hyph,
 			"multi-coding" => \$multi_coding,
 			"upload" => \$upload,
+			"test" => \$test,
 			"help" => \$help);
 
 if ($help) {
@@ -87,7 +88,7 @@ if ($help) {
 }
 
 my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, fkv => 1, swe => 1,
-				 eng => 1, oth => 1, );
+				 eng => 1, dan => 1, kal => 1, oth => 1, );
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
 
@@ -366,7 +367,8 @@ sub process_file {
 		} 
 		$document->set_pretty_print('indented');
 		$document->print( \*FH);
-		copy($tmp1,$tmp0);
+		$command = "cp \"$tmp1\" \"$tmp0\" ";
+		exec_com($command, $file);
 	}
 
 	# hyphenate the file
@@ -540,6 +542,7 @@ sub convert_txt {
 	my ($file, $orig, $int, $no_decode_this_time_ref) = @_;	
 
 	copy($orig,$int);
+
 	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
   ENCODING:
 	if (! $no_decode && ! $$no_decode_this_time_ref ) {
@@ -561,6 +564,7 @@ sub convert_txt {
 			$$no_decode_this_time_ref=1;
 		}
 	}
+
 	#return;
 	# Simple html-tags are added in subroutine txtclean
 	# and then converted to confront the corpus structure
@@ -591,16 +595,16 @@ sub convert_html {
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 
-	if (! $no_decode && $coding) {
+	if (! $no_decode) {
+		if (! $coding) { $coding = &guess_text_encoding($orig, $tmp3, $language); }
 		my $error = &decode_text_file($orig, $coding, $tmp4);
 		if ($error eq -1){ return "ERROR"; }
 	}
-
 	if (! -f $tmp4) { copy($orig,$tmp4); }
 	my $xsl;
 	if ($convxsl) { $xsl = $convxsl; }
 	else { $xsl = $htmlxsl; }
-	$command = "$tidy \"$tmp4\" > \"$tmp3\" 2>/dev/null";
+	$command = "$tidy \"$tmp4\" > \"$tmp3\"";
 	exec_com($command, $file);
 
 	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
