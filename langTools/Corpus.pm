@@ -2,6 +2,8 @@
 package langTools::Corpus;
 
 use utf8;
+use open 'utf8';
+
 use warnings;
 use strict;
 
@@ -24,8 +26,8 @@ our %types = ("£" => "synt",
 			  "€" => "lex",
 			  "\$" => "ort");
 
-our $sep = "\x{00A7}\$€\x{00A3}\§\£";
-our $sep_c = "\x{00A7}|\$|€|\x{00A3}|\§|\£";
+our $sep = quotemeta("€§£\$");
+our $sep_c = "\§|\$|€|\£";
 our $str = "[^$sep\\s\\(\\)]+?";
 our $str_par = "\\([^$sep\\(\\)]+?\\)";
 our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
