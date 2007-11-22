@@ -479,7 +479,7 @@ sub xml2preprocess {
 }
 
 sub dis2corpus_xml {
-	my ($text, $tags_href, $w_num_ref) = @_;
+	my ($text, $tags_href, $w_num_ref, $id) = @_;
 
 	my $xml = dis2xml($text);
 
@@ -498,7 +498,7 @@ sub dis2corpus_xml {
 
 	for my $word (@words) {
 
-		my $id = "w" . $$w_num_ref++;
+		my $id = $id . "_w" . $$w_num_ref++;
 		$word->set_att('id', $id);
 		for my $reading ($word->children) {
 			
