@@ -37,6 +37,9 @@ my %exp_anl;
 my $exp_dis;
 my $exp_lo2cg;
 my $preprocess;
+# Add this variable to 1 if 
+# you don't want use expect in paradigm gen.
+my $command_line=0;
 
 my $server = IO::Socket::INET->new( Proto     => 'tcp',
 								 LocalPort => $PORT,
@@ -73,7 +76,7 @@ my $client;
 		# Read the xml-structure which contains the parameters.
 		my $paras;
 		my $start=<$client>;
-		if ($start !~ /parameters/) { print $client "ERROR in parsing parameters\n"; last CLIENT; }
+		if (! $start || $start !~ /parameters/) { print $client "ERROR in parsing parameters\n"; last CLIENT; }
 		chomp $start;
 		$paras .= $start;
 		while(<$client>) {
@@ -242,10 +245,10 @@ sub analyze_input {
 	}
 	# Paradigm generator
 	if ($act eq 'para') {
-		#print "line: $input\n";
+		print "line: $input\n";
 		$analysis = generate_paradigm($exp_anl{$act}, $input);
 		if ($analysis && $analysis =~ /ERROR/) { return $analysis; }
-		
+		#print "ANALYSIS $analysis\n";
 		if ($xml_out) { $output = gen2xml($analysis,1); }
 		else { $output = $analysis; };
 		return $output;
@@ -314,26 +317,49 @@ sub generate_paradigm {
 	my $output;
 
 	for my $r (@input) {
-		#print "r $r\n";
+		print "r $r\n";
 		$r =~ /^(.*)\s+(\w+)/;
 		my $word=$1;
 		my $pos=$2;
 		if ( !$pos ) { return "ERROR: $line"; }
 
+		my $line;
 		for my $a ( @{$paradigms{$pos}} ) {
 			$a =~ s/NACR/N+ACR/; 
 			my $string = "$word+$a";
-			#print "string $string\n";
-			my $analysis = call_analyze($exp, $string);
-			chomp $analysis;
-			next if ($analysis =~ /\+\?/);
-			$output =~ s/$word\+$pos/$word\x{00A7}$pos/g;
-			print "OUTPUT $output\n";
-			$output .= $analysis;
+			my $analysis;
+			if ($command_line) { $line .= $string . "\n"; }
+			else { $analysis = call_analyze($exp, $string);
+				   chomp $analysis;
+				   next if (!$analysis);
+				   next if ($analysis =~ /\+\?/);
+				   $analysis =~ s/$word\+$pos/$word\x{00A7}$pos/g;
+				   $output .= $analysis;
+			}
 		}
+		if ($command_line) {
+			$output = call_analyze_cl($line);
+			$output =~ s/^.*\+\?.*$//mg;
+			$output =~ s/^\s+$//mg;
+			$output =~ s/\n\n/\n/g;
+		}
+
+		#print "OUTPUT $output\n";
 	}
 	return $output;
 }
+
+sub call_analyze_cl {
+    my $line = shift @_;
+
+	my $command="$lookup $action{para}{'args'} $action{para}{'fst'} 2>/dev/null";
+	
+    # send some string there:
+	my $analysis = `echo \"$line\" | $command`;
+	
+    return $analysis;
+}
+
 
 sub call_analyze {
 	my ($exp, $line) = @_;
