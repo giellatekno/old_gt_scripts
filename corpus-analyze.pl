@@ -33,6 +33,7 @@ use POSIX qw(locale_h);
 use Getopt::Long;
 use langTools::XMLStruct;
 use langTools::Util;
+use File::Basename;
 
 my $tagfile;
 my $lang="sme";
@@ -124,7 +125,11 @@ if (! $only_add_sentences) {
 # Process the file given in command line.
 if ( -f $ARGV[$#ARGV]) { $infile = $ARGV[$#ARGV]; }
 if ($infile && ! $outfile) { $outfile = "out.tmp"; }
-						 
+
+my($id, $directories, $suffix) = fileparse($outfile);
+$id =~ s/\.(.*)+$//;
+print "$id\n";
+				 
 my $document;
 
 my $OFH;						 
@@ -138,7 +143,7 @@ $document = XML::Twig->new(twig_handlers => {
 });
 
 if (! $document->safe_parsefile ($infile)) {
-	print STDERR "Couldn't parse file: $@";
+	print STDERR "Couldn't parse file $infile: $@";
 }
 
 print $OFH qq|<body>|;
@@ -312,7 +317,7 @@ sub add_sentences {
 		if (! $sentence) {
 			# create an XML-element for a new sentence.
 			$sentence = XML::Twig::Elt->new('s');
-			my $id = "s" . $s_id++;
+			my $id = $id . "_s" . $s_id++;
 			$sentence->set_att('id', $id);
 		}
 
@@ -339,7 +344,9 @@ sub add_sentences {
 		if (! $sentence) {
 			# create an XML-element for a new sentence.
 			$sentence = XML::Twig::Elt->new('s');
-			$sentence->set_att('id', $s_id++);
+			my $sid = $id . "_s" . $s_id;
+			$sentence->set_att('id', $sid);
+			$s_id++;
 		}
 		$sentence->set_content(@prev_sent, @words);
 		undef @prev_sent;
@@ -360,8 +367,8 @@ sub analyze_para {
 	}
 
 	if (! $para->{'att'}->{'id'}) { 
-		my $id = "p" . $p_num++;
-		$para->set_att('id', $id);
+		my $pid = $id . "_p" . $p_num++;
+		$para->set_att('id', $pid);
 	}
 	my @sent = $para->children;
 	if (@sent) {
@@ -404,7 +411,7 @@ sub analyze_sent {
 	waitpid $pid, 0 ;
 	
 	#print $disambiguated;
-	my $token = dis2corpus_xml($disambiguated, \%tags, \$w_num);
+	my $token = dis2corpus_xml($disambiguated, \%tags, \$w_num, $id);
 	
 	my @children = $token->cut_children;
 	$sent->set_content(@children); 
