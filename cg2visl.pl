@@ -985,7 +985,7 @@ sub replace_tags {
 	$output =~ s/([ ,:])PxDu3/$1poss3du/g ;
 	$output =~ s/([ ,:])PxPl1/$1poss1pl/g ;
 	$output =~ s/([ ,:])PxPl2/$1poss2pl/g ;
-	$output =~ s/([ ,:])PxPl3/$1poss3du/g ;
+	$output =~ s/([ ,:])PxPl3/$1poss3pl/g ;
 	$output =~ s/([ ,:])PxSg1/$1poss1sg/g ;
 	$output =~ s/([ ,:])PxSg2/$1poss2sg/g ;
 	$output =~ s/([ ,:])PxSg3/$1poss3sg/g ;
