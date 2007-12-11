@@ -501,7 +501,7 @@ sub insert_complex_node {
 		#print "GROUP $group\n";
 		my $new_node = Tree::Simple->new($group);
 		$last_value =~ s/^\-//;
-		$last_value =~ s/\@\+FAUXV/D:vaux/;
+		$last_value =~ s/\@\+FAUXV/D:/;
 
 		$last->setNodeValue($last_value);
 
@@ -722,6 +722,7 @@ sub format_auxiliary {
 	}
 	# Search for main verb if it was not already found.
 	if ($out =~ /Vaux/) {
+
 		$out2 = shift @$out_aref;
 		while ($out2 && ($out2 !~ /\@\-FMAINV/ )) {
 			push (@tmp_array2, $out2);
@@ -880,14 +881,17 @@ sub replace_tags {
 	$output =~ s/\@SUBJ/S/g;
 	$output =~ s/\@X/X/g;
 	$output =~ s/^P:TV/P:v/g;
+	$output =~ s/(TV|IV)\,//g;
+	$output =~ s/(Mal|Fem|Plc)\,//g;
 	$output =~ s/\@\+FAUXV:g/P:g/g;
-	$output =~ s/\@\+FAUXV/P:Vaux/g; 
-	$output =~ s/\@\-FAUXV/D:Vaux/g;
+	$output =~ s/\@\+FAUXV/P/g; 
+	$output =~ s/\@\-FAUXV/D/g;
 	$output =~ s/\@\+FMAINV/P/g;       
 	$output =~ s/\@\-FMAINV\:T?V/H\:v/g;       
 	$output =~ s/\@\-FSUBJ/S/g;            # non-finite subj
 	$output =~ s/\:Comp/:adj/g ;
-	
+	$output =~ s/\:Vaux//g ;
+
 	$output =~ s/([ ,:])adda,/$1der,/g ;
 	$output =~ s/([ ,:])ahtti,/$1der,/g ;
 	$output =~ s/([ ,:])alla,/$1der,/g ;
@@ -1006,6 +1010,7 @@ sub replace_tags {
 	$output =~ s/([ ,:])V/$1v/g ;
 		
 	$output =~ s/--//g;
+	$output =~ s/\#//g;
 	
 	return $output;
 }
