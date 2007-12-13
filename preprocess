@@ -56,6 +56,7 @@ my $ltag = "[";
 my $rtag = "]";
 my $sentences=0;
 my $no_utf8=0;
+my $preserve_newline=0;
 
 GetOptions ("abbr=s" => \$abbr_file,
 			"fst=s" => \$fst,
@@ -136,7 +137,7 @@ while (<>) {
 		if (!eof) { next; }
 		else { $next_line = undef; }
 	}
-	elsif(eof) { $next_line = undef; }
+	elsif(eof && ! $_) { $next_line = undef; }
 	else { $next_line = $_; }
 
 	# If no XML-processing, split line to tokens.
@@ -155,6 +156,7 @@ while (<>) {
 			my %w = ('word' => $2, 'space' => $1);
 			push (@words, \%w);
 		}
+
 		$next_line = undef;
 	}
 	else {
@@ -165,11 +167,12 @@ while (<>) {
 		
 		if (!@words) { xml_tags($line, \@words); }
 		xml_tags($next_line, \@next_words)
-		} 
-	
+		}
+
+	if ($preserve_newline) { $words[-1]{space} .= "\n";	}
 	process_words();
+
 	@words = @next_words;
-	
 }
 
 process_words();
