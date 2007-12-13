@@ -55,7 +55,7 @@ my $connect;
 my $space=0;
 my $ltag = "<";
 my $rtag = ">";
-my $sentences=1;
+my $sentences=0;
 my $no_utf8=0;
 my $preserve_newline=0;
 my $split_strings=1;
