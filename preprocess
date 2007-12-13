@@ -34,7 +34,7 @@ my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
 my $NOAB="NOAB";
-my $TRAB_RE="TRAB_RE";
+my $TRNUMAB_RE="TRNUMAB_RE";
 
 # Max size of a multi-word expression.
 my $MULTIWORD_SIZE = 3;
@@ -55,7 +55,7 @@ my $connect;
 my $space=0;
 my $ltag = "<";
 my $rtag = ">";
-my $sentences=0;
+my $sentences=1;
 my $no_utf8=0;
 my $preserve_newline=0;
 my $split_strings=1;
@@ -380,7 +380,7 @@ sub process_word {
 	  # The word is checked for abbreviation and sentence boundary.
 	  my $abbr = $word;
 	  if ($abbr =~ s/\.$//) {
-		  if ($abbrs{$abbr} || $abbrs{lc($abbr)} || ($regex{$TRAB_RE} && $abbr =~ /^$regex{$TRAB_RE}$/)) {
+		  if ($abbrs{$abbr} || $abbrs{lc($abbr)} || ($regex{$TRNUMAB_RE} && $abbr =~ /^$regex{$TRNUMAB_RE}$/)) {
 			  verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
 			  test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
 			  last TEST;
@@ -466,10 +466,6 @@ sub test_abbr {
 		return 1;
 	}
 
-	if ($regex{TRAB_RE} && $abbr =~ /$regex{TRAB_RE}/) { 
-		add_token($tokens_aref, $w_token, $word);
-		return 1;
-	}
 	# There is CLB after TRNUMAB only for the capital+small combinations
 	# and all small-initial strings that consist of more than one letter.
 	# For all other strings (one small letter, one or several capital letters, number) we
@@ -486,6 +482,14 @@ sub test_abbr {
 	elsif ($abbrs{$abbr} eq $ITRAB || $abbrs{lc($abbr)} eq $ITRAB) {
 		add_token ($tokens_aref, $w_token, $word);
 		if ($next_word !~ /^[\p{Ll}\pP]/o) {
+			add_new_token ($tokens_aref, $sentence_break);
+		}
+		return 1;
+	}
+
+	if ($regex{$TRNUMAB_RE} && $abbr =~ /$regex{$TRNUMAB_RE}/) { 
+		add_token ($tokens_aref, $w_token, $word);
+		if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
 			add_new_token ($tokens_aref, $sentence_break);
 		}
 		return 1;
@@ -905,14 +909,20 @@ sub print_token{
 sub print_sentence {
 	my $tokens_aref = shift @_;
 
+	my $sentend=0;
+	my $break = quotemeta($sentence_break);
+
 	for my $t (@$tokens_aref) {
-		if ($t->{space}) { print $t->{space}; }
+		if (! $sentend && $t->{space}) { print $t->{space}; }
 		next if ($t->{word} =~ /^$/);
-		if ($t->{word} =~ /^[\!\?\.$sentence_break]$/) { 
-			(my $n_word = $t->{word} ) =~ s/$sentence_break//g;
-			print $n_word, "\n";
+		if ($t->{word} =~ /^$break$/) {
+			my $n_word = $t->{word};
+			if ($sentence_break ne ".") {
+				$n_word =~ s/$sentence_break//g;
+			}
+			print "$n_word\n\n";
 		}
-		else { print $t->{word}; }
+		else { print $t->{word};}
 	}
 }
 
@@ -978,7 +988,7 @@ sub read_abbr {
 		last if (/^LEXICON IDIOM/);
 		if (/^LEXICON\s+(.*?)\s*$/) {
 			$current = $1;
-			if ($current =~ /REGEX/) {
+			if ($current =~ /_RE/) {
 				while (<LEX>) {
 					next if (/^\s*$/);
 					chomp;
