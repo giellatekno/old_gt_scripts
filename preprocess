@@ -34,6 +34,7 @@ my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
 my $NOAB="NOAB";
+my $TRAB_RE="TRAB_RE";
 
 # Max size of a multi-word expression.
 my $MULTIWORD_SIZE = 3;
@@ -52,11 +53,12 @@ my $line;
 my $next_line;
 my $connect;
 my $space=0;
-my $ltag = "[";
-my $rtag = "]";
+my $ltag = "<";
+my $rtag = ">";
 my $sentences=0;
 my $no_utf8=0;
 my $preserve_newline=0;
+my $split_strings=1;
 
 GetOptions ("abbr=s" => \$abbr_file,
 			"fst=s" => \$fst,
@@ -96,7 +98,7 @@ my $SINGLE_PUNCT = $quotations . $parentheses . quotemeta("?!,;/\\") . $other;
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SINGLE_PUNCT.
-my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.txt|¹|²|³|™';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.com|\.txt|\.no|¹|²|³|™';
 if ($xml) { $CONTAIN_PUNCT .= "|<.*>"; }
 
 # Punctuation that connects two or more numerals 
@@ -106,10 +108,11 @@ my $NUM_PUNCT=quotemeta("-+*=/≈·");
 my %idioms;
 my %idioms_short;
 my %num;
+my %regex;
 
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
-if ($abbr_file) { &read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num); 
+if ($abbr_file) { &read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num, \%regex); 
 }
 # Read the corrections file (typos.txt)
 if ($corr) { &read_corr (\%corrections, \%corr_short); }
@@ -343,11 +346,13 @@ sub process_word {
 	if ( $idioms_short{$word}) { test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE); }
 
     my $end_num;
-    if ($word =~ /\.?(\d+\.?)$/){
-        $word =~ s/(\d+\.?)$//;
-        $end_num = $1;
-        verbose ("process_word/end_num", $end_num, __LINE__);
-    }
+	if ($split_strings) {
+		if ($word =~ /\.?(\d+\.?)$/){
+			$word =~ s/(\d+\.?)$//;
+			$end_num = $1;
+			verbose ("process_word/end_num", $end_num, __LINE__);
+		}
+	}
 
     # Store the punctuation at the front of the string to tokens array.
 	if ($word =~ s/^([*+=%:\p{Pd}$other]+)//o) {
@@ -375,7 +380,7 @@ sub process_word {
 	  # The word is checked for abbreviation and sentence boundary.
 	  my $abbr = $word;
 	  if ($abbr =~ s/\.$//) {
-		  if ($abbrs{$abbr} || $abbrs{lc($abbr)}) {
+		  if ($abbrs{$abbr} || $abbrs{lc($abbr)} || ($regex{$TRAB_RE} && $abbr =~ /^$regex{$TRAB_RE}$/)) {
 			  verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
 			  test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
 			  last TEST;
@@ -411,7 +416,7 @@ sub process_word {
 	  # e.g. gielddat/guovllut
 	  # Check for expressions in $CONTAIN_PUNCT -variable.
 	  verbose ("process_word/not_abbr", "$word", __LINE__);
-	  if ($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/ || $word =~ /([\pL\p{Pd}]+)([^\pL \:\-\`]+[\p{pD}\pL]+.*)$/) {
+	  if (($split_strings && $word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
 		  if ($word !~ /$CONTAIN_PUNCT/o) {
 			  $word = $1;
 			  my %w = ('word' => $2);
@@ -456,7 +461,12 @@ sub test_abbr {
 
 	# Transitive abbreviations are never followed
 	# by sentence boundary.
-	if ($abbrs{$abbr} eq $TRAB || $abbrs{lc($abbr)} eq $TRAB) {
+	if ($abbrs{$abbr} eq $TRAB || $abbrs{lc($abbr)} eq $TRAB ) {
+		add_token($tokens_aref, $w_token, $word);
+		return 1;
+	}
+
+	if ($regex{TRAB_RE} && $abbr =~ /$regex{TRAB_RE}/) { 
 		add_token($tokens_aref, $w_token, $word);
 		return 1;
 	}
@@ -715,29 +725,30 @@ sub process_numeral {
 
 	my $end_word;
 
-	SPLIT_NUMERAL : {
-		# Check if the word is an inflected numeral. 12s, etc.
-		if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)(\.)?$/o ) {
-
-			verbose ("process_numeral/inflected", $word, __LINE__);
-			if ( $num{$3} ) { last SPLIT_NUMERAL; }
-			if (! $2 ) { 
-				verbose ("add_token", "$1", __LINE__);
-				add_token($tokens_aref, $w_token, $1);
-				my %w = ('word' => $3);
-				process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
-				if ($4) { $end_punct = $4 . $end_punct; }
-				if ($end_punct) {
-					my @ep = split(//, $end_punct); 
-					verbose ("add_array", "@ep", __LINE__);
-					add_array($tokens_aref, \@ep);
+	if ($split_strings) {
+		SPLIT_NUMERAL : {
+			# Check if the word is an inflected numeral. 12s, etc.
+			if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)(\.)?$/o ) {
+				
+				verbose ("process_numeral/inflected", $word, __LINE__);
+				if ( $num{$3} ) { last SPLIT_NUMERAL; }
+				if (! $2 ) { 
+					verbose ("add_token", "$1", __LINE__);
+					add_token($tokens_aref, $w_token, $1);
+					my %w = ('word' => $3);
+					process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
+					if ($4) { $end_punct = $4 . $end_punct; }
+					if ($end_punct) {
+						my @ep = split(//, $end_punct); 
+						verbose ("add_array", "@ep", __LINE__);
+						add_array($tokens_aref, \@ep);
+					}
+					
+					return;
 				}
-
-				return;
+				last SPLIT_NUMERAL;
 			}
-			last SPLIT_NUMERAL;
 		}
-
 		# Check if there is an abbreviation or a word attached to
 		# numeral. E.g. 6.b. ...ovdal. This introduces problems with some
 		# mispellings with headings, like 1.6.Vuonain 
@@ -947,7 +958,7 @@ sub read_corr {
 
 
 sub read_abbr {
-	my ($abbr_href, $idiom_href, $idiom_short_href, $num_href) = @_;
+	my ($abbr_href, $idiom_href, $idiom_short_href, $num_href, $regex_href) = @_;
 	
 	local $/="\n";
     # The filename may contain a tilde ~
@@ -967,6 +978,14 @@ sub read_abbr {
 		last if (/^LEXICON IDIOM/);
 		if (/^LEXICON\s+(.*?)\s*$/) {
 			$current = $1;
+			if ($current =~ /REGEX/) {
+				while (<LEX>) {
+					next if (/^\s*$/);
+					chomp;
+					if (/^LEXICON\s+(.*?)\s*$/) { $current = $1; last; }
+					$regex{$current} = $_;
+				}
+			}
 			next;
 		}
 		$$abbr_href{$_} = $current;
