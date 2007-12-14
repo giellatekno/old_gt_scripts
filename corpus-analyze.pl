@@ -1,6 +1,11 @@
 #!/usr/bin/perl -w
 use strict;
 use utf8;
+binmode( STDIN, ':utf8' );
+binmode( STDOUT, ':utf8' );
+binmode( STDERR, ':utf8' );
+use open 'utf8';
+
 
 # corpus-analyze.pl [OPTIONS] [FILE]
 #
@@ -81,21 +86,17 @@ my $fst = $binpath ."/". $lang . ".fst";
 my $abbr = $binpath ."/abbr.txt";
 my $rle = $binpath ."/". $lang ."-dis.rle";
 #my $preproc = "/usr/local/bin/preprocess";
-my $preproc = "/Users/saara/gt/script/preprocess --break='<<<'";
+my $preproc = "/Users/saara/gt/script/preprocess";
 
 if(! $tagfile) { 
 	$tagfile = "/Users/saara/opt/smi/$lang/bin/korpustags.$lang.txt";
 }
-if(! $tagfile) { 
+if(! -f $tagfile) { 
 	$tagfile = "/Users/saara/opt/smi/common/bin/korpustags.txt"; 
 }
+print "Using tags $tagfile\n";
 
 my $host=`hostname`;
-# If we are in G5
-if ($host !~ /victorio.uit.no/) {
-    $lookup="lookup";
-    $vislcg="vislcg";
-}
 
 $vislcg .= " --grammar=$rle --quiet";
 my $disamb = "$lookup2cg | $vislcg";
@@ -106,6 +107,8 @@ elsif ($lang =~ /nob/) {
 	$preprocess = "$preproc --abbr=$abbr";
 }
 else { $preprocess = "$preproc"; }
+my $preprocess_break = "$preprocess --break='<<<'";
+
 
 my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg";
 
@@ -136,7 +139,7 @@ my $OFH;
 open ($OFH, ">$outfile");
 print $OFH qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 print $OFH qq|\n<!DOCTYPE document PUBLIC "-//UIT//DTD Corpus V1.0//EN" "http://giellatekno.uit.no/dtd/corpus.dtd">\n|;
-print $OFH qq|<document>|;
+print $OFH qq|<document id="$id">|;
 
 $document = XML::Twig->new(twig_handlers => {  
 	'header' => sub { $_->set_pretty_print("record"); $_->print($OFH); }
@@ -149,7 +152,7 @@ if (! $document->safe_parsefile ($infile)) {
 print $OFH qq|<body>|;
 
 if (! $only_add_sentences) { print "** Analyzing $infile:\n$analyze\n"; }
-else { 	print "** Preprocessing $infile:\n$preprocess\n"; }
+else { 	print "** Preprocessing $infile:\n$preprocess_break\n"; }
 						 
 
 PARSE: {
@@ -261,7 +264,7 @@ sub add_sentences {
 
 	$text =~ s/\n/ /g;
 	
-	my $pid = open2(\*R,\*W, $preprocess); 
+	my $pid = open2(\*R,\*W, $preprocess_break); 
 	$pid || die "did not work as expected:$!"; 
 
 	binmode R, ':utf8';
@@ -283,7 +286,7 @@ sub add_sentences {
   WORDS:
 	for $ans (@answers) {
 		chomp $ans;
-		
+
 		# ignore empty lines
 		next WORDS if $ans =~ /^\s*$/;
 		$ans =~ s/\s*$//;
@@ -302,12 +305,14 @@ sub add_sentences {
 
 		if ($sentence_end) {
 			$sentence->set_content(@prev_sent, @words);
-			undef @prev_sent;
 			$sentence->paste('last_child', $para);
 			$sentence->DESTROY;
 			$sentence=undef;
 			@words=undef;
 			pop @words;
+			@prev_sent=undef;
+			pop @prev_sent;
+
 			$sentence_end = 0;
 		}
 
@@ -338,8 +343,12 @@ sub add_sentences {
 	# Skip empty sentences.
 	if(@words && $#words<3 && $words[0] =~ /^[\W\s]*$/) {
 		print "Empty: @words\n";
+		$para->set_pretty_print("record");
+		$para->print($OFH);
+		$para->delete;
 		return;
 	}
+
 	if (@words) {
 		if (! $sentence) {
 			# create an XML-element for a new sentence.
@@ -348,6 +357,7 @@ sub add_sentences {
 			$sentence->set_att('id', $sid);
 			$s_id++;
 		}
+
 		$sentence->set_content(@prev_sent, @words);
 		undef @prev_sent;
 		$sentence->paste('last_child', $para);
@@ -396,7 +406,7 @@ sub analyze_sent {
 	my $text = $sent->text;
 	$text =~ s/\n/ /g;
 	
-	#print $text;
+	#print "TEXT $text";
 	my $pid = open2(\*R,\*W, $analyze); 
 	$pid || die "did not work as expected:$!";
 
