@@ -576,6 +576,7 @@
 						</xsl:attribute>	  
 					</xsl:element>
 				</xsl:if>
+<!--
 				<xsl:if test="$para_fkv">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
@@ -586,6 +587,7 @@
 						</xsl:attribute>	  
 					</xsl:element>
 				</xsl:if>
+-->
 			</xsl:if>
 
 			<xsl:choose>
