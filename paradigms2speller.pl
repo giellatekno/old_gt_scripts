@@ -1,7 +1,7 @@
 #!/bin/perl -w
 # Perl script that parses generated paradigms, and convert them to
 # typos-like output format.
-
+#
 #  Input is like this:
 # 
 # áigi+N+Sg+Nom
@@ -26,7 +26,6 @@
 # áigge		# áigi+N+Sg+Gen
 # áiggi		# áigi+N+Sg+Acc
 # áigái		# áigi+N+Sg+Ill
-
 
 
 my $noise = 1;
