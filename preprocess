@@ -44,7 +44,6 @@ my $help=0;
 my $verbose=0;
 my $hyph=0;
 my $use_hyph_tag=0;
-my $fst;
 my $corr;
 my $sentence_break=".";
 my $xml;
@@ -61,7 +60,6 @@ my $preserve_newline=0;
 my $split_strings=1;
 
 GetOptions ("abbr=s" => \$abbr_file,
-			"fst=s" => \$fst,
 			"corr=s" => \$corr,
 			"break=s" => \$sentence_break,
 			"xml" => \$xml,
@@ -1033,8 +1031,8 @@ Options:
     --connect=<list> comma separated list of words which connect expressions
                      like fisk- og vilthandelen 
     --space|s        Preserve space.
-    --ltag=s"        Left tag for space, default [
-    --rtag=s"        Right tag for space, default ]
+    --ltag=<string>  Left tag for space, default <
+    --rtag=<string>  Right tag for space, default >
     --help           Prints the help text and exit.
     --v              Prints information of the execution of the script
     --corr=<file>    List of common typos and their corrections (e.g. typos.txt)
