@@ -31,11 +31,13 @@ my $comp_rate = 0;
 my $max_comp_rate = 0;
 my $der=0;
 
+my $dict=0;
 my $der=0;
 my $help;
 
 Getopt::Long::Configure ("bundling");
-GetOptions ("der|d" => \$der,
+GetOptions ("der|r" => \$der,
+			"dict|d" => \$dict,
 			"help" => \$help);
 
 if ($help) {
@@ -82,10 +84,13 @@ while(<>) {
 		}
 		pop @Analyses;
 		rate_compounds(\%rated); 
+		# If dictionary use, try to prefer lexicalized compounds
+		if ( $dict ) { select_lexicalized(\%rated); }
 		for my $key (keys %rated) {
 			push @Analyses, $key;
 		}
 	}
+
 	# Format each analysis
 	for my $line (@Analyses) {
 		# Separate the base form from the analysis
@@ -108,7 +113,7 @@ while(<>) {
 		if ($plus) { $base = $plus . $base; }
 
 		# If line contains a compound
-		if ( $comp_rate > 0 && ! $der) {
+		if ( $comp_rate > 0 && ! $der && ! $dict) {
 			format_compound(\$base, \$line2, \$word); 
 		}
 		# Mark derivational tags
@@ -140,20 +145,47 @@ sub rate_compounds {
 	# Rate compounds and remove extra readings.
 	my $min_boundary_count=5;
 	my $boundary_count=0;
+	my $der_count=0;
 	for (keys %$href) {
 		$boundary_count = tr/\#//;
+		$der_count = () = $_ =~ /Der\//g;
+
+		$boundary_count += $der_count;
+		# The derivation is not preferred.
+		#if (/Der\d\+Der/) { $boundary_count++; }
 		if ( $boundary_count < $min_boundary_count )
 		{ $min_boundary_count = $boundary_count; }
 	}
 	my $i=0;
-	$boundary_count = 0;
 	for (keys %$href) {
+		$boundary_count = 0;
+		$der_count = 0;
 		if ($der) {
 			next if /\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/;
 		}
 		$boundary_count = tr/\#//;
+		$der_count = () = $_ =~ /Der\//g;
+		$boundary_count += $der_count;
 		if ( $boundary_count > $min_boundary_count )
 		{ delete($$href{$_}); }
+	}
+}
+
+sub select_lexicalized {
+	my $href = shift @_;
+
+	my %lexicalized;
+
+	# Select the forms which do not have any compound tags
+	for (keys %$href) { 
+		next if (m/\+.*\#/);
+		$lexicalized{$_} = 1;
+	}
+	# If there were lexicalized compounds, delete others from output
+	if (%lexicalized) {
+		for my $k (keys %$href) {
+			if (! $lexicalized{$k}) { delete($$href{$k}); }
+		}
 	}
 }
 
