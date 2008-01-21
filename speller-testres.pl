@@ -3,8 +3,8 @@
 # speller-testres.pl
 # Combines speller input and output to test results.
 # The default input format is typos.txt. 
-# Output is either PLX or AppleScript output format.
-# Prints to STDOUT at the moment. XML-output is not implemented.
+# Output is either PLX (pl) or AppleScript/MS Word (mw) output format.
+# Prints to  an XML file.
 #
 # Usage: speller-testres.pl -h
 #
