@@ -2,7 +2,7 @@
 #
 # hyphen-testres.pl
 # Combines hyphenator input and output to test results.
-# The default input format is similar to typos.txt. 
+# The default input format is similar to typos.txt.
 # Output is only PLX (pl) output format at the moment.
 # Prints to  an XML file.
 #
@@ -77,7 +77,7 @@ if ($print_xml) { print_xml_output(); }
 else { print_output(); }
 
 sub read_applescript {
-	
+
 	print STDERR "Reading AppleScript output from $output\n";
 	open(FH, $output);
 
@@ -89,7 +89,7 @@ sub read_applescript {
 
 		if (/Prompt\:/) {
 			confess "Probably reading Polderland format, start again with option --pl\n\n";
-		} 
+		}
 		my ($orig, $error, $sugg) = split(/\t/, $_, 3);
 		if ($sugg) { @suggestions = split /\t/, $sugg; }
 		$orig =~ s/^\s*(.*?)\s*$/$1/;
@@ -142,7 +142,7 @@ sub read_polderland {
 		$orig =~ s/^\s*//;
 		$orig =~ s/\s*$//;
 		if ($originals[$i]{orig} && $originals[$i]{'orig'} eq $orig) {
-			$originals[$i]{sugg} = $hyphenated; 
+			$originals[$i]{sugg} = $hyphenated;
 			#print STDERR "INPUT $orig\n";
 			#print STDERR "OUTPUT $hyphenated\n";
 			$i++; next;
@@ -152,14 +152,14 @@ sub read_polderland {
 		# First search the output word in the input list.
 		my $j = $i;
 		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
-		
+
 		# If the output word was not found in the input list, ignore it.
 		if (! $originals[$j]) {
 			#cluck "WARNING: Output word $orig was not found in the input list.\n";
 			$orig=undef;
 			next;
 		}
-		
+
 		# If it was found later, mark the intermediate input as correct.
 		elsif($j != $i) {
 			for (my $p=$i; $p<$j; $p++){
@@ -170,14 +170,14 @@ sub read_polderland {
 			$i=$j;
 		}
 		if ($originals[$i]{orig} && $originals[$i]{'orig'} eq $orig) {
-			$originals[$i]{sugg} = $hyphenated; 
+			$originals[$i]{sugg} = $hyphenated;
 			print STDERR "INPUT $orig\n";
 			print STDERR "OUTPUT $hyphenated\n";
 			$i++; next;
 		}
 		$i++;
 	}
-	
+
 	close(FH);
 	while($originals[$i]) { $originals[$i]{'error'} = "SplCor"; $i++; }
 	exit;
@@ -281,7 +281,7 @@ sub print_xml_output {
 	$tool->set_att('version', $version);
 	$tool->set_att('type', $input_type);
 	$tool->paste('last_child', $header);
-	
+
 	# what was the checked document
 	my $docu = XML::Twig::Elt->new('document');
 	if (!$document) { $document=basename($input); }
@@ -290,7 +290,7 @@ sub print_xml_output {
 
     # The date is the timestamp of speller output file if not given.
 	my $date_elt = XML::Twig::Elt->new('date');
-	if (!$date ) { 
+	if (!$date ) {
 		$date = ctime(stat($output)->mtime);
 		#print "file $input updated at $date\n";
 	}
@@ -315,32 +315,60 @@ sub print_xml_output {
 	$results->set_pretty_print('record');
 
 	for my $rec (@originals) {
-		
-		my $word = XML::Twig::Elt->new('word'); 
-		if ($rec->{'orig'}) { 
-			my $original = XML::Twig::Elt->new('original'); 
+
+		my $word = XML::Twig::Elt->new('word');
+		if ($rec->{'orig'}) {
+			my $original = XML::Twig::Elt->new('original');
 			$original->set_text($rec->{'orig'});
 			$original->paste('last_child', $word);
 		}
-		if ($rec->{'expected'}){ 
-			my $expected = XML::Twig::Elt->new('expected'); 
-			$expected->set_text($rec->{'expected'});
+		if ($rec->{'expected'}){
+			my $exp = $rec->{'expected'};
+			my $sugg = $rec->{'sugg'};
+
+			my @exp_index = get_index($exp, $sugg);
+			my @sugg_index = get_index($sugg, $exp);
+
+			for my $i (@exp_index) {
+				my $begin = substr $exp ,0 ,$i;
+   				my $end = substr $exp ,$i+1;
+   				$exp = $begin . "I" . $end;
+			}
+
+			for my $i (@sugg_index) {
+				my $begin = substr $sugg ,0 ,$i;
+   				my $end = substr $sugg ,$i+1;
+   				$sugg = $begin . "I" . $end;
+			}
+
+			my $expected = XML::Twig::Elt->new('expected');
+			$expected->set_text($exp);
+			$expected->split(qr/(I)/, 'error');
+			$expected->subs_text(qr/I/, '-');
 			$expected->paste('last_child', $word);
+
+			my $suggested = XML::Twig::Elt->new('hyphenated');
+			$suggested->set_text($sugg);
+			$suggested->split(qr/(I)/, 'error');
+			$suggested->subs_text(qr/I/, '-');
+			$suggested->paste('last_child', $word);
+
+
 			# calling Text::Brew to get the editing distance or list of editing operations
 			my $distance=distance($rec->{'orig'},$rec->{'expected'},{-output=>'distance'});
-			my $edit_dist = XML::Twig::Elt->new('edit_dist'); 
+			my $edit_dist = XML::Twig::Elt->new('edit_dist');
 			$edit_dist->set_text($distance);
 			$edit_dist->paste('last_child', $word);
 		}
-		if ($rec->{'error'}){ 
-			my $error = XML::Twig::Elt->new('status'); 
+		if ($rec->{'error'}){
+			my $error = XML::Twig::Elt->new('status');
 			$error->set_text($rec->{'error'});
 			$error->paste('last_child', $word);
 		}
 		if ($rec->{'forced'}){ $word->set_att('forced', "yes"); }
-		
+
 		if ($rec->{'error'} && $rec->{'error'} eq "SplErr") {
-			my $suggestions_elt = XML::Twig::Elt->new('suggestions'); 
+			my $suggestions_elt = XML::Twig::Elt->new('suggestions');
 			my $sugg_count=0;
 			if ($rec->{'sugg'}) { $sugg_count = scalar @{ $rec->{'sugg'}} };
 			$suggestions_elt->set_att('count', $sugg_count);
@@ -349,8 +377,8 @@ sub print_xml_output {
 			my $near_miss_count = 0;
 			if ($rec->{'suggnr'}) { $near_miss_count = $rec->{'suggnr'}; }
 			if ($rec->{'sugg'}) {
-				
-				my @suggestions = @{$rec->{'sugg'}};			
+
+				my @suggestions = @{$rec->{'sugg'}};
 				my @numbers;
 				if ($rec->{'num'}) { @numbers =  @{$rec->{'num'}}; }
 				for my $sugg (@suggestions) {
@@ -361,8 +389,8 @@ sub print_xml_output {
 						$suggestion->set_att('expected', "yes");
 					}
 					my $num;
-					if (@numbers) { 
-						$num = shift @numbers; 
+					if (@numbers) {
+						$num = shift @numbers;
 						$suggestion->set_att('penscore', $num);
 					}
 					if ($near_miss_count > 0) {
@@ -371,7 +399,7 @@ sub print_xml_output {
 					}
 
 					$suggestion->paste('last_child', $suggestions_elt);
-				} 
+				}
 				my $i=0;
 				if ($rec->{'expected'}) {
 					while ($suggestions[$i] && $rec->{'expected'} ne $suggestions[$i]) { $i++; }
@@ -385,21 +413,21 @@ sub print_xml_output {
 		if ($rec->{'tokens'}) {
 			my @tokens = @{$rec->{'tokens'}};
 			my $tokens_num = scalar @tokens;
-			my $tokens_elt = XML::Twig::Elt->new(tokens=>{ count=>$tokens_num }); 
+			my $tokens_elt = XML::Twig::Elt->new(tokens=>{ count=>$tokens_num });
 			for my $t (@tokens) {
-				my $token_elt = XML::Twig::Elt->new('token', $t); 
+				my $token_elt = XML::Twig::Elt->new('token', $t);
 				$token_elt->paste('last_child', $tokens_elt);
 			}
 			$tokens_elt->paste('last_child', $word);
 		}
-		if ($rec->{'bugID'}){ 
-			my $bugID = XML::Twig::Elt->new('bug'); 
+		if ($rec->{'bugID'}){
+			my $bugID = XML::Twig::Elt->new('bug');
 			$bugID->set_text($rec->{'bugID'});
 			$bugID->paste('last_child', $word);
 #			print STDERR ".";
 		}
-		if ($rec->{'comment'}){ 
-			my $comment = XML::Twig::Elt->new('comment'); 
+		if ($rec->{'comment'}){
+			my $comment = XML::Twig::Elt->new('comment');
 			$comment->set_text($rec->{'comment'});
 			$comment->paste('last_child', $word);
 		}
@@ -410,6 +438,23 @@ sub print_xml_output {
 	$results->print($FH1);
 	print $FH1 qq|</spelltestresult>|;
 	close($FH1);
+}
+
+sub get_index {
+	my ($first, $second) = @_;
+
+	my @first_chars = split //, $first;
+	my @second_chars = split //, $second;
+
+	my @index;
+
+	for (my $i = 0; $i < length($first); $i++) {
+		if (($first_chars[$i] ne $second_chars[$i]) && ($first_chars[$i] eq '-')) {
+			push @index, $i;
+		}
+	}
+
+	return @index;
 }
 
 sub print_output {
@@ -430,7 +475,7 @@ sub print_output {
 			}
 		}
 		print "\n";
-	} 
+	}
 }
 
 
