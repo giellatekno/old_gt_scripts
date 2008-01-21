@@ -355,7 +355,7 @@ sub print_xml_output {
 
 
 			# calling Text::Brew to get the editing distance or list of editing operations
-			my $distance=distance($rec->{'orig'},$rec->{'expected'},{-output=>'distance'});
+			my $distance=distance($rec->{'sugg'},$rec->{'expected'},{-output=>'distance'});
 			my $edit_dist = XML::Twig::Elt->new('edit_dist');
 			$edit_dist->set_text($distance);
 			$edit_dist->paste('last_child', $word);
