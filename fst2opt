@@ -162,6 +162,8 @@ build_words() {
 	cd $wordsdir/src && make clean
 	cd $wordsdir/src && make
 	cp $wordsdir/bin/$lang1$lang2.fst $fstdir
+
+	cp $tmpdir/words/script/translate.pl /opt/smi/common/bin/
 }
 
 # Generate the anchor word list for smenno
