@@ -10,7 +10,7 @@
 #
 # Usage: hyphen-testres.pl -h
 #
-# $id:$
+# $Id$
 
 use strict;
 use XML::Twig;
@@ -63,8 +63,6 @@ if ($help) {
 if (! $input || ! -f $input) { print STDERR "$0: No input file specified.\n"; exit; }
 if (! $output) { print STDERR "$0: No speller output file specified.\n"; exit; }
 
-#if ($ccat) { read_ccat(); }
-#else { read_typos(); }
 read_typos();
 
 if(! @originals) { exit;}
@@ -133,6 +131,7 @@ sub read_polderland {
 	my $orig;
 
 	while(<FH>) {
+		chomp;
 		my $line = $_;
 		my ($orig, $hyphenated) = split(/\t/, $line);
 
@@ -180,7 +179,7 @@ sub read_polderland {
 
 	close(FH);
 	while($originals[$i]) { $originals[$i]{'error'} = "SplCor"; $i++; }
-	exit;
+#	exit;
 }
 
 sub read_typos {
@@ -196,10 +195,10 @@ sub read_typos {
 		my ($orig, $expected) = split(/\t+/,$testpair);
 		my $cleanorig = $orig;
 		$cleanorig =~ s/[\^ ]//g ;
-		print STDERR "\nClean original: $cleanorig\n";
-		print STDERR "Original: $orig\n";
-		print STDERR "Expected: $expected\n" if $expected;
-		print STDERR "Comment:  $comment\n" if $comment;
+#		print STDERR "\nClean original: $cleanorig\n";
+#		print STDERR "Original: $orig\n";
+#		print STDERR "Expected: $expected\n" if $expected;
+#		print STDERR "Comment:  $comment\n" if $comment;
 		next if (! $orig );
 		my $rec = {};
 		$orig =~ s/\s*$//;
@@ -207,6 +206,7 @@ sub read_typos {
 		$rec->{'hyphorig'} = $orig;
 		if ($expected) {
 			$expected =~ s/\s*$//;
+			$expected =~ s/[#^]/-/g;
 			$rec->{'expected'} = $expected;
 		} else {
 			cluck "WARNING: \"$cleanorig\" does NOT contain a correct pattern.\n";
@@ -481,28 +481,20 @@ sub print_output {
 
 sub print_help {
 	print << "END";
-Combines speller input and output.
-Usage: speller-testres.pl [OPTIONS]
+Combines hyphenator input and output.
+Usage: hyphen-testres.pl [OPTIONS]
 --help            Print this help text and exit.
 -h
 --input=<file>    The original speller input.
 -i <file>
 --document=<name> The name of the original speller input, if not the input file name.
 -d <name>
---ccat            The input is from ccat, the default is typos.txt. not yet in use.
--c
 --output=<file>   The speller output.
 -o <file>
 --pl             The speller output is in PLX-format.
 -p
---mw              The speller output is in AppleScript-format.
--m
---hu              The speller output is in hunspell format.
--u
 --xml=<file>      Print output in xml to file <file>.
 -x
---forced          The speller was forced to make suggestions.
--f
 --version=<num>   Speller version information.
 -v <num>
 --date <date>     Date when the test was run, if not the output file timestamp.
@@ -510,4 +502,3 @@ Usage: speller-testres.pl [OPTIONS]
 END
 
 }
-
