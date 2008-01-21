@@ -35,9 +35,11 @@ copy() {
 	then
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
+		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout words
     else	
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
+		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout words
     fi
 }
 
@@ -100,14 +102,22 @@ build_gt() {
 # st-catalog
 build_st() {
 
+    if [ -z "$@" ]
+	then
+	langs="fao kal ipk"
+    else
+	langs="$@"
+    fi
+
 	if [ "$host" == "victorio.uit.no" ]
 		then
-		for lang in "fao" "kal" "ipk" 
+		for lang in $langs
 		  do
 
+		  echo "Building $lang.."
 		  fstdir=/opt/smi/$lang/bin/
 		  cd $tmpdir/st/$lang/src && make clean
-		  cd $tmpdir/st/$lang/src && make 1>/dev/null
+		  cd $tmpdir/st/$lang/src && make
 		  
 		  cp $tmpdir/st/$lang/bin/$lang.fst $fstdir
 		  cp $tmpdir/st/$lang/bin/i$lang.fst $fstdir
@@ -117,12 +127,41 @@ build_st() {
 
 		  cp $tmpdir/st/$lang/res/paradigm.$lang.txt $fstdir
 		  cp $tmpdir/st/$lang/res/korpustags.$lang.txt $fstdir
+
+		  if [ "$lang" == "kal" ]
+			  then
+			  cp $tmpdir/st/kal/script/addtrad_klda.pl $fstdir/addtrad_kaldan.pl
+			  cp $tmpdir/st/kal/src/kaldan-lex.txt $fstdir
+			  cp $tmpdir/st/$lang/bin/phon-kal.fst $fstdir
+			  cp $tmpdir/st/$lang/bin/orth-kal.fst $fstdir
+		  fi
 		done
 	else
 		cd $tmpdir/st/nob/src && make abbr 
 		cp $tmpdir/st/nob/bin/abbr.txt /opt/smi/nob/bin/
 	fi
 	
+}
+
+
+build_words() {
+
+    if [ -z "$@" ]
+		then
+		langs="sme nob"
+    else
+		langs="$@"
+    fi
+
+	lang1=$1
+	lang2=$2
+
+	fstdir=/opt/smi/$lang1/bin/
+	wordsdir=$tmpdir/words/dicts/$lang1$lang2/
+
+	cd $wordsdir/src && make clean
+	cd $wordsdir/src && make
+	cp $wordsdir/bin/$lang1$lang2.fst $fstdir
 }
 
 # Generate the anchor word list for smenno
@@ -147,6 +186,9 @@ case "$1" in
    build_st)
         $@
         ;;
+   build_words)
+        $@
+        ;;
    anchor_list)
         $@
         ;;
@@ -154,7 +196,7 @@ case "$1" in
         $@
         ;;
    *)
-        echo $"Usage: $0 {build_gt langs | build_st | anchor_list lang1 lang2 | copy }"
+        echo $"Usage: $0 {build_gt langs | build_st langs | build_words langs | anchor_list lang1 lang2 | copy }"
         exit 1
         ;;
 esac
