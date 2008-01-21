@@ -343,7 +343,7 @@ sub print_xml_output {
 
 			my $expected = XML::Twig::Elt->new('expected');
 			$expected->set_text($exp);
-			$expected->split(qr/(I)/, 'error');
+			$expected->split(qr/(I)/, 'missing');
 			$expected->subs_text(qr/I/, '-');
 			$expected->paste('last_child', $word);
 
