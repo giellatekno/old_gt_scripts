@@ -334,6 +334,17 @@ sub print_xml_output {
 
 	$header->print($FH1);
 
+# The result records should be like:
+# <word>
+#  <orig>someword</orig>
+#  <expected>so<missing>-</missing>me-word</expected>
+#  <hyphenated>som<error>-</error>e-w<error>-</error>ord</hyphenated>
+#  <relatedbug id="bugID">someComment</relatedbug>
+# </word>
+#
+# The <missing> and <error> tags should be derived from INS and DEL tags
+# given by Text::Brew when comparing expected and hyphenated.
+
 	# Start the results-section
 	my $results = XML::Twig::Elt->new('results');
 	$results->set_pretty_print('record');
