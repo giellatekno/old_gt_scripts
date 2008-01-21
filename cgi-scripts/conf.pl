@@ -69,12 +69,19 @@ sub init_variables {
     my $dis_rle = "$fstdir/$lang-dis.rle";
 	my $translate_script;
 	my $translate_lex;
-	if ($tr_lang ne "none") { 
-		$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
-		$translate_lex = "$fstdir/$lang$tr_lang-lex.txt";
-		$translate = "$translate_script $translate_lex";
+	my $translate_fst;
+	if ($tr_lang ne "none") {
+		if ($lang eq "dan") { 
+			$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
+			$translate_lex = "$fstdir/$lang$tr_lang-lex.txt";
+			$translate = "$translate_script $translate_lex";
+		}
+		else {
+			$translate_script = "$commondir/translate.pl";
+			$translate_fst = "$fstdir/$lang$tr_lang.fst";
+			$translate = "$translate_script --fst=$translate_fst";
+		}
 	}
-
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
@@ -82,10 +89,11 @@ sub init_variables {
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
 
 	# Find out which of the translated languages are available for this lang.
-	my $translated_langs = qw(dan);
+	my $translated_langs = qw(dan nob);
 	for my $tr_avail_lang ( $translated_langs ) {
 		$lex = "$fstdir/$lang$tr_avail_lang" . "-lex.txt";
-		if (-f $lex) { $lang_actions{translate}{$tr_avail_lang} = 1; }
+		$fst_tr = "$fstdir/$lang$tr_avail_lang" . ".fst";
+		if (-f $lex || -f $fst_tr) { $lang_actions{translate}{$tr_avail_lang} = 1; }
 	}
 
     # Files to generate paradigm
@@ -130,7 +138,7 @@ sub init_variables {
 	if ($action eq "paradigm" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
 	}
-	if ($tr_lang ne "none" && ( ! -f $translate_script || ! -f $translate_lex ) ) { 
+	if ($tr_lang ne "none" && ( ! -f $translate_script && ! -f $translate_lex && -f $translate_fst ) ) { 
 		http_die '--no-alert','404 Not Found', "Translation to language \"$tr_lang\" is not supported";
 	}
 	if (!$plang || ! $page_languages{$plang}) { $plang = "eng"; }
@@ -141,6 +149,7 @@ sub init_variables {
 	else { $preprocess = "$bindir/preprocess"; }
 
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
+
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg --grammar=$dis_rle"; 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
