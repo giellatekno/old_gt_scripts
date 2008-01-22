@@ -447,10 +447,20 @@ sub get_index {
 	my @second_chars = split //, $second;
 
 	my @index;
+	my $k = 0;
+	my $l = 0;
 
 	for (my $i = 0; $i < length($first); $i++) {
-		if (($first_chars[$i] ne $second_chars[$i]) && ($first_chars[$i] eq '-')) {
-			push @index, $i;
+		my $one = $i + $k;
+		my $two = $i + $l;
+		if (($first_chars[$one] ne $second_chars[$two])) {
+			if(($first_chars[$i] eq '-')) {
+				$k--;
+				push @index, $i;
+			}
+			else {
+				$l--;
+			}
 		}
 	}
 
