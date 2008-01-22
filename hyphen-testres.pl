@@ -342,12 +342,14 @@ sub print_xml_output {
 			}
 
 			my $expected = XML::Twig::Elt->new('expected');
+			$expected->set_pretty_print('nsgmls');
 			$expected->set_text($exp);
 			$expected->split(qr/(X)/, 'missing');
 			$expected->subs_text(qr/X/, '-');
 			$expected->paste('last_child', $word);
 
 			my $suggested = XML::Twig::Elt->new('hyphenated');
+			$suggested->set_pretty_print('nsgmls');
 			$suggested->set_text($sugg);
 			$suggested->split(qr/(X)/, 'error');
 			$suggested->subs_text(qr/X/, '-');
