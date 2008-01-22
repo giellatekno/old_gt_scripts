@@ -456,9 +456,9 @@ sub get_index {
 		my $one = $i + $k;
 		my $two = $i + $l;
 		if (($first_chars[$one] ne $second_chars[$two])) {
-			if(($first_chars[$i] eq '-')) {
+			if(($first_chars[$one] eq '-')) {
 				$l--;
-				push @index, $i;
+				push @index, $one;
 			}
 			else {
 				$k--;
