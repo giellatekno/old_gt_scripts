@@ -332,25 +332,25 @@ sub print_xml_output {
 			for my $i (@exp_index) {
 				my $begin = substr $exp ,0 ,$i;
    				my $end = substr $exp ,$i+1;
-   				$exp = $begin . "I" . $end;
+   				$exp = $begin . "X" . $end;
 			}
 
 			for my $i (@sugg_index) {
 				my $begin = substr $sugg ,0 ,$i;
    				my $end = substr $sugg ,$i+1;
-   				$sugg = $begin . "I" . $end;
+   				$sugg = $begin . "X" . $end;
 			}
 
 			my $expected = XML::Twig::Elt->new('expected');
 			$expected->set_text($exp);
-			$expected->split(qr/(I)/, 'missing');
-			$expected->subs_text(qr/I/, '-');
+			$expected->split(qr/(X)/, 'missing');
+			$expected->subs_text(qr/X/, '-');
 			$expected->paste('last_child', $word);
 
 			my $suggested = XML::Twig::Elt->new('hyphenated');
 			$suggested->set_text($sugg);
-			$suggested->split(qr/(I)/, 'error');
-			$suggested->subs_text(qr/I/, '-');
+			$suggested->split(qr/(X)/, 'error');
+			$suggested->subs_text(qr/X/, '-');
 			$suggested->paste('last_child', $word);
 
 
