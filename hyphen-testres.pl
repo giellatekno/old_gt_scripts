@@ -452,7 +452,7 @@ sub get_index {
 	my $k = 0;
 	my $l = 0;
 
-	for (my $i = 0; $i < length($first); $i++) {
+	for (my $i = 0; $i < length($first)-$k; $i++) {
 		my $one = $i + $k;
 		my $two = $i + $l;
 		if (($first_chars[$one] ne $second_chars[$two])) {
