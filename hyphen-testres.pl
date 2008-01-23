@@ -14,6 +14,7 @@
 
 use strict;
 use XML::Twig;
+use Encode;
 
 use Carp qw(cluck confess);
 use File::stat;
@@ -62,6 +63,8 @@ if ($help) {
 
 if (! $input || ! -f $input) { print STDERR "$0: No input file specified.\n"; exit; }
 if (! $output) { print STDERR "$0: No speller output file specified.\n"; exit; }
+
+$version = decode_utf8( $version );
 
 read_typos();
 
