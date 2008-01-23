@@ -38,6 +38,7 @@ my $document;
 my $version;
 my $date;
 my @originals;
+my $toolversion;
 
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
@@ -53,7 +54,7 @@ GetOptions ("help|h" => \$help,
 			"typos|t" => \$typos,
 			"output|o=s" => \$output,
 			"xml|x=s" => \$print_xml,
-			"forced|f" => \$forced,
+			"toolversion|w=s" => \$toolversion,
 			);
 
 if ($help) {
@@ -281,7 +282,8 @@ sub print_xml_output {
 
 	# Print some header information
 	my $tool = XML::Twig::Elt->new('tool');
-	$tool->set_att('version', $version);
+	$tool->set_att('lexversion', $version);
+	$tool->set_att('toolversion', $toolversion);
 	$tool->set_att('type', $input_type);
 	$tool->paste('last_child', $header);
 
@@ -500,20 +502,22 @@ Combines hyphenator input and output.
 Usage: hyphen-testres.pl [OPTIONS]
 --help            Print this help text and exit.
 -h
---input=<file>    The original speller input.
+--input=<file>    The original hyphenator input file.
 -i <file>
---document=<name> The name of the original speller input, if not the input file name.
+--document=<name> The name of the original hyphenator input, if not the input file name.
 -d <name>
---output=<file>   The speller output.
+--output=<file>   The hyphenator output.
 -o <file>
---pl             The speller output is in PLX-format.
+--pl              The hyphenator output is in PLX-format.
 -p
 --xml=<file>      Print output in xml to file <file>.
 -x
---version=<num>   Speller version information.
+--version=<num>   Hyphenator lexicon version information.
 -v <num>
 --date <date>     Date when the test was run, if not the output file timestamp.
 -e
+--toolversion     Hyphenator tool version information.
+-w
 END
 
 }
