@@ -74,6 +74,10 @@ build_and_copy_sites()
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
 		cd build/site
 		scp -r  * gtuit@giellatekno.uit.no:public_html/.
+		cd $HOME/ped
+		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
+		cd $HOME/ped/build/site/en
+		scp -r  * gtuit@giellatekno.uit.no:public_html/oahpa/.
 	else
 	    echo "Build failed ..."
 	    exit 1
