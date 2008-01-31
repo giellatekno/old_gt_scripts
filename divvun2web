@@ -76,7 +76,7 @@ build_and_copy_sites()
 		scp -r  * gtuit@giellatekno.uit.no:public_html/.
 		cd $HOME/ped
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
-		cd $HOME/ped/build/site/en
+		cd $HOME/ped/build/site/no
 		scp -r  * gtuit@giellatekno.uit.no:public_html/oahpa/.
 	else
 	    echo "Build failed ..."
