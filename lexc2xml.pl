@@ -10,6 +10,7 @@ my $lexc_file;
 my $line;
 my $lexicon;
 my $l;
+my $in_multi;
 
 my $document = XML::Twig::Elt->new('document');
 $document->set_pretty_print('record');
@@ -20,6 +21,7 @@ while (<>) {
 	$line = $_;
 
 	if ($line =~ /^LEXICON (\S*)/) {
+		$in_multi = 0;
 		$lexicon = $1;
 		$l = XML::Twig::Elt->new('lexicon');
 		$l->set_att('name', $lexicon);
@@ -58,6 +60,23 @@ while (<>) {
 				$entry->set_att('w', $lemma);
 				$entry->set_att('c', $cont);
 				$entry->paste('last_child', $l);
+			}
+		}
+	}
+
+	elsif ($line =~ /Multichar_Symbols/) {
+		$in_multi = 1;
+	}
+	elsif ($in_multi) {
+		$line =~ s/!.*//;
+		my @multichars = split(/\s/, $line);
+
+		for my $symbol (@multichars) {
+			if ($symbol =~ /\S/) {
+				my $multichar = XML::Twig::Elt->new('multichar');
+				$multichar->set_att('symbol', $symbol);
+				$multichar->paste('last_child', $document);
+				$multichar->DESTROY;
 			}
 		}
 	}
