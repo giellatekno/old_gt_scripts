@@ -29,38 +29,60 @@ while (<>) {
 	}
 
 	elsif ($l && ($line !~ /^\s*\!/ && $line !~ /^[\!\n\r]/ )) {
-		if ($line =~ /(\S*)\:(\S*)\s*(\S*)/) {
-			my $lemma = $1;
-			my $stem = $2;
-			my $cont = $3;
+		my $entry = XML::Twig::Elt->new('entry');
+		my $lemma = "";
+		my $stem = "";
+		my $cont = "";
+		my $paste_entry;
 
-			if ($cont !~ /\s/) {
-				$cont =~ s/;//;
-				my $entry = XML::Twig::Elt->new('entry');
-				$entry->set_att('w', $lemma);
-				$entry->set_att('s', $stem);
-				$entry->set_att('c', $cont);
-				$entry->paste('last_child', $l);
-			}
+		if ($line =~ /(\S*)\:(\S*)\s*(\S*)/) {
+			$lemma = $1;
+			$stem = $2;
+			$cont = $3;
+			$paste_entry = 1;
+
+			$cont =~ s/;//;
 		}
 		elsif ($line =~ /^\s{0,80}(\S*)\s*;/) {
-			my $cont = $1;
+			$cont = $1;
 			$cont =~ s/;//;
-			my $entry = XML::Twig::Elt->new('entry');
-			$entry->set_att('c', $cont);
-			$entry->paste('last_child', $l);
+			$paste_entry = 1;
 		}
-		elsif ($line =~ /^\s{0,80}(\S*)\s*(\S*)/) {
-			my $lemma = $1;
-			my $cont = $2;
+		elsif ($line =~ /^\s{0,}(\S*)\s*(\S*)\s*;/) {
+			$lemma = $1;
+			$cont = $2;
+			$paste_entry = 1;
 
-			if ($cont !~ /\s*/) {
-				$cont =~ s/;//;
-				my $entry = XML::Twig::Elt->new('entry');
-				$entry->set_att('w', $lemma);
-				$entry->set_att('c', $cont);
-				$entry->paste('last_child', $l);
+			$cont =~ s/;//;
+		}
+
+		if ($lemma !~ //) { $entry->set_att('w', $lemma); }
+		if ($stem !~ //) { $entry->set_att('s', $stem); }
+		if ($cont !~ //) { $entry->set_att('c', $cont); }
+
+		if ($paste_entry) {
+
+			# Handling of entry comments, e.g compound information
+			if ($line =~ /\!.*\+/) {
+				my ($entr, $comments) = split (/\;/, $line);
+				(my $new_comments = $comments) =~ s/\!//g;
+				my @strings = split(/\s+/,$new_comments);
+				for my $t (@strings) {
+					if ($t =~ /\+/) {
+						my $compound = XML::Twig::Elt->new('compound');
+						$compound->set_text($t);
+						$compound->paste('last_child', $entry);
+					}
+					if ($t =~ /\^C\^/) {
+						$entry->set_att('r', "yes");
+					}
+					if ($t =~ /SUB/) {
+						$entry->set_att('sub', "yes");
+					}
+				}
 			}
+
+			$entry->paste('last_child', $l);
 		}
 	}
 
