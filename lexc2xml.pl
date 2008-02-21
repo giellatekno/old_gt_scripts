@@ -4,6 +4,7 @@ use strict;
 # use Perl module XML::Twig for XML-handling
 # http://www.xmltwig.com/
 use XML::Twig;
+use Getopt::Long;
 
 
 my $lexc_file;
@@ -11,8 +12,12 @@ my $line;
 my $lexicon;
 my $l;
 my $in_multi;
+my $lang;
+
+GetOptions ("lang|l=s" => \$lang);
 
 my $document = XML::Twig::Elt->new('document');
+$document->set_att('xml:lang', $lang);
 $document->set_pretty_print('record');
 
 while (<>) {
@@ -25,17 +30,55 @@ while (<>) {
 		$lexicon = $1;
 		$l = XML::Twig::Elt->new('lexicon');
 		$l->set_att('name', $lexicon);
+
+		# Handling of entry comments, e.g compound information
+		if ($line =~ /\!.*/) {
+			my ($entr, $comments) = split (/\!/, $line);
+			(my $new_comments = $comments) =~ s/\!//g;
+			my @strings = split(/\s+/,$new_comments);
+			#print "JEE @strings\n";
+			for my $t (@strings) {
+				if ($t =~ /\+/) {
+					my $compound = XML::Twig::Elt->new('compound');
+					$compound->set_text($t);
+					$compound->paste('last_child', $l);
+				}
+				if ($t =~ /\^C\^/) {
+					$l->set_att('r', "yes");
+				}
+				if ($t =~ /SUB/) {
+					$l->set_att('sub', "yes");
+				}
+			}
+		}
+
 		$l->paste('last_child', $document);
 	}
 
 	elsif ($l && ($line !~ /^\s*\!/ && $line !~ /^[\!\n\r]/ )) {
 		my $entry = XML::Twig::Elt->new('entry');
-		my $lemma = "";
-		my $stem = "";
-		my $cont = "";
+		my $lemma;
+		my $stem;
+		my $cont;
 		my $paste_entry;
 
-		if ($line =~ /(\S*)\:(\S*)\s*(\S*)/) {
+		if ($line =~ /(\S+)\:(\S+)\s*(\S*)/) {
+			$lemma = $1;
+			$stem = $2;
+			$cont = $3;
+			$paste_entry = 1;
+
+			$cont =~ s/;//;
+		}
+		elsif ($line =~ /(\S+)\:(\s*)(\S*)/) {
+			$lemma = $1;
+			$stem = $2;
+			$cont = $3;
+			$paste_entry = 1;
+
+			$cont =~ s/;//;
+		}
+		elsif ($line =~ /(\s+)\:(\S+)\s*(\S*)/) {
 			$lemma = $1;
 			$stem = $2;
 			$cont = $3;
@@ -56,28 +99,29 @@ while (<>) {
 			$cont =~ s/;//;
 		}
 
-		if ($lemma !~ //) { $entry->set_att('w', $lemma); }
-		if ($stem !~ //) { $entry->set_att('s', $stem); }
-		if ($cont !~ //) { $entry->set_att('c', $cont); }
+		if ($cont) { $entry->set_att('c', $cont); }
+		if ($stem) { $entry->set_att('s', $stem); }
+		if ($lemma) { $entry->set_att('w', $lemma); }
 
 		if ($paste_entry) {
 
 			# Handling of entry comments, e.g compound information
-			if ($line =~ /\!.*\+/) {
+			if ($line =~ /\!.*/) {
 				my ($entr, $comments) = split (/\;/, $line);
 				(my $new_comments = $comments) =~ s/\!//g;
 				my @strings = split(/\s+/,$new_comments);
+				#print "JEE @strings\n";
 				for my $t (@strings) {
-					if ($t =~ /\+/) {
-						my $compound = XML::Twig::Elt->new('compound');
-						$compound->set_text($t);
-						$compound->paste('last_child', $entry);
-					}
 					if ($t =~ /\^C\^/) {
 						$entry->set_att('r', "yes");
 					}
 					if ($t =~ /SUB/) {
 						$entry->set_att('sub', "yes");
+					}
+					elsif ($t =~ /\+/) {
+						my $compound = XML::Twig::Elt->new('compound');
+						$compound->set_text($t);
+						$compound->paste('last_child', $entry);
 					}
 				}
 			}
