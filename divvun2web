@@ -8,14 +8,17 @@
 # to the official www-directory
 #
 # To get cvs ssh working without password prompting:
+# Stand in the home directory of your own machine, and write: 
 # ssh-keygen -t rsa
 # <just type enter to all questions>
 # chmod 0644 $HOME/.ssh/id_rsa.pub
-# login to victorio
+# then login to victorio, and write
 # mkdir $HOME/.ssh
 # chmod 700 $HOME/.ssh
-# logout from victorio
+# then logout from victorio, and write
 # scp $HOME/.ssh/id_rsa.pub <user>@victorio.uit.no:.ssh/authorized_keys2
+#
+
 export LC_ALL=no_NO.UTF-8
 FORREST_HOME=$HOME/forrest
 PATH=$PATH:$FORREST_HOME/bin
