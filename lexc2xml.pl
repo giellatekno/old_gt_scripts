@@ -39,9 +39,22 @@ while (<>) {
 			#print "JEE @strings\n";
 			for my $t (@strings) {
 				if ($t =~ /\+/) {
-					my $compound = XML::Twig::Elt->new('compound');
-					$compound->set_text($t);
-					$compound->paste('last_child', $l);
+					$t =~ s/\+//;
+					if ($t =~ /Cmp/) {
+						my $compcase = XML::Twig::Elt->new('compcase');
+						$compcase->set_text($t);
+						$compcase->paste('last_child', $l);
+					}
+					elsif ($t =~ /Left/) {
+						my $compleft = XML::Twig::Elt->new('compleft');
+						$compleft->set_text($t);
+						$compleft->paste('last_child', $l);
+					}
+					elsif ($t =~ /None/ || $t =~ /First/ || $t =~ /Last/ || $t =~ /Middle/) {
+						my $position = XML::Twig::Elt->new('position');
+						$position->set_text($t);
+						$position->paste('last_child', $l);
+					}
 				}
 				if ($t =~ /\^C\^/) {
 					$l->set_att('r', "yes");
@@ -119,9 +132,22 @@ while (<>) {
 						$entry->set_att('sub', "yes");
 					}
 					elsif ($t =~ /\+/) {
-						my $compound = XML::Twig::Elt->new('compound');
-						$compound->set_text($t);
-						$compound->paste('last_child', $entry);
+						$t =~ s/\+//;
+						if ($t =~ /Cmp/) {
+							my $compcase = XML::Twig::Elt->new('compcase');
+							$compcase->set_text($t);
+							$compcase->paste('last_child', $entry);
+						}
+						elsif ($t =~ /Left/) {
+							my $compleft = XML::Twig::Elt->new('compleft');
+							$compleft->set_text($t);
+							$compleft->paste('last_child', $entry);
+						}
+						elsif ($t =~ /None/ || $t =~ /First/ || $t =~ /Last/ || $t =~ /Middle/) {
+							my $position = XML::Twig::Elt->new('position');
+							$position->set_text($t);
+							$position->paste('last_child', $entry);
+						}
 					}
 				}
 			}
