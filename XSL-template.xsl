@@ -83,6 +83,8 @@
 <xsl:variable name="mlang_fin" select="''"/>
 <xsl:variable name="mlang_ger" select="''"/>
 <xsl:variable name="mlang_eng" select="''"/>
+<xsl:variable name="mlang_dan" select="''"/>
+<xsl:variable name="mlang_kal" select="''"/>
 <xsl:variable name="mlang_oth" select="''"/>
 
 <!-- If the document has parallel texts, select "1" for parallel_texts -->
@@ -98,6 +100,8 @@
 <xsl:variable name="para_ger" select="''"/>
 <xsl:variable name="para_eng" select="''"/>
 <xsl:variable name="para_fkv" select="''"/>
+<xsl:variable name="para_dan" select="''"/>
+<xsl:variable name="para_kal" select="''"/>
 
 
 <!-- Tag the specified elements with the specified language: -->
@@ -109,7 +113,9 @@
 <xsl:variable name="swelang" select="'swe'"/>
 <xsl:variable name="finlang" select="'fin'"/>
 <xsl:variable name="englang" select="'eng'"/>
-<xsl:variable name="gerlang" select="'fin'"/>
+<xsl:variable name="gerlang" select="'ger'"/>
+<xsl:variable name="danlang" select="'dan'"/>
+<xsl:variable name="kallang" select="'kal'"/>
 
 
 <!-- Add all paragraphs that should have xml:lang=X-->
