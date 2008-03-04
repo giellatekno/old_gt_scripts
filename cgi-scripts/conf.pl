@@ -66,7 +66,8 @@ sub init_variables {
 	my $phon_fst = "$fstdir/phon-$lang.fst";
 	my $orth_fst = "$fstdir/orth-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
-    my $dis_rle = "$fstdir/$lang-dis.rle";
+#    my $dis_rle = "$fstdir/$lang-dis.rle"; # text file
+    my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
@@ -83,7 +84,8 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
-	if (-f $dis_rle) { $lang_actions{disamb} = 1; }
+#	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
+	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
@@ -120,8 +122,10 @@ sub init_variables {
 	if ($action eq "analyze" && ! -f $fst) { 
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
 	}
-	if ($action eq "disamb" && ! -f $dis_rle) { 
-		http_die '--no-alert','404 Not Found',"$lang-dis.rle: Disambiguation is not supported";
+#	if ($action eq "disamb" && ! -f $dis_rle) { 
+#		http_die '--no-alert','404 Not Found',"$lang-dis.rle: Disambiguation is not supported";
+	if ($action eq "disamb" && ! -f $dis_bin) { 
+		http_die '--no-alert','404 Not Found',"$lang-dis.bin: Disambiguation is not supported";
 	}
 	if ($action eq "generate" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Generation is not supported";
@@ -150,7 +154,8 @@ sub init_variables {
 
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
 
-	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg --grammar=$dis_rle"; 
+#	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg --grammar=$dis_rle"; 
+	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 --grammar=$dis_bin"; 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
     $generate = "tr ' ' '\n' | $gen_lookup";
