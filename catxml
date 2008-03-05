@@ -31,7 +31,7 @@ use Getopt::Long;
 ############################
 
 my $gt="/Users/tomi/Documents/eclipse/workspace/gt";
-my $ANALYZE = "preprocess --abbr=$gt/sme/bin/abbr.txt | lookup -d -flags mbTT -utf8 $gt/sme/bin/sme.fst | lookup2cg | vislcg --grammar=$gt/sme/src/sme-dis.rle --quiet\n";
+my $ANALYZE = "preprocess --abbr=$gt/sme/bin/abbr.txt | lookup -d -flags mbTT -utf8 $gt/sme/bin/sme.fst | lookup2cg | vislcg3 --grammar=$gt/sme/bin/sme-dis.bin 2>/dev/null\n";
 
 # variable for processing all elements
 my $all;
@@ -48,7 +48,7 @@ my $lang;
 $lang = "sme" if $path =~ "sme";
 $lang = "sma" if $path =~ "sma";
 $lang = "smj" if $path =~ "smj";
-$lang = "smi" if $path =~ "smi";
+$lang = "sjd" if $path =~ "sjd";
 $lang = "smn" if $path =~ "smn";
 $lang = "sms" if $path =~ "sms";
 
