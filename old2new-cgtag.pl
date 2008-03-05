@@ -4,7 +4,7 @@
 # Script to convert old cg tagset to new cg tagset.
 # usage:
 # cat sme/src/sme-dis.rle | perl script/old2new-cgtag.pl | uniq > sme/dev/test.rle
-# cat sme/corp/bigkorpusVISL.txt | grep -v '#' | preprocess  --abbr=sme/bin/abbr.txt | lo | lookup2cg | vislcg --grammar=sme/dev/test.rle | l
+# cat sme/corp/bigkorpusVISL.txt | grep -v '#' | preprocess  --abbr=sme/bin/abbr.txt | lo | lookup2cg | vislcg3 -g sme/dev/test.rle | l
 
 # cat sme/corp/
 #
