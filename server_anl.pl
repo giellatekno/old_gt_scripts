@@ -98,8 +98,8 @@ my $client;
 			print "$action{$key}{'fst'}\n";
 		}
 
-#		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
-		if ($action{'dis'}) { print "Using bin: $dis_tools{'bin'}.\n"; }		
+		if ($action{'dis'}) { print "Using rle: $dis_tools{'rle'}.\n"; }
+#		if ($action{'dis'}) { print "Using bin: $dis_tools{'bin'}.\n"; }		
 
 		# Initialize different tools according to the parameters.
 		# Start the expect objects: exp_anl and dis_anl if requested.
@@ -287,8 +287,8 @@ sub init_tools {
 	}
 	# Disambiguation, start process for vislcg3.
 	if ($action{'dis'}) { 
-#		$disamb = "vislcg3 $dis_tools{'args'} -g $dis_tools{'rle'}";
-		$disamb = "vislcg3 $dis_tools{'args'} -g $dis_tools{'bin'}";
+		$disamb = "vislcg3 $dis_tools{'args'} -g $dis_tools{'rle'}";
+#		$disamb = "vislcg3 $dis_tools{'args'} -g $dis_tools{'bin'}";
 		$exp_dis = Expect->spawn($disamb)
 			or die "Cannot spawn $disamb: $!\n";
 		$exp_dis->log_stdout(0);
