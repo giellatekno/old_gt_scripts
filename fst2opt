@@ -69,7 +69,7 @@ build_gt() {
 	  cp $tmpdir/gt/$lang/bin/i$lang-norm.fst $fstdir
 	  cp $tmpdir/gt/$lang/bin/hi$lang-norm.fst $fstdir
 	  cp $tmpdir/gt/$lang/bin/hyph-$lang.fst $fstdir
-	  cp $tmpdir/gt/$lang/src/$lang-dis.rle $fstdir # out...
+	  cp $tmpdir/gt/$lang/src/$lang-dis.rle $fstdir # keep, we need both
 	  cp $tmpdir/gt/$lang/bin/$lang-dis.bin $fstdir
 	  cp $tmpdir/gt/$lang/bin/abbr.txt $fstdir
 	  cp $tmpdir/gt/$lang/src/typos.txt $fstdir
@@ -124,7 +124,7 @@ build_st() {
 		  cp $tmpdir/st/$lang/bin/$lang.fst $fstdir
 		  cp $tmpdir/st/$lang/bin/i$lang.fst $fstdir
 		  cp $tmpdir/st/$lang/bin/hyph-$lang.fst $fstdir
-		  cp $tmpdir/st/$lang/src/$lang-dis.rle $fstdir # out...
+		  cp $tmpdir/st/$lang/src/$lang-dis.rle $fstdir # keep, we need both
 		  cp $tmpdir/st/$lang/bin/$lang-dis.bin $fstdir
 #       cp $tmpdir/st/$lang/bin/abbr.txt $fstdir
 
