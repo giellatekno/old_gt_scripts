@@ -79,12 +79,12 @@ my $binpath="/Users/saara/opt/smi/$lang/bin";
 my $lookup2cg = "/usr/local/bin/lookup2cg";
 #my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
 my $lookup = "/usr/local/bin/lookup";
-my $vislcg = "/usr/local/bin/vislcg";
+my $vislcg3 = "/usr/local/bin/vislcg3";
 my  $corrtypos = $binpath . "/". "typos.txt";
 my $cap = $binpath ."/" . "cap-" . $lang;
 my $fst = $binpath ."/". $lang . ".fst";
 my $abbr = $binpath ."/abbr.txt";
-my $rle = $binpath ."/". $lang ."-dis.rle";
+my $rle = $binpath ."/". $lang ."-dis.bin";
 #my $preproc = "/usr/local/bin/preprocess";
 my $preproc = "/Users/saara/gt/script/preprocess";
 
@@ -98,8 +98,8 @@ print "Using tags $tagfile\n";
 
 my $host=`hostname`;
 
-$vislcg .= " --grammar=$rle --quiet";
-my $disamb = "$lookup2cg | $vislcg";
+$vislcg3 .= " -g $rle 2>/dev/null";
+my $disamb = "$lookup2cg | $vislcg3";
 
 my $preprocess;
 if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos"; }
@@ -110,7 +110,7 @@ else { $preprocess = "$preproc"; }
 my $preprocess_break = "$preprocess --break='<<<'";
 
 
-my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg";
+my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3";
 
 my $SENT_DELIM = qq|.!?|;
 my $LEFT_QUOTE = qq|<([{«‹“‘|;
