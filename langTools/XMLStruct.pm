@@ -626,6 +626,8 @@ sub process_paras {
 			$action{'dis'}=1;
 			if ($rle) { $dis_tools{'rle'}=$rle; }
 			else { $dis_tools{'rle'}="/opt/smi/$language/bin/$language-dis.fst"; }
+			if ($bin) { $dis_tools{'bin'}=$bin; }
+			else { $dis_tools{'bin'}="/opt/smi/$language/bin/$language-dis.fst"; }
 			if ($tmp_args) { $dis_tools{'args'}=$tmp_args; }
 			else { $dis_tools{'args'}=$default_args{'dis'}; }
 			next;
