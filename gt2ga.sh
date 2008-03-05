@@ -24,8 +24,8 @@ languages="sme"
 
 corproot="/Users/hoavda/Public/corp"
 
-minimal="1"
-if [ "$minimal" -eq "1" ]
+trace="1"
+if [ "$trace" -eq "1" ]
     then
     gadir="$corproot/ga-num"
 else
@@ -139,18 +139,18 @@ process ()
 	fst="$optdir/$lang.fst"
 	preprocess="preprocess --abbr=$abbr --corr=$corr"
 	lookup="lookup -flags mbTT -utf8 $optdir/$lang.fst"
-	if [ "$minimal" -eq "1" ]
+	if [ "$trace" -eq "1" ]
 		then
-		vislcg="vislcg --grammar=$optdir/sme-dis.rle --minimal"
+		vislcg3="vislcg3 -g $optdir/sme-dis.rle --trace"
 	else
-		vislcg="vislcg --grammar=$optdir/sme-dis.rle"
+		vislcg3="vislcg3 -g $optdir/sme-dis.bin"
 	fi
-	echo $vislcg
+	echo $vislcg3
 
 	ccat="ccat -l $lang -r $corproot/$gt/$lang/$dir/"
 
-    echo "$ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed"
-    $ccat | $preprocess | $lookup | lookup2cg | $vislcg > $gadir/$lang/$dir/$dir.analyzed
+    echo "$ccat | $preprocess | $lookup | lookup2cg | $vislcg3 > $gadir/$lang/$dir/$dir.analyzed"
+    $ccat | $preprocess | $lookup | lookup2cg | $vislcg3 > $gadir/$lang/$dir/$dir.analyzed
 	exit
 
     return 0
