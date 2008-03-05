@@ -284,9 +284,9 @@ sub init_tools {
 		}
 		else { $preprocess = "preprocess --abbr=$prep_tools{'abbr'}"; }
 	}
-	# Disambiguation, start process for vislcg.
+	# Disambiguation, start process for vislcg3.
 	if ($action{'dis'}) { 
-		$disamb = "vislcg $dis_tools{'args'} --grammar=$dis_tools{'rle'}";
+		$disamb = "vislcg3 $dis_tools{'args'} -g $dis_tools{'rle'}";
 		$exp_dis = Expect->spawn($disamb)
 			or die "Cannot spawn $disamb: $!\n";
 		$exp_dis->log_stdout(0);
