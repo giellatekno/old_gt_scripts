@@ -332,34 +332,65 @@ sub print_xml_output {
 		if ($rec->{'expected'}){
 			my $exp = $rec->{'expected'};
 			my $sugg = $rec->{'sugg'};
+#			print "Original: $rec->{'orig'}\n";
+#			print "Expected: $exp\n";
+#			print "Actual:   $sugg\n";
 
 			my @exp_index = get_index($exp, $sugg);
 			my @sugg_index = get_index($sugg, $exp);
+			my @hardhyph_index;
+			
+			if ($exp =~ /-/) {
+#			     print "Hardhyph found\n";
+			     my @input_word = split //, $exp;
+#			     print "After split: @input_word\n";
+			     for (my $i = 0; $i < length($exp); $i++)
+			     {
+			         if ($input_word[$i] =~ /-/) { push @hardhyph_index, $i; }
+			     }
+			}
+#			print "HH index: @hardhyph_index\n";
 
 			for my $i (@exp_index) {
 				my $begin = substr $exp ,0 ,$i;
    				my $end = substr $exp ,$i+1;
-   				$exp = $begin . "X" . $end;
+#   				print "Exp index: $i\n";
+   				if ( grep(/$i/,@hardhyph_index)) {
+   				     $exp = $begin . "Y" . $end;
+   	            }
+   	            else {
+   				     $exp = $begin . "X" . $end;
+   	            }
 			}
+#			print "After hardhyph check: $exp\n";
 
 			for my $i (@sugg_index) {
 				my $begin = substr $sugg ,0 ,$i;
    				my $end = substr $sugg ,$i+1;
-   				$sugg = $begin . "X" . $end;
+#   				if ( grep(/$i/,@hardhyph_index)) {
+#   				     $sugg = $begin . "Y" . $end;
+#   				}
+#   				else {
+       				$sugg = $begin . "X" . $end;
+#       	        }
 			}
 
 			my $expected = XML::Twig::Elt->new('expected');
 			$expected->set_pretty_print('nsgmls');
 			$expected->set_text($exp);
 			$expected->split(qr/(X)/, 'missing');
+			$expected->split(qr/(Y)/, 'missing');
 			$expected->subs_text(qr/X/, '^');
+			$expected->subs_text(qr/Y/, '-');
 			$expected->paste('last_child', $word);
 
 			my $suggested = XML::Twig::Elt->new('hyphenated');
 			$suggested->set_pretty_print('nsgmls');
 			$suggested->set_text($sugg);
 			$suggested->split(qr/(X)/, 'error');
+#			$suggested->split(qr/(Y)/, 'error');
 			$suggested->subs_text(qr/X/, '^');
+#			$suggested->subs_text(qr/Y/, '-');
 			$suggested->paste('last_child', $word);
 
 
@@ -374,8 +405,6 @@ sub print_xml_output {
 			$error->set_text($rec->{'error'});
 			$error->paste('last_child', $word);
 		}
-		if ($rec->{'forced'}){ $word->set_att('forced', "yes"); }
-
 		if ($rec->{'error'} && $rec->{'error'} eq "SplErr") {
 			my $suggestions_elt = XML::Twig::Elt->new('suggestions');
 			my $sugg_count=0;
