@@ -144,6 +144,10 @@ sub read_polderland {
 
 		$orig =~ s/^\s*//;
 		$orig =~ s/\s*$//;
+		$hyphenated =~ s/^\s*//;
+		$hyphenated =~ s/\s*$//;
+		$hyphenated =~ s/-/^/g;
+		$hyphenated =~ s/\^\^/-/g;
 		if ($originals[$i]{orig} && $originals[$i]{'orig'} eq $orig) {
 			$originals[$i]{sugg} = $hyphenated;
 			#print STDERR "INPUT $orig\n";
@@ -210,7 +214,8 @@ sub read_typos {
 		$rec->{'hyphorig'} = $orig;
 		if ($expected) {
 			$expected =~ s/\s*$//;
-			$expected =~ s/[#^]/-/g;
+			$expected =~ s/#/^/g; # Change word boundaries to soft hyphens, leaving hard hyphens
+#			print STDERR "Expected: $expected\n";
 			$rec->{'expected'} = $expected;
 		} else {
 			cluck "WARNING: \"$cleanorig\" does NOT contain a correct pattern.\n";
@@ -307,13 +312,10 @@ sub print_xml_output {
 # The result records should be like:
 # <word>
 #  <orig>someword</orig>
-#  <expected>so<missing>-</missing>me-word</expected>
-#  <hyphenated>som<error>-</error>e-w<error>-</error>ord</hyphenated>
+#  <expected>so<missing>^</missing>me-word</expected>
+#  <hyphenated>som<error>^</error>e-w<error>^</error>ord</hyphenated>
 #  <relatedbug id="bugID">someComment</relatedbug>
 # </word>
-#
-# The <missing> and <error> tags should be derived from INS and DEL tags
-# given by Text::Brew when comparing expected and hyphenated.
 
 	# Start the results-section
 	my $results = XML::Twig::Elt->new('results');
@@ -350,14 +352,14 @@ sub print_xml_output {
 			$expected->set_pretty_print('nsgmls');
 			$expected->set_text($exp);
 			$expected->split(qr/(X)/, 'missing');
-			$expected->subs_text(qr/X/, '-');
+			$expected->subs_text(qr/X/, '^');
 			$expected->paste('last_child', $word);
 
 			my $suggested = XML::Twig::Elt->new('hyphenated');
 			$suggested->set_pretty_print('nsgmls');
 			$suggested->set_text($sugg);
 			$suggested->split(qr/(X)/, 'error');
-			$suggested->subs_text(qr/X/, '-');
+			$suggested->subs_text(qr/X/, '^');
 			$suggested->paste('last_child', $word);
 
 
@@ -461,7 +463,7 @@ sub get_index {
 		my $one = $i + $k;
 		my $two = $i + $l;
 		if (($first_chars[$one] ne $second_chars[$two])) {
-			if(($first_chars[$one] eq '-')) {
+			if(($first_chars[$one] eq '^') or ($first_chars[$one] eq '-')) {
 				$l--;
 				push @index, $one;
 			}
