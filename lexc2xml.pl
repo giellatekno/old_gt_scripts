@@ -13,69 +13,103 @@ my $lexicon;
 my $l;
 my $in_multi;
 my $lang;
+my @multichars;
 
 GetOptions ("lang|l=s" => \$lang);
 
-my $document = XML::Twig::Elt->new('document');
-$document->set_att('xml:lang', $lang);
-$document->set_pretty_print('record');
+#my $document = XML::Twig::Elt->new('document');
+#$document->set_att('xml:lang', $lang);
+#$document->set_pretty_print('record');
+
+print "<document xml:lang =\"$lang\">\n";
 
 while (<>) {
 	chomp;
 
 	$line = $_;
 
-	if ($line =~ /^LEXICON (\S*)/) {
+	if ($line =~ /LEXICON (\S*)/ && ($line !~ /^\s*\!/ && $line !~ /^[\!\n\r]/ )) {
 		$in_multi = 0;
+		if ($lexicon) {
+			print "  </lexicon>\n";
+		}
 		$lexicon = $1;
-		$l = XML::Twig::Elt->new('lexicon');
-		$l->set_att('name', $lexicon);
+#		$l = XML::Twig::Elt->new('lexicon');
+#		$l->set_att('name', $lexicon);
+
+		print "\n  <lexicon name=\"$lexicon\"";
 
 		# Handling of entry comments, e.g compound information
 		if ($line =~ /\!.*/) {
 			my ($entr, $comments) = split (/\!/, $line);
 			(my $new_comments = $comments) =~ s/\!//g;
 			my @strings = split(/\s+/,$new_comments);
-			#print "JEE @strings\n";
+#			print "JEE @strings\n";
+#			for my $t (@strings) {
+#				if ($t =~ /\^C\^/) {
+				if (grep (/\^C\^/, @strings)) {
+#					$l->set_att('recursive', "yes");
+					print " recursive=\"yes\"";
+				}
+#				if ($t =~ /SUB/) {
+				if (grep (/SUB/, @strings)) {
+#					$l->set_att('substandard', "yes");
+					print " substandard=\"yes\"";
+				}
+				if (grep (/word/, @strings)) {
+					print " type=\"word\"";
+				}
+				if (grep (/infl/, @strings)) {
+					print " type=\"inflection\"";
+				}
+				if (grep (/der/, @strings)) {
+					print " type=\"derivation\"";
+				}
+				if (grep (/comp/, @strings)) {
+					print " type=\"compound\"";
+				}
+
+			print ">\n";
+
 			for my $t (@strings) {
 				if ($t =~ /\+/) {
 					$t =~ s/\+//;
 					if ($t =~ /Cmp/) {
 						my $compcase = XML::Twig::Elt->new('compcase');
 						$compcase->set_text($t);
-						$compcase->paste('last_child', $l);
+#						$compcase->paste('last_child', $l);
+						$compcase->print;
 					}
 					elsif ($t =~ /Left/) {
 						my $compleft = XML::Twig::Elt->new('compleft');
 						$compleft->set_text($t);
-						$compleft->paste('last_child', $l);
+#						$compleft->paste('last_child', $l);
+						$compleft->print;
 					}
 					elsif ($t =~ /None/ || $t =~ /First/ || $t =~ /Last/ || $t =~ /Middle/) {
 						my $position = XML::Twig::Elt->new('position');
 						$position->set_text($t);
-						$position->paste('last_child', $l);
+#						$position->paste('last_child', $l);
+						$position->print;
 					}
-				}
-				if ($t =~ /\^C\^/) {
-					$l->set_att('r', "yes");
-				}
-				if ($t =~ /SUB/) {
-					$l->set_att('sub', "yes");
 				}
 			}
 		}
 
-		$l->paste('last_child', $document);
+		else {
+			print ">\n";
+		}
+#		$l->paste('last_child', $document);
 	}
 
-	elsif ($l && ($line !~ /^\s*\!/ && $line !~ /^[\!\n\r]/ )) {
+	elsif ($lexicon && ($line !~ /^\s*\!/ && $line !~ /^[\!\n\r]/ )) {
 		my $entry = XML::Twig::Elt->new('entry');
 		my $lemma;
 		my $stem;
 		my $cont;
 		my $paste_entry;
 
-		if ($line =~ /(\S+)\:(\S+)\s*(\S*)/) {
+		if ($line =~ /^\s{0,80}(\S+)\:(\S+)\s*(\S*)/) {
 			$lemma = $1;
 			$stem = $2;
 			$cont = $3;
@@ -83,7 +117,7 @@ while (<>) {
 
 			$cont =~ s/;//;
 		}
-		elsif ($line =~ /(\S+)\:(\s*)(\S*)/) {
+		elsif ($line =~ /^\s{0,80}(\S+)\:(\s*)(\S*)/) {
 			$lemma = $1;
 			$stem = $2;
 			$cont = $3;
@@ -112,11 +146,39 @@ while (<>) {
 			$cont =~ s/;//;
 		}
 
-		if ($cont) { $entry->set_att('c', $cont); }
-		if ($stem) { $entry->set_att('s', $stem); }
-		if ($lemma) { $entry->set_att('w', $lemma); }
+		if ($cont && $cont !~ /#/) { $entry->set_att('contclass', $cont); }
+		if ($stem) { $entry->set_att('stem', $stem); }
+		if ($lemma) {
+#			if ($lemma !~ /\%\+/) {
+				(my $lemma_att = $lemma) =~ s/\+.*//;
+				if ($stem && $stem =~ /\+\/-/) {
+					$entry->set_att('lemma', $stem);
+				}
+				elsif ($lemma_att =~ /\S+/) {
+					$entry->set_att('lemma', $lemma_att);
+				}
+#			}
+#			else {
+#				(my $lemma_att = $lemma) =~ s/\(\%\+^\+*\)\+.*/$1/;
+#				$entry->set_att('lemma', $stem);
+#			}
+		}
 
 		if ($paste_entry) {
+
+			if ($lemma && $lemma =~ /\+/) {
+				$lemma =~ s/[^\+]*\+//;
+				my @tags = split /\+/, $lemma;
+
+				for my $t (@tags) {
+					if ($t =~ /\S+/ && $t !~ /\/-/) {
+#						$t =~ s/\%//;
+						my $tag = XML::Twig::Elt->new('lemmatag');
+						$tag->set_text($t);
+						$tag->paste('last_child', $entry);
+					}
+				}
+			}
 
 			# Handling of entry comments, e.g compound information
 			if ($line =~ /\!.*/) {
@@ -126,10 +188,10 @@ while (<>) {
 				#print "JEE @strings\n";
 				for my $t (@strings) {
 					if ($t =~ /\^C\^/) {
-						$entry->set_att('r', "yes");
+						$entry->set_att('recursive', "yes");
 					}
 					if ($t =~ /SUB/) {
-						$entry->set_att('sub', "yes");
+						$entry->set_att('substandard', "yes");
 					}
 					elsif ($t =~ /\+/) {
 						$t =~ s/\+//;
@@ -152,7 +214,10 @@ while (<>) {
 				}
 			}
 
-			$entry->paste('last_child', $l);
+#			$entry->paste('last_child', $l);
+#			print "\n\t";
+			$entry->set_pretty_print('record');
+			$entry->print;
 		}
 	}
 
@@ -160,18 +225,26 @@ while (<>) {
 		$in_multi = 1;
 	}
 	elsif ($in_multi) {
+		next;
 		$line =~ s/!.*//;
-		my @multichars = split(/\s/, $line);
+		my @multichar = split(/\s/, $line);
 
-		for my $symbol (@multichars) {
+		for my $symbol (@multichar) {
 			if ($symbol =~ /\S/) {
+				push (@multichars, $symbol);
+				next;
 				my $multichar = XML::Twig::Elt->new('multichar');
 				$multichar->set_att('symbol', $symbol);
-				$multichar->paste('last_child', $document);
-				$multichar->DESTROY;
+#				$multichar->paste('last_child', $document);
+#				$multichar->DESTROY;
+				print "\n\t";
+				$multichar->print;
 			}
 		}
 	}
 }
 
-$document->print;
+print "\n  </lexicon>";
+print "\n</document>\n";
+
+#$document->print;
