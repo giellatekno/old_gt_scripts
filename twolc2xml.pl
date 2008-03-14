@@ -4,71 +4,109 @@ use strict;
 # use Perl module XML::Twig for XML-handling
 # http://www.xmltwig.com/
 use XML::Twig;
+use Getopt::Long;
 
-my $r;
+my $inalpha;
+my $inset;
+my $indefin;
+my $inrules;
 my $rule;
+my $lang;
+
+my $end = "";
+
+my @alphabet;
+
+GetOptions ("lang|l=s" => \$lang);
 
 #my $document = XML::Twig::Elt->new('document');
+#$document->set_att('xml:lang', $lang);
 #$document->set_pretty_print('record');
+
+print "<document xml:lang =\"$lang\">\n";
+print "  <rules>\n";
 
 while (<>) {
 	chomp;
 
-
-	if ($_ =~ /^Rules/) {
-		$r = 1;
+	if ($_ =~ /^Alphabet/) {
+		$inalpha = 1;
+		$inset = 0;
+		$indefin = 0;
+		$inrules = 0;
 	}
 
-	elsif ($r && ($_ !~ /^\s*\!/ && $_ !~ /^[\!\n\r]/ )) {
-		my $paste_rule = 0;
+	elsif ($_ =~ /^Sets/) {
+		$inalpha = 0;
+		$inset = 1;
+		$indefin = 0;
+		$inrules = 0;
+	}
 
+	elsif ($_ =~ /^Definitions/) {
+#		print $end;
+		$inalpha = 0;
+		$inset = 0;
+		$indefin = 1;
+		$inrules = 0;
+	}
+
+	elsif ($_ =~ /^Rules/) {
+		print $end;
+		$inalpha = 0;
+		$inset = 0;
+		$indefin = 0;
+		$inrules = 1;
+	}
+
+	elsif ($inalpha && ($_ !~ /^\s*\!/ && $_ !~ /^[\!\n\r]/ )) {
+		my @alphas = split /\s+/, $_;
+		for my $a (@alphas) {
+			push (@alphabet, $a)
+		}
+	}
+
+	elsif ($inset && ($_ !~ /^\s*\!/ && $_ !~ /^[\!\n\r]/ )) {
+		if ($_ =~ /(\S+)\s+\=\s+([^\!^\;]*)/) {
+			print $end;
+			print "\t<set name=\"$1\">";
+			print $2;
+			$end = "\t</set>\n";
+		}
+		elsif ($_ =~ /([^\!^\;]*)/) {
+			print $1;
+		}
+	}
+
+	elsif ($indefin && ($_ !~ /^\s*\!/ && $_ !~ /^[\!\n\r]/ )) {
+		if ($_ =~ /(\S+)\s+\=\s+([^\!^\;]*)/) {
+			print $end;
+			print "\t<definition name=\"$1\">";
+			print $2;
+			$end = "\t</definition>\n";
+		}
+		elsif ($_ =~ /([^\!^\;]*)/) {
+			print $1;
+		}
+	}
+
+	elsif ($inrules && ($_ !~ /^\s*\!/ && $_ !~ /^[\!\n\r]/ )) {
 		if ($_ =~ /"(.*)"/) {
 			my $rulename = $1;
 
 			if ($rule =~ /\S+/) {
 				print_rule($rule);
-#				next;
-
-#				my $change;
-#				my @rules = split /\;/, $rule;
-
-#				for my $r (@rules) {
-#					if ($r =~ /\S*\=\S*\s+(.*)\s+_\s+(.*)/) {
-#						print "\t<context left=\"$1\" right=\"$2\"/>\n";
-#					}
-
-#					elsif ($r =~ /(.*)\s+_\s+(.*)/) {
-#						print "\t<context left=\"$1\" right=\"$2\"/>\n";
-#					}
-
-#					if ($r =~ /(\S+):(\S+)\s+\S*\=\S*/) {
-#						$change = "\t<change from=\"$1\" to=\"$2\"/>\n";
-#					}
-
-#					if ($r =~ /where.*matched/) {
-#						$change = "";
-#						$r =~ /\((.*)\).*\((.*)\)/;
-#						my @from = split /\s+/, $1;
-#						my @to = split /\s+/, $2;
-#						my $count = 0;
-#						for my $t (@from) {
-#							print "\t<change from=\"$t\" to=\"$to[$count]\"/>\n";
-#							$count++;
-#						}
-#					}
-#				}
-
-#				print $change;
-#				print "</rule>\n";
 			}
-			print "\n<rule name=\"$rulename\">\n";
+
+			print "\n\t<rule name=\"$rulename\">\n";
 			$rule = "";
 			next;
 		}
 
 		if ($_ =~ /(\S*\=\S*)/) {
 			my $ruletype = $1;
-			print "\t<ruletype>$ruletype</ruletype>\n";
+			$ruletype =~ s/</&lt;/;
+			print "\t  <ruletype>$ruletype</ruletype>\n";
 		}
 
 		(my $line = $_) =~ s/\!.*//;
@@ -78,47 +116,53 @@ while (<>) {
 
 print_rule($rule);
 
+print "\n  </rules>";
+print "\n</document>\n";
+
+
 sub print_rule {
 	my ($rule) = @_;
 
 				my $change;
+				my $left;
+				my $right;
 				my @rules = split /\;/, $rule;
 
 				for my $r (@rules) {
-#					print "\nJEE $r\n";
 
-					if ($r =~ /\S*\=\S*\s+(.*)\s+_\s+(.*)/) {
-#						print "LC $1\n";
-#						print "RC $2\n";
-						print "\t<context left=\"$1\" right=\"$2\"/>\n";
+					if ($r =~ /\S*\=\S*\s+([\s\S]*)\s+_\s+(.*)/) {
+						print "\t  <context left=\"$1\" right=\"$2\"/>\n";
 					}
 
-					elsif ($r =~ /(.*)\s+_\s+(.*)/) {
-#						print "LC $1\n";
-#						print "RC $2\n";
-						print "\t<context left=\"$1\" right=\"$2\"/>\n";
+					elsif ($r =~ /([\s\S]*)\s+_\s+(.*)/) {
+						$left = $1;
+						$right = $2;
+						if ($left =~ /\S*\=\S*/) {
+							print "\t  <context right=\"$right\"/>\n";
+						}
+						else {
+							print "\t  <context left=\"$left\" right=\"$right\"/>\n";
+						}
 					}
 
 					if ($r =~ /(\S+):(\S+)\s+\S*\=\S*/) {
-#						print "JEAH $1 $2\n";
-						$change = "\t<change from=\"$1\" to=\"$2\"/>\n";
+						$change = "\t  <change from=\"$1\" to=\"$2\"/>\n";
 					}
 
 					if ($r =~ /where.*matched/) {
 						$change = "";
 						$r =~ /\((.*)\).*\((.*)\)/;
-#						print "PLAA $1 $2\n";
 						my @from = split /\s+/, $1;
 						my @to = split /\s+/, $2;
 						my $count = 0;
 						for my $t (@from) {
-							print "\t<change from=\"$t\" to=\"$to[$count]\"/>\n";
+							print "\t  <change from=\"$t\" to=\"$to[$count]\"/>\n";
 							$count++;
 						}
 					}
 				}
 
 				print $change;
-				print "</rule>\n";
+				print "\t</rule>\n";
 
 }
