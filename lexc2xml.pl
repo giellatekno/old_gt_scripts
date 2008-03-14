@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
+use utf8;
 
 # use Perl module XML::Twig for XML-handling
 # http://www.xmltwig.com/
@@ -147,7 +148,29 @@ while (<>) {
 		}
 
 		if ($cont && $cont !~ /#/) { $entry->set_att('contclass', $cont); }
-		if ($stem) { $entry->set_att('stem', $stem); }
+		if ($stem) {
+			if ($stem =~ /[A-ZÅÆ]/) {
+				$stem =~ s/(\%\^.*[A-Z])/<$1>/g;
+				if ($stem !~ /<\%\^/) {
+					$stem =~ s/([ÅÆA-Z][0-9]{0,2})/<$1>/g;
+				}
+#				for my $m (@multichars) {
+#					print "$m";
+#					$stem =~ s/$m//;
+#				}
+#				print "JEE $stem";
+
+				my @tags = split /\>/, $stem;
+				for my $t (@tags) {
+					if ($t =~ /(\<.*)/) {
+						my $tag = XML::Twig::Elt->new('stemtag');
+						$tag->set_text($1 . ">");
+						$tag->paste('last_child', $entry);
+					}
+				}
+			}
+			$entry->set_att('stem', $stem);
+		}
 		if ($lemma) {
 #			if ($lemma !~ /\%\+/) {
 				(my $lemma_att = $lemma) =~ s/\+.*//;
