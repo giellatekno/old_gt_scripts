@@ -462,6 +462,13 @@
 						</xsl:attribute>	  
 					</xsl:element>
 				</xsl:if>
+				<xsl:if test="$mlang_dan">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<text>dan</text>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
 				<xsl:if test="$mlang_ger">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
@@ -469,7 +476,27 @@
 						</xsl:attribute>	  
 					</xsl:element>
 				</xsl:if>
-				
+				<xsl:if test="$mlang_kal">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<text>kal</text>
+						</xsl:attribute>
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_isl">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<text>isl</text>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>
+				<xsl:if test="$mlang_fkv">
+					<xsl:element name="language">
+						<xsl:attribute name="xml:lang">
+							<text>fkv</text>
+						</xsl:attribute>	  
+					</xsl:element>
+				</xsl:if>				
 				</xsl:element>
 			</xsl:when>
 
