@@ -5,8 +5,8 @@ my $i = 1 ;
 
 while (<>){
 
-if ( /^(MAP|ADD|SELECT|REMOVE) (.*)/ ) {
-	$_ =~ s/^(MAP|ADD|SELECT|REMOVE) (.*)/$1:r$i $2/;
+if ( /^(MAP|ADD|SELECT|REMOVE|SUBSTITUTE|IFF) (.*)/ ) {
+	$_ =~ s/^(MAP|ADD|SELECT|REMOVE|SUBSTITUTE|IFF) (.*)/$1:r$i $2/;
 	$i++;
 	}
 print;
