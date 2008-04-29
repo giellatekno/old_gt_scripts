@@ -175,6 +175,7 @@ elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answe
 elsif ($action eq "disamb") { 
     if ($translate) { $result = `echo $text | $disamb | $translate`; }
     else { $result = `echo $text | $disamb`; }
+
 }
 
 elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
@@ -267,7 +268,7 @@ if (! $xml_out) {
 }
 else {
 	if ($result =~ s/ERROR//) { print "<error>$result</error>"; }
-	elsif ($action eq "generate" || $action =~ /paradigm/) { $output = gen2xml($result);  } 
+	elsif ($action eq "generate" || $action =~ /paradigm/) { $output = gen2xml($result,0);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
 	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
 	elsif ($action eq "convert") { $output = hyph2xml($result); }
