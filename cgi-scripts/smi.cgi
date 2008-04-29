@@ -268,7 +268,8 @@ if (! $xml_out) {
 }
 else {
 	if ($result =~ s/ERROR//) { print "<error>$result</error>"; }
-	elsif ($action eq "generate" || $action =~ /paradigm/) { $output = gen2xml($result,0);  } 
+	elsif ($action eq "generate" ) { $output = gen2xml($result,0);  } 
+	elsif ($action eq "paradigm" ) { $output = gen2xml($result,1);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
 	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
 	elsif ($action eq "convert") { $output = hyph2xml($result); }
