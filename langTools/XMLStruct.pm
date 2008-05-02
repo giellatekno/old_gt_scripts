@@ -14,7 +14,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&dis2html &hyph2html &gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
+@EXPORT = qw(&dis2html &hyph2html &gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &paradigm2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
 @EXPORT_OK   = qw(&process_paras);
 
 our ($fst, %dis_tools, %action, %prep_tools, $prep, $language, $args, $xml_in, $xml_out);
@@ -300,6 +300,65 @@ sub hyph2html {
 		return $string;
 	}
 }
+
+
+sub paradigm2xml {
+	my ($result, $answer, $candidates, $mode) = @_;
+
+	my $w;
+	my $lemma;
+	my $analysis;
+	my $output;
+	$output=XML::Twig::Elt->new('paradigm');
+	$output->set_pretty_print('record');
+
+    for (my $j=0; $j<$result; $j++) {
+		my @input=split(/\n/, $$answer{$j}{para});
+		for my $out (@input) {
+			if ($out =~ /^\s*$/) { next; }
+			chomp $out;
+			
+			my ($line, $form) = split(/\t/, $out, 2);
+			next if (! $form);
+			$form =~ s/^\s+//;
+			
+			($lemma, $analysis) = split(/§/, $line, 2);
+			if (! $analysis) { ($lemma, $analysis) = split(/\+/, $line, 2); }
+			
+			if (! $w) { $w=XML::Twig::Elt->new('w'); }
+			my $surface=XML::Twig::Elt->new('surface');
+			$surface->set_att('form', $form);
+			$surface->set_att('analysis', $analysis);
+			$surface->set_att('form', $form);
+			$surface->paste('last_child', $w);
+			$surface->DESTROY;
+		}
+		if ($w) {
+			$w->set_att('lemma', $lemma);	
+		}
+
+		# If minimal mode, show only first paradigm
+		last if (! $mode || $mode eq "minimal");
+	}
+	if (keys %$candidates) { 
+		my $cands=XML::Twig::Elt->new('analyses');
+		for my $c (keys %$candidates) { 
+			my $cand=XML::Twig::Elt->new('anl', $c);
+			$cand->paste('last_child', $cands);
+	    }
+		$cands->paste('last_child', $w);
+	}
+	if ($w) { 
+		$w->paste('last_child', $output);
+		$w->DESTROY;
+	}
+	
+	my $string = $output->sprint;
+	$output->delete;
+	return $string;
+	
+} # End of paradigm output
+
 
 # Move generator output to xml-structure.
 sub gen2xml {
