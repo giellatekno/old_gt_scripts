@@ -1,6 +1,9 @@
 #!/usr/bin/perl -w
 
+# Debugging
 #use CGI::Debug;
+#use lib '/home/saara/gt/script';
+
 use strict;
 
 use utf8;
@@ -9,7 +12,6 @@ use Unicode::String qw(utf8 latin1);
 use XML::Twig;
 
 use CGI::Minimal;
-
 #use CGI qw/:standard :html3 *table *dl/;
 #$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
@@ -85,8 +87,8 @@ if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 &init_variables;
 
 # temporary files
-open (FH, ">$tmpfile");
-open (LFH, ">>$logfile");
+#open (FH, ">$tmpfile");
+#open (LFH, ">>$logfile");
 
 my @candidates;
 my $document;
@@ -138,9 +140,9 @@ if($charset eq "latin1") { $text = Unicode::String::latin1( $text); }
 # Convert html-entity to unicode
 decode_entities( $text );
 
-print LFH "PARAM $action, $lang, $plang";
-if ($action eq "paradigm") { print LFH "$pos"; }
-print LFH "\n$text\n";
+#print LFH "PARAM $action, $lang, $plang";
+#if ($action eq "paradigm") { print LFH "$pos"; }
+#print LFH "\n$text\n";
 
 # Special characters in the text (e.g. literal ampersands, plus signs
 # and equal signs 
@@ -169,9 +171,9 @@ if (@words && ! $xml_out) { &printwordlimit; }
 
 my $result;
 my %answer;
-my %candidates;
+my %candits;
 if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
-elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candidates); }
+elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candits); }
 elsif ($action eq "disamb") { 
     if ($translate) { $result = `echo $text | $disamb | $translate`; }
     else { $result = `echo $text | $disamb`; }
@@ -191,7 +193,6 @@ else { print "<error>No parameter for action recieved</error>"; }
 ######################################
 
 my $output;
-
 if (! $xml_out) {
 	if ($action eq "analyze" || $action eq "disamb") { 
           $result =~ s/</&lt\;/g; 
@@ -206,6 +207,7 @@ if (! $xml_out) {
     elsif ($action eq "paradigm") {
       my $grammar = $page->first_child("grammar");
 
+      # Format error messages
       if ($result == -1) {
 	     my $no_result = $page->first_child_text("noresult[\@tool='paradigm']");
          if (! $no_result) { $no_result = $page->first_child_text("no_result"); }
@@ -241,7 +243,7 @@ if (! $xml_out) {
 		last if (! $mode || $mode eq "minimal");
       }
 
-	  if (%candidates) { 
+	  if (%candits) { 
 	     my $other_forms = $page->first_child_text("otherforms[\@tool='paradigm']");
          my @content;
          my $p=XML::Twig::Elt->new('p');
@@ -250,7 +252,7 @@ if (! $xml_out) {
          my $br=XML::Twig::Elt->new('br');
          push(@content, $br);
 
-		for my $c (keys %candidates) { 
+		for my $c (keys %candits) { 
             push(@content, $c);
             my $br_copy = $br->copy;
             push (@content, $br_copy);
@@ -259,6 +261,7 @@ if (! $xml_out) {
         $p->paste('last_child', $body);
     }
     } # End of paradigm output
+
 
     # Paste the result to the html-structure, print final html-codes.
     if ($output && $action ne "paradigm") { $output->paste('last_child', $body); }
@@ -269,7 +272,7 @@ if (! $xml_out) {
 else {
 	if ($result =~ s/ERROR//) { print "<error>$result</error>"; }
 	elsif ($action eq "generate" ) { $output = gen2xml($result,0);  } 
-	elsif ($action eq "paradigm" ) { $output = gen2xml($result,1);  } 
+	elsif ($action eq "paradigm" ) { $output = paradigm2xml($result, \%answer, \%candits, $mode);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
 	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
 	elsif ($action eq "convert") { $output = hyph2xml($result); }
@@ -290,7 +293,7 @@ print $output;
 sub generate_paradigm {
 	my ($word, $pos, $answer_href, $cand_href) = @_;
 	
-	print FH "$word $pos\n";
+#	print FH "$word $pos\n";
 
 	my %paradigms;
 	my $gen_call;
@@ -299,10 +302,10 @@ sub generate_paradigm {
 	my $i=0;
 	if ($pos eq "Any") { $anypos = 1; }
 
-	print FH "GEN-NORM: $gen_norm_lookup\n";
-	print FH "GEN: $gen_lookup\n";
-	print FH "PARADIGMFILE: $paradigmfile\n";
-	if ($mode) { print FH "MODE: $mode\n"; }
+#	print FH "GEN-NORM: $gen_norm_lookup\n";
+#	print FH "GEN: $gen_lookup\n";
+#	print FH "PARADIGMFILE: $paradigmfile\n";
+#	if ($mode) { print FH "MODE: $mode\n"; }
     # Initialize paradigm list
 	generate_taglist($paradigmfile,$tagfile,\%paradigms);
 
@@ -361,7 +364,7 @@ sub generate_paradigm {
 			$derivations{$anl}{lemma} = $word_der;
 			$derivations{$anl}{pos} = $word_pos;
             push (@der_anl, $anl);
-			print FH "POS $word_pos\n WORD_DER $word_der\n";
+#			print FH "POS $word_pos\n WORD_DER $word_der\n";
 		}
 	}
 	# Select the analyses for the best match for the user input.
@@ -373,7 +376,7 @@ sub generate_paradigm {
 		for my $anl (@analyzes_noder) {
 			if ($poses{$anl}{pos} eq $pos || $anypos) {
 				if ($poses{$anl}{lemma} eq $word && $avail_pos{$poses{$anl}{pos}}) {
-					print FH "FIRST $anl\n";
+					#print FH "FIRST $anl\n";
 					$first_cand = $poses{$anl};
 					$cand_p = $poses{$anl}{pos};
 					$cand_w = $poses{$anl}{lemma};
@@ -381,7 +384,7 @@ sub generate_paradigm {
                     last;
 				}
 				else {
-					print FH "CAND $anl\n";
+					#print FH "CAND $anl\n";
 					push (@candidates, $anl);
                 }
             }
@@ -417,7 +420,6 @@ sub generate_paradigm {
 	for my $c (@candidates) {
 		if ($$answer_href{0}{pos} ne $poses{$c}{pos}) { $$cand_href{$c}=1; }
 	}	
-
     
 	for my $d (@der_anl) {
 
@@ -478,17 +480,19 @@ sub call_para {
 	}
 
 	if ($all) {
-		print FH "FORMS $all";
+		#print FH "FORMS $all";
 		my $generated;
-        if ($mode && $mode eq "dialect") { print FH "GEN $gen_lookup\n";
-								  $generated = `echo \"$all\" | $gen_lookup`;
-							  }
-        else { $generated = `echo \"$all\" | $gen_norm_lookup`; 
-								  print FH "GEN $gen_norm_lookup\n";
-}
+       if ($mode && $mode eq "dialect") { 
+		   #print FH "GEN $gen_lookup\n";
+		   $generated = `echo \"$all\" | $gen_lookup`;
+	   }
+        else { 
+			$generated = `echo \"$all\" | $gen_norm_lookup`; 
+			#print FH "GEN $gen_norm_lookup\n";
+		}
 		my @all_cand = split(/\n+/, $generated);
 		for my $a (@all_cand) { if ($a !~ /\+\?/) { $answer .= $a . "\n\n"; } }
-		if ($answer) { print FH "ANS $answer";}
+#		if ($answer) { print FH "ANS $answer";}
 	}
 
 	return $answer;
@@ -499,7 +503,7 @@ sub printinitialhtmlcodes {
 
 	my $tmp_tool = $tool;
 	if ($tool =~ /hyphenate|transcribe|convert|disamb/) { $tmp_tool = "analyze"; }
-	print FH "TOOL $tool $tmp_tool\n";
+#	print FH "TOOL $tool $tmp_tool\n";
 
 	# Read the texts from the XML-file.
 
