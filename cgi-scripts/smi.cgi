@@ -276,6 +276,7 @@ else {
 	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
 	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
 	elsif ($action eq "convert") { $output = hyph2xml($result); }
+	elsif ($action eq "analyze") { $output = analyzer2xml($result); }
 	else { $output = dis2xml($result); }
 print $output;
 }
