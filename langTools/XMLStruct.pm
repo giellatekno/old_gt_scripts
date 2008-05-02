@@ -305,19 +305,26 @@ sub hyph2html {
 sub paradigm2xml {
 	my ($result, $answer, $candidates, $mode) = @_;
 
-	my $w;
 	my $lemma;
 	my $analysis;
-	my $output;
-	$output=XML::Twig::Elt->new('paradigm');
-	$output->set_pretty_print('record');
-
+	my $w=XML::Twig::Elt->new('w');
+	$w->set_pretty_print('record');
+	
     for (my $j=0; $j<$result; $j++) {
+		if ($$answer{$j}{form}) {
+			$w->set_att('input', $$answer{$j}{form});
+		}
+		
+		my $paradigm=XML::Twig::Elt->new('paradigm');
+		if ($$answer{$j}{anl}) { 
+			my ($l, $anl) = split(/\+/, $$answer{$j}{anl}, 2); 
+			$paradigm->set_att('analysis', $anl);
+			$paradigm->set_att('lemma', $l);
+		}
 		my @input=split(/\n/, $$answer{$j}{para});
 		for my $out (@input) {
 			if ($out =~ /^\s*$/) { next; }
 			chomp $out;
-			
 			my ($line, $form) = split(/\t/, $out, 2);
 			next if (! $form);
 			$form =~ s/^\s+//;
@@ -325,36 +332,30 @@ sub paradigm2xml {
 			($lemma, $analysis) = split(/§/, $line, 2);
 			if (! $analysis) { ($lemma, $analysis) = split(/\+/, $line, 2); }
 			
-			if (! $w) { $w=XML::Twig::Elt->new('w'); }
 			my $surface=XML::Twig::Elt->new('surface');
 			$surface->set_att('form', $form);
 			$surface->set_att('analysis', $analysis);
 			$surface->set_att('form', $form);
-			$surface->paste('last_child', $w);
+			$surface->paste('last_child', $paradigm);
 			$surface->DESTROY;
 		}
-		if ($w) {
-			$w->set_att('lemma', $lemma);	
-		}
-
+		$paradigm->paste('last_child', $w);
+		$paradigm->DESTROY;
+	
 		# If minimal mode, show only first paradigm
 		last if (! $mode || $mode eq "minimal");
 	}
 	if (keys %$candidates) { 
-		my $cands=XML::Twig::Elt->new('analyses');
+		my $cands=XML::Twig::Elt->new('other');
 		for my $c (keys %$candidates) { 
 			my $cand=XML::Twig::Elt->new('anl', $c);
 			$cand->paste('last_child', $cands);
 	    }
 		$cands->paste('last_child', $w);
 	}
-	if ($w) { 
-		$w->paste('last_child', $output);
-		$w->DESTROY;
-	}
 	
-	my $string = $output->sprint;
-	$output->delete;
+	my $string = $w->sprint;
+	$w->delete;
 	return $string;
 	
 } # End of paradigm output
