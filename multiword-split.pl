@@ -21,13 +21,13 @@ while (<STDIN>) {
 	if (/^\!/) { print; next; }
 	if (/\+Pron/) { print; next; }
 	chomp;
-	
+
 	my @strings = split (/\%\ /, $_);
 	my $end = 0;
-	
+
 	for my $i (@strings) {
 		if ($i =~ /:/) { (my $entry = $i) =~ s/:.*//g; print "$entry:"; $end=1; }
-		elsif ($i !~ /\;/ && !$end) { print "$i\+N\+Multi:$i # ;\n"; }
+		elsif ($i !~ /\;/ && !$end) { print "$i\@U\.Cap\.Obl\@\+N\+Multi:$i\@U\.Cap\.Obl\@ # ;\n"; }
 		elsif ($i =~ /\;/) { print "$i\n"; }
 	}
 }
