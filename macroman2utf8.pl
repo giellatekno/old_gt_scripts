@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 # Converting text from plain text mac-files that are sent to Linux.
+use utf8;
 
 while (<>) 
 {
@@ -9,13 +10,13 @@ while (<>)
 # as such, here these 'wherever' positions are translated to the
 # digraphs that are in use in the morphological analyser.
 
-s/a/x/g;
 s/∏/č/g;
 s/π/đ/g;
 s/∫/ŋ/g;
 s/ª/š/g;
 s/º/ŧ/g; # was removed earlier, why?
 s/Ω/ž/g;
+s/Ω/ž/g;
 s/¢/Č/g;
 s/∞/Đ/g;
 s/±/Ŋ/g;
