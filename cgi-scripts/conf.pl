@@ -154,7 +154,6 @@ sub init_variables {
 
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
 
-#	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg --grammar=$dis_rle"; 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
