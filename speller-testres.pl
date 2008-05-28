@@ -35,6 +35,7 @@ my $document;
 my $version;
 my $date;
 my @originals;
+my $toolversion;
 
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
@@ -51,6 +52,7 @@ GetOptions ("help|h" => \$help,
 			"output|o=s" => \$output,
 			"xml|x=s" => \$print_xml,
 			"forced|f" => \$forced,
+			"toolversion|w=s" => \$toolversion,
 			);
 
 if ($help) {
@@ -442,7 +444,8 @@ sub print_xml_output {
 
 	# Print some header information
 	my $tool = XML::Twig::Elt->new('tool');
-	$tool->set_att('version', $version);
+	$tool->set_att('lexversion', $version);
+	$tool->set_att('toolversion', $toolversion);
 	$tool->set_att('type', $input_type);
 	$tool->paste('last_child', $header);
 	
@@ -614,6 +617,8 @@ Usage: speller-testres.pl [OPTIONS]
 -v <num>
 --date <date>     Date when the test was run, if not the output file timestamp.
 -e
+--toolversion     Hyphenator tool version information.
+-w
 END
 
 }
