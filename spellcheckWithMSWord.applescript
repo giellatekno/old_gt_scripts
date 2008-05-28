@@ -5,6 +5,7 @@ INPUT:
 - ARGV #1: LANGUAGE code
 - ARGV #2: input file
 - ARGV #3: output file
+- ARGV #4: filename for file containing speller engine version
 
 The input file is expected to have one word on each line. It is possible that the script would work without this limitation, but that is not tested. Also, due to limitations in Word and in the speller, certain input strings are removed before being sent to Word (this is done in the Makefile). This includes strings containing spaces, full stops and hyphens.
 
@@ -25,6 +26,8 @@ SpellerCategory = either one of:
 	- CapErr (capitalization error, don't know exactly what this means)
 Suggestions = list of suggestions given by the speller, potentially empty. The list is tab separated
 
+This AppleScript will call whichever MS Word version it finds first, and probably prefer newer over older. This means that until we have proofing tools for MS Office 2008 available, make sure MS Word 2004 is running *before* you start the spell test. Otherwise MS Word 2008 is likely to be run, which will return nonsense or nothing.
+
 This AppleScript file is best edited using Script Editor - it will give great help with syntax colouring & checking etc.
 *)
 
@@ -43,12 +46,23 @@ on run argv
 		return "The file " & outfile & " could not be opened!"
 	end try
 	
+	-- we set up a reference to the speller engine version file:
+	set f3 to item 4 of argv -- version file
+	set versionfile to POSIX file f3 -- version is a file object again
+	
+	try
+		set vfile to open for access versionfile with write permission
+	on error
+		return "The file " & versionfile & " could not be opened!"
+	end try
+	
 	set testLang to item 1 of argv
 	
 	set savedTextItemDelimiters to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to {"	"}
 	
 	tell application "Microsoft Word"
+		set MSWordVersion to application version
 		open infile
 		set theDocument to active document
 		set myRange to set range text object of active document start 0 end (end of content of text object of theDocument)
@@ -104,4 +118,7 @@ on run argv
 	end tell
 	set AppleScript's text item delimiters to savedTextItemDelimiters
 	close access ufile
+	set VersionText to "MS Word " & MSWordVersion & ", AppleScript version: $Revision$ $Date$" & return
+	write VersionText to vfile
+	close access vfile
 end run
