@@ -79,7 +79,6 @@ sub dis2xml {
 		if ($analysis) {
 			$analysis =~ tr/ /+/;
 			$reading->set_att('analysis', $analysis); 
-
 		}
 		$reading->paste('last_child', $w); 
 	}
@@ -422,7 +421,7 @@ sub gen2xml {
 
 # Move generator output to html-table.
 sub gen2html {
-	my ($text, $paradigm,$structure) = @_;
+	my ($text, $paradigm,$structure,$fulllemma) = @_;
 
 	my $tr;
 	my $td;
@@ -438,6 +437,8 @@ sub gen2html {
 		$output->delete;		
 		return $string;
 	}
+	my $first_part;
+	if ($fulllemma) { ($first_part = $fulllemma ) =~ s/\#[^\#]+$//; }
 
 	my @input=split(/\n/, $text);
 
@@ -448,8 +449,11 @@ sub gen2html {
 		my ($line, $form) = split(/\t/, $out, 2);
 		next if (! $form);
 		$form =~ s/^\s+//;
+		if ($fulllemma) { $form = $first_part . $form; }
+		$form =~ s/\#//g;
 		
 		($lemma, $analysis) = split(/\+/, $line, 2);
+		if ($fulllemma) { $lemma = $fulllemma; $lemma =~ s/\#//g; }
 
 		# There may be more than one form for an analysis
 		# to separate different paradigms,
