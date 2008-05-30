@@ -237,8 +237,9 @@ if (! $xml_out) {
             $b->paste('last_child',$p);
             $p->paste('last_child',$body);
          }
+        # Format paradigm list to html.
 		# If minimal mode, show only first paradigm
-        $output = gen2html($answer{$j}{para},0,1); 
+        $output = gen2html($answer{$j}{para},0,1,$answer{$j}{fulllemma}); 
         $output->paste('last_child', $body); 
 		last if (! $mode || $mode eq "minimal");
       }
@@ -294,7 +295,7 @@ print $output;
 sub generate_paradigm {
 	my ($word, $pos, $answer_href, $cand_href) = @_;
 	
-#	print FH "$word $pos\n";
+	#print FH "$word $pos\n";
 
 	my %paradigms;
 	my $gen_call;
@@ -336,36 +337,61 @@ sub generate_paradigm {
 	my %poses;
 	my %derivations;
 	my @der_anl;
-	my @analyzes_noder;
 	for my $anl (@analyzes) {
 		next if ($anl =~ /\+\?/);
 		my ($lemma, $anl) = split(/\s+/, $anl);
+
+		# Derivations are processed separately
 		if ($anl !~ /Der/) { 
-			
+
 			# If the word is a compound with no tags in the first parts.
 			# e.g. sáme#giel+A+Attr remove the boundary marks.
-			if ($anl =~ /^([^\+]+\#)+[^\+\#]+\+([^\#])+$/) {
-				$anl =~ s/\#//g;
+            # Format compounds that consists of several analyzed parts.
+			# Call the baseform generating function (same as in lookup2cg)
+            # bátni+N+SgNomCmp#lohku --> bátnelohku+N+Sg+Nom
+			
+			my $anlpos;
+			my $anllemma;
+			my $fulllemma;
+			if ($anl =~/\#/ && $anl !~ /^[^\+]+\#[^\#]+$/) {
+ 				my $anltmp = $anl;
+				$anltmp =~ s/\#\+Der\d\+Der\//\#/g;
+				$anltmp =~ /^(.*\#.*?)\+(.*)$/;
+				$anltmp = $1;
+				my $line2 = $2;
+				format_compound(\$anltmp, \$line2, \$word);
+				$fulllemma=$anltmp;
+                ($anlpos) = split(/\+/, $line2);
+                ($anllemma = $anltmp) =~ s/^.*\#([^\#]+)$/$1/;
+				#print FH "$anltmp ja $line2 ja $anllemma ja $anlpos\n";
 			}
-			my @line = split (/\+/, $anl);
-			my $p = $line[1];
-			my $w = $line[0];
+            else {
+      			my @line = split (/\+/, $anl);
+                $anllemma=$line[0];
+                $anlpos=$line[1];
+            }
+            # pos and word
+     	    next if (! $anypos && $pos ne $anlpos);
+            $poses{$anl}{ranking} = 1;
+            if ($anllemma =~ s/\#//g) { $poses{$anl}{ranking} = 2; }
+            $poses{$anl}{lemma} = $anllemma;
+            $poses{$anl}{pos} = $anlpos;
 
-			# Skip analyzes that are not the same pos
-			next if (! $anypos && $pos ne $p);
-			$poses{$anl}{lemma} = $w;
-			$poses{$anl}{pos} = $p;
-			push (@analyzes_noder, $anl);
+            if ($fulllemma) { 
+                $poses{$anl}{fulllemma} = $fulllemma;
+                $poses{$anl}{ranking} = 3;
+            }
+			#print FH "POS $anlpos\nlemma $anllemma\nfulllemma  $poses{$anl}{fulllemma}\n";
 		}
 		# The derivations are treated separately
-	    elsif ($anl =~ m/^(.*?(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/) {
+	    elsif ($anl =~ m/^(.+\+(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/) {
 			my $word_der=$1;
 			my $word_pos=$2;
             next if (! $anypos && $pos ne $word_pos);
 			$derivations{$anl}{lemma} = $word_der;
 			$derivations{$anl}{pos} = $word_pos;
             push (@der_anl, $anl);
-#			print FH "POS $word_pos\n WORD_DER $word_der\n";
+			#print FH "POS $word_pos\n WORD_DER $word_der\n";
 		}
 	}
 	# Select the analyses for the best match for the user input.
@@ -373,6 +399,8 @@ sub generate_paradigm {
 	my $cand_p;
 	my $cand_w;
 	my $cand_anl;
+	my $cand_fulllemma;
+    my @analyzes_noder = sort { $poses{$a}{ranking} <=> $poses{$b}{ranking} } keys %poses;
 	if (! %$answer_href || $anypos) {
 		for my $anl (@analyzes_noder) {
 			if ($poses{$anl}{pos} eq $pos || $anypos) {
@@ -381,40 +409,42 @@ sub generate_paradigm {
 					$first_cand = $poses{$anl};
 					$cand_p = $poses{$anl}{pos};
 					$cand_w = $poses{$anl}{lemma};
+                       if ($poses{$anl}{fulllemma}) {
+	       					$cand_fulllemma = $poses{$anl}{fulllemma};
+                    }
 					$cand_anl = $anl;
-                    last;
 				}
 				else {
-					#print FH "CAND $anl\n";
 					push (@candidates, $anl);
                 }
             }
 		}
 		# If the lemma matches to the input, generate paradigm
+        FIRST_CAND: {
 		if ($first_cand) {
+			$answer = call_para($cand_w, \@{$paradigms{$cand_p}});
+			if (! $answer) { $first_cand=0; $$cand_href{$cand_anl}=1; last FIRST_CAND; }
 			$$answer_href{$i}{form} = $text;
 			$$answer_href{$i}{pos} = $cand_p;
 			$$answer_href{$i}{anl} = $cand_anl;
-			$answer = call_para($cand_w, \@{$paradigms{$cand_p}});
+			$$answer_href{$i}{fulllemma} = $cand_fulllemma;
 			$$answer_href{$i}{para} = $answer;
 			$i++;
 		}
+        }
 		# If there was no exact match pick the first analysis.
-		elsif(@candidates) {
+		if(! $first_cand && @candidates) {
 			while(@candidates) {
 				my $anl = shift(@candidates);
-				# try to avoid compounds
-				if ($anl =~ /\#/ && @candidates) {
-					$$cand_href{$anl}=1;
-					next;
-				}
+				$answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
+				if (! $answer) { next; }
 				$$answer_href{$i}{form} = $text;
 				$$answer_href{$i}{pos} = $poses{$anl}{pos};
 				$$answer_href{$i}{anl} = $anl;
-				$answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
+     			$$answer_href{$i}{fulllemma} = $poses{$anl}{fulllemma};
 				$$answer_href{$i}{para} = $answer;
 				$i++;
-				last;
+                last;
 			}
 		}
     }
@@ -492,7 +522,11 @@ sub call_para {
 			#print FH "GEN $gen_norm_lookup\n";
 		}
 		my @all_cand = split(/\n+/, $generated);
-		for my $a (@all_cand) { if ($a !~ /\+\?/) { $answer .= $a . "\n\n"; } }
+		for my $a (@all_cand) { 
+            if ($a !~ /\+\?/) {
+                $answer .= $a . "\n\n"; 
+            } 
+        }
 #		if ($answer) { print FH "ANS $answer";}
 	}
 
