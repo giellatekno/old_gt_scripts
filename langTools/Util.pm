@@ -16,7 +16,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
-@EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist &win_digr &digr_utf8);
+@EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist &win_digr &digr_utf8 &format_compound);
 @EXPORT_OK   = qw();
 
 # Initialize expect object for analysis
@@ -58,7 +58,6 @@ sub call_lookup {
 	return "$read_anl\n";
 
 }
-
 
 
 # Read the grammar for  paradigm tag list.
@@ -161,6 +160,74 @@ sub read_tags {
  	}
 
 	close TAGS;
+}
+
+# Form baseforms of analyzed compounds.
+sub format_compound {
+	my ($refbase, $refline, $refword) = @_;
+
+	my $boundary_count = ($$refbase =~ tr/\#//);
+
+	# Take only the analysis of the last part of the compound
+	$$refbase =~ /^.*\#(.*?)$/;
+	my $last_word = $1;
+	if(! $last_word) { return; }
+
+	my $second_last_word;
+	my $third_last_word;
+	if ($boundary_count > 1) {
+		if ( $$refbase =~ /^.*\#(.*?)\#.*$/ ) {
+			$second_last_word = $1;
+		}
+		if ( $$refbase =~ /^.*\#(.*?)\#.*\#.*$/ ) {
+			$third_last_word = $1;
+		}
+	}
+	my $i=4;
+	my $substring = substr($last_word,0,$i);
+
+	while (($$refword !~ m/\Q$substring\E/) && $i > 1 ) {
+		$i--;
+		$substring = substr($last_word,0,$i);
+	}
+
+	if ($$refword =~ m/\Q$substring\E/) {
+		# If the compound boundary is found, 
+		# replace the last word by its base form, and insert a # mark in front of
+		# it, in order to mark the result as a compound.
+		my $orig = $$refbase;
+		$$refbase = $$refword;
+		$$refbase =~ s/(^.*)\Q$substring\E.*$/$1\#$last_word/;
+		if ($orig =~ m/^\p{isLower}/) {
+			$$refbase = lcfirst($$refbase);
+		}
+	}
+
+	if ($second_last_word) {
+		my $i=4;
+		my $substring = substr($second_last_word,0,$i);
+		while ($$refbase !~ /.*\Q$substring\E.*\#/ && $i>1 ) {
+			$i--;
+			$substring = substr($second_last_word,0,$i);
+		}
+		# If the compound boundary is found, mark it with #
+		if ($$refbase =~ /\Q$substring\E/) {
+			$$refbase =~ s/(\Q$substring\E.*\#)/\#$1/;
+		}
+	}
+
+	if ($third_last_word) {
+		my $i=4;
+		my $substring = substr($third_last_word,0,$i);
+		while ($$refbase !~ /.*\Q$substring\E.*\#.*\#/ && $i>1 ) {
+			$i--;
+			$substring = substr($third_last_word,0,$i);
+		}
+		# If the compound boundary is found, mark it with #
+		if ($$refbase =~ /\Q$substring\E/) {
+			$$refbase =~ s/(\Q$substring\E.*\#.*\#)/\#$1/;
+		}
+	}
 }
 
 
