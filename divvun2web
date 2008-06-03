@@ -34,10 +34,10 @@ checkout()
     echo "Updating $TEMPDIR ..."
     cd
     if  ! [ -x $TEMPDIR ]; then
-        cvs -d /usr/local/cvs/repository/ -Q co $TEMPDIR
+        cvs -d /usr/local/cvs/repository/ co $TEMPDIR
     else
         cd $TEMPDIR
-        cvs -d /usr/local/cvs/repository/ -Q -z4 up -dP
+        cvs -d /usr/local/cvs/repository/ up -dP
         cd
     fi
     if [ "$?" != "0" ]; then
@@ -53,7 +53,7 @@ checkout()
 
 fetch_giella_and_divvun()
 {
-    for CVS_DIR in xtdoc gt words st kt ped
+    for CVS_DIR in xtdoc gt/doc words st kt ped
     do
         checkout $CVS_DIR
     done
