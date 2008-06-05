@@ -9,7 +9,7 @@
 # lookup it accepts.
 
 
-if [ `hostname` == 'victorio' ]
+if [ `hostname` == 'victorio.uit.no' ]
 then
     LOOKUP=/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup
 else
