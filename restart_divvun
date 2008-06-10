@@ -1,6 +1,6 @@
 #!/bin/bash
 
-grep java.lang.OutOfMemoryError  $HOME/xtdoc/sd/divvun.log
+egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED'  $HOME/xtdoc/sd/divvun.log
 #test -e .
 if [ "$?" == "0" ]; then
 	processes=(`ps u | grep sd | grep java | grep -v grep | sed -e 's/^sd *//g'|cut -f1 -d" "`)
@@ -18,6 +18,5 @@ if [ "$?" == "0" ]; then
 		let i++
 	done
 	cd $HOME/xtdoc/sd
-	forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $HOME/xtdoc/sd/divvun.log 2>&1 &
+	$HOME/forrest/bin/forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $HOME/xtdoc/sd/divvun.log 2>&1 &
 fi
-
