@@ -30,16 +30,19 @@ copy() {
 
 	rm -rf $tmpdir/gt
 	rm -rf $tmpdir/st
+	rm -rf $tmpdir/kvensk
 
     if [ "$host" == "victorio.uit.no" ]
 	then
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
 		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout words
+		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout kvensk
     else	
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
 		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout words
+		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout kvensk
     fi
 }
 
@@ -160,13 +163,39 @@ build_words() {
 	lang2=$2
 
 	fstdir=/opt/smi/$lang1/bin/
-	wordsdir=$tmpdir/words/dicts/$lang1$lang2/
+	wordsdir=$tmpdir/words/dicts/$lang1$lang2
 
 	cd $wordsdir/src && make clean
 	cd $wordsdir/src && make
 	cp $wordsdir/bin/$lang1$lang2.fst $fstdir
 
 	cp $tmpdir/words/script/translate.pl /opt/smi/common/bin/
+}
+
+
+
+build_kvensk() {
+
+    if [ -z "$@" ]
+		then
+		langs="fkv nob"
+    else
+		langs="$@"
+    fi
+
+	lang1=$1
+	lang2=$2
+
+	fstdir=/opt/smi/fkv/bin/
+	wordsdir=$tmpdir/kvensk
+
+	cd $wordsdir/$lang1$lang2 && make clean
+	cd $wordsdir/$lang1$lang2 && make
+	cd $wordsdir/$lang2$lang1 && make clean
+	cd $wordsdir/$lang2$lang1 && make
+	cp $wordsdir/bin/$lang1$lang2.html $fstdir
+	cp $wordsdir/bin/$lang2$lang1.html $fstdir
+
 }
 
 # Generate the anchor word list for smenno
@@ -192,6 +221,9 @@ case "$1" in
         $@
         ;;
    build_words)
+        $@
+        ;;
+   build_kvensk)
         $@
         ;;
    anchor_list)
