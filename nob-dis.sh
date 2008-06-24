@@ -8,9 +8,9 @@ while [ 1 ]                                 # as long as there is input
 do                                          # run the following loop
 echo -n "Atte cealkaga: "                   # (message to user)
 read sentence                               # next 3 lines is the usual command
-echo $sentence | preprocess --abbr=~/st/nob/bin/abbr.txt | \
-lookup -flags mbTT -utf8 ~/st/nob/bin/nob.fst | ~/st/script/lookup2cg | \
- vislcg3 -g ~/st/nob/src/nob-dis.rle
+echo $sentence | preprocess --abbr=~/gtsvn/st/nob/bin/abbr.txt | \
+lookup -flags mbTT -utf8 ~/gtsvn/st/nob/bin/nob.fst | ~/gtsvn/st/script/lookup2cg | \
+ vislcg3 -g ~/gtsvn/st/nob/src/nob-dis.rle
 
 
 done                      
