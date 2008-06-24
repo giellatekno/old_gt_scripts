@@ -22,50 +22,25 @@
 export LC_ALL=no_NO.UTF-8
 FORREST_HOME=$HOME/forrest
 PATH=$PATH:$FORREST_HOME/bin
-CVS_RSH=ssh
-MAIL_FROM="boerre@victorio.uit.no"
-MAIL_TO="borre.gaup@samediggi.no"
-# This function uses cvs to checkout the directory given as it's argument,
-# or updates the given directory.
 
-checkout()
+update_trunk()
 {
-    TEMPDIR=$1
-    echo "Updating $TEMPDIR ..."
     cd
-    if  ! [ -x $TEMPDIR ]; then
-        cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository co $TEMPDIR
+    if ! [ -x trunk ]; then
+	svn co https://victorio.uit.no/repos/trunk
     else
-        cd $TEMPDIR
-        cvs -Q up -dP
-        cd
+	cd trunk
+	svn up
+	cd
     fi
-    if [ "$?" != "0" ]; then
-        exit 1
-    fi
-    cd
-}
-
-# This function uses the 'checkout' function to update or checkout
-# the two directories used in the giellatekno and divvun sites.
-# It also makes a symbolic link to gt/doc in the gtuit and sd sites, 
-# making complete 'forrest-trees' out of both xtdoc/sd and xtdoc/gtuit
-
-fetch_giella_and_divvun()
-{
-    for CVS_DIR in xtdoc gt/doc words st kt ped
-    do
-        checkout $CVS_DIR
-    done
-
 }
 
 # This function validates the documents in xtdoc/gt 
-# directory.
+# directory and build the gtuit and ped sites
 
 build_and_copy_sites()
 {
-	cd $HOME/xtdoc/gtuit
+	cd $HOME/trunk/xtdoc/gtuit
 		sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
 
 	# Build the site, at the same time checking the docs
@@ -77,9 +52,9 @@ build_and_copy_sites()
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
 		cd build/site
 		scp -r  * gtuit@giellatekno.uit.no:public_html/.
-		cd $HOME/ped
+		cd $HOME/trunk/ped
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
-		cd $HOME/ped/build/site/no
+		cd $HOME/trunk/ped/build/site/no
 		scp -r  * gtuit@giellatekno.uit.no:public_html/oahpa/.
 	else
 	    echo "Build failed ..."
@@ -87,7 +62,7 @@ build_and_copy_sites()
 	fi
 }
 
-fetch_giella_and_divvun
+update_trunk
 build_and_copy_sites
 
 echo "Done updating giellatekno:-)!"
