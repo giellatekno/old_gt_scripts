@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # search for either java.lang.OutOfMemoryError or BUILD FAILED
-egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED|Address already in use'  $HOME/xtdoc/sd/divvun.log
+egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED|Address already in use'  $HOME/trunk/xtdoc/sd/divvun.log
 #test -e .
 if [ "$?" == "0" ]; then
 	# Find the pid of the processes belonging to forrest started by user sd
@@ -24,7 +24,7 @@ if [ "$?" == "0" ]; then
 		let i++
 	done
 	sleep 10
-	cd $HOME/xtdoc/sd
+	cd $HOME/trunk/xtdoc/sd
 	# Give the current logfile a unique name, to be able to see what went wrong...
 	mv divvun.log divvun.log-`date +%Y-%m-%d:%H%M`
 	# Restart forrest
