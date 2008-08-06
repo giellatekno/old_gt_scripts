@@ -26,7 +26,7 @@ use langTools::XMLStruct;
 use langTools::Util;
 
 #my $PORT = 9000;
-my $PORT = 8081;
+my $PORT = 8089;
 
 my $lookup="lookup";
 my %paradigms;
