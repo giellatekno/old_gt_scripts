@@ -27,6 +27,8 @@ if [ "$?" == "0" ]; then
 	cd $HOME/trunk/xtdoc/sd
 	# Give the current logfile a unique name, to be able to see what went wrong...
 	mv divvun.log divvun.log-`date +%Y-%m-%d:%H%M`
+	# Clean up old files
+	$HOME/forrest/bin/forrest clean
 	# Restart forrest
 	$HOME/forrest/bin/forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $HOME/xtdoc/sd/divvun.log 2>&1 &
 fi
