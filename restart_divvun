@@ -30,6 +30,6 @@ if [ "$?" == "0" ]; then
 	# Clean up old files
 	$HOME/forrest/bin/forrest clean
 	# Restart forrest
-	$HOME/forrest/bin/forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $HOME/xtdoc/sd/divvun.log 2>&1 &
+	$HOME/forrest/bin/forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $HOME/trunk/xtdoc/sd/divvun.log 2>&1 &
 fi
 
