@@ -7,99 +7,91 @@ echo ""
 echo " This script will compile all our analysers and lexica "
 echo ""
 cd ~/gtsvn/gt
-echo "===>                     <==="
+echo ""
 echo "===>     South Sámi      <==="
-echo "===>                     <==="
 nice time make TARGET=sma
-echo "===>                     <==="
+echo ""
 echo "===>     North Sámi      <==="
-echo "===>                     <==="
 nice time make TARGET=sme
-echo "===>                     <==="
+echo ""
 echo "===>     Lule Sámi       <==="
-echo "===>                     <==="
 nice time make TARGET=smj
-echo "===>                     <==="
+echo ""
 echo "===>     Inari Sámi      <==="
-echo "===>                     <==="
 nice time make TARGET=smn
-echo "===>                     <==="
+echo ""
 echo "===>     Skolt Sámi      <==="
-echo "===>                     <==="
 nice time make TARGET=sms
-echo "===>                     <==="
+echo ""
 echo "===>     Kildin Sámi     <==="
-echo "===>                     <==="
 nice time make TARGET=sjd
 cd ~/gtsvn/st/fao/src
-echo "===>                     <==="
+echo ""
 echo "===>       Faroese       <===" 
-echo "===>                     <==="
 nice time make
 cd ~/gtsvn/st/kal/src
-echo "===>                     <==="
+echo ""
 echo "===>     Greenlandic     <===" 
-echo "===>                     <==="
 nice time make TARGET=sloppy
 cd ~/gtsvn/st/nob/src
-echo "===>     		        <==="
+echo ""
 echo "===>      Bokmål      <===" 
-echo "===>     		        <==="
 nice time make
-echo "===>     			    <==="
+echo ""
 echo "===>    Nynorsk       <===" 
-echo "===>     			    <==="
 cd ~/gtsvn/st/nno/src
 nice time make
-echo "===>     			    <==="
+echo ""
 echo "===>    Old Norse     <===" 
-echo "===>     			    <==="
 cd ~/gtsvn/st/non/src
 nice time make
 cd ~/gtsvn/st/ces/src
-echo "===>              <==="
+echo ""
 echo "===>    Czech     <===" 
-echo "===>              <==="
 nice time make
 cd ~/gtsvn/st/deu/src
-echo "===>              <==="
+echo ""
 echo "===>    German    <===" 
-echo "===>              <==="
 nice time make
 cd ~/gtsvn/st/amh/src
-echo "===>              <==="
+echo ""
 echo "===>    Amharic   <===" 
-echo "===>              <==="
 nice time make
 cd ~/gtsvn/st/eng/src
-echo "===>                 <==="
+echo ""
 echo "===>    English      <===" 
-echo "===>                 <==="
 nice time make
 cd ~/gtsvn/st/kor/src
-echo "===>              <==="
+echo ""
 echo "===>    Cornish   <===" 
-echo "===>              <==="
 nice time make
 cd ~/gtsvn/st/ipk/src
-echo "===>                 <==="
+echo ""
 echo "===>     Iñupiaq     <===" 
-echo "===>                 <==="
 nice time make
 cd ~/gtsvn/words/dicts/smesmj/src
-echo "===>                    <==="
+echo ""
 echo "===>     Dictionaries   <===" 
-echo "===>                    <==="
 nice time make
-cd ~/gtsvn/words/dicts/smenob/src
+cd ~/gtsvn/words/dicts/smenob
+echo ""
+echo "===>   North Sámi - Norwegian   <===" 
 nice time make
 cd ~/gtsvn/kvensk/fkvnob/
+echo ""
+echo "===>   Kven - Norwegian   <===" 
 nice time make
 cd ~/gtsvn/kvensk/nobfkv/
+echo ""
+echo "===>   Norwegian - Kven   <===" 
 nice time make
 cd ~/gtsvn/kvensk/fitswe/
+echo ""
+echo "===>   Meänkieli - Swedish   <===" 
 nice time make 
 cd ~/gtsvn/kvensk/swefit
+echo ""
+echo "===>   Swedish - Meænkieli   <===" 
 nice time make
 cd ~/gtsvn/kt/fin/src
 echo "===>               <==="
