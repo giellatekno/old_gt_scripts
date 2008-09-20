@@ -63,6 +63,8 @@ sub init_variables {
     my $gen_fst = "$fstdir/i$lang.fst";
     my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
+	my $hyphrules_fst = "$fstdir/hyphrules-$lang.fst";
+	my $num_fst = "$fstdir/$lang-num.fst";
 	my $phon_fst = "$fstdir/phon-$lang.fst";
 	my $orth_fst = "$fstdir/orth-$lang.fst";
     my $fstflags = "-flags mbTT -utf8";
@@ -88,6 +90,7 @@ sub init_variables {
 	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
+	if (-f $phon_fst) { $lang_actions{complextranscribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
 
 	# Find out which of the translated languages are available for this lang.
@@ -136,6 +139,9 @@ sub init_variables {
 	if ($action eq "transcribe" && ! -f $phon_fst) {
 		http_die '--no-alert','404 Not Found',"phon-$lang.fst: Phonetic representation is not supported";
 	}
+	if ($action eq "complextranscribe" && ! -f $phon_fst) {
+		http_die '--no-alert','404 Not Found',"phon-$lang.fst: Phonetic representation is not supported";
+	}
 	if ($action eq "convert" && ! -f $orth_fst) {
 		http_die '--no-alert','404 Not Found',"orth-$lang.fst: Orthographic representatoin is not supported";
 	}
@@ -163,6 +169,9 @@ sub init_variables {
     $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
     $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl";
     $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
+    $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | \
+    	$utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | \
+    	$utilitydir/lookup $fstflags $phon_fst" ;
     $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
 
     # File where the language is stored.
