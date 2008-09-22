@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # Debugging
-use CGI::Debug;
+#use CGI::Debug;
 #use lib '/home/saara/gt/script';
 
 use strict;
