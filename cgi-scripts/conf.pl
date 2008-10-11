@@ -67,7 +67,8 @@ sub init_variables {
 	my $num_fst = "$fstdir/$lang-num.fst";
 	my $phon_fst = "$fstdir/phon-$lang.fst";
 	my $orth_fst = "$fstdir/orth-$lang.fst";
-    my $fstflags = "-flags mbTT -utf8";
+	my $tok_fst = "$fstdir/tok.fst";
+        my $fstflags = "-flags mbTT -utf8";
 #    my $dis_rle = "$fstdir/$lang-dis.rle"; # text file
     my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
 	my $translate_script;
@@ -152,6 +153,9 @@ sub init_variables {
 
 	if (-f "$fstdir/abbr.txt") {
 		$preprocess = "$bindir/preprocess --abbr=$fstdir/abbr.txt";
+	}
+	if ($lang eq "kor") {
+	    $preprocess = "$utilitydir/tokenize $tok_fst";
 	}
 	else { $preprocess = "$bindir/preprocess"; }
 
