@@ -34,15 +34,15 @@ copy() {
 
     if [ "$host" == "victorio.uit.no" ]
 	then
-		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout gt
-		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout st
-		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout words
-		cd $tmpdir && cvs -d /usr/local/cvs/repository checkout kvensk
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/gt
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/st
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/words
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/kvensk
     else	
-		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout gt
-		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout st
-		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout words
-		cd $tmpdir && cvs -d :ext:victorio.uit.no:/usr/local/cvs/repository checkout kvensk
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/gt
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/st
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/words
+		cd $tmpdir && svn co https://victorio.uit.no/repos/trunk/kvensk
     fi
 }
 
