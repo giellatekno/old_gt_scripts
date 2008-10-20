@@ -77,6 +77,10 @@ cd ~/gtsvn/words/dicts/smenob
 echo ""
 echo "===>   North Sámi - Norwegian   <===" 
 nice time make
+cd ~/gtsvn/words/dicts/kaleng/src/
+echo ""
+echo "===>   Greenlandic - English   <===" 
+nice time make
 cd ~/gtsvn/kvensk/fkvnob/
 echo ""
 echo "===>   Kven - Norwegian   <===" 
@@ -91,7 +95,7 @@ echo "===>   Meänkieli - Swedish   <==="
 nice time make 
 cd ~/gtsvn/kvensk/swefit
 echo ""
-echo "===>   Swedish - Meænkieli   <===" 
+echo "===>   Swedish - Meänkieli   <===" 
 nice time make
 cd ~/gtsvn/kt/fin/src
 echo "===>               <==="
