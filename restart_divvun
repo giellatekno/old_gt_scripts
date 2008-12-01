@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # search for either java.lang.OutOfMemoryError or BUILD FAILED
-egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED|Address already in use'  $HOME/trunk/xtdoc/sd/divvun.log
+egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED|Address already in use|Bad Cookie received'  $HOME/trunk/xtdoc/sd/divvun.log
 #test -e .
 if [ "$?" == "0" ]; then
 	# Find the pid of the processes belonging to forrest started by user sd
