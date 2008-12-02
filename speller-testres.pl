@@ -431,7 +431,7 @@ sub print_xml_output {
 			my @suggestions = @{$rec->{'sugg'}};
 			for my $sugg (@suggestions) {
 				#print "SUGG $sugg\n";
-				if ($sugg && $sugg =~ /\, /) {
+				if ($sugg && $sugg =~ /[0-9]/) {
 					$version = $sugg;
 #					cluck "INFO: Version string is: $version\n";
 					last;
