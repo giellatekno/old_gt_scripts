@@ -27,6 +27,10 @@ echo "===>     Kildin Sámi     <==="
 nice time make TARGET=sjd
 cd ~/gtsvn/st/fao/src
 echo ""
+echo "===>      Pite Sámi      <==="
+nice time make TARGET=sje
+cd ~/gtsvn/st/fao/src
+echo ""
 echo "===>       Faroese       <===" 
 nice time make
 cd ~/gtsvn/st/kal/src
