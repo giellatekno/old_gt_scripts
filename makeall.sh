@@ -65,7 +65,7 @@ cd ~/gtsvn/st/eng/src
 echo ""
 echo "===>    English      <===" 
 nice time make
-cd ~/gtsvn/st/kor/src
+cd ~/gtsvn/st/cor/src
 echo ""
 echo "===>    Cornish   <===" 
 nice time make
