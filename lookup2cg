@@ -226,7 +226,7 @@ sub format_compound {
 	    if ($$refword =~ m/.*(\Q$substring\E)/) {
 		my $pos = rindex $$refword,$substring,;
 		#exit the search only when the substring is not in the beginning of the word.
-		if ($pos > 2) { last; }
+		if ($pos > 1) { last; }
 	    }
 	    $i--;
 	    $substring = substr($last_word,0,$i);
