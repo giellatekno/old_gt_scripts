@@ -29,7 +29,7 @@ import os
 
 class ipToCountry:
 	def __init__(self):
-		self.COUNTRYDBASE = "/home/boerre/.ipcountrycodes"  #simple pickled dictionary really!
+		self.COUNTRYDBASE = os.path.expanduser('~') + "/.ipcountrycodes"  #simple pickled dictionary really!
 		self.countrycodesDict =  {}
 		if os.path.exists(self.COUNTRYDBASE):
 			f = open(self.COUNTRYDBASE,"r")
