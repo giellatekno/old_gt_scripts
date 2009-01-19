@@ -48,9 +48,9 @@ main (int argc, char *argv[])
     bool bRecursive = false;
     DIR* dirp;
     string path;
-   
+
     if (argc == 1) { print_help(); return 0; }
-    
+
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-r") == 0) {
             bRecursive = true;
@@ -60,14 +60,14 @@ main (int argc, char *argv[])
             strcpy(sLang, argv[i+1]);
             i++;
         }
- 
+
         else if (strcmp(argv[i], "-a") == 0) {
             bPrintPara = true;
             bPrintTitle = true;
             bPrintList = true;
             bPrintTable = true;
         }
-        
+
         else if (strcmp(argv[i], "-p") == 0) {
             bPrintPara = true;
         }
@@ -76,7 +76,7 @@ main (int argc, char *argv[])
             bPrintTitle = true;
             bPrintPara = false;
         }
- 
+
         else if (strcmp(argv[i], "-L") == 0) {
             bPrintList = true;
             bPrintPara = false;
@@ -86,7 +86,7 @@ main (int argc, char *argv[])
             bPrintTable = true;
             bPrintPara = false;
         }
-        
+
         else if (strcmp(argv[i], "-C") == 0) {
             bPrintCorr = true;
         }
@@ -113,7 +113,7 @@ main (int argc, char *argv[])
         }
 
         else if (strstr(argv[i], ".xml\0") != NULL) ProcessFile (argv[i]);
-        
+
         else if (bRecursive && ((dirp = opendir(argv[i])) != NULL)) {
             path = argv[i];
             path += "/";
@@ -123,45 +123,45 @@ main (int argc, char *argv[])
         else if (strcmp(argv[i], "--add-id") == 0) {
             bAddID = true;
         }
-        
+
         else if (strcmp(argv[i], "-h") == 0) {
             print_help();
             return 0;
         }
-        
+
         else if (strcmp(argv[i], "-v") == 0) {
             print_version();
             return 0;
         }
-        
+
         else {
             cout << "\nOption " << argv [i] << " is not supported.\n";
             print_help();
             return 0;
         }
     }
-    
+
     return 0;
 }
 
 void TraverseDir(DIR* dirp, string path) {
     struct dirent* direntp;
     string fullpath;
-    
+
     fullpath = path;
-    
+
     while ((direntp = readdir(dirp)) != NULL) {
-        if (strcmp(direntp->d_name, ".") == 0 || 
+        if (strcmp(direntp->d_name, ".") == 0 ||
             strcmp(direntp->d_name, "..") == 0)
                 continue;
-        
+
         if (direntp->d_type == DT_DIR) {
             fullpath += direntp->d_name;
             TraverseDir(opendir(fullpath.c_str()),
                         fullpath + "/");
             fullpath.erase(fullpath.find_last_of("/") +1, fullpath.length());
         }
-        
+
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             char *pFile;
             pFile = (char*)malloc(2*PATH_MAX); // to be safe
@@ -170,7 +170,7 @@ void TraverseDir(DIR* dirp, string path) {
             ProcessFile (pFile);
         }
     }
-    
+
     closedir(dirp);
 }
 
@@ -178,12 +178,12 @@ void ProcessFile(const char *pFile)
 {
     // Open file
     ifstream in(pFile);
-    
+
     // Create parse object
     TagParser parse(&in,false,false);
-    
+
 //    cout << parse.GetFullText() << endl;
-    
+
     while (parse.GetNextToken())
     {
         switch (parse.Type())
@@ -212,7 +212,7 @@ void ProcessWord (TagParser &parse)
        (bPrintTable && bInTable))
    {
      bPrintEndTag = true;
-     
+
      if (bPrintSpeller)
           cout << word << "\n";
      else
@@ -225,7 +225,7 @@ void ProcessTag (TagParser &parse)
   if (parse.Value() == "document")
     {
 	  bDocLang = parse.sGetValue("xml:lang") == sLang ? true : false;
-      
+
       if (bAddID) DumpTag(0, 0, parse);
     }
   else if (parse.Value() == "p")
@@ -243,7 +243,7 @@ void ProcessTag (TagParser &parse)
             bInTable = parse.Type() == TagParser::TAG_START_TAG && parse.sGetValue("type") == "tablecell" ? true : false;
 //        }
 
-        if (bAddID && 
+        if (bAddID &&
                 ((sLang[0] == '\0' || bElementLang) &&
                    (bPrintPara && bInPara)   ||
                    (bPrintTitle && bInTitle) ||
@@ -264,7 +264,7 @@ void ProcessTag (TagParser &parse)
             bPrintEndTag = false;
         }
     }
-    else if ((parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG) 
+    else if ((parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG)
     		  && (parse.sGetValue("xml:lang") == sLang || sLang[0] == '\0'))
     {
         ProcessCorrection(parse);
@@ -277,16 +277,16 @@ void ProcessCorrection (TagParser &parse)
     string corr = parse.sGetValue("correct");
     parse.GetNextToken();
     string err = parse.Value();
-    
+
     if (bPrintTypos)
         cout << err << "\t" << corr << endl;
-    else if (bPrintCorr && corr != "") 
+    else if (bPrintCorr && corr != "")
         cout << corr << " ";
-    else if ((bPrintOrtCorr && type == "ort") && corr != "") 
+    else if ((bPrintOrtCorr && type == "ort") && corr != "")
         cout << corr << " ";
-    else if ((bPrintSyntCorr && type == "synt") && corr != "") 
+    else if ((bPrintSyntCorr && type == "synt") && corr != "")
         cout << corr << " ";
-    else if ((bPrintLexCorr && type == "lex") && corr != "") 
+    else if ((bPrintLexCorr && type == "lex") && corr != "")
         cout << corr << " ";
     else
         cout << err << " ";
@@ -295,12 +295,12 @@ void ProcessCorrection (TagParser &parse)
 void DumpTag(int Spaces, int id, TagParser &parse, bool bEofLine)
 {
   ostringstream temp;
-  
+
   if (!bStartOfLine)
     cout << "\n";
 
-  while((Spaces--) > 0) 
-    cout << " "; 
+  while((Spaces--) > 0)
+    cout << " ";
 
   cout << "<";
   if (parse.Type() == TagParser::TAG_END_TAG)
@@ -324,7 +324,7 @@ void DumpTag(int Spaces, int id, TagParser &parse, bool bEofLine)
       else
       {
         cout << " ";
-        cout << (*i)->getName()  << "=\"" 
+        cout << (*i)->getName()  << "=\""
              << (*i)->getValue() << "\"";
       }
     }
@@ -350,6 +350,9 @@ void print_help()
     cout << "\t-L\t Print paragraphs with list type.\n";
     cout << "\t-t\t Print paragraphs with table type.\n";
     cout << "\t-C\t Print corrected xml-files with corrections.\n";
+    cout << "\t-ort\t Print corrected xml-files with ortoghraphical corrections.\n";
+    cout << "\t-synt\t Print corrected xml-files with syntactical corrections.\n";
+    cout << "\t-lex\t Print corrected xml-files with lexical corrections.\n";
     cout << "\t-typos\t Print corrections with tabs separated output.\n";
     cout << "\t-S\t Print the whole text in a word per line. Errors are tab separated. \n";
     cout << "\t-r <dir> Recursively process directory dir and subdirs encountered.\n";
