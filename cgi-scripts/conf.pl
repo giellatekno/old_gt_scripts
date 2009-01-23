@@ -74,6 +74,7 @@ sub init_variables {
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
+    my $geo_fst = "$commondir/geo.fst";
 	if ($tr_lang ne "none") {
 		if ($lang eq "dan") { 
 			$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
@@ -171,6 +172,8 @@ sub init_variables {
     $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl";
     $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
     my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
+
+	$placenames = "$utilitydir/lookup $fstflags $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
     $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
