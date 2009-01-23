@@ -50,7 +50,7 @@ require "conf.pl";
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions, $translate);
+our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions, $translate,$placenames);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -64,7 +64,7 @@ $charset = $query->param('charset');
 $lang = $query->param('lang');
 $plang = $query->param('plang');
 
-# Action is either "generate" or "analyze" or "paradigm"
+# Action is either "generate" or "analyze" or "paradigm" or "placenames"
 $action = $query->param('action');
 # Paradigm mode: minimal, standard, full, full with dialectal variation
 $mode = $query->param('mode');
@@ -76,7 +76,7 @@ if (! $tr_lang) { $tr_lang = "none"; }
 $xml_in = $query->param('xml_in');
 $xml_out = $query->param('xml_out');
 
-if (! $lang) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
+if (! $lang && $action ne "placenames") { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
 if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
 if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 
@@ -184,6 +184,7 @@ elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
 elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
 elsif ($action eq "convert") { $result = `echo $text | $convert`; }
+elsif ($action eq "placenames") { $result = `echo $text | $placenames`; }
 else { 
 if (!$xml_out)  { print "<p>No action given</p>"; }
 else { print "<error>No parameter for action recieved</error>"; }
@@ -202,6 +203,7 @@ if (! $xml_out) {
 	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
 	elsif ($action eq "transcribe") { $output = hyph2html($result,1); }
 	elsif ($action eq "convert") { $output = hyph2html($result,1); }
+	elsif ($action eq "placenames") { $output = dis2html($result,1); }
 
     # PARADIGM OUTPUT
     elsif ($action eq "paradigm") {
@@ -276,6 +278,7 @@ else {
 	elsif ($action eq "paradigm" ) { $output = paradigm2xml($result, \%answer, \%candits, $mode);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2xml($result); }
 	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
+	elsif ($action eq "placenames") { $output = hyph2xml($result); }
 	elsif ($action eq "convert") { $output = hyph2xml($result); }
 	elsif ($action eq "analyze") { $output = analyzer2xml($result); }
 	else { $output = dis2xml($result); }
@@ -642,6 +645,30 @@ sub printinitialhtmlcodes {
 		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
 		$input->paste('last_child', $td);
 		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'action',value=> 'generate'});
+		$input->paste('last_child', $td);
+
+		$td->paste('last_child', $tr);
+		$td = XML::Twig::Elt->new('td');
+		$giellatekno_logo->paste('last_child',$td);
+
+		$td->paste('last_child', $tr);
+		$tr->paste('last_child', $table);
+
+	} # end of GENERATOR
+
+	##### PLACENAMES
+	elsif ($tmp_tool =~ /placenames/) {
+		
+		my $tr = XML::Twig::Elt->new("tr");
+		my $td = XML::Twig::Elt->new("td");
+		my $textarea = XML::Twig::Elt->new(input => {type=>'text',name=>'text','size'=>50});
+		$textarea->paste('last_child', $td);
+		
+		#my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
+		#$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
+		$input->paste('last_child', $td);
+		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'action',value=> 'placenames'});
 		$input->paste('last_child', $td);
 
 		$td->paste('last_child', $tr);
