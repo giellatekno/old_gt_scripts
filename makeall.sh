@@ -85,6 +85,11 @@ cd ~/gtsvn/words/dicts/kaleng/src/
 echo ""
 echo "===>   Greenlandic - English   <===" 
 nice time make
+
+cd ~/gtsvn/words/dicts/smi/geo/src/
+echo ""
+echo "===>   Geographic fst   <===" 
+nice time make
 cd ~/gtsvn/kvensk/fkvnob/
 echo ""
 echo "===>   Kven - Norwegian   <===" 
