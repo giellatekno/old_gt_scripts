@@ -1,5 +1,7 @@
 
-LDFLAGS=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386
+#LDFLAGS=-Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -arch i386
+LDFLAGS=
+
 CC=g++
 
 all: ccat
