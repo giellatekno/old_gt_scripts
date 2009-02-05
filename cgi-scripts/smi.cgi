@@ -76,7 +76,7 @@ if (! $tr_lang) { $tr_lang = "none"; }
 $xml_in = $query->param('xml_in');
 $xml_out = $query->param('xml_out');
 
-if (! $lang && $action ne "placenames") { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
+if (! $lang && $action ne "placenames" ) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
 if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
 if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 
@@ -666,7 +666,7 @@ sub printinitialhtmlcodes {
 		
 		#my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
 		#$input->paste('last_child', $td);
-		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
+		my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
 		$input->paste('last_child', $td);
 		$input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'action',value=> 'placenames'});
 		$input->paste('last_child', $td);
