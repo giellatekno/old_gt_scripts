@@ -45,7 +45,6 @@ build_and_copy_sites()
 
 	# Build the site, at the same time checking the docs
 	forrest clean
-	rm -rf ../../words/dicts
 	forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
 	if [ "$?"  == "0" ]
 	then
