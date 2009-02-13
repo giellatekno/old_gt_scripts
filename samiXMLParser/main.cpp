@@ -264,8 +264,8 @@ void ProcessTag (TagParser &parse)
             bPrintEndTag = false;
         }
     }
-    else if ((parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG)
-    		  && (parse.sGetValue("xml:lang") == sLang || sLang[0] == '\0'))
+    else if ((parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG))
+//    		  && (parse.sGetValue("xml:lang") == sLang || sLang[0] == '\0'))
     {
         ProcessCorrection(parse);
     }
