@@ -274,20 +274,36 @@ void ProcessTag (TagParser &parse)
 void ProcessCorrection (TagParser &parse)
 {
 	string type = parse.sGetValue("type");
+	string corr;
+
+	if ((bPrintOrtCorr && (type == "ort" || type == ""))   ||
+		(bPrintSyntCorr && type == "synt") ||
+		(bPrintLexCorr && type == "lex"))
+		corr = parse.sGetValue("correct");
+	else
+		corr = "";
+
+/*	else if ((bPrintSyntCorr && type == "synt") && corr != "")
+        cout << corr << " ";
+    else if ((bPrintLexCorr && type == "lex") && corr != "")
+        cout << corr << " ";
+
     string corr = parse.sGetValue("correct");
-    parse.GetNextToken();
+*/
+	parse.GetNextToken();
     string err = parse.Value();
 
     if (bPrintTypos)
         cout << err << "\t" << corr << endl;
     else if (bPrintCorr && corr != "")
         cout << corr << " ";
-    else if ((bPrintOrtCorr && type == "ort") && corr != "")
+/*    else if ((bPrintOrtCorr && type == "ort") && corr != "")
         cout << corr << " ";
     else if ((bPrintSyntCorr && type == "synt") && corr != "")
         cout << corr << " ";
     else if ((bPrintLexCorr && type == "lex") && corr != "")
         cout << corr << " ";
+*/
     else
         cout << err << " ";
 }
