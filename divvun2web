@@ -50,11 +50,18 @@ build_and_copy_sites()
 	then
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
 		cd build/site
+		# Fix defective utf-8 characters
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'
 		scp -r  * gtuit@giellatekno.uit.no:public_html/.
 		cd $HOME/trunk/ped
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
 		cd $HOME/trunk/ped/build/site/no
-		scp -r  * gtuit@giellatekno.uit.no:public_html/oahpa/.
+scp -r  * gtuit@giellatekno.uit.no:public_html/oahpa/.
 	else
 	    echo "Build failed ..."
 	    exit 1
