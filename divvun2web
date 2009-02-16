@@ -57,6 +57,7 @@ build_and_copy_sites()
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'
+		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'
 		scp -r  * gtuit@giellatekno.uit.no:public_html/.
 		cd $HOME/trunk/ped
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
