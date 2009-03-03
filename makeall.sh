@@ -85,6 +85,10 @@ cd ~/gtsvn/words/dicts/kaleng/src/
 echo ""
 echo "===>   Greenlandic - English   <===" 
 nice time make
+cd ~/gtsvn/words/dicts/kaldan/
+echo ""
+echo "===>   Greenlandic - Danish   <===" 
+nice time make
 
 cd ~/gtsvn/words/dicts/smi/geo/src/
 echo ""
