@@ -47,8 +47,6 @@ build_and_copy_site()
 	BUILDDIR=$1
 	SVNADDRESS=$2
 	
-	echo 
-	echo 
 	cd $BUILDDIR
 	# Build the site, at the same time checking the docs
 	forrest clean
