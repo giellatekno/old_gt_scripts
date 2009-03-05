@@ -35,14 +35,21 @@ update_trunk()
     fi
 }
 
-# This function validates the documents in xtdoc/gt 
-# directory and build the gtuit and ped sites
+# This function takes two arguments:
+# The first is where it should work
+# The second is where it should send the built files
+# 
+# This function validates and builds a forrest site, and then sends
+# the built files to the correct location
 
-build_and_copy_sites()
+build_and_copy_site()
 {
-	cd $HOME/trunk/xtdoc/gtuit
-		sed -i 's/<search provider="lucene" name="Giellatekno" \/>/<search provider="google" domain="giellatekno.uit.no" name="Giellatekno" \/>/g' src/documentation/skinconf.xml
-
+	BUILDDIR=$1
+	SVNADDRESS=$2
+	
+	echo 
+	echo 
+	cd $BUILDDIR
 	# Build the site, at the same time checking the docs
 	forrest clean
 	forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
@@ -58,18 +65,20 @@ build_and_copy_sites()
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'
-		scp -r  * gtuit@giellatekno.uit.no:public_html/.
-		cd $HOME/trunk/ped
-		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
-		cd $HOME/trunk/ped/build/site/no
-scp -r  * gtuit@giellatekno.uit.no:public_html/oahpa/.
+		scp -r  * $SVNADDRESS/.
 	else
-	    echo "Build failed ..."
-	    exit 1
+	    echo "Site build failed ..."
 	fi
 }
 
-update_trunk
-build_and_copy_sites
 
+update_trunk
+build_and_copy_site \
+	$HOME/gtsvn/xtdoc/gtuit \
+	gtuit@giellatekno.uit.no:public_html
+
+build_and_copy_site \
+	$HOME/gtsvn/ped \
+	gtuit@giellatekno.uit.no:public_html/oahpa
+	
 echo "Done updating giellatekno:-)!"
