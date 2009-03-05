@@ -71,12 +71,13 @@ build_and_copy_site()
 
 
 update_trunk
-build_and_copy_site \
-	$HOME/gtsvn/xtdoc/gtuit \
-	gtuit@giellatekno.uit.no:public_html
 
 build_and_copy_site \
 	$HOME/gtsvn/ped \
 	gtuit@giellatekno.uit.no:public_html/oahpa
 	
+build_and_copy_site \
+	$HOME/gtsvn/xtdoc/gtuit \
+	gtuit@giellatekno.uit.no:public_html
+
 echo "Done updating giellatekno:-)!"
