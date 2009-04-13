@@ -6,7 +6,7 @@
 echo ""
 echo " This script will compile all our analysers and lexica "
 echo ""
-cd ~/gtsvn/gt
+cd ~/svnredone/gt
 echo ""
 echo "===>     South Sámi      <==="
 nice time make TARGET=sma
@@ -25,97 +25,97 @@ nice time make TARGET=sms
 echo ""
 echo "===>     Kildin Sámi     <==="
 nice time make TARGET=sjd
-cd ~/gtsvn/st/fao/src
+cd ~/svnredone/st/fao/src
 echo ""
 echo "===>      Pite Sámi      <==="
 nice time make TARGET=sje
-cd ~/gtsvn/st/fao/src
+cd ~/svnredone/st/fao/src
 echo ""
 echo "===>       Faroese       <===" 
 nice time make
-cd ~/gtsvn/st/kal/src
+cd ~/svnredone/st/kal/src
 echo ""
 echo "===>     Greenlandic     <===" 
 nice time make TARGET=sloppy
-cd ~/gtsvn/st/nob/src
+cd ~/svnredone/st/nob/src
 echo ""
 echo "===>      Bokmål      <===" 
 nice time make
 echo ""
 echo "===>    Nynorsk       <===" 
-cd ~/gtsvn/st/nno/src
+cd ~/svnredone/st/nno/src
 nice time make
 echo ""
 echo "===>    Old Norse     <===" 
-cd ~/gtsvn/st/non/src
+cd ~/svnredone/st/non/src
 nice time make
-cd ~/gtsvn/st/ces/src
+cd ~/svnredone/st/ces/src
 echo ""
 echo "===>    Czech     <===" 
 nice time make
-cd ~/gtsvn/st/deu/src
+cd ~/svnredone/st/deu/src
 echo ""
 echo "===>    German    <===" 
 nice time make
-cd ~/gtsvn/st/amh/src
+cd ~/svnredone/st/amh/src
 echo ""
 echo "===>    Amharic   <===" 
 nice time make
-cd ~/gtsvn/st/eng/src
+cd ~/svnredone/st/eng/src
 echo ""
 echo "===>    English      <===" 
 nice time make
-cd ~/gtsvn/st/cor/src
+cd ~/svnredone/st/cor/src
 echo ""
 echo "===>    Cornish   <===" 
 nice time make
-cd ~/gtsvn/st/ipk/src
+cd ~/svnredone/st/ipk/src
 echo ""
 echo "===>     Iñupiaq     <===" 
 nice time make
-cd ~/gtsvn/words/dicts/smesmj/src
+cd ~/svnredone/words/dicts/smesmj/src
 echo ""
 echo "===>     Dictionaries   <===" 
 nice time make
-cd ~/gtsvn/words/dicts/smenob
+cd ~/svnredone/words/dicts/smenob
 echo ""
 echo "===>   North Sámi - Norwegian   <===" 
 nice time make
-cd ~/gtsvn/words/dicts/kaleng/src/
+cd ~/svnredone/words/dicts/kaleng/src/
 echo ""
 echo "===>   Greenlandic - English   <===" 
 nice time make
-cd ~/gtsvn/words/dicts/kaldan/
+cd ~/svnredone/words/dicts/kaldan/
 echo ""
 echo "===>   Greenlandic - Danish   <===" 
 nice time make
 
-cd ~/gtsvn/words/dicts/smi/geo/src/
+cd ~/svnredone/words/dicts/smi/geo/src/
 echo ""
 echo "===>   Geographic fst   <===" 
 nice time make
-cd ~/gtsvn/kvensk/fkvnob/
+cd ~/svnredone/kvensk/fkvnob/
 echo ""
 echo "===>   Kven - Norwegian   <===" 
 nice time make
-cd ~/gtsvn/kvensk/nobfkv/
+cd ~/svnredone/kvensk/nobfkv/
 echo ""
 echo "===>   Norwegian - Kven   <===" 
 nice time make
-cd ~/gtsvn/kvensk/fitswe/
+cd ~/svnredone/kvensk/fitswe/
 echo ""
 echo "===>   Meänkieli - Swedish   <===" 
 nice time make 
-cd ~/gtsvn/kvensk/swefit
+cd ~/svnredone/kvensk/swefit
 echo ""
 echo "===>   Swedish - Meänkieli   <===" 
 nice time make
-cd ~/gtsvn/kt/fin/src
+cd ~/svnredone/kt/fin/src
 echo "===>               <==="
 echo "===>     Finnish   <===" 
 echo "===>               <==="
 nice time make
-#cd ~/gtsvn/kt/kom/src
+#cd ~/svnredone/kt/kom/src
 # For some reason, the Makefile timing does not work here. Have a look.
 #echo "===>              <==="
 #echo "===>     Komi     <===" 
