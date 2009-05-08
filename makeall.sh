@@ -79,10 +79,10 @@ cd ~/gtsvn/st/ipk/src
 echo ""
 echo "===>     Iñupiaq     <===" 
 nice time make
-#cd ~/gtsvn/st/iku/src
-#echo ""
-#echo "===>     Inuktitut     <===" 
-#nice time make
+cd ~/gtsvn/st/iku/src
+echo ""
+echo "===>     Inuktitut     <===" 
+nice time make
 echo "===>                    <===" 
 echo "===>  Bilingual transd. <===" 
 echo "===>                    <===" 
