@@ -7,6 +7,9 @@ echo ""
 echo " This script will compile all our analysers and lexica "
 echo ""
 cd ~/gtsvn/gt
+echo "===>                    <===" 
+echo "===>   Sámi languages   <===" 
+echo "===>                    <===" 
 echo ""
 echo "===>     South Sámi      <==="
 nice time make TARGET=sma
@@ -29,6 +32,9 @@ cd ~/gtsvn/st/fao/src
 echo ""
 echo "===>      Pite Sámi      <==="
 nice time make TARGET=sje
+echo "===>                    <===" 
+echo "===>   Other languages  <===" 
+echo "===>                    <===" 
 cd ~/gtsvn/st/fao/src
 echo ""
 echo "===>       Faroese       <===" 
@@ -73,6 +79,13 @@ cd ~/gtsvn/st/ipk/src
 echo ""
 echo "===>     Iñupiaq     <===" 
 nice time make
+#cd ~/gtsvn/st/iku/src
+#echo ""
+#echo "===>     Inuktitut     <===" 
+#nice time make
+echo "===>                    <===" 
+echo "===>  Bilingual transd. <===" 
+echo "===>                    <===" 
 cd ~/gtsvn/words/dicts/smesmj/src
 echo ""
 echo "===>     Dictionaries   <===" 
@@ -110,6 +123,9 @@ cd ~/gtsvn/kvensk/swefit
 echo ""
 echo "===>   Swedish - Meänkieli   <===" 
 nice time make
+echo "===>                    <===" 
+echo "===> Other FU languages <===" 
+echo "===>                    <===" 
 cd ~/gtsvn/kt/fin/src
 echo "===>               <==="
 echo "===>     Finnish   <===" 
