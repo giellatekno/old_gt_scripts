@@ -33,6 +33,12 @@
 # This version is tested for csh type user login shells and for bash, 
 # for other sh type shells it does nothing.
 
+# export GTHOME=~/langtech/main
+# export GTPRIV=~/langtech/priv
+# export GTBIG=~/langtech/big
+# 
+
+
 # Function declarations:
 
 set_gthome () {
@@ -58,6 +64,7 @@ set_gthome () {
 # remove the last 2 dirs to get GTHOME:
 	tmp2="${tmp%/*}"
 	GTHOME="${tmp2%/*}"
+	GTPARENT="${GTHOME%/*}"
 }
 
 do_isconsole () {
@@ -144,6 +151,29 @@ msg_choose () {
     /bin/echo -n Continue\?
 }
 
+msg_choose_big () {
+    echo The Giellatekno code base also contain some rather big 
+    echo files that are not required in most cases. They are helpful
+    echo when doing proofing tools testing, and speech technology
+    echo development.
+    echo
+    echo Do you want me to check out this optional
+    echo code block for you? It is about 500 Mb downloaded data,
+    echo and will occupy roughly 1 Gb on your disk.
+    echo The default is to NOT check out this part.
+    case $ONCONSOLE in
+        YES)
+    echo you can answer \\\"No\\\" here  
+    echo and do it later manually.
+    ;;
+	NO)
+    echo "you can answer \"No\" here and do it later manually."
+    ;;
+    esac
+    echo
+    /bin/echo -n Continue\?
+}
+
 src_command_csh () {
     SOURCECMD="\
 setenv GTHOME $GTHOME \n\
@@ -157,6 +187,36 @@ src_command_sh () {
 export GTHOME=$GTHOME \n\
 \n\
 test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh\n"
+}
+
+link_biggies () {
+    echo "Test!"
+}
+
+display_choose_big () {
+    case $ONCONSOLE in
+        YES)
+# display choice popup
+   osascript <<-EOF
+   tell application "Finder"
+      activate
+      set dd to display dialog "`msg_title`\n\n`msg_choose_big`\n" buttons {"YES", "No, thanks"} default button 2 giving up after 30
+      set UserResponse to button returned of dd
+   end tell
+EOF
+   ;;
+	NO)
+# display choice dialog
+    msg_title; echo ""; echo ""
+    msg_choose_big
+    /bin/echo -n " [N/y] "
+    read -t 20 answer
+    answer=`echo $answer | sed 's/^[nN].*$/n/'`
+    if [ ! -z "$answer" -a "x$answer" != "xn" ]; then
+       answer="YES"
+    fi
+    ;;
+    esac
 }
 
 display_choose () {
@@ -202,6 +262,40 @@ EOF
    printf "$Result" 
    ;;
     esac
+}
+
+display_choose_big_do (){
+# propose to check out big, append line to startup script, and verify if it worked
+    case $ONCONSOLE in
+        YES)
+	    answer=`display_choose_big`
+	    ;;
+		NO)
+	    display_choose_big
+	    ;;
+    esac
+    if [ "$answer" == "YES" ]; then
+#		if svn co xxx && link_biggies ; then
+		if [ "" == "" ] ; then
+		    Result="\n The Biggies part of the Giellatekno resources \
+have been checked out in $GTPARENT/big.\n\
+\n\
+I also added symbolic links within each language dir to corpus \
+resources for testing purposes.\n\nNOT YET TRUE - DUMMY TEXT!!!"
+		else
+		    Result="\n
+Hmm. I tried my best, but it still does not work.
+The code I put into $RC has no effect.\n
+Please check your $LOGINSHELL startup scripts.
+Perhaps some other file like\n
+	    ~/.login\n
+is resetting the PATH after $RC is executed.
+		   \n"
+		fi		    
+    else
+		Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+    fi
+    display_result
 }
 
 display_choose_do (){
@@ -309,6 +403,7 @@ else
 		    ;;
 		esac
 		display_choose_do
+		display_choose_big_do
 	    ;;
     bash)
 	    # Only bash here; other sh type shells are not supported
@@ -334,6 +429,7 @@ else
 		  ;;
 		esac
 		display_choose_do
+		display_choose_big_do
 	    ;;
     *)
     # Any shell except *csh and bash

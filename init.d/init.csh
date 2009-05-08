@@ -33,6 +33,27 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+# Add predefined lookup aliases for all languages:
+source $GTHOME/gt/script/init.d/lookup-init.csh
+
+# Standardised aliases for Giellatekno work:
+alias victorio 'ssh victorio.uit.no'
+alias vic 'ssh victorio.uit.no'
+alias g5 'ssh divvun.no'
+alias xs 'ssh 129.242.220.111'
+
+# forrest run port 8 og 9
+alias f8 "forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8\""
+alias f9 "forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djetty.port=8889\""
+alias f7 "forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djetty.port=8887\""
+
+alias  saxonXQ "java net.sf.saxon.Query"
+alias saxonXSL "java net.sf.saxon.Transform"
+alias xquery "saxonXQ"
+alias xslt2 "saxonXSL"
+alias xsl2 "saxonXSL"
+
+
 # define append_path and prepend_path to add directory paths, e.g. PATH, MANPATH.
 # add to end of path
 alias append_path 'if ( $\!:1 !~ \!:2\:* && $\!:1 !~ *\:\!:2\:* && $\!:1 !~ *\:\!:2 && $\!:1 !~ \!:2 ) setenv \!:1 ${\!:1}\:\!:2'
@@ -49,27 +70,18 @@ endif
 set osMajorVersion = `uname -r | cut -d. -f1`
 set osMinorVersion = `uname -r | cut -d. -f2`
 
-if ( -r /sw/share/java/classpath ) then
-  if ( $?CLASSPATH ) then
-    set add2classpath = `cat /sw/share/java/classpath`
-    prepend_path CLASSPATH $add2classpath
-  else
-    setenv CLASSPATH `cat /sw/share/java/classpath`:.
-  endif
-endif
-
-if ( $?PERL5LIB ) then
-  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
+if ( $?CLASSPATH ) then
+  prepend_path CLASSPATH ~/lib/saxon9.jar
 else
-  setenv PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
+  setenv CLASSPATH ~/lib/saxon9.jar:.
 endif
 
-# Add X11 paths (but only if the directories are readable)
-if ( -r /usr/X11R6/bin ) then
-    append_path PATH /usr/X11R6/bin
-endif
-if ( -r /usr/X11R6/man ) then
-    append_path MANPATH /usr/X11R6/man
-endif
+# Perl setup:
+setenv PERL_UNICODE ""
+#if ( $?PERL5LIB ) then
+#  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
+#else
+#  setenv PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
+#endif
 
 # eof

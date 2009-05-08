@@ -12,7 +12,7 @@
 #               the Sámi languages. The Giellatekno toolset also includes
 #               support for buildling end-user tools such as proofing
 #               tools and electronic dictionaries.
-# The setup and init scripts (ie this file) are based on similar scripts
+# The setup and init scripts (ao this file) are based on similar scripts
 #               from the Fink project (http://www.finkproject.org/).
 # Copyright (c) 2001 Christoph Pfisterer
 # Copyright (c) 2001-2004 The Fink Team
@@ -32,6 +32,26 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
+
+# Add predefined lookup aliases for all languages:
+. $GTHOME/gt/script/init.d/lookup-init.sh
+
+# Standardised aliases for Giellatekno work:
+alias victorio='ssh victorio.uit.no'
+alias vic='ssh victorio.uit.no'
+alias g5='ssh divvun.no'
+alias xs='ssh 129.242.220.111'
+
+# forrest run port 8 og 9
+alias f8="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8\""
+alias f9="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djetty.port=8889\""
+alias f7="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djetty.port=8887\""
+
+alias  saxonXQ="java net.sf.saxon.Query"
+alias saxonXSL="java net.sf.saxon.Transform"
+alias xquery="saxonXQ"
+alias xslt2="saxonXSL"
+alias xsl2="saxonXSL"
 
 # define append_path and prepend_path to add directory paths, e.g. PATH, MANPATH.
 # add to end of path
@@ -61,21 +81,21 @@ export PATH
 osMajorVer=`uname -r | cut -d. -f1`
 osMinorVer=`uname -r | cut -d. -f2`
 
-if [ -r /sw/share/java/classpath ]; then
-  if [ -z "$CLASSPATH" ]; then
-    CLASSPATH=`cat /sw/share/java/classpath`:.
-  else
-    add2classpath=`cat /sw/share/java/classpath`
-    prepend_path CLASSPATH $add2classpath
-  fi
-  export CLASSPATH
-fi
 
-if [ -z "$PERL5LIB" ]; then
-  PERL5LIB=/sw/lib/perl5:/sw/lib/perl5/darwin
+if [ -z "$CLASSPATH" ]; then
+  CLASSPATH=~/lib/saxon9.jar:.
 else
-  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
+  prepend_path CLASSPATH ~/lib/saxon9.jar
 fi
-export PERL5LIB
+export CLASSPATH
+
+# Perl setup:
+export PERL_UNICODE=""
+#if [ -z "$PERL5LIB" ]; then
+#  PERL5LIB=/sw/lib/perl5:/sw/lib/perl5/darwin
+#else
+#  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
+#fi
+#export PERL5LIB
 
 # eof
