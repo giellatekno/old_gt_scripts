@@ -16,6 +16,7 @@ while(<>) {
 	s/ C-FI-NEN/nen LONDON/g ;
 	s/SUND/BERN/g ;
 	s/HEIM/BERN/g ;
+	s/DUBAI/BERN/g ;
 	s/NIKOSIIJA/ACCRA/g ;
 	s/SIJTE/ACCRA/g ;
 	s/j9/j/g ;
@@ -26,7 +27,6 @@ while(<>) {
 	s/st /st9 /g ;
 	s/BALAK/ANAR/g ;
 	s/HAWAII/ACCRA/g ;
-	s/SIEINNUS/DUORTNUS/g ;
 	s/SKANIK/SULLOT/g ;
 	s/t:(.*)h /t:$1d9 /g ;
 	s/čč/ttj/g ;
