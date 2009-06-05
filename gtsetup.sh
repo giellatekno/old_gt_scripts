@@ -80,27 +80,10 @@ do_login_test () {
 # PATH and SHELL are written into TMPFILE.
 # We have to use basic shell speak here, because we don't know
 # which shell will come up.
-    if [ -x /bin/login ] || [ -x /usr/bin/login ] ; then
-    login -f $USER >$TMPFILE <<"EOF"
-    /bin/echo -n LOGINSHELL= 
-    /usr/bin/printenv SHELL
-    /usr/bin/printenv PATH
-    /usr/bin/printenv
-    /bin/bash --norc --noprofile <<EOF2
-#   For bash, we need a second opinion. 
-#   We do the test for bash inside bash.
-    if test $(/bin/echo $SHELL | /usr/bin/grep bash); then
-	bash --login <<EOF3
-        /usr/bin/printenv PATH
-        /usr/bin/printenv
-	exit
-EOF3
-    fi
-    exit
-EOF2
-    exit
-EOF
-fi
+    /bin/echo -n LOGINSHELL= >$TMPFILE
+    /usr/bin/printenv SHELL >>$TMPFILE
+    /usr/bin/printenv PATH >>$TMPFILE
+    /usr/bin/printenv >>$TMPFILE
 }
 
 msg_title () {
@@ -212,7 +195,7 @@ EOF
     msg_title; echo ""; echo ""
     msg_choose_big
     /bin/echo -n " [N/y] "
-    read -t 20 answer
+    read answer
     answer=`echo $answer | sed 's/^[nN].*$/n/'`
     if [ ! -z "$answer" -a "x$answer" != "xn" ]; then
        answer="YES"
@@ -239,7 +222,7 @@ EOF
     $MSG; echo ""
     msg_choose
     /bin/echo -n " [Y/n] "
-    read -t 20 answer
+    read answer
     answer=`echo $answer | sed 's/^[yY].*$/y/'`
     if [ ! -z "$answer" -a "x$answer" != "xy" ]; then
        answer="No, thanks"
@@ -283,7 +266,7 @@ display_choose_big_do (){
 have been checked out in $GTPARENT/big.\n\
 \n\
 I also added symbolic links within each language dir to corpus \
-resources for testing purposes.\n\nNOT YET TRUE - DUMMY TEXT!!!"
+resources for testing purposes.\n\nNOT YET TRUE - DUMMY TEXT!!!\n"
 		else
 		    Result="\n
 Hmm. I tried my best, but it still does not work.
