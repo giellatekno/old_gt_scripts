@@ -357,7 +357,10 @@ EOF
 ### Main program:
 
 # A temporary file for communicating with a login shell 
-TMPFILE=`/usr/bin/mktemp /tmp/resu.XXXXXX`
+# mktemp is in different places on mac and linux
+if [ -x /usr/bin/mktemp ] || [ -x /bin/mktemp ] ; then
+    TMPFILE=`mktemp /tmp/resu.XXXXXX`
+fi
 
 # Are we logged in at the console?
 do_isconsole
