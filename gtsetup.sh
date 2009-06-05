@@ -159,23 +159,29 @@ msg_choose_big () {
     /bin/echo -n Continue\?
 }
 
+big_command_csh () {
+    BIGCMD="\
+setenv GTBIG $GTBIG"
+}
+
+big_command_sh () {
+    BIGCMD="\
+export GTBIG=$GTBIG"
+}
+
 src_command_csh () {
     SOURCECMD="\
 setenv GTHOME $GTHOME \n\
 \n\
 test -r $GTHOME/gt/script/init.d/init.csh && \
-source $GTHOME/gt/script/init.d/init.csh\n"
+source $GTHOME/gt/script/init.d/init.csh"
 }
 
 src_command_sh () {
     SOURCECMD="\
 export GTHOME=$GTHOME \n\
 \n\
-test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh\n"
-}
-
-link_biggies () {
-    echo "Test!"
+test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh"
 }
 
 display_choose_big () {
@@ -249,8 +255,45 @@ EOF
     esac
 }
 
-display_choose_big_do (){
-# propose to check out big, append line to startup script, and verify if it worked
+link_biggies () {
+	ln -s $GTBIG/gt/sme/corp $GTHOME/gt/sme/
+}
+
+display_choose_priv_do () {
+# propose to check out priv:
+    case $ONCONSOLE in
+        YES)
+	    answer=`display_choose_priv`
+	    ;;
+		NO)
+	    display_choose_priv
+	    ;;
+	esac
+	if [ "$answer" == "YES" ]; then
+	svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big`
+	link_biggies
+		if [ svnco == 0 ] ; then
+		    Result="\n The Biggies part of the Giellatekno resources \
+have been checked out in $GTPARENT/big.\n\
+\n\
+I also added symbolic links within each language dir to corpus \
+resources for testing purposes."
+		else
+		    Result="\n
+Something went wrong when checking out the biggies
+repository. Please try to run this command manually:\n
+\n
+cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big\n
+\n"
+		fi		    
+    else
+		Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+    fi
+    display_result
+}
+
+display_choose_big_do () {
+# propose to check out big:
     case $ONCONSOLE in
         YES)
 	    answer=`display_choose_big`
@@ -258,24 +301,25 @@ display_choose_big_do (){
 		NO)
 	    display_choose_big
 	    ;;
-    esac
-    if [ "$answer" == "YES" ]; then
-#		if svn co xxx && link_biggies ; then
-		if [ "" == "" ] ; then
+	esac
+		if [ "$answer" == "YES" ]; then
+#		svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big`
+		link_biggies
+		echo "" >> $HOME/$RC
+		echo "$BIGCMD" >> $HOME/$RC
+		if [ svnco == 0 ] ; then
 		    Result="\n The Biggies part of the Giellatekno resources \
 have been checked out in $GTPARENT/big.\n\
 \n\
-I also added symbolic links within each language dir to corpus \
-resources for testing purposes.\n\nNOT YET TRUE - DUMMY TEXT!!!\n"
+I also added symbolic links within some language dirs to corpus \
+resources for testing purposes. Check out gt/LANG/zcorp/."
 		else
 		    Result="\n
-Hmm. I tried my best, but it still does not work.
-The code I put into $RC has no effect.\n
-Please check your $LOGINSHELL startup scripts.
-Perhaps some other file like\n
-	    ~/.login\n
-is resetting the PATH after $RC is executed.
-		   \n"
+Something went wrong when checking out the biggies
+repository. Please try to run this command manually:\n
+\n
+cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big\n
+\n"
 		fi		    
     else
 		Result="OK, as you wish.\nYou are on your own. Good luck\n" 
@@ -356,7 +400,7 @@ do_login_test
 # Where am I? In the scripts/ catalog within what is becoming GTHOME:
 set_gthome
 
-# Look whether /sw/sbin was in the PATH. 
+# Look whether $GTHOME was in the ENV.
 # TODO: Test for other sensible things, too. 
 if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
     # Yes: already set up
@@ -374,6 +418,7 @@ else
     *csh)
 	    # For csh and tcsh
         src_command_csh
+        big_command_csh
         if [ -f $HOME/.tcshrc ]; then
 		    RC=.tcshrc
 		elif [ -f $HOME/.cshrc ]; then
@@ -396,6 +441,7 @@ else
     bash)
 	    # Only bash here; other sh type shells are not supported
         src_command_sh
+        big_command_sh
         if [ -f $HOME/.bash_profile ]; then
 		    RC=.bash_profile
 		elif [ -f $HOME/.bash_login ]; then
