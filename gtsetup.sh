@@ -33,9 +33,11 @@
 # This version is tested for csh type user login shells and for bash, 
 # for other sh type shells it does nothing.
 
-# export GTHOME=~/langtech/main
-# export GTPRIV=~/langtech/priv
-# export GTBIG=~/langtech/big
+# The following environmental variables are defined:
+#
+# export GTHOME=~/langtech/main   # always
+# export  GTBIG=~/langtech/big    # if the biggies repository is checked out
+# export GTPRIV=~/langtech/priv   # if the private repository is checked out
 # 
 
 
