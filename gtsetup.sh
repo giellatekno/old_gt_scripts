@@ -80,7 +80,8 @@ do_login_test () {
 # PATH and SHELL are written into TMPFILE.
 # We have to use basic shell speak here, because we don't know
 # which shell will come up.
-    /usr/bin/login -f $USER >$TMPFILE <<"EOF"
+    if [ -x /bin/login ] || [ -x /usr/bin/login ] ; then
+    login -f $USER >$TMPFILE <<"EOF"
     /bin/echo -n LOGINSHELL= 
     /usr/bin/printenv SHELL
     /usr/bin/printenv PATH
@@ -99,6 +100,7 @@ EOF3
 EOF2
     exit
 EOF
+fi
 }
 
 msg_title () {
