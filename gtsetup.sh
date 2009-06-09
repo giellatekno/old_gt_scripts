@@ -83,6 +83,14 @@ if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
     # Yes: already set up
     display_already_setup
 else
+    if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
+        # Yes: already set up
+        big_setup_done=1
+    fi
+    if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
+        # Yes: already set up
+        priv_setup_done=1
+    fi
     # No: we need to do something
     eval `grep LOGINSHELL $TMPFILE`
     if [ -z $LOGINSHELL ]; then
