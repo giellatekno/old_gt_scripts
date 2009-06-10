@@ -1,6 +1,6 @@
 # -*-Shell-script-*-
 # GT setup functions to set up the private repository.
-# $Id:jmx-settings.sh 7231 2008-01-14 22:33:35Z wolfgang_m $
+# $Id$
 
 msg_choose_priv () {
     echo The Giellatekno code base also contain some

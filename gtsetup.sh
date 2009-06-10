@@ -28,7 +28,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
-# $Id:jmx-settings.sh 7231 2008-01-14 22:33:35Z wolfgang_m $
+# $Id$
 
 
 # This version is tested for csh type user login shells and for bash, 

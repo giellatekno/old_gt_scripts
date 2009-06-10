@@ -1,6 +1,6 @@
 # -*-Shell-script-*-
 # Common GT scripts to test and set the basic environment requirements
-# $Id:jmx-settings.sh 7231 2008-01-14 22:33:35Z wolfgang_m $
+# $Id$
 
 set_gthome () {
 # GTHOME is loc. of script + ../../

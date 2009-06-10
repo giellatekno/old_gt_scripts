@@ -1,6 +1,6 @@
 # -*-Shell-script-*-
 # GT setup functions to set up the main repository environments
-# $Id:jmx-settings.sh 7231 2008-01-14 22:33:35Z wolfgang_m $
+# $Id$
 
 msg_choose () {
     echo If you do not want me to do this, 
