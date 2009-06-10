@@ -248,7 +248,7 @@ display_choose_priv_do () {
                 do_login_test
                 if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
                     Result="The private part of the Giellatekno resources
-have been checked out in $GTPARENT/priv.
+have been checked out in $GTPRIV.
 
 Also \$GTPRIV has been added to your $RC file.
 
