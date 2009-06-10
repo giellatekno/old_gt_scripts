@@ -64,18 +64,14 @@ do_big_exists () {
 do_priv_exists () {
 # Check whether there exists a directory parallell to GTHOME that seems to
 # contain a working copy of the private repository.
-    PRIV_EXISTS=NO
-    GTPRIV=$GTPARENT/private
-
-    gtparentsdirs=`ls $GTPARENT | grep '/' `
-    Result="This should be a list of dirs: $gtparentsdirs"
+    PRIVDIR=`find $GTPARENT -name polderland 2> /dev/null | grep $GTPARENT/*/polderland`
+    Result="This should be one dir, if it exists at all: $PRIVDIR \n"
     display_result
-    for dir in $gtparentsdirs ; do
-        echo $dir
-        if `ls $GTPARENT/$dir | grep polderland` ; then
-            PRIV_EXISTS=YES
-            GTPRIV=$GTPARENT/$dir
-            exit
-        fi
-    done
+    if [ "$PRIVDIR" != "" ] ;
+    then
+        PRIV_EXISTS=YES
+        GTPRIV=$PRIVDIR
+    else
+        PRIV_EXISTS=NO
+    fi
 }
