@@ -26,6 +26,9 @@ set_gthome () {
 	tmp2="${tmp%/*}"
 	GTHOME="${tmp2%/*}"
 	GTPARENT="${GTHOME%/*}"
+	echo
+	echo "*** Please be patient, this first step might take a few seconds... ***"
+	echo
     do_big_exists
     do_priv_exists
 }
@@ -52,26 +55,31 @@ do_login_test () {
 do_big_exists () {
 # Check whether there exists a directory parallell to GTHOME that seems to
 # contain the biggies.
-
-#Pseudocode:
-# ls GTPARENT
-# for each dir except GTHOME, ls inside it
-# if ls returns tts, then yes, else no
-    BIG_EXISTS=NO
-    GTBIG=$GTPARENT/big
+# "tts" is used as the test case - it only exists at the immediate
+# level below the working copy root in the biggies repository.
+    BIGDIR=`find $GTPARENT -name tts -depth 2 2> /dev/null`
+    if [ "$BIGDIR" != "" ] ;
+    then
+        BIG_EXISTS=YES
+        GTPRIV=${BIGDIR%/*}
+    else
+        BIG_EXISTS=NO
+        GTBIG=$GTPARENT/big
+    fi
 }
 
 do_priv_exists () {
 # Check whether there exists a directory parallell to GTHOME that seems to
 # contain a working copy of the private repository.
-    PRIVDIR=`find $GTPARENT -name polderland 2> /dev/null | grep $GTPARENT/*/polderland`
-    Result="This should be one dir, if it exists at all: $PRIVDIR \n"
-    display_result
+# "polderland" is used as the test case - it only exists at the immediate
+# level below the working copy root in the private repository.
+    PRIVDIR=`find $GTPARENT -depth 2 -name polderland 2> /dev/null`
     if [ "$PRIVDIR" != "" ] ;
     then
         PRIV_EXISTS=YES
-        GTPRIV=$PRIVDIR
+        GTPRIV=${PRIVDIR%/*}
     else
         PRIV_EXISTS=NO
+        GTPRIV=$GTPARENT/priv
     fi
 }
