@@ -2,28 +2,14 @@
 # GT setup functions to set up the private repository.
 # $Id$
 
-msg_choose_priv () {
-    echo The Giellatekno code base also contain some
-    echo rather private files that are not required
-    echo in most cases. They are helpful when doing
-    echo proofing tools testing, and speech technology
-    echo development.
-    echo
-    echo Do you want me to check out this optional
-    echo code block for you? It is about 500 Mb downloaded data,
-    echo and will occupy roughly 1 Gb on your disk.
-    echo The default is to NOT check out this part.
-    case $ONCONSOLE in
-        YES)
-    echo you can answer \\\"No\\\" here  
-    echo and do it later manually.
-    ;;
-	NO)
-    echo "you can answer \"No\" here and do it later manually."
-    ;;
-    esac
-    echo
-    /bin/echo -n Continue\?
+priv_command_csh () {
+    PRIVCMD="\
+setenv GTPRIV $GTPRIV"
+}
+
+priv_command_sh () {
+    PRIVCMD="\
+export GTPRIV=$GTPRIV"
 }
 
 msg_confirm_priv () {
@@ -46,16 +32,6 @@ msg_confirm_priv () {
     esac
     echo
     /bin/echo -n Continue\?
-}
-
-priv_command_csh () {
-    PRIVCMD="\
-setenv GTPRIV $GTPRIV"
-}
-
-priv_command_sh () {
-    PRIVCMD="\
-export GTPRIV=$GTPRIV"
 }
 
 display_confirm_priv () {
@@ -84,6 +60,23 @@ EOF
     esac
 }
 
+msg_choose_priv () {
+    echo Please provide your username and password
+    echo to check out the private repository
+    case $ONCONSOLE in
+        YES)
+    echo in the following two dialogs.
+    echo you can answer \\\"No\\\" here  
+    echo and do it later manually.
+    ;;
+	NO)
+    echo "you can answer \"No\" here and do it later manually."
+    ;;
+    esac
+    echo
+    /bin/echo -n Continue\?
+}
+
 display_choose_priv () {
     case $ONCONSOLE in
         YES)
@@ -91,7 +84,7 @@ display_choose_priv () {
    osascript <<-EOF
    tell application "Finder"
       activate
-      set dd to display dialog "`msg_title`\n\n`msg_choose_priv`\n" buttons {"YES", "No, thanks"} default button 2 giving up after 30
+      set dd to display dialog "`msg_title`\n\n`msg_choose_priv`\n" buttons {"OK", "No, thanks"} default button 2 giving up after 30
       set UserResponse to button returned of dd
    end tell
 EOF
@@ -121,26 +114,41 @@ display_choose_priv_do () {
 	    ;;
 	esac
 	if [ "$answer" == "YES" ]; then
-	svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big`
-	link_biggies
+	svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/private/trunk priv`
 		if [ svnco == 0 ] ; then
-		    Result="\n The Biggies part of the Giellatekno resources \
-have been checked out in $GTPARENT/big.\n\
-\n\
-I also added symbolic links within each language dir to corpus \
-resources for testing purposes."
+		    Result="\n The private part of the Giellatekno resources \
+have been checked out in $GTPARENT/big.\n\"
 		else
 		    Result="\n
 Something went wrong when checking out the biggies
 repository. Please try to run this command manually:\n
 \n
-cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big\n
-\n"
+cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv\n"
 		fi		    
     else
-		Result="OK, as you wish.\nYou are on your own. Good luck.\n" 
+		Result="OK, as you wish.\nYou are on your own. Good luck.\n
+\n
+If you want to do it manually later, try this command:
+\n
+cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv\n
+\n
+\nYou will be asked for username and password." 
     fi
     display_result
+}
+
+display_setup_priv () {
+    case $ONCONSOLE in
+        YES)
+        answer=`display_main_big_setup`
+        ;;
+        NO)
+        display_main_big_setup
+        ;;
+    esac
+    if [ "$answer" == "Continue" ]; then
+       setup_priv
+    fi
 }
 
 setup_priv () {
@@ -163,6 +171,7 @@ confirm_priv_do () {
 	esac
 	if [ "$answer" == "YES" ]; then
 		echo "$PRIVCMD" >> $HOME/$RC
+		. $HOME/$RC
     	do_login_test
     	if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
     	    Result="\n Your Giellatekno setup should be fine now.\n\n"

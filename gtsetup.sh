@@ -159,17 +159,7 @@ else
 		if [ "$main_setup_done" == "YES" ]; then
             if [ "$big_setup_done" == "YES" ]; then
                 # Set up priv only, the rest is ok:
-                case $ONCONSOLE in
-                    YES)
-                    answer=`display_main_big_setup`
-                    ;;
-                    NO)
-                    display_main_big_setup
-                    ;;
-                esac
-                if [ "$answer" == "Continue" ]; then
-                   setup_priv
-                fi
+                display_setup_priv
             else
                 # Set up big and priv:
                 echo "test"
