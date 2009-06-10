@@ -26,7 +26,7 @@ msg_confirm_priv () {
     echo You can answer \\\"No\\\" here  
     echo and do it later manually.
     ;;
-	NO)
+    NO)
     echo "You can answer \"No\" here and do it later manually."
     ;;
     esac
@@ -46,7 +46,7 @@ display_confirm_priv () {
    end tell
 EOF
    ;;
-	NO)
+    NO)
 # display choice dialog
     msg_title; echo ""; echo ""
     msg_confirm_priv
@@ -66,11 +66,13 @@ msg_choose_priv () {
     case $ONCONSOLE in
         YES)
     echo in the following two dialogs.
-    echo you can answer \\\"No\\\" here  
+    echo
+    echo You can answer \\\"No\\\" here  
     echo and do it later manually.
     ;;
-	NO)
-    echo "you can answer \"No\" here and do it later manually."
+    NO)
+    echo
+    echo "You can answer \"No\" here and do it later manually."
     ;;
     esac
     echo
@@ -89,7 +91,7 @@ display_choose_priv () {
    end tell
 EOF
    ;;
-	NO)
+    NO)
 # display choice dialog
     msg_title; echo ""; echo ""
     msg_choose_priv
@@ -107,32 +109,29 @@ display_choose_priv_do () {
 # propose to check out priv:
     case $ONCONSOLE in
         YES)
-	    answer=`display_choose_priv`
-	    ;;
-		NO)
-	    display_choose_priv
-	    ;;
-	esac
-	if [ "$answer" == "YES" ]; then
-	svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/private/trunk priv`
-		if [ svnco == 0 ] ; then
-		    Result="\n The private part of the Giellatekno resources \
-have been checked out in $GTPARENT/big.\n\"
-		else
-		    Result="\n
-Something went wrong when checking out the biggies
-repository. Please try to run this command manually:\n
-\n
-cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv\n"
-		fi		    
+        answer=`display_choose_priv`
+        ;;
+        NO)
+        display_choose_priv
+        ;;
+    esac
+    if [ "$answer" == "YES" ]; then
+        svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/private/trunk priv`
+        if [ svnco == 0 ] ; then
+            Result="The private part of the Giellatekno resources
+have been checked out in $GTPARENT/priv."
+        else
+            Result="Something went wrong when checking out the private
+repository. Please try to run this command manually:
+
+cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv"
+        fi            
     else
-		Result="OK, as you wish.\nYou are on your own. Good luck.\n
-\n
-If you want to do it manually later, try this command:
-\n
-cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv\n
-\n
-\nYou will be asked for username and password." 
+        Result="OK, as you wish. You are on your own. Good luck.
+
+If you want to do it later manually, use this command:
+
+cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv" 
     fi
     display_result
 }
@@ -163,31 +162,29 @@ confirm_priv_do () {
 # propose to add existing priv dir as GTPRIV:
     case $ONCONSOLE in
         YES)
-	    answer=`display_confirm_priv`
-	    ;;
-		NO)
-	    display_confirm_priv
-	    ;;
-	esac
-	if [ "$answer" == "YES" ]; then
-		echo "$PRIVCMD" >> $HOME/$RC
-		. $HOME/$RC
-    	do_login_test
-    	if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
-    	    Result="\n Your Giellatekno setup should be fine now.\n\n"
-		else
-		    Result="\n
-Something went wrong when setting up \$GTPRIV.
+        answer=`display_confirm_priv`
+        ;;
+        NO)
+        display_confirm_priv
+        ;;
+    esac
+    if [ "$answer" == "YES" ]; then
+        echo "$PRIVCMD" >> $HOME/$RC
+        . $HOME/$RC
+        do_login_test
+        if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
+            Result="\n Your Giellatekno setup should be fine now.\n\n"
+        else
+            Result="Something went wrong when setting up \$GTPRIV.
 
 Please add text equivalent to the
-following to your $RC file:\n
-		
-export GTPRIV=$GTPRIV
-"
+following to your $RC file:
+        
+export GTPRIV=$GTPRIV"
 
-		fi		    
+        fi
     else
-		Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+        Result="OK, as you wish.\nYou are on your own. Good luck\n" 
     fi
     display_result
 }
