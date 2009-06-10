@@ -161,13 +161,14 @@ else
                 # Set up priv only, the rest is ok:
                 display_setup_priv
             else
-                # Set up big and priv:
-                echo "test"
+        		display_choose_big_do
+                display_setup_priv
             fi
         else
             # set up all three:
     		display_choose_do
     		display_choose_big_do
+            display_setup_priv
         fi
 	    ;;
     *)
