@@ -41,8 +41,11 @@ display_confirm_priv () {
    osascript <<-EOF
    tell application "Finder"
       activate
-      set dd to display dialog "`msg_title`\n\n`msg_confirm_priv`\n" buttons {"YES", "No, thanks"} default button 1 giving up after 30
-      set UserResponse to button returned of dd
+      try
+        set dd to display dialog "`msg_title`\n\n`msg_confirm_priv`\n" ¬
+        buttons {"YES", "No, thanks"} default button 1 giving up after 30
+        set UserResponse to button returned of dd
+      end try
    end tell
 EOF
    ;;
@@ -86,8 +89,13 @@ display_choose_priv () {
    osascript <<-EOF
    tell application "Finder"
       activate
-      set dd to display dialog "`msg_title`\n\n`msg_choose_priv`\n" buttons {"OK", "No, thanks"} default button 2 giving up after 30
-      set UserResponse to button returned of dd
+      try
+        set dd to display dialog "`msg_title`\n\n`msg_choose_priv`\n" ¬
+        buttons {"No, thanks", "YES"} ¬
+        default button "YES" cancel button "No, thanks" ¬
+        giving up after 30
+        set UserResponse to button returned of dd
+      end try
    end tell
 EOF
    ;;
@@ -105,6 +113,98 @@ EOF
     esac
 }
 
+msg_ask_username () {
+    echo Please provide your username:
+    echo
+}
+
+display_ask_username () {
+    case $ONCONSOLE in
+        YES)
+# display choice popup
+  osascript <<-EOF
+  tell application "Finder"
+    activate
+    set userCanceled to false
+    try
+      set dd to display dialog "`msg_title`\n\n`msg_ask_username`\n" ¬
+      buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" ¬
+      giving up after 30 ¬
+      default answer ""
+      set UserResponse to button returned of dd
+    on error number -128
+      set userCanceled to true
+    end try
+    if userCanceled then
+        set userName to ""
+    else if gave up of dd then
+        -- statements to execute if dialog timed out without an answer
+        set userName to ""
+    else if button returned of dd is "OK" then
+      set userName to text returned of dd
+    end if
+    return userName
+  end tell
+EOF
+   ;;
+    NO)
+# display choice dialog
+    msg_title; echo ""; echo ""
+    msg_ask_username
+    /bin/echo -n " [Your user name:] "
+    read username
+    ;;
+    esac
+}
+
+msg_ask_password () {
+    echo Please provide your password.
+    echo
+    echo If you mistype the password, you will
+    echo have to retype it on the command line
+    echo from where you started this setup script.
+    echo
+}
+
+display_ask_password () {
+    case $ONCONSOLE in
+        YES)
+# display choice popup
+  osascript <<-EOF
+  tell application "Finder"
+    activate
+    set userCanceled to false
+    try
+      set dd to display dialog "`msg_title`\n\n`msg_ask_password`\n" ¬
+      buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" ¬
+      giving up after 30 ¬
+      default answer "" with icon 1 with hidden answer
+      set UserResponse to button returned of dd
+    on error number -128
+      set userCanceled to true
+    end try
+    if userCanceled then
+        set passWrd to ""
+    else if gave up of dd then
+        -- statements to execute if dialog timed out without an answer
+        set passWrd to ""
+    else if button returned of dd is "OK" then
+      set passWrd to text returned of dd
+    end if
+    return passWrd
+  end tell
+EOF
+   ;;
+    NO)
+# display choice dialog
+    msg_title; echo ""; echo ""
+    msg_ask_password
+    /bin/echo -n " [Your password:] "
+    read password
+    ;;
+    esac
+}
+
 display_choose_priv_do () {
 # propose to check out priv:
     case $ONCONSOLE in
@@ -116,16 +216,56 @@ display_choose_priv_do () {
         ;;
     esac
     if [ "$answer" == "YES" ]; then
-        svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/private/trunk priv`
-        if [ svnco == 0 ] ; then
-            Result="The private part of the Giellatekno resources
-have been checked out in $GTPARENT/priv."
-        else
-            Result="Something went wrong when checking out the private
+        # ask for username
+        case $ONCONSOLE in
+            YES)
+            username=`display_ask_username`
+            ;;
+            NO)
+            display_ask_username
+            ;;
+        esac
+        # ask for password
+        case $ONCONSOLE in
+            YES)
+            password=`display_ask_password`
+            ;;
+            NO)
+            display_ask_password
+            ;;
+        esac
+        if ([ "$username" != "" ] && [ "$password" != "" ]); then
+            if `cd $GTPARENT && svn co --username $username --password $password -q https://victorio.uit.no/private/trunk priv` ; then
+                echo "$PRIVCMD" >> $HOME/$RC
+                . $HOME/$RC
+                do_login_test
+                if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
+                    Result="The private part of the Giellatekno resources
+have been checked out in $GTPARENT/priv.
+
+Also \$GTPRIV has been added to your $RC file.
+
+Your Giellatekno setup should be fine now.\n\n"
+                else
+                    Result="The private part of the Giellatekno resources
+have been checked out in $GTPARENT/priv, but something went wrong when setting up \$GTPRIV.
+
+Please add text equivalent to the
+following to your $RC file:
+
+export GTPRIV=$GTPRIV"
+                fi
+            else
+                Result="Something went wrong when checking out the private
 repository. Please try to run this command manually:
 
 cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv"
-        fi            
+            fi
+            
+        else
+            Result="You bailed out. Please rerun this
+script later to complete the setup."
+        fi
     else
         Result="OK, as you wish. You are on your own. Good luck.
 
@@ -181,7 +321,6 @@ Please add text equivalent to the
 following to your $RC file:
         
 export GTPRIV=$GTPRIV"
-
         fi
     else
         Result="OK, as you wish.\nYou are on your own. Good luck\n" 
