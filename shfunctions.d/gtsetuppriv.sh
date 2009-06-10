@@ -43,7 +43,9 @@ display_confirm_priv () {
       activate
       try
         set dd to display dialog "`msg_title`\n\n`msg_confirm_priv`\n" ¬
-        buttons {"YES", "No, thanks"} default button 1 giving up after 30
+        buttons {"No, thanks", "YES"} ¬
+        default button "YES" cancel button "No, thanks" ¬
+        giving up after 30
         set UserResponse to button returned of dd
       end try
    end tell
@@ -163,6 +165,11 @@ msg_ask_password () {
     echo If you mistype the password, you will
     echo have to retype it on the command line
     echo from where you started this setup script.
+    echo
+    echo Also note that you need to be patient.
+    echo Checking out can take a lot of time,
+    echo depending on your network connection,
+    echo trafic, etc.
     echo
 }
 
