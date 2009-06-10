@@ -75,7 +75,7 @@ display_choose_big_do () {
 	    display_choose_big
 	    ;;
 	esac
-		if [ "$answer" == "YES" ]; then
+    if [ "$answer" == "YES" ]; then
 #		svnco=`cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big`
 		link_biggies
 		echo "" >> $HOME/$RC

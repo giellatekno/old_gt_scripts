@@ -26,6 +26,8 @@ set_gthome () {
 	tmp2="${tmp%/*}"
 	GTHOME="${tmp2%/*}"
 	GTPARENT="${GTHOME%/*}"
+    do_big_exists
+    do_priv_exists
 }
 
 do_isconsole () {
@@ -45,4 +47,35 @@ do_login_test () {
     /usr/bin/printenv SHELL >>$TMPFILE
     /usr/bin/printenv PATH >>$TMPFILE
     /usr/bin/printenv >>$TMPFILE
+}
+
+do_big_exists () {
+# Check whether there exists a directory parallell to GTHOME that seems to
+# contain the biggies.
+
+#Pseudocode:
+# ls GTPARENT
+# for each dir except GTHOME, ls inside it
+# if ls returns tts, then yes, else no
+    BIG_EXISTS=NO
+    GTBIG=$GTPARENT/big
+}
+
+do_priv_exists () {
+# Check whether there exists a directory parallell to GTHOME that seems to
+# contain a working copy of the private repository.
+    PRIV_EXISTS=NO
+    GTPRIV=$GTPARENT/private
+
+    gtparentsdirs=`ls $GTPARENT | grep '/' `
+    Result="This should be a list of dirs: $gtparentsdirs"
+    display_result
+    for dir in $gtparentsdirs ; do
+        echo $dir
+        if `ls $GTPARENT/$dir | grep polderland` ; then
+            PRIV_EXISTS=YES
+            GTPRIV=$GTPARENT/$dir
+            exit
+        fi
+    done
 }

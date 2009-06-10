@@ -74,23 +74,29 @@ do_isconsole
 # Run a login shell to see whether the Giellatekno paths are already set up.
 do_login_test
 
-# Where am I? In the scripts/ catalog within what is becoming GTHOME:
+# Set GTHOME based on the location of this setup script.
+# Does also check for the existence of big and private working copies.
 set_gthome
+
+# Check whether the environment is already in place:
+if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
+    main_setup_done=YES
+fi
+if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
+    big_setup_done=YES
+fi
+if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
+    priv_setup_done=YES
+fi
 
 # Look whether $GTHOME was in the ENV.
 # TODO: Test for other sensible things, too. 
-if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
-    # Yes: already set up
+if ( [ "$main_setup_done" == "YES" ] &&
+     [ "$big_setup_done"  == "YES" ] &&
+     [ "$priv_setup_done" == "YES" ]   ) ; then
+    # Yes: everything is already set up
     display_already_setup
 else
-    if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
-        # Yes: already set up
-        big_setup_done=1
-    fi
-    if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
-        # Yes: already set up
-        priv_setup_done=1
-    fi
     # No: we need to do something
     eval `grep LOGINSHELL $TMPFILE`
     if [ -z $LOGINSHELL ]; then
@@ -104,6 +110,7 @@ else
 	    # For csh and tcsh
         src_command_csh
         big_command_csh
+        priv_command_csh
         if [ -f $HOME/.tcshrc ]; then
 		    RC=.tcshrc
 		elif [ -f $HOME/.cshrc ]; then
@@ -127,6 +134,7 @@ else
 	    # Only bash here; other sh type shells are not supported
         src_command_sh
         big_command_sh
+        priv_command_sh
         if [ -f $HOME/.bash_profile ]; then
 		    RC=.bash_profile
 		elif [ -f $HOME/.bash_login ]; then
@@ -147,8 +155,29 @@ else
 		    MSG=msg_append
 		  ;;
 		esac
-		display_choose_do
-		display_choose_big_do
+		if [ "$main_setup_done" == "YES" ]; then
+            if [ "$big_setup_done" == "YES" ]; then
+                # Set up priv only, the rest is ok:
+                case $ONCONSOLE in
+                    YES)
+                    answer=`display_main_big_setup`
+                    ;;
+                    NO)
+                    display_main_big_setup
+                    ;;
+                esac
+                if [ "$answer" == "Continue" ]; then
+                   setup_priv
+                fi
+            else
+                # Set up big and priv:
+                echo "test"
+            fi
+        else
+            # set up all three:
+    		display_choose_do
+    		display_choose_big_do
+        fi
 	    ;;
     *)
     # Any shell except *csh and bash
