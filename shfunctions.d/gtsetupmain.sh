@@ -73,6 +73,7 @@ display_choose_do (){
 	echo "" >> $HOME/$RC
 	echo "$SOURCECMD" >> $HOME/$RC
 	chown $USER $HOME/$RC
+	. $HOME/$RC
 	do_login_test
 	if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
 	    Result="\n Your Giellatekno setup should be fine now.\n\n"
