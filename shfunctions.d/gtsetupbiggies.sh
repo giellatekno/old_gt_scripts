@@ -83,7 +83,7 @@ display_choose_big_do () {
 	    ;;
 	esac
     if [ "$answer" == "YES" ]; then
-		if `cd $GTPARENT && svn co https://victorio.uit.no/biggies/trunk big` ; then
+		if `cd $GTPARENT && svn co -q https://victorio.uit.no/biggies/trunk big` ; then
     		link_biggies
     		echo "" >> $HOME/$RC
     		echo "$BIGCMD" >> $HOME/$RC
