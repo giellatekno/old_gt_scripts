@@ -57,7 +57,7 @@ do_big_exists () {
 # contain the biggies.
 # "tts" is used as the test case - it only exists at the immediate
 # level below the working copy root in the biggies repository.
-    BIGDIR=`find $GTPARENT -name tts -depth 2 2> /dev/null`
+    BIGDIR=`find $GTPARENT -depth 2 -name tts 2> /dev/null`
     if [ "$BIGDIR" == "" ] ; then
         BIGDIR=`find $GTPARENT -name tts 2> /dev/null | grep "*/trunk/tts"`
     fi
