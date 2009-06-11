@@ -57,7 +57,10 @@ do_big_exists () {
 # contain the biggies.
 # "tts" is used as the test case - it only exists at the immediate
 # level below the working copy root in the biggies repository.
+# -maxdepth -mindepth is used because of a bug with -depth n on victorio
     BIGDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name tts 2> /dev/null`
+    # if nothing is found, it can be because the trunk dir was checked out
+    # as well - thus checking one level further down:
     if [ "$BIGDIR" == "" ] ; then
         BIGDIR=`find $GTPARENT -maxdepth 3 -mindepth 3 -name tts 2> /dev/null`
     fi
