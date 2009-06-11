@@ -57,9 +57,9 @@ do_big_exists () {
 # contain the biggies.
 # "tts" is used as the test case - it only exists at the immediate
 # level below the working copy root in the biggies repository.
-    BIGDIR=`find $GTPARENT -depth 2 -name tts 2> /dev/null`
+    BIGDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name tts 2> /dev/null`
     if [ "$BIGDIR" == "" ] ; then
-        BIGDIR=`find $GTPARENT -name tts 2> /dev/null | grep "*/trunk/tts"`
+        BIGDIR=`find $GTPARENT -maxdepth 3 -mindepth 3 -name tts 2> /dev/null`
     fi
     if [ "$BIGDIR" != "" ] ;
     then
@@ -76,9 +76,9 @@ do_priv_exists () {
 # contain a working copy of the private repository.
 # "polderland" is used as the test case - it only exists at the immediate
 # level below the working copy root in the private repository.
-    PRIVDIR=`find $GTPARENT -depth 2 -name polderland 2> /dev/null`
+    PRIVDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name polderland 2> /dev/null`
     if [ "$PRIVDIR" == "" ] ; then
-        PRIVDIR=`find $GTPARENT -name polderland 2> /dev/null | grep "*/trunk/polderland"`
+        PRIVDIR=`find $GTPARENT -maxdepth 3 -mindepth 3 -name polderland 2> /dev/null`
     fi
     if [ "$PRIVDIR" != "" ] ;
     then
