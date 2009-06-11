@@ -128,8 +128,20 @@ else
 		    MSG=msg_append
 		    ;;
 		esac
-		display_choose_do
-		display_choose_big_do
+		if [ "$main_setup_done" == "YES" ]; then
+            if [ "$big_setup_done" == "YES" ]; then
+                # Set up priv only, the rest is ok:
+                display_setup_priv
+            else
+        		setup_big
+                display_setup_priv
+            fi
+        else
+            # set up all three:
+    		display_choose_do
+    		setup_big
+            display_setup_priv
+        fi
 	    ;;
     bash)
 	    # Only bash here; other sh type shells are not supported
@@ -161,13 +173,13 @@ else
                 # Set up priv only, the rest is ok:
                 display_setup_priv
             else
-        		display_choose_big_do
+        		setup_big
                 display_setup_priv
             fi
         else
             # set up all three:
     		display_choose_do
-    		display_choose_big_do
+    		setup_big
             display_setup_priv
         fi
 	    ;;
