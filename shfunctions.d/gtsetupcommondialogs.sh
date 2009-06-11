@@ -46,6 +46,7 @@ display_result () {
       activate
       set dd to display dialog "`msg_title`\n$Result\n" buttons {"OK"} default button 1 with icon caution giving up after 20
       set UserResponse to button returned of dd
+      return ""
    end tell
 EOF
    ;;
