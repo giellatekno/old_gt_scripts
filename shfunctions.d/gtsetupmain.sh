@@ -19,17 +19,16 @@ msg_choose () {
 
 src_command_csh () {
     SOURCECMD="\
-setenv GTHOME $GTHOME \n\
-\n\
+setenv GTHOME $GTHOME
+
 test -r $GTHOME/gt/script/init.d/init.csh && \
-source $GTHOME/gt/script/init.d/init.csh\n"
+source $GTHOME/gt/script/init.d/init.csh"
 }
 
 src_command_sh () {
     SOURCECMD="\
-export GTHOME=$GTHOME \n\
-\n\
-test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh\n"
+export GTHOME=$GTHOME 
+test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh"
 }
 
 display_choose () {
