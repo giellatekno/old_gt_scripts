@@ -61,7 +61,7 @@ do_big_exists () {
     if [ "$BIGDIR" != "" ] ;
     then
         BIG_EXISTS=YES
-        GTPRIV=${BIGDIR%/*}
+        GTBIG=${BIGDIR%/*}
     else
         BIG_EXISTS=NO
         GTBIG=$GTPARENT/big
