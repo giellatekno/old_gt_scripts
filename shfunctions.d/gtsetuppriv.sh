@@ -320,7 +320,8 @@ confirm_priv_do () {
         . $HOME/$RC
         do_login_test
         if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
-            Result="\n Your Giellatekno setup should be fine now.\n\n"
+            Result="The private section of your Giellatekno setup
+            should be fine now."
         else
             Result="Something went wrong when setting up \$GTPRIV.
 
