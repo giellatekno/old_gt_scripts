@@ -115,10 +115,10 @@ EOF
     ;;
 	NO)
     msg_title; echo""; msg_main_big_setup
-    /bin/echo -n " [S/c] "
+    /bin/echo -n "Continue [N/y] "
     read answer
-    answer=`echo $answer | sed 's/^[sS].*$/n/'`
-    if [ ! -z "$answer" -a "x$answer" != "xs" ]; then
+    answer=`echo $answer | sed 's/^[yY].*$/n/'`
+    if [ ! -z "$answer" -a "x$answer" != "xy" ]; then
        answer="Continue"
     fi
     ;;
