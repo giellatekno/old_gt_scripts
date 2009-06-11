@@ -22,14 +22,14 @@ src_command_csh () {
 setenv GTHOME $GTHOME \n\
 \n\
 test -r $GTHOME/gt/script/init.d/init.csh && \
-source $GTHOME/gt/script/init.d/init.csh"
+source $GTHOME/gt/script/init.d/init.csh\n"
 }
 
 src_command_sh () {
     SOURCECMD="\
 export GTHOME=$GTHOME \n\
 \n\
-test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh"
+test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh\n"
 }
 
 display_choose () {
@@ -39,8 +39,17 @@ display_choose () {
    osascript <<-EOF
    tell application "Finder"
       activate
-      set dd to display dialog "`msg_title`\nYour login shell: $LOGINSHELL\n\n`$MSG` \n\n`msg_choose`\n" buttons {"No, thanks", "YES"} default button 2 giving up after 30
+      set userCanceled to false
+      try
+      set dd to display dialog ¬
+      "`msg_title`\nYour login shell: $LOGINSHELL\n\n`$MSG` \n\n`msg_choose`" ¬
+      buttons {"No, thanks", "YES"} ¬
+      default button 2 cancel button 1¬
+      giving up after 30
       set UserResponse to button returned of dd
+      on error number -128
+        set userCanceled to true
+      end try
    end tell
 EOF
    ;;
@@ -54,6 +63,8 @@ EOF
     answer=`echo $answer | sed 's/^[yY].*$/y/'`
     if [ ! -z "$answer" -a "x$answer" != "xy" ]; then
        answer="No, thanks"
+    else
+        answer="YES"
     fi
     ;;
     esac
@@ -69,14 +80,14 @@ display_choose_do (){
     display_choose
     ;;
     esac
-    if [ "$answer" != "No, thanks" ]; then
+    if [ "$answer" == "YES" ]; then
 	echo "" >> $HOME/$RC
 	echo "$SOURCECMD" >> $HOME/$RC
 	chown $USER $HOME/$RC
 	. $HOME/$RC
 	do_login_test
 	if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
-	    Result="\n Your Giellatekno setup should be fine now.\n\n"
+	    Result="Your Giellatekno setup for the main section should be fine now."
 	else
 	    Result="\n
 Hmm. I tried my best, but it still does not work.
