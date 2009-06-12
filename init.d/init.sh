@@ -33,6 +33,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+# Alias for svn update
+alias svnup="pushd $GTHOME && svn up && popd && pushd $GTBIG && svn up && popd && pushd $GTPRIV && svn up && popd"
+
+
 # Add predefined lookup aliases for all languages:
 . $GTHOME/gt/script/init.d/lookup-init.sh
 
