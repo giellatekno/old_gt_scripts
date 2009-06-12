@@ -19,15 +19,22 @@ msg_choose () {
 
 src_command_csh () {
     SOURCECMD="\
-setenv GTHOME $GTHOME
-
-test -r $GTHOME/gt/script/init.d/init.csh && \
-source $GTHOME/gt/script/init.d/init.csh"
+setenv GTHOME $GTHOME"
 }
 
 src_command_sh () {
     SOURCECMD="\
-export GTHOME=$GTHOME 
+export GTHOME=$GTHOME"
+}
+
+init_command_csh () {
+    INITCMD="\
+test -r $GTHOME/gt/script/init.d/init.csh && \
+source $GTHOME/gt/script/init.d/init.csh"
+}
+
+init_command_sh () {
+    INITCMD="\
 test -r $GTHOME/gt/script/init.d/init.sh && . $GTHOME/gt/script/init.d/init.sh"
 }
 
@@ -101,4 +108,9 @@ is resetting the PATH after $RC is executed.
 	Result="OK, as you wish.\nYou are on your own. Good luck\n" 
     fi
     display_result
+}
+
+add_init_command () {
+	echo "" >> $HOME/$RC
+	echo "$INITCMD" >> $HOME/$RC
 }

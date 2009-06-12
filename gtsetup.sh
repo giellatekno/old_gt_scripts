@@ -112,6 +112,7 @@ else
         src_command_csh
         big_command_csh
         priv_command_csh
+        init_command_csh
         if [ -f $HOME/.tcshrc ]; then
 		    RC=.tcshrc
 		elif [ -f $HOME/.cshrc ]; then
@@ -142,12 +143,14 @@ else
     		setup_big
             display_setup_priv
         fi
+        add_init_command
 	    ;;
     bash)
 	    # Only bash here; other sh type shells are not supported
         src_command_sh
         big_command_sh
         priv_command_sh
+        init_command_sh
         if [ -f $HOME/.bash_profile ]; then
 		    RC=.bash_profile
 		elif [ -f $HOME/.bash_login ]; then
@@ -182,6 +185,7 @@ else
     		setup_big
             display_setup_priv
         fi
+        add_init_command
 	    ;;
     *)
     # Any shell except *csh and bash
