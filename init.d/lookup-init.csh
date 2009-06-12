@@ -55,7 +55,13 @@ alias smenob 'lookup -flags mbTT $GTHOME/words/dicts/smenob/bin/smenob.fst'
 alias nobsme 'lookup -flags mbTT $GTHOME/words/dicts/smenob/bin/ismenob.fst'
 alias kaleng 'lookup -flags mbTT $GTHOME/words/dicts/kaleng/bin/kaleng.fst'
 alias kaldan 'lookup -flags mbTT $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
+alias kaldic 'lookup -flags mbTT $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 alias fkvnob 'lookup -flags mbTT $GTHOME/kvensk/bin/fkvnob.fst'
 alias nobfkv 'lookup -flags mbTT $GTHOME/kvensk/bin/nobfkv.fst'
 alias fitswe 'lookup -flags mbTT $GTHOME/kvensk/fitswe/bin/fitswe.fst'
 alias swefit 'lookup -flags mbTT $GTHOME/kvensk/swefit/bin/swefit.fst'
+
+
+# Other transducers
+alias ogeo 'lookup -flags mbTT ~/GTHOME/words/dicts/smi/geo/bin/geo.fst'
+
