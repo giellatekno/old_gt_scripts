@@ -60,3 +60,6 @@ alias fkvnob='lookup -flags mbTT $GTHOME/kvensk/bin/fkvnob.fst'
 alias nobfkv='lookup -flags mbTT $GTHOME/kvensk/bin/nobfkv.fst'
 alias fitswe='lookup -flags mbTT $GTHOME/kvensk/fitswe/bin/fitswe.fst'
 alias swefit='lookup -flags mbTT $GTHOME/kvensk/swefit/bin/swefit.fst'
+
+# Other transducers
+alias ogeo='lookup -flags mbTT ~/GTHOME/words/dicts/smi/geo/bin/geo.fst'
