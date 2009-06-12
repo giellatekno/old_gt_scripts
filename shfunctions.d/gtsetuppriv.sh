@@ -58,8 +58,8 @@ EOF
     /bin/echo -n " [Y/n] "
     read answer
     answer=`echo $answer | sed 's/^[yY].*$/y/'`
-    if [ ! -z "$answer" -a "x$answer" != "xy" ]; then
-       answer="NO"
+    if [ -z "$answer" -o "x$answer" == "xy" ]; then
+       answer="YES"
     fi
     ;;
     esac
