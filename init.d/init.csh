@@ -1,10 +1,11 @@
 # init.csh
 #
-# to use the Giellatekno tools, put the following in your .cshrc:
+# to use the Giellatekno tools, please run the script
 #
-#	setenv GTHOME $GTHOME
-#	source \$GTHOME/gt/script/init.d/init.csh
+#  gt/script/gtsetup.sh
 #
+# That script will set up a number of environmental variables,
+# and make sure this file is read as part of the login process.
 
 #
 # Giellatekno - a set of tools for analysing and processing a number
@@ -33,11 +34,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-# Alias for svn update
-alias svnup 'pushd $GTHOME && svn up && popd && pushd $GTBIG && svn up && popd && pushd $GTPRIV && svn up && popd'
-
 # Add predefined lookup aliases for all languages:
 source $GTHOME/gt/script/init.d/lookup-init.csh
+
+# Alias for svn update
+alias svnup 'pushd $GTHOME && svn up && popd && pushd $GTBIG && svn up && popd && pushd $GTPRIV && svn up && popd'
 
 # Standardised aliases for Giellatekno work:
 alias victorio 'ssh victorio.uit.no'

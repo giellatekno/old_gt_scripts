@@ -1,10 +1,11 @@
 # init.sh
 #
-# to use the Giellatekno tools, put the following in your .profile:
+# to use the Giellatekno tools, please run the script
 #
-#  export GTHOME=/Users/sjur/langtech/main 
-# . $GTHOME/gt/script/init.sh
+#  gt/script/gtsetup.sh
 #
+# That script will set up a number of environmental variables,
+# and make sure this file is read as part of the login process.
 
 #
 # Giellatekno - a set of tools for analysing and processing a number
@@ -33,12 +34,12 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-# Alias for svn update
-alias svnup="pushd $GTHOME && svn up && popd && pushd $GTBIG && svn up && popd && pushd $GTPRIV && svn up && popd"
-
 
 # Add predefined lookup aliases for all languages:
 . $GTHOME/gt/script/init.d/lookup-init.sh
+
+# Alias for svn update
+alias svnup="pushd $GTHOME && svn up && popd && pushd $GTBIG && svn up && popd && pushd $GTPRIV && svn up && popd"
 
 # Standardised aliases for Giellatekno work:
 alias victorio='ssh victorio.uit.no'
@@ -101,5 +102,3 @@ export PERL_UNICODE=""
 #  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
 #fi
 #export PERL5LIB
-
-# eof
