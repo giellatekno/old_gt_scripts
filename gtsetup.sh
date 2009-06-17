@@ -36,9 +36,11 @@
 
 # The following environmental variables are defined:
 #
-# export GTHOME=~/langtech/main   # always
-# export  GTBIG=~/langtech/big    # if the biggies repository is checked out
-# export GTPRIV=~/langtech/priv   # if the private repository is checked out
+# export GTHOME - location of the main svn working copy, always defined
+# export  GTBIG - location of the biggies working copy, only if the biggies
+#                 repository is checked out
+# export GTPRIV - location of the private working copy, only if the private
+#                 repository is checked out
 # 
 
 
@@ -52,6 +54,9 @@ case "$0" in
 		SCRIPTPATH=$(dirname "$PWD/$0")
 		;;
 esac
+
+# Global variables:
+BACKUPSUFF=gtbackup
 
 # source common functions and settings
 source "${SCRIPTPATH}"/shfunctions.d/gtsetupenvtesting.sh
@@ -127,6 +132,7 @@ else
 		    ;;
 		*)
 		    MSG=msg_append
+		    make_RC_backup
 		    ;;
 		esac
 		if [ "$main_setup_done" == "YES" ]; then
@@ -169,6 +175,7 @@ else
 		  ;;
 		  *)
 		    MSG=msg_append
+		    make_RC_backup
 		  ;;
 		esac
 		if [ "$main_setup_done" == "YES" ]; then

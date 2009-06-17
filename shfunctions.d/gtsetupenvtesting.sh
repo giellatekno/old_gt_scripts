@@ -92,3 +92,7 @@ do_priv_exists () {
         GTPRIV=$GTPARENT/priv
     fi
 }
+
+make_RC_backup () {
+    cp -f $HOME/$RC $HOME/$RC.$BACKUPSUFF
+}
