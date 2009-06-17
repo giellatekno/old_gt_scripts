@@ -39,9 +39,9 @@
 . $GTHOME/gt/script/init.d/lookup-init.sh
 
 # Alias for svn update
-alias svnup="pushd $GTHOME && svn up && popd && \
-			(test -x $GTBIG &&  pushd $GTBIG && svn up && popd ) && \
-			(test -x $GTPRIV && pushd $GTPRIV && svn up && popd)"
+alias svnup="pushd $GTHOME && svn up && popd ; \
+    test -n \"$GTBIG\"  && test -x $GTBIG  && pushd $GTBIG && svn up && popd ; \
+    test -n \"$GTPRIV\" && test -x $GTPRIV && pushd $GTPRIV && svn up && popd"
 
 # Standardised aliases for Giellatekno work:
 alias victorio='ssh victorio.uit.no'
