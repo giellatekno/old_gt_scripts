@@ -85,8 +85,10 @@ display_choose_big_do () {
     if [ "$answer" == "YES" ]; then
 		if `cd $GTPARENT && svn co -q https://victorio.uit.no/biggies/trunk big` ; then
     		link_biggies
-    		echo "" >> $HOME/$RC
-    		echo "$BIGCMD" >> $HOME/$RC
+    		echo "" >> $HOME/$RC.$NEWSUFF
+    		echo "$BIGCMD" >> $HOME/$RC.$NEWSUFF
+            ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$BIGCMD"`
+            RC_CHANGED=YES
             do_login_test
             if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
     		    Result="\n The Biggies part of the Giellatekno resources \
@@ -191,8 +193,10 @@ confirm_big_do () {
     esac
     if [ "$answer" == "YES" ]; then
         link_biggies
-        echo "$BIGCMD" >> $HOME/$RC
-        . $HOME/$RC
+        echo "$BIGCMD" >> $HOME/$RC.$NEWSUFF
+        . $HOME/$RC.$NEWSUFF
+        ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$BIGCMD"`
+        RC_CHANGED=YES
         do_login_test
         if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
             Result="The big section of the Giellatekno

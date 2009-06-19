@@ -57,6 +57,7 @@ esac
 
 # Global variables:
 BACKUPSUFF=gtbackup
+NEWSUFF=gtnew
 
 # source common functions and settings
 source "${SCRIPTPATH}"/shfunctions.d/gtsetupenvtesting.sh
@@ -94,6 +95,10 @@ fi
 if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
     priv_setup_done=YES
 fi
+
+# Variable to record whether the RC file was actually changed:
+RC_CHANGED=NO
+ALL_RC_CHANGES=""
 
 # Look whether $GTHOME was in the ENV.
 # TODO: Test for other sensible things, too. 
@@ -193,6 +198,11 @@ else
             display_setup_priv
         fi
         add_init_command
+		if [ "$RC_CHANGED" == "YES" ]; then
+		  confirm_changes
+		else
+		  undo_setup
+		fi
 	    ;;
     *)
     # Any shell except *csh and bash
@@ -201,8 +211,9 @@ Since you have changed your login shell to $LOGINSHELL,
 I am confident that you know what you are doing.\n
 So now add lines equivalent to
 		
-	GTHOME=$GTHOME
-	export GTHOME
+	export GTHOME=$GTHOME
+	export GTBIG=$GTBIG
+	export GTPRIV=$GTPRIV
 	source \$GTHOME/gt/script/init.d/init.sh
 
 to one of your $LOGINSHELL startup scripts

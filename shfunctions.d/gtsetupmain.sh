@@ -87,10 +87,12 @@ display_choose_do (){
     ;;
     esac
     if [ "$answer" == "YES" ]; then
-	echo "" >> $HOME/$RC
-	echo "$SOURCECMD" >> $HOME/$RC
-	chown $USER $HOME/$RC
-	. $HOME/$RC
+	echo "" >> $HOME/$RC.$NEWSUFF
+	echo "$SOURCECMD" >> $HOME/$RC.$NEWSUFF
+	chown $USER $HOME/$RC.$NEWSUFF
+    ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$SOURCECMD"`
+    RC_CHANGED=YES
+	. $HOME/$RC.$NEWSUFF
 	do_login_test
 	if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
 	    Result="Your Giellatekno setup for the main section should be fine now."
@@ -111,6 +113,8 @@ is resetting the PATH after $RC is executed.
 }
 
 add_init_command () {
-	echo "" >> $HOME/$RC
-	echo "$INITCMD" >> $HOME/$RC
+	echo "" >> $HOME/$RC.$NEWSUFF
+	echo "$INITCMD" >> $HOME/$RC.$NEWSUFF
+    ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$INITCMD"`
+    RC_CHANGED=YES
 }

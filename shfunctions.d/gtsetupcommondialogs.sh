@@ -124,3 +124,108 @@ EOF
     ;;
     esac
 }
+
+msg_confirm () {
+    echo The following additions have been made
+    echo to a **copy** of your $RC file named
+    echo $RC.$NEWSUFF:
+    echo 
+    echo "$ALL_RC_CHANGES"
+    echo 
+    echo Do you want me to apply these changes
+    echo to your current $RC file\?
+    echo
+    echo A backup copy of your original $RC file
+    echo can be found in $HOME/$RC.$BACKUPSUFF
+    echo in case there are problems.
+    echo
+    /bin/echo -n Continue\?
+}
+
+display_confirm () {
+    case $ONCONSOLE in
+        YES)
+        # display choice popup
+           osascript <<-EOF
+           tell application "Finder"
+              activate
+              set userCanceled to false
+              try
+              set dd to display dialog ¬
+              "`msg_title`\n\n`msg_confirm`" ¬
+              buttons {"No, thanks", "YES"} ¬
+              default button 2 cancel button 1¬
+              giving up after 30
+              set UserResponse to button returned of dd
+              on error number -128
+                set userCanceled to true
+              end try
+           end tell
+EOF
+   ;;
+    	NO)
+        # display choice dialog
+            msg_title; echo ""; echo ""
+            msg_confirm
+            /bin/echo -n " [Y/n] "
+            read answer
+            answer=`echo $answer | sed 's/^[yY].*$/y/'`
+            if [ ! -z "$answer" -a "x$answer" != "xy" ]; then
+               answer="No, thanks"
+            else
+                answer="YES"
+            fi
+    ;;
+    esac
+}
+
+confirm_changes () {
+    #display summary dialog:
+    case $ONCONSOLE in
+        YES)
+    answer=`display_confirm`
+    ;;
+	NO)
+    display_confirm
+    ;;
+    esac
+    if [ "$answer" == "YES" ] ; then
+        # replace old RC file with new:
+        mv -f $HOME/$RC.$NEWSUFF $HOME/$RC
+        display_all_done
+    else
+        undo_setup
+    fi
+}
+
+msg_all_done () {
+    echo
+    echo Thanks for running the Giellatekno
+    echo setup script. Everything should be
+    echo ready to start using our language
+    echo technology tools now.
+    echo
+    echo Some useful commands:
+    echo
+    echo makeall.sh - compile all transducers
+    echo "preprocess textfile.txt | usme | less"
+    echo "\t- analyse textfile.txt with the North Sámi transducer"
+    echo
+}
+
+display_all_done (){
+    case $ONCONSOLE in
+        YES)
+    osascript <<-EOF
+    tell application "Finder"
+	activate
+	set dd to display dialog "`msg_title`\n\n`msg_all_done`" buttons {"OK"} default button 1 giving up after 40
+    set UserResponse to button returned of dd
+    end tell
+EOF
+    ;;
+	NO)
+    msg_title; echo""; msg_all_done
+    ;;
+    esac
+}

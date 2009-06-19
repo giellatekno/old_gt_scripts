@@ -95,4 +95,39 @@ do_priv_exists () {
 
 make_RC_backup () {
     cp -f $HOME/$RC $HOME/$RC.$BACKUPSUFF
+    grep -v 'gt/script/init.d/init\..*sh' $HOME/$RC > $HOME/$RC.$NEWSUFF
+}
+
+msg_undo () {
+    echo
+    echo No changes were made. The $RC.$BACKUPSUFF
+    echo and $RC.$NEWSUFF files have been
+    echo deleted. Your $RC file is untouched.
+    echo
+    echo Please rerun the script later, or modify
+    echo your $RC file manually.
+    echo
+}
+
+display_undo (){
+    case $ONCONSOLE in
+        YES)
+    osascript <<-EOF
+    tell application "Finder"
+	activate
+	set dd to display dialog "`msg_title`\n\n`msg_undo`" buttons {"OK"} default button 1 giving up after 20 
+    set UserResponse to button returned of dd
+    end tell
+EOF
+    ;;
+	NO)
+    msg_title; echo""; msg_undo
+    ;;
+    esac
+}
+
+undo_setup () {
+    rm -f $HOME/$RC.$BACKUPSUFF
+    rm -f $HOME/$RC.$NEWSUFF
+    display_undo
 }

@@ -243,8 +243,10 @@ display_choose_priv_do () {
         esac
         if ([ "$username" != "" ] && [ "$password" != "" ]); then
             if `cd $GTPARENT && svn co --username $username --password $password -q https://victorio.uit.no/private/trunk priv` ; then
-                echo "$PRIVCMD" >> $HOME/$RC
-                . $HOME/$RC
+                echo "$PRIVCMD" >> $HOME/$RC.$NEWSUFF
+                ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$PRIVCMD"`
+                RC_CHANGED=YES
+                . $HOME/$RC.$NEWSUFF
                 do_login_test
                 if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
                     Result="The private part of the Giellatekno resources
@@ -316,8 +318,10 @@ confirm_priv_do () {
         ;;
     esac
     if [ "$answer" == "YES" ]; then
-        echo "$PRIVCMD" >> $HOME/$RC
-        . $HOME/$RC
+        echo "$PRIVCMD" >> $HOME/$RC.$NEWSUFF
+        ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$PRIVCMD"`
+        RC_CHANGED=YES
+        . $HOME/$RC.$NEWSUFF
         do_login_test
         if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
             Result="The private section of your Giellatekno setup
