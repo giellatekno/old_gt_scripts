@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # search for either java.lang.OutOfMemoryError or BUILD FAILED
-egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED|Address already in use|Bad Cookie received'  $HOME/trunk/xtdoc/sd/divvun.log
+egrep 'java\.lang\.OutOfMemoryError|BUILD FAILED|Address already in use|Bad Cookie received'  $GTHOME/xtdoc/sd/divvun.log
 #test -e .
 if [ "$?" == "0" ]; then
 	# Find the pid of the processes belonging to forrest started by user sd
-	processes=(`ps aux | grep sd | grep java | grep -v grep | sed -e 's/^sd  *//'|cut -f1 -d" "`)
+	processes=(`ps aux | grep sd | grep java | grep -v grep | sed -e 's/^hoavda  *//'|cut -f1 -d" "`)
 	# Try to quit them nicely
 	i=0
 	last_process=${#processes[*]}
@@ -24,12 +24,12 @@ if [ "$?" == "0" ]; then
 		let i++
 	done
 	sleep 10
-	cd $HOME/trunk/xtdoc/sd
+	cd $GTHOME/xtdoc/sd
 	# Give the current logfile a unique name, to be able to see what went wrong...
 	mv divvun.log divvun.log-`date +%Y-%m-%d:%H%M`
 	# Clean up old files
 	$HOME/forrest/bin/forrest clean
 	# Restart forrest
-	$HOME/forrest/bin/forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $HOME/trunk/xtdoc/sd/divvun.log 2>&1 &
+	$HOME/forrest/bin/forrest run -Dforrest.jvmargs=\"-Djava.awt.headless='true' -Dfile.encoding=utf-8\" > $GTHOME/xtdoc/sd/divvun.log 2>&1 &
 fi
 
