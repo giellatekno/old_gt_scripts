@@ -74,10 +74,10 @@ update_trunk
 
 build_and_copy_site \
 	$HOME/gtsvn/ped \
-	gtuit@giellatekno.uit.no:public_html/oahpa
+	hoavda@giellatekno.uit.no:Public/giellatekno/oahpa
 	
 build_and_copy_site \
 	$HOME/gtsvn/xtdoc/gtuit \
-	gtuit@giellatekno.uit.no:public_html
+	hoavda@giellatekno.uit.no:Public/giellatekno
 
 echo "Done updating giellatekno:-)!"
