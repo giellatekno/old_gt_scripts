@@ -29,7 +29,6 @@ nice time make TARGET=sms
 echo ""
 echo "===>     Kildin Sámi     <==="
 nice time make TARGET=sjd
-cd $GTHOME/st/fao/src
 echo ""
 echo "===>      Pite Sámi      <==="
 nice time make TARGET=sje
