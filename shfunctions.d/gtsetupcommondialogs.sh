@@ -10,7 +10,7 @@ msg_title () {
 
 msg_create () {
     echo I will create a file named $RC in your
-    echo home directory, containing the lines:
+    echo home directory, containing the line:
     echo
     case $ONCONSOLE in
         YES)
@@ -23,7 +23,7 @@ msg_create () {
 }
 
 msg_append () {
-    echo I will append the lines:
+    echo I will append the line:
     echo
     case $ONCONSOLE in 
 	YES)
@@ -34,7 +34,10 @@ msg_append () {
     ;;
     esac
     echo
-    echo to the file $RC in your home directory.
+    echo to a copy of the file $RC in your home directory.
+    echo All additions to this file will be reviewed
+    echo at the end of the setup process before they
+    echo are ported back to the real $RC file.
 }		       
 
 display_result () {

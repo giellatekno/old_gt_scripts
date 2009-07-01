@@ -96,7 +96,7 @@ display_choose_big_do () {
 have been checked out in $GTPARENT/big.\n\
 \n\
 I also added symbolic links within some language dirs to corpus \
-resources for testing purposes. Check out gt/LANG/zcorp/."
+resources for testing purposes. Check out gt/LANG/zcorp/.\n\n"
             else
                 Result="\nThe biggies part of the Giellatekno resources
 have been checked out in $GTBIG,
