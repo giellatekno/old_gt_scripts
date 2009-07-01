@@ -162,11 +162,15 @@ EOF
 msg_ask_password () {
     echo Please provide your password.
     echo
+    case $ONCONSOLE in
+        YES)
     echo If you mistype the password, you will
     echo have to retype it on the command line
     echo from where you started this setup script.
     echo
-    echo Also note that you need to be patient.
+    ;;
+    esac
+    echo Note that you need to be patient.
     echo Checking out can take a lot of time,
     echo depending on your network connection,
     echo trafic, etc.
@@ -250,11 +254,7 @@ display_choose_priv_do () {
                 do_login_test
                 if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
                     Result="The private part of the Giellatekno resources
-have been checked out in $GTPRIV.
-
-Also \$GTPRIV has been added to your $RC file.
-
-Your Giellatekno setup should be fine now.\n\n"
+have been checked out in $GTPRIV.\n\n"
                 else
                     Result="The private part of the Giellatekno resources
 have been checked out in $GTPARENT/priv, but something went wrong when setting up \$GTPRIV.

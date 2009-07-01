@@ -89,21 +89,24 @@ display_choose_big_do () {
     		echo "$BIGCMD" >> $HOME/$RC.$NEWSUFF
             ALL_RC_CHANGES=`echo "$ALL_RC_CHANGES\n$BIGCMD"`
             RC_CHANGED=YES
+        	. $HOME/$RC.$NEWSUFF
             do_login_test
             if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
-    		    Result="\n The Biggies part of the Giellatekno resources \
+    		    Result="\n The Biggies part of the Giellatekno resources
 have been checked out in $GTPARENT/big.\n\
 \n\
 I also added symbolic links within some language dirs to corpus \
 resources for testing purposes. Check out gt/LANG/zcorp/."
             else
-                Result="The biggies part of the Giellatekno resources
-have been checked out in $GTBIG, but something went wrong when setting up \$GTBIG.
+                Result="\nThe biggies part of the Giellatekno resources
+have been checked out in $GTBIG,
+but something went wrong when setting
+up \$GTBIG.
 
 Please add text equivalent to the
 following to your $RC file:
 
-export GTBIG=$GTBIG"
+export GTBIG=$GTBIG\n\n"
             fi
 		else
 		    Result="\n

@@ -95,7 +95,8 @@ display_choose_do (){
 	. $HOME/$RC.$NEWSUFF
 	do_login_test
 	if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
-	    Result="Your Giellatekno setup for the main section should be fine now."
+	    Result="Your Giellatekno setup for the main
+section should be fine now.\n\n"
 	else
 	    Result="\n
 Hmm. I tried my best, but it still does not work.
