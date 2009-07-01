@@ -35,17 +35,17 @@ nice time make TARGET=sje
 echo "===>                    <===" 
 echo "===>   Other languages  <===" 
 echo "===>                    <===" 
-cd $GTHOME/st/fao/src
 echo ""
 echo "===>       Faroese       <===" 
+cd $GTHOME/st/fao/src
 nice time make
-cd $GTHOME/st/kal/src
 echo ""
 echo "===>     Greenlandic     <===" 
+cd $GTHOME/st/kal/src
 nice time make TARGET=sloppy
-cd $GTHOME/st/nob/src
 echo ""
 echo "===>      Bokmål      <===" 
+cd $GTHOME/st/nob/src
 nice time make
 echo ""
 echo "===>    Nynorsk       <===" 
@@ -55,81 +55,82 @@ echo ""
 echo "===>    Old Norse     <===" 
 cd $GTHOME/st/non/src
 nice time make
-cd $GTHOME/st/ces/src
 echo ""
 echo "===>    Czech     <===" 
+cd $GTHOME/st/ces/src
 nice time make
-cd $GTHOME/st/deu/src
 echo ""
 echo "===>    German    <===" 
+cd $GTHOME/st/deu/src
 nice time make
-cd $GTHOME/st/amh/src
 echo ""
 echo "===>    Amharic   <===" 
+cd $GTHOME/st/amh/src
 nice time make
-cd $GTHOME/st/eng/src
 echo ""
 echo "===>    English      <===" 
+cd $GTHOME/st/eng/src
 nice time make
-cd $GTHOME/st/cor/src
 echo ""
 echo "===>    Cornish   <===" 
+cd $GTHOME/st/cor/src
 nice time make
-cd $GTHOME/st/ipk/src
 echo ""
 echo "===>     Iñupiaq     <===" 
+cd $GTHOME/st/ipk/src
 nice time make
-cd $GTHOME/st/iku/src
 echo ""
 echo "===>     Inuktitut     <===" 
+cd $GTHOME/st/iku/src
 nice time make
 echo "===>                    <===" 
 echo "===>  Bilingual transd. <===" 
 echo "===>                    <===" 
+echo "===>   North Sámi - Lule Sámi  <===" 
 cd $GTHOME/words/dicts/smesmj/src
+nice time make
 echo ""
 echo "===>     Dictionaries   <===" 
-nice time make
-cd $GTHOME/words/dicts/smenob
 echo ""
 echo "===>   North Sámi - Norwegian   <===" 
+cd $GTHOME/words/dicts/smenob
 nice time make
-cd $GTHOME/words/dicts/kaleng/src/
 echo ""
 echo "===>   Greenlandic - English   <===" 
+cd $GTHOME/words/dicts/kaleng/src/
 nice time make
-cd $GTHOME/words/dicts/kaldan/
 echo ""
 echo "===>   Greenlandic - Danish   <===" 
+cd $GTHOME/words/dicts/kaldan/
 nice time make
 
-cd $GTHOME/words/dicts/smi/geo/src/
 echo ""
 echo "===>   Geographic fst   <===" 
+cd $GTHOME/words/dicts/smi/geo/src/
 nice time make
-cd $GTHOME/kvensk/fkvnob/
 echo ""
 echo "===>   Kven - Norwegian   <===" 
+cd $GTHOME/kvensk/fkvnob/
 nice time make
-cd $GTHOME/kvensk/nobfkv/
 echo ""
 echo "===>   Norwegian - Kven   <===" 
+cd $GTHOME/kvensk/nobfkv/
 nice time make
-cd $GTHOME/kvensk/fitswe/
 echo ""
 echo "===>   Meänkieli - Swedish   <===" 
+cd $GTHOME/kvensk/fitswe/
 nice time make 
-cd $GTHOME/kvensk/swefit
 echo ""
 echo "===>   Swedish - Meänkieli   <===" 
+cd $GTHOME/kvensk/swefit
 nice time make
 echo "===>                    <===" 
 echo "===> Other FU languages <===" 
 echo "===>                    <===" 
-cd $GTHOME/kt/fin/src
 echo "===>               <==="
 echo "===>     Finnish   <===" 
 echo "===>               <==="
+cd $GTHOME/kt/fin/src
 nice time make
 #cd $GTHOME/kt/kom/src
 # For some reason, the Makefile timing does not work here. Have a look.
