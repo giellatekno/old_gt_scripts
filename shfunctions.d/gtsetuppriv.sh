@@ -257,12 +257,13 @@ display_choose_priv_do () {
 have been checked out in $GTPRIV.\n\n"
                 else
                     Result="The private part of the Giellatekno resources
-have been checked out in $GTPARENT/priv, but something went wrong when setting up \$GTPRIV.
+have been checked out in $GTPARENT/priv,
+but something went wrong when setting up \$GTPRIV.
 
 Please add text equivalent to the
 following to your $RC file:
 
-export GTPRIV=$GTPRIV"
+export GTPRIV=$GTPRIV\n\n"
                 fi
             else
                 Result="Something went wrong when checking out the private
@@ -273,14 +274,14 @@ cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv"
             
         else
             Result="You bailed out. Please rerun this
-script later to complete the setup."
+script later to complete the setup.\n\n"
         fi
     else
         Result="OK, as you wish. You are on your own. Good luck.
 
 If you want to do it later manually, use this command:
 
-cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv" 
+cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv\n\n"
     fi
     display_result
 }
@@ -325,17 +326,17 @@ confirm_priv_do () {
         do_login_test
         if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
             Result="The private section of your Giellatekno setup
-            should be fine now."
+should be fine now.\n\n"
         else
             Result="Something went wrong when setting up \$GTPRIV.
 
 Please add text equivalent to the
 following to your $RC file:
         
-export GTPRIV=$GTPRIV"
+export GTPRIV=$GTPRIV\n\n"
         fi
     else
-        Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+        Result="OK, as you wish.\nYou are on your own. Good luck\n\n"
     fi
     display_result
 }
