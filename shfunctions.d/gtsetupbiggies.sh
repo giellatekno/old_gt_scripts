@@ -204,14 +204,14 @@ confirm_big_do () {
         do_login_test
         if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
             Result="The big section of the Giellatekno
-            setup should be fine now."
+setup should be fine now.\n\n"
         else
-            Result="Something went wrong when setting up \$GTPRIV.
+            Result="Something went wrong when setting up \$GTBIG.
 
 Please add text equivalent to the
 following to your $RC file:
         
-export GTBIG=$GTBIG"
+export GTBIG=$GTBIG\n\n"
         fi
     else
         Result="OK, as you wish.\nYou are on your own. Good luck\n" 
