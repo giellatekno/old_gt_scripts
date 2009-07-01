@@ -212,9 +212,9 @@ msg_all_done () {
     echo
     echo makeall.sh - compile all transducers
     echo "preprocess textfile.txt | usme | less"
-    echo "\t  - analyse textfile.txt with the North Sámi transducer"
-    echo "svnup - update all Giellatekno svn"
-    echo "\t\tworking copies in one batch, from whereever you are."
+    echo "\t   - analyse textfile.txt with the North Sámi transducer"
+    echo "svnup\t - update all Giellatekno svn"
+    echo "\tworking copies in one batch, from whereever you are."
     echo
 }
 
