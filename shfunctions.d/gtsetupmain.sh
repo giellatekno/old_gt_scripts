@@ -98,17 +98,16 @@ display_choose_do (){
 	    Result="Your Giellatekno setup for the main
 section should be fine now.\n\n"
 	else
-	    Result="\n
+	    Result="
 Hmm. I tried my best, but it still does not work.
 The code I put into $RC has no effect.\n
 Please check your $LOGINSHELL startup scripts.
 Perhaps some other file like\n
 	    ~/.login\n
-is resetting the PATH after $RC is executed.
-		   \n"
+is resetting the PATH after $RC is executed.\n\n"
 	fi		    
     else
-	Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+	Result="OK, as you wish.\nYou are on your own. Good luck\n\n"
     fi
     display_result
 }

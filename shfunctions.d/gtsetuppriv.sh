@@ -269,7 +269,7 @@ export GTPRIV=$GTPRIV\n\n"
                 Result="Something went wrong when checking out the private
 repository. Please try to run this command manually:
 
-cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv"
+cd $GTPARENT && svn co https://victorio.uit.no/private/trunk priv\n\n"
             fi
             
         else

@@ -92,14 +92,14 @@ display_choose_big_do () {
         	. $HOME/$RC.$NEWSUFF
             do_login_test
             if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
-    		    Result="\n The Biggies part of the Giellatekno resources
-have been checked out in $GTPARENT/big.\n\
-\n\
+    		    Result="The Biggies part of the Giellatekno resources
+have been checked out in $GTPARENT/big.
+
 I also added symbolic links within some language
 dirs to corpus resources for testing purposes.
 Check out gt/LANG/zcorp/.\n\n"
             else
-                Result="\nThe biggies part of the Giellatekno resources
+                Result="The biggies part of the Giellatekno resources
 have been checked out in $GTBIG,
 but something went wrong when setting
 up \$GTBIG.
@@ -110,15 +110,13 @@ following to your $RC file:
 export GTBIG=$GTBIG\n\n"
             fi
 		else
-		    Result="\n
-Something went wrong when checking out the biggies
-repository. Please try to run this command manually:\n
-\n
-cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big\n
-\n"
+		    Result="Something went wrong when checking out the biggies
+repository. Please try to run this command manually:
+
+cd "$GTPARENT" && svn co https://victorio.uit.no/biggies/trunk big\n\n"
 		fi		    
     else
-		Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+		Result="OK, as you wish.\nYou are on your own. Good luck\n\n"
     fi
     display_result
 }
@@ -214,7 +212,7 @@ following to your $RC file:
 export GTBIG=$GTBIG\n\n"
         fi
     else
-        Result="OK, as you wish.\nYou are on your own. Good luck\n" 
+        Result="OK, as you wish.\nYou are on your own. Good luck\n\n" 
     fi
     display_result
 }
