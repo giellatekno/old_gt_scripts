@@ -1,12 +1,11 @@
 #!/bin/sh
 
-
-# File to run all our complation
-# processes. Pick and uncomment at will.
+# File to run all our compilation
+# processes.
 echo ""
 echo " This script will compile all our analysers and lexica "
 echo ""
-pushd
+pushd .
 cd $GTHOME/gt
 echo "===>                    <===" 
 echo "===>   Sámi languages   <===" 

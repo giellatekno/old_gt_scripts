@@ -1,12 +1,11 @@
 #!/bin/sh
 
-
-# File to run all our complation
-# processes. Pick and uncomment at will.
+# File to clean all generated files produced
+# during compilation.
 echo ""
-echo " This script will compile all our analysers and lexica "
+echo " This script will all generated files from all our langauges. "
 echo ""
-pushd
+pushd .
 cd $GTHOME/gt
 echo "===>                    <===" 
 echo "===>   Sámi languages   <===" 
