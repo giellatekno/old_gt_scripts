@@ -1,0 +1,60 @@
+
+Some ideas/proposals for possible restructuring of the script directory:
+
+1. General issues:
+
+   1.1. moving all scripts which are not language related out of the lanuguage individual dirs to the script-dir
+          - e.g., routines from the testing dir
+
+   1.2. sticking to transparent name convention rules for naming files
+          - e.g., "parse_cg_sme.sh"  (what? --> parse; which formalism? --> cg; for which language? --> sme) instead of "cealkka2"    
+          - since the toolse might be used by other groups than ours, I would suggest to use English names.
+
+   1.3 when restructuring, we should take into accout the fact that we want to merge also the language dirs (gt and st)
+
+
+2. Action points:
+
+   2.1. check the usability of the files marked with "NULL" in the scripts/00_README.txt file and if not needed delete 
+
+   2.2. usage-based script restructuring
+
+       A. language scripts/tools 
+
+         2.2.1. general scripts (scripts usable in at least two different tasks, e.g., language guesser)
+   
+         2.2.2. preprocessing, corpus acquisition, 
+
+         2.2.3 word-level processing: acquisition of new words from corpus (should be automatized), FST
+
+	 2.2.4 sentence-level: parsing, sentence alignment, etc. 
+
+        2.2.5 Machine Translation 
+
+        2.2.6. Spellchecking
+
+        2.2.7. Text-to-Speech
+
+       2.2.8. dictionaries, terminology work
+
+    B. infrastructure scripts/tools
+
+       2.2.9 web-related scripts: php, cgi
+
+       2.2.10 other admin routines (e.g., restart_divvun)
+
+
+
+   2.3 moving tools (language guesser itself plus its resources, Saami XML parser) to the src directory
+         - here we should differentiate bewteen tools implemented by ourselves and tools whose source code we got and can modify
+
+         - in the script dir, we could have only "scripts", i.e., routines that not need compilation
+
+This means that there are five places where language tools can reside:
+ - nonlocally: e.g., on victorio
+ - installed somewhere outside gtsvn
+ - in gtsvn/src
+ - in gtsvn/gt/script (this would be moved up to gtsvn after the merging of gt and st)
+ - in some domain-specific directory
+
+
