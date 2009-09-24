@@ -9,6 +9,7 @@ import glob
 import shutil
 import time
 import re
+import getopt
 
 class StaticSiteBuilder:
     """This class is used to build a static version of the divvun site.
