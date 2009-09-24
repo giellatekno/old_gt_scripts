@@ -86,16 +86,16 @@ class StaticSiteBuilder:
         except OSError, e:
             print >>sys.stderr, "OSError"
             print >>sys.stderr, e
-            self.logfile.writelines("OSError")
-            self.logfile.writelines(e)
+            self.logfile.writelines("OSError\n")
+            self.logfile.writelines(str(e) + "\n")
             self.logfile.writelines(output)
             self.logfile.writelines(error)
             raise SystemExit(2)
         except NameError, e:
             print >>sys.stderr, "NameError"
             print >>sys.stderr, e
-            self.logfile.writelines("NameError")
-            self.logfile.writelines(e)
+            self.logfile.writelines("NameError\n")
+            self.logfile.writelines(str(e) + "\n")
             self.logfile.writelines(output)
             self.logfile.writelines(error)
             raise SystemExit(3)
@@ -110,10 +110,13 @@ class StaticSiteBuilder:
         try:
             f = open(os.path.join(self.builddir, "forrest.properties.build"), 'r')
             content = f.read()
-            content = content.replace("user.language=nb", "user.language=" + lang)
+            content = content.replace("user.language=se", "user.language=" + lang)
             f.close()
         except IOError:
             print >>sys.stderr, e
+            self.logfile.write("Problems when reading content in forrest.properties.build")
+            self.logfile.write("IOError\n")
+            self.logfile.write(str(e) + "\n")
             raise SystemExit(2)
         
         try:
@@ -122,6 +125,10 @@ class StaticSiteBuilder:
             f.close()
         except IOError:
             print >>sys.stderr, e
+            self.logfile.write("Problems when writing content to forrest.properties")
+            self.logfile.write("IOError\n")
+            self.logfile.write(str(e) + "\n")
+            raise SystemExit(2)
 
     def find_langspecific_files(self, lang):
         """Find the files that are translated in the forrest documentation 
@@ -197,7 +204,8 @@ class StaticSiteBuilder:
                             fromfile.close()
                             # we are looking for "?locale=.*"
                             # .* is the lang
-                            # should be changed to $lang/basename + .html
+                            # which then should be changed to
+                            # $lang/basename + .html
                             matches = search_pattern.findall(input)
                             for match in matches:
                                 # match group() gives ?locale=lang"
