@@ -233,7 +233,7 @@ def main():
 
     #args = sys.argv[1:]
     langs = ["en", "fi", "nb", "se", "sma", "smj", "sv"]
-    builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/langbuild/sd"))
+    builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/sd"))
     
     for lang in langs:
         builder.find_langspecific_files(lang)
