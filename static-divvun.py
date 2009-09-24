@@ -56,7 +56,8 @@ class StaticSiteBuilder:
         self.setlang(lang)
 
         print "Cleaning up"
-        subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp = subprocess.Popen(["forrest", "clean"], stdout=self.logfile, stderr=self.logfile)
+        subp.wait()
         
         print "Validating..."
         subp = subprocess.Popen(["forrest", "validate"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -75,11 +76,9 @@ class StaticSiteBuilder:
                 raise SystemExit(subp.returncode)
         
         print "Building", lang, "..."
-        (output,error) = subprocess.Popen(["forrest", "site"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile).communicate()
         if subp.returncode == 1:
             print >>sys.stderr, "Linking errors detected\n"
-            self.logfile.writelines(output)
-            self.logfile.writelines(error)
 
         try:
             os.rename(os.path.join(self.builddir, "build/site"), os.path.join(self.builddir, "built/" + lang)) 
@@ -88,16 +87,12 @@ class StaticSiteBuilder:
             print >>sys.stderr, e
             self.logfile.writelines("OSError\n")
             self.logfile.writelines(str(e) + "\n")
-            self.logfile.writelines(output)
-            self.logfile.writelines(error)
             raise SystemExit(2)
         except NameError, e:
             print >>sys.stderr, "NameError"
             print >>sys.stderr, e
             self.logfile.writelines("NameError\n")
             self.logfile.writelines(str(e) + "\n")
-            self.logfile.writelines(output)
-            self.logfile.writelines(error)
             raise SystemExit(3)
 
         print "Done building ", lang
