@@ -183,13 +183,13 @@ class StaticSiteBuilder:
             basename = lang_specific_file.split(".")[-3]
 
             for file_type in [".html", ".pdf"]:
-                fromfile = os.path.join(self.builddir, "built/" + lang + "/" + basename + file_type)
-                tofile = os.path.join(self.builddir, "built/en/" + basename + file_type + "." + lang)
+                fromname = os.path.join(self.builddir, "built/" + lang + "/" + basename + file_type)
+                toname = os.path.join(self.builddir, "built/en/" + basename + file_type + "." + lang)
                 
-                if os.path.exists(fromfile):
+                if os.path.exists(fromname):
                     if file_type == ".pdf":
                         try:
-                            shutil.copyfile(fromfile, tofile)
+                            shutil.copyfile(fromname, toname)
                         except IOError, e:
                             print >>sys.stderr, e
                     else:
@@ -201,14 +201,15 @@ class StaticSiteBuilder:
                             # .* is the lang
                             # which then should be changed to
                             # $lang/basename + .html
-                            matches = search_pattern.findall(input)
+                            matches = search_pattern.findall(content)
                             for match in matches:
-                                # match group() gives ?locale=lang"
-                                # match group()[:-1] gives ?locale=lang
+                                # match is ?locale=lang"
+                                # match[:-1] gives ?locale=lang
                                 # split gives [?locale, lang]
                                 # [1] gives lang
-                                lang = match.group()[:-1].split('=')[1]
-                                content = content.replace(match.group()[:-1],  '/' + lang + '/' + basename + '.html')
+                                lang = match[:-1].split('=')[1]
+                                content = content.replace(match[:-1],  '/' + lang + '/' + basename + '.html')
+                            tofile = open(toname, "w")
                             tofile.write(content)
                             tofile.close()
                         except IOError, e:
