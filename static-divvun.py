@@ -177,7 +177,7 @@ class StaticSiteBuilder:
         Not all translated files in the forrest tree is converted to html,
         so if a file doesn't exist in the generated site, log the errors.
         """
-        search_pattern = re.compile('\?locale=.+"')
+        search_pattern = re.compile('\?locale=.+" ')
         for lang_specific_file in self.lang_specific_files:
             lang = lang_specific_file.split(".")[1:2][0]
             basename = lang_specific_file.split(".")[-3]
@@ -203,12 +203,12 @@ class StaticSiteBuilder:
                             # $lang/basename + .html
                             matches = search_pattern.findall(content)
                             for match in matches:
-                                # match is ?locale=lang"
-                                # match[:-1] gives ?locale=lang
+                                # match is '?locale=lang" '
+                                # match[:-2] gives ?locale=lang
                                 # split gives [?locale, lang]
                                 # [1] gives lang
-                                lang = match[:-1].split('=')[1]
-                                content = content.replace(match[:-1],  '/' + lang + '/' + basename + '.html')
+                                lang = match[:-2].split('=')[1]
+                                content = content.replace(match[:-2],  '/' + lang + '/' + basename + '.html')
                             tofile = open(toname, "w")
                             tofile.write(content)
                             tofile.close()
