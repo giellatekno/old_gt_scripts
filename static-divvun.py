@@ -81,7 +81,7 @@ class StaticSiteBuilder:
             print >>sys.stderr, "Linking errors detected\n"
 
         try:
-            os.rename(os.path.join(self.builddir, "build/site"), os.path.join(self.builddir, "built/" + lang)) 
+            os.rename(os.path.join(self.builddir, "build/site/en"), os.path.join(self.builddir, "built/" + lang)) 
         except OSError, e:
             print >>sys.stderr, "OSError"
             print >>sys.stderr, e
