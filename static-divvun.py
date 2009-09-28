@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""TODO: Store all files linked to in site*.xml and tab*.xml. Compare these and the files collected from source. Build only those present in both places."""
+
 """This script builds a multilingual forrest site."""
 import subprocess
 import os
@@ -34,6 +36,8 @@ class StaticSiteBuilder:
         
         os.rename(os.path.join(self.builddir, "forrest.properties"), os.path.join(self.builddir, "forrest.properties.build"))
 
+        os.environ['LC_ALL'] = "C"
+
         self.lang_specific_files = []
         print "Done with setup"
 
@@ -44,28 +48,15 @@ class StaticSiteBuilder:
         os.rename(os.path.join(self.builddir, "forrest.properties.build"), os.path.join(self.builddir, "forrest.properties"))
         self.logfile.close()
 
-    def buildsite(self, lang):
-        """Builds a site in the specified language
-        Clean up the build files
-        Validate files. If they don't validate, exit program
-        Build site. stdout and stderr are stored in output and error,
-        respectively.
-        If we aren't able to rename the built site, exit program
-        """
-        os.chdir(self.builddir)
-        self.setlang(lang)
-
-        print "Cleaning up"
-        subp = subprocess.Popen(["forrest", "clean"], stdout=self.logfile, stderr=self.logfile)
-        subp.wait()
-        
+    def validate(self):
         print "Validating..."
+        os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "validate"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
 
         if subp.returncode == 1:
             
-            if error.find("Could not validate document") > -1:
+            if "Could not validate document" in error:
                 
                 print >>sys.stderr, "\n\nCould not validate doc\n\n"
                 self.logfile.writelines(output)
@@ -75,8 +66,19 @@ class StaticSiteBuilder:
             
                 raise SystemExit(subp.returncode)
         
+    def buildsite(self, lang):
+        """Builds a site in the specified language
+        Clean up the build files
+        Validate files. If they don't validate, exit program
+        Build site. stdout and stderr are stored in output and error,
+        respectively.
+        If we aren't able to rename the built site, exit program
+        """
+        os.chdir(self.builddir)
+
         print "Building", lang, "..."
-        subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile).communicate()
+        subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
+        subp.wait()
         if subp.returncode == 1:
             print >>sys.stderr, "Linking errors detected\n"
 
@@ -103,10 +105,7 @@ class StaticSiteBuilder:
         Exit if an IOError occurs
         """
         try:
-            f = open(os.path.join(self.builddir, "forrest.properties.build"), 'r')
-            content = f.read()
-            content = content.replace("user.language=se", "user.language=" + lang)
-            f.close()
+            inproperties = open(os.path.join(self.builddir, "forrest.properties.build"), 'r')
         except IOError:
             print >>sys.stderr, e
             self.logfile.write("Problems when reading content in forrest.properties.build")
@@ -115,9 +114,7 @@ class StaticSiteBuilder:
             raise SystemExit(2)
         
         try:
-            f = open(os.path.join(self.builddir, "forrest.properties"), 'w')
-            f.writelines(content)
-            f.close()
+            outproperties = open(os.path.join(self.builddir, "forrest.properties"), 'w')
         except IOError:
             print >>sys.stderr, e
             self.logfile.write("Problems when writing content to forrest.properties")
@@ -125,6 +122,28 @@ class StaticSiteBuilder:
             self.logfile.write(str(e) + "\n")
             raise SystemExit(2)
 
+        incontent = inproperties.readlines()
+        
+        search_pattern = re.compile("user.language=\w{1,3}")
+
+        for line in incontent:
+            if "jvmargs" in line:
+                "Replace or add content"
+                
+                match = search_pattern.search(line).group()
+                if match:
+                    line = line.replace(match, "user.language=" + lang)
+                else:
+                    line = line[:-1] + " -Duser.language=" + lang + "\n"
+                
+                if line[0] == "#":
+                    line = line[1:]
+
+            outproperties.write(line)
+
+        inproperties.close()
+        outproperties.close()
+                
     def find_langspecific_files(self, lang):
         """Find the files that are translated in the forrest documentation 
         tree. Compute the relative path (which will be seen in the web browser)
@@ -239,14 +258,17 @@ def main():
     #args = sys.argv[1:]
     langs = ["en", "fi", "nb", "se", "sma", "smj", "sv"]
     builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/sd"))
+
+    builder.validate()
     
     for lang in langs:
+        builder.setlang(lang)
         builder.find_langspecific_files(lang)
         builder.buildsite(lang)
 
     builder.move_lang_specific_files()
     builder.rename_and_link_english_files()
-        
+
 
 if __name__ == "__main__":
     main()
