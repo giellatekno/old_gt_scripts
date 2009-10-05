@@ -63,6 +63,10 @@ echo "===>    German    <==="
 cd $GTHOME/st/deu/src
 nice time make
 echo ""
+echo "===>    Guaraní    <===" 
+cd $GTHOME/st/grn/src
+nice time make
+echo ""
 echo "===>    Amharic   <===" 
 cd $GTHOME/st/amh/src
 nice time make
