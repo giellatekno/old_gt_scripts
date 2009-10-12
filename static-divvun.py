@@ -7,7 +7,6 @@
 import subprocess
 import os
 import sys
-import glob
 import shutil
 import time
 import re
@@ -29,8 +28,8 @@ class StaticSiteBuilder:
         
         if os.path.isdir(os.path.join(self.builddir, "built")):
            shutil.rmtree(os.path.join(self.builddir, "built"))
-        else:
-           os.mkdir(os.path.join(self.builddir, "built"))
+        
+        os.mkdir(os.path.join(self.builddir, "built"))
 
         self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
         
