@@ -47,7 +47,7 @@ alias svnup="pushd $GTHOME && svn up && popd ; \
 alias victorio='ssh victorio.uit.no'
 alias vic='ssh victorio.uit.no'
 alias g5='ssh divvun.no'
-alias xs='ssh 129.242.220.111'
+alias xs='ssh divvun.no'
 
 # forrest run port 8 og 9
 alias f8="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8\""
