@@ -58,7 +58,7 @@ build_and_copy_site()
 	if [ "$?"  == "0" ]
 	then
 		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
-		cd build/site
+		cd $BUILDDIR/build/site
 		# Fix defective utf-8 characters
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'
