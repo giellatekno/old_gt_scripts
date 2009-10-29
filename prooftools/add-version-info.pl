@@ -54,6 +54,12 @@ if ( $language eq 'sme' ) {
 elsif ( $language eq 'smj' ) {
 	$langstring = "Julevsáme, ";
 }
+elsif ( $language eq 'sma' ) {
+	$langstring = "Åarjelsaemien, ";
+}
+else
+	$langstring = "No langauge, ";
+}
 
 # Read the version info from the specified file
 open (FH, "$versionfile") or die "Cannot open $versionfile $!";
