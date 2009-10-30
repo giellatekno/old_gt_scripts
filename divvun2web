@@ -26,16 +26,16 @@ PATH=$PATH:$FORREST_HOME/bin
 update_trunk()
 {
     cd
-    if ! [ -x $GTHOME ]; then
-	svn co https://victorio.uit.no/langtech/trunk gtsvn
-	svn co https://victorio.uit.no/biggies/trunk big
+    if ! [ -x $HOME/gtsvn ]; then
+        svn co https://victorio.uit.no/langtech/trunk gtsvn
+        svn co https://victorio.uit.no/biggies/trunk big
     else
-	cd $GTHOME
-	echo "*** $GTHOME ***"
-	svn up
-	cd $GTBIG
-	echo "*** $GTBIG ***"
-	svn up
+        cd $HOME/gtsvn
+        echo "*** $HOME/gtsvn this is $GTHOME***"
+        svn up
+        cd $HOME/big
+        echo "*** $HOME/big this is $GTBIG ***"
+        svn up
     fi
 }
 
@@ -77,11 +77,11 @@ build_and_copy_site()
 update_trunk
 
 build_and_copy_site \
-	$GTHOME/ped \
+	$HOME/gtsvn/ped \
 	gtuit@giellatekno.uit.no:Sites/oahpa
 	
 build_and_copy_site \
-	$GTHOME/xtdoc/gtuit \
+	$HOME/gtsvn/xtdoc/gtuit \
 	gtuit@giellatekno.uit.no:Sites
 
 echo "Done updating giellatekno:-)!"
