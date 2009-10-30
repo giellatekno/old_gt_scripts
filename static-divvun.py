@@ -24,6 +24,7 @@ class StaticSiteBuilder:
             lang_specific_file: keeps trace of which files are localized
         """
         print "Setting up..."
+        print builddir
         self.builddir = builddir
         
         if os.path.isdir(os.path.join(self.builddir, "built")):
@@ -80,21 +81,6 @@ class StaticSiteBuilder:
         subp.wait()
         if subp.returncode == 1:
             print >>sys.stderr, "Linking errors detected\n"
-
-        try:
-            os.rename(os.path.join(self.builddir, "build/site/en"), os.path.join(self.builddir, "built/" + lang)) 
-        except OSError, e:
-            print >>sys.stderr, "OSError"
-            print >>sys.stderr, e
-            self.logfile.writelines("OSError\n")
-            self.logfile.writelines(str(e) + "\n")
-            raise SystemExit(2)
-        except NameError, e:
-            print >>sys.stderr, "NameError"
-            print >>sys.stderr, e
-            self.logfile.writelines("NameError\n")
-            self.logfile.writelines(str(e) + "\n")
-            raise SystemExit(3)
 
         print "Done building ", lang
 
@@ -159,83 +145,58 @@ class StaticSiteBuilder:
                 if langfile.find("." + lang + ".") > 1:
                     self.lang_specific_files.append(os.path.join(part_path, langfile))
 
-    def rename_and_link_english_files(self):
-        """Search for files ending with html and pdf in the en site. Give all
-        the files the ending .en. Do also make a symbolic link to this file
-        using all the other language endings, except if a real file already
-        exists.
+    def rename_site_files(self, lang):
+        """Search for files ending with html and pdf in the build site. Give all
+        these files the ending '.lang'. Move them to the 'built' dir
         """
-        tree = os.walk(os.path.join(self.builddir, "built/en"))
+        langdir = os.path.join(self.builddir, "build/site/en")
+        builtdir = os.path.join(self.builddir, "built")
+        tree = os.walk(os.path.join(langdir))
 
         for leafs in tree:
-            #print leafs
+            olddir = leafs[0]
+            newdir = leafs[0].replace(langdir, builtdir)
+            print "newdir", newdir
+            if newdir != builtdir:
+                try:
+                    os.mkdir(newdir)
+                except OSError, e:
+                    print e
+                    pass
+
             files = leafs[2]
             for htmlpdf_file in files:
-                #print htmlpdf_file
-                if htmlpdf_file.endswith((".html", ".pdf")):
-                    fullname = os.path.join(leafs[0], htmlpdf_file)
-                    #print fullname, fullname + '.' + "en"
-                    os.rename(fullname, fullname + ".en")
-                    for lang in ["fi", "nb", "se", "sma", "smj", "sv"]:
-                        try:
-                            os.symlink(fullname + '.' + "en", fullname + '.' + lang)
-                        except OSError:
-                            #print fullname + '.' + lang, "already exists, skipping linking."
-                            pass
-
-
-    def move_lang_specific_files(self):
-        """Move the files that really are translated from the language
-        specific sites to en. We use the files found in the forrest tree
-        to pick these files.
-        Go through all the names in self.lang_specific_files.
-        Find which language we should lookup
-        Get the basename of the file
-        Search for files ending with html or pdf
-        Not all translated files in the forrest tree is converted to html,
-        so if a file doesn't exist in the generated site, log the errors.
-        """
-        search_pattern = re.compile('\?locale=.+" ')
-        for lang_specific_file in self.lang_specific_files:
-            lang = lang_specific_file.split(".")[1:2][0]
-            basename = lang_specific_file.split(".")[-3]
-
-            for file_type in [".html", ".pdf"]:
-                fromname = os.path.join(self.builddir, "built/" + lang + "/" + basename + file_type)
-                toname = os.path.join(self.builddir, "built/en/" + basename + file_type + "." + lang)
+                print htmlpdf_file
+                newname = htmlpdf_file
                 
-                if os.path.exists(fromname):
-                    if file_type == ".pdf":
-                        try:
-                            shutil.copyfile(fromname, toname)
-                        except IOError, e:
-                            print >>sys.stderr, e
-                    else:
-                        try:
-                            fromfile = open(fromname)
-                            content = fromfile.read()
-                            fromfile.close()
-                            # we are looking for "?locale=.*"
-                            # .* is the lang
-                            # which then should be changed to
-                            # $lang/basename + .html
-                            matches = search_pattern.findall(content)
-                            for match in matches:
-                                # match is '?locale=lang" '
-                                # match[:-2] gives ?locale=lang
-                                # split gives [?locale, lang]
-                                # [1] gives lang
-                                lang = match[:-2].split('=')[1]
-                                content = content.replace(match[:-2],  '/' + lang + '/' + basename + '.html')
-                            tofile = open(toname, "w")
-                            tofile.write(content)
-                            tofile.close()
-                        except IOError, e:
-                            print >>sys.stderr, e
-                else:
-                    pass
-                    #print >>sys.stderr, "File", fromfile, "doesn't exist"
+                if htmlpdf_file.endswith((".html", ".pdf")):
+                    newname = htmlpdf_file + "." + lang
+                
+                print "fullname", os.path.join(olddir, htmlpdf_file), "newfullname", os.path.join(newdir, newname)
+                os.rename(os.path.join(olddir, htmlpdf_file), os.path.join(newdir, newname))
 
+    def copy_to_site(self, path):
+        """Copy the entire site to 'path'
+        """
+        builtdir = os.path.join(self.builddir, "built")
+        tree = os.walk(builtdir)
+
+        for leafs in tree:
+            olddir = leafs[0]
+            newdir = leafs[0].replace(builtdir, path)
+
+            if newdir != path:
+                try:
+                    os.mkdir(newdir)
+                except OSError, e:
+                    print e
+                    pass
+
+            for filename in leafs[2]:
+                print "olddir:", olddir, "newdir", newdir, "filename", filename
+                os.rename(os.path.join(olddir, filename), os.path.join(newdir, filename))
+            
+        
 
 def main():
     #if len(sys.argv) != 3:
@@ -255,19 +216,17 @@ def main():
             sys.exit(0)
 
     #args = sys.argv[1:]
-    langs = ["en", "fi", "nb", "se", "sma", "smj", "sv"]
+    langs = ["fi", "nb", "sma", "sme", "smj", "sv", "en" ]
     builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/sd"))
 
     builder.validate()
     
     for lang in langs:
         builder.setlang(lang)
-        builder.find_langspecific_files(lang)
         builder.buildsite(lang)
+        builder.rename_site_files(lang)
 
-    builder.move_lang_specific_files()
-    builder.rename_and_link_english_files()
-
+    builder.copy_to_site(os.path.join("/Users/boerre", "Sites"))
 
 if __name__ == "__main__":
     main()
