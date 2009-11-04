@@ -12,25 +12,25 @@ echo "===>   Sámi languages   <==="
 echo "===>                    <===" 
 echo ""
 echo "===>     South Sámi      <==="
-nice time make TARGET=sma
+nice time make TARGET=sma all
 echo ""
 echo "===>     North Sámi      <==="
-nice time make TARGET=sme
+nice time make TARGET=sme all
 echo ""
 echo "===>     Lule Sámi       <==="
-nice time make TARGET=smj
+nice time make TARGET=smj all
 echo ""
 echo "===>     Inari Sámi      <==="
-nice time make TARGET=smn
+nice time make TARGET=smn all
 echo ""
 echo "===>     Skolt Sámi      <==="
-nice time make TARGET=sms
+nice time make TARGET=sms all
 echo ""
 echo "===>     Kildin Sámi     <==="
-nice time make TARGET=sjd
+nice time make TARGET=sjd all
 echo ""
 echo "===>      Pite Sámi      <==="
-nice time make TARGET=sje
+nice time make TARGET=sje all
 echo "===>                    <===" 
 echo "===>   Other languages  <===" 
 echo "===>                    <===" 
