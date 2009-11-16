@@ -58,8 +58,8 @@ elsif ( $language eq 'sma' ) {
 	$langstring = "Åarjelsaemien, ";
 }
 else
-	$langstring = "No langauge, ";
-}
+	$langstring = "No language, ";
+
 
 # Read the version info from the specified file
 open (FH, "$versionfile") or die "Cannot open $versionfile $!";
