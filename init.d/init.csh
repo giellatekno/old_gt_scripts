@@ -79,7 +79,7 @@ set osMinorVersion = `uname -r | cut -d. -f2`
 if ( $?CLASSPATH ) then
   prepend_path CLASSPATH ~/lib/saxon9.jar
 else
-  setenv CLASSPATH ~/lib/saxon9.jar:.
+  setenv CLASSPATH ~/lib/saxon9.jar
 endif
 
 # Perl setup:
