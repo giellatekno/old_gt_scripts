@@ -226,7 +226,7 @@ def main():
         builder.buildsite(lang)
         builder.rename_site_files(lang)
 
-    builder.copy_to_site(os.path.join("/Users/boerre", "Sites"))
+    builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
     main()
