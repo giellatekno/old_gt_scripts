@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""TODO: Store all files linked to in site*.xml and tab*.xml. Compare these and the files collected from source. Build only those present in both places."""
-
 """This script builds a multilingual forrest site."""
 import subprocess
 import os
