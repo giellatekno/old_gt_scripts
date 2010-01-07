@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl -w
 #
 # speller-testres.pl
 # Combines speller input and output to test results.
