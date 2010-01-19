@@ -252,8 +252,8 @@ sub printinitialhtmlcodes
 sub printfinalhtmlcodes
 {
     print "\n<ADDRESS>\n" ;
-    print "\nS&aacute;mi giellateknologiija, Trond Trosterud<BR>\n" ;
-    print "http://www.hum.uit.no/sam/giellatekno/\n<BR>\n" ;
+    print "\nS&aacute;mi giellateknologiija<BR>\n" ;
+    print "http://giellatekno.uit.no/\n<BR>\n" ;
     print "</ADDRESS>\n" ;
 
     print "\n</BODY>\n" ;
