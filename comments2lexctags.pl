@@ -59,7 +59,7 @@ while (<>) {
 
     $entry =~ s/^\s*//;
     if ($entry =~ /^\S+\s$/) {$entry = " " . $entry;}
-    elsif ($entry !~ /:/ && $tags =~ /\S+/) {
+    if ($entry !~ /:/ && $tags =~ /\S+/) {
     	my ($lemma, $cont) = split (/\s/, $entry);
     	$entry = $lemma . ":" . $lemma . " " . $cont;
     }
