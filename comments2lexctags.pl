@@ -59,6 +59,11 @@ while (<>) {
 
     $entry =~ s/^\s*//;
     if ($entry =~ /^\S+\s$/) {$entry = " " . $entry;}
+    elsif ($entry !~ /:/ && $tags =~ /\S+/) {
+    	my ($lemma, $cont) = split (/\s/, $entry);
+    	$entry = $lemma . ":" . $lemma . " " . $cont;
+    }
+
 	my $new_line = $root_tags . $tags . $entry . ";" . $comments . "\n";
 	print $new_line;
 }
