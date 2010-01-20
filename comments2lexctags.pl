@@ -18,7 +18,7 @@ my $file_name = $ARGV[$#ARGV];
 my $inroot = 0;
 if ($file_name =~ /\/sm[aej]-lex./) { $inroot = 1; }
 
-my $root_comments = "";
+my $root_tags = "";
 
 if ( $inroot ) {
     # Skip the definitions in the beginning of the file
@@ -39,45 +39,77 @@ while (<>) {
     if (/^\s*\!/) { print; next; }
 
 	if (/LEXICON/ && $inroot) {
-		if (! /\!.*\+/) { $root_comments = ""; print; next; }
+		if (! /\!.*\+/) { $root_tags = ""; print; next; }
 		else {
 			my ($entry, $comments) = split (/\!/, $_);
-			my @tagset = process_comments($comments);
-			$root_comments = join ("",@tagset);
+			my $tags = &process_comments($comments);
+			$root_tags = $tags;
 			print;
 			next;
 		}
 	}
 
 
-	if ((! /\!.*\+/) && ($root_comments eq "")) { print; next; }
+	if ((! /\!.*/) && ($root_tags eq "")) { print; next; }
 	chomp;
 	
 	my ($entry, $comments) = split (/\;/, $_);
-	my @tagset = process_comments($comments);
-	my $new_tags = join ("",@tagset);
+	my $tags = &process_comments($comments);
+#	my $new_tags = join ("",@tagset);
+
     $entry =~ s/^\s*//;
-	my $new_line = $root_comments . $new_tags . $entry . ";" . $comments . "\n";
+    if ($entry =~ /^\S+\s$/) {$entry = " " . $entry;}
+	my $new_line = $root_tags . $tags . $entry . ";" . $comments . "\n";
 	print $new_line;
 }
 
 
 sub process_comments {
-	my $new_comments;
+	my $comments = "@_";
 	
-	if($inroot) {
-		($new_comments = @_) =~ s/\+/\+/g;
-	}
-	else {
-		($new_comments = @_) =~ s/\!//g;
-	}
+	my $tags;
+	my @tags_use;
+	my @tags_dialect;
+	
 
+	if ($comments =~ /SUB/) {
+		push @tags_use, "+Use/Sub";
+	}
+	if ($comments =~ /\^C\^/) {
+		push @tags_use, "+Use/Circ";
+	}
+	if ($comments =~ /\^P\^/) {
+		push @tags_use, "+Use/Ped";
+	}
+	if ($comments =~ /\^NG\^/) {
+		push @tags_use, "+Use/NG";
+	}
+	if ($comments =~ /NOT-KJ/) {
+		push @tags_dialect, "+Dial/-KJ";
+	}
+	if ($comments =~ /NOT-GG/) {
+		push @tags_dialect, "+Dial/-GG";
+	}
+	if ($comments =~ /NOT-GS/) {
+		push @tags_dialect, "+Dial/-GS";
+	}
+	
+	(my $new_comments = $comments) =~ s/\!//g;
 	my @strings = split(/\s+/,$new_comments);
-#	print "jee @strings";
 	my @tagset;
 	for my $t (@strings) {
 		if ($t =~ /^\+/) { push @tagset, $t; }
 	}
+	my $compound_tags = join ("",@tagset);
 	
-	return @tagset;
+	my $use_tags = join ("",@tags_use);
+	my $dialect_tags = join ("", @tags_dialect);
+	
+	$tags = $compound_tags . $use_tags . $dialect_tags;
+	
+#	print "jee @tags_use $comments \n";
+	
+	return $tags;
 }
+
+
