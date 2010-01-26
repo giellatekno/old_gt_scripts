@@ -64,7 +64,7 @@ sub add_error_markup {
 				}
 			}
 			else {
-				print "WARNING - NO MATCH: $text\n";
+				print "\n***\n*** WARNING - NO MATCH: $text\n***\n\n";
 				push @new_content, $text;
 				$text ="";
 			}
