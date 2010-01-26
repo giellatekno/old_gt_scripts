@@ -43,6 +43,7 @@ my $bindir = "/usr/local/share/corp/bin";
 my $gtbound_dir = "bound";
 my $gtfree_dir = "free";
 my $orig_dir = "orig";
+my $goldstandard_orig_dir = "prooftest/orig" ;
 my $gt_gid = 50782; # group: bound
 my $orig_gid = 50779; #group: corpus
 
@@ -366,7 +367,7 @@ sub process_file {
 	}
 
 	# Do extra formatting for prooftest-directory.
-	if ($orig =~ /prooftest\/orig/) {
+	if ($orig =~ /$goldstandard_orig_dir/) {
 		my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
 		if (! $document->safe_parsefile ("$tmp0") ) {
 			carp "ERROR parsing the XML-file $tmp0 failed. STOP\n";
