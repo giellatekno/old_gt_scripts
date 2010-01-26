@@ -98,9 +98,9 @@ export CLASSPATH
 
 # Perl setup:
 export PERL_UNICODE=""
-#if [ -z "$PERL5LIB" ]; then
-#  PERL5LIB=/sw/lib/perl5:/sw/lib/perl5/darwin
-#else
-#  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
-#fi
-#export PERL5LIB
+if [ -z "$PERL5LIB" ]; then
+  PERL5LIB=$GTHOME/gt/script
+else
+  prepend_path PERL5LIB $GTHOME/gt/script
+fi
+export PERL5LIB

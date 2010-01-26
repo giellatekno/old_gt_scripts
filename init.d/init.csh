@@ -84,10 +84,10 @@ endif
 
 # Perl setup:
 setenv PERL_UNICODE ""
-#if ( $?PERL5LIB ) then
-#  prepend_path PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
-#else
-#  setenv PERL5LIB /sw/lib/perl5:/sw/lib/perl5/darwin
-#endif
+if ( $?PERL5LIB ) then
+  prepend_path PERL5LIB $GTHOME/gt/script
+else
+  setenv PERL5LIB $GTHOME/gt/script
+endif
 
 # eof
