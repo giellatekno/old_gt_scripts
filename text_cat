@@ -195,7 +195,7 @@ sub read_xml {
 sub langdetect {
 	my ( $twig, $para, $mainlang) = @_;
 
-	my $text = $para->text;
+	my $text = $para->text; # BUG! Removes spelling error markup added to the paragraph
 
 	# The language of paragraphs shorter than MINCHAR characters is not guessed.
 	my $count = length($text);
