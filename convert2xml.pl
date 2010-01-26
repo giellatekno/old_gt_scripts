@@ -43,7 +43,7 @@ my $bindir = "/usr/local/share/corp/bin";
 my $gtbound_dir = "bound";
 my $gtfree_dir = "free";
 my $orig_dir = "orig";
-my $goldstandard_orig_dir = "prooftest/orig" ;
+my $goldstandard_orig_dir = "goldstandard/orig" ;
 my $gt_gid = 50782; # group: bound
 my $orig_gid = 50779; #group: corpus
 
