@@ -87,8 +87,19 @@ if ($help) {
 	exit 1;
 }
 
-my %languages = (sme => 1, smj => 1, sma => 1, nno => 1, nob => 1, fin => 1, fkv => 1, swe => 1,
-				 eng => 1, dan => 1, kal => 1, oth => 1, );
+my %languages = (sme => 1,
+				 smj => 1,
+				 sma => 1,
+				 nno => 1,
+				 nob => 1,
+				 fin => 1,
+				 fkv => 1,
+				 swe => 1,
+				 eng => 1,
+				 dan => 1,
+				 kal => 1,
+				 oth => 1
+				 );
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
 
@@ -105,7 +116,7 @@ my $bible2xml = $bindir . "/bible2xml.pl";
 #my $bible2xml = "/home/saara/gt/script/bible2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
-	die "Error: could not find corpus directory.\nSpecify corpdir as command line.\n";
+	die "Error: could not find corpus directory.\nSpecify corpdir as a command line option.\n";
 }
 
 # A log file is created for each file, it contains the executed commands
@@ -113,7 +124,7 @@ if (! $corpdir || ! -d $corpdir) {
 if(! $tmpdir || ! -d $tmpdir) {
 	$tmpdir = $corpdir . "/tmp";
     if (! -d $tmpdir) {
-        die "Error: could find directory for temporary and log files.\nSpecify tmpdir as command line.\n";
+        die "Error: could not find directory for temporary files and log files.\nSpecify tmpdir as a command line option.\n";
     }
 }
 
