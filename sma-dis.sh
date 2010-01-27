@@ -9,8 +9,9 @@ do                                          # run the following loop
 echo -n "Skriv setning: "                   # (message to user)
 read sentence                               # next 3 lines is the usual command
 echo $sentence | preprocess | \
-lookup -flags mbTT -utf8 ~/gtsvn/gt/sma/bin/sma.fst | ~/gtsvn/gt/script/lookup2cg | \
- vislcg3 -g ~/gtsvn/gt/sma/src/sma-dis.rle #--trace
+lookup -flags mbTT -utf8 $GTHOME/gt/sma/bin/sma.fst | \
+$GTHOME/gt/script/lookup2cg | \
+vislcg3 -g $GTHOME/gt/sma/src/sma-dis.rle #--trace
 
 
 done                      

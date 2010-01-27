@@ -14,10 +14,12 @@ fi
 while [ 1 ]                                 # as long as there is input
 do                                          # run the following loop
 echo -n "Skriv sætning på grønlandsk: "                   # (message to user)
-read sentence                               # next 3 lines is the usual command
-echo $sentence | preprocess --abbr=~/gtsvn/st/kal/bin/abbr.txt | \
-$LOOKUP -flags mbTT -utf8 ~/gtsvn/st/kal/bin/kal.fst | ~/gtsvn/gt/script/lookup2cg | \
- vislcg3 -g ~/gtsvn/st/kal/src/kal-dis3.rle #--trace
+read sentence                               # next 5 lines is the usual command
+echo $sentence | \
+preprocess --abbr=$GTHOME/st/kal/bin/abbr.txt | \
+$LOOKUP -flags mbTT -utf8 $GTHOME/st/kal/bin/kal.fst | \
+$GTHOME/gt/script/lookup2cg | \
+vislcg3 -g $GTHOME/st/kal/src/kal-dis3.rle #--trace
 
 done                      
 exit 0

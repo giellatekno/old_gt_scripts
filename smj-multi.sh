@@ -8,8 +8,8 @@ while [ 1 ]                                 # as long as there is input
 do                                          # run the following loop
 echo -n "Atte tjielgga: "                   # (message to user)
 read sentence                               # next 3 lines is the usual command
-echo $sentence | preprocess | lookup -flags mbTT -utf8 ~/gtsvn/gt/smj/bin/smj.fst | ~/gtsvn/gt/script/lookup2cg
-# vislcg --grammar ~/gtsvn/gt/smj/src/smj-dis.rle --minimal
+echo $sentence | preprocess | lookup -flags mbTT -utf8 $GTHOME/gt/smj/bin/smj.fst | $GTHOME/gt/script/lookup2cg
+# vislcg --grammar $GTHOME/gt/smj/src/smj-dis.rle --minimal
 
 done                      
 exit 0
