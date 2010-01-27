@@ -101,7 +101,6 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 2. files: 
 
  1. makefiles:
-   Makefile --- check it!   
    corpus.make
 
  2. txt files: 
@@ -449,7 +448,8 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
    spellcheckWithMSWord.applescript --- used in: ../../gt/Makefile
 
  8. rest:
-   abbr-extract --- used in: ../../gt/Makefile
+   abbr-extract --- used in:
+../../gt/Makefile
 ../../gt/sme/src/Makefile
 ../../kt/fin/src/Makefile
 ../../st/fao/src/Makefile
@@ -463,10 +463,12 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 ../../techdoc/lang/sme/docu-sme-makefile.xml
 ../../techdoc/ling/preprocessor.xml
 
-   catxml --- used in: ../../gt/sme/int/punct-sme-lex.GG.restr
-../../gt/sme/int/punct-sme-lex.norm
+   catxml - this file is now deleted. The meeting memos are ok,
+        those are old references and discussions. The documentation should be
+        updated and refere to ccat instead. The ref. in punct-*-lex.txt I don't
+        understand - catxml has nothing to do with those things :/
+        --- referenced in:
 ../../gt/sme/src/punct-sme-lex.txt
-../../gt/smj/int/punct-smj-lex.norm
 ../../gt/smj/src/punct-smj-lex.txt
 ../../st/fao/doc/fao-testdiary.xml
 ../../st/kal/src/punct-kal-lex.txt
@@ -4084,5 +4086,5 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 
    text_cat README --- used in: just a text file!!!
 
-   upper.regex --- used in: NULL
+   upper.regex --- used in: NULL => deleted
 
