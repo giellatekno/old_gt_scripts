@@ -48,6 +48,10 @@ while (<>) {
 			next;
 		}
 	}
+	
+	if (/LEXICON/ && ! $inroot) {
+		print; next;
+	}
 
 
 	if ((! /\!.*/) && ($root_tags eq "")) { print; next; }
@@ -60,7 +64,7 @@ while (<>) {
     $entry =~ s/^\s*//;
     if ($entry =~ /^\S+\s$/) {$entry = " " . $entry;}
     if ($entry !~ /:/ && $tags =~ /\S+/) {
-    	my ($lemma, $cont) = split (/\s/, $entry);
+    	my ($lemma, $cont) = split (/(?<!%)\s+/, $entry);
     	$entry = $lemma . ":" . $lemma . " " . $cont;
     }
 
@@ -90,13 +94,13 @@ sub process_comments {
 		push @tags_use, "+Use/NG";
 	}
 	if ($comments =~ /NOT-KJ/) {
-		push @tags_dialect, "+Dial/-KJ";
+		push @tags_dialect, "+Dial/%-KJ";
 	}
 	if ($comments =~ /NOT-GG/) {
-		push @tags_dialect, "+Dial/-GG";
+		push @tags_dialect, "+Dial/%-GG";
 	}
 	if ($comments =~ /NOT-GS/) {
-		push @tags_dialect, "+Dial/-GS";
+		push @tags_dialect, "+Dial/%-GS";
 	}
 	
 	(my $new_comments = $comments) =~ s/\!//g;
