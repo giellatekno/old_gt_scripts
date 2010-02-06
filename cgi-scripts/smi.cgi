@@ -50,7 +50,7 @@ require "conf.pl";
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions, $translate,$placenames);
+our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions, $translate,$placenames);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -129,7 +129,7 @@ if(! $xml_out) {
 
 # Process input XML
 if ($xml_in) {
-	if ($action eq "analyze" || $action eq "disamb" || $action eq "hyphenate" || $action eq "transcribe" || $action eq "convert" ) {
+	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency" || $action eq "hyphenate" || $action eq "transcribe" || $action eq "convert" ) {
 		$text = xml2preprocess($text);
 	}
 	if ($action eq "generate" || $action eq "paradigm") { $text = xml2words($text); }
@@ -177,6 +177,7 @@ elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answe
 elsif ($action eq "disamb") { 
     if ($translate) { $result = `echo $text | $disamb | $translate`; }
     else { $result = `echo $text | $disamb`; }
+elsif ($action eq "dependency") { $result = `echo $text | $disamb | $dependency`; }
 
 }
 
@@ -195,7 +196,7 @@ else { print "<error>No parameter for action recieved</error>"; }
 
 my $output;
 if (! $xml_out) {
-	if ($action eq "analyze" || $action eq "disamb") { 
+	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency") { 
           $result =~ s/</&lt\;/g; 
           $output = dis2html($result,1);
     }
@@ -540,7 +541,7 @@ sub printinitialhtmlcodes {
 	my ($tool,$texts,$body) = @_;
 
 	my $tmp_tool = $tool;
-	if ($tool =~ /hyphenate|transcribe|convert|disamb/) { $tmp_tool = "analyze"; }
+	if ($tool =~ /hyphenate|transcribe|convert|disamb|dependency/) { $tmp_tool = "analyze"; }
 #	print FH "TOOL $tool $tmp_tool\n";
 
 	# Read the texts from the XML-file.
@@ -680,10 +681,10 @@ sub printinitialhtmlcodes {
 
 	} # end of GENERATOR
 
-	##### analyze/hyphenate/transcribe/convert/disambiguate
+	##### analyze/hyphenate/transcribe/convert/disambiguate/dependency
 	else {
 		# Get the texts for selection menu
-		my @tools = qw(analyze disamb hyphenate convert transcribe);
+		my @tools = qw(analyze disamb dependency hyphenate convert transcribe);
 		my %labels;
 
 		for my $t (@tools) {
@@ -753,7 +754,7 @@ sub printinitialhtmlcodes {
 		$td->paste('last_child', $tr);
 		$tr->paste('last_child', $table);
 			
-		} # end of analyze/hyphenate/transcribe/convert/disambiguate
+		} # end of analyze/hyphenate/transcribe/convert/disambiguate/dependency
 
 	# Submit and reset texts
 	my $submit_text = $texts->first_child_text("input[\@type='submit']");

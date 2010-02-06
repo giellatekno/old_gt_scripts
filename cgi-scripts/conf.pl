@@ -168,7 +168,7 @@ sub init_variables {
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
-	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
+	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
 # for the next debug, this is the variable-free version of $disamb:
 # $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/sme.fst | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
