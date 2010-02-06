@@ -71,6 +71,7 @@ sub init_variables {
         my $fstflags = "-flags mbTT -utf8";
 #    my $dis_rle = "$fstdir/$lang-dis.rle"; # text file
     my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
+    my $dep_bin = "$fstdir/$lang-dep.bin";  # binary file
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
@@ -90,6 +91,7 @@ sub init_variables {
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 #	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
 	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
+	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
@@ -131,6 +133,9 @@ sub init_variables {
 	if ($action eq "disamb" && ! -f $dis_bin) { 
 		http_die '--no-alert','404 Not Found',"$lang-dis.bin: Disambiguation is not supported";
 	}
+	if ($action eq "dependency" && ! -f $dep_bin) { 
+		http_die '--no-alert','404 Not Found',"$lang-dep.bin: Dependency analysis is not supported";
+	}
 	if ($action eq "generate" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Generation is not supported";
 	}
@@ -163,6 +168,7 @@ sub init_variables {
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
+	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
 # for the next debug, this is the variable-free version of $disamb:
 # $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/sme.fst | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
