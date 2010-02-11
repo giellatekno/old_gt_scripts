@@ -200,11 +200,11 @@ sub langdetect {
 	# The language of paragraphs shorter than MINCHAR characters is not guessed.
 	my $count = length($text);
 	if ($count < $MINCHAR) {  $para->del_att( 'xml:lang'); return; }
-
+		
 	# If text contains only non-word characters, it is classified
 	# as the default language.
 	if ($text !~ /[\pL]/o) { $para->del_att( 'xml:lang'); return;}
-
+		
 	# Classification returns the choices for the text.
 	my @choices = classify($text);
 	
@@ -219,12 +219,26 @@ sub langdetect {
 	my $bestlang = $choices[0];
 
 	# Test if there are quoted strings in other than main lang.
-	if ($opt_q && $text =~ /[\«\"“]/) {
-		my @text_array;
-		my $return_val = mark_span($text, \@text_array, $mainlang);
-		if ($return_val ) { $para->set_content(@text_array); }
+	# Add span-tags together with language info.
+	my @tarray;
+	for my $c ($para->children) {
+		if ($c->gi eq "error") {
+			push (@tarray, $c);
+			next;
+		}
+		my $t = $c->text;
+		if ($opt_q && $t =~ /[\«\"“]/) {
+			my @text_array;
+			my $return_val = mark_span($t, \@text_array, $mainlang);
+			if ($return_val ) {
+				push(@tarray,@text_array);
+			}
+			else { push (@tarray, $t); }
+		}
+		else { push (@tarray,$t); }
 	}
-	
+	$para->set_content(@tarray);
+
 	if ($bestlang ne $mainlang  ) { $para->set_att( "xml:lang" => $bestlang ); }
 	else { $para->del_att( 'xml:lang'); }
 }
@@ -246,7 +260,7 @@ sub mark_span {
 	if ($text =~ /^(.*?)($first.*?$second)(.*)$/s ) {
 		my $quote = $2;
 		my $rest = $3;
-#		print "1: $1\n 2: $quote\n 3: $rest\n"; 
+		#print "1: $1\n 2: $quote\n 3: $rest\n"; 
 
 		# Classification returns the choices for the text.
 		my @choices = classify($quote);
@@ -268,6 +282,7 @@ sub mark_span {
 		# The rest of the paragraph is processed further.
 		if ($rest) { $return_val = mark_span($rest, $text_aref, $mainlang); }
 		if (! $return_val) {push (@$text_aref, $rest)};
+
 		return 1;
 	}
 }
