@@ -126,8 +126,12 @@ if(! $tmpdir || ! -d $tmpdir) {
 	$tmpdir = $corpdir . "/tmp";
     if (! -d $tmpdir) {
         die "Error: could not find directory for temporary files and log files.\nSpecify tmpdir as a command line option.\n";
-    }
+	}
 }
+my $cnt = "chown -f :$gt_gid $tmpdir";
+exec_com($cnt,"");
+chmod 0770,$tmpdir;
+
 
 my $command;
 # Redirect STDERR to log files.	
