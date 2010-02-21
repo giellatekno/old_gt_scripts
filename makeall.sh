@@ -117,19 +117,19 @@ cd $GTHOME/words/dicts/smi/geo/src/
 nice time make
 echo ""
 echo "===>   Kven - Norwegian   <===" 
-cd $GTHOME/kvensk/fkvnob/
+cd $GTHOME/words/dicts/fkvnob/
 nice time make
 echo ""
 echo "===>   Norwegian - Kven   <===" 
-cd $GTHOME/kvensk/nobfkv/
+cd $GTHOME/words/dicts/nobfkv/
 nice time make
 echo ""
 echo "===>   Meänkieli - Swedish   <===" 
-cd $GTHOME/kvensk/fitswe/
+cd $GTHOME/words/dicts/fitswe/
 nice time make 
 echo ""
 echo "===>   Swedish - Meänkieli   <===" 
-cd $GTHOME/kvensk/swefit
+cd $GTHOME/words/dicts/swefit
 nice time make
 echo "===>                    <===" 
 echo "===> Other FU languages <===" 
