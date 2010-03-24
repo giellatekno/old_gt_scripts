@@ -92,6 +92,15 @@ sub get_error {
 		$error =~ s/[\(\)]//g;
 		$corr =~ s/[\(\)]//g;
 
+#		# look for extended attributes:
+#		my $extatt = false;
+#		my $attlist = "";
+#		if ($corr =~ /\|/ ) {
+#			$extatt = true;
+#			($attlist, $corr) = split(/\|/, $corr);
+#			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
+#		}
+
 		my $error_elt;
 		if ($first_err && ! $error) {
 			$error_elt = XML::Twig::Elt->new(error=>{correct=>$corr});
