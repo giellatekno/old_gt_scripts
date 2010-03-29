@@ -86,6 +86,10 @@ echo ""
 echo "===>     Inuktitut     <===" 
 cd $GTHOME/st/iku/src
 nice time make
+echo ""
+echo "===>    Kurdish   <===" 
+cd $GTHOME/st/kmr/src
+nice time make
 echo "===>                    <===" 
 echo "===>  Bilingual transd. <===" 
 echo "===>                    <===" 
@@ -145,6 +149,36 @@ nice time make
 #echo "===>     Komi     <===" 
 #echo "===>              <==="
 #nice time make
+
+echo ""
+echo ""
+echo "===>   Now, let us try the hfst compiler   <==="
+echo "===> Just ignore this if you don't have it <==="
+echo ""
+echo ""
+
+echo ""
+echo "===>       Faroese       <===" 
+cd $GTHOME/st/fao/src
+nice time make -f Makefile.hfst
+echo ""
+echo ""
+echo "===>       Kurdish       <===" 
+cd $GTHOME/st/fao/src
+nice time make -f Makefile.hfst
+echo ""
+echo ""
+echo "===>       Tagalog       <===" 
+cd $GTHOME/st/fao/src
+nice time make -f Makefile.hfst
+echo ""
+echo ""
+echo "===>       Kven       <===" 
+cd $GTHOME/st/fao/src
+nice time make -f Makefile.hfst
+echo ""
+
+
 popd
 echo "===>                  <==="
 echo "===>                  <==="
