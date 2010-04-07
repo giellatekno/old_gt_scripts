@@ -34,7 +34,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-
 # Add predefined lookup aliases for all languages:
 . $GTHOME/gt/script/init.d/lookup-init.sh
 
@@ -59,6 +58,7 @@ alias saxonXSL="java net.sf.saxon.Transform"
 alias xquery="saxonXQ"
 alias xslt2="saxonXSL"
 alias xsl2="saxonXSL"
+
 
 # define append_path and prepend_path to add directory paths, e.g. PATH, MANPATH.
 # add to end of path
