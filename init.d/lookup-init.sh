@@ -2,72 +2,76 @@
 
 # xerox aliases
 
+HOSTNAME=`hostname`
+
+if [ $HOSTNAME == 'victorio.uit.no' ]
+then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup-2.5.7 -flags mbTT'
+else export LOOKUP='lookup -flags mbTT'
+fi
+
 # Sámi languages:
-alias   dsjd='lookup -flags mbTT $GTHOME/gt/sjd/bin/isjd.fst'
-alias   dsje='lookup -flags mbTT $GTHOME/gt/sje/bin/isje.fst'
-alias   dsma='lookup -flags mbTT $GTHOME/gt/sma/bin/isma.fst'
-alias   dsme='lookup -flags mbTT $GTHOME/gt/sme/bin/isme.fst'
-alias   dsmj='lookup -flags mbTT $GTHOME/gt/smj/bin/ismj.fst'
-alias   dsmn='lookup -flags mbTT $GTHOME/gt/smn/bin/ismn.fst'
-alias   dsms='lookup -flags mbTT $GTHOME/gt/sms/bin/isms.fst'
-alias   usjd='lookup -flags mbTT $GTHOME/gt/sjd/bin/sjd.fst'
-alias   usje='lookup -flags mbTT $GTHOME/gt/sje/bin/sje.fst'
-alias   usma='lookup -flags mbTT $GTHOME/gt/sma/bin/sma.fst'
-alias   usme='lookup -flags mbTT $GTHOME/gt/sme/bin/sme.fst'
-alias   usmj='lookup -flags mbTT $GTHOME/gt/smj/bin/smj.fst'
-alias   usmn='lookup -flags mbTT $GTHOME/gt/smn/bin/smn.fst'
-alias   usms='lookup -flags mbTT $GTHOME/gt/sms/bin/sms.fst'
+alias   dsjd='$LOOKUP $GTHOME/gt/sjd/bin/isjd.fst'
+alias   dsje='$LOOKUP $GTHOME/gt/sje/bin/isje.fst'
+alias   dsma='$LOOKUP $GTHOME/gt/sma/bin/isma.fst'
+alias   dsme='$LOOKUP $GTHOME/gt/sme/bin/isme.fst'
+alias   dsmj='$LOOKUP $GTHOME/gt/smj/bin/ismj.fst'
+alias   dsmn='$LOOKUP $GTHOME/gt/smn/bin/ismn.fst'
+alias   dsms='$LOOKUP $GTHOME/gt/sms/bin/isms.fst'
+alias   usjd='$LOOKUP $GTHOME/gt/sjd/bin/sjd.fst'
+alias   usje='$LOOKUP $GTHOME/gt/sje/bin/sje.fst'
+alias   usma='$LOOKUP $GTHOME/gt/sma/bin/sma.fst'
+alias   usme='$LOOKUP $GTHOME/gt/sme/bin/sme.fst'
+alias   usmj='$LOOKUP $GTHOME/gt/smj/bin/smj.fst'
+alias   usmn='$LOOKUP $GTHOME/gt/smn/bin/smn.fst'
+alias   usms='$LOOKUP $GTHOME/gt/sms/bin/sms.fst'
 
 # Other languages:
-alias   damh='lookup -flags mbTT $GTHOME/st/amh/bin/iamh.fst'
-alias   dces='lookup -flags mbTT $GTHOME/st/ces/bin/ices.fst'
-alias   dcor='lookup -flags mbTT $GTHOME/st/cor/bin/icor.fst'
-alias   ddeu='lookup -flags mbTT $GTHOME/st/deu/bin/ideu.fst'
-alias   deng='lookup -flags mbTT $GTHOME/st/eng/bin/ieng.fst'
-alias   dfao='lookup -flags mbTT $GTHOME/st/fao/bin/ifao.fst'
-alias   diku='lookup -flags mbTT $GTHOME/st/iku/bin/iiku.fst'
-alias   dipk='lookup -flags mbTT $GTHOME/st/ipk/bin/iipk.fst'
-alias   dkal='lookup -flags mbTT $GTHOME/st/kal/bin/ikal.fst'
-alias   dnno='lookup -flags mbTT $GTHOME/st/nno/bin/inno.fst'
-alias   dnob='lookup -flags mbTT $GTHOME/st/nob/bin/inob.fst'
-alias   dnon='lookup -flags mbTT $GTHOME/st/non/bin/inon.fst'
-alias   uamh='lookup -flags mbTT $GTHOME/st/amh/bin/amh.fst'
-alias   uces='lookup -flags mbTT $GTHOME/st/ces/bin/ces.fst'
-alias   ucor='lookup -flags mbTT $GTHOME/st/cor/bin/cor.fst'
-alias   udeu='lookup -flags mbTT $GTHOME/st/deu/bin/deu.fst'
-alias   ueng='lookup -flags mbTT $GTHOME/st/eng/bin/eng.fst'
-alias   ufao='lookup -flags mbTT $GTHOME/st/fao/bin/fao.fst'
-alias   uiku='lookup -flags mbTT $GTHOME/st/iku/bin/iku.fst'
-alias   uipk='lookup -flags mbTT $GTHOME/st/ipk/bin/ipk.fst'
-alias   ukal='lookup -flags mbTT $GTHOME/st/kal/bin/kal.fst'
-alias   unno='lookup -flags mbTT $GTHOME/st/nno/bin/nno.fst'
-alias   unob='lookup -flags mbTT $GTHOME/st/nob/bin/nob.fst'
-alias   unon='lookup -flags mbTT $GTHOME/st/non/bin/non.fst'
+alias   damh='$LOOKUP $GTHOME/st/amh/bin/iamh.fst'
+alias   dces='$LOOKUP $GTHOME/st/ces/bin/ices.fst'
+alias   dcor='$LOOKUP $GTHOME/st/cor/bin/icor.fst'
+alias   ddeu='$LOOKUP $GTHOME/st/deu/bin/ideu.fst'
+alias   deng='$LOOKUP $GTHOME/st/eng/bin/ieng.fst'
+alias   dfao='$LOOKUP $GTHOME/st/fao/bin/ifao.fst'
+alias   diku='$LOOKUP $GTHOME/st/iku/bin/iiku.fst'
+alias   dipk='$LOOKUP $GTHOME/st/ipk/bin/iipk.fst'
+alias   dkal='$LOOKUP $GTHOME/st/kal/bin/ikal.fst'
+alias   dnno='$LOOKUP $GTHOME/st/nno/bin/inno.fst'
+alias   dnob='$LOOKUP $GTHOME/st/nob/bin/inob.fst'
+alias   dnon='$LOOKUP $GTHOME/st/non/bin/inon.fst'
+alias   uamh='$LOOKUP $GTHOME/st/amh/bin/amh.fst'
+alias   uces='$LOOKUP $GTHOME/st/ces/bin/ces.fst'
+alias   ucor='$LOOKUP $GTHOME/st/cor/bin/cor.fst'
+alias   udeu='$LOOKUP $GTHOME/st/deu/bin/deu.fst'
+alias   ueng='$LOOKUP $GTHOME/st/eng/bin/eng.fst'
+alias   ufao='$LOOKUP $GTHOME/st/fao/bin/fao.fst'
+alias   uiku='$LOOKUP $GTHOME/st/iku/bin/iku.fst'
+alias   uipk='$LOOKUP $GTHOME/st/ipk/bin/ipk.fst'
+alias   ukal='$LOOKUP $GTHOME/st/kal/bin/kal.fst'
+alias   unno='$LOOKUP $GTHOME/st/nno/bin/nno.fst'
+alias   unob='$LOOKUP $GTHOME/st/nob/bin/nob.fst'
+alias   unon='$LOOKUP $GTHOME/st/non/bin/non.fst'
 
 # Other FU languages:
-alias   dfin='lookup -flags mbTT $GTHOME/kt/fin/bin/ifin.fst'
-alias   dkom='lookup -flags mbTT $GTHOME/kt/kom/bin/ikom.fst'
-alias   ufin='lookup -flags mbTT $GTHOME/kt/fin/bin/fin.fst'
-alias   ukom='lookup -flags mbTT $GTHOME/kt/kom/bin/kom.fst'
+alias   dfin='$LOOKUP $GTHOME/kt/fin/bin/ifin.fst'
+alias   dkom='$LOOKUP $GTHOME/kt/kom/bin/ikom.fst'
+alias   ufin='$LOOKUP $GTHOME/kt/fin/bin/fin.fst'
+alias   ukom='$LOOKUP $GTHOME/kt/kom/bin/kom.fst'
 
 # Bilingual transducers:
-alias fitswe='lookup -flags mbTT $GTHOME/kvensk/fitswe/bin/fitswe.fst'
-alias fkvnob='lookup -flags mbTT $GTHOME/kvensk/bin/fkvnob.fst'
-alias kaldan='lookup -flags mbTT $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
-alias kaldic='lookup -flags mbTT $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
-alias kaleng='lookup -flags mbTT $GTHOME/words/dicts/kaleng/bin/kaleng.fst'
-alias nobfkv='lookup -flags mbTT $GTHOME/kvensk/bin/nobfkv.fst'
-alias nobsme='lookup -flags mbTT $GTHOME/words/dicts/smenob/bin/ismenob.fst'
-alias smenob='lookup -flags mbTT $GTHOME/words/dicts/smenob/bin/smenob.fst'
-alias smesmj='lookup -flags mbTT $GTHOME/words/dicts/smesmj/bin/smesmj.fst'
-alias smjsme='lookup -flags mbTT $GTHOME/words/dicts/smesmj/bin/smjsme.fst'
-alias swefit='lookup -flags mbTT $GTHOME/kvensk/swefit/bin/swefit.fst'
+alias fitswe='$LOOKUP $GTHOME/kvensk/fitswe/bin/fitswe.fst'
+alias fkvnob='$LOOKUP $GTHOME/kvensk/bin/fkvnob.fst'
+alias kaldan='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
+alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
+alias kaleng='$LOOKUP $GTHOME/words/dicts/kaleng/bin/kaleng.fst'
+alias nobfkv='$LOOKUP $GTHOME/kvensk/bin/nobfkv.fst'
+alias nobsme='$LOOKUP $GTHOME/words/dicts/smenob/bin/ismenob.fst'
+alias smenob='$LOOKUP $GTHOME/words/dicts/smenob/bin/smenob.fst'
+alias smesmj='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smesmj.fst'
+alias smjsme='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smjsme.fst'
+alias swefit='$LOOKUP $GTHOME/kvensk/swefit/bin/swefit.fst'
 
 # Other transducers
-alias ogeo='lookup -flags mbTT ~/GTHOME/words/dicts/smi/geo/bin/geo.fst'
-
-
-
+alias ogeo='$LOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.fst'
 
 
 # .hfst.ol aliases
@@ -134,5 +138,4 @@ alias hsmjsme='hfst-optimize-lookup $GTHOME/words/dicts/smesmj/bin/smjsme.hfst.o
 alias hswefit='hfst-optimize-lookup $GTHOME/kvensk/swefit/bin/swefit.hfst.ol'
 
 # Other transducers
-alias ogeo='hfst-optimize-lookup ~/GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
-
+alias ogeo='hfst-optimize-lookup $GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
