@@ -90,12 +90,14 @@ echo ""
 echo "===>    Kurdish   <===" 
 cd $GTHOME/st/kmr/src
 nice time make
+
 echo "===>                    <===" 
 echo "===>  Bilingual transd. <===" 
 echo "===>                    <===" 
 echo "===>   North Sámi - Lule Sámi  <===" 
 cd $GTHOME/words/dicts/smesmj/src
 nice time make
+
 echo ""
 echo "===>     Dictionaries   <===" 
 echo ""
@@ -164,17 +166,17 @@ nice time make -f Makefile.hfst
 echo ""
 echo ""
 echo "===>       Kurdish       <===" 
-cd $GTHOME/st/fao/src
+cd $GTHOME/st/kmr/src
 nice time make -f Makefile.hfst
 echo ""
 echo ""
 echo "===>       Tagalog       <===" 
-cd $GTHOME/st/fao/src
+cd $GTHOME/st/tgl/src
 nice time make -f Makefile.hfst
 echo ""
 echo ""
 echo "===>       Kven       <===" 
-cd $GTHOME/st/fao/src
+cd $GTHOME/kt/fkv/src
 nice time make -f Makefile.hfst
 echo ""
 
