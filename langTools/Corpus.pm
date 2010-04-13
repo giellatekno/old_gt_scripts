@@ -22,10 +22,11 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 #our ($fst);
 
-our %types = ("£" => "mosynt",
-			  "¥" => "synt",
-			  "€" => "lex",
-			  "\$" => "ort");
+our %types = ("\$" => "ort",
+			   "€" => "lex",
+			   "£" => "morf",
+			   "¥" => "synt",
+			   "§" => "undef");
 
 our $sep = quotemeta("€§£\$¥");
 our $sep_c = "\§|\$|€|\£|\¥";
@@ -110,7 +111,7 @@ sub get_error {
 		else {
 			$error_elt = XML::Twig::Elt->new(error=>{correct=>$corr}, $error);
 		}
-		if ($types{$separator}) { $error_elt->set_att('type', $types{$separator}); }
+		if ($types{$separator}) { $error_elt->set_att('errclass', $types{$separator}); }
 		push (@$cont_ref, $error_elt);		
 	} 
 	#else { print "NOT MATCH get_error: $text\n"; }
