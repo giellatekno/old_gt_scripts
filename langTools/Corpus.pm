@@ -22,12 +22,13 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 #our ($fst);
 
-our %types = ("£" => "synt",
+our %types = ("£" => "mosynt",
+			  "¥" => "synt",
 			  "€" => "lex",
 			  "\$" => "ort");
 
-our $sep = quotemeta("€§£\$");
-our $sep_c = "\§|\$|€|\£";
+our $sep = quotemeta("€§£\$¥");
+our $sep_c = "\§|\$|€|\£|\¥";
 our $str = "[^$sep\\s\\(\\)]+?";
 our $str_par = "\\([^$sep\\(\\)]+?\\)";
 our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
@@ -42,7 +43,7 @@ sub add_error_markup {
 		my $text = $c->text;
 		my $new_text;
 		my $nomatch = 0;
-        # separator: either §, $,€ or £
+        # separator: either §, $, €, ¥ or £
 		while ($text && $text =~ /[$sep]/) {
 
 			# No nested errors, no parentheses
