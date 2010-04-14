@@ -11,7 +11,7 @@
 #****************************************************************
 
 corpdir=/usr/local/share/corp
-bindir=/usr/local/share/corp/bin
+bindir=$corpdir/bin
 tmpdir="/usr/tmp"
 
 scripts="convert2xml.pl
@@ -32,6 +32,7 @@ tidy-config.txt"
 makefile="corpus.make"
 
 cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
+echo "checked out: cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt"
 
 for file in $scripts
 do
