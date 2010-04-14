@@ -88,6 +88,7 @@
 <xsl:variable name="mlang_dan" select="''"/>
 <xsl:variable name="mlang_kal" select="''"/>
 <xsl:variable name="mlang_isl" select="''"/>
+<xsl:variable name="mlang_fkv" select="''"/>
 <xsl:variable name="mlang_oth" select="''"/>
 
 <!-- If the document has parallel texts, select "1" for parallel_texts -->
@@ -104,6 +105,8 @@
 <xsl:variable name="para_eng" select="''"/>
 <xsl:variable name="para_fkv" select="''"/>
 <xsl:variable name="para_dan" select="''"/>
+<xsl:variable name="para_isl" select="''"/>
+<xsl:variable name="para_fkv" select="''"/>
 <xsl:variable name="para_kal" select="''"/>
 
 
@@ -118,6 +121,8 @@
 <xsl:variable name="englang" select="'eng'"/>
 <xsl:variable name="gerlang" select="'ger'"/>
 <xsl:variable name="danlang" select="'dan'"/>
+<xsl:variable name="isllang" select="'isl'"/>
+<xsl:variable name="fkvlang" select="'fkv'"/>
 <xsl:variable name="kallang" select="'kal'"/>
 
 
