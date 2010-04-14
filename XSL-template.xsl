@@ -87,6 +87,7 @@
 <xsl:variable name="mlang_eng" select="''"/>
 <xsl:variable name="mlang_dan" select="''"/>
 <xsl:variable name="mlang_kal" select="''"/>
+<xsl:variable name="mlang_isl" select="''"/>
 <xsl:variable name="mlang_oth" select="''"/>
 
 <!-- If the document has parallel texts, select "1" for parallel_texts -->

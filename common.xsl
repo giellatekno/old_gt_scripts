@@ -39,6 +39,7 @@
 <xsl:variable name="mlang_eng" select="''"/>
 <xsl:variable name="mlang_dan" select="''"/>
 <xsl:variable name="mlang_kal" select="''"/>
+<xsl:variable name="mlang_isl" select="''"/>
 <xsl:variable name="mlang_oth" select="''"/>
 
 <xsl:variable name="para_sme" select="''"/>
