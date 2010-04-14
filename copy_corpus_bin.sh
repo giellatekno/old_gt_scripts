@@ -32,8 +32,6 @@ tidy-config.txt"
 
 makefile="corpus.make"
 
-#cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
-#echo "checked out: cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt"
 svn checkout https://victorio.uit.no/langtech/trunk/gt/script/ $tmpdir/gt/script/
 echo "svn checkout https://victorio.uit.no/langtech/trunk/gt/script/ $tmpdir/gt/script/"
 
