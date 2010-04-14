@@ -6,6 +6,7 @@
 #			Feb 11, 2006
 #
 #           Copy the latest versions of scripts to corp/bin
+#           Running it requires admin privileges + sudo
 #
 # $Id$
 #****************************************************************
@@ -33,8 +34,8 @@ makefile="corpus.make"
 
 #cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt
 #echo "checked out: cvs -d /usr/local/cvs/repository checkout -d $tmpdir/gt gt"
-svn checkout https://victorio.uit.no/langtech/trunk/gt/ $tmpdir/gt
-echo "svn checkout https://victorio.uit.no/langtech/trunk/gt/ $tmpdir/gt"
+svn checkout https://victorio.uit.no/langtech/trunk/gt/script/ $tmpdir/gt/script/
+echo "svn checkout https://victorio.uit.no/langtech/trunk/gt/script/ $tmpdir/gt/script/"
 
 for file in $scripts
 do
