@@ -28,19 +28,19 @@
 <!-- template. They are added here, and kept in sync with   -->
 <!-- the DTD to avoid error messages for old templates not  -->
 <!-- containing all languages. -->
+<xsl:variable name="mlang_dan" select="''"/>
+<xsl:variable name="mlang_eng" select="''"/>
+<xsl:variable name="mlang_fin" select="''"/>
+<xsl:variable name="mlang_fkv" select="''"/>
+<xsl:variable name="mlang_ger" select="''"/>
+<xsl:variable name="mlang_isl" select="''"/>
+<xsl:variable name="mlang_kal" select="''"/>
+<xsl:variable name="mlang_nno" select="''"/>
+<xsl:variable name="mlang_nob" select="''"/>
+<xsl:variable name="mlang_sma" select="''"/>
 <xsl:variable name="mlang_sme" select="''"/>
 <xsl:variable name="mlang_smj" select="''"/>
-<xsl:variable name="mlang_sma" select="''"/>
-<xsl:variable name="mlang_nob" select="''"/>
-<xsl:variable name="mlang_nno" select="''"/>
 <xsl:variable name="mlang_swe" select="''"/>
-<xsl:variable name="mlang_fin" select="''"/>
-<xsl:variable name="mlang_ger" select="''"/>
-<xsl:variable name="mlang_eng" select="''"/>
-<xsl:variable name="mlang_dan" select="''"/>
-<xsl:variable name="mlang_kal" select="''"/>
-<xsl:variable name="mlang_isl" select="''"/>
-<xsl:variable name="mlang_fkv" select="''"/>
 <xsl:variable name="mlang_oth" select="''"/>
 
 <xsl:variable name="para_sme" select="''"/>
@@ -55,7 +55,6 @@
 <xsl:variable name="para_fkv" select="''"/>
 <xsl:variable name="para_dan" select="''"/>
 <xsl:variable name="para_isl" select="''"/>
-<xsl:variable name="para_fkv" select="''"/>
 <xsl:variable name="para_kal" select="''"/>
 
 <xsl:variable name="smelang" select="'sme'"/>
