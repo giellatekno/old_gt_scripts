@@ -105,6 +105,8 @@ sub get_error {
 
 		my $error_elt;
 		my $error_elt_name = "error";
+		print STDERR "Separator is: $separator\n";
+		print STDERR "Error type is: $types{$separator}\n";
 		if ($types{$separator}) { $error_elt_name = $types{$separator}; }
 		if ($first_err && ! $error) {
 			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr});
