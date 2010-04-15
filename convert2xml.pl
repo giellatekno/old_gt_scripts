@@ -133,7 +133,7 @@ my($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
       = stat($tmpdir);
 print "gid er $gid\n";
 print "gt_gid er $gt_gid\n";
-if (! $gid == $gt_gid) {
+if ( $gid != $gt_gid ) {
     my $cnt = "chown -f :$gt_gid $tmpdir";
     my $comreturn = exec_com($cnt,"");
     if ( $comreturn ) { die "Please rerun the script with sudo!\n"; }
