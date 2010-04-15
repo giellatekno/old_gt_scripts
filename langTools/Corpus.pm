@@ -161,9 +161,22 @@ sub get_error {
 					$teacher = $orig;
 					$orig = "";
 					$errtype = "";
+				} elsif ( $cat eq 'yes' || $cat eq 'no' ) {
+					$teacher = $cat;
+					$cat = "";
+					$orig = "";
+					$errtype = "";
+				} elsif ( $const eq 'yes' || $const eq 'no' ) {
+					$teacher = $const;
+					$const = "";
+					$cat = "";
+					$orig = "";
+					$errtype = "";
 				} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
 					$teacher = $pos;
 					$pos = "";
+					$const = "";
+					$cat = "";
 					$orig = "";
 					$errtype = "";
 				}
@@ -171,6 +184,21 @@ sub get_error {
 				if ($const)   { $error_elt->set_att('const',   $const); }
 				if ($cat)     { $error_elt->set_att('cat',     $cat); }
 				if ($orig)    { $error_elt->set_att('orig',    $orig); }
+				if ($errtype) { $error_elt->set_att('errtype', $errtype); }
+				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
+			}
+			# Add attributes for syntactic errors:
+			if ( $types{$separator} eq 'errorsyn') {
+				my ($pos, $errtype, $teacher) = split(/,/, $attlist);
+				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+					$teacher = $errtype;
+					$errtype = "";
+				} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+					$teacher = $pos;
+					$pos = "";
+					$errtype = "";
+				}
+				if ($pos)     { $error_elt->set_att('pos',     $pos); }
 				if ($errtype) { $error_elt->set_att('errtype', $errtype); }
 				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
 			}
