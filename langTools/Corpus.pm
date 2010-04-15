@@ -107,7 +107,10 @@ sub get_error {
 		my $error_elt_name = "error";
 		print STDERR "Separator is: $separator\n";
 		print STDERR "Error type is: $types{$separator}\n";
-		if ($types{$separator}) { $error_elt_name = $types{$separator}; }
+		if ($types{$separator}) {
+			$error_elt_name = $types{$separator};
+			print STDERR "Element name is: $error_elt_name\n";
+		}
 		if ($first_err && ! $error) {
 			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr});
 			$first_err->paste('last_child', $error_elt);
