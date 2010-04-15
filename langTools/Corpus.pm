@@ -114,7 +114,9 @@ sub get_error {
 		else {
 			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr}, $error);
 		}
+		# Add extra attributes if found:
 		if ( $extatt ) {
+			# Add attributes for orthographical errors:
 			if ( $types{$separator} eq 'errorort') {
 				my ($pos, $errtype, $teacher) = split(/,/, $attlist);
 				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
@@ -126,6 +128,49 @@ sub get_error {
 					$errtype = "";
 				}
 				if ($pos)     { $error_elt->set_att('pos',     $pos); }
+				if ($errtype) { $error_elt->set_att('errtype', $errtype); }
+				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
+			}
+			# Add attributes for lexical errors:
+			if ( $types{$separator} eq 'errorlex') {
+				my ($pos, $origpos, $errtype, $teacher) = split(/,/, $attlist);
+				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+					$teacher = $errtype;
+					$errtype = "";
+				} elsif ( $origpos eq 'yes' || $origpos eq 'no' ) {
+					$teacher = $origpos;
+					$origpos = "";
+					$errtype = "";
+				} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+					$teacher = $pos;
+					$pos = "";
+					$origpos = "";
+					$errtype = "";
+				}
+				if ($pos)     { $error_elt->set_att('pos',     $pos); }
+				if ($errtype) { $error_elt->set_att('errtype', $errtype); }
+				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
+			}
+			# Add attributes for morphosyntactic errors:
+			if ( $types{$separator} eq 'errormorphsyn') {
+				my ($pos, $const, $cat, $orig, $errtype, $teacher) = split(/,/, $attlist);
+				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+					$teacher = $errtype;
+					$errtype = "";
+				} elsif ( $origpos eq 'yes' || $origpos eq 'no' ) {
+					$teacher = $origpos;
+					$origpos = "";
+					$errtype = "";
+				} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+					$teacher = $pos;
+					$pos = "";
+					$origpos = "";
+					$errtype = "";
+				}
+				if ($pos)     { $error_elt->set_att('pos',     $pos); }
+				if ($const)   { $error_elt->set_att('const',   $const); }
+				if ($cat)     { $error_elt->set_att('cat',     $cat); }
+				if ($orig)    { $error_elt->set_att('orig',    $orig); }
 				if ($errtype) { $error_elt->set_att('errtype', $errtype); }
 				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
 			}
