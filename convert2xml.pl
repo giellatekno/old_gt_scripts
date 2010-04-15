@@ -409,6 +409,15 @@ sub process_file {
 		exec_com($command, $file);
 	}
 
+	# Validate the xml-file unless web upload.
+	if(! $upload && ($file !~ /.ptx$/)) {
+		$command = "xmllint --valid --encode UTF-8 --noout \"$int\"";
+		if( exec_com($command, $file) != 0 ) {
+			carp "ERROR: not valid xml. STOP.\n";
+			return "ERROR";
+		}
+	}
+
 	# Copy the freely available texts to the corp/free -catalog
 	if (! $upload) {
 		copyfree($file, $orig, $tmp0, $intfree);
