@@ -131,8 +131,7 @@ if(! $tmpdir || ! -d $tmpdir) {
 my($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
     $size, $atime, $mtime, $ctime, $blksize, $blocks)
       = stat($tmpdir);
-print "gid er $gid\n";
-print "gt_gid er $gt_gid\n";
+# Only change group id if necessary:
 if ( $gid != $gt_gid ) {
     my $cnt = "chown -f :$gt_gid $tmpdir";
     my $comreturn = exec_com($cnt,"");
