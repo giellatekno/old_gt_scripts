@@ -22,11 +22,11 @@ $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 
 #our ($fst);
 
-our %types = ("\$" => "ort",
-			   "€" => "lex",
-			   "£" => "morf",
-			   "¥" => "synt",
-			   "§" => "undef");
+our %types = ("\$" => "errorort",
+			   "€" => "errorlex",
+			   "£" => "errormorphsyn",
+			   "¥" => "errorsyn",
+			   "§" => "error");
 
 our $sep = quotemeta("€§£\$¥");
 our $sep_c = "\§|\$|€|\£|\¥";
@@ -34,7 +34,7 @@ our $str = "[^$sep\\s\\(\\)]+?";
 our $str_par = "\\([^$sep\\(\\)]+?\\)";
 our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
 
-# Change the manual error markup § to xml-structure.
+# Change the manual error markup §,$,€,¥,£ to xml-structure.
 
 sub add_error_markup {
 	my ($twig, $para) = @_;
@@ -104,12 +104,14 @@ sub get_error {
 #		}
 
 		my $error_elt;
+		my $error_elt_name = "error";
+		if ($types{$separator}) { $error_elt_name = $types{$separator}; }
 		if ($first_err && ! $error) {
-			$error_elt = XML::Twig::Elt->new(error=>{correct=>$corr});
+			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr});
 			$first_err->paste('last_child', $error_elt);
 		}
 		else {
-			$error_elt = XML::Twig::Elt->new(error=>{correct=>$corr}, $error);
+			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr}, $error);
 		}
 		if ($types{$separator}) { $error_elt->set_att('errclass', $types{$separator}); }
 		push (@$cont_ref, $error_elt);		
