@@ -94,23 +94,18 @@ sub get_error {
 		$error =~ s/[\(\)]//g;
 		$corr =~ s/[\(\)]//g;
 
-#		# look for extended attributes:
-#		my $extatt = false;
-#		my $attlist = "";
-#		if ($corr =~ /\|/ ) {
-#			$extatt = true;
-#			($attlist, $corr) = split(/\|/, $corr);
+		# look for extended attributes:
+		my $extatt = false;
+		my $attlist = "";
+		if ($corr =~ /\|/ ) {
+			$extatt = true;
+			($attlist, $corr) = split(/\|/, $corr);
 #			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
-#		}
+		}
 
 		my $error_elt;
 		my $error_elt_name = "error";
-		print STDERR "Separator is: $separator\n";
-		print STDERR "Error type is: $types{$separator}\n";
-		if ($types{$separator}) {
-			$error_elt_name = $types{$separator};
-			print STDERR "Element name is: $error_elt_name\n";
-		}
+		if ($types{$separator}) { $error_elt_name = $types{$separator}; }
 		if ($first_err && ! $error) {
 			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr});
 			$first_err->paste('last_child', $error_elt);
