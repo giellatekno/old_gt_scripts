@@ -222,7 +222,12 @@ sub langdetect {
 	# Add span-tags together with language info.
 	my @tarray;
 	for my $c ($para->children) {
-		if ($c->gi eq "error") {
+		# Save error tags:
+		if ($c->gi eq "error"         ||
+			$c->gi eq "errorort"      ||
+			$c->gi eq "errorlex"      ||
+			$c->gi eq "errormorphsyn" ||
+			$c->gi eq "errorsyn"      ) {
 			push (@tarray, $c);
 			next;
 		}
@@ -384,7 +389,7 @@ sub classify {
 		if ($wmodel{$language}{$key}) {
 			$b = sprintf("%.0f", ($wmodel{$language}{$key}**2*$wunknown{$key}*100/$results{$language}));
 			$p=$p-$b;
-#			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }				 
+#			if($opt_l) { print "$language vah. $b, p: $p $wmodel{$language}{$key} {$key $wunknown{$key}}\n"; }
 		} 
 			 ++$i;
 		 }
