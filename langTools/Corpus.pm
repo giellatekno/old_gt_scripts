@@ -95,10 +95,10 @@ sub get_error {
 		$corr =~ s/[\(\)]//g;
 
 		# look for extended attributes:
-		my $extatt = false;
+		my $extatt = 0;
 		my $attlist = "";
 		if ($corr =~ /\|/ ) {
-			$extatt = true;
+			$extatt = 1;
 			($attlist, $corr) = split(/\|/, $corr);
 #			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
 		}
