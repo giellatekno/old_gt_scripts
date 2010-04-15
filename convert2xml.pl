@@ -128,9 +128,15 @@ if(! $tmpdir || ! -d $tmpdir) {
         die "Error: could not find directory for temporary files and log files.\nSpecify tmpdir as a command line option.\n";
 	}
 }
-my $cnt = "chown -f :$gt_gid $tmpdir";
-exec_com($cnt,"");
-chmod 0770,$tmpdir;
+my($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
+    $size, $atime, $mtime, $ctime, $blksize, $blocks)
+      = stat($tmpdir);
+if (! $gid == $gt_gid) {
+    my $cnt = "chown -f :$gt_gid $tmpdir";
+    my $comreturn = exec_com($cnt,"");
+    if $comreturn { die "Please rerun the script with sudo!\n"; }
+    chmod 0770,$tmpdir;
+}
 
 
 my $command;
