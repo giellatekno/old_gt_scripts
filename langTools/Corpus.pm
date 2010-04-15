@@ -157,7 +157,7 @@ sub get_error {
 				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
 					$teacher = $errtype;
 					$errtype = "";
-				} elsif ( $orig eq 'yes' || $origpos eq 'no' ) {
+				} elsif ( $orig eq 'yes' || $orig eq 'no' ) {
 					$teacher = $orig;
 					$orig = "";
 					$errtype = "";
