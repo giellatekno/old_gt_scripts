@@ -157,14 +157,14 @@ sub get_error {
 				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
 					$teacher = $errtype;
 					$errtype = "";
-				} elsif ( $origpos eq 'yes' || $origpos eq 'no' ) {
-					$teacher = $origpos;
-					$origpos = "";
+				} elsif ( $orig eq 'yes' || $origpos eq 'no' ) {
+					$teacher = $orig;
+					$orig = "";
 					$errtype = "";
 				} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
 					$teacher = $pos;
 					$pos = "";
-					$origpos = "";
+					$orig = "";
 					$errtype = "";
 				}
 				if ($pos)     { $error_elt->set_att('pos',     $pos); }
