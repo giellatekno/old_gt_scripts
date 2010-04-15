@@ -100,6 +100,7 @@ sub get_error {
 		if ($corr =~ /\|/ ) {
 			$extatt = 1;
 			($attlist, $corr) = split(/\|/, $corr);
+			$attlist =~ s/\s//g;
 #			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
 		}
 
@@ -113,7 +114,22 @@ sub get_error {
 		else {
 			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr}, $error);
 		}
-		if ($types{$separator}) { $error_elt->set_att('errclass', $types{$separator}); }
+		if ( $extatt ) {
+			if ( $types{$separator} eq 'errorort') {
+				my ($pos, $errtype, $teacher) = split(/,/, $attlist);
+				if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+					$teacher = $errtype;
+					$errtype = "";
+				} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+					$teacher = $pos;
+					$pos = "";
+					$errtype = "";
+				}
+				if ($pos)     { $error_elt->set_att('pos',     $pos); }
+				if ($errtype) { $error_elt->set_att('errtype', $errtype); }
+				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
+			}
+		}
 		push (@$cont_ref, $error_elt);		
 	} 
 	#else { print "NOT MATCH get_error: $text\n"; }
