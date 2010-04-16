@@ -101,6 +101,7 @@ sub get_error {
 			$extatt = 1;
 			($attlist, $corr) = split(/\|/, $corr);
 			$attlist =~ s/\s//g;
+			if ($test) { print STDERR "Attribute list is: $attlist.\n"; }
 #			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
 		}
 
