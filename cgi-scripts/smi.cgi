@@ -242,10 +242,6 @@ if (! $xml_out) {
 		# If minimal mode, show only first paradigm
         $output = gen2html($answer{$j}{para},0,1,$answer{$j}{fulllemma}); 
         $output->paste('last_child', $body); 
-	 open FILE, ">gogo_cgi_filename.txt" or die $!;
-	 print FILE $output;
-	 close FILE;
-
 		last if (! $mode || $mode eq "minimal");
       }
 
