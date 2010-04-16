@@ -34,6 +34,8 @@ our $str = "[^$sep\\s\\(\\)]+?";
 our $str_par = "\\([^$sep\\(\\)]+?\\)";
 our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
 
+my $test = $main::test;
+
 # Change the manual error markup §,$,€,¥,£ to xml-structure.
 
 sub add_error_markup {
