@@ -55,7 +55,7 @@ my $log_file;
 my $language;
 my $multi_coding=0;
 my $upload=0;
-my $test=1; #preserves temporary files and prints extra info.
+my $test=0; #preserves temporary files and prints extra info.
 
 # set the permissions for created files: -rw-rw-r--
 #umask 0112;
@@ -883,6 +883,7 @@ sub print_help {
     print"    --multi-coding  Document contains more than one different encodings, character \n";
     print"                    decoding is done paragraph-wise.\n";
     print"    --upload        Do conversion in the upload-directory. \n";
+	print"    --test          Don't delete temporary files, log more info.\n";
     print"    --help          Print this message and exit.\n";
 };
 
