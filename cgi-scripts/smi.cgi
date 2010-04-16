@@ -16,7 +16,7 @@ use CGI::Minimal;
 #$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
 #$CGI::POST_MAX        = 1_024 * 1_024; 
-use CGI::Alert ('saara', 'http_die');
+use CGI::Alert ('ciprian', 'http_die');
 
 # Use project's utility functions.
 use langTools::Util;

@@ -9,7 +9,7 @@ $CGI::DISABLE_UPLOADS = 0;
 $CGI::POST_MAX        = 1_024 * 1_024; # limit posts to 1 meg max
 
 # Forwarding warnings and fatal errors to browser window
-use CGI::Alert 'saara';
+use CGI::Alert 'ciprian';
 
 # Show custom text to remote viewer
 CGI::Alert::custom_browser_text << '-END-';
