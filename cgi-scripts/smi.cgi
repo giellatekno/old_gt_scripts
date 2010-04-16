@@ -177,8 +177,6 @@ elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answe
 elsif ($action eq "disamb") { 
     if ($translate) { $result = `echo $text | $disamb | $translate`; }
     else { $result = `echo $text | $disamb`; }
-elsif ($action eq "dependency") { $result = `echo $text | $disamb | $dependency`; }
-
 }
 
 elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
@@ -244,6 +242,10 @@ if (! $xml_out) {
 		# If minimal mode, show only first paradigm
         $output = gen2html($answer{$j}{para},0,1,$answer{$j}{fulllemma}); 
         $output->paste('last_child', $body); 
+	 open FILE, ">gogo_cgi_filename.txt" or die $!;
+	 print FILE $output;
+	 close FILE;
+
 		last if (! $mode || $mode eq "minimal");
       }
 
@@ -684,7 +686,7 @@ sub printinitialhtmlcodes {
 	##### analyze/hyphenate/transcribe/convert/disambiguate/dependency
 	else {
 		# Get the texts for selection menu
-		my @tools = qw(analyze disamb dependency hyphenate convert transcribe);
+		my @tools = qw(analyze disamb hyphenate convert transcribe);
 		my %labels;
 
 		for my $t (@tools) {
