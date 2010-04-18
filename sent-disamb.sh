@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# sent-dis.sh
+# sent-disamb.sh
 # This is a shell script for analysing (at the moment, only) Northern Sámi sentences with the vislcg3 parser.
 # It gives the analysis, and optionally the number of the disambiguation rules.
 
