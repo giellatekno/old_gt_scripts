@@ -5,7 +5,7 @@ This file contains a descrition of the current directory.
 
    LM --- language models for the perl-based language guesser
 
-   ShortTexts --- perhaps the texts used for constructing the language models
+   ShortTexts --- the texts used for constructing the language models
 
    cgi-scripts --- some or all? To check.
 
@@ -13,6 +13,7 @@ conf.pl --- used in: ../../gt/script/cgi-scripts/smi.cgi
 ../../techdoc/infra/docu-cgi-bin.xml
 
 detect-os.pl --- used in: NULL
+This was Børres setup. Check whether it is obsloete
 
 iclock-sma.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
@@ -36,10 +37,13 @@ sma-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
 
 sme-cg.cgi --- used in: NULL
+Obsolete
 
 sme-lookup.pl.bu --- used in: NULL
+Obsolete
 
 sme-lookup.pl.bu2 --- used in: NULL
+Obsolete
 
 sme-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
@@ -69,10 +73,13 @@ upload.cgi --- used in: ../../gt/script/cgi-scripts/xsl-process.cgi
 ../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.smj.html
 
 utf8-sme-lookup.cgi --- used in: NULL
+Obsolete
 
 win9x-sme-lookup.cgi --- used in: NULL
+Obsolete
 
 winuni-sme-lookup.cgi --- used in: NULL
+Obsolete
 
 xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 ../../techdoc/ling/corpus_conversion.xml
