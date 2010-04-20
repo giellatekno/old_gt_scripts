@@ -49,6 +49,8 @@ while(<>) {
 			# Replace space in multipart names temporarily with $.
 		$line =~ s/% /\$/g;
 		
+		$line =~ s/^\s+//;
+		
 		my ($word, $rest) = split (/\s+/, $line, 2);
 		$word =~ s/\$/% /g;
 		if ($line !~ /\:/) {
