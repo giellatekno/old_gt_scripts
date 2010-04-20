@@ -16,6 +16,7 @@ use utf8;
 
 my $file_name = $ARGV[$#ARGV];
 my $inroot = 0;
+my $inacro = 0;
 if ($file_name =~ /\/sm[aej]-lex./) { $inroot = 1; }
 
 my $root_tags = "";
@@ -49,9 +50,18 @@ while (<>) {
 		}
 	}
 	
+	if (/LEXICON/ && $inacro) { $inacro = 0; }
+
+
+	if ((/LEXICON FIRSTLETTER/ || /LEXICON ARABIC\s/ || /LEXICON SCND/ || /LEXICON THRD/ || /LEXICON FRTH/) || $inacro) {
+		$inacro = 1;
+		print; next;
+	}
+	
 	if (/LEXICON/ && ! $inroot) {
 		print; next;
 	}
+	
 
 
 	if ((! /\!.*/) && ($root_tags eq "")) { print; next; }
@@ -61,14 +71,39 @@ while (<>) {
 	my $tags = &process_comments($comments);
 #	my $new_tags = join ("",@tagset);
 
-    $entry =~ s/^\s*//;
-    if ($entry =~ /^\S+\s$/) {$entry = " " . $entry;}
+    $entry =~ s/^\s+//;
+#    $entry = " " . $entry;
     if ($entry !~ /:/ && $tags =~ /\S+/) {
-    	my ($lemma, $cont) = split (/(?<!%)\s+/, $entry);
-    	$entry = $lemma . ":" . $lemma . " " . $cont;
+    	if ($entry =~ /^\S+\s+$/) {
+    		$entry = ": " . $entry;
+    	}
+    	else {
+#    		print $entry; print "TOMI";
+    		my ($lemma, $cont) = split (/(?<!%)\s+/, $entry);
+#    		if ($lemma =~ /@/) {
+#    			my $stem = $lemma;
+#    			$stem =~ s/@.+@//;
+#    			$entry = $stem . ":" . $lemma . " " . $cont;
+#    		}
+    		$entry = $lemma . ":" . $lemma . " " . $cont;
+#    		print $entry;
+    	}
     }
 
-	my $new_line = $root_tags . $tags . $entry . ";" . $comments . "\n";
+    if ($entry =~ /:/ && $tags =~ /\S+/) {
+    	my ($lemma, $cont) = split (/:/, $entry, 2);
+    	$entry = $lemma . $root_tags . $tags . ":" . $cont;
+    }
+    
+#    my $begin = "";
+#    my $end = "";
+#    ($begin, $end) = split (/:/, $entry);
+#    if ($end =~ //) {$end = " ";}
+#    $entry = $begin . $root_tags . $tags . ":" . $end;
+    
+    $comments = &clean_comments($comments);
+
+	my $new_line = " " . $entry . ";" . $comments . "\n";
 	print $new_line;
 }
 
@@ -84,8 +119,14 @@ sub process_comments {
 	if ($comments =~ /SUB/) {
 		push @tags_use, "+Use/Sub";
 	}
+	if ($comments =~ /MARG/) {
+		push @tags_use, "+Use/Marg";
+	}
 	if ($comments =~ /\^C\^/) {
 		push @tags_use, "+Use/Circ";
+	}
+	if ($comments =~ /\^N\^/) {
+		push @tags_use, "+Use/CircN";
 	}
 	if ($comments =~ /\^P\^/) {
 		push @tags_use, "+Use/Ped";
@@ -119,6 +160,40 @@ sub process_comments {
 #	print "jee @tags_use $comments \n";
 	
 	return $tags;
+}
+
+sub clean_comments {
+	my $comments = "@_";
+	
+	if ($comments =~ /SUB/) {
+		$comments =~ s/SUB//;
+	}
+	if ($comments =~ /MARG/) {
+		$comments =~ s/MARG//;
+	}
+	if ($comments =~ /\^C\^/) {
+		$comments =~ s/\^C\^//;
+	}
+	if ($comments =~ /\^N\^/) {
+		$comments =~ s/\^N\^//;
+	}
+	if ($comments =~ /\^P\^/) {
+		$comments =~ s/\^P\^//;
+	}
+	if ($comments =~ /\^NG\^/) {
+		$comments =~ s/\^NG\^//;
+	}
+	if ($comments =~ /NOT-KJ/) {
+		$comments =~ s/NOT-KJ//;
+	}
+	if ($comments =~ /NOT-GG/) {
+		$comments =~ s/NOT-GG//;
+	}
+	if ($comments =~ /NOT-GS/) {
+		$comments =~ s/NOT-GS//;
+	}
+	
+	return $comments;
 }
 
 
