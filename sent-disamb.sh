@@ -5,8 +5,9 @@
 # It gives the analysis, and optionally the number of the disambiguation rules.
 
 #usage:
-# <script_name> <sentence_to_analyze> (-t)
+# <script_name> (-t) <sentence_to_analyze>
 # to output the number of disambiguation rules, too, use the parameter '-t'
+# input sentence always at the end
 
 if [ `hostname` == 'victorio.uit.no' ]
 then
@@ -15,15 +16,19 @@ else
     LOOKUP=`which lookup`
 fi
 
-if [ "$2" = "-t" ]
+flags=$(echo "$@" | grep '\-t')
+
+if [ ! -z "$flags" ]
 then
-    TRACE="--trace"
+    t="--trace"
 else
-    TRACE=""
+    t=""
 fi
 
-echo $1 | \
+# sentence is the last argument
+
+echo ${@:${#@}} | \
 preprocess --abbr=$GTHOME/gt/sme/bin/abbr.txt | \
 $LOOKUP -flags mbTT -utf8 $GTHOME/gt/sme/bin/sme.fst | \
 $GTHOME/gt/script/lookup2cg | \
-vislcg3 -g $GTHOME/gt/sme/src/sme-dis.rle $TRACE
+vislcg3 -g $GTHOME/gt/sme/src/sme-dis.rle $t
