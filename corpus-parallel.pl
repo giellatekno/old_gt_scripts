@@ -11,8 +11,8 @@ use File::Find;
 use Carp qw(cluck croak);
 use File::Copy;
 
-my $corpus_analyze="/Users/saara/gt/script/corpus-analyze.pl";
-my $tca2 = "/Users/saara/gt/script/tca2";
+my $corpus_analyze="$GT_HOME/gt/script/corpus-analyze.pl";
+my $tca2 = "$GT_HOME/gt/script/tca2.sh";
 
 my $corpdir = "/usr/local/share/corp";
 

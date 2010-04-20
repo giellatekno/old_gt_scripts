@@ -823,22 +823,12 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 ../../techdoc/ling/corpus_analyze.xml
 ../../techdoc/ling/file_alignment_plan.xml
 
-   text_cat --- used in: ../../gt/script/convert2xml.pl
-../../gt/script/copy_bin.sh
-../../gt/script/copy_corpus_bin.sh
-../../techdoc/admin/weekly/2006/Meeting_2006-09-11.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-09-18.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-09-25.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-10-02.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-10-09.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-10-16.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-10-23.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-10-30.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-11-06.jspwiki
-../../techdoc/ling/corpus_conversion_tech.xml
-../../techdoc/ling/langrec.xml
+   text_cat --- used in: => moved to ../../tools/lang-guesser/text_cat.pl
+../../gt/script/convert2xml.pl => no path correction needed 
+../../gt/script/copy_bin.sh => path correction
+../../gt/script/copy_corpus_bin.sh => path correction
 
-   text_cat README --- used in: just a text file!!!
+   text_cat README --- used in: just a text file!!! => moved to ../../tools/lang-guesser/README.txt
 
    upper.regex --- used in: NULL => deleted
 
