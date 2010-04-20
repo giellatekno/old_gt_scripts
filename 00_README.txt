@@ -814,14 +814,8 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 
    restart_divvun --- used in: NULL
 
-   tca2 --- used in: ../../gt/moses/README.txt
+   tca2 --- used in: => renamed tca2.sh
 ../../gt/script/corpus-parallel.pl
-../../techdoc/admin/weekly/2006/Meeting_2006-10-16.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-11-13.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-11-27.jspwiki
-../../techdoc/admin/weekly/2006/Meeting_2006-12-11.jspwiki
-../../techdoc/ling/corpus_analyze.xml
-../../techdoc/ling/file_alignment_plan.xml
 
    text_cat --- used in: => moved to ../../tools/lang-guesser/text_cat.pl
 ../../gt/script/convert2xml.pl => no path correction needed 
