@@ -23,6 +23,7 @@ fi
 script_dir=$tmpdir/gt/script
 bindir=$tmpdir/gt/bin
 srcdir=$tmpdir/gt/src
+tooldir=$GT_HOME/tools/lang-guesser
 
 common_bin=/usr/local/bin
 
@@ -32,7 +33,7 @@ langTools"
 
 binaries="ccat"
 
-scripts="preprocess lookup2cg text_cat cgi-export"
+scripts="preprocess lookup2cg $tooldir/text_cat.pl cgi-export"
 
 # If we are in G5
 if [ "$host" == "victorio.uit.no" ]

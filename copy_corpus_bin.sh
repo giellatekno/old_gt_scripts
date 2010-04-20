@@ -14,9 +14,10 @@
 corpdir=/usr/local/share/corp
 bindir=$corpdir/bin
 tmpdir="/usr/tmp"
+tooldir=$GT_HOME/tools/lang-guesser
 
 scripts="convert2xml.pl
-text_cat
+$tooldir/text_cat.pl
 paratext2xml.pl
 bible2xml.pl
 pdf2xml.pl
