@@ -80,12 +80,22 @@ while (<>) {
     	else {
 #    		print $entry; print "TOMI";
     		my ($lemma, $cont) = split (/(?<!%)\s+/, $entry);
+    		my $info_string = "";
+    		if ($entry =~ /\".*\"/) {
+    			$info_string = $&;
+#    			$info_string =~ /\".*\"/;
+    		}
 #    		if ($lemma =~ /@/) {
 #    			my $stem = $lemma;
 #    			$stem =~ s/@.+@//;
 #    			$entry = $stem . ":" . $lemma . " " . $cont;
 #    		}
-    		$entry = $lemma . ":" . $lemma . " " . $cont;
+			if ($info_string eq "") {
+    			$entry = $lemma . ":" . $lemma . " " . $cont;
+			}
+			else {
+				$entry = $lemma . ":" . $lemma . " " . $cont . " " . $info_string;
+			}
 #    		print $entry;
     	}
     }
@@ -192,6 +202,8 @@ sub clean_comments {
 	if ($comments =~ /NOT-GS/) {
 		$comments =~ s/NOT-GS//;
 	}
+	
+	$comments =~ s/\+.*//;
 	
 	return $comments;
 }
