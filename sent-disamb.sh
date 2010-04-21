@@ -15,11 +15,13 @@
 if [ `hostname` == 'victorio.uit.no' ]
 then
     LOOKUP=/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup
+    HLOOKUP='/usr/local/bin/hfst-optimized-lookup'
 else
     LOOKUP=`which lookup`
+    HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
 fi
 
-HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
+
 
 
 
