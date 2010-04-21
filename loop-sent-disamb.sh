@@ -13,7 +13,10 @@
 # export GT_HOME=/Users/<your_user_name> 
 # export GT_HOME=/Users/<your_user_name>/Documents
 
-# possible todo: this can be merged with loop-sent-depend.sh they are almost the same
+# todo: change script that the commando can be used in a  pipe environment (both Trond and Lene use "cat FILE | ANALIZE")
+# todo: merge sme-multi.sh, loop-disamb, and loop-sent-depend.sh
+# todo: extend the script to other languages for which there is a LANG-dis.rle
+
 
 ft=$(echo "$@" | grep '\-t')
 
