@@ -19,6 +19,10 @@ else
     LOOKUP=`which lookup`
 fi
 
+HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
+
+
+
 # -l=sme|sma|fao|etc. => default=sme
 fl=$(echo "$@" | grep '\-l\=')
 
@@ -55,6 +59,9 @@ fi
 if [[ "$l" == "sme" ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]]
 then
     lg="gt"
+elif [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "fkv" ]]
+then
+    lg="kt"
 else
     lg="st"
 fi
@@ -71,6 +78,17 @@ last_fl=$(echo "${@:${#@}}" | perl -ne 'if (/-l=.../) {print;}')
 last_fs=$(echo "${@:${#@}}" | perl -ne 'if (/-s=.../) {print;}')
 last_ft=$(echo "${@:${#@}}" | perl -ne 'if (/-t/) {print;}')
 
+
+# omorfi or not omorfi
+
+if [[ "$l" == fin ]]
+then 
+	MORPH="$HLOOKUP $GTHOME/kt/fin/bin/share/omorfi/mor-omorfi.cg.hfst.ol"
+else
+	MORPH="$LOOKUP -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
+fi
+
+
 # if no params or last param is a flag then take input from the left (cat, echo, etc.)
 # else take the last param from the right
 if [[ $# -eq 0 ]]
@@ -78,7 +96,8 @@ then
 #tput cup 0 0
     sentence=$(cat -)
 else
-    if [[ ! -z "$last_fl" ]] || [[ ! -z "$last_fs" ]] || [[  ! -z "$last_ft" ]]
+    if [[ ! -z "$last_fl" ]] || [[ ! -z "$last_fs" ]] || [[  ! -z "$last_ft" ]] 
+
     then
 	sentence=$(cat -)
     else
@@ -88,6 +107,12 @@ fi
 
 echo "$sentence" | \
 preprocess $abbr | \
-$LOOKUP -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst | \
+$MORPH | \
 $GTHOME/gt/script/lookup2cg | \
 vislcg3 -g $GTHOME/$lg/$l/src/$l-dis.rle $t
+
+
+
+
+
+
