@@ -455,21 +455,7 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
    spellcheckWithMSWord.applescript --- used in: ../../gt/Makefile
 
  8. rest:
-   abbr-extract --- used in:
-../../gt/Makefile
-../../gt/sme/src/Makefile
-../../kt/fin/src/Makefile
-../../st/fao/src/Makefile
-../../st/iku/src/ipk-make
-../../st/iku/src/Makefile
-../../st/ipk/src/Makefile
-../../st/kal/src/Makefile
-../../st/nno/src/Makefile
-../../st/nob/src/Makefile
-../../st/rum/src/Makefile
-../../techdoc/lang/sme/docu-sme-makefile.xml
-../../techdoc/ling/preprocessor.xml
-
+   abbr-extract --- used in: => abbr-extract.pl
 
    cgi-export --- used in: ../../gt/script/copy_bin.sh
 ../../techdoc/infra/docu-cgi-bin.xml
