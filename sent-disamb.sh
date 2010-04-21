@@ -89,5 +89,5 @@ fi
 echo "$sentence" | \
 preprocess $abbr | \
 $LOOKUP -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst | \
-$GTHOME/$lg/script/lookup2cg | \
+$GTHOME/gt/script/lookup2cg | \
 vislcg3 -g $GTHOME/$lg/$l/src/$l-dis.rle $t
