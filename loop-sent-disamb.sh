@@ -13,7 +13,6 @@
 # export GT_HOME=/Users/<your_user_name> 
 # export GT_HOME=/Users/<your_user_name>/Documents
 
-# todo: change script that the commando can be used in a  pipe environment (both Trond and Lene use "cat FILE | ANALIZE")
 # todo: merge sme-multi.sh, loop-disamb, and loop-sent-depend.sh
 # todo: extend the script to other languages for which there is a LANG-dis.rle
 
@@ -37,9 +36,16 @@ else
 fi
 
 case $l in
-sme) message="Atte cealkaga: "  ;;
-sma) message="Skriv setning: "  ;;
-  *) message="Write sentence: " ;;
+    sme) message="Atte cealkaga: "  ;;
+    sma) message="Skriv setning: "  ;;
+    smj) message="Skriv setning: "  ;;
+    fin) message="Skriv setning: "  ;;
+    kom) message="Skriv setning: "  ;;
+    fao) message="Skriv setning: "  ;;
+    nob) message="Skriv setning: "  ;;
+    nno) message="Skriv setning: "  ;;
+    kal) message="Skriv setning: "  ;;
+    *)   message="Write sentence: " ;;
 esac
 
 while [ 1 ]                                 # as long as there is input

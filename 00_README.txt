@@ -812,7 +812,7 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 
    random_lines --- used in: ../../techdoc/ling/langrec.xml
 
-   restart_divvun --- used in: NULL
+   restart_divvun --- used in: NULL renamed => restart_divvun.sh
 
    tca2 --- used in: => renamed tca2.sh
 ../../gt/script/corpus-parallel.pl
