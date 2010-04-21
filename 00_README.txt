@@ -513,10 +513,6 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 ../../gt/mk-files/disamb.mk
 ../../gt/moses/README.txt
 ../../gt/script/catxml
-../../gt/script/cealkka
-../../gt/script/cealkka2
-../../gt/script/cealkka3
-../../gt/script/cealkkadep
 ../../gt/script/cgi-scripts/conf.pl
 ../../gt/script/cgi-scripts/sme-cg.cgi
 ../../gt/script/cgi-scripts/smi.cgi
