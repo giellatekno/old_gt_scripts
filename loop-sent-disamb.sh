@@ -38,7 +38,7 @@ fi
 case $l in
     sme) message="Atte cealkaga: "  ;;
     sma) message="Skriv setning: "  ;;
-    smj) message="Skriv setning: "  ;;
+    smj) message="Atte tjielgga: "  ;;
     fin) message="Skriv setning: "  ;;
     kom) message="Skriv setning: "  ;;
     fao) message="Skriv setning: "  ;;
