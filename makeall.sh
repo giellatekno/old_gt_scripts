@@ -145,6 +145,16 @@ echo "===>     Finnish   <==="
 echo "===>               <==="
 cd $GTHOME/kt/fin/src
 nice time make
+echo "===>                          <===" 
+echo "===>                          <==="
+echo "===>     Finnish with omorfi  <===" 
+echo "===>                          <==="
+cd $GTHOME/kt/fin/omorfi
+nice time make && make install
+
+
+
+
 #cd $GTHOME/kt/kom/src
 # For some reason, the Makefile timing does not work here. Have a look.
 #echo "===>              <==="
