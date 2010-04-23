@@ -28,6 +28,8 @@ fs=$(echo "$@" | grep '\-s\=')
 
 ft=$(echo "$@" | grep '\-t')
 
+fh=$(echo "$@" | grep '\-h')
+
 # lang
 if [ ! -z "$fl" ]
 then
@@ -82,10 +84,15 @@ fi
 last_fl=$(echo "${@:${#@}}" | perl -ne 'if (/-l=.../) {print;}')
 last_fs=$(echo "${@:${#@}}" | perl -ne 'if (/-s=.../) {print;}')
 last_ft=$(echo "${@:${#@}}" | perl -ne 'if (/-t/) {print;}')
+last_fh=$(echo "${@:${#@}}" | perl -ne 'if (/-h/) {print;}')
 
 # if no params or last param is a flag then take input from the left (cat, echo, etc.)
 # else take the last param from the right
-if [[ $# -eq 0 ]]
+if [[ ! -z "$last_fh" ]]
+then
+    echo "Heeeeelp!"
+    exit
+elif [[ $# -eq 0 ]]
 then
 #tput cup 0 0
     sentence=$(cat -)
