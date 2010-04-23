@@ -59,6 +59,8 @@ alias xquery "saxonXQ"
 alias xslt2 "saxonXSL"
 alias xsl2 "saxonXSL"
 
+# Unicode/UTF-8 aware rev:
+alias rev "perl -nle 'print scalar reverse \$_'"
 
 # define append_path and prepend_path to add directory paths, e.g. PATH, MANPATH.
 # add to end of path
