@@ -92,4 +92,10 @@ else
   setenv PERL5LIB $GTHOME/gt/script
 endif
 
-# eof
+# If MacPorts is installed, make sure it is also availble in the environment.
+# This is especially important on the XServe.
+if ( -d /opt/local/bin ) then
+	prepend_path PATH     /opt/local/bin:/opt/local/sbin
+	append_path  MANPATH  /opt/local/share/man
+	append_path  INFOPATH /opt/local/share/info
+endif
