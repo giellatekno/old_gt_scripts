@@ -81,6 +81,19 @@ else
 	MORPH="$LOOKUP -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
 fi
 
+print_help() {
+    echo "USAGE: 1. sent-proc.sh [-d] [-l=LANG] [-s=PROCESSING_STEP] \"INPUT_TEXT\""
+    echo "                       or"
+    echo "       2. cat FILE or echo \"INPUT_TEXT\" | sent-proc.sh [-d] [-l=LANG] [-s=PROCESSING_STEP] "
+    echo "-l language code: sme North Saami (default), sma South Saami, etc."
+    echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"
+    echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"
+    echo "   processing step: dep dependency parsing with vislcg3"
+    echo "-t print traces of the disambiguation or parsing step"
+    echo "-h print this text"
+    exit
+} 
+
 last_fl=$(echo "${@:${#@}}" | perl -ne 'if (/-l=.../) {print;}')
 last_fs=$(echo "${@:${#@}}" | perl -ne 'if (/-s=.../) {print;}')
 last_ft=$(echo "${@:${#@}}" | perl -ne 'if (/-t/) {print;}')
@@ -90,18 +103,25 @@ last_fh=$(echo "${@:${#@}}" | perl -ne 'if (/-h/) {print;}')
 # else take the last param from the right
 if [[ ! -z "$last_fh" ]]
 then
-    echo "Heeeeelp!"
-    exit
+    print_help
 elif [[ $# -eq 0 ]]
 then
 #tput cup 0 0
     sentence=$(cat -)
+    if [[ -z "$sentence" ]]
+    then
+	print_help
+    fi
 else
     if [[ ! -z "$last_fl" ]] || [[ ! -z "$last_fs" ]] || [[  ! -z "$last_ft" ]] 
     then
 	sentence=$(cat -)
     else
 	sentence=${@:${#@}}
+	if [[ -z "$sentence" ]]
+	then
+	    print_help
+	fi
     fi
 fi
 
@@ -124,4 +144,3 @@ case $s in
 	echo $(echo $dep_cmd) | sh
 	;;
 esac
-
