@@ -3,12 +3,16 @@
 # speller-testres.pl
 # Combines speller input and output to test results.
 # The default input format is typos.txt. 
-# Output is either PLX (pl) or AppleScript/MS Word (mw) output format.
+# Output format is one of:
+#    Polderland          (pl)
+#    AppleScript/MS Word (mw)
+#    Hunspell            (hu)
+#    Voikko              (vk)
 # Prints to  an XML file.
 #
 # Usage: speller-testres.pl -h
 #
-# $id:$
+# $Id$
 
 use strict;
 use XML::Twig;
@@ -28,9 +32,10 @@ my $forced=0;
 my $polderland;
 my $applescript;
 my $hunspell;
+my $voikko;
 my $ccat;
 my $out_file;
-my $typos=1;
+my $typos=1; # Not used, no idea why it is here. Kept for future use.
 my $document;
 my $version;
 my $date;
@@ -39,20 +44,22 @@ my $toolversion;
 
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
-GetOptions ("help|h" => \$help,
-			"input|i=s" => \$input,
-			"document|d=s" => \$document,
-			"pl|p" => \$polderland,
-			"mw|m" => \$applescript,
-			"hu|u" => \$hunspell,
-			"version|v=s" => \$version,
-			"date|e=s" => \$date,
-			"ccat|c" => \$ccat,
-			"typos|t" => \$typos,
-			"output|o=s" => \$output,
-			"xml|x=s" => \$print_xml,
-			"forced|f" => \$forced,
-			"toolversion|w=s" => \$toolversion,
+GetOptions (
+			"help|h"             => \$help,
+			"input|i=s"          => \$input,
+			"output|o=s"         => \$output,
+			"document|d=s"       => \$document,
+			"pl|p"               => \$polderland,
+			"mw|m"               => \$applescript,
+			"hu|u"               => \$hunspell,
+			"vkmalaga|vkhfst|vk" => \$voikko,
+			"typos|t"            => \$typos,
+			"ccat|c"             => \$ccat,
+			"forced|f"           => \$forced,
+			"date|e=s"           => \$date,
+			"xml|x=s"            => \$print_xml,
+			"version|v=s"        => \$version,
+			"toolversion|w=s"    => \$toolversion,
 			);
 
 if ($help) {
@@ -71,7 +78,8 @@ if(! @originals) { exit;}
 if ($polderland) { $input_type="pl"; read_polderland(); }
 elsif ($applescript) { $input_type="mw"; read_applescript(); }
 elsif ($hunspell) { $input_type="hu"; read_hunspell(); }
-else { print STDERR "$0: Give the speller output type: --pl, --mw or --hu\n"; exit; }
+elsif ($voikko) { $input_type="vk"; read_voikko(); }
+else { print STDERR "$0: Give the speller output type: --pl, --mw, --hu or --vk\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -273,6 +281,122 @@ sub read_polderland {
 		last if ($line =~ /Terminate/);
 
 		if ($line =~ /Suggestions:/) { $originals[$i]{'error'} = "SplErr" };
+
+		if ($line =~ /Check returns/ || $line =~ /Getting suggestions/) {
+			$reading=1;
+			#Store the suggestions from the last round.
+			if (@suggestions) {
+				$originals[$i]{'sugg'} = [ @suggestions ];
+				$originals[$i]{'num'} = [ @numbers ];
+				$originals[$i]{'error'} = "SplErr";
+				@suggestions = ();
+				pop @suggestions;
+				@numbers = ();
+				pop @numbers;
+				$reading = 0;
+			}
+			elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
+			$i++;
+			if ($line =~ /Check returns/) {
+				$reading = 1;
+				($orig = $line) =~ s/^.*?Check returns .* for \'(.*?)\'\s*$/$1/;
+			}
+			elsif (! $reading && $line =~ /Getting suggestions/) {
+				$reading = 1;
+				($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
+			}
+			# Some simple adjustments to the input and output lists.
+			# First search the output word in the input list.
+			my $j = $i;
+			while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
+			
+			# If the output word was not found in the input list, ignore it.
+			if (! $originals[$j]) {
+				cluck "WARNING: Output word $orig was not found in the input list.\n";
+				$orig=undef;
+				$i--;
+				next;
+			}
+
+			# If it was found later, mark the intermediate input as correct.
+			elsif($j != $i) {
+				my $k=$j-$i;
+				for (my $p=$i; $p<$j; $p++){
+					$originals[$p]{'error'}="SplCor";
+					$originals[$p]{'sugg'}=();
+					pop @{ $originals[$p]{'sugg'} };
+					#print STDERR "$0: Removing input word $originals[$p]{'orig'}.\n";
+				}
+				$i=$j;
+			}
+			next;
+		}
+
+		next if (! $orig);
+		chomp $line;
+		my ($num, $suggestion) = split(/\s+/, $line, 2);
+		#print STDERR "$_ SUGG $suggestion\n";
+		if ($suggestion) {
+			push (@suggestions, $suggestion);
+			push (@numbers, $num);
+		}
+	}
+	close(FH);
+	if ($orig) {
+		#Store the suggestions from the last round.
+		if (@suggestions) {
+			$originals[$i]{'sugg'} = [ @suggestions ];
+			$originals[$i]{'num'} = [ @numbers ];
+			$originals[$i]{'error'} = "SplErr";
+			@suggestions = ();
+			pop @suggestions;
+			@numbers = ();
+			pop @numbers;
+		}
+		elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
+	}
+	$i++;
+	while($originals[$i]) { $originals[$i]{'error'} = "SplCor"; $i++; }
+}
+
+sub read_voikko {
+
+	print STDERR "$0: Reading Voikko output from $output\n";
+	open(FH, $output) or die "Could not open file $output. $!";
+
+	my $i=0;
+	my $line = $_;
+
+	return if (! $line);
+	my $orig = "";
+	# variable to check whether the suggestions are already started.
+	# this is because the line "check returns" may be missing.
+	my $reading=0;
+
+    if ($line =~ /^[WC]:/) {
+		($orig = $line) =~ s/^[WC]: (.*?)\s*$/$1/;
+		$reading=1;
+	}
+	else { confess "could not read $output: $line"; }
+
+	if (!$orig || $orig eq $line) { 
+		confess "Probably wrong format, start again with --mw\n";
+	}
+
+	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
+		#print STDERR "$0: Input and output mismatch, removing $originals[$i]{'orig'}.\n";
+		splice(@originals,$i,1);
+	}
+
+	my @suggestions;
+	my @numbers;
+	my $num = 0;
+
+	while(<FH>) {
+
+		$line = $_;
+
+		if ($line =~ /^S:/) { $originals[$i]{'error'} = "SplErr" };
 
 		if ($line =~ /Check returns/ || $line =~ /Getting suggestions/) {
 			$reading=1;
@@ -591,35 +715,51 @@ sub print_output {
 
 sub print_help {
 	print << "END";
-Combines speller input and output.
+Combines speller input and output into an xml file.
 Usage: speller-testres.pl [OPTIONS]
+
 --help            Print this help text and exit.
 -h
+
 --input=<file>    The original speller input.
 -i <file>
---document=<name> The name of the original speller input, if not the input file name.
--d <name>
---ccat            The input is from ccat, the default is typos.txt. not yet in use.
--c
+
 --output=<file>   The speller output.
 -o <file>
---pl             The speller output is in PLX-format.
+
+--document=<name> The name of the original speller input, if not the input file name.
+-d <name>
+
+--pl              The speller output is in Polderland format.
 -p
---mw              The speller output is in AppleScript-format.
+
+--mw              The speller output is in AppleScript+MSWord format.
 -m
---hu              The speller output is in hunspell format.
+
+--hu              The speller output is in Hunspell format.
 -u
---xml=<file>      Print output in xml to file <file>.
--x
+
+--vkmalaga        The speller output is in Voikko format.
+--vkhfst
+--vk
+
+--ccat            The input is from ccat, the default is typos.txt. Not yet in use.
+-c
+
 --forced          The speller was forced to make suggestions.
 -f
---version=<num>   Speller version information.
--v <num>
+
 --date <date>     Date when the test was run, if not the output file timestamp.
 -e
+
+--xml=<file>      Print output in xml to file <file>.
+-x
+
+--version=<num>   Speller version information.
+-v <num>
+
 --toolversion     Hyphenator tool version information.
 -w
 END
 
 }
-
