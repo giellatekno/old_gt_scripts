@@ -264,7 +264,7 @@ void ProcessTag (TagParser &parse)
             bPrintEndTag = false;
         }
     }
-    else if ((parse.Value() == "error" && parse.Type() == TagParser::TAG_START_TAG))
+    else if ((parse.Value().substr(0,5) == "error" && parse.Type() == TagParser::TAG_START_TAG))
 //    		  && (parse.sGetValue("xml:lang") == sLang || sLang[0] == '\0'))
     {
         ProcessCorrection(parse);
@@ -273,15 +273,20 @@ void ProcessTag (TagParser &parse)
 
 void ProcessCorrection (TagParser &parse)
 {
-	string type = parse.sGetValue("type");
+	string type = parse.Value();
 	string corr;
+	string errtype;
+	string pos;
 
-	if ((bPrintOrtCorr && (type == "ort" || type == ""))   ||
-		(bPrintSyntCorr && type == "synt") ||
-		(bPrintLexCorr && type == "lex"))
+	if ((bPrintOrtCorr && (type == "errorort" || type == ""))   ||
+		(bPrintSyntCorr && type == "errorsyn") ||
+		(bPrintLexCorr && type == "errorlex"))
 		corr = parse.sGetValue("correct");
 	else
 		corr = "";
+
+	errtype = parse.sGetValue("errtype");
+	pos = parse.sGetValue("pos");
 
 /*	else if ((bPrintSyntCorr && type == "synt") && corr != "")
         cout << corr << " ";
@@ -293,8 +298,20 @@ void ProcessCorrection (TagParser &parse)
 	parse.GetNextToken();
     string err = parse.Value();
 
+    cout << err;
+
+    if ((bPrintOrtCorr && type == "errorort") && corr != "")
+        cout << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype;
+    else if ((bPrintSyntCorr && type == "errorsyn") && corr != "")
+        cout << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype;
+    else if ((bPrintLexCorr && type == "errorlex") && corr != "")
+        cout << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype;
+
+    cout << endl;
+
+/*
     if (bPrintTypos)
-        cout << err << "\t" << corr << endl;
+        cout << err << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype << endl;
     else if (bPrintCorr && corr != "")
         cout << corr << " ";
 /*    else if ((bPrintOrtCorr && type == "ort") && corr != "")
@@ -303,9 +320,10 @@ void ProcessCorrection (TagParser &parse)
         cout << corr << " ";
     else if ((bPrintLexCorr && type == "lex") && corr != "")
         cout << corr << " ";
-*/
+
     else
         cout << err << " ";
+*/
 }
 
 void DumpTag(int Spaces, int id, TagParser &parse, bool bEofLine)
