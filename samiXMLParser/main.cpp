@@ -20,8 +20,9 @@ bool bPrintList = false;
 bool bPrintTable = false;
 bool bPrintCorr = false;
 bool bPrintOrtCorr = false;
-bool bPrintSyntCorr = false;
+bool bPrintSynCorr = false;
 bool bPrintLexCorr = false;
+bool bPrintMorphSynCorr = false;
 bool bPrintTypos = false;
 bool bPrintSpeller = false;
 bool bAddID = false;
@@ -95,12 +96,16 @@ main (int argc, char *argv[])
             bPrintOrtCorr = true;
         }
 
-        else if (strcmp(argv[i], "-synt") == 0) {
-            bPrintSyntCorr = true;
+        else if (strcmp(argv[i], "-syn") == 0) {
+            bPrintSynCorr = true;
         }
 
         else if (strcmp(argv[i], "-lex") == 0) {
             bPrintLexCorr = true;
+        }
+
+        else if (strcmp(argv[i], "-morphsyn") == 0) {
+            bPrintMorphSynCorr = true;
         }
 
         else if (strcmp(argv[i], "-typos") == 0) {
@@ -275,18 +280,15 @@ void ProcessCorrection (TagParser &parse)
 {
 	string type = parse.Value();
 	string corr;
-	string errtype;
-	string pos;
+	bool firstattr = true;
 
 	if ((bPrintOrtCorr && (type == "errorort" || type == ""))   ||
-		(bPrintSyntCorr && type == "errorsyn") ||
+		(bPrintSynCorr && type == "errorsyn") ||
+		(bPrintMorphSynCorr && type == "errormorphsyn") ||
 		(bPrintLexCorr && type == "errorlex"))
 		corr = parse.sGetValue("correct");
 	else
 		corr = "";
-
-	errtype = parse.sGetValue("errtype");
-	pos = parse.sGetValue("pos");
 
 /*	else if ((bPrintSyntCorr && type == "synt") && corr != "")
         cout << corr << " ";
@@ -301,11 +303,37 @@ void ProcessCorrection (TagParser &parse)
     cout << err;
 
     if ((bPrintOrtCorr && type == "errorort") && corr != "")
-        cout << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype;
-    else if ((bPrintSyntCorr && type == "errorsyn") && corr != "")
-        cout << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype;
+        cout << "\t" << corr;
+    else if ((bPrintSynCorr && type == "errorsyn") && corr != "")
+        cout << "\t" << corr;
+    else if ((bPrintMorphSynCorr && type == "errormorphsyn") && corr != "")
+        cout << "\t" << corr;
     else if ((bPrintLexCorr && type == "errorlex") && corr != "")
-        cout << "\t" << corr << "\t#pos=" << pos << ",errtype=" << errtype;
+        cout << "\t" << corr;
+    else return;
+
+	const list<TagAttribute*> &attrs = parse.GetAttribs();
+
+	if (attrs.size())
+	{
+		for(list<TagAttribute*>::const_iterator i = attrs.begin(); i != attrs.end();++i)
+		{
+			if ((*i)->getName() == "correct") ;
+			else if ((*i)->getName() == "/")
+				cout << (*i)->getName();
+			else
+			{
+				if (firstattr) {
+					cout << "\t#";
+					firstattr = false;
+				}
+				else
+					cout << ",";
+				cout << (*i)->getName()  << "="
+					 << (*i)->getValue();
+			}
+		}
+	}
 
     cout << endl;
 
@@ -385,8 +413,9 @@ void print_help()
     cout << "\t-t\t Print paragraphs with table type.\n";
     cout << "\t-C\t Print corrected xml-files with corrections.\n";
     cout << "\t-ort\t Print corrected xml-files with ortoghraphical corrections.\n";
-    cout << "\t-synt\t Print corrected xml-files with syntactical corrections.\n";
+    cout << "\t-syn\t Print corrected xml-files with syntactical corrections.\n";
     cout << "\t-lex\t Print corrected xml-files with lexical corrections.\n";
+    cout << "\t-morphsyn\t Print corrected xml-files with morphological and syntactical corrections.\n";
     cout << "\t-typos\t Print corrections with tabs separated output.\n";
     cout << "\t-S\t Print the whole text in a word per line. Errors are tab separated. \n";
     cout << "\t-r <dir> Recursively process directory dir and subdirs encountered.\n";
