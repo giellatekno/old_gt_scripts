@@ -425,6 +425,7 @@ sub gen2html {
 
 	my $tr;
 	my $td;
+	my $font;
 	my $lemma;
 	my $analysis;
 	my $output;
@@ -443,6 +444,7 @@ sub gen2html {
 	my @input=split(/\n/, $text);
 
 	my $prev_analysis="";
+	my $colored_analysis="";
 	for my $out (@input) {
 		chomp $out;
 		
@@ -460,7 +462,10 @@ sub gen2html {
 		# try to group them.
 		if($analysis && $prev_analysis eq $analysis) {
 			$td=XML::Twig::Elt->new('td');
-			$td->set_text($form);
+			$font=XML::Twig::Elt->new('font');
+                        $font->set_att('color', 'red');
+			$font->set_text($form);
+			$font->paste('last_child', $td); 
 			if ($tr) { $td->paste('last_child', $tr); }
 			next;
 		}
@@ -472,17 +477,24 @@ sub gen2html {
 		$tr=XML::Twig::Elt->new('tr');
 
 		$td=XML::Twig::Elt->new('td');
-		$td->set_text($lemma);
+		$font=XML::Twig::Elt->new('font');
+                $font->set_att('color', 'maroon');
+		$font->set_text($lemma);
+		$font->paste('last_child', $td);
 		$td->paste('last_child', $tr);
 
 		if ($analysis) {
 			$td=XML::Twig::Elt->new('td');
-			$td->set_text($analysis);
+                        ($colored_analysis = $analysis) =~ s/(\+)/<font color=\"grey\">$1<\/font>/g;
+			$td->set_text($colored_analysis);
 			$td->paste('last_child', $tr);
 		}
 		
 		$td=XML::Twig::Elt->new('td');
-		$td->set_text($form);
+		$font=XML::Twig::Elt->new('font');
+                $font->set_att('color', 'red');
+		$font->set_text($form);
+		$font->paste('last_child', $td);
 		$td->paste('last_child', $tr);
 
 		$prev_analysis = $analysis;
