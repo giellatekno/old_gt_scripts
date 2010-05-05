@@ -22,6 +22,7 @@ use CGI::Alert ('ciprian', 'http_die');
 use langTools::Util;
 use langTools::XMLStruct;
 
+
 # Configuration: variable definitions etc.
 require "conf.pl";
 
@@ -172,11 +173,18 @@ if (@words && ! $xml_out) { &printwordlimit; }
 my $result;
 my %answer;
 my %candits;
+my $coloring = "./color_analysis.pl sme";
 if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
 elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candits); }
 elsif ($action eq "disamb") { 
-    if ($translate) { $result = `echo $text | $disamb | $translate`; }
-    else { $result = `echo $text | $disamb`; }
+    if ($translate) { $result = `echo $text | $disamb | $translate | $coloring`; }
+    else { $result = `echo $text | $disamb | $coloring`; }
+
+}
+elsif ($action eq "dependency") { 
+    if ($translate) { $result = `echo $text | $dependency | $translate`; }
+    else { $result = `echo $text | $dependency`; }
+
 }
 
 elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
@@ -194,9 +202,11 @@ else { print "<error>No parameter for action recieved</error>"; }
 
 my $output;
 if (! $xml_out) {
-	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency") { 
-          $result =~ s/</&lt\;/g; 
+	if ($action eq "analyze" || $action eq "disamb") { 
+          #$result =~ s/</&lt\;/g; 
           $output = dis2html($result,1);
+          #$output = $result;
+
     }
 	elsif ($action eq "generate") { $output = gen2html($result,0,1);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
@@ -255,6 +265,8 @@ if (! $xml_out) {
          push(@content, $br);
 
 		for my $c (keys %candits) { 
+	    $c =~ s/^([^\+]+)/"<font color=\"indianred\">".$1."<\/font>"/e;
+	    $c =~ s/(\+)/<font color=\"grey\">$1<\/font>/g;
             push(@content, $c);
             my $br_copy = $br->copy;
             push (@content, $br_copy);
@@ -682,7 +694,7 @@ sub printinitialhtmlcodes {
 	##### analyze/hyphenate/transcribe/convert/disambiguate/dependency
 	else {
 		# Get the texts for selection menu
-		my @tools = qw(analyze disamb hyphenate convert transcribe);
+		my @tools = qw(analyze disamb dependency hyphenate convert transcribe);
 		my %labels;
 
 		for my $t (@tools) {
