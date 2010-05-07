@@ -285,7 +285,8 @@ void ProcessCorrection (TagParser &parse)
 	if ((bPrintOrtCorr && (type == "errorort" || type == ""))   ||
 		(bPrintSynCorr && type == "errorsyn") ||
 		(bPrintMorphSynCorr && type == "errormorphsyn") ||
-		(bPrintLexCorr && type == "errorlex"))
+		(bPrintLexCorr && type == "errorlex") ||
+		 type == "error")
 		corr = parse.sGetValue("correct");
 	else
 		corr = "";
@@ -309,6 +310,8 @@ void ProcessCorrection (TagParser &parse)
     else if ((bPrintMorphSynCorr && type == "errormorphsyn") && corr != "")
         cout << "\t" << corr;
     else if ((bPrintLexCorr && type == "errorlex") && corr != "")
+        cout << "\t" << corr;
+    else if ((type == "error") && corr != "")
         cout << "\t" << corr;
     else return;
 
