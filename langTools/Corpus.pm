@@ -13,7 +13,7 @@ use Carp qw(cluck carp);
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 
-$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+$VERSION = sprintf "%d", q$Revision$ =~ m/(\d+)/g;
 @ISA         = qw(Exporter);
 
 @EXPORT = qw(&add_error_markup &pdfclean &txtclean);
