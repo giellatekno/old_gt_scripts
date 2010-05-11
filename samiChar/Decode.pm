@@ -12,7 +12,7 @@ use utf8;
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 
-$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+$VERSION = sprintf "%d", q$Revision$ =~ m/(\d+)/g;
 @ISA         = qw(Exporter);
 
 @EXPORT = qw(&decode_text_file &decode_file &guess_text_encoding &guess_encoding &read_char_tables &decode_para &decode_title &decode_amp_para %Char_Tables);
