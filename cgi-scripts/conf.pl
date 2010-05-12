@@ -63,6 +63,7 @@ sub init_variables {
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
+        my $hfst = "$fstdir/$lang.cg.hfst.ol
     my $gen_fst = "$fstdir/i$lang.fst";
     my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
@@ -170,7 +171,7 @@ sub init_variables {
 
 
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
-    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-optimized-lookup $fst";
+    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-optimized-lookup $hfst";
 
 	if ($lang eq "fin") { $analyse = $hfstanalyse; }
 
