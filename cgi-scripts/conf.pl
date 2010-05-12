@@ -44,6 +44,9 @@ sub init_variables {
 	my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
     # The directory for vislcg and lookup2cg
 	my $bindir = "/opt/sami/cg/bin/";
+    # The directory for hfst tools
+        my $hfstutilitydir = "/opt/local/bin";
+        my $hfstoptimizedlookup = "hfst-optimized-lookup";
 
     # The fst's and other tools
 	my $optdir = "/opt/smi";
@@ -165,7 +168,11 @@ sub init_variables {
 	}
 	else { $preprocess = "$bindir/preprocess"; }
 
+
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
+    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-optimize-lookup $fst";
+
+	if ($lang eq "fin") { $analyse = $hfstanalyse; }
 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
 	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
