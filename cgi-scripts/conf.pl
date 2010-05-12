@@ -170,7 +170,7 @@ sub init_variables {
 
 
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
-    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-optimize-lookup $fst";
+    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-optimized-lookup $fst";
 
 	if ($lang eq "fin") { $analyse = $hfstanalyse; }
 
