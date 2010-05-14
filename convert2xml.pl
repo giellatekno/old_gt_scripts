@@ -17,33 +17,33 @@
 
 use strict;
 use utf8;
-use File::Find;
-use File::Copy;
-use IO::File;
 use File::Basename;
+use File::Copy;
+use File::Find;
+use File::Path;
+use IO::File;
 use Getopt::Long;
 use Cwd;
 use XML::Twig;
 use samiChar::Decode;
 use langTools::Corpus;
 use Carp qw(cluck carp);
+use Encode;
 
 my $no_decode = 0;
 my $nolog = 0; 
 my $convxsl = '';
 my $dir = '';
 my $tmpdir = ''; 
-#my $tmpdir = '/home/saara/tmp'; 
 my $no_hyph = 0; 
 my $all_hyph = 0; 
 my $noxsl = 0;
-my $corpdir = "/usr/local/share/corp";
-my $bindir = "/usr/local/share/corp/bin";
+my $corpdir;
+my $bindir = "$ENV{'GTHOME'}/gt/script";
 #my $bindir = "/home/saara/gt/script";
-my $gtbound_dir = "bound";
-my $gtfree_dir = "free";
+my $gtbound_dir = "converted";
 my $orig_dir = "orig";
-my $goldstandard_orig_dir = "goldstandard/orig" ;
+my $goldstandard_orig_dir = "goldstandard/" ;
 my $gt_gid = 50782; # group: bound
 my $orig_gid = 50779; #group: corpus
 
@@ -112,31 +112,20 @@ my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
 my $jpedal = $bindir . "/corpus_call_jpedal.sh";
 my $pdf2xml = $bindir . "/pdf2xml.pl";
-#my $pdf2xml = "/home/saara/gt/script/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
-#my $bible2xml = "/home/saara/gt/script/bible2xml.pl";
 
 if (! $corpdir || ! -d $corpdir) {
-	die "Error: could not find corpus directory.\nSpecify corpdir as a command line option.\n";
+	die "Error: The corpdir option is not set. It is a mandatory option.\nYou have to specify corpdir as a command line option.\n";
 }
 
 # A log file is created for each file, it contains the executed commands
 # and redirected STDERR of these commands.
-if(! $tmpdir || ! -d $tmpdir) {
+if(! $tmpdir) {
 	$tmpdir = $corpdir . "/tmp";
-    if (! -d $tmpdir) {
-        die "Error: could not find directory for temporary files and log files.\nSpecify tmpdir as a command line option.\n";
+	if(! -d $tmpdir) {
+		mkdir($tmpdir, 0770) || 
+		die "Could not make the directory $tmpdir: $!\n";
 	}
-}
-my($dev, $ino, $mode, $nlink, $uid, $gid, $rdev,
-    $size, $atime, $mtime, $ctime, $blksize, $blocks)
-      = stat($tmpdir);
-# Only change group id if necessary:
-if ( $gid != $gt_gid ) {
-    my $cnt = "chown -f :$gt_gid $tmpdir";
-    my $comreturn = exec_com($cnt,"");
-    if ( $comreturn ) { die "Please rerun the script with sudo!\n"; }
-    chmod 0770,$tmpdir;
 }
 
 
@@ -180,11 +169,7 @@ sub process_file {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return "ERROR";
 	}
-	my $vfile  = $file . ",v";
-	if (! -f $file && ! -f $vfile) {
-		print STDERR "$file: ERROR. File does not exist. STOP\n";
-		return "ERROR" 
-		}
+
 
 	# correct.xml is not converted.
 	if ($file =~ /(correct\.xml|correct\.xml,v)/) { $noxsl=1; }
@@ -195,11 +180,9 @@ sub process_file {
 	return if (-z $file);
 
 	# The name and location of the resulting xml-file.
-    my $orig = File::Spec->rel2abs($file);
+    my $orig = decode_utf8(cwd()) . "/" . $file;
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
-    (my $intfree = $int) =~ s/\/$gtbound_dir/\/$gtfree_dir/;
-
 	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
 
 	# Really small (text)files are not processed.
@@ -215,11 +198,8 @@ sub process_file {
 	# Create the directory to gtbound if it does not exist.
 	( my $dir =  $int )  =~ s/(.*)[\/\\].*/$1/;
 	if (! -d $dir ) {
-		my $command="mkdir -p \"$dir\"";
-		exec_com($command, $file);
-		my $cnt = chown -1, $gt_gid, $dir;
-#		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
-		chmod 0770,$dir;
+		mkpath($dir, 0770) ||
+		die "Couldn't make $dir\n";
 	}		
 
 	# Check that the xml-file is available for writing.
@@ -229,25 +209,17 @@ sub process_file {
 		return "ERROR";
 	}
 
-	# check out the file-specific xsl-file for processing
 	my $xsl_file = $orig . ".xsl";
-	my $xsl_vfile = $orig . ".xsl,v";
 	if(! $noxsl) {
-		# Prepare the xsl-file for further processing
 		# Copy it from template, if not exist.
-		if(! -f $xsl_file && ! -f $xsl_vfile ) {
+		if(! -f $xsl_file) {
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 			
 			my $cnt = chown -1, $orig_gid, $xsl_file;
-#			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
+			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
 			
-			$command = "ci -t-\"file specific xsl-script, created in convert2xml.pl\" -q -i \"$xsl_file\"";
-			exec_com($command, $file);
 		}
-		
-		$command = "co -f -q \"$xsl_file\"";
-		exec_com($command, $file);
 	}
 	# remove temporary files to get a clean start.
 	remove_tmp_files($tmpdir, $file);
@@ -367,16 +339,6 @@ sub process_file {
 		}
 	}
 
-	# Checking in the xsl-file
-	if ( -f $xsl_vfile) {
-		$command = "rm -rf \"$xsl_file\" ";
-		exec_com($command, $file);
-	}
-	else {
-		$command = "ci -t-\"xsl-script commit by convert2xml.pl\" -q \"$xsl_file\" \"$xsl_vfile\" ";
-		exec_com($command, $file);
-	}
-
 	# Do extra formatting for prooftest-directory.
 	if ($orig =~ /$goldstandard_orig_dir/) {
 		my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
@@ -418,18 +380,11 @@ sub process_file {
 #		}
 #	}
 
-	# Copy the freely available texts to the corp/free -catalog
-	if (! $upload) {
-		copyfree($file, $orig, $tmp0, $intfree);
-	}
-	
 	# If gone this far, copy the temporary file to the correct directory.
 	exec_com("cp $tmp0 $int", $file);
 
 	# chmod and chgrp the new xml-file.
 	if(! $upload) {
-		my $cnt = chown -1, $gt_gid, $int;
-#		if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $int.\n"};
 		chmod 0660, $int;
 	}
 
@@ -464,7 +419,7 @@ sub convert_doc {
 	my $xsl;
 	if ($convxsl) { $xsl = $convxsl; }
 	else { $xsl = $docxsl; }
-	$command = "/usr/local/bin/antiword -s -x db \"$orig\" > \"$tmp3\"";
+	$command = "antiword -s -x db \"$orig\" > \"$tmp3\"";
 	exec_com($command, $file);
 	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 	exec_com($command, $file);
@@ -513,38 +468,38 @@ sub convert_pdf {
 		if ($excluded_elt) { $excluded = $excluded_elt->{'att'}{'select'}; $excluded =~ s/\'//g; }
 
 	}
-	if ($main_font_elt) {
-		
-		my $arguments="";
-		(my $base = $file ) =~ s/\.pdf//;
-
-		$command = "rm -rf $tmpdir/$base/*";
-		exec_com($command, $file);
-		
-		if ($col_num eq "'2'") { $arguments .= "-Dcol"; }
-		if ($lower) { $arguments .= " -Dlower=$lower"; }
-		if ($excluded) { $arguments .= " -Dexcl=$excluded"; }
-		else { $arguments .=" -Dexcl=\"0\""; }
-
-		$command = "$jpedal $orig $tmpdir $arguments";
-		my $error = exec_com($command, $file);
-
-		if ($error) { carp "$error"; return "ERROR"; }
-
-		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
-		exec_com($command, $file);
-		
-		$command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
-		exec_com($command, $file);
-
-
-		#exit;
-		if( -z $int && ! $upload ) {
-			print "ERROR $file: no pdf2xml output. STOP.\n";
-			return "ERROR";
-		}
-		return 0;
-	}
+# 	if ($main_font_elt) {
+# 		
+# 		my $arguments="";
+# 		(my $base = $file ) =~ s/\.pdf//;
+# 
+# 		$command = "rm -rf $tmpdir/$base/*";
+# 		exec_com($command, $file);
+# 		
+# 		if ($col_num eq "'2'") { $arguments .= "-Dcol"; }
+# 		if ($lower) { $arguments .= " -Dlower=$lower"; }
+# 		if ($excluded) { $arguments .= " -Dexcl=$excluded"; }
+# 		else { $arguments .=" -Dexcl=\"0\""; }
+# 
+# 		$command = "$jpedal $orig $tmpdir $arguments";
+# 		my $error = exec_com($command, $file);
+# 
+# 		if ($error) { carp "$error"; return "ERROR"; }
+# 
+# 		$command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
+# 		exec_com($command, $file);
+# 		
+# 		$command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
+# 		exec_com($command, $file);
+# 
+# 
+# 		#exit;
+# 		if( -z $int && ! $upload ) {
+# 			print "ERROR $file: no pdf2xml output. STOP.\n";
+# 			return "ERROR";
+# 		}
+# 		return 0;
+# 	}
 	
 	my $xsl;
 	if ($convxsl) { $xsl = $convxsl; }
@@ -558,7 +513,7 @@ sub convert_pdf {
 		print "$file: no pdftotext output. STOP.\n";
 		return "ERROR";			
 	}
-	&pdfclean($html);
+	#&pdfclean($html);
 	$command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
 	exec_com($command, $file);
 
@@ -685,59 +640,6 @@ sub file_specific_xsl {
 	return 0;
 }
 
-
-sub copyfree {
-	my ($file, $orig, $int, $intfree) = @_;
-
-	# Copy file with free license to gtfree.
-	my $document = XML::Twig->new;
-	if (! $document->safe_parsefile("$int")) {
-		if (-f $intfree) {
-			$command = "rm -rf \"$intfree\"";
-			exec_com($command, $file);
-		}
-		carp "ERROR parsing the XML-file failed ";		  
-		return "ERROR";
-	}
-	
-	my $license = "license";
-	my $root = $document->root;
-	my $header = $root->first_child('header');
-	my $avail = $header->first_child('availability');
-	$license = $avail->first_child->local_name;
-	
-	if ( $license =~ /free/ ) {
-		if(-f $intfree && ! -w $intfree) {
-			carp "ERROR permission denied to $intfree.";
-			return "ERROR";
-		}
-		
-		# Create the directory to gtfree if it does not exist.
-		( my $dir =  $intfree )  =~ s/(.*)[\/\\].*/$1/;
-		if (! -d $dir ) {
-			my $command="mkdir -p \"$dir\"";
-			exec_com($command, $file);
-			my $cnt = chown -1, $gt_gid, $dir;
-#				  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $dir.\n"};
-			chmod 0770,$dir;
-		}		
-		
-		copy ($int, $intfree) 
-			or carp "ERROR: copy failed ($int $intfree)\n";
-
-		my $cnt = chown -1, $gt_gid, $intfree;
-#			  if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $intfree.\n"};
-		
-		chmod 0664, $intfree;
-	}
-	elsif (-f $intfree) {
-		$command = "rm -rf \"$intfree\"";
-		exec_com($command, $file);
-	}
-	$document->purge;
-
-	return 0;
-}
 
 # Subroutine to execute system commands and handle return values.
 sub exec_com {
