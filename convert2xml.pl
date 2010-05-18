@@ -106,7 +106,7 @@ if (! $language || ! $languages{$language}) { $language = "sme"; }
 
 my $tidy = "tidy -config $bindir/tidy-config.txt -utf8 -quiet -asxml -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
-my $text_cat = $bindir . "/text_cat";
+my $text_cat = $ENV{'GTHOME'} . "tools/lang-guesser/text_cat.pl";
 my $add_error_marking = $bindir . "/add_error_marking.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
