@@ -40,6 +40,7 @@ my $all_hyph = 0;
 my $noxsl = 0;
 my $corpdir;
 my $bindir = "$ENV{'GTHOME'}/gt/script";
+my $textcatdir = "$ENV{'GTHOME'}/tools/lang-guesser";
 #my $bindir = "/home/saara/gt/script";
 my $gtbound_dir = "converted";
 my $orig_dir = "orig";
@@ -106,7 +107,7 @@ if (! $language || ! $languages{$language}) { $language = "sme"; }
 
 my $tidy = "tidy -config $bindir/tidy-config.txt -utf8 -quiet -asxml -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
-my $text_cat = $ENV{'GTHOME'} . "/tools/lang-guesser/text_cat.pl";
+my $text_cat = $textcatdir . "/text_cat.pl";
 my $add_error_marking = $bindir . "/add_error_marking.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
@@ -366,7 +367,7 @@ sub process_file {
 
 	# Text categorization
 	if (! $upload) {
-		my $lmdir = $bindir . "/LM";
+		my $lmdir = $textcatdir . "/LM";
 		my $command = "$text_cat -q -x -d $lmdir \"$tmp0\"";
 		exec_com($command, $file);
 	}
