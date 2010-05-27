@@ -52,7 +52,7 @@ sub add_error_markup {
 			# No nested errors, no parentheses
 			if ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
 				if($1) { push @new_content, $1; }
-				print STDERR "Plain error: $2\n";
+				print STDERR "Plain error: $2\n"; # Debug print-out
 				get_error($2, \@new_content);
 			}
 
