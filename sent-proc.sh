@@ -82,9 +82,9 @@ else
 fi
 
 print_help() {
-    echo "USAGE: 1. sent-proc.sh [-d] [-l=LANG] [-s=PROCESSING_STEP] \"INPUT_TEXT\""
+    echo "USAGE: 1. sent-proc.sh [-t] [-l=LANG] [-s=PROCESSING_STEP] \"INPUT_TEXT\""
     echo "                       or"
-    echo "       2. cat FILE or echo \"INPUT_TEXT\" | sent-proc.sh [-d] [-l=LANG] [-s=PROCESSING_STEP] "
+    echo "       2. cat FILE or echo \"INPUT_TEXT\" | sent-proc.sh [-t] [-l=LANG] [-s=PROCESSING_STEP] "
     echo "-l language code: sme North Saami (default), sma South Saami, etc."
     echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"
     echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"
