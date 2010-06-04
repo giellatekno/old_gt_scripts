@@ -87,6 +87,12 @@ else
 fi
 export PATH
 
+# setup the path to private bins if $GTPRIV is defined:
+if [ -n "$GTPRIV" ]; then
+  prepend_path PATH $GTPRIV/polderland/bin
+fi
+export PATH
+
 osMajorVer=`uname -r | cut -d. -f1`
 osMinorVer=`uname -r | cut -d. -f2`
 

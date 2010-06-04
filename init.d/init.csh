@@ -75,6 +75,11 @@ else
     setenv PATH $GTHOME/gt/script:/bin:/sbin:/usr/bin:/usr/sbin
 endif
 
+# setup the path to private bins if $GTPRIV is defined:
+if ( $?GTPRIV ) then
+    prepend_path PATH $GTPRIV/polderland/bin
+endif
+
 set osMajorVersion = `uname -r | cut -d. -f1`
 set osMinorVersion = `uname -r | cut -d. -f2`
 
