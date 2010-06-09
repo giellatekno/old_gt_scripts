@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Written by Børre Gaup <borre.gaup@samediggi.no>
 
 import sys
 import fileinput
