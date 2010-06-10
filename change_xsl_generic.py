@@ -17,7 +17,6 @@ if ( len(sys.argv) % 2 ) != 0:
 	usage()
 	sys.exit()
 
-
 # Initiate an empty dict
 change_variables = {}
 
