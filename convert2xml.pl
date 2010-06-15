@@ -30,6 +30,74 @@ use langTools::Corpus;
 use Carp qw(cluck carp);
 use Encode;
 
+sub test_setup {
+	my $invalid_setup = 0;
+
+	if (system('which antiword') != 0) {
+		print "Didn't find antiword\n";
+		print "Install it on Mac by issuing the command\n";
+		print "sudo port install antiword\n";
+		print "For Linux, issue one of these commands:\n";
+		print "Ubuntu/Debian: sudo apt-get install antiword\n";
+		print "Fedora/Red Hat/CentOS: sudo yum install antiword\n";
+		print "SUSE: sudo zypper install antiword\n";
+		$invalid_setup = 1;
+	}
+	if (system('which xsltproc') != 0) {
+		print "Didn't find xsltproc\n";
+		print "Install it on Mac by issuing the command\n";
+		print "sudo port install libxslt\n";
+		print "For Linux, issue one of these commands:\n";
+		print "Ubuntu/Debian: sudo apt-get install xsltproc\n";
+		print "Fedora/Red Hat/CentOS: sudo yum install libxslt\n";
+		print "SUSE: sudo zypper install libxslt\n";
+		$invalid_setup = 1;
+	}
+	if (system('which tidy') != 0) {
+		print "Didn't find tidy\n";
+		print "Install it on Mac by issuing the command\n";
+		print "sudo port install tidy\n";
+		print "For Linux, issue one of these commands:\n";
+		print "Ubuntu/Debian: sudo apt-get install tidy\n";
+		print "Fedora/Red Hat/CentOS: sudo yum install tidy\n";
+		print "SUSE: sudo zypper install tidy\n";
+		$invalid_setup = 1;
+	}
+	if (system('which pdftotext') != 0) {
+		print "Didn't find pdftotext\n";
+		print "Install it on Mac by issuing the command\n";
+		print "sudo port install poppler\n";
+		print "For Linux, issue one of these commands:\n";
+		print "Ubuntu/Debian: sudo apt-get install poppler-utils\n";
+		print "Fedora/Red Hat/CentOS: sudo yum poppler-utils\n";
+		print "SUSE: sudo zypper install poppler-utils\n";
+		$invalid_setup = 1;
+	}
+	if (system('which xmllint') != 0) {
+		print "Didn't find xmllint\n";
+		print "Install it on Mac by issuing the command\n";
+		print "sudo port install libxml2\n";
+		print "For Linux, issue one of these commands:\n";
+		print "Ubuntu/Debian: sudo apt-get install libxml2-utils\n";
+		print "Fedora/Red Hat/CentOS: sudo yum install libxml2\n";
+		print "SUSE: sudo zypper install libxml2\n";
+		$invalid_setup = 1;
+	}
+
+	if ("$ENV{'GTHOME'}" eq "") {
+		print "The environment variable GTHOME isn't set\n";
+		print "Run the script gtsetup.sh found in the same\n";
+		print "directory as this script.";
+		$invalid_setup = 1;
+	}
+
+	if ($invalid_setup) {
+		exit(-1);
+	}
+}
+
+test_setup();
+
 my $no_decode = 0;
 my $nolog = 0; 
 my $convxsl = '';
@@ -137,11 +205,6 @@ if (! $nolog) {
 	chomp $time;
 	$log_file = $tmpdir . "/" . $time . ".log";
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
-	if (! $upload) {
-		my $cnt = chown -1, $orig_gid, $log_file;	
-		if ($cnt == 0) { print "ERROR: chgrp failed for $log_file.\n"};
-		chmod 0770,$log_file;
-	}
 }
 
 # Search the files in the directory $dir and process each one of them.
