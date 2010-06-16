@@ -118,6 +118,7 @@ my $orig_gid = 50779; #group: corpus
 
 my $docxsl = $bindir . "/docbook2corpus2.xsl";
 my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
+my $svgxsl = $bindir . "/svg2dumb.xsl";
 my $xsltemplate = $bindir . "/XSL-template.xsl";
 
 my $log_file;
@@ -228,7 +229,7 @@ sub process_file {
 	print STDERR "$file\n";
 
 	# Check the filename
-	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|bible\.xml|correct\.xml|correct\.xml,v)$/);
+	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|svg|bible\.xml|correct\.xml|correct\.xml,v)$/);
 	if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return "ERROR";
@@ -246,7 +247,7 @@ sub process_file {
 	# The name and location of the resulting xml-file.
     my $orig = decode_utf8(cwd()) . "/" . $file;
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
-	$int =~ s/\.(doc|pdf|html|ptx|txt)$/\.\L$1\.xml/i;
+	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
 	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
 
 	# Really small (text)files are not processed.
@@ -324,6 +325,12 @@ sub process_file {
 		$error = convert_txt($file, $orig, $tmp0, \$no_decode_this_time);
 	}
 
+	# Conversion of svg documents
+	elsif ($file =~ /\.svg$/) {
+		print "converting svg\n";
+		$error = convert_svg($file, $orig, $int, \$no_decode_this_time);
+	}
+
 	# Conversion of documents with error markup
 	# Conversion of documents with manual error markup
 	elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) {
@@ -377,8 +384,8 @@ sub process_file {
 		if (! $test) { remove_tmp_files($tmpdir, $file); }
 		return "ERROR";
 	}
-	elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) { 
-		copy ($tmp0, $int); 
+	elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) {
+		copy ($tmp0, $int);
 		return 0;
 	}
 
@@ -485,11 +492,30 @@ sub convert_doc {
 	else { $xsl = $docxsl; }
 	$command = "antiword -s -x db \"$orig\" > \"$tmp3\"";
 	exec_com($command, $file);
-	$command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
+	$command = "xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
 	exec_com($command, $file);
 
 	$command = "perl -pi -e \"s/\x{00B6}/<\\/p><p>/g\" \"$int\"";
 	exec_com($command, $file);
+
+	return 0;
+}
+
+sub convert_svg {
+	my ($file, $orig, $int, $no_decode_this_time) = @_;
+
+	print STDERR "convert_svg $file, $orig\n";
+
+	my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
+	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+
+	$command = "xsltproc \"$svgxsl\" \"$orig\" > \"$tmp3\"";
+	exec_com($command, $file);
+
+	$command = "sed -e 's/\@font-face.*}//g' \"$tmp3\" > \"$tmp0\"";
+	exec_com($command, $file);
+
+	convert_txt($file, $orig, $int, \$no_decode_this_time);
 
 	return 0;
 }
@@ -852,7 +878,3 @@ sub print_help {
 	print"    --test          Don't delete temporary files, log more info.\n";
     print"    --help          Print this message and exit.\n";
 };
-
-
-
-
