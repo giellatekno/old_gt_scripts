@@ -26,27 +26,12 @@ for file in $files
 do
   tmpfile="$file.tmp"
   xslfile="$file.xsl"
-  xslvfile="$file.xsl,v"
-  if [ -f $xslvfile ]; then
-	  if ! co -l -f -q "$xslfile"; then
-		  rcs -u "$xslfile"
-		  co -l -f -q "$xslfile"
-	  fi
-	  if [ -s $xslfile ]; then
-		  xsltproc --novalid "$xslfix" "$xslfile" > "$tmpfile";
-		  if [ -s $tmpfile ]; then
-			  mv -f "$tmpfile" "$xslfile"
-		  fi
-		  ci -m"fixed license info by corpus_fix_meta.sh" -q "$xslfile" "$xslvfile"
-	  fi
-  else
-	  if [ -s $xslfile ]; then
-		  xsltproc --novalid "$xslfix" "$xslfile" > "$tmpfile";
-		  if [ -s $tmpfile ]; then
-			  mv -f "$tmpfile" "$xslfile"
-		  fi
-		  ci -t"fixed license info by corpus_fix_meta.sh" -q -i "$xslfile" "$xslvfile"
-	  fi
-  fi
+	if [ -s $xslfile ]; then
+		xsltproc --novalid "$xslfix" "$xslfile" > "$tmpfile";
+		if [ -s $tmpfile ]; then
+			mv -f "$tmpfile" "$xslfile"
+		fi
+		svn ci -m"fixed license info by corpus_fix_meta.sh" -q "$xslfile"
+	fi
 done
 
