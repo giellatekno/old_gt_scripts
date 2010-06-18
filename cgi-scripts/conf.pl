@@ -25,47 +25,48 @@ sub init_variables {
 	$unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
 
 	my %page_languages = (sme => 1,
-						  eng => 1,
-						  nno => 1);
-
+			      eng => 1,
+			      nno => 1,
+			      rus => 1);
+	
 	%avail_pos = (Any => 1,
-				  N => 1 ,
-				  V => 1 ,
-				  A => 1,
-				  Adv => 1,
-				  Pron => 1,
-				  Num => 1);
+		      N => 1 ,
+		      V => 1 ,
+		      A => 1,
+		      Adv => 1,
+		      Pron => 1,
+		      Num => 1);
 
 	
 	$wordlimit = 450 ;       # adjust as appropriate; prevent large-scale use
 	
-    # System-Specific directories
-    # The directory where utilities like 'lookup' are stored
+	# System-Specific directories
+	# The directory where utilities like 'lookup' are stored
 	my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
-    # The directory for vislcg and lookup2cg
+	# The directory for vislcg and lookup2cg
 	my $bindir = "/opt/sami/cg/bin/";
-    # The directory for hfst tools
+	# The directory for hfst tools
         my $hfstutilitydir = "/opt/local/bin";
         my $hfstoptimizedlookup = "hfst-optimized-lookup";
-
-    # The fst's and other tools
+	
+	# The fst's and other tools
 	my $optdir = "/opt/smi";
 	my $commondir = "/opt/smi/common/bin";
 	my $fstdir = "$optdir/$lang/bin" ;
-
+	
 	my $tmpdir = "/tmp";
 	$tmpfile=$tmpdir . "/smi-test2.txt";
 	my $time = `date +%m-%d-%H-%M`;
 	chomp $time;
 	$logfile = $tmpdir . "/cgi-" . $time . ".log";
-		
+	
 	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
-        my $hfst = "$fstdir/$lang.cg.hfst.ol
-    my $gen_fst = "$fstdir/i$lang.fst";
-    my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
+        my $hfst = "$fstdir/$lang.cg.hfst.ol";
+	my $gen_fst = "$fstdir/i$lang.fst";
+	my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
 	my $hyphrules_fst = "$fstdir/hyphrules-$lang.fst";
 	my $num_fst = "$fstdir/$lang-num.fst";
@@ -73,13 +74,13 @@ sub init_variables {
 	my $orth_fst = "$fstdir/orth-$lang.fst";
 	my $tok_fst = "$fstdir/tok.fst";
         my $fstflags = "-flags mbTT -utf8";
-#    my $dis_rle = "$fstdir/$lang-dis.rle"; # text file
-    my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
-    my $dep_bin = "$fstdir/$lang-dep.bin";  # binary file
+	#    my $dis_rle = "$fstdir/$lang-dis.rle"; # text file
+	my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
+	my $dep_bin = "$fstdir/$lang-dep.bin";  # binary file
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
-    my $geo_fst = "$commondir/geo.fst";
+	my $geo_fst = "$commondir/geo.fst";
 	if ($tr_lang ne "none") {
 		if ($lang eq "dan") { 
 			$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
