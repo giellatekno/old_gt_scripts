@@ -121,9 +121,9 @@ if(! $xml_out) {
 
 	$giellatekno_logo = XML::Twig::Elt->new(a=>{href=>$giellatekno_href});
 	my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, style=>'border: none;', title=>'Giellatekno'});
-	$img->paste('last_child',$giellatekno_logo);
+	$img->paste('last_child', $giellatekno_logo);
 
-	&printinitialhtmlcodes($action, $page,$body);
+	&printinitialhtmlcodes($action, $page, $body);
 }
 
 	
@@ -182,8 +182,8 @@ elsif ($action eq "disamb") {
 
 }
 elsif ($action eq "dependency") { 
-    if ($translate) { $result = `echo $text | $dependency | $translate`; }
-    else { $result = `echo $text | $dependency`; }
+    if ($translate) { $result = `echo $text | $dependency | $translate | $coloring`; }
+    else { $result = `echo $text | $dependency | $coloring`; }
 
 }
 
@@ -202,7 +202,7 @@ else { print "<error>No parameter for action recieved</error>"; }
 
 my $output;
 if (! $xml_out) {
-	if ($action eq "analyze" || $action eq "disamb") { 
+	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency") { 
           #$result =~ s/</&lt\;/g; 
           $output = dis2html($result,1);
           #$output = $result;
