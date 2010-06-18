@@ -101,11 +101,11 @@ sub init_variables {
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
 
 	# Find out which of the translated languages are available for this lang.
-	my $translated_langs = qw(dan nob);
-	for my $tr_avail_lang ( $translated_langs ) {
-		$lex = "$fstdir/$lang$tr_avail_lang" . "-lex.txt";
-		$fst_tr = "$fstdir/$lang$tr_avail_lang" . ".fst";
-		if (-f $lex || -f $fst_tr) { $lang_actions{translate}{$tr_avail_lang} = 1; }
+	my @translated_langs = qw(dan nob);
+	for (@translated_langs) {
+		$lex = "$fstdir/$lang$_" . "-lex.txt";
+		$fst_tr = "$fstdir/$lang$_" . ".fst";
+		if (-f $lex || -f $fst_tr) { $lang_actions{translate}{$_} = 1; }
 	}
 
     # Files to generate paradigm
