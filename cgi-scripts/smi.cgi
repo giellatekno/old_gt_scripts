@@ -173,7 +173,8 @@ if (@words && ! $xml_out) { &printwordlimit; }
 my $result;
 my %answer;
 my %candits;
-my $coloring = "./color_analysis.pl sme";
+my $coloring = "./color_d.pl sme";
+my $coloring_a = "./color_a.pl sme";
 if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
 elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candits); }
 elsif ($action eq "disamb") { 
@@ -187,7 +188,7 @@ elsif ($action eq "dependency") {
 
 }
 
-elsif ($action eq "analyze") { $result = `echo $text | $analyze`; }
+elsif ($action eq "analyze") { $result = `echo $text | $analyze | $coloring_a`; }
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
 elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
 elsif ($action eq "convert") { $result = `echo $text | $convert`; }
@@ -202,11 +203,15 @@ else { print "<error>No parameter for action recieved</error>"; }
 
 my $output;
 if (! $xml_out) {
-	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency") { 
+	if ( $action eq "disamb" || $action eq "dependency") { 
           #$result =~ s/</&lt\;/g; 
           $output = dis2html($result,1);
           #$output = $result;
 
+    }
+        elsif ($action eq "analyze") { 
+          #$result =~ s/</&lt\;/g;
+          $output = dis2html($result,1);
     }
 	elsif ($action eq "generate") { $output = gen2html($result,0,1);  } 
 	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
