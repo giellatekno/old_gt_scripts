@@ -174,7 +174,7 @@ my $result;
 my %answer;
 my %candits;
 my $coloring = "./color_d.pl sme";
-my $coloring_a = "./color_a.pl sme";
+my $coloring_a = "./color_a.pl";
 if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
 elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candits); }
 elsif ($action eq "disamb") { 
