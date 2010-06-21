@@ -2,6 +2,7 @@
 use strict;
 
 # Perl script for converting xml files to lexc format.
+
 #
 # Usage:
 # xml2lexc.pl --output=propernoun-sme-lex.txt terms-sme.xml
