@@ -198,7 +198,6 @@ if(! $tmpdir) {
 	}
 }
 
-
 my $command;
 # Redirect STDERR to log files.	
 if (! $nolog) {
@@ -214,9 +213,17 @@ if ($dir) {
 	else { print "$dir ERROR: Directory does not exist.\n"; }
 }
 else {
-# Process the file given in command line.
-	my $error =  process_file (Encode::decode_utf8($ARGV[$#ARGV])) if $ARGV[$#ARGV];
-	if ($error) { print_log($log_file, $ARGV[$#ARGV]); }
+	# Process the file given in command line.
+	my $file_to_process = Encode::decode_utf8($ARGV[$#ARGV]);
+
+	if (-f $file_to_process) {
+		print "file exists\n";
+		my $error =  process_file ($file_to_process) if $ARGV[$#ARGV];
+		if ($error) { print_log($log_file, $file_to_process); }
+	} else {
+		print "ERROR: $file_to_process doesn't exist\n";
+		return "ERROR";
+	}
 }
 
 close STDERR;
