@@ -21,6 +21,7 @@ use File::Basename;
 use File::Copy;
 use File::Find;
 use File::Path;
+use File::Spec;
 use IO::File;
 use Getopt::Long;
 use Cwd;
@@ -33,7 +34,7 @@ use Encode;
 sub test_setup {
 	my $invalid_setup = 0;
 
-	if (system('which antiword') != 0) {
+	if (qx{which antiword} eq "") {
 		print "Didn't find antiword\n";
 		print "Install it on Mac by issuing the command\n";
 		print "sudo port install antiword\n";
@@ -43,7 +44,7 @@ sub test_setup {
 		print "SUSE: sudo zypper install antiword\n";
 		$invalid_setup = 1;
 	}
-	if (system('which xsltproc') != 0) {
+	if (qx{which xsltproc} eq "") {
 		print "Didn't find xsltproc\n";
 		print "Install it on Mac by issuing the command\n";
 		print "sudo port install libxslt\n";
@@ -53,7 +54,7 @@ sub test_setup {
 		print "SUSE: sudo zypper install libxslt\n";
 		$invalid_setup = 1;
 	}
-	if (system('which tidy') != 0) {
+	if (qx{which tidy} eq "") {
 		print "Didn't find tidy\n";
 		print "Install it on Mac by issuing the command\n";
 		print "sudo port install tidy\n";
@@ -63,7 +64,7 @@ sub test_setup {
 		print "SUSE: sudo zypper install tidy\n";
 		$invalid_setup = 1;
 	}
-	if (system('which pdftotext') != 0) {
+	if (qx{which pdftotext} eq "") {
 		print "Didn't find pdftotext\n";
 		print "Install it on Mac by issuing the command\n";
 		print "sudo port install poppler\n";
@@ -73,7 +74,7 @@ sub test_setup {
 		print "SUSE: sudo zypper install poppler-utils\n";
 		$invalid_setup = 1;
 	}
-	if (system('which xmllint') != 0) {
+	if (qx{which xmllint} eq "") {
 		print "Didn't find xmllint\n";
 		print "Install it on Mac by issuing the command\n";
 		print "sudo port install libxml2\n";
@@ -89,6 +90,16 @@ sub test_setup {
 		print "Run the script gtsetup.sh found in the same\n";
 		print "directory as this script.";
 		$invalid_setup = 1;
+	}
+
+	if (!-f "/bin/readlink") {
+		#This is not a Linux system, check for a usable readlink
+		if(!-f "/opt/local/bin/greadlink") {
+			print "You don't have the correct version of readlink.\n";
+			print "Install it issuing the command:\n";
+			print "sudo port install coreutils\n";
+			$invalid_setup = 1;
+		}
 	}
 
 	if ($invalid_setup) {
@@ -126,12 +137,18 @@ my $language;
 my $multi_coding=0;
 my $upload=0;
 my $test=0; #preserves temporary files and prints extra info.
+my $readlink;
 
+if (-f "/bin/readlink") {
+	$readlink = "/bin/readlink";
+} else {
+	$readlink = "/opt/local/bin/greadlink";
+}
 # set the permissions for created files: -rw-rw-r--
 #umask 0112;
 
 # Some securing operations, add these to upload.cgi!
-$ENV{'PATH'} = '/bin:/usr/bin:/usr/local/bin';
+$ENV{'PATH'} = '/opt/local/bin:/bin:/usr/bin:/usr/local/bin';
 delete @ENV{'IFS', 'CDPATH', 'ENV', 'BASH_ENV'};
 
 my $xsltproc="/usr/bin/xsltproc";
@@ -183,8 +200,24 @@ my $jpedal = $bindir . "/corpus_call_jpedal.sh";
 my $pdf2xml = $bindir . "/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
 
+# We would like to compute the where the corpus directory
+# is automatically given the filename, because this is the
+# most common usage. If the file is outside of the corpus
+# tree, the user has to manually set the corpdir option
+my $arg_to_process = Encode::decode_utf8($ARGV[$#ARGV]);
+my $completepath = qx{ $readlink -f \"$arg_to_process\" };
+
+if ($completepath =~ m/orig/) {
+	my @pathparts = split(/orig/, $completepath);
+	$corpdir = $pathparts[0];
+}
+
 if (! $corpdir || ! -d $corpdir) {
-	die "Error: The corpdir option is not set. It is a mandatory option.\nYou have to specify corpdir as a command line option.\n";
+	print "Error: It seems that the file you are trying to\n";
+	print "convert is not in a corpus directory. Please move\n";
+	print "the file inside a corpus directory.\n\n";
+	&print_help;
+	exit 1;
 }
 
 # A log file is created for each file, it contains the executed commands
@@ -206,15 +239,11 @@ if (! $nolog) {
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 }
 
-my $arg_to_process = Encode::decode_utf8($ARGV[$#ARGV]);
-
-
 # Search the files in the directory $dir and process each one of them.
 if (-d $arg_to_process) {
 	print "$arg_to_process is a directory\n";
 	find (\&process_file, $arg_to_process)
 } elsif (-f $arg_to_process) {
-	print "file exists\n";
 	my $error =  process_file ($arg_to_process) if $ARGV[$#ARGV];
 	if ($error) { print_log($log_file, $arg_to_process); }
 } else {
@@ -862,7 +891,8 @@ sub print_help {
     print"                    If not specified, the default values are used.\n";
     print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
     print"    --nolog         Print error messages to screen, not to log files.\n";
-    print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
+    print"    --corpdir=<dir> The corpus directory. This is where\n";
+    print"    the corpus is checked out	.\n";
     print"    --no-decode     Do not decode the characters.\n";
     print"    --noxsl         Do not use file-specific xsl-template.\n";
     print"    --no-hyph       Do not add hyphen tags.\n";
@@ -870,6 +900,6 @@ sub print_help {
     print"    --multi-coding  Document contains more than one different encodings, character \n";
     print"                    decoding is done paragraph-wise.\n";
     print"    --upload        Do conversion in the upload-directory. \n";
-	print"    --test          Don't delete temporary files, log more info.\n";
+    print"    --test          Don't delete temporary files, log more info.\n";
     print"    --help          Print this message and exit.\n";
 };
