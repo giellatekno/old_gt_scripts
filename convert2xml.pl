@@ -141,7 +141,6 @@ my $help;
 GetOptions ("no-decode" => \$no_decode,
 			"xsl=s" => \$convxsl,
 			"noxsl" => \$noxsl,
-			"dir=s" => \$dir,
 			"tmpdir=s" => \$tmpdir,
 			"corpdir=s" => \$corpdir,
 			"nolog" => \$nolog,
@@ -207,23 +206,20 @@ if (! $nolog) {
 	open STDERR, '>', "$log_file" or die "Can't redirect STDERR: $!";
 }
 
-# Search the files in the directory $dir and process each one of them.
-if ($dir) {
-	if (-d $dir) { find (\&process_file, $dir) }
-	else { print "$dir ERROR: Directory does not exist.\n"; }
-}
-else {
-	# Process the file given in command line.
-	my $file_to_process = Encode::decode_utf8($ARGV[$#ARGV]);
+my $arg_to_process = Encode::decode_utf8($ARGV[$#ARGV]);
 
-	if (-f $file_to_process) {
-		print "file exists\n";
-		my $error =  process_file ($file_to_process) if $ARGV[$#ARGV];
-		if ($error) { print_log($log_file, $file_to_process); }
-	} else {
-		print "ERROR: $file_to_process doesn't exist\n";
-		return "ERROR";
-	}
+
+# Search the files in the directory $dir and process each one of them.
+if (-d $arg_to_process) {
+	print "$arg_to_process is a directory\n";
+	find (\&process_file, $arg_to_process)
+} elsif (-f $arg_to_process) {
+	print "file exists\n";
+	my $error =  process_file ($arg_to_process) if $ARGV[$#ARGV];
+	if ($error) { print_log($log_file, $arg_to_process); }
+} else {
+	print "ERROR: $arg_to_process doesn't exist\n";
+	return "ERROR";
 }
 
 close STDERR;
@@ -864,8 +860,6 @@ sub print_help {
 	print "The available options:\n";
 	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
     print"                    If not specified, the default values are used.\n";
-    print"    --dir=<dir>     The directory where to search for converted files.\n";
-    print"                    If not given, only FILE is processed.\n";
     print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
     print"    --nolog         Print error messages to screen, not to log files.\n";
     print"    --corpdir=<dir> The corpus directory, default is /usr/local/share/corp.\n";
