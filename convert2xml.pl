@@ -327,8 +327,7 @@ sub process_file {
 
 	# Conversion of svg documents
 	elsif ($file =~ /\.svg$/) {
-		print "converting svg\n";
-		$error = convert_svg($file, $orig, $int, \$no_decode_this_time);
+		convert_svg($file, $orig, $tmp0, $xsl_file);
 	}
 
 	# Conversion of documents with error markup
@@ -502,14 +501,14 @@ sub convert_doc {
 }
 
 sub convert_svg {
-	my ($file, $orig, $int, $no_decode_this_time) = @_;
+	my ($file, $orig, $int, $xsl_file) = @_;
 
 	print STDERR "convert_svg $file, $orig\n";
 
 	my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
 	my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 
-	$command = "xsltproc \"$svgxsl\" \"$orig\" > \"$tmp3\"";
+	$command = "xsltproc \"$svgxsl\" \"$orig\" > \"$int\"";
 	exec_com($command, $file);
 
 	return 0;
