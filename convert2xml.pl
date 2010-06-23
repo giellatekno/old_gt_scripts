@@ -118,7 +118,7 @@ my $orig_gid = 50779; #group: corpus
 
 my $docxsl = $bindir . "/docbook2corpus2.xsl";
 my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
-my $svgxsl = $bindir . "/svg2dumb.xsl";
+my $svgxsl = $bindir . "/svg2xml.xsl";
 my $xsltemplate = $bindir . "/XSL-template.xsl";
 
 my $log_file;
@@ -511,11 +511,6 @@ sub convert_svg {
 
 	$command = "xsltproc \"$svgxsl\" \"$orig\" > \"$tmp3\"";
 	exec_com($command, $file);
-
-	$command = "sed -e 's/\@font-face.*}//g' \"$tmp3\" > \"$tmp0\"";
-	exec_com($command, $file);
-
-	convert_txt($file, $orig, $int, \$no_decode_this_time);
 
 	return 0;
 }
