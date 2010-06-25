@@ -266,6 +266,7 @@ sub process_file {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return "ERROR";
 	}
+	print "Processing " . decode_utf8($file) . "\n";
 
 
 	# correct.xml is not converted.
@@ -738,7 +739,7 @@ sub file_specific_xsl {
 	my $id = $root->{'att'}->{'id'};
 
 	if(! $mainlang || $mainlang eq "unknown") { 
-		print "setting language: $language \n";
+# 		print "setting language: $language \n";
 		$root->set_att('xml:lang', $language); 
 	}
 	open (FH, ">$int") or die "Cannot open $int $!";
