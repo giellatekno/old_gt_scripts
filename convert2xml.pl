@@ -283,9 +283,6 @@ sub process_file {
 	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
 	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
 
-	print "orig is $orig\n";
-	print "int is $int\n";
-
 	# Really small (text)files are not processed.
 	# Small amount of data leads to problems in guessing the character coding.
 	if (-f $file && -s $file < 200) {
