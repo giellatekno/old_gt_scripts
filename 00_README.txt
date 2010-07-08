@@ -206,8 +206,6 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 ../../techdoc/admin/weekly/2006/Meeting_2006-06-06.jspwiki
 ../../techdoc/ling/corpus_conversion_tech.xml
 
-   add_error_marking.pl --- used in: ../../gt/script/convert2xml.pl
-
    bible2xml.pl --- used in: ../../gt/script/convert2xml.pl
 ../../gt/script/copy_corpus_bin.sh
 ../../techdoc/ling/corpus_bibles.xml
