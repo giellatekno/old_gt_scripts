@@ -97,7 +97,7 @@ sub test_setup {
 		#This is not a Linux system, check for a usable readlink
 		if(!-f "/opt/local/bin/greadlink") {
 			print "You don't have the correct version of readlink.\n";
-			print "Install it issuing the command:\n\";
+			print "Install it issuing the command:\n\n";
 			print "sudo port install coreutils\n\n";
 			$invalid_setup = 1;
 		}
@@ -348,6 +348,11 @@ sub process_file {
 		my $error;
 		my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
 
+		# Process the file-specific xsl file to import the common.xsl file from $GTHOME:
+		my $tmp = $xsl_file . ".tmp";
+		$command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
+		exec_com($command, $file);
+		$xsl_file = $tmp ;
 
 		# Word documents
 		if ($file =~ /\.doc$/) {
@@ -515,7 +520,12 @@ sub process_file {
 		}
 
 		# Remove temporary files unless testing.
-		if (! $test) { remove_tmp_files($tmpdir, $file); }
+		if (! $test) {
+			remove_tmp_files($tmpdir, $file);
+			# Also remove the temporary, file-specific xsl file:
+        	$command = "rm -rf $xsl_file";
+        	exec_com($command, $file);
+		}
 
 		print_log($log_file, $file);
 		}
