@@ -37,52 +37,52 @@ sub test_setup {
 
 	if (qx{which antiword} eq "") {
 		print "Didn't find antiword\n";
-		print "Install it on Mac by issuing the command\n";
-		print "sudo port install antiword\n";
+		print "Install it on Mac by issuing the command\n\n";
+		print "sudo port install antiword\n\n";
 		print "For Linux, issue one of these commands:\n";
 		print "Ubuntu/Debian: sudo apt-get install antiword\n";
 		print "Fedora/Red Hat/CentOS: sudo yum install antiword\n";
-		print "SUSE: sudo zypper install antiword\n";
+		print "SUSE: sudo zypper install antiword\n\n";
 		$invalid_setup = 1;
 	}
 	if (qx{which xsltproc} eq "") {
 		print "Didn't find xsltproc\n";
-		print "Install it on Mac by issuing the command\n";
-		print "sudo port install libxslt\n";
+		print "Install it on Mac by issuing the command\n\n";
+		print "sudo port install libxslt\n\n";
 		print "For Linux, issue one of these commands:\n";
 		print "Ubuntu/Debian: sudo apt-get install xsltproc\n";
 		print "Fedora/Red Hat/CentOS: sudo yum install libxslt\n";
-		print "SUSE: sudo zypper install libxslt\n";
+		print "SUSE: sudo zypper install libxslt\n\n";
 		$invalid_setup = 1;
 	}
 	if (qx{which tidy} eq "") {
 		print "Didn't find tidy\n";
-		print "Install it on Mac by issuing the command\n";
-		print "sudo port install tidy\n";
+		print "Install it on Mac by issuing the command\n\n";
+		print "sudo port install tidy\n\n";
 		print "For Linux, issue one of these commands:\n";
 		print "Ubuntu/Debian: sudo apt-get install tidy\n";
 		print "Fedora/Red Hat/CentOS: sudo yum install tidy\n";
-		print "SUSE: sudo zypper install tidy\n";
+		print "SUSE: sudo zypper install tidy\n\n";
 		$invalid_setup = 1;
 	}
 	if (qx{which pdftotext} eq "") {
 		print "Didn't find pdftotext\n";
-		print "Install it on Mac by issuing the command\n";
-		print "sudo port install poppler\n";
+		print "Install it on Mac by issuing the command\n\n";
+		print "sudo port install poppler\n\n";
 		print "For Linux, issue one of these commands:\n";
 		print "Ubuntu/Debian: sudo apt-get install poppler-utils\n";
 		print "Fedora/Red Hat/CentOS: sudo yum poppler-utils\n";
-		print "SUSE: sudo zypper install poppler-utils\n";
+		print "SUSE: sudo zypper install poppler-utils\n\n";
 		$invalid_setup = 1;
 	}
 	if (qx{which xmllint} eq "") {
 		print "Didn't find xmllint\n";
-		print "Install it on Mac by issuing the command\n";
-		print "sudo port install libxml2\n";
+		print "Install it on Mac by issuing the command\n\n";
+		print "sudo port install libxml2\n\n";
 		print "For Linux, issue one of these commands:\n";
 		print "Ubuntu/Debian: sudo apt-get install libxml2-utils\n";
 		print "Fedora/Red Hat/CentOS: sudo yum install libxml2\n";
-		print "SUSE: sudo zypper install libxml2\n";
+		print "SUSE: sudo zypper install libxml2\n\n";
 		$invalid_setup = 1;
 	}
 
@@ -97,8 +97,8 @@ sub test_setup {
 		#This is not a Linux system, check for a usable readlink
 		if(!-f "/opt/local/bin/greadlink") {
 			print "You don't have the correct version of readlink.\n";
-			print "Install it issuing the command:\n";
-			print "sudo port install coreutils\n";
+			print "Install it issuing the command:\n\";
+			print "sudo port install coreutils\n\n";
 			$invalid_setup = 1;
 		}
 	}
@@ -124,13 +124,15 @@ my $textcatdir = "$ENV{'GTHOME'}/tools/lang-guesser";
 #my $bindir = "/home/saara/gt/script";
 my $gtbound_dir = "converted";
 my $orig_dir = "orig";
-my $goldstandard_orig_dir = "goldstandard/" ;
+my $goldstandard_orig_dir = "goldstandard" ;
 my $gt_gid = 50782; # group: bound
 my $orig_gid = 50779; #group: corpus
 
-my $docxsl = $bindir . "/docbook2corpus2.xsl";
-my $htmlxsl = $bindir . "/xhtml2corpus.xsl";
-my $svgxsl = $bindir . "/svg2xml.xsl";
+my $commonxsl   = $bindir . "/common.xsl";
+my $preprocxsl  = $bindir . "/preprocxsl.xsl";
+my $docxsl      = $bindir . "/docbook2corpus2.xsl";
+my $htmlxsl     = $bindir . "/xhtml2corpus.xsl";
+my $svgxsl      = $bindir . "/svg2xml.xsl";
 my $xsltemplate = $bindir . "/XSL-template.xsl";
 
 my $log_file;
@@ -194,14 +196,13 @@ if (! $language || ! $languages{$language}) { $language = "sme"; }
 my $tidy = "tidy -config $bindir/tidy-config.txt -utf8 -quiet -asxml -language $language";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $textcatdir . "/text_cat.pl";
-my $add_error_marking = $bindir . "/add_error_marking.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
 my $jpedal = $bindir . "/corpus_call_jpedal.sh";
 my $pdf2xml = $bindir . "/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
 
-# We would like to compute the where the corpus directory
+# We would like to compute where the corpus directory
 # is automatically given the filename, because this is the
 # most common usage. If the file is outside of the corpus
 # tree, the user has to manually set the corpdir option
