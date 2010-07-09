@@ -312,6 +312,9 @@ sub process_file {
 	# 1. if the xsl file doesn't exist
 	# 2. if the converted file is older than the xsl file
 	# 3. if the converted file doesn't exist
+	#
+	# Actually, the logic is as: check if there are conditions for NOT converting
+	# otherwise DO convert (cf the last else clause).
 
 	my $do_convert = 0;
 
@@ -392,7 +395,7 @@ sub process_file {
 		}
 
 		# Conversion of documents with error markup
-		# Conversion of documents with manual error markup
+		# Conversion of XML documents with manual error markup
 		elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) {
 			# check out the file-specific xsl-file for processing
 			my $corr_vfile = $orig . ",v";
