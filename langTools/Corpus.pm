@@ -52,7 +52,7 @@ sub add_error_markup {
 			# No nested errors, no parentheses
 			if ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
 				if($1) { push @new_content, $1; }
-				print STDERR "Plain error: $2\n"; # Debug print-out
+				if ($test) { print STDERR "Plain error: $2\n"; } # Debug print-out
 				get_error($2, \@new_content);
 			}
 
@@ -60,13 +60,13 @@ sub add_error_markup {
 				if ($1) { push @new_content, $1; }
 				my $tmp = $2;
 				(my $error = $tmp) =~ s/[\(\)]//g;
-				print STDERR "Complex error: $error\n";
+				if ($test) { print STDERR "Complex error: $error\n"; } # More debug output
 				get_error($error, \@new_content);
 				my $last_err = pop @new_content;
 				if ($text =~ s/^([$sep](?:\()?[^$sep\\(\\)]+?)(?:\))?(?=$|\n|\s)//) {
 					my $tmp = $1;
 					(my $error = $tmp) =~ s/[\(\)]//g;
-					print STDERR "Another complex error: $error\n";
+					if ($test) { print STDERR "Another complex error: $error\n"; } # Debug
 					get_error($error, \@new_content, $last_err);
 				}
 			}
