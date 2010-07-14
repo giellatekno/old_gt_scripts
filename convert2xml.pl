@@ -207,7 +207,6 @@ sub process_file {
 	return if ($orig =~ m/\.svn/);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
-	print "int is: " . decode_utf8($int) . "\n";
 	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
 
 	# Really small (text)files are not processed.
