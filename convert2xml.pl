@@ -279,11 +279,12 @@ sub process_file {
 	return if (-z $file);
 
 	# The name and location of the resulting xml-file.
-    my $orig = decode_utf8(cwd()) . "/" . $file;
+    my $orig = decode_utf8(cwd()) . "/" . decode_utf8($file);
 	return if ($orig =~ m/\.svn/);
 	print "orig shouldn't contain .svn: " . decode_utf8($orig) . "\n";
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
+	print "int is: " . decode_utf8($int) . "\n";
 	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
 
 	# Really small (text)files are not processed.
@@ -774,7 +775,7 @@ sub file_specific_xsl {
 	# Check the main language,  add if it is missing.
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile("$tmp")) {
-		carp "ERROR parsing the XML-file failed ";		  
+		carp "ERROR parsing the XML-file «$tmp» failed ";  
 		return "ERROR";
 	}	
 	my $root = $document->root;
@@ -806,7 +807,7 @@ sub exec_com {
 	my ($com, $file) = @_;
 
 	if ($test) {
-		print STDERR "$com\n";
+		print STDERR "exec_com: $com\n";
 	}
 	if ( system($com) != 0) { 
 		print STDERR "$file: ERROR errors in $com: $!\n";
