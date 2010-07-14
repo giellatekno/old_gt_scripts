@@ -7,8 +7,6 @@
     xmlns:i18n="http://apache.org/cocoon/i18n/2.1"
     version="1.0">
 
-<xsl:import href="/usr/local/share/corp/bin/common.xsl"/>
-
 <xsl:output method="xml" 
             version="1.0" 
             encoding="UTF-8" 
