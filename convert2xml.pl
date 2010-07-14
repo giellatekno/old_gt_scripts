@@ -183,7 +183,7 @@ sub process_file {
     $file = shift (@_) if (!$file);
 
 	my $no_decode_this_time = 0;
-	print STDERR "$file\n";
+	print STDERR decode_utf8($file) . "\n";
 
 	# Check the filename
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|svg|bible\.xml|correct\.xml|correct\.xml,v)$/);
@@ -244,7 +244,7 @@ sub process_file {
 
 	my $do_convert = 0;
 
-	my $xsl_file = $orig . ".xsl";
+	my $xsl_file = decode_utf8($orig) . ".xsl";
 	if(! $noxsl) {
 		# Copy it from template, if not exist.
 		if(! -f $xsl_file) {
