@@ -265,7 +265,7 @@ sub process_file {
 			$do_convert = 1;
 		}
 	} else {
-		print "File " . decode_utf8($int) . " haven't been converted before ";
+		print "File " . decode_utf8($int) . " haven't been converted before. ";
 		$do_convert = 1;
 	}
 
