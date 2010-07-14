@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
 #
 # convert2xml.pl
-# Perl script for converting doc-, html- and pdf-files to xml-format
+# Perl script for converting doc-, html-, svg- and pdf-files to xml-format
 # The default directory for searching the files and storing the converted
 # xml-files is /usr/local/share/corp. The file that is given to the script
 # is expected to be in the corpus hierarchy, under subdirectory orig. 
-# The converted file is created to the corresponding subdirectory gt.
+# The converted file is created to the corresponding subdirectory converted.
 #
 # Log files are generated to subdirectory tmp, and the xsl-files are by default
 # found under the subdirectory bin. It is possible to change the corpus directory
@@ -280,6 +280,8 @@ sub process_file {
 
 	# The name and location of the resulting xml-file.
     my $orig = decode_utf8(cwd()) . "/" . $file;
+	return if ($orig =~ m/\.svn/);
+	print "orig shouldn't contain .svn: $orig\n";
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
 	(my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
@@ -736,6 +738,7 @@ sub convert_html {
 	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 
 	if (! $no_decode) {
+		print "nodecode orig is $orig, tmp3 is $tmp3, lang is $language\n";
 		if (! $coding) { $coding = &guess_text_encoding($orig, $tmp3, $language); }
 		my $error = &decode_text_file($orig, $coding, $tmp4);
 		if ($error eq -1){ return "ERROR"; }
@@ -761,7 +764,8 @@ sub file_specific_xsl {
 
 	# Execute the file specific .xsl-script.
 	my $tmp = $tmpdir . "/" . $file . ".tmp";
-	$command = "xsltproc --novalid --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
+	print STDERR "file_specific_xsl: doc_id is $doc_id\n";
+	$command = "xsltproc --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
 	exec_com($command, $file);
 	
 	# Check the main language,  add if it is missing.
