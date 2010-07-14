@@ -205,7 +205,6 @@ sub process_file {
 	# The name and location of the resulting xml-file.
     my $orig = decode_utf8(cwd()) . "/" . decode_utf8($file);
 	return if ($orig =~ m/\.svn/);
-	print "orig shouldn't contain .svn: " . decode_utf8($orig) . "\n";
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
 	print "int is: " . decode_utf8($int) . "\n";
@@ -249,7 +248,7 @@ sub process_file {
 	if(! $noxsl) {
 		# Copy it from template, if not exist.
 		if(! -f $xsl_file) {
-			print "No .xsl file found: " . decode_utf8($xsl_file) . "\n";
+			print "Creating " . decode_utf8($xsl_file) . "... ";
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 			
@@ -263,11 +262,11 @@ sub process_file {
 		my $xsl_time = stat($xsl_file)->mtime;
 		my $int_time = stat($int)->mtime;
 		if ($xsl_time > $int_time) {
-			print "$xsl_time larger than $int_time\n";
+			print "xsl file is newer than the converted file... ";
 			$do_convert = 1;
 		}
 	} else {
-		print "The converted file didn't exist: " . decode_utf8($int) . "\n";
+		print "File " . decode_utf8($int) . " haven't been converted before ";
 		$do_convert = 1;
 	}
 
@@ -461,7 +460,10 @@ sub process_file {
 		}
 
 		print_log($log_file, $file);
-		}
+	} else {
+		print "No need to convert " . decode_utf8($file) . "\n";
+	}
+
 	return 0;
 }
 
