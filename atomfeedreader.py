@@ -107,7 +107,7 @@ class FeedHandler:
 		for line in template:
 			for key, value in self.change_variables.iteritems():
 				if line.find('"' + key + '"') != -1:
-					line = line.replace('\'\'', '\'' + value + '\'')
+					line = line.replace('\'\'', '\'' + value.replace('&', '&amp;') + '\'')
 			metadata.write(line)
 
 		metadata.close()
@@ -118,5 +118,6 @@ class FeedHandler:
 		'''
 		os.system('svn add ' + self.articlename + ' ' + self.articlename + '.xsl')
 		os.system('svn ci -m"Added automatically by the atomfilesaver" ' + self.articlename + ' ' + self.articlename + '.xsl')
+
 fd = FeedHandler('http://avvir.no/feed.php?output_type=atom')
 fd.get_data_from_feed()
