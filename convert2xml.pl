@@ -181,11 +181,11 @@ if (-d $arg_to_process) {
 close STDERR;
 
 sub process_file {
-    my $file = $_;
+    my $file = decode_utf8($_);
     $file = shift (@_) if (!$file);
 
 	my $no_decode_this_time = 0;
-	print STDERR decode_utf8($file) . "\n";
+	print STDERR $file . "\n";
 
 	# Check the filename
 	return unless ($file =~ m/\.(doc|pdf|html|ptx|txt|svg|bible\.xml|correct\.xml|correct\.xml,v)$/);
@@ -193,7 +193,7 @@ sub process_file {
 		print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
 		return "ERROR";
 	}
-	print "Considering conversion of " . decode_utf8($file) . "\n";
+	print "Considering conversion of " . $file . "\n";
 
 
 	# correct.xml is not converted.
@@ -205,7 +205,7 @@ sub process_file {
 	return if (-z $file);
 
 	# The name and location of the resulting xml-file.
-    my $orig = decode_utf8(cwd()) . "/" . decode_utf8($file);
+    my $orig = decode_utf8(cwd()) . "/" . $file;
 	return if ($orig =~ m/\.svn/);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
 	$int =~ s/\.(doc|pdf|html|ptx|txt|svg)$/\.\L$1\.xml/i;
@@ -245,7 +245,7 @@ sub process_file {
 
 	my $do_convert = 0;
 
-	my $xsl_file = decode_utf8($orig) . ".xsl";
+	my $xsl_file = $orig . ".xsl";
 	if(! $noxsl) {
 		# Copy it from template, if not exist.
 		if(! -f $xsl_file) {
@@ -272,7 +272,7 @@ sub process_file {
 	}
 
 	if ($do_convert) {
-		print "Converting " . decode_utf8($file) . "\n";
+		print "Converting " . $file . "\n";
 
 		# remove temporary files to get a clean start.
 		remove_tmp_files($tmpdir, $file);
@@ -282,7 +282,7 @@ sub process_file {
 		my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
 
 		# Process the file-specific xsl file to import the common.xsl file from $GTHOME:
-		my $tmp = $xsl_file . ".tmp";
+		my $tmp = decode_utf8($xsl_file) . ".tmp";
 		$command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
 		exec_com($command, $file);
 		$xsl_file = $tmp ;
@@ -336,13 +336,6 @@ sub process_file {
 				exec_com($command, $file);
 				my $cnt = chown -1, $orig_gid, $corr_vfile;
 				if ($cnt == 0) { print STDERR "ERROR: chgrp failed for $orig.\n"};
-			}
-
-			# Check out the corr-file for editing.
-			$command = "co -f -q \"$orig\"";
-			if( exec_com($command, $file) != 0 ) {
-				carp "ERROR cannot checkout file: $corr_vfile STOP";
-				return "ERROR";
 			}
 
 			$int =~ s/\.correct//;
@@ -462,7 +455,7 @@ sub process_file {
 
 		print_log($log_file, $file);
 	} else {
-		print "No need to convert " . decode_utf8($file) . "\n";
+		print "No need to convert " . $file . "\n";
 	}
 
 	return 0;
