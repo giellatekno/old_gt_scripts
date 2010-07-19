@@ -68,6 +68,8 @@ my $readlink;
 
 if (-f "/bin/readlink") {
 	$readlink = "/bin/readlink";
+} elsif (-f "/usr/bin/readlink") {
+	$readlink = "/usr/bin/readlink";
 } else {
 	$readlink = "/opt/local/bin/greadlink";
 }
