@@ -320,6 +320,7 @@ sub txtclean {
 
 #		print "string: $string\n";
 		$string =~ s/($replaced)//g;
+		$string =~ s/@/(at)/g;
 		$string =~ s/\\//g;
 		# remove all the xml-tags.
 		$string =~ s/<.*?>//g;
