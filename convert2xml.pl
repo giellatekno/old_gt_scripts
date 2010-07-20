@@ -249,7 +249,7 @@ sub process_file {
 	if(! $noxsl) {
 		# Copy it from template, if not exist.
 		if(! -f $xsl_file) {
-			print "Creating " . decode_utf8($xsl_file) . "... ";
+			print "Creating " . $xsl_file . "... ";
 			copy ($xsltemplate, $xsl_file) 
 				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
 			
@@ -267,7 +267,7 @@ sub process_file {
 			$do_convert = 1;
 		}
 	} else {
-		print "File " . decode_utf8($int) . " haven't been converted before. ";
+		print "File " . $int . " haven't been converted before. ";
 		$do_convert = 1;
 	}
 
