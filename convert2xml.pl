@@ -944,7 +944,7 @@ sub whether_to_convert {
 			return 1;
 		}
 	} else {
-		print "File " . $int . " haven't been converted before. ";
+		print "File " . $orig . " haven't been converted before. ";
 		return 1;
 	}
 
