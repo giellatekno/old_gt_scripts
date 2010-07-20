@@ -235,41 +235,8 @@ sub process_file {
 		return "ERROR";
 	}
 
-	# convert the file if one of these conditions are met:
-	# 1. if the xsl file doesn't exist
-	# 2. if the converted file is older than the xsl file
-	# 3. if the converted file doesn't exist
-	#
-	# Actually, the logic is as: check if there are conditions for NOT converting
-	# otherwise DO convert (cf the last else clause).
-
-	my $do_convert = 0;
-
 	my $xsl_file = $orig . ".xsl";
-	if(! $noxsl) {
-		# Copy it from template, if not exist.
-		if(! -f $xsl_file) {
-			print "Creating " . $xsl_file . "... ";
-			copy ($xsltemplate, $xsl_file) 
-				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
-			
-			my $cnt = chown -1, $orig_gid, $xsl_file;
-			if ($cnt == 0) { print STDERR "$file: ERROR: chgrp failed for $xsl_file.\n"};
-			$do_convert = 1;
-		}
-	}
-
-	if (-f $int) {
-		my $xsl_time = stat($xsl_file)->mtime;
-		my $int_time = stat($int)->mtime;
-		if ($xsl_time > $int_time) {
-			print "xsl file is newer than the converted file... ";
-			$do_convert = 1;
-		}
-	} else {
-		print "File " . $int . " haven't been converted before. ";
-		$do_convert = 1;
-	}
+	my $do_convert = whether_to_convert($orig, $xsl_file, $int);
 
 	if ($do_convert) {
 		print "Converting " . $file . "\n";
@@ -943,4 +910,44 @@ sub test_setup {
 	if ($invalid_setup) {
 		exit(-1);
 	}
+}
+
+# convert the file if one of these conditions are met:
+# 1. if the xsl file doesn't exist
+# 2. if the converted file is older than the xsl file
+# 3. if the converted file doesn't exist
+# 4. if the orig file is newer than the xsl file
+
+sub whether_to_convert {
+	my ( $orig, $xsl_file, $int) = @_;
+	if(! $noxsl) {
+		# Copy it from template, if not exist.
+		if(! -f $xsl_file) {
+			print "Creating " . $xsl_file . "... ";
+			copy ($xsltemplate, $xsl_file)
+				or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+			return 1;
+		}
+	}
+
+	if (-f $int) {
+		my $xsl_time = stat($xsl_file)->mtime;
+		my $int_time = stat($int)->mtime;
+		if ($xsl_time > $int_time) {
+			print "xsl file is newer than the converted file... ";
+			return 1;
+		}
+
+		my $orig_time = stat($orig)->mtime;
+		if ($orig_time > $int_time) {
+			print "Original file is newer than the converted file ... ";
+			return 1;
+		}
+	} else {
+		print "File " . $int . " haven't been converted before. ";
+		return 1;
+	}
+
+	# If we have reached this far, don't convert
+	return 0;
 }
