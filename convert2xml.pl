@@ -249,7 +249,7 @@ sub process_file {
 		my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
 
 		# Process the file-specific xsl file to import the common.xsl file from $GTHOME:
-		my $tmp = decode_utf8($xsl_file) . ".tmp";
+		my $tmp = $xsl_file . ".tmp";
 		$command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
 		exec_com($command, $file);
 		$xsl_file = $tmp ;
@@ -422,7 +422,7 @@ sub process_file {
 
 		print_log($log_file, $file);
 	} else {
-		print "No need to convert " . $file . "\n";
+		print "$file has already been converted.\n";
 	}
 
 	return 0;
@@ -601,8 +601,13 @@ sub convert_txt {
 	#return;
 	# Simple html-tags are added in subroutine txtclean
 	# and then converted to confront the corpus structure
-	
+
 	txtclean($int, $tmp4, $language);
+
+	# Replace ^H with a simple space
+	$command = "perl -pi -e \"s/\x{08}/ /g\" \"$tmp4\"";
+	exec_com($command, $file);
+
 	copy($tmp4,$int);
 
 	return 0;
@@ -629,7 +634,6 @@ sub convert_html {
 	my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
 
 	if (! $no_decode) {
-		print "nodecode orig is $orig, tmp3 is $tmp3, lang is $language\n";
 		if (! $coding) { $coding = &guess_text_encoding($orig, $tmp3, $language); }
 		my $error = &decode_text_file($orig, $coding, $tmp4);
 		if ($error eq -1){ return "ERROR"; }
@@ -655,7 +659,6 @@ sub file_specific_xsl {
 
 	# Execute the file specific .xsl-script.
 	my $tmp = $tmpdir . "/" . $file . ".tmp";
-	print STDERR "file_specific_xsl: doc_id is $doc_id\n";
 	$command = "xsltproc --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
 	exec_com($command, $file);
 	
