@@ -58,8 +58,8 @@ alias   xdfin='$LOOKUP $GTHOME/kt/fin/bin/ifin.fst'
 alias   dkom='$LOOKUP $GTHOME/kt/kom/bin/ikom.fst'
 alias   xufin='$LOOKUP $GTHOME/kt/fin/bin/fin.fst'
 alias   ukom='$LOOKUP $GTHOME/kt/kom/bin/kom.fst'
-alias   ufin='hfst-optimized-lookup $GTHOME/kt/fin/bin/share/omorfi/mor-omorfi.cg.hfst.ol'
-alias   dfin='hfst-optimized-lookup $GTHOME/kt/fin/bin/share/omorfi/mor-omorfi.inv.cg.hfst.ol'
+alias   ufin='hfst-optimized-lookup $GTHOME/kt/fin/omorfi/src/mor-omorfi.cg.hfst.ol'
+alias   dfin='hfst-optimized-lookup $GTHOME/kt/fin/omorfi/src/mor-omorfi.inv.cg.hfst.ol'
 
 
 # Bilingual transducers:
