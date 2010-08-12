@@ -25,6 +25,8 @@ alias   usmj='$LOOKUP $GTHOME/gt/smj/bin/smj.fst'
 alias   usmn='$LOOKUP $GTHOME/gt/smn/bin/smn.fst'
 alias   usms='$LOOKUP $GTHOME/gt/sms/bin/sms.fst'
 
+alias   drsme='$LOOKUP $GTHOME/gt/sme/bin/isme-GG.restr.fst'
+
 # Other languages:
 alias   damh='$LOOKUP $GTHOME/st/amh/bin/iamh.fst'
 alias   dces='$LOOKUP $GTHOME/st/ces/bin/ices.fst'
@@ -56,8 +58,8 @@ alias   xdfin='$LOOKUP $GTHOME/kt/fin/bin/ifin.fst'
 alias   dkom='$LOOKUP $GTHOME/kt/kom/bin/ikom.fst'
 alias   xufin='$LOOKUP $GTHOME/kt/fin/bin/fin.fst'
 alias   ukom='$LOOKUP $GTHOME/kt/kom/bin/kom.fst'
-alias   ufin='hfst-optimized-lookup bin/share/omorfi/mor-omorfi.cg.hfst.ol'
-alias   dfin='hfst-optimized-lookup bin/share/omorfi/mor-omorfi.inv.cg.hfst.ol'
+alias   ufin='hfst-optimized-lookup $GTHOME/kt/fin/bin/share/omorfi/mor-omorfi.cg.hfst.ol'
+alias   dfin='hfst-optimized-lookup $GTHOME/kt/fin/bin/share/omorfi/mor-omorfi.inv.cg.hfst.ol'
 
 
 # Bilingual transducers:
