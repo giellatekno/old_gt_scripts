@@ -98,9 +98,9 @@ osMinorVer=`uname -r | cut -d. -f2`
 
 
 if [ -z "$CLASSPATH" ]; then
-  CLASSPATH=~/lib/saxon9.jar:.
+  CLASSPATH=~/lib
 else
-  prepend_path CLASSPATH ~/lib/saxon9.jar
+  prepend_path CLASSPATH ~/lib
 fi
 export CLASSPATH
 

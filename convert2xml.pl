@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/perl -w
 #
 # convert2xml.pl
 # Perl script for converting doc-, html-, svg- and pdf-files to xml-format

@@ -16,7 +16,7 @@ CGI::Alert::custom_browser_text << '-END-';
 <h1>Error in uploading the file.</h1>
 <p>[MSG]</p>
 <p>Our maintainers have been informed.</p>
-<p>Send feedback and questions to <a href="mailto:corpus@giellatekno.uit.no?subject=Feedback%C2%A0upload.cgi">corpus@giellatekno.uit.no</mail></p>
+<p>Send feedback and questions to <a href="mailto:divvun@samediggi.no?subject=Feedback%C2%A0upload.cgi">divvun@samediggi.no</mail></p>
 <p><a href="http://www.divvun.no/upload/upload_corpus_file.html">Upload more files</a> </p>
 <p><a href="http://www.divvun.no/"> Divvun main page</a></p>
 -END-
@@ -27,19 +27,17 @@ use XML::Twig;
 # Allowed mime-headers.
 # http://www.iana.org/assignments/media-types/
 my %mime_types = ( "text/html" => "html",
-				   "application/msword" => "doc",
-				   "application/pdf" => "pdf",
-				   "text/plain" => "txt" );
+					"application/msword" => "doc",
+					"application/pdf" => "pdf",
+					"text/plain" => "txt",
+					"image/svg+xml" => "svg" );
 
 
 # The first thing is to print some kind of html-code
 print "Content-TYPE: text/html; charset=utf-8\n\n" ;
 
-my $convert = "/usr/local/share/corp/bin/convert2xml.pl";
-my $tmpdir = "/usr/local/share/corp/upload" ;
-
 # Define upload directory and mkdir it, if necessary
-my $upload_dir = "/usr/local/share/corp/upload";
+my $upload_dir = "/home/apache_corpus/uplad";
 mkdir ($upload_dir, 0755) unless -d $upload_dir;
 
 # Some securing operations. -sh
@@ -54,16 +52,16 @@ if(param("print_multiple") && $file_count) {
 	exit;
 }
 
-# Getting the filename and contet type check.
+# Getting the filename and content type check.
 my @filehandle  = upload('document');    #array of file handles 
 
 if (! @filehandle ) { die "No file was selected for upload.\n" }
 for my $file (@filehandle) {
 	my $filetype = uploadInfo($file)->{'Content-Type'}; 
 	
-	if (! $mime_types{$filetype}) { die "Upload only msword, pdf and html-files.\n" }
+	if (! $mime_types{$filetype}) { die "Upload only msword, pdf, svg and html-files.\n" }
 	else {
-		if ($file !~ m/\.(doc|pdf|html|txt|ptx)$/) {
+		if ($file !~ m/\.(doc|pdf|html|txt|ptx|svg)$/) {
 			$file = $file . "." . $mime_types{$file};
 		}
 	}
@@ -90,7 +88,7 @@ my @license_types;
 
 
 # Calculate md5sums of files in orig/ dir
-my @md5sums = (`find /usr/local/share/corp/orig -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
+my @md5sums = (`find /home/apache_corpus/ -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 -u | cut -c 1-32`);
 	
 
 my $i;
@@ -129,7 +127,6 @@ for($i=0;$i<$file_count;$i++) {
 	for my $j (@md5sums) {
 		if ($j eq $md5) {
 #		rm $upload_dir/$fname; # TODO: remove file, how to do it in Perl?
-			if ($j>0) { mailit($message); }
 			die "$filename: File already exists in our corpus base!";
 		}
 	}
@@ -140,28 +137,6 @@ for($i=0;$i<$file_count;$i++) {
 	my $license_type = param($ltype);
 	push @mainlangs, $mainlang;
 	push @license_types, $license_type;
-
-    # Calling convert2xml -script with hardcoded execution path
-    # The 'or die' part doesn't work, it dies everytime...
-	my @args = ("$convert", "--lang=$mainlang", "--tmpdir=$tmpdir", "--noxsl", "--upload", "$upload_dir/$fname");
-	system (@args);
-    # or die "$filename: Error in conversion";
-
-	# Only the first document is parsed and checked for xml-structure
-	# to speed up processing.
-	if($i==0) {
-		my $doc = XML::Twig->new(twig_handlers => 
-								 {'header/author/person' => sub { $author1_ln = $_->{'att'}->{'lastname'} },
-								  'header/publChannel/publisher' => sub { $publisher = $_->text },
-								  'header/publChannel/isbn' => sub { $isbn = $_->text },
-								  'header/publChannel/issn' => sub { $issn = $_->text },
-								  'header/year' => sub { $year = $_->text },
-								  'header/title' => sub { $title = $_->text },
-							   });
-		if (! $doc->safe_parsefile ("$upload_dir/$fname.xml")) {
-			print STDERR "$fname: ERROR parsing the XML-file failed.\n";
-		}
-	}
 
 	push @fnames, $fname;
 	$message.= "Name: $fname\nlanguage: $mainlang\nlicense: $license_type\n"
@@ -376,26 +351,6 @@ END_FIRST_PART
 </html>
 
 END_HTML
-}
-
-# send an email notification.
-sub mailit {
-	my $message = shift @_;
-	
-	my $recipient="corpus\@giellatekno.uit.no";
-	my $sender="upload.cgi";
-	my $subject="File uploaded";
-
-    $message .= "\n---\nThis is automatic notification email from web upload script upload.cgi.";
-
-return;
-
-    open(MAIL, "|/usr/lib/sendmail -t");
-	print MAIL "To: $recipient\n";
-	print MAIL "From: $sender\n";
-	print MAIL "Subject: $subject\n\n";
-	print MAIL "$message";
-	close (MAIL);
 }
 
 sub print_multiple_upload {
