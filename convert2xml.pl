@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -w -CS
+#!/usr/bin/env perl -w
 #
 # convert2xml.pl
 # Perl script for converting doc-, html-, svg- and pdf-files to xml-format
@@ -249,7 +249,7 @@ sub process_file {
 		my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
 
 		# Process the file-specific xsl file to import the common.xsl file from $GTHOME:
-		my $tmp = $xsl_file . ".tmp";
+		my $tmp = $orig . ".xsl.tmp";
 		$command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
 		exec_com($command, $file);
 		$xsl_file = $tmp ;
