@@ -93,9 +93,10 @@ my $analyze ="";
 test_config();
 
 my $SENT_DELIM = qq|.!?|;
-my $LEFT_QUOTE = qq|<([{«‹“‘|;
-#my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
-#my $RIGHT_QUOTE = qq|’”›\»\}])>|;
+#my $LEFT_QUOTE = qq|<([{«‹“‘|;
+# just an emacs hack
+my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
+my $RIGHT_QUOTE = qq|’”›\»\}])>|;
 						 
 # Read the tags
 my %tags;
@@ -215,6 +216,7 @@ print $OFH "\n</body>";
 print $OFH "\n</document>";
 close $OFH;
 
+# why can we find xml-invalid files in our old corpus despite such validation check?
 my $error = system("xmllint --valid --encode UTF-8 --noout \"$outfile\"");
 if ($error) { print STDERR "ERROR: $error\n"; }
 
