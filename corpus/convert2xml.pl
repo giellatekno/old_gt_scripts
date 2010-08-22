@@ -51,13 +51,13 @@ my $orig_dir = "orig";
 my $goldstandard_orig_dir = "goldstandard" ;
 my $gt_gid = 50782; # group: bound
 my $orig_gid = 50779; #group: corpus
-
-my $commonxsl   = $bindir . "/common.xsl";
-my $preprocxsl  = $bindir . "/preprocxsl.xsl";
-my $docxsl      = $bindir . "/docbook2corpus2.xsl";
-my $htmlxsl     = $bindir . "/xhtml2corpus.xsl";
-my $svgxsl      = $bindir . "/svg2xml.xsl";
-my $xsltemplate = $bindir . "/XSL-template.xsl";
+my $c_script = "/corpus";
+my $commonxsl   = $bindir . $c_script . "/common.xsl";
+my $preprocxsl  = $bindir . $c_script . "/preprocxsl.xsl";
+my $docxsl      = $bindir . $c_script . "/docbook2corpus2.xsl";
+my $htmlxsl     = $bindir . $c_script . "/xhtml2corpus.xsl";
+my $svgxsl      = $bindir . $c_script . "/svg2xml.xsl";
+my $xsltemplate = $bindir . $c_script . "/XSL-template.xsl";
 
 my $log_file;
 my $language;
@@ -122,7 +122,7 @@ my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $textcatdir . "/text_cat.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
-my $jpedal = $bindir . "/corpus_call_jpedal.sh";
+my $jpedal = $bindir . $c_script . "/corpus_call_jpedal.sh";
 my $pdf2xml = $bindir . "/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
 
@@ -818,23 +818,23 @@ sub call_decode_title {
 
 
 sub print_help {
-	print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
-	print "The available options:\n";
-	print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
-    print"                    If not specified, the default values are used.\n";
-    print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
-    print"    --nolog         Print error messages to screen, not to log files.\n";
-    print"    --corpdir=<dir> The corpus directory. This is where\n";
-    print"    the corpus is checked out	.\n";
-    print"    --no-decode     Do not decode the characters.\n";
-    print"    --noxsl         Do not use file-specific xsl-template.\n";
-    print"    --no-hyph       Do not add hyphen tags.\n";
-    print"    --all-hyph      Add hyphen tags everywhere (default is at the end of the lines).\n";
-    print"    --multi-coding  Document contains more than one different encodings, character \n";
-    print"                    decoding is done paragraph-wise.\n";
-    print"    --upload        Do conversion in the upload-directory. \n";
-    print"    --test          Don't delete temporary files, log more info.\n";
-    print"    --help          Print this message and exit.\n";
+  print"Usage: convert2xml.pl [OPTIONS] [FILES]\n";
+  print "The available options:\n";
+  print"    --xsl=<file>    The xsl-file which is used in the conversion.\n";
+  print"                    If not specified, the default values are used.\n";
+  print"    --tmpdir=<dir>  The directory where the log and other temporary files are stored.\n";
+  print"    --nolog         Print error messages to screen, not to log files.\n";
+  print"    --corpdir=<dir> The corpus directory. This is where\n";
+  print"    the corpus is checked out	.\n";
+  print"    --no-decode     Do not decode the characters.\n";
+  print"    --noxsl         Do not use file-specific xsl-template.\n";
+  print"    --no-hyph       Do not add hyphen tags.\n";
+  print"    --all-hyph      Add hyphen tags everywhere (default is at the end of the lines).\n";
+  print"    --multi-coding  Document contains more than one different encodings, character \n";
+  print"                    decoding is done paragraph-wise.\n";
+  print"    --upload        Do conversion in the upload-directory. \n";
+  print"    --test          Don't delete temporary files, log more info.\n";
+  print"    --help          Print this message and exit.\n";
 };
 
 sub test_setup {
