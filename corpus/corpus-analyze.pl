@@ -93,10 +93,10 @@ my $analyze ="";
 test_config();
 
 my $SENT_DELIM = qq|.!?|;
-my $LEFT_QUOTE = qq|<([{«‹“‘|;
+#my $LEFT_QUOTE = qq|<([{«‹“‘|;
 # just an emacs hack
-#my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
-#my $RIGHT_QUOTE = qq|’”›\»\}])>|;
+my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
+my $RIGHT_QUOTE = qq|’”›\»\}])>|;
 						 
 # Read the tags
 my %tags;
@@ -449,14 +449,41 @@ sub test_config {
   
   $binpath = "$gthome/$twig/$lang/bin";
   $srcpath = "$gthome/$twig/$lang/src";
-#  $preproc = `which preprocess`;
-  $preproc = "preprocess";
-#  $lookup = `which lookup`;
-  $lookup = "lookup";
-#  $lookup2cg = `which lookup2cg`;
-  $lookup2cg = "lookup2cg";
-#  $vislcg3 = `which vislcg3`;
-  $vislcg3 = "vislcg3";
+
+#  $preproc = "preprocess";
+#  $lookup = "lookup";
+#  $lookup2cg = "lookup2cg";
+#  $vislcg3 = "vislcg3";
+
+  $preproc = `which preprocess`;
+  $preproc =~ s/^([^\n]+)\n$/$1/;
+  $lookup = `which lookup`;
+  $lookup =~ s/^([^\n]+)\n$/$1/;
+  $lookup2cg = `which lookup2cg`;
+  $lookup2cg =~ s/^([^\n]+)\n$/$1/;
+  $vislcg3 = `which vislcg3`;
+  $vislcg3 =~ s/^([^\n]+)\n$/$1/;
+
+  if ($preproc eq "") {
+    print "No preprocess found\n";
+    print "Fix the problem and run this script anew.\n";
+    $config_error = 1;
+  }
+  if ($lookup eq "") {
+    print "No lookup found\n";
+    print "Fix the problem and run this script anew.\n";
+    $config_error = 1;
+  }
+  if ($lookup2cg eq "") {
+    print "No lookup2cg found\n";
+    print "Fix the problem and run this script anew.\n";
+    $config_error = 1;
+  }
+  if ($vislcg3 eq "") {
+    print "No vislcg3 found\n";
+    print "Fix the problem and run this script anew.\n";
+    $config_error = 1;
+  }
 
   if(! $tagfile) {
     $tagfile = "$gthome/$twig/$lang/res/korpustags.$lang.txt";
