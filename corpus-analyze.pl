@@ -93,10 +93,10 @@ my $analyze ="";
 test_config();
 
 my $SENT_DELIM = qq|.!?|;
-#my $LEFT_QUOTE = qq|<([{«‹“‘|;
+my $LEFT_QUOTE = qq|<([{«‹“‘|;
 # just an emacs hack
-my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
-my $RIGHT_QUOTE = qq|’”›\»\}])>|;
+#my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
+#my $RIGHT_QUOTE = qq|’”›\»\}])>|;
 						 
 # Read the tags
 my %tags;
