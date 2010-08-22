@@ -1,12 +1,4 @@
 #!/usr/bin/perl -w
-use strict;
-use utf8;
-binmode( STDIN, ':utf8' );
-binmode( STDOUT, ':utf8' );
-binmode( STDERR, ':utf8' );
-use open 'utf8';
-
-
 # corpus-analyze.pl [OPTIONS] [FILE]
 #
 # Perl script for analyzing corpus files for storing 
@@ -32,6 +24,12 @@ use open 'utf8';
 #
 # $Id$
 
+use strict;
+use utf8;
+binmode( STDIN, ':utf8' );
+binmode( STDOUT, ':utf8' );
+binmode( STDERR, ':utf8' );
+use open 'utf8';
 use XML::Twig;
 use IPC::Open2;
 use POSIX qw(locale_h);
@@ -56,6 +54,7 @@ my $onelang=0;
 my $infile;
 my $outfile;
 my $help;
+
 Getopt::Long::Configure ("bundling");
 GetOptions ("tags=s" => \$tagfile,
 			"output=s" => \$outfile,
@@ -70,50 +69,33 @@ GetOptions ("tags=s" => \$tagfile,
 );
 
 if ($help) {
-	&print_help;
-	exit 1;
+  &print_help;
+  exit 1;
 }
 
-#my $binpath="/opt/smi/$lang/bin";
-my $binpath="/Users/saara/opt/smi/$lang/bin";
-my $lookup2cg = "/usr/local/bin/lookup2cg";
-#my $lookup = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup";
-my $lookup = "/usr/local/bin/lookup";
-my $vislcg3 = "/usr/local/bin/vislcg3";
-my  $corrtypos = $binpath . "/". "typos.txt";
-my $cap = $binpath ."/" . "cap-" . $lang;
-my $fst = $binpath ."/". $lang . ".fst";
-my $abbr = $binpath ."/abbr.txt";
-my $rle = $binpath ."/". $lang ."-dis.bin";
-#my $preproc = "/usr/local/bin/preprocess";
-my $preproc = "/Users/saara/gt/script/preprocess";
+my $gthome="";
+my $binpath="";
+my $srcpath="";
+my $corrtypos = "";
+my $cap = "";
+my $fst = "";
+my $abbr = "";
+my $rle = "";
+my $preproc = "";
+my $preprocess = "";
+my $preprocess_break = "";
+my $lookup = "";
+my $lookup2cg = "";
+my $vislcg3 = "";
+my $disamb = "";
+my $analyze ="";
 
-if(! $tagfile) { 
-	$tagfile = "/Users/saara/opt/smi/$lang/bin/korpustags.$lang.txt";
-}
-if(! -f $tagfile) { 
-	$tagfile = "/Users/saara/opt/smi/common/bin/korpustags.txt"; 
-}
-print "Using tags $tagfile\n";
-
-my $host=`hostname`;
-
-$vislcg3 .= " -g $rle 2>/dev/null";
-my $disamb = "$lookup2cg | $vislcg3";
-
-my $preprocess;
-if( $lang =~ /(sme|smj|sma)/) { $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos"; }
-elsif ($lang =~ /nob/) { 
-	$preprocess = "$preproc --abbr=$abbr";
-}
-else { $preprocess = "$preproc"; }
-my $preprocess_break = "$preprocess --break='<<<'";
-
-
-my $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3";
+test_config();
 
 my $SENT_DELIM = qq|.!?|;
 my $LEFT_QUOTE = qq|<([{«‹“‘|;
+#my $LEFT_QUOTE = qq|<([\{\«‹“‘|;
+#my $RIGHT_QUOTE = qq|’”›\»\}])>|;
 						 
 # Read the tags
 my %tags;
@@ -444,4 +426,120 @@ Usage: corpus-analyze.pl [OPTIONS] [FILE]
 END
 
 }
+
+sub test_config {
+  my $config_error = 0;
+  print "Checking configuration...\n";
+  my $host = `hostname`;
+  print "Host found: $host\n";
+  
+  $gthome = "$ENV{'GTHOME'}";
+  my $twig;
+  if ($lang =~ /(sjd|sje|sma|sme|smi|smj|smn|sms)/) { 
+    $twig = "gt"; 
+  }
+  elsif ($lang =~ /(chm|est|fin|fkv|kom|mhr|udm|yrk)/) { 
+    $twig = "kt"; 
+  }
+  else {
+    $twig = "st";
+  }
+  
+  $binpath = "$gthome/$twig/$lang/bin";
+  $srcpath = "$gthome/$twig/$lang/src";
+#  $preproc = `which preprocess`;
+  $preproc = "preprocess";
+#  $lookup = `which lookup`;
+  $lookup = "lookup";
+#  $lookup2cg = `which lookup2cg`;
+  $lookup2cg = "lookup2cg";
+#  $vislcg3 = `which vislcg3`;
+  $vislcg3 = "vislcg3";
+
+  if(! $tagfile) {
+    $tagfile = "$gthome/$twig/$lang/res/korpustags.$lang.txt";
+  }
+  if(! -f $tagfile) { 
+    $tagfile = "$gthome/cwb/korpustags.txt"; 
+  }
+  print "Using tags in $tagfile\n";
+  
+  if ($gthome eq "") {
+    if ($host eq "victorio\.uit\.no") {
+      print "The environment variable GTHOME isn't set\n";
+      print "Using global settings on victorio\n";
+      $binpath = "/opt/sami/smi/$lang/bin";
+      $preproc = "/usr/local/bin/preprocess";
+      $rle = $binpath ."/". $lang ."-dis.bin";
+
+      if(! $tagfile) {
+	$tagfile = "/opt/sami/smi/$lang/bin/korpustags.$lang.txt";
+      }
+      if(! -f $tagfile) { 
+	$tagfile = "/opt/sami/smi/common/bin/korpustags.txt"; 
+      }
+      print "Using tags in $tagfile\n";
+      
+    } else {
+      print "The environment variable GTHOME isn't set\n";
+      print "Run the script gtsetup.sh found in the same\n";
+      print "directory as this script.";
+      $config_error = 1;
+    }
+  }
+
+  $corrtypos = $srcpath . "/". "typos.txt";
+  $cap = $binpath ."/" . "cap-" . $lang;
+  $fst = $binpath ."/". $lang . ".fst";
+  # location of abbr in gtsvn is not quite clear (bin or src): ask Trond & Lene
+  $abbr = $binpath ."/abbr.txt";
+  # and here?
+  $rle = $binpath ."/". $lang ."-dis.bin";
+
+  if (!-f $abbr) {
+    print "No abbreviations file found, preprocessing without it\n";
+  }
+  if (!-f $corrtypos) {
+    print "No typos file found, preprocessing without it\n";
+  }
+  if (!-f $fst) {
+    print "No fst file found, please build the necessary tools\n";
+    print "and run this script anew.\n";
+    $config_error = 1;
+  }
+  if (!-f $rle) {
+    print "No grammar rules file for vislcg3 found\n";
+    print "Fix the problem and run this script anew.\n";
+    $config_error = 1;
+  }
+  
+  if ($lang =~ /(sme|smj|sma)/) {
+    $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos";
+  }
+  elsif ($lang =~ /nob/) {
+    $preprocess = "$preproc --abbr=$abbr";
+  }
+  else { $preprocess = "$preproc"; }
+  
+  $preprocess_break = "$preprocess --break='<<<'";
+
+  $vislcg3 .= " -g $rle 2>/dev/null";
+  #unused variable
+  $disamb = "$lookup2cg | $vislcg3";
+  if (!-f $cap) {
+    print "No cap file found, preprocessing without it\n\n\n";
+
+
+    $analyze = "$preprocess | $lookup -flags mbTT -utf8 $fst 2>/dev/null | $lookup2cg | $vislcg3";
+
+#    print "fuck it deeply $analyze\n\n\n";
+  } else {
+    $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3";
+  }
+  
+  if ($config_error) {
+    exit(-1);
+  }
+}
+
 
