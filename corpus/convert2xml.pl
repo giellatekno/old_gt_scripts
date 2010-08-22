@@ -123,7 +123,7 @@ my $text_cat = $textcatdir . "/text_cat.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
 my $paratext2xml = $bindir . "/paratext2xml.pl";
 my $jpedal = $bindir . $c_script . "/corpus_call_jpedal.sh";
-my $pdf2xml = $bindir . "/pdf2xml.pl";
+my $pdf2xml = $bindir . $c_script . "/pdf2xml.pl";
 my $bible2xml = $bindir . "/bible2xml.pl";
 
 # We would like to compute where the corpus directory
