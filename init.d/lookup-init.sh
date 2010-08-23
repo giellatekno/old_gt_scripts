@@ -5,7 +5,7 @@
 HOSTNAME=`hostname`
 
 if [ $HOSTNAME == 'victorio.uit.no' ]
-then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup-2.5.7 -flags mbTT'
+then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags mbTT'
 else export LOOKUP='lookup -flags mbTT'
 fi
 
