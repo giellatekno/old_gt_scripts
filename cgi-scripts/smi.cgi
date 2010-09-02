@@ -818,7 +818,7 @@ sub printfinalhtmlcodes
 {
 	my ($texts, $body) = @_;
 
-	my $copyright = $texts->first_child_text('copyright');
+	my $copyright = $texts->first_child_text('CC-BY');
 
 	my $hr = XML::Twig::Elt->new('hr');
 	$hr->paste('last_child', $body);
