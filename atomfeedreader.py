@@ -13,21 +13,6 @@ class FeedHandler:
         self.doc = feedparser.parse(r'./avvir.atom.xml')
         self.change_variables = {'sub_name': u'Børre Gaup', 'sub_email': u'borre.gaup@samediggi.no', 'licence_type': u'standard', 'mainlang': u'sme', 'publisher': u'Ávvir', 'publChannel': u'http://avvir.no' }
 
-    def get_text_from_construct(self, element):
-        '''
-        Return the content of an Atom element declared with the
-        atomTextConstruct pattern.  Handle both plain text and XHTML
-        forms.  Return a UTF-8 encoded string.
-        '''
-        if element.getAttributeNS(EMPTY_NAMESPACE, u'type') == u'xhtml':
-            #Grab the XML serialization of each child
-            childtext = [ c.toxml('utf-8') for c in element.childNodes ]
-            #And stitch it together
-            content = ''.join(childtext).strip()
-            return content
-        else:
-            return element.firstChild.data.encode('utf-8')
-
     def get_data_from_feed(self):
         '''
         Get metadata from feed
