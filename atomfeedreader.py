@@ -10,7 +10,7 @@ class FeedHandler:
         '''
         Get a atomfeed, parse it and normalize it
         '''
-        self.doc = feedparser.parse(r'./avvir.atom.xml')
+        self.doc = feedparser.parse(feedUrl)
         self.change_variables = {'sub_name': u'Børre Gaup', 'sub_email': u'borre.gaup@samediggi.no', 'licence_type': u'standard', 'mainlang': u'sme', 'publisher': u'Ávvir', 'publChannel': u'http://avvir.no' }
 
     def get_data_from_feed(self):
