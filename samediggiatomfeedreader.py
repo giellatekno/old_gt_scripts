@@ -14,10 +14,18 @@ class FeedHandler:
         '''
         self.gthome = os.getenv('GTHOME')
         if self.gthome is None:
-            print 'You have to set the environment $GTHOME'
+            print 'You have to set the environment variable $GTHOME'
             print 'Use the gtsetup.sh which is in the'
             print 'same folder as this script'
             sys.exit(1)
+
+        self.freehome = os.getenv('GTFREE')
+        if self.freehome is None:
+            print 'You have to set the environment variable $GTFREE'
+            print 'Use the gtsetup.sh which is in the'
+            print 'same folder as this script'
+            sys.exit(2)
+
             
         self.doc = feedparser.parse(feedUrl)
         self.change_variables = {'sub_email': 'divvun@samediggi.no', 'licence_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
@@ -28,8 +36,8 @@ class FeedHandler:
         '''
         for entry in self.doc.entries:
             entry_id = entry.id[entry.id.rfind('/') + 1:]
-            self.smearticlename = 'orig/sme/admin/sd/samediggi.no/samediggi-article-' + entry_id + '.html'
-            self.nobarticlename = 'orig/nob/admin/sd/samediggi.no/samediggi-article-' + entry_id + '.html'
+            self.smearticlename = self.freehome + '/orig/sme/admin/sd/samediggi.no/samediggi-article-' + entry_id + '.html'
+            self.nobarticlename = self.freehome + '/orig/nob/admin/sd/samediggi.no/samediggi-article-' + entry_id + '.html'
             self.change_variables['year'] = str(entry.updated_parsed[0])
             
             if not os.path.exists(self.smearticlename):
