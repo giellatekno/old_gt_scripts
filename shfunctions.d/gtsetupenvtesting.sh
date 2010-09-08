@@ -30,6 +30,7 @@ set_gthome () {
 	echo "*** Please be patient, this first step might take a few seconds... ***"
 	echo
     do_big_exists
+    do_free_exists
     do_priv_exists
 }
 
@@ -71,6 +72,25 @@ do_big_exists () {
     else
         BIG_EXISTS=NO
         GTBIG=$GTPARENT/big
+    fi
+}
+
+do_free_exists () {
+# Check whether there exists a directory parallell to GTHOME that seems to
+# contain the free corpus.
+# "orig" is used as the test case - it only exists at the immediate
+# level below the working copy root in the biggies repository.
+# -maxdepth -mindepth is used because of a bug with -depth n on victorio
+    FREEDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name tts 2> /dev/null`
+    # if nothing is found, it can be because the trunk dir was checked out
+    # as well - thus checking one level further down:
+    if [ "$FREEDIR" != "" ] ;
+    then
+        FREE_EXISTS=YES
+        GTFREE=${FREEDIR%/*}
+    else
+        FREE_EXISTS=NO
+        GTFREE=$GTPARENT/freecorpus
     fi
 }
 
