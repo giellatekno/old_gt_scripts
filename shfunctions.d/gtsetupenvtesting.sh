@@ -82,10 +82,10 @@ do_big_exists () {
 do_free_exists () {
 # Check whether there exists a directory parallell to GTHOME that seems to
 # contain the free corpus.
-# "orig" is used as the test case - it only exists at the immediate
+# "freecorpus" is used as the test case - it only exists at the immediate
 # level below the working copy root in the biggies repository.
 # -maxdepth -mindepth is used because of a bug with -depth n on victorio
-    FREEDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name orig 2> /dev/null`
+    FREEDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name freecorpus 2> /dev/null`
     # if nothing is found, it can be because the trunk dir was checked out
     # as well - thus checking one level further down:
     if [ "$FREEDIR" != "" ] ;
