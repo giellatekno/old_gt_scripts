@@ -40,6 +40,7 @@
 # Alias for svn update
 alias svnup="pushd $GTHOME && svn up && popd ; \
     test -n \"$GTBIG\"  && test -x $GTBIG  && pushd $GTBIG && svn up && popd ; \
+    test -n \"$GTFREE\"  && test -x $GTFREE  && pushd $GTFREE && svn up && popd ; \
     test -n \"$GTPRIV\" && test -x $GTPRIV && pushd $GTPRIV && svn up && popd"
 
 # Standardised aliases for Giellatekno work:
@@ -117,6 +118,6 @@ export PERL5LIB
 # This is especially important on the XServe.
 if [ -d /opt/local/bin ]; then
 	export PATH=/opt/local/bin:/opt/local/sbin:${PATH}
-	export MANPATH=${MANPATH}:/opt/local/share/man:
-	export INFOPATH=${INFOPATH}:/opt/local/share/info:
+	export MANPATH=/opt/local/share/man:${MANPATH}
+	export INFOPATH=/opt/local/share/info:${INFOPATH}
 fi
