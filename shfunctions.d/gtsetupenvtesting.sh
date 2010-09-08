@@ -91,7 +91,7 @@ do_free_exists () {
     if [ "$FREEDIR" != "" ] ;
     then
         FREE_EXISTS=YES
-        GTFREE=${FREEDIR%/*}
+        GTFREE=${FREEDIR}
     else
         FREE_EXISTS=NO
         GTFREE=$GTPARENT/freecorpus
