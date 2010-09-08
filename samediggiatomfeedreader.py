@@ -55,7 +55,7 @@ class FeedHandler:
         # Find the title
         h1 = re.compile('\<title>.*</h1', re.S)
         tmp_result = h1.search(filebuffer).group(0)
-        self.change_variables['title'] = tmp_result[tmp_result.find('>') + 1:tmp_result.rfind('<')].strip()
+        self.change_variables['title'] = tmp_result[tmp_result.find('>') + 1:tmp_result.rfind('<')].strip().replace('"', '')
 
         svnarticle = open(filename, 'w')
         svnarticle.write(filebuffer)
