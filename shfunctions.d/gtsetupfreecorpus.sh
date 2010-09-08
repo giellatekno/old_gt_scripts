@@ -1,13 +1,13 @@
 # -*-Shell-script-*-
-# GT setup functions to set up the big repository.
+# GT setup functions to set up the freecorpus repository.
 # $Id: gtsetupfreecorpus.sh 26666 2009-07-01 08:55:09Z sjur $
 
-big_command_csh () {
+free_command_csh () {
     FREECMD="\
 setenv GTFREE $GTFREE"
 }
 
-big_command_sh () {
+free_command_sh () {
     FREECMD="\
 export GTFREE=$GTFREE"
 }
@@ -64,7 +64,7 @@ EOF
 }
 
 display_choose_free_do () {
-# propose to check out big:
+# propose to check out freecorpus:
     case $ONCONSOLE in
         YES)
 	    answer=`display_choose_free`
