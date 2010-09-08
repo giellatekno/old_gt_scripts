@@ -9,26 +9,26 @@ set_gthome () {
 
 # First we need to find the full pathname from the root
 # to the script file:
-	dirname=$(dirname "$0")
-	pwd=$(pwd)
-#	if dirname = '.' then $pwd contains the full path:
-	if [ "$dirname" == "." ]; then
-		tmp=$pwd
-#	else if pwd = '/' then $dirname contains the full path:
-	elif [ "$pwd" == "/" ]; then
-		tmp=$dirname
-#	else concatenate $pwd and $dirname with a / in between:
-	else
-		tmp="$pwd/$dirname"
-	fi
+    dirname=$(dirname "$0")
+    pwd=$(pwd)
+#    if dirname = '.' then $pwd contains the full path:
+    if [ "$dirname" == "." ]; then
+        tmp=$pwd
+#    else if pwd = '/' then $dirname contains the full path:
+    elif [ "$pwd" == "/" ]; then
+        tmp=$dirname
+#    else concatenate $pwd and $dirname with a / in between:
+    else
+        tmp="$pwd/$dirname"
+    fi
 # Now tmp contains the full path to the setup script, and we
 # remove the last 2 dirs to get GTHOME:
-	tmp2="${tmp%/*}"
-	GTHOME="${tmp2%/*}"
-	GTPARENT="${GTHOME%/*}"
-	echo
-	echo "*** Please be patient, this first step might take a few seconds... ***"
-	echo
+    tmp2="${tmp%/*}"
+    GTHOME="${tmp2%/*}"
+    GTPARENT="${GTHOME%/*}"
+    echo
+    echo "*** Please be patient, this first step might take a few seconds... ***"
+    echo
     do_big_exists
     do_free_exists
     do_priv_exists
@@ -134,13 +134,13 @@ display_undo (){
         YES)
     osascript <<-EOF
     tell application "Finder"
-	activate
-	set dd to display dialog "`msg_title`\n\n`msg_undo`" buttons {"OK"} default button 1 giving up after 20 
+    activate
+    set dd to display dialog "`msg_title`\n\n`msg_undo`" buttons {"OK"} default button 1 giving up after 20
     set UserResponse to button returned of dd
     end tell
 EOF
     ;;
-	NO)
+    NO)
     msg_title; echo""; msg_undo
     ;;
     esac
