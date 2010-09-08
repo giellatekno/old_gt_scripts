@@ -187,7 +187,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:i|html:em|html:u">
+<xsl:template match="html:i|html:em|html:u|html:strong">
 <xsl:choose>
 <xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u">
   <xsl:apply-templates/>
@@ -216,7 +216,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:td">
+<xsl:template match="html:td|html:caption|html:th">
 <xsl:choose>
 	<xsl:when test="text()">
 	<xsl:choose>
@@ -250,11 +250,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:div">
-  <xsl:apply-templates/>
-</xsl:template>
-
-<xsl:template match="html:idiv">
+<xsl:template match="html:form|html:input">
   <xsl:apply-templates/>
 </xsl:template>
 
@@ -283,7 +279,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- other formatting -->
-<xsl:template match="html:span|html:font">
+<xsl:template match="html:span|html:font|html:div|html:idiv">
 <xsl:choose>
 	<xsl:when test="text()">
 	<xsl:choose>
