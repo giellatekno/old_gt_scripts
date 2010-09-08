@@ -37,7 +37,7 @@
 # The following environmental variables are defined:
 #
 # export GTHOME - location of the main svn working copy, always defined
-# export  GTBIG - location of the biggies working copy, only if the biggies
+# export GTBIG - location of the biggies working copy, only if the biggies
 #                 repository is checked out
 # export GTPRIV - location of the private working copy, only if the private
 #                 repository is checked out
@@ -46,13 +46,13 @@
 
 # Where am I:
 case "$0" in
-	/*)
-		SCRIPTPATH=$(dirname "$0")
-		;;
-	*)
+    /*)
+        SCRIPTPATH=$(dirname "$0")
+        ;;
+    *)
         PWD=`pwd`
-		SCRIPTPATH=$(dirname "$PWD/$0")
-		;;
+        SCRIPTPATH=$(dirname "$PWD/$0")
+        ;;
 esac
 
 # Global variables:
@@ -64,6 +64,7 @@ source "${SCRIPTPATH}"/shfunctions.d/gtsetupenvtesting.sh
 source "${SCRIPTPATH}"/shfunctions.d/gtsetupcommondialogs.sh
 source "${SCRIPTPATH}"/shfunctions.d/gtsetupmain.sh
 source "${SCRIPTPATH}"/shfunctions.d/gtsetupbiggies.sh
+source "${SCRIPTPATH}"/shfunctions.d/gtsetupfreecorpus.sh
 source "${SCRIPTPATH}"/shfunctions.d/gtsetuppriv.sh
 
 
@@ -92,6 +93,9 @@ fi
 if grep GTBIG $TMPFILE >/dev/null 2>&1 ; then
     big_setup_done=YES
 fi
+if grep GTFREE $TMPFILE >/dev/null 2>&1 ; then
+    free_setup_done=YES
+fi
 if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
     priv_setup_done=YES
 fi
@@ -104,6 +108,7 @@ ALL_RC_CHANGES=""
 # TODO: Test for other sensible things, too. 
 if ( [ "$main_setup_done" == "YES" ] &&
      [ "$big_setup_done"  == "YES" ] &&
+     [ "$free_setup_done"  == "YES" ] &&
      [ "$priv_setup_done" == "YES" ]   ) ; then
     # Yes: everything is already set up
     display_already_setup
@@ -111,119 +116,138 @@ else
     # No: we need to do something
     eval `grep LOGINSHELL $TMPFILE`
     if [ -z $LOGINSHELL ]; then
-		Result="\nYour startup scripts contain an error.\nI am giving up. Bye.\n"
-		display_result
-		exit
+        Result="\nYour startup scripts contain an error.\nI am giving up. Bye.\n"
+        display_result
+        exit
     fi
     LOGINSHELL=`basename $LOGINSHELL`
     case $LOGINSHELL in
     *csh)
-	    # For csh and tcsh
+        # For csh and tcsh
         src_command_csh
         big_command_csh
+        free_command_csh
         priv_command_csh
         init_command_csh
         if [ -f $HOME/.tcshrc ]; then
-		    RC=.tcshrc
-		elif [ -f $HOME/.cshrc ]; then
-		    RC=.cshrc
-		else
-		    RC=new
-		fi
-	 	case $RC in
-		new)
-		    RC=.cshrc
-		    MSG=msg_create
-		    ;;
-		*)
-		    MSG=msg_append
-		    make_RC_backup
-		    ;;
-		esac
-		if [ "$main_setup_done" == "YES" ]; then
+            RC=.tcshrc
+        elif [ -f $HOME/.cshrc ]; then
+            RC=.cshrc
+        else
+            RC=new
+        fi
+         case $RC in
+        new)
+            RC=.cshrc
+            MSG=msg_create
+            ;;
+        *)
+            MSG=msg_append
+            make_RC_backup
+            ;;
+        esac
+        if [ "$main_setup_done" == "YES" ]; then
             if [ "$big_setup_done" == "YES" ]; then
-                # Set up priv only, the rest is ok:
-                display_setup_priv
+                if [ "$free_setup_done" == "YES" ]; then
+                    # Set up priv only, the rest is ok:
+                    display_setup_priv
+                else
+                    # Set up priv and free
+                    setup_free
+                    display_setup_priv
+                fi
             else
-        		setup_big
+                setup_big
+                setup_free
                 display_setup_priv
             fi
         else
-            # set up all three:
-    		display_choose_do
-    		setup_big
+            # set up all four:
+            display_choose_do
+            setup_big
+            setup_free
             display_setup_priv
         fi
         add_init_command
-	    ;;
+        ;;
     bash)
-	    # Only bash here; other sh type shells are not supported
+        # Only bash here; other sh type shells are not supported
         src_command_sh
         big_command_sh
+        free_command_sh
         priv_command_sh
         init_command_sh
         if [ -f $HOME/.bash_profile ]; then
-		    RC=.bash_profile
-		elif [ -f $HOME/.bash_login ]; then
-		    RC=.bash_login
+            RC=.bash_profile
+        elif [ -f $HOME/.bash_login ]; then
+            RC=.bash_login
         elif [ -f $HOME/.profile ]; then
-		    RC=.profile
+            RC=.profile
         elif [ -f $HOME/.bashrc ]; then
-		    RC=.bashrc
-		else
-		    RC=new
-		fi
-		case $RC in
-		  new)
-		    RC=.profile
-		    MSG=msg_create
-		  ;;
-		  *)
-		    MSG=msg_append
-		    make_RC_backup
-		  ;;
-		esac
-		if [ "$main_setup_done" == "YES" ]; then
+            RC=.bashrc
+        else
+            RC=new
+        fi
+        case $RC in
+          new)
+            RC=.profile
+            MSG=msg_create
+          ;;
+          *)
+            MSG=msg_append
+            make_RC_backup
+          ;;
+        esac
+        if [ "$main_setup_done" == "YES" ]; then
             if [ "$big_setup_done" == "YES" ]; then
-                # Set up priv only, the rest is ok:
-                display_setup_priv
+                if [ "$free_setup_done" == "YES" ]; then
+                    # Set up priv only, the rest is ok:
+                    display_setup_priv
+                else
+                    # Set up priv and free
+                    setup_free
+                    display_setup_priv
+                fi
             else
-        		setup_big
+                setup_big
+                setup_free
                 display_setup_priv
             fi
         else
-            # set up all three:
-    		display_choose_do
-    		setup_big
+            # set up all four:
+            display_choose_do
+            setup_big
+            setup_free
             display_setup_priv
         fi
         add_init_command
-		if [ "$RC_CHANGED" == "YES" ]; then
-		  confirm_changes
-		else
-		  undo_setup
-		fi
-	    ;;
+        if [ "$RC_CHANGED" == "YES" ]; then
+          confirm_changes
+        else
+          undo_setup
+        fi
+        ;;
     *)
     # Any shell except *csh and bash
-	Result="\n
+    Result="\n
 Since you have changed your login shell to $LOGINSHELL,
 I am confident that you know what you are doing.\n
 So now add lines equivalent to
-		
-	export GTHOME=$GTHOME
-	export GTBIG=$GTBIG
-	export GTPRIV=$GTPRIV
-	source \$GTHOME/gt/script/init.d/init.sh
+    
+    export GTHOME=$GTHOME
+    export GTBIG=$GTBIG
+    export GTFREE=$GTFREE
+    export GTPRIV=$GTPRIV
+    source \$GTHOME/gt/script/init.d/init.sh
 
 to one of your $LOGINSHELL startup scripts
 and you will be set up for using the Giellatekno tools.
-	    
+    
     Have a nice day.
-	    \n"
-	display_result
+        \n"
+    display_result
     ;;
-    esac	    
+    esac
 fi
 
 rm -f $TMPFILE
