@@ -60,19 +60,20 @@ do_login_test () {
 do_big_exists () {
 # Check whether there exists a directory parallell to GTHOME that seems to
 # contain the biggies.
-# "tts" is used as the test case - it only exists at the immediate
+# "gt/sme/corp" is used as the test case - it only exists at the immediate
 # level below the working copy root in the biggies repository.
 # -maxdepth -mindepth is used because of a bug with -depth n on victorio
-    BIGDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name tts 2> /dev/null`
+    BIGDIR=`find $GTPARENT -maxdepth 5 -mindepth 5 -name corp | grep gt/sme/corp 2> /dev/null`
+    GTBIG=${BIGDIR/"/trunk/gt/sme/corp"}
     # if nothing is found, it can be because the trunk dir was checked out
     # as well - thus checking one level further down:
     if [ "$BIGDIR" == "" ] ; then
-        BIGDIR=`find $GTPARENT -maxdepth 3 -mindepth 3 -name tts 2> /dev/null`
+        BIGDIR=`find $GTPARENT -maxdepth 4 -mindepth 4 -name corp | grep gt/sme/corp 2> /dev/null`
+        GTBIG=${BIGDIR/"/gt/sme/corp"}
     fi
     if [ "$BIGDIR" != "" ] ;
     then
         BIG_EXISTS=YES
-        GTBIG=${BIGDIR%/*}
     else
         BIG_EXISTS=NO
         GTBIG=$GTPARENT/big
@@ -86,8 +87,6 @@ do_free_exists () {
 # level below the working copy root in the biggies repository.
 # -maxdepth -mindepth is used because of a bug with -depth n on victorio
     FREEDIR=`find $GTPARENT -maxdepth 1 -mindepth 1 -name freecorpus 2> /dev/null`
-    # if nothing is found, it can be because the trunk dir was checked out
-    # as well - thus checking one level further down:
     if [ "$FREEDIR" != "" ] ;
     then
         FREE_EXISTS=YES
