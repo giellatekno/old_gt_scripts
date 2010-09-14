@@ -560,7 +560,7 @@
 				</xsl:element>
 			</xsl:if>
 
-<!--			<xsl:if test="$parallel_texts">
+			<xsl:if test="$parallel_texts">
 				<xsl:if test="$para_sme">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
@@ -663,7 +663,7 @@
 					</xsl:element>
 				</xsl:if>
 
-			</xsl:if>-->
+			</xsl:if>
 
 			<xsl:choose>
 			<xsl:when test="$metadata">
