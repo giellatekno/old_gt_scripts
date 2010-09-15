@@ -18,6 +18,6 @@ do
         else
             PREPROCESS="preprocess --abbr=$GTHOME/gt/$LANG/bin/abbr.txt"
         fi
-        time ccat -l $LANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$LANG/admin/depts | $PREPROCESS | lookup -flabs mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$LANG/bin/$LANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$LANG-dep.txt
+        time ccat -l $LANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$LANG | $PREPROCESS | lookup -flabs mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$LANG/bin/$LANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$LANG-dep.txt
     done
 done
