@@ -12,6 +12,12 @@ do
     touch $ANALYSED_DIR/$LANG-dep.txt
     for CORPUS in boundcorpus freecorpus
     do
-        ccat -l $LANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$LANG/admin/depts | preprocess --abbr=$GTHOME/gt/$LANG/bin/abbr.txt | lookup -flabs mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$LANG/bin/$LANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$LANG-dep.txt
+        if [ $LANG == "sma" ]
+        then
+            PREPROCESS="preprocess"
+        else
+            PREPROCESS="preprocess --abbr=$GTHOME/gt/$LANG/bin/abbr.txt"
+        fi
+        time ccat -l $LANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$LANG/admin/depts | $PREPROCESS | lookup -flabs mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$LANG/bin/$LANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$LANG-dep.txt
     done
 done
