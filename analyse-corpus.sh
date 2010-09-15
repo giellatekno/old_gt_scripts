@@ -5,7 +5,7 @@ SVNREVISION=`svn info | grep Revision | cut -f1 -d" "`
 
 ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
 
-mkdir $ANALYZE_DIR
+mkdir $ANALYSED_DIR
 
 for LANG in sma sme smj
 do
