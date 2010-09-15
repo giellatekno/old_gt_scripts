@@ -55,7 +55,7 @@
 	    <xsl:element name="name">
 	      <xsl:value-of select="$current_file"/>
 	    </xsl:element>
-	    <xsl:element name="location">
+	    <xsl:element name="f_loc">
 	      <xsl:value-of select="$current_location"/>
 	    </xsl:element>
 	    <xsl:copy-of select=".//genre"/>
@@ -69,7 +69,7 @@
 		<xsl:element name="name">
 		  <xsl:value-of select="./@location"/>
 		</xsl:element>
-		<xsl:element name="location">
+		<xsl:element name="pf_loc">
 		  <xsl:value-of select="concat(substring-before($current_location, $current_lang), 
 					./@xml:lang, 
 					substring-after($current_location, $current_lang))"/>
