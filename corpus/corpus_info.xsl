@@ -23,7 +23,7 @@
   
   <!-- Input dir -->
   <xsl:param name="inDir" select="'default'"/>
-  <xsl:variable name="inFile" select="'default.txt'"/>
+  <xsl:param name="inFile" select="'default.txt'"/>
 
   <!-- Output dir and file -->
   <xsl:variable name="outDir" select="'outDir'"/>
@@ -63,17 +63,19 @@
 	    <xsl:element name="title">
 	      <xsl:value-of select=".//title"/>
 	    </xsl:element>
-	    <xsl:element name="parallel_text">
-	      <xsl:copy-of select=".//parallel_text/@xml:lang"/>
-	      <xsl:element name="name">
-		<xsl:value-of select=".//parallel_text/@location"/>
+	    <xsl:for-each select=".//parallel_text">
+	      <xsl:element name="parallel_text">
+		<xsl:copy-of select="./@xml:lang"/>
+		<xsl:element name="name">
+		  <xsl:value-of select="./@location"/>
+		</xsl:element>
+		<xsl:element name="location">
+		  <xsl:value-of select="concat(substring-before($current_location, $current_lang), 
+					./@xml:lang, 
+					substring-after($current_location, $current_lang))"/>
+		</xsl:element>
 	      </xsl:element>
-	      <xsl:element name="location">
-		<xsl:value-of select="concat(substring-before($current_location, $current_lang), 
-				      .//parallel_text/@xml:lang, 
-				      substring-after($current_location, $current_lang))"/>
-	      </xsl:element>
-	    </xsl:element>
+	    </xsl:for-each>
 	    <size>
 	      <p_count>
 		<xsl:value-of select="count(.//p)"/>
