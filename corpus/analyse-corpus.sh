@@ -9,15 +9,19 @@ mkdir $ANALYSED_DIR
 
 for LANG in sma sme smj
 do
-    touch $ANALYSED_DIR/$LANG-dep.txt
+    if [ $LANG == "sma" ]
+    then
+        PREPROCESS="preprocess"
+    else
+        PREPROCESS="preprocess --abbr=$GTHOME/gt/$LANG/bin/abbr.txt"
+    fi
+
     for CORPUS in boundcorpus freecorpus
     do
-        if [ $LANG == "sma" ]
-        then
-            PREPROCESS="preprocess"
-        else
-            PREPROCESS="preprocess --abbr=$GTHOME/gt/$LANG/bin/abbr.txt"
-        fi
-        time ccat -l $LANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$LANG | $PREPROCESS | lookup -flabs mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$LANG/bin/$LANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$LANG-dep.txt
+        for GENREDIR in `ls /Users/hoavda/Public/corp/$CORPUS/converted/$LANG`
+        do
+            touch $ANALYSED_DIR/$LANG-$GENREDIR-dep.txt
+            time ccat -l $LANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$LANG/$GENREDIR | $PREPROCESS | lookup -flabs mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$LANG/bin/$LANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$LANG-$GENREDIR-dep.txt
+        done
     done
 done
