@@ -103,11 +103,13 @@ echo "===>     Dictionaries   <==="
 echo ""
 echo "===>   South Sámi - Norwegian (South Sámi lemmata only) <===" 
 cd $GTHOME/words/dicts/smanob
+nice time make
 nice time make -f make-smadict
 echo ""
 echo "===>   North Sámi - Norwegian   <===" 
 cd $GTHOME/words/dicts/smenob
 nice time make
+nice time make -f make-smedict
 echo ""
 echo "===>   Greenlandic - English   <===" 
 cd $GTHOME/words/dicts/kaleng/src/
