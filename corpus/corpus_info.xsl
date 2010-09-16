@@ -45,74 +45,73 @@
 	</xsl:attribute>
 	
 	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
-
-	<xsl:if test="not(contains(document-uri(.), 'converted'))">
-	  
-	  <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
-	  <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
-	  <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
-	  <xsl:variable name="current_lang" select="./document/@xml:lang"/>
-	  
-	  <file xml:lang="{$current_lang}">
-	    <xsl:element name="name">
-	      <xsl:value-of select="$current_file"/>
-	    </xsl:element>
-	    <xsl:element name="f_loc">
-	      <xsl:value-of select="$current_location"/>
-	    </xsl:element>
-	    <xsl:copy-of select=".//genre"/>
-	    <xsl:copy-of select=".//translated_from"/>
-	    <xsl:element name="title">
-	      <xsl:value-of select=".//title"/>
-	    </xsl:element>
-	    <xsl:for-each select=".//parallel_text">
-	      <xsl:element name="parallel_text">
-		<xsl:copy-of select="./@xml:lang"/>
-		<xsl:element name="name">
-		  <xsl:value-of select="./@location"/>
-		</xsl:element>
-		<xsl:element name="pf_loc">
-		  <xsl:value-of select="concat(substring-before($current_location, $current_lang), 
-					./@xml:lang, 
-					substring-after($current_location, $current_lang))"/>
-		</xsl:element>
+	  <xsl:if test="not(contains(document-uri(.), 'converted'))">
+	    
+	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
+	    <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
+	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
+	    <xsl:variable name="current_lang" select="./document/@xml:lang"/>
+	    
+	    <file xml:lang="{$current_lang}">
+	      <xsl:element name="name">
+		<xsl:value-of select="$current_file"/>
 	      </xsl:element>
-	    </xsl:for-each>
-	    <size>
-	      <p_count>
-		<xsl:value-of select="count(.//p)"/>
-	      </p_count>
-	      <e_p_count>
-		<xsl:value-of select="count(.//p[normalize-space(.) = ''])"/>
-	      </e_p_count>
-	      <ne_p_count>
-		<xsl:value-of select="count(.//p[not(normalize-space(.) = '')])"/>
-	      </ne_p_count>
-
-	      <pre_count>
-		<xsl:value-of select="count(.//pre)"/>
-	      </pre_count>
-	      <e_pre_count>
-		<xsl:value-of select="count(.//pre[normalize-space(.) = ''])"/>
-	      </e_pre_count>
-	      <ne_pre_count>
-		<xsl:value-of select="count(.//pre[not(normalize-space(.) = '')])"/>
-	      </ne_pre_count>
-
-	      <section_count>
-		<xsl:value-of select="count(.//section)"/>
-	      </section_count>
-
-	      <e_section_count>
-		<xsl:value-of select="count(.//section[normalize-space(.) = ''])"/>
-	      </e_section_count>
-
-	      <ne_section_count>
-		<xsl:value-of select="count(.//section[not(normalize-space(.) = '')])"/>
-	      </ne_section_count>
-	    </size>
-	  </file>
-         </xsl:if>
+	      <xsl:element name="f_loc">
+		<xsl:value-of select="$current_location"/>
+	      </xsl:element>
+	      <xsl:copy-of select=".//genre"/>
+	      <xsl:copy-of select=".//translated_from"/>
+	      <xsl:element name="title">
+		<xsl:value-of select=".//title"/>
+	      </xsl:element>
+	      <xsl:for-each select=".//parallel_text">
+		<xsl:element name="parallel_text">
+		  <xsl:copy-of select="./@xml:lang"/>
+		  <xsl:element name="name">
+		    <xsl:value-of select="./@location"/>
+		  </xsl:element>
+		  <xsl:element name="pf_loc">
+		    <xsl:value-of select="concat(substring-before($current_location, $current_lang), 
+					  ./@xml:lang, 
+					  substring-after($current_location, $current_lang))"/>
+		  </xsl:element>
+		</xsl:element>
+	      </xsl:for-each>
+	      <size>
+		<p_count>
+		  <xsl:value-of select="count(.//p)"/>
+		</p_count>
+		<e_p_count>
+		  <xsl:value-of select="count(.//p[normalize-space(.) = ''])"/>
+		</e_p_count>
+		<ne_p_count>
+		  <xsl:value-of select="count(.//p[not(normalize-space(.) = '')])"/>
+		</ne_p_count>
+		
+		<pre_count>
+		  <xsl:value-of select="count(.//pre)"/>
+		</pre_count>
+		<e_pre_count>
+		  <xsl:value-of select="count(.//pre[normalize-space(.) = ''])"/>
+		</e_pre_count>
+		<ne_pre_count>
+		  <xsl:value-of select="count(.//pre[not(normalize-space(.) = '')])"/>
+		</ne_pre_count>
+		
+		<section_count>
+		  <xsl:value-of select="count(.//section)"/>
+		</section_count>
+		
+		<e_section_count>
+		  <xsl:value-of select="count(.//section[normalize-space(.) = ''])"/>
+		</e_section_count>
+		
+		<ne_section_count>
+		  <xsl:value-of select="count(.//section[not(normalize-space(.) = '')])"/>
+		</ne_section_count>
+	      </size>
+	    </file>
+	  </xsl:if>
 	</xsl:for-each>
       </corpus_summary>
     </xsl:variable>
