@@ -45,6 +45,8 @@
 	</xsl:attribute>
 	
 	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+
+	<xsl:if test="not(contains(document-uri(.), 'converted'))">
 	  
 	  <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
 	  <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
@@ -110,6 +112,7 @@
 	      </ne_section_count>
 	    </size>
 	  </file>
+         </xsl:if>
 	</xsl:for-each>
       </corpus_summary>
     </xsl:variable>
