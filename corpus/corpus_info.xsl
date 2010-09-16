@@ -87,9 +87,27 @@
 		<xsl:value-of select="count(.//p[not(normalize-space(.) = '')])"/>
 	      </ne_p_count>
 
+	      <pre_count>
+		<xsl:value-of select="count(.//pre)"/>
+	      </pre_count>
+	      <e_pre_count>
+		<xsl:value-of select="count(.//pre[normalize-space(.) = ''])"/>
+	      </e_pre_count>
+	      <ne_pre_count>
+		<xsl:value-of select="count(.//pre[not(normalize-space(.) = '')])"/>
+	      </ne_pre_count>
+
 	      <section_count>
 		<xsl:value-of select="count(.//section)"/>
 	      </section_count>
+
+	      <e_section_count>
+		<xsl:value-of select="count(.//section[normalize-space(.) = ''])"/>
+	      </e_section_count>
+
+	      <ne_section_count>
+		<xsl:value-of select="count(.//section[not(normalize-space(.) = '']))"/>
+	      </ne_section_count>
 	    </size>
 	  </file>
 	</xsl:for-each>
