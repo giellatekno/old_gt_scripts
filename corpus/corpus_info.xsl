@@ -106,7 +106,7 @@
 	      </e_section_count>
 
 	      <ne_section_count>
-		<xsl:value-of select="count(.//section[not(normalize-space(.) = '']))"/>
+		<xsl:value-of select="count(.//section[not(normalize-space(.) = '')])"/>
 	      </ne_section_count>
 	    </size>
 	  </file>
