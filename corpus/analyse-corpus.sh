@@ -21,7 +21,7 @@ do
         for GENREDIR in `ls /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG`
         do
             touch $ANALYSED_DIR/$SMILANG-$GENREDIR-dep.txt
-            time ccat -l $SMILANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG/$GENREDIR $ANALYSED_DIR/$SMILANG-$GENREDIR.ccat.txt
+            time ccat -l $SMILANG -a -r /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG/$GENREDIR > $ANALYSED_DIR/$SMILANG-$GENREDIR.ccat.txt
             time cat $ANALYSED_DIR/$SMILANG-$GENREDIR.ccat.txt | $PREPROCESS | lookup -flabs mbTT $GTHOME/gt/$SMILANG/bin/$SMILANG.fst | lookup2cg | vislcg3 -g $GTHOME/gt/$SMILANG/bin/$SMILANG-dis.bin | vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin >> $ANALYSED_DIR/$SMILANG-$GENREDIR-dep.txt
         done
     done
