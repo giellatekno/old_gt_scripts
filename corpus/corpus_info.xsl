@@ -34,15 +34,6 @@
 
   <xsl:template match="/" name="main">
     <xsl:variable name="file_inventory">
-      <corpus_summary>
-	
-	<xsl:attribute name="location">
-	  <xsl:value-of select="$inDir"/>
-	</xsl:attribute>
-	
-	<xsl:attribute name="xml_files">
-	  <xsl:value-of select="count(collection(concat($inDir,'?recurse=yes;select=*.xml')))"/>
-	</xsl:attribute>
 	
 	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
 	  <xsl:if test="not(contains(document-uri(.), 'converted'))">
@@ -113,11 +104,20 @@
 	    </file>
 	  </xsl:if>
 	</xsl:for-each>
-      </corpus_summary>
     </xsl:variable>
     
     <xsl:result-document href="{$outDir}/{$outFile}.{$e}" format="{$outFormat}">
-      <xsl:copy-of select="$file_inventory"/>
+      
+      <corpus_summary>
+	<xsl:attribute name="location">
+	  <xsl:value-of select="$inDir"/>
+	</xsl:attribute>
+	<xsl:attribute name="xml_files">
+	  <xsl:value-of select="count($file_inventory/file)"/>
+	</xsl:attribute>
+	<xsl:copy-of select="$file_inventory"/>
+      </corpus_summary>
+
     </xsl:result-document>
     
   </xsl:template>
