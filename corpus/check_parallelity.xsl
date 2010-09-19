@@ -67,6 +67,14 @@
 	    <xsl:attribute name="parallelity">
 	      <xsl:value-of select="$hit = $dit"/>
 	    </xsl:attribute>
+	    <xsl:if test="not($hit = $dit)">
+	      <xsl:attribute name="is_sFile">
+		<xsl:value-of select="boolean(document($hit/sf))"/>
+	      </xsl:attribute>
+	      <xsl:attribute name="is_tFile">
+		<xsl:value-of select="boolean(document($hit/tf))"/>
+	      </xsl:attribute>
+	    </xsl:if>
 	    <hit>
 	      <xsl:copy-of select="$hit"/>
 	    </hit>
