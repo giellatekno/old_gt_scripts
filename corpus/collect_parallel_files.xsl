@@ -45,7 +45,7 @@
 	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
 	    <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
 	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
-	    <xsl:variable name="current_pfile" select=".//parallel_text[./@xml:lang = $tlang]/@location"/>
+	    <xsl:variable name="current_pfile" select="normalize-space(.//parallel_text[./@xml:lang = $tlang]/@location)"/>
 	    
 	    <file>
 	      <xsl:element name="f_name">
