@@ -26,8 +26,8 @@
   <xsl:param name="inFile" select="'default.txt'"/>
 
   <!-- Output dir and file -->
-  <xsl:variable name="outDir" select="'outDir'"/>
-  <xsl:variable name="outFile" select="'corpus_summary'"/>
+  <xsl:variable name="outDir" select="'out_emptyFiles'"/>
+  <xsl:variable name="outFile" select="'correp_emptyFiles'"/>
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
   <xsl:variable name="file_name" select="substring-before((tokenize($inFile, '/'))[last()], '.xml')"/>
@@ -37,10 +37,10 @@
       <empty_files>
 	
 	<xsl:attribute name="counter">
-	  <xsl:value-of select="count(document($inFile)/corpus_summary/file[size/p_count = size/e_p_count])"/>
+	  <xsl:value-of select="count(document($inFile)/corpus_summary/file[size/p_count = size/e_p_count][size/pre_count = size/e_pre_count])"/>
 	</xsl:attribute>
 	
-	<xsl:for-each select="document($inFile)/corpus_summary/file[size/p_count = size/e_p_count]">
+	<xsl:for-each select="document($inFile)/corpus_summary/file[size/p_count = size/e_p_count][size/pre_count = size/e_pre_count]">
 	  <xsl:copy-of select="."/>
 	</xsl:for-each>
       </empty_files>
