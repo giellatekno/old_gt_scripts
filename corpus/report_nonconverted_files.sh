@@ -11,7 +11,7 @@ else
         XML=`echo $XSL | sed -e 's/orig/converted/' | sed -e 's/\.xsl/\.xml/'`
         if [ \! -f $XML ]
         then
-            echo $XML
+            echo `dirname $XSL`"/"`basename $XSL .xsl`
         fi
     done
 fi
