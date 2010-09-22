@@ -384,14 +384,19 @@ sub process_file {
     }
 
     # hyphenate the file
-    if (! $no_hyph ) {
+    # check size. Too big files causes crashes,
+    # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
+    if (! $no_hyph && -s $file < 1000000 ) {
         if ($all_hyph) { $command = "$hyphenate --all --infile=\"$tmp0\" --outfile=\"$tmp1\""; }
         else { $command = "$hyphenate --infile=\"$tmp0\" --outfile=\"$tmp1\"";}
         exec_com($command, $file);
         copy ($tmp1, $tmp0) ;
     }
+
     # Text categorization
-    if (! $upload) {
+    # check size. Too big files causes crashes,
+    # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
+    if (! $upload && -s $file < 1000000 ) {
         my $lmdir = $textcatdir . "/LM";
         my $command = "$text_cat -q -x -d $lmdir \"$tmp0\"";
         exec_com($command, $file);
@@ -676,27 +681,32 @@ sub file_specific_xsl {
     my $tmp = $tmpdir . "/" . $file . ".tmp";
     $command = "xsltproc --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
     exec_com($command, $file);
-    # Check the main language,  add if it is missing.
-    my $document = XML::Twig->new;
-    if (! $document->safe_parsefile("$tmp")) {
-        carp "ERROR parsing the XML-file «$tmp» failed ";
-        return "ERROR";
-    }
-    my $root = $document->root;
-    my $mainlang = $root->{'att'}->{'xml:lang'};
-    my $id = $root->{'att'}->{'id'};
 
-    if(! $mainlang || $mainlang eq "unknown") {
-#         print "setting language: $language \n";
-        $root->set_att('xml:lang', $language);
+    # check size. Too big files causes crashes,
+    # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
+    if( -s $file < 1000000 ) {
+        # Check the main language,  add if it is missing.
+        my $document = XML::Twig->new;
+        if (! $document->safe_parsefile("$tmp")) {
+            carp "ERROR parsing the XML-file «$tmp» failed ";
+            return "ERROR";
+        }
+        my $root = $document->root;
+        my $mainlang = $root->{'att'}->{'xml:lang'};
+        my $id = $root->{'att'}->{'id'};
+
+        if(! $mainlang || $mainlang eq "unknown") {
+            print "setting language: $language \n";
+            $root->set_att('xml:lang', $language);
+        }
+        open(FH, ">$tmp") or die "Cannot open $tmp $!";
+        $document->set_pretty_print('indented');
+        $document->print(\*FH);
     }
-    open (FH, ">$int") or die "Cannot open $int $!";
-    $document->set_pretty_print('indented');
-    $document->print( \*FH);
 
     # Validate the xml-file unless web upload.
     if(! $upload && ($file !~ /.ptx$/)) {
-        $command = "xmllint --valid --encode UTF-8 --noout \"$int\"";
+        $command = "xmllint --valid --encode UTF-8 \"$tmp\" > \"$int\"";
         if( exec_com($command, $file) != 0 ) {
             carp "ERROR: not valid xml. STOP.\n";
             return "ERROR";
