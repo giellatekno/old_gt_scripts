@@ -359,7 +359,7 @@ sub process_file {
 
     # Run the file specific xsl-script.
     if (! $noxsl) {
-        $error = file_specific_xsl($file, $orig, $tmp0, $xsl_file, $doc_id);
+        file_specific_xsl($file, $tmp0, $xsl_file, $doc_id);
         if ($error) {
             if (! $test) { remove_tmp_files($tmpdir, $file); }
             return "ERROR";
@@ -390,7 +390,6 @@ sub process_file {
         exec_com($command, $file);
         copy ($tmp1, $tmp0) ;
     }
-
     # Text categorization
     if (! $upload) {
         my $lmdir = $textcatdir . "/LM";
@@ -409,7 +408,6 @@ sub process_file {
 
     # If gone this far, copy the temporary file to the correct directory.
     exec_com("cp $tmp0 $int", $file);
-
     # chmod and chgrp the new xml-file.
     if(! $upload) {
         chmod 0660, $int;
@@ -481,7 +479,13 @@ sub convert_pdf {
 
     print STDERR "convert_svg $file, $orig\n";
 
-    $command = "pdftohtml -enc UTF-8 -xml -stdout \"$orig\" | xsltproc \"$pdfxsl\" \"-\" > \"$int\"";
+    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+
+    
+    $command = "pdftohtml -enc UTF-8 -xml -stdout \"$orig\" > \"$tmp3\"";
+    exec_com($command, $file);
+    
+    $command = "xsltproc \"$pdfxsl\" \"$tmp3\" > \"$int\"";
     exec_com($command, $file);
 
     return 0;
@@ -666,13 +670,12 @@ sub convert_html {
 
 # File specific xsl-script
 sub file_specific_xsl {
-    my ($file, $orig, $int, $xsl_file, $doc_id) = @_;
+    my ($file, $int, $xsl_file, $doc_id) = @_;
 
     # Execute the file specific .xsl-script.
     my $tmp = $tmpdir . "/" . $file . ".tmp";
     $command = "xsltproc --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
     exec_com($command, $file);
-    
     # Check the main language,  add if it is missing.
     my $document = XML::Twig->new;
     if (! $document->safe_parsefile("$tmp")) {
