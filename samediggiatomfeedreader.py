@@ -43,10 +43,12 @@ class FeedHandler:
             if not os.path.exists(self.smearticlename):
                 self.change_variables['filename'] = entry.link + '&Print=1'
                 self.get_article(self.smearticlename)
+                self.change_variables['mainlang'] = 'sme'
                 self.save_metadata(self.smearticlename)
                 self.add_and_commit_files(self.smearticlename)
 
                 self.change_variables['filename'] = entry.link.replace('Samisk', 'Norsk') + '&Print=1'
+                self.change_variables['mainlang'] = 'sme'
                 self.get_article(self.nobarticlename)
                 self.save_metadata(self.nobarticlename)
                 self.add_and_commit_files(self.nobarticlename)
