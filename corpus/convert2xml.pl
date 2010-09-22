@@ -57,6 +57,7 @@ my $preprocxsl  = $bindir . $c_script . "/preprocxsl.xsl";
 my $docxsl      = $bindir . $c_script . "/docbook2corpus2.xsl";
 my $htmlxsl     = $bindir . $c_script . "/xhtml2corpus.xsl";
 my $svgxsl      = $bindir . $c_script . "/svg2xml.xsl";
+my $pdfxsl      = $bindir . $c_script . "/pdf2xml.xsl";
 my $xsltemplate = $bindir . $c_script . "/XSL-template.xsl";
 
 my $log_file;
@@ -476,6 +477,17 @@ sub convert_svg {
 }
 
 sub convert_pdf {
+    my ($file, $orig, $int, $xsl_file) = @_;
+
+    print STDERR "convert_svg $file, $orig\n";
+
+    $command = "pdftohtml -enc UTF-8 -xml -stdout \"$orig\" | xsltproc \"$pdfxsl\" \"-\" > \"$int\"";
+    exec_com($command, $file);
+
+    return 0;
+}
+
+sub convert_pdf_jpedal {
     my ($file, $orig, $int, $xsl_file) = @_;
     
     my $main_sizes;
