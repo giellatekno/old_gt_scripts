@@ -26,7 +26,7 @@
   <xsl:param name="inFile" select="'default.txt'"/>
 
   <!-- Output dir and file -->
-  <xsl:variable name="outDir" select="'outDir'"/>
+  <xsl:variable name="outDir" select="'corpus_report'"/>
   <xsl:variable name="outFile" select="'corpus_summary'"/>
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
@@ -36,13 +36,19 @@
     <xsl:variable name="file_inventory">
 	
 	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+	  <!-- this is just in case you have some symbolic link in the converted directory pointing to itselv; otherwise comment out! -->
 	  <xsl:if test="not(contains(document-uri(.), 'converted'))">
 	    
 	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
 	    <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
 	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
 	    <xsl:variable name="current_lang" select="./document/@xml:lang"/>
-	    
+
+	    <xsl:message terminate="no">
+	      Processing file: 
+	      <xsl:value-of select="$current_file"/>
+	    </xsl:message>
+
 	    <file xml:lang="{$current_lang}">
 	      <xsl:element name="name">
 		<xsl:value-of select="$current_file"/>
