@@ -33,9 +33,10 @@ my $polderland;
 my $applescript;
 my $hunspell;
 my $voikko;
+my $hfst;
 my $ccat;
 my $out_file;
-my $typos=1; # Not used, no idea why it is here. Kept for future use.
+my $typos=1; # Defaults to true - but is it needed? Cf ll 75-76
 my $document;
 my $version;
 my $date;
@@ -53,6 +54,7 @@ GetOptions (
 			"mw|m"               => \$applescript,
 			"hu|u"               => \$hunspell,
 			"vkmalaga|vkhfst|vk" => \$voikko,
+			"hfst|hf"            => \$hfst,
 			"typos|t"            => \$typos,
 			"ccat|c"             => \$ccat,
 			"forced|f"           => \$forced,
@@ -78,8 +80,9 @@ if(! @originals) { exit;}
 if ($polderland) { $input_type="pl"; read_polderland(); }
 elsif ($applescript) { $input_type="mw"; read_applescript(); }
 elsif ($hunspell) { $input_type="hu"; read_hunspell(); }
+elsif ($hfst) { $input_type="hf"; read_hfst(); }
 elsif ($voikko) { $input_type="vk"; read_voikko(); }
-else { print STDERR "$0: Give the speller output type: --pl, --mw, --hu or --vk\n"; exit; }
+else { print STDERR "$0: Give the speller output type: --pl, --mw, --hu, --hf or --vk\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -475,6 +478,104 @@ sub read_voikko {
 	while($originals[$i]) { $originals[$i]{'error'} = "SplCor"; $i++; }
 }
 
+sub read_hfst {
+	
+	my $eol = $/ ; # store default value of record separator
+	$/ = "";       # set record separator to blank lines
+
+	print STDERR "Reading HFST output from $output\n";
+	open(FH, $output);
+
+	my $i=0;
+	my @suggestions;
+	my @numbers;
+	my $error;
+#	my $hunspellversion = <FH>; # Only if we know we have a real lex version info string!
+	my @tokens;
+	while(<FH>) {
+		# Typical input:
+		# Unable to correct "OaKpaKeaddji"!
+		# 
+		# "gal" is in the lexicon
+		# 
+		# Corrections for "siega":
+		# šiega    1.03683e+09
+		#
+		my $root;
+		my $suggnr;
+		my $compound;
+		my $orig;
+		my $offset;
+		my $flag;
+		my $rest;
+		my ($firstline, $suggs) = split(/\n/, $_, 2);
+		if ($firstline  =~ m/^Unable to correct/ ) {
+			($flag, $orig, $rest) = split(/"/, $firstline, 3);
+			$error = 'SplErr' ;
+		} elsif ($firstline  =~ m/is in the lexicon/ ) {
+			($rest, $orig, $flag) = split(/"/, $firstline, 3);
+			$error = 'SplCor' ;
+		} elsif ($firstline  =~ m/^Corrections for/ ) {
+			($flag, $orig, $rest) = split(/"/, $firstline, 3);
+			@suggestions = split(/\n/, $suggs);
+			$error = 'SplErr' ;
+			my $numb;
+			@numbers = @suggestions;
+			my $size = @suggestions;
+			my $j;
+			for ($j=0; $j<$size; $j++) {
+				($suggestions[$j], $numbers[$j]) = split(/\s+/, $suggestions[$j]);
+#				cluck "INFO: Version string is: $version\n";
+			}
+		} else {
+			cluck "Warning: Something is wrong with the input data!\n";
+		}
+
+		# Debug prints
+		print "Flag: $flag\n";
+		print "ERROR: $error\n";
+		if ($orig) { print "Orig: $orig\n"; }
+		if (@suggestions) { print "Suggs: @suggestions\n"; }
+		if (@numbers) { print "Nums: @numbers\n"; }
+
+		# remove extra space from original
+		if ($orig) { $orig =~ s/^\s*(.*?)\s*$/$1/; }
+
+		# Some simple adjustments to the input and output lists.
+		# First search the output word from the input list.
+		my $j = $i;
+		print "$originals[$j]{'orig'}\n"; # Debug print
+		print "-----------\n";
+		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
+
+		# If the output word was not found in the input list, ignore it.
+		if (! $originals[$j]) {
+			print STDERR "$0: Output word $orig was not found in the input list.\n";
+			next;
+		}
+		# If it was found, mark the words in between.
+		elsif ($originals[$j] && $originals[$j]{'orig'} eq $orig) {
+			for (my $p=$i; $p<$j; $p++){ $originals[$p]{'error'} = "Error"; }
+			$i=$j;
+		}
+
+		if ($originals[$i] && $originals[$i]{'orig'} eq $orig) {
+			if ($error) { $originals[$i]{'error'} = $error; }
+			else { $originals[$i]{'error'} = "not_known"; }
+			$originals[$i]{'sugg'} = [ @suggestions ];
+			$originals[$i]{'num'} = [ @numbers ];
+			$i++;
+		}
+	@suggestions = ();
+	@numbers = ();
+	$error = '';
+	}
+	close(FH);
+	$/ = $eol; # restore default value of record separator
+}
+
+# This function reads the correct data to evaluate the performance of the speller
+# The data is structured as in the typos file, hence the name.
 sub read_typos {
 
 	print STDERR "Reading typos from $input\n";
@@ -695,12 +796,12 @@ sub print_output {
 
 	for my $rec (@originals) {
 		my @suggestions;
-		if ($rec->{'orig'}) { print "$rec->{'orig'} | "; }
-		if ($rec->{'expected'}) { print "$rec->{'expected'} | "; }
-		if ($rec->{'error'}) { print "$rec->{'error'} | "; }
-		print "$forced | ";
+		if ($rec->{'orig'}) { print "Orig: $rec->{'orig'} | "; }
+		if ($rec->{'expected'}) { print "Expected: $rec->{'expected'} | "; }
+		if ($rec->{'error'}) { print "Error: $rec->{'error'} | "; }
+		print "Forced: $forced | ";
 		if ($rec->{'sugg'}) {
-			print "@{$rec->{'sugg'}} | ";
+			print "Suggs: @{$rec->{'sugg'}} | ";
 			my @suggestions = @{$rec->{'sugg'}};
 			my $i=0;
 			if ($rec->{'expected'}) {
