@@ -26,9 +26,11 @@
   <xsl:param name="inFile_02" select="'default.xml'"/>
   <xsl:param name="slang" select="'sme'"/>
   <xsl:param name="tlang" select="'nob'"/>
+<!--   <xsl:param name="slang" select="'nob'"/> -->
+<!--   <xsl:param name="tlang" select="'sme'"/> -->
   
   <!-- Output dir and file -->
-  <xsl:variable name="outDir" select="'outDir'"/>
+  <xsl:variable name="outDir" select="'para_check'"/>
   <xsl:variable name="outFile" select="'paracheck'"/>
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
@@ -88,7 +90,7 @@
       </parallel_files>
     </xsl:variable>
     
-    <xsl:result-document href="{$outDir}/sme_nob_{$outFile}.{$e}" format="{$outFormat}">
+    <xsl:result-document href="{$outDir}/{concat($slang, '2', $tlang)}_{$outFile}.{$e}" format="{$outFormat}">
       <xsl:copy-of select="$para_files"/>
     </xsl:result-document>
     
