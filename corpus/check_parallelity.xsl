@@ -78,8 +78,8 @@
 		<xsl:value-of select="boolean(document($hit/tf))"/>
 	      </xsl:attribute>
 	      <xsl:if test="not(boolean(document($hit/tf)))">
-		
-		<xsl:variable name="orig_path" select="$current_pf_loc"/>
+
+		<xsl:variable name="orig_path" select="concat('orig', substring-after($current_pf_loc, 'converted'))"/>
 		<xsl:variable name="orig_name" select="substring($current_pf_name, 1, string-length($current_pf_name) - 4)"/>
 
 		<xsl:attribute name="tFile_orig">
