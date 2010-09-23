@@ -71,12 +71,22 @@
 	      <xsl:value-of select="$hit = $dit"/>
 	    </xsl:attribute>
 	    <xsl:if test="not($hit = $dit)">
-	      <xsl:attribute name="is_sFile">
+	      <xsl:attribute name="sFile_xml">
 		<xsl:value-of select="boolean(document($hit/sf))"/>
 	      </xsl:attribute>
-	      <xsl:attribute name="is_tFile">
+	      <xsl:attribute name="tFile_xml">
 		<xsl:value-of select="boolean(document($hit/tf))"/>
 	      </xsl:attribute>
+	      <xsl:if test="not(boolean(document($hit/tf)))">
+		
+		<xsl:variable name="orig_path" select="$current_pf_loc"/>
+		<xsl:variable name="orig_name" select="substring($current_pf_name, 1, string-length($current_pf_name) - 4)"/>
+
+		<xsl:attribute name="tFile_orig">
+		  <xsl:value-of select="concat($orig_path, $orig_name)"/>
+		</xsl:attribute>
+		
+	      </xsl:if>
 	    </xsl:if>
 	    <hit>
 	      <xsl:copy-of select="$hit"/>
