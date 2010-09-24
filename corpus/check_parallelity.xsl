@@ -75,9 +75,11 @@
 	      <xsl:value-of select="$hit = $dit"/>
 	    </xsl:attribute>
 	    <xsl:if test="not($hit = $dit)">
+	      <!-- this is just a positive test of the correct function usage: we know that the file exists -->
 	      <xsl:attribute name="sFile_xml">
 		<xsl:value-of select="boolean(document($hit/sf))"/>
 	      </xsl:attribute>
+
 	      <xsl:attribute name="tFile_xml">
 		<xsl:value-of select="boolean(document($hit/tf))"/>
 	      </xsl:attribute>
@@ -87,6 +89,7 @@
 		<xsl:variable name="orig_name" select="substring($current_pf_name, 1, string-length($current_pf_name) - 4)"/>
 		<xsl:variable name="orig_sname" select="substring($current_f_name, 1, string-length($current_f_name) - 4)"/>
 
+		<!-- the following two attributes are just for debugging -->
 		<xsl:attribute name="path_sFile_orig">
 		  <xsl:value-of select="concat($orig_path, $orig_sname)"/>
 		</xsl:attribute>
@@ -95,6 +98,7 @@
 		  <xsl:value-of select="concat($orig_path, $orig_name)"/>
 		</xsl:attribute>
 
+		<!-- this is just a positive test of the correct function usage: we know that the file exists -->
 		<xsl:attribute name="sFile_orig">
 		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($orig_path, $orig_sname)))"/>
 		</xsl:attribute>
