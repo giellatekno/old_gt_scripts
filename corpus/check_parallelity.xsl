@@ -13,7 +13,11 @@
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		xmlns:local="nightbar"
-		exclude-result-prefixes="xs local">
+		xmlns:misc="someURI"
+		xmlns:File="java:java.io.File"
+		exclude-result-prefixes="xs local File misc">
+
+  <xsl:import href="file_checker.xsl"/>
 
   <xsl:strip-space elements="*"/>
 
@@ -81,11 +85,24 @@
 
 		<xsl:variable name="orig_path" select="concat('orig', substring-after($current_pf_loc, 'converted'))"/>
 		<xsl:variable name="orig_name" select="substring($current_pf_name, 1, string-length($current_pf_name) - 4)"/>
+		<xsl:variable name="orig_sname" select="substring($current_f_name, 1, string-length($current_f_name) - 4)"/>
 
-		<xsl:attribute name="tFile_orig">
-		  <xsl:value-of select="concat($orig_path, $orig_name)"/>
+		<xsl:attribute name="path_sFile_orig">
+		  <xsl:value-of select="concat($orig_path, $orig_sname)"/>
 		</xsl:attribute>
 		
+		<xsl:attribute name="path_tFile_orig">
+		  <xsl:value-of select="concat($orig_path, $orig_name)"/>
+		</xsl:attribute>
+
+		<xsl:attribute name="sFile_orig">
+		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($orig_path, $orig_sname)))"/>
+		</xsl:attribute>
+		
+		<xsl:attribute name="tFile_orig">
+		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($orig_path, $orig_name)))"/>
+		</xsl:attribute>
+
 	      </xsl:if>
 	    </xsl:if>
 	    <hit>
