@@ -23,20 +23,21 @@
   
   <!-- Input dir -->
   <xsl:param name="inDir" select="'default'"/>
-  <xsl:param name="slang" select="'nob'"/>
-  <xsl:param name="tlang" select="'sme'"/>
-  <!--   <xsl:param name="slang" select="'sme'"/> -->
-  <!--   <xsl:param name="tlang" select="'nob'"/> -->
+  <xsl:param name="slang" select="'sme'"/>
+  <xsl:param name="tlang" select="'nob'"/>
   
   <!-- Output dir and file -->
-  <xsl:variable name="outDir" select="'xxyyzz'"/>
-  <xsl:variable name="outFile" select="'paco_summary'"/>
+  <xsl:variable name="outDir" select="'xyz'"/>
+  <xsl:variable name="outFile" select="'parallel-corpus_summary'"/>
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
+  <xsl:variable name="nl" select="'&#xa;'"/>
 
   <xsl:template match="/" name="main">
     <xsl:variable name="file_inventory">
       <xsl:for-each select="for $f in collection(concat($inDir, '/', $slang,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+	<!-- This test is for environments that contain symblic links recursively (e.g., XServe).-->
+	<!-- You might have to adapt the pattern for yout environment.-->
 	<xsl:if test="not(contains(document-uri(.), 'converted/converted'))">
 	  <!-- 	  <xsl:if test="not(contains(document-uri(.), 'converted'))"> -->
 	  
@@ -46,6 +47,12 @@
 	    <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
 	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
 	    <xsl:variable name="current_pfile" select="normalize-space(.//parallel_text[./@xml:lang = $tlang]/@location)"/>
+
+	    <xsl:message terminate="no">
+	      Processing file: 
+	      <xsl:value-of select="$current_file"/>
+	    </xsl:message>
+
 	    
 	    <file>
 	      <xsl:element name="f_name">
@@ -66,27 +73,22 @@
 	      </xsl:element>
 
 	    </file>
-	    
-	    <!-- 	    <xsl:result-document href="{$outDir}/{$outFile}.{$e}" format="{$outFormat}"> -->
-	    
-	    <!-- 	    </xsl:result-document> -->
-	    
+	    <xsl:message terminate="no">
+	      =================================
+	    </xsl:message>
 	  </xsl:if>
 	</xsl:if>
       </xsl:for-each>
     </xsl:variable>
     
     <xsl:result-document href="{$outDir}/{$slang}-{$tlang}_{$outFile}.{$e}" format="{$outFormat}">
-      
       <paco_summary>
 	<xsl:attribute name="location">
 	  <xsl:value-of select="$inDir"/>
 	</xsl:attribute>
 	<xsl:copy-of select="$file_inventory"/>
       </paco_summary>
-      
     </xsl:result-document>
-    
   </xsl:template>
   
 </xsl:stylesheet>
