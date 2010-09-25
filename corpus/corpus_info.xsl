@@ -36,7 +36,7 @@
     <xsl:variable name="file_inventory">
 	
 	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
-	  <!-- this is just in case you have some symbolic link in the converted directory pointing to itselv; otherwise comment out! -->
+	  <!-- this is just in case you have some symbolic link in the converted directory pointing to itself; otherwise comment out or adapt accordingly! -->
 	  <xsl:if test="not(contains(document-uri(.), 'converted'))">
 	    
 	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
