@@ -318,5 +318,5 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:br"/>
 <xsl:template match="html:script"/>
 <xsl:template match="html:img"/>
-
+<xsl:template match="html:map"/>
 </xsl:stylesheet>
