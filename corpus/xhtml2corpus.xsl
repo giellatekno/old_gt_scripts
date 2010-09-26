@@ -127,8 +127,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
   <xsl:for-each select="html:dt">
     <p type="listitem">
      <xsl:apply-templates/>
-     <xsl:apply-templates select="following-sibling::html:dd[1]"/>
     </p>
+    <xsl:apply-templates select="following-sibling::html:dd[1]"/>
   </xsl:for-each>
 </xsl:template>
 
@@ -216,7 +216,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:td|html:caption|html:th">
+<xsl:template match="html:td|html:caption|html:th|html:thead">
 <xsl:choose>
 	<xsl:when test="text()">
 	<xsl:choose>
@@ -319,4 +319,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:script"/>
 <xsl:template match="html:img"/>
 <xsl:template match="html:map"/>
+<xsl:template match="html:iframe"/>
+<xsl:template match="html:noscript"/>
 </xsl:stylesheet>
