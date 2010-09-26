@@ -18,5 +18,4 @@ uppercase-attributes: no
 char-encoding: utf8
 enclose-block-text: yes
 new-empty-tags: ms,mb,nf,mu
-new-inline-tags: dato,note,idiv
-
+new-inline-tags: dato,note,idiv,o:p
