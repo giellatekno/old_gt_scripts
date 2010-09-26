@@ -128,7 +128,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
     <p type="listitem">
      <xsl:apply-templates/>
     </p>
-    <xsl:apply-templates select="following-sibling::html:dd[1]"/>
+    <xsl:apply-templates select="following-sibling::html:dd"/>
   </xsl:for-each>
 </xsl:template>
 
@@ -241,7 +241,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 <xsl:choose>
- <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u">
+ <xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u">
   <xsl:apply-templates/>
  </xsl:when>
  <xsl:otherwise>
@@ -283,7 +283,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:choose>
 	<xsl:when test="text()">
 	<xsl:choose>
-	<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+	<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt">
 			  <xsl:apply-templates select="text()"/>
 	</xsl:when>
 	<xsl:otherwise>
