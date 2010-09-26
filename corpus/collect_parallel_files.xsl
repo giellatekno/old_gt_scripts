@@ -47,7 +47,7 @@
 	  <!-- 	  <xsl:if test="not(contains(document-uri(.), 'converted'))"> -->
 	  
 	  <xsl:if test=".//parallel_text/@xml:lang = $tlang">
-	    
+	    <xsl:variable name="current_lang" select="./document/@xml:lang"/>
 	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
 	    <xsl:variable name="current_abs_loc" select="substring-before(document-uri(.), $current_file)"/>
 	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_abs_loc, $inDir))"/>
@@ -71,7 +71,7 @@
 	      <xsl:value-of select="concat('current_pfile: ', $current_pfile, $nl)"/>
 	    </xsl:message>
 
-	    <xsl:if test="$debug">
+	    <xsl:if test="$debug = 'true'">
 	      <xsl:message terminate="no">
 		<xsl:value-of select="concat('-----------------------------------------', $nl)"/>
 		<xsl:value-of select="concat('here sf: ', $nl)"/>
@@ -101,7 +101,7 @@
 	      </tf>
 	    </xsl:variable>
 	    
-	    <file>
+	    <file xml:lang="{$current_lang}">
 	      <xsl:attribute name="parallelity">
 		<xsl:value-of select="$here = $there"/>
 	      </xsl:attribute>
@@ -158,7 +158,82 @@
 		  <!-- 					$current_pfile, '.xml')"/> -->
 		</xsl:element>
 	      </xsl:element>
+	      <xsl:element name="title">
+		<xsl:value-of select=".//title"/>
+	      </xsl:element>
+	      <xsl:copy-of select=".//genre"/>
+	      <xsl:copy-of select=".//translated_from"/>
+	      <h_size>
+		<p_count>
+		  <xsl:value-of select="count(.//p)"/>
+		</p_count>
+		<e_p_count>
+		  <xsl:value-of select="count(.//p[normalize-space(.) = ''])"/>
+		</e_p_count>
+		<ne_p_count>
+		  <xsl:value-of select="count(.//p[not(normalize-space(.) = '')])"/>
+		</ne_p_count>
+		
+		<pre_count>
+		  <xsl:value-of select="count(.//pre)"/>
+		</pre_count>
+		<e_pre_count>
+		  <xsl:value-of select="count(.//pre[normalize-space(.) = ''])"/>
+		</e_pre_count>
+		<ne_pre_count>
+		  <xsl:value-of select="count(.//pre[not(normalize-space(.) = '')])"/>
+		</ne_pre_count>
+		
+		<section_count>
+		  <xsl:value-of select="count(.//section)"/>
+		</section_count>
+		
+		<e_section_count>
+		  <xsl:value-of select="count(.//section[normalize-space(.) = ''])"/>
+		</e_section_count>
+		
+		<ne_section_count>
+		  <xsl:value-of select="count(.//section[not(normalize-space(.) = '')])"/>
+		</ne_section_count>
+	      </h_size>
 
+	      <xsl:if test="$here = $there">
+		<xsl:variable name="t_doc" select="document(concat($parallel_location, $parallel_file))"/>
+		<t_size>
+		  <p_count>
+		    <xsl:value-of select="count($t_doc//p)"/>
+		  </p_count>
+		  <e_p_count>
+		    <xsl:value-of select="count($t_doc//p[normalize-space(.) = ''])"/>
+		  </e_p_count>
+		  <ne_p_count>
+		    <xsl:value-of select="count($t_doc//p[not(normalize-space(.) = '')])"/>
+		  </ne_p_count>
+		  
+		  <pre_count>
+		    <xsl:value-of select="count($t_doc//pre)"/>
+		  </pre_count>
+		  <e_pre_count>
+		    <xsl:value-of select="count($t_doc//pre[normalize-space(.) = ''])"/>
+		  </e_pre_count>
+		  <ne_pre_count>
+		    <xsl:value-of select="count($t_doc//pre[not(normalize-space(.) = '')])"/>
+		  </ne_pre_count>
+		  
+		  <section_count>
+		    <xsl:value-of select="count($t_doc//section)"/>
+		  </section_count>
+		  
+		  <e_section_count>
+		    <xsl:value-of select="count($t_doc//section[normalize-space(.) = ''])"/>
+		  </e_section_count>
+		  
+		  <ne_section_count>
+		    <xsl:value-of select="count($t_doc//section[not(normalize-space(.) = '')])"/>
+		  </ne_section_count>
+		</t_size>
+	      </xsl:if>
+	      
 	      <!-- 	      <xsl:element name="pf_name"> -->
 	      <!-- 		<xsl:value-of select="concat($current_pfile, '.xml')"/> -->
 	      <!-- 	      </xsl:element> -->
@@ -194,6 +269,27 @@
 	<xsl:attribute name="no_orig_file">
 	  <xsl:value-of select="count($parallel_files/file[./@reason = 'no_original_file'])"/>
 	</xsl:attribute>
+	<summary>
+	  <non_empty_files>
+	    <xsl:element name="{$slang}">
+	      <xsl:value-of select="count($parallel_files/file[h_size/ne_p_count &gt; 0])"/>
+	    </xsl:element>
+	    <xsl:element name="{$tlang}">
+	      <xsl:value-of select="count($parallel_files/file[t_size/ne_p_count &gt; 0])"/>
+	    </xsl:element>
+	  </non_empty_files>
+	  <empty_files>
+	    <xsl:element name="{$slang}">
+	      <xsl:value-of select="count($parallel_files/file[h_size/p_count = h_size/e_p_count][h_size/pre_count = h_size/e_pre_count])"/>
+	    </xsl:element>
+	    <xsl:element name="{$tlang}">
+	      <xsl:value-of select="count($parallel_files/file[t_size/p_count = t_size/e_p_count][t_size/pre_count = t_size/e_pre_count])"/>
+	    </xsl:element>
+	  </empty_files>
+	  <useful_file_pairs>
+	    <xsl:value-of select="count($parallel_files/file[h_size/ne_p_count &gt; 0][t_size/ne_p_count &gt; 0])"/>
+	  </useful_file_pairs>
+	</summary>
 	<xsl:copy-of select="$parallel_files"/>
       </parallel_files>
     </xsl:result-document>
