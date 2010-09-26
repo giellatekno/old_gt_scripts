@@ -279,7 +279,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- other formatting -->
-<xsl:template match="html:span|html:font|html:div|html:idiv">
+<xsl:template match="html:span|html:font|html:div|html:idiv|html:note">
 <xsl:choose>
 	<xsl:when test="text()">
 	<xsl:choose>
