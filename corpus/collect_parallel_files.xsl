@@ -7,7 +7,11 @@
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema"
 		xmlns:local="nightbar"
-		exclude-result-prefixes="xs local">
+		xmlns:misc="someURI"
+		xmlns:File="java:java.io.File"
+		exclude-result-prefixes="xs local File misc">
+
+  <xsl:import href="file_checker.xsl"/>
 
   <xsl:strip-space elements="*"/>
 
@@ -32,9 +36,10 @@
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
   <xsl:variable name="nl" select="'&#xa;'"/>
+  <xsl:variable name="debug" select="'false'"/>
 
   <xsl:template match="/" name="main">
-    <xsl:variable name="file_inventory">
+    <xsl:variable name="parallel_files">
       <xsl:for-each select="for $f in collection(concat($inDir, '/', $slang,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
 	<!-- This test is for environments that contain symblic links recursively (e.g., XServe).-->
 	<!-- You might have to adapt the pattern for yout environment.-->
@@ -44,51 +49,155 @@
 	  <xsl:if test=".//parallel_text/@xml:lang = $tlang">
 	    
 	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
-	    <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
-	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
+	    <xsl:variable name="current_abs_loc" select="substring-before(document-uri(.), $current_file)"/>
+	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_abs_loc, $inDir))"/>
 	    <xsl:variable name="current_pfile" select="normalize-space(.//parallel_text[./@xml:lang = $tlang]/@location)"/>
 
+	    <xsl:variable name="parallel_file" select="if (ends-with($current_pfile, '.xml')) then $current_pfile else concat($current_pfile, '.xml')"/>
+	    <xsl:variable name="parallel_location" select="concat(substring-before($current_location, $slang),
+							   ./$tlang,
+							   substring-after($current_location, $slang))"/>
+
+	    <xsl:variable name="f_orig_path" select="concat('orig', substring-after($current_location, 'converted'))"/>
+	    <xsl:variable name="f_orig_name" select="substring($current_file, 1, string-length($current_file) - 4)"/>
+	    <xsl:variable name="pf_orig_path" select="concat('orig', substring-after($parallel_location, 'converted'))"/>
+	    <xsl:variable name="pf_orig_name" select="$current_pfile"/>
+	    
 	    <xsl:message terminate="no">
-	      Processing file: 
-	      <xsl:value-of select="$current_file"/>
+	      <xsl:value-of select="concat('current_abs_loc: ', $nl)"/>
+	      <xsl:value-of select="concat($current_abs_loc, $nl)"/>
+	      <xsl:value-of select="concat('current_file: ', $current_file, $nl)"/>
+	      <xsl:value-of select="concat('current_location: ', $current_location, $nl)"/>
+	      <xsl:value-of select="concat('current_pfile: ', $current_pfile, $nl)"/>
 	    </xsl:message>
 
+	    <xsl:if test="$debug">
+	      <xsl:message terminate="no">
+		<xsl:value-of select="concat('-----------------------------------------', $nl)"/>
+		<xsl:value-of select="concat('here sf: ', $nl)"/>
+		<xsl:value-of select="concat($current_location, $current_file, $nl)"/>
+		<xsl:value-of select="concat('here tf: ', $nl)"/>
+		<xsl:value-of select="concat($parallel_location, $parallel_file, $nl)"/>
+		<xsl:value-of select="'-----------------------------------------'"/>
+	      </xsl:message>
+	    </xsl:if>
+	    
+	    <xsl:variable name="here">
+	      <sf>
+		<xsl:value-of select="concat($current_location, $current_file)"/>
+	      </sf>
+	      <tf>
+		<xsl:value-of select="concat($parallel_location, $parallel_file)"/>
+	      </tf>
+	    </xsl:variable>
+	    <xsl:variable name="there">
+	      <sf>
+		<xsl:value-of select="concat($current_location,
+				      normalize-space(document(concat($parallel_location, $parallel_file))//parallel_text[./@xml:lang = $slang]/@location),
+				      '.xml')"/>
+	      </sf>
+	      <tf>
+		<xsl:value-of select="concat($parallel_location, $parallel_file)"/>
+	      </tf>
+	    </xsl:variable>
 	    
 	    <file>
-	      <xsl:element name="f_name">
-		<xsl:value-of select="$current_file"/>
-	      </xsl:element>
-	      <xsl:element name="f_loc">
-		<xsl:value-of select="$current_location"/>
+	      <xsl:attribute name="parallelity">
+		<xsl:value-of select="$here = $there"/>
+	      </xsl:attribute>
+	      
+	      <xsl:if test="not($here = $there)">
+
+		<!-- 		<xsl:attribute name="f_orig"> -->
+		<!-- 		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($f_orig_path, $f_orig_name)))"/> -->
+		<!-- 		</xsl:attribute> -->
+
+		<!-- 		<xsl:attribute name="pf_orig"> -->
+		<!-- 		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($pf_orig_path, $pf_orig_name)))"/> -->
+		<!-- 		</xsl:attribute> -->
+		
+		<xsl:variable name="exists_pf_orig" select="misc:file-exists(resolve-uri(concat($pf_orig_path, $pf_orig_name)))"/>
+
+		<xsl:if test="$exists_pf_orig">
+		  <xsl:attribute name="reason">
+		    <xsl:value-of select="'conversion_error'"/>
+		  </xsl:attribute>
+		</xsl:if>
+		<xsl:if test="not($exists_pf_orig)">
+		  <xsl:attribute name="reason">
+		    <xsl:value-of select="'no_original_file'"/>
+		  </xsl:attribute>
+		</xsl:if>
+		
+
+		<!-- 		<xsl:attribute name="h_xml"> -->
+		<!-- 		  <xsl:value-of select="boolean(document(concat($current_location, $current_file)))"/> -->
+		<!-- 		</xsl:attribute> -->
+		
+		<!-- 		<xsl:attribute name="t_xml"> -->
+		<!-- 		  <xsl:value-of select="boolean(document(concat($parallel_location, $parallel_file)))"/> -->
+		<!-- 		</xsl:attribute> -->
+		
+		<!-- 		<here> -->
+		<!-- 		  <xsl:copy-of select="$here"/> -->
+		<!-- 		</here> -->
+		<!-- 		<there> -->
+		<!-- 		  <xsl:copy-of select="$there"/> -->
+		<!-- 		</there> -->
+	      </xsl:if>
+	      
+	      <xsl:element name="location">
+		<xsl:element name="h_loc">
+		  <xsl:value-of select="concat($current_location, $current_file)"/>
+		</xsl:element>
+		<xsl:element name="t_loc">
+		  <xsl:value-of select="concat($parallel_location, $parallel_file)"/>
+		  <!-- 		  <xsl:value-of select="concat(substring-before($current_location, $slang), -->
+		  <!-- 					./$tlang, -->
+		  <!-- 					substring-after($current_location, $slang), -->
+		  <!-- 					$current_pfile, '.xml')"/> -->
+		</xsl:element>
 	      </xsl:element>
 
-	      <xsl:element name="pf_name">
-		<xsl:value-of select="concat($current_pfile, '.xml')"/>
-	      </xsl:element>
-	      <xsl:element name="pf_loc">
-		<xsl:value-of select="concat(substring-before($current_location, $slang),
-				      ./$tlang,
-				      substring-after($current_location, $slang))"/>
-		
-	      </xsl:element>
+	      <!-- 	      <xsl:element name="pf_name"> -->
+	      <!-- 		<xsl:value-of select="concat($current_pfile, '.xml')"/> -->
+	      <!-- 	      </xsl:element> -->
 
 	    </file>
 	    <xsl:message terminate="no">
-	      =================================
+	      <xsl:value-of select="concat('========================================================================================', $nl)"/>
 	    </xsl:message>
 	  </xsl:if>
 	</xsl:if>
       </xsl:for-each>
     </xsl:variable>
     
-    <xsl:result-document href="{$outDir}/{$slang}-{$tlang}_{$outFile}.{$e}" format="{$outFormat}">
-      <paco_summary>
-	<xsl:attribute name="location">
-	  <xsl:value-of select="$inDir"/>
+    <xsl:result-document href="{$outDir}/{concat($slang, '2', $tlang)}_{$outFile}.{$e}" format="{$outFormat}">
+      
+      <parallel_files>
+	<!-- 	<xsl:attribute name="location"> -->
+	<!-- 	  <xsl:value-of select="$inDir"/> -->
+	<!-- 	</xsl:attribute> -->
+
+	<xsl:attribute name="dir">
+	  <xsl:value-of select="concat($slang, '2', $tlang)"/>
 	</xsl:attribute>
-	<xsl:copy-of select="$file_inventory"/>
-      </paco_summary>
+	<xsl:attribute name="ok">
+	  <xsl:value-of select="count($parallel_files/file[./@parallelity = 'true'])"/>
+	</xsl:attribute>
+	<xsl:attribute name="ko">
+	  <xsl:value-of select="count($parallel_files/file[./@parallelity = 'false'])"/>
+	</xsl:attribute>
+	<xsl:attribute name="coversion_error">
+	  <xsl:value-of select="count($parallel_files/file[./@reason = 'conversion_error'])"/>
+	</xsl:attribute>
+	<xsl:attribute name="no_orig_file">
+	  <xsl:value-of select="count($parallel_files/file[./@reason = 'no_original_file'])"/>
+	</xsl:attribute>
+	<xsl:copy-of select="$parallel_files"/>
+      </parallel_files>
     </xsl:result-document>
+
   </xsl:template>
   
 </xsl:stylesheet>
