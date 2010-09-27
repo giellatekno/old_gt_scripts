@@ -241,7 +241,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 <xsl:choose>
- <xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u">
+ <xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1">
   <xsl:apply-templates/>
  </xsl:when>
  <xsl:otherwise>
