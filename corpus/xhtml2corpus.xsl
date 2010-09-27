@@ -192,7 +192,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u">
   <xsl:apply-templates/>
 </xsl:when>
-<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
+<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4)">
 <p>
  <em type="bold">
   <xsl:apply-templates/>
