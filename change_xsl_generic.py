@@ -31,4 +31,4 @@ for line in fileinput.FileInput(xsl_filename, inplace = 1):
 	for key, value in change_variables.iteritems():
 		if line.find('"' + key + '"') != -1:
 			line = line.replace('\'\'', '\'' + value + '\'')
-	print line.rstrip()
+	print line
