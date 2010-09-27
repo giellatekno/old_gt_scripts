@@ -62,6 +62,7 @@ my $xsltemplate = $bindir . $c_script . "/XSL-template.xsl";
 
 my $log_file;
 my $language;
+my $dir_lang = '';
 my $multi_coding=0;
 my $upload=0;
 my $test=0; #preserves temporary files and prints extra info.
@@ -207,6 +208,9 @@ sub process_file {
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
     $int =~ s/\.(doc|pdf|html|htm|ptx|txt|svg)$/\.\L$1\.xml/i;
     (my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
+    $orig =~ /orig\/([^\/]+)\//;
+    $dir_lang = $1;
+    #print "!!! dir_lang is $1 from $orig\n ";
 
     # Really small (text)files are not processed.
     # Small amount of data leads to problems in guessing the character coding.
@@ -221,7 +225,7 @@ sub process_file {
     # Create the directory to gtbound if it does not exist.
     ( my $dir =  $int )  =~ s/(.*)[\/\\].*/$1/;
     if (! -d $dir ) {
-        mkpath($dir, 0770) ||
+      mkpath($dir, 0770) ||
         die "Couldn't make $dir\n";
     }
 
@@ -696,8 +700,11 @@ sub file_specific_xsl {
         my $id = $root->{'att'}->{'id'};
 
         if(! $mainlang || $mainlang eq "unknown") {
-            print "setting language: $language \n";
-            $root->set_att('xml:lang', $language);
+	  #print "setting language: $language \n";
+	  #$root->set_att('xml:lang', $language);
+	  # Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
+	  print "setting language: $dir_lang \n";
+	  $root->set_att('xml:lang', $dir_lang);
         }
         open(FH, ">$tmp") or die "Cannot open $tmp $!";
         $document->set_pretty_print('indented');
