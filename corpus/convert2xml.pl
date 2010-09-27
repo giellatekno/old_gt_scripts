@@ -474,20 +474,16 @@ sub convert_svg {
 }
 
 sub convert_pdf {
-    my ($file, $orig, $int, $xsl_file) = @_;
+    my ($file, $orig, $int, $no_decode_this_time_ref) = @_;
 
-    print STDERR "convert_svg $file, $orig\n";
+    print STDERR "convert_pdf $file, $orig\n";
 
     my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 
-    
-    $command = "pdftohtml -enc UTF-8 -xml -stdout \"$orig\" > \"$tmp3\"";
+    $command = "pdftotext \"$orig\" - | sed -e \'s///g\' > \"$tmp3\"";
     exec_com($command, $file);
     
-    $command = "xsltproc \"$pdfxsl\" \"$tmp3\" > \"$int\"";
-    exec_com($command, $file);
-
-    return 0;
+    return convert_txt($file, $tmp3, $int, \$no_decode_this_time_ref);
 }
 
 sub convert_pdf_jpedal {
