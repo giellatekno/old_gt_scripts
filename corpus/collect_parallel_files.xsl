@@ -40,8 +40,23 @@
 
   <xsl:template match="/" name="main">
     <xsl:for-each select="(concat($lang1, $lang2), concat($lang2, $lang1))">
-      <xsl:variable name="slang" select="substring(., 1, 3)"/>
-      <xsl:variable name="tlang" select="substring(.,4)"/>
+      <xsl:variable name="slang" select="lower-case(substring(., 1, 3))"/>
+      <xsl:variable name="tlang" select="lower-case(substring(.,4))"/>
+      
+      <!-- Exit if language code unknown! -->
+      <xsl:variable name="all_lang" select="'_dan_eng_fin_fkv_kal_nno_nob_sma_sme_smj_swe_'"/>
+      <xsl:if test="not(contains($all_lang, concat('_', $slang, '_')))">
+	<xsl:message terminate="yes">
+	  <xsl:value-of select="concat('Unknwon language code: ', $slang, $nl)"/>
+	  <xsl:value-of select="concat('Bye!', $nl)"/>
+	</xsl:message>
+      </xsl:if>
+      <xsl:if test="not(contains($all_lang, concat('_', $tlang, '_')))">
+	<xsl:message terminate="yes">
+	  <xsl:value-of select="concat('Unknwon language code: ', $tlang, $nl)"/>
+	  <xsl:value-of select="concat('Bye!', $nl)"/>
+	</xsl:message>
+      </xsl:if>
       
       <xsl:variable name="parallel_files">
 	<xsl:for-each select="for $f in collection(concat($inDir, '/', $slang,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
