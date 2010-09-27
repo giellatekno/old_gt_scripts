@@ -300,18 +300,7 @@ sub process_file {
 
     # Conversion of documents with error markup
     # Conversion of XML documents with manual error markup
-    elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) {
-        # check out the file-specific xsl-file for processing
-        my $corr_vfile = $orig . ",v";
-        my $cnt = chown -1, $orig_gid, $file;
-        print "$corr_vfile\n";
-        if (! -f $corr_vfile) {
-            $command = "ci -t-\"added under version control by convert2xml.pl\" -q -i \"$orig\"";
-            exec_com($command, $file);
-            my $cnt = chown -1, $orig_gid, $corr_vfile;
-            if ($cnt == 0) { print STDERR "ERROR: chgrp failed for $orig.\n"};
-        }
-
+    elsif ($file =~ /(\.correct\.xml)$/) {
         $int =~ s/\.correct//;
         my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
         # Do extra formatting for prooftest-directory.
@@ -329,7 +318,6 @@ sub process_file {
         exec_com("cp \"$tmp1\" \"$tmp0\"", $file);
 
         print_log($log_file, $file);
-
     }
     else {
         $error = 1;
