@@ -188,14 +188,14 @@ sub process_file {
     print STDERR $file . "\n";
 
     # Check the filename
-    return unless ($file =~ m/\.(doc|pdf|htm|html|ptx|txt|svg|bible\.xml|correct\.xml|correct\.xml,v)$/);
+    return unless ($file =~ m/\.(doc|pdf|htm|html|ptx|txt|svg|bible\.xml|correct\.xml)$/);
     if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"\?]/ ) {
         print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
         return "ERROR";
     }
 
     # correct.xml is not converted.
-    if ($file =~ /(correct\.xml|correct\.xml,v)/) { $noxsl=1; }
+    if ($file =~ /correct\.xml/) { $noxsl=1; }
 
     # Search with find gives some unwanted files which are ignored
     return if ($file =~ /[\~]$/);
@@ -334,7 +334,7 @@ sub process_file {
         if (! $test) { remove_tmp_files($tmpdir, $file); }
         return "ERROR";
     }
-    elsif ($file =~ /(\.correct\.xml|correct\.xml,v)$/) {
+    elsif ($file =~ /\.correct\.xml$/) {
         copy ($tmp0, $int);
         return 0;
     }
