@@ -331,7 +331,9 @@ sub process_file {
         print_log($log_file, $file);
 
     }
-    else { $error = 1; }
+    else {
+        $error = 1;
+    }
 
     # If there were errors in the conversion, remove
     # the xml-file and proceed to the next file.
