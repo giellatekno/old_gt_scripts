@@ -75,13 +75,18 @@ if (! $output) { print STDERR "$0: No speller output file specified.\n"; exit; }
 if ($ccat) { read_ccat(); }
 else { read_typos(); }
 
-if(! @originals) { exit;}
+if(! @originals) { exit; }
 
-if ($polderland) { $input_type="pl"; read_polderland(); }
-elsif ($applescript) { $input_type="mw"; read_applescript(); }
+# Clean $toolversion (ie replace all \n with ', '), to make it printable in all
+# cases:
+$toolversion =~ s/\n/, /g;
+$toolversion =~ s/^, //;
+
+if ($applescript) { $input_type="mw"; read_applescript(); }
 elsif ($hunspell) { $input_type="hu"; read_hunspell(); }
-elsif ($hfst) { $input_type="hf"; read_hfst(); }
+elsif ($polderland) { $input_type="pl"; read_polderland(); }
 elsif ($voikko) { $input_type="vk"; read_voikko(); }
+elsif ($hfst) { $input_type="hf"; read_hfst(); }
 else { print STDERR "$0: Give the speller output type: --pl, --mw, --hu, --hf or --vk\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
@@ -531,12 +536,12 @@ sub read_hfst {
 			cluck "Warning: Something is wrong with the input data!\n";
 		}
 
-		# Debug prints
-		print "Flag: $flag\n";
-		print "ERROR: $error\n";
-		if ($orig) { print "Orig: $orig\n"; }
-		if (@suggestions) { print "Suggs: @suggestions\n"; }
-		if (@numbers) { print "Nums: @numbers\n"; }
+# Debug prints:
+#		print "Flag: $flag\n";
+#		print "ERROR: $error\n";
+#		if ($orig) { print "Orig: $orig\n"; }
+#		if (@suggestions) { print "Suggs: @suggestions\n"; }
+#		if (@numbers) { print "Nums: @numbers\n"; }
 
 		# remove extra space from original
 		if ($orig) { $orig =~ s/^\s*(.*?)\s*$/$1/; }
@@ -544,8 +549,11 @@ sub read_hfst {
 		# Some simple adjustments to the input and output lists.
 		# First search the output word from the input list.
 		my $j = $i;
-		print "$originals[$j]{'orig'}\n"; # Debug print
-		print "-----------\n";
+
+# Debug prints:
+#		print "$originals[$j]{'orig'}\n";
+#		print "-----------\n";
+
 		while($originals[$j] && $originals[$j]{'orig'} ne $orig) { $j++; }
 
 		# If the output word was not found in the input list, ignore it.
