@@ -31,7 +31,7 @@
   <xsl:param name="lang2" select="'nob'"/>
   
   <!-- Output dir and file -->
-  <xsl:variable name="outDir" select="'xyz'"/>
+  <xsl:variable name="outDir" select="'corpus_report'"/>
   <xsl:variable name="outFile" select="'parallel-corpus_summary'"/>
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
