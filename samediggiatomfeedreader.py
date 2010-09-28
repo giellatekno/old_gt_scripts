@@ -5,6 +5,7 @@ from urllib2 import urlopen
 import feedparser
 import os
 import sys
+from BeautifulSoup import BeautifulSoup
 import re
 
 class FeedHandler:
@@ -47,6 +48,7 @@ class FeedHandler:
                 self.save_metadata(self.smearticlename)
                 self.add_and_commit_files(self.smearticlename)
 
+            if not os.path.exists(self.nobarticlename):
                 self.change_variables['filename'] = entry.link.replace('Samisk', 'Norsk') + '&Print=1'
                 self.change_variables['mainlang'] = 'nob'
                 self.get_article(self.nobarticlename)
@@ -61,13 +63,15 @@ class FeedHandler:
         '''
         origarticle = urlopen(self.change_variables['filename'])
         filebuffer = origarticle.read()
+        soup = BeautifulSoup(filebuffer)
+        origarticle.close()
 
         # Find the title
-        h1 = re.compile('\<title>.*</h1', re.S)
-        tmp_result = h1.search(filebuffer).group(0)
-        self.change_variables['title'] = tmp_result[tmp_result.find('>') + 1:tmp_result.rfind('<')].strip().replace('"', '')
+        self.change_variables['title'] = soup.html.head.title.string.strip().encode('utf-8')
+        print "The title is: " + self.change_variables['title']
 
         svnarticle = open(filename, 'w')
+        print "Saving the article: " + filename
         svnarticle.write(filebuffer)
         svnarticle.close()
 
@@ -82,8 +86,9 @@ class FeedHandler:
             for key, value in self.change_variables.iteritems():
                 if line.find('"' + key + '"') != -1:
                     line = line.replace('\'\'', '\'' + value.replace('&', '&amp;') + '\'')
+                    print "This is metadata line: " + line
             metadata.write(line)
-
+        print "Saving the metadata" + filename
         metadata.close()
 
     def add_and_commit_files(self, filename):
@@ -97,4 +102,4 @@ feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Sa
 
 for feed in feeds:
     fd = FeedHandler(feed)
-    fd.get_data_from_feed()
+    #fd.get_data_from_feed()
