@@ -29,6 +29,7 @@ class FeedHandler:
 
             
         self.doc = feedparser.parse(feedUrl)
+        self.langs = {'sme':'Samisk', 'nob':'Norsk'}
         self.change_variables = {'sub_email': 'divvun@samediggi.no', 'licence_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
 
     def get_data_from_feed(self):
@@ -37,23 +38,27 @@ class FeedHandler:
         '''
         for entry in self.doc.entries:
             entry_id = entry.id[entry.id.rfind('/') + 1:]
-            self.smearticlename = self.freehome + '/orig/sme/admin/sd/samediggi.no/samediggi-article-' + entry_id + '.html'
-            self.nobarticlename = self.freehome + '/orig/nob/admin/sd/samediggi.no/samediggi-article-' + entry_id + '.html'
-            self.change_variables['year'] = str(entry.updated_parsed[0])
-            
-            if not os.path.exists(self.smearticlename):
-                self.change_variables['filename'] = entry.link + '&Print=1'
-                self.get_article(self.smearticlename)
-                self.change_variables['mainlang'] = 'sme'
-                self.save_metadata(self.smearticlename)
-                self.add_and_commit_files(self.smearticlename)
+            article_number = entry_id[3:]
 
-            if not os.path.exists(self.nobarticlename):
-                self.change_variables['filename'] = entry.link.replace('Samisk', 'Norsk') + '&Print=1'
-                self.change_variables['mainlang'] = 'nob'
-                self.get_article(self.nobarticlename)
-                self.save_metadata(self.nobarticlename)
-                self.add_and_commit_files(self.nobarticlename)
+            for key, value in self.langs.iteritems():
+                path = self.freehome + '/orig/' + key + '/admin/sd/samediggi.no/'
+                articlename = 'samediggi-article-' + article_number + '.html'
+                fullname = path + articlename
+                self.change_variables['year'] = str(entry.updated_parsed[0])
+            
+                if not os.path.exists(fullname):
+                    self.change_variables['filename'] = 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1'
+                    self.get_article(fullname)
+                    self.change_variables['mainlang'] = key
+                    self.change_variables['parallel_texts'] = str('1')
+                    if(key == 'sme'):
+                        self.change_variables['para_' + key] = ''
+                        self.change_variables['para_nob']= articlename
+                    else:
+                        self.change_variables['para_' + key] = ''
+                        self.change_variables['para_sme']= articlename
+                    self.save_metadata(fullname)
+                    self.add_and_commit_files(fullname)
 
                 
     def get_article(self, filename):
@@ -61,6 +66,7 @@ class FeedHandler:
         Copy the article given in the feed. Count the words and set that
         variable, too
         '''
+        print "fetching: " + self.change_variables['filename']
         origarticle = urlopen(self.change_variables['filename'])
         filebuffer = origarticle.read()
         soup = BeautifulSoup(filebuffer)
@@ -102,4 +108,4 @@ feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Sa
 
 for feed in feeds:
     fd = FeedHandler(feed)
-    #fd.get_data_from_feed()
+    fd.get_data_from_feed()
