@@ -33,7 +33,7 @@ class FeedHandler:
             
         self.doc = feedparser.parse(feedUrl)
         self.langs = {'sme':'Samisk', 'nob':'Norsk'}
-        self.change_variables = {'sub_email': 'divvun@samediggi.no', 'licence_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
+        self.change_variables = {'sub_email': 'divvun@samediggi.no', 'license_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
         self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
         self.samilangs = ['sma', 'sme', 'smj']
 
@@ -142,9 +142,8 @@ class FeedHandler:
         if self.test:
             print "Adding and committing: "  + filename + ' ' + filename + '.xsl'
         else:
-            print "committing ..."
-            #os.system('svn add ' +  filename + ' ' + filename + '.xsl')
-            #os.system('svn ci -m"Added automatically by the atomfilesaver" ' + filename + ' ' + filename + '.xsl')
+            os.system('svn add ' +  filename + ' ' + filename + '.xsl')
+            os.system('svn ci -m"Added automatically by the atomfilesaver" ' + filename + ' ' + filename + '.xsl')
 
 feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
