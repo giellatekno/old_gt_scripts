@@ -9,12 +9,8 @@ import BeautifulSoup
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
 
-
-class FeedHandler:
-    def __init__(self, feedUrl):
-        '''
-        Get a rssfeed, parse it and normalize it
-        '''
+class SamediggiArticleSaver:
+    def __init__(self):
         self.gthome = os.getenv('GTHOME')
         if self.gthome is None:
             print 'You have to set the environment variable $GTHOME'
@@ -29,8 +25,6 @@ class FeedHandler:
             print 'same folder as this script'
             sys.exit(2)
 
-            
-        self.doc = feedparser.parse(feedUrl)
         self.langs = {'sme':'Samisk', 'nob':'Norsk'}
         self.change_variables = {'sub_email': 'divvun@samediggi.no', 'license_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
         self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
@@ -40,45 +34,38 @@ class FeedHandler:
         else:
             self.test = 0
 
+    def set_variable(self, key, value):
+        self.change_variables[key] = value
+
     def detectLanguage(self, text):
         text = text.encode("ascii", "ignore")
         return self.lg.classify(text)
 
-    def get_data_from_feed(self):
-        '''
-        Get metadata from feed
-        '''
-        for entry in self.doc.entries:
-            entry_id = entry.id[entry.id.rfind('/') + 1:]
-            article_number = entry_id[3:]
-            self.change_variables['year'] = str(entry.updated_parsed[0])
-            self.save_and_commit(article_number)
-
     def save_and_commit(self, article_number):
         for key, value in self.langs.iteritems():
-            self.change_variables['filename'] = 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1'
+            self.set_variable('filename', 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1')
 
             path = self.freehome + '/orig/' + key + '/admin/sd/samediggi.no/'
             articlename = 'samediggi-article-'+ article_number + '.html'
             fullname = path + articlename
 
             if( key == self.get_lang_and_title() and not os.path.exists(fullname)):
-                self.change_variables['mainlang'] = key
-                self.change_variables['parallel_texts'] = str('1')
+                self.set_variable('mainlang', key)
+                self.set_variable('parallel_texts', str('1'))
                 if(key == 'sme'):
-                    self.change_variables['para_' + key] = ''
-                    self.change_variables['para_nob']= articlename
-                    self.change_variables['translated_from'] = 'nob'
+                    self.set_variable('para_' + key, '')
+                    self.set_variable('para_nob', articlename)
+                    self.set_variable('translated_from', 'nob')
                 else:
-                    self.change_variables['para_' + key] = ''
-                    self.change_variables['para_sme']= articlename
-                    self.change_variables['translated_from'] = ''
+                    self.set_variable('para_' + key, '')
+                    self.set_variable('para_sme', articlename)
+                    self.set_variable('translated_from', '')
 
                 self.save_article(fullname)
                 self.save_metadata(fullname)
                 self.add_and_commit_files(fullname)
 
-                
+
     def get_lang_and_title(self):
         '''
         Copy the article given in the feed. Count the words and set that
@@ -91,7 +78,7 @@ class FeedHandler:
         soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
 
         # Find the title
-        self.change_variables['title'] = soup.html.head.title.string.strip().encode('utf-8')
+        self.set_variable('title', soup.html.head.title.string.strip().encode('utf-8'))
 
         # Extract the text
         comments = soup.findAll(text=lambda text:isinstance(text,
@@ -106,12 +93,12 @@ class FeedHandler:
 
         # count the words
         words = text.split(None)
-        self.change_variables['wordcount'] = str(len(words))
+        self.set_variable('wordcount', str(len(words)))
 
         # Detect the language
         return self.detectLanguage(text)
 
-        
+
 
     def save_article(self, filename):
         # Save the file in the correct folder
@@ -121,8 +108,8 @@ class FeedHandler:
         svnarticle.write(self.filebuffer)
         svnarticle.close()
 
-        
-        
+
+
     def save_metadata(self, filename):
         '''
         Save all the gathered metadata to the xsl filebuffer
@@ -149,8 +136,29 @@ class FeedHandler:
             os.system('svn add ' +  filename + ' ' + filename + '.xsl')
             os.system('svn ci -m"Added automatically by the atomfilesaver" ' + filename + ' ' + filename + '.xsl')
 
-feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+class FeedHandler:
+    def __init__(self, feedUrl):
+        '''
+        Get a rssfeed, parse it and normalize it
+        '''
+        self.doc = feedparser.parse(feedUrl)
 
-for feed in feeds:
-    fd = FeedHandler(feed)
-    fd.get_data_from_feed()
+    def get_data_from_feed(self):
+        '''
+        Get metadata from feed
+        '''
+        saver = SamediggiArticleSaver()
+        for entry in self.doc.entries:
+            entry_id = entry.id[entry.id.rfind('/') + 1:]
+            article_number = entry_id[3:]
+            saver.set_variable('year', str(entry.updated_parsed[0]))
+            saver.save_and_commit(article_number)
+
+if('--file' in sys.argv):
+    print "Getting article numbers from a file"
+else:
+    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+
+    for feed in feeds:
+        fd = FeedHandler(feed)
+        fd.get_data_from_feed()
