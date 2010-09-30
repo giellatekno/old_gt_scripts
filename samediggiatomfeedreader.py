@@ -73,7 +73,11 @@ class SamediggiArticleSaver:
         Copy the article given in the feed. Count the words and set that
         variable, too
         '''
-        origarticle = urlopen(self.change_variables['filename'])
+        try:
+            origarticle = urlopen(self.change_variables['filename'])
+        except:
+            return 'undef'
+            
         self.filebuffer = origarticle.read()
         origarticle.close()
 
