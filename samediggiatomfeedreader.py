@@ -104,6 +104,10 @@ class FeedHandler:
         body = soup.body(text=True)
         text = ''.join(body)
 
+        # count the words
+        words = text.split(None)
+        self.change_variables['wordcount'] = str(len(words))
+
         # Detect the language
         return self.detectLanguage(text)
 
