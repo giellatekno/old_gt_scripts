@@ -35,7 +35,6 @@ class FeedHandler:
         self.langs = {'sme':'Samisk', 'nob':'Norsk'}
         self.change_variables = {'sub_email': 'divvun@samediggi.no', 'license_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
         self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
-        self.samilangs = ['sma', 'sme', 'smj']
 
         if('--test' in sys.argv):
             self.test = 1
