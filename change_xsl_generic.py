@@ -6,7 +6,7 @@ import sys
 import fileinput
 
 def usage():
-	print 'This is a script that changes empty values in an corpus xsl file'
+	print 'This is a script that changes empty values in a corpus xsl file'
 	print 'Call the program like this: change_xsl.py variable-value-pairs filename'
 	print 'This requires an odd number of args to the script'
 	print 'If a value contains a space, use "-chars around it.'
@@ -25,10 +25,18 @@ for index in range(1, len(sys.argv) - 1, 2):
 	change_variables[sys.argv[index]] = sys.argv[index + 1]
 
 xsl_filename = sys.argv[len(sys.argv) - 1]
-	
-# Do an inline replacement of lines in the xsl file
-for line in fileinput.FileInput(xsl_filename, inplace = 1):
-	for key, value in change_variables.iteritems():
-		if line.find('"' + key + '"') != -1:
-			line = line.replace('\'\'', '\'' + value + '\'')
-	sys.stdout.write(line)
+if (xsl_filename.rfind('.xsl') > 0):
+    try:
+        # Do an inline replacement of lines in the xsl file
+        for line in fileinput.FileInput(xsl_filename, inplace = 1):
+            for key, value in change_variables.iteritems():
+                if line.find('"' + key + '"') != -1:
+                    line = line.replace('\'\'', '\'' + value + '\'')
+            sys.stdout.write(line)
+    except:
+        print xsl_filename + " doesn't exist"
+        sys.exit(1)
+else:
+    print "This is not an xsl file: " + xsl_filename
+    print
+    usage()
