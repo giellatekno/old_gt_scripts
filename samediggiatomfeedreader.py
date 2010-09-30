@@ -5,8 +5,11 @@ from urllib2 import urlopen
 import feedparser
 import os
 import sys
-from BeautifulSoup import BeautifulSoup
-import re
+import BeautifulSoup
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import ngram
+#import re
+
 
 class FeedHandler:
     def __init__(self, feedUrl):
@@ -31,6 +34,17 @@ class FeedHandler:
         self.doc = feedparser.parse(feedUrl)
         self.langs = {'sme':'Samisk', 'nob':'Norsk'}
         self.change_variables = {'sub_email': 'divvun@samediggi.no', 'licence_type': 'free', 'publisher': 'Sámediggi/Sametinget', 'publChannel': 'http://samediggi.no' }
+        self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
+        self.samilangs = ['sma', 'sme', 'smj']
+
+        if('--test' in sys.argv):
+            self.test = 1
+        else:
+            self.test = 0
+
+    def detectLanguage(self, text):
+        text = text.encode("ascii", "ignore")
+        return self.lg.classify(text)
 
     def get_data_from_feed(self):
         '''
@@ -39,52 +53,78 @@ class FeedHandler:
         for entry in self.doc.entries:
             entry_id = entry.id[entry.id.rfind('/') + 1:]
             article_number = entry_id[3:]
+            self.change_variables['year'] = str(entry.updated_parsed[0])
 
             for key, value in self.langs.iteritems():
+                self.change_variables['filename'] = 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1'
+                
                 path = self.freehome + '/orig/' + key + '/admin/sd/samediggi.no/'
-                articlename = 'samediggi-article-' + article_number + '.html'
+                articlename = 'samediggi-article-'+ article_number + '.html'
                 fullname = path + articlename
-                self.change_variables['year'] = str(entry.updated_parsed[0])
-            
-                if not os.path.exists(fullname):
-                    self.change_variables['filename'] = 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1'
-                    self.get_article(fullname)
+                
+                if( key == self.get_lang_and_title() and not os.path.exists(fullname)):
                     self.change_variables['mainlang'] = key
                     self.change_variables['parallel_texts'] = str('1')
                     if(key == 'sme'):
                         self.change_variables['para_' + key] = ''
                         self.change_variables['para_nob']= articlename
+                        self.change_variables['translated_from'] = 'nob'
                     else:
                         self.change_variables['para_' + key] = ''
                         self.change_variables['para_sme']= articlename
+                        self.change_variables['translated_from'] = ''
+
+                    self.save_article(fullname)
                     self.save_metadata(fullname)
                     self.add_and_commit_files(fullname)
 
                 
-    def get_article(self, filename):
+    def get_lang_and_title(self):
         '''
         Copy the article given in the feed. Count the words and set that
         variable, too
         '''
-        print "fetching: " + self.change_variables['filename']
         origarticle = urlopen(self.change_variables['filename'])
-        filebuffer = origarticle.read()
-        soup = BeautifulSoup(filebuffer)
+        self.filebuffer = origarticle.read()
         origarticle.close()
+
+        soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
 
         # Find the title
         self.change_variables['title'] = soup.html.head.title.string.strip().encode('utf-8')
-        print "The title is: " + self.change_variables['title']
 
+        # Extract the text
+        comments = soup.findAll(text=lambda text:isinstance(text,
+ BeautifulSoup.Comment))
+        for comment in comments:
+            comment.extract()
+        scripts = soup.findAll('script')
+        for script in scripts:
+            script.extract()
+        body = soup.body(text=True)
+        text = ''.join(body)
+
+        # Detect the language
+        return self.detectLanguage(text)
+
+        
+
+    def save_article(self, filename):
+        # Save the file in the correct folder
+        if(self.test):
+            print "Saving the article: " + filename
         svnarticle = open(filename, 'w')
-        print "Saving the article: " + filename
-        svnarticle.write(filebuffer)
+        svnarticle.write(self.filebuffer)
         svnarticle.close()
 
+        
+        
     def save_metadata(self, filename):
         '''
         Save all the gathered metadata to the xsl filebuffer
         '''
+        if(self.test):
+            print "Saving the metadata: " + filename + '.xsl'
         template = open(self.gthome + '/gt/script/corpus/XSL-template.xsl', 'r')
         metadata = open(filename + '.xsl', 'w')
 
@@ -92,17 +132,19 @@ class FeedHandler:
             for key, value in self.change_variables.iteritems():
                 if line.find('"' + key + '"') != -1:
                     line = line.replace('\'\'', '\'' + value.replace('&', '&amp;') + '\'')
-                    print "This is metadata line: " + line
             metadata.write(line)
-        print "Saving the metadata" + filename
         metadata.close()
 
     def add_and_commit_files(self, filename):
         '''
         Add and commit the file pair to svn
         '''
-        os.system('svn add ' +  filename + ' ' + filename + '.xsl')
-        os.system('svn ci -m"Added automatically by the atomfilesaver" ' + filename + ' ' + filename + '.xsl')
+        if self.test:
+            print "Adding and committing: "  + filename + ' ' + filename + '.xsl'
+        else:
+            print "committing ..."
+            #os.system('svn add ' +  filename + ' ' + filename + '.xsl')
+            #os.system('svn ci -m"Added automatically by the atomfilesaver" ' + filename + ' ' + filename + '.xsl')
 
 feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
