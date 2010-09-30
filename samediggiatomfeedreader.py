@@ -8,7 +8,6 @@ import sys
 import BeautifulSoup
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
-#import re
 
 
 class FeedHandler:
@@ -53,29 +52,31 @@ class FeedHandler:
             entry_id = entry.id[entry.id.rfind('/') + 1:]
             article_number = entry_id[3:]
             self.change_variables['year'] = str(entry.updated_parsed[0])
+            self.save_and_commit(article_number)
 
-            for key, value in self.langs.iteritems():
-                self.change_variables['filename'] = 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1'
-                
-                path = self.freehome + '/orig/' + key + '/admin/sd/samediggi.no/'
-                articlename = 'samediggi-article-'+ article_number + '.html'
-                fullname = path + articlename
-                
-                if( key == self.get_lang_and_title() and not os.path.exists(fullname)):
-                    self.change_variables['mainlang'] = key
-                    self.change_variables['parallel_texts'] = str('1')
-                    if(key == 'sme'):
-                        self.change_variables['para_' + key] = ''
-                        self.change_variables['para_nob']= articlename
-                        self.change_variables['translated_from'] = 'nob'
-                    else:
-                        self.change_variables['para_' + key] = ''
-                        self.change_variables['para_sme']= articlename
-                        self.change_variables['translated_from'] = ''
+    def save_and_commit(self, article_number):
+        for key, value in self.langs.iteritems():
+            self.change_variables['filename'] = 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1'
 
-                    self.save_article(fullname)
-                    self.save_metadata(fullname)
-                    self.add_and_commit_files(fullname)
+            path = self.freehome + '/orig/' + key + '/admin/sd/samediggi.no/'
+            articlename = 'samediggi-article-'+ article_number + '.html'
+            fullname = path + articlename
+
+            if( key == self.get_lang_and_title() and not os.path.exists(fullname)):
+                self.change_variables['mainlang'] = key
+                self.change_variables['parallel_texts'] = str('1')
+                if(key == 'sme'):
+                    self.change_variables['para_' + key] = ''
+                    self.change_variables['para_nob']= articlename
+                    self.change_variables['translated_from'] = 'nob'
+                else:
+                    self.change_variables['para_' + key] = ''
+                    self.change_variables['para_sme']= articlename
+                    self.change_variables['translated_from'] = ''
+
+                self.save_article(fullname)
+                self.save_metadata(fullname)
+                self.add_and_commit_files(fullname)
 
                 
     def get_lang_and_title(self):
