@@ -25,11 +25,10 @@ for index in range(1, len(sys.argv) - 1, 2):
 	change_variables[sys.argv[index]] = sys.argv[index + 1]
 
 xsl_filename = sys.argv[len(sys.argv) - 1]
-print xsl_filename
 	
 # Do an inline replacement of lines in the xsl file
 for line in fileinput.FileInput(xsl_filename, inplace = 1):
 	for key, value in change_variables.iteritems():
 		if line.find('"' + key + '"') != -1:
 			line = line.replace('\'\'', '\'' + value + '\'')
-	print line.rstrip()
+	sys.stdout.write(line)
