@@ -28,9 +28,9 @@
 	      indent="yes"/>
   
   <!-- Input dir -->
-  <xsl:param name="inDir" select="'default'"/>
-  <xsl:param name="tlang" select="'sme'"/>
+  <xsl:param name="inDir" select="'converted'"/>
   <xsl:param name="slang" select="'nob'"/>
+  <xsl:param name="tlang" select="'sme'"/>
   
   <!-- Output dir and file -->
   <xsl:variable name="outDir" select="'parallel_corpus_tmp'"/>
@@ -38,10 +38,14 @@
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
   <xsl:variable name="nl" select="'&#xa;'"/>
-  <xsl:variable name="debug" select="'false'"/>
+  <xsl:variable name="debug" select="'true'"/>
 
   <xsl:template match="/" name="main">
-      <xsl:variable name="parallel_files">
+    <xsl:message terminate="no">
+      <xsl:value-of select="concat('Extracting parallel files for ', $slang, ' and ', $tlang, ' from the ', $inDir, ' directory', $nl)"/>
+      <xsl:value-of select="concat('...........................................................................................', $nl)"/>
+    </xsl:message>
+    <xsl:variable name="parallel_files">
 	<xsl:for-each select="for $f in collection(concat($inDir, '/', $slang,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
 	  <!-- This test is for environments that contain symblic links recursively (e.g., XServe).-->
 	  <!-- You might have to adapt the pattern for yout environment.-->
@@ -164,7 +168,9 @@
 		  <xsl:value-of select=".//title"/>
 		</xsl:element>
 		<xsl:copy-of select=".//genre"/>
-		<xsl:copy-of select=".//translated_from"/>
+		<h_translated_from>
+		  <xsl:copy-of select=".//translated_from/@xml:lang"/>
+		</h_translated_from>
 		<h_size>
 		  <p_count>
 		    <xsl:value-of select="count(.//p)"/>
@@ -201,6 +207,11 @@
 		
 		<xsl:if test="$here = $there">
 		  <xsl:variable name="t_doc" select="document(concat($parallel_location, $parallel_file))"/>
+		  
+		  <t_translated_from>
+		    <xsl:copy-of select="$t_doc//translated_from/@xml:lang"/>
+		  </t_translated_from>
+		  
 		  <t_size>
 		    <p_count>
 		      <xsl:value-of select="count($t_doc//p)"/>
@@ -248,17 +259,89 @@
 	  </xsl:if>
 	</xsl:for-each>
       </xsl:variable>
+
+      <xsl:if test="$debug = 'true'">
+	<xsl:message terminate="no">
+	  <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
+	  <xsl:value-of select="concat('Generating log file:', $nl)"/>
+	  <xsl:value-of select="concat('log_', $slang, '2', $tlang, '-parallel-corpus.', $e, $nl)"/>
+	  <xsl:value-of select="'-----------------------------------------'"/>
+	</xsl:message>
+	<xsl:result-document href="./log_{$slang}2{$tlang}-parallel-corpus.{$e}" format="{$outFormat}">
+	  <p_files>
+	    <xsl:copy-of select="$parallel_files"/>
+	  </p_files>
+	</xsl:result-document>
+      </xsl:if>
       
-      <xsl:for-each select="$parallel_files/file[h_size/ne_p_count &gt; 0][t_size/ne_p_count &gt; 0]">
-	<xsl:result-document href="{$outDir}/{$slang}/{(tokenize(./location/h_loc, '/'))[last()]}" format="{$outFormat}">
-	  <xsl:copy-of select="document(./location/h_loc)"/>
-	</xsl:result-document>
-
-	<xsl:result-document href="{$outDir}/{$tlang}/{(tokenize(./location/t_loc, '/'))[last()]}" format="{$outFormat}">
-	  <xsl:copy-of select="document(./location/t_loc)"/>
-	</xsl:result-document>
-
+      <xsl:for-each select="(concat($slang, '2', $tlang), concat($tlang, '2', $slang), 'xxx2yyy', 'all2all')">
+	
+	<xsl:variable name="cpd" select="."/>
+	<xsl:variable name="cpd_1" select="substring-before(., '2')"/>
+	<xsl:variable name="cpd_2" select="substring-after(., '2')"/>
+	
+	<!-- extract the files for lang1_to_lang2 -->
+	<xsl:if test="$cpd_1 = $slang">
+	  <xsl:message terminate="no">
+	    <xsl:value-of select="concat('Parallel corpus for ', $cpd, $nl)"/>
+	    <xsl:value-of select="concat('_________________________________', $nl)"/>
+	  </xsl:message>
+	  <xsl:for-each select="$parallel_files/file[./t_translated_from/@xml:lang = $cpd_1][not(./h_translated_from/@xml:lang)][h_size/ne_p_count &gt; 0][t_size/ne_p_count &gt; 0]">
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$slang}/{(tokenize(./location/h_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/h_loc)"/>
+	    </xsl:result-document>
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$tlang}/{(tokenize(./location/t_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/t_loc)"/>
+	    </xsl:result-document>
+	  </xsl:for-each>
+	</xsl:if>
+	<!-- extract the files for lang2_to_lang1 -->
+	<xsl:if test="$cpd_2 = $slang">
+	  <xsl:message terminate="no">
+	    <xsl:value-of select="concat('Parallel corpus for ', $cpd, $nl)"/>
+	    <xsl:value-of select="concat('_________________________________', $nl)"/>
+	  </xsl:message>
+	  <xsl:for-each select="$parallel_files/file[./h_translated_from/@xml:lang = $cpd_1][not(./t_translated_from/@xml:lang)][h_size/ne_p_count &gt; 0][t_size/ne_p_count &gt; 0]">
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$slang}/{(tokenize(./location/h_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/h_loc)"/>
+	    </xsl:result-document>
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$tlang}/{(tokenize(./location/t_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/t_loc)"/>
+	    </xsl:result-document>
+	  </xsl:for-each>
+	</xsl:if>
+	<!-- extract the files for which there is not translated_from info is underspecified -->
+	<xsl:if test="$cpd = 'xxx2yyy'">
+	  <xsl:message terminate="no">
+	    <xsl:value-of select="concat('Parallel corpus for ', $cpd, $nl)"/>
+	    <xsl:value-of select="concat('_________________________________', $nl)"/>
+	  </xsl:message>
+	  <xsl:for-each select="$parallel_files/file[not(./h_translated_from/@xml:lang)][not(./t_translated_from/@xml:lang)][h_size/ne_p_count &gt; 0][t_size/ne_p_count &gt; 0]">
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$slang}/{(tokenize(./location/h_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/h_loc)"/>
+	    </xsl:result-document>
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$tlang}/{(tokenize(./location/t_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/t_loc)"/>
+	    </xsl:result-document>
+	  </xsl:for-each>
+	</xsl:if>
+	<!-- extract the files for which there is not translated_from info is overspecified (Man weiss ja nie!) -->
+	<xsl:if test="$cpd = 'all2all'">
+	  <xsl:message terminate="no">
+	    <xsl:value-of select="concat('Parallel corpus for ', $cpd, $nl)"/>
+	    <xsl:value-of select="concat('_________________________________', $nl)"/>
+	  </xsl:message>
+	  <xsl:for-each select="$parallel_files/file[./h_translated_from/@xml:lang = $tlang][./t_translated_from/@xml:lang = $slang][h_size/ne_p_count &gt; 0][t_size/ne_p_count &gt; 0]">
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$slang}/{(tokenize(./location/h_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/h_loc)"/>
+	    </xsl:result-document>
+	    <xsl:result-document href="{$outDir}/{$cpd}/{$tlang}/{(tokenize(./location/t_loc, '/'))[last()]}" format="{$outFormat}">
+	      <xsl:copy-of select="document(./location/t_loc)"/>
+	    </xsl:result-document>
+	  </xsl:for-each>
+	</xsl:if>
       </xsl:for-each>
-  </xsl:template>
-  
+
+    </xsl:template>
+    
 </xsl:stylesheet>
