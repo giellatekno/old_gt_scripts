@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from urllib2 import urlopen
+import urllib2
 import feedparser
 import os
 import sys
 import BeautifulSoup
+from HTMLParser import HTMLParseError
 import fileinput
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
@@ -52,20 +53,23 @@ class SamediggiArticleSaver:
             articlename = 'samediggi-article-'+ article_number + '.html'
             fullname = path + articlename
 
-            if( key == self.get_lang_and_title() and not os.path.exists(fullname)):
-                self.set_variable('mainlang', key)
-                self.set_variable('parallel_texts', str('1'))
-                if(key == 'sme'):
-                    self.set_variable('para_' + key, '')
-                    self.set_variable('para_nob', articlename)
-                    self.set_variable('translated_from', 'nob')
-                else:
-                    self.set_variable('para_' + key, '')
-                    self.set_variable('para_sme', articlename)
-                    self.set_variable('translated_from', '')
+            if not os.path.exists(fullname):
+                if key == self.get_lang_and_title():
+                    if self.test:
+                        print "The article: " + fullname + " doesn't exist"
+                    self.set_variable('mainlang', key)
+                    self.set_variable('parallel_texts', str('1'))
+                    if(key == 'sme'):
+                        self.set_variable('para_' + key, '')
+                        self.set_variable('para_nob', articlename)
+                        self.set_variable('translated_from', 'nob')
+                    else:
+                        self.set_variable('para_' + key, '')
+                        self.set_variable('para_sme', articlename)
+                        self.set_variable('translated_from', '')
 
-                self.save_article(fullname)
-                self.save_metadata(fullname)
+                    self.save_article(fullname)
+                    self.save_metadata(fullname)
 
 
     def get_lang_and_title(self):
@@ -74,8 +78,8 @@ class SamediggiArticleSaver:
         variable, too
         '''
         try:
-            origarticle = urlopen(self.change_variables['filename'])
-        except:
+            origarticle = urllib2.urlopen(self.change_variables['filename'])
+        except urllib2.HTTPError:
             return 'undef'
             
         self.filebuffer = origarticle.read()
@@ -83,7 +87,7 @@ class SamediggiArticleSaver:
 
         try:
             soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
-        except:
+        except HTMLParseError:
             return 'undef'
 
         # Find the title
@@ -142,21 +146,31 @@ class SamediggiArticleSaver:
         Add and commit the file pair to svn
         '''
         if self.test:
-            print "Adding and committing: "  + " ".join(self.files_to_commit)
+            start = 0
+            end = 4
+            nr = len(self.files_to_commit)
+            while end < nr:
+                print "Adding and committing: "  + " ".join(self.files_to_commit[start:end])
+                start = start + 4
+                end = end + 4
+
+            print "Adding and committing the last files: "  + " ".join(self.files_to_commit[start:nr])
         else:
             # Add 256 files in a batch (fearing restriction on number of arguments)
-            nr = len(self.files_to_commit)
-            start = 0
-            end = 256
-            while end > nr:
-                os.system('svn add '  + " ".join(self.files_to_commit[start:end]))
-                os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:end]))
-                start = start + 256
-                end = end + 256
-            os.system('svn add '  + " ".join(self.files_to_commit[start:nr - 1]))
-            os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:nr - 1]))
-    
-                
+            if len(self.files_to_commit) > 0:
+                start = 0
+                distance = 256
+                end = distance
+                nr = len(self.files_to_commit)
+                while end < nr:
+                    os.system('svn add '  + " ".join(self.files_to_commit[start:end]))
+                    os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:end]))
+                    start = end
+                    end = end + distance
+                os.system('svn add '  + " ".join(self.files_to_commit[start:nr]))
+                os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:nr]))
+            else:
+                print "No new files found"
 
 class FeedHandler:
     def __init__(self, feedUrl):
