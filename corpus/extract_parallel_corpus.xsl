@@ -310,7 +310,7 @@
 	    </xsl:result-document>
 	  </xsl:for-each>
 	</xsl:if>
-	<!-- extract the files for which there is not translated_from info is underspecified -->
+	<!-- extract the files for which the translated_from info is underspecified -->
 	<xsl:if test="$cpd = 'xxx2yyy'">
 	  <xsl:message terminate="no">
 	    <xsl:value-of select="concat('Parallel corpus for ', $cpd, $nl)"/>
@@ -325,7 +325,7 @@
 	    </xsl:result-document>
 	  </xsl:for-each>
 	</xsl:if>
-	<!-- extract the files for which there is not translated_from info is overspecified (Man weiss ja nie!) -->
+	<!-- extract the files for which the translated_from info is overspecified (Man weiss ja nie!) -->
 	<xsl:if test="$cpd = 'all2all'">
 	  <xsl:message terminate="no">
 	    <xsl:value-of select="concat('Parallel corpus for ', $cpd, $nl)"/>
