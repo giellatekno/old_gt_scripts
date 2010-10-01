@@ -81,7 +81,10 @@ class SamediggiArticleSaver:
         self.filebuffer = origarticle.read()
         origarticle.close()
 
-        soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+        try:
+            soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+        except:
+            return 'undef'
 
         # Find the title
         self.set_variable('title', soup.html.head.title.string.strip().encode('utf-8'))
