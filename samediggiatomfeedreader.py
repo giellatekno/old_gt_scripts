@@ -144,8 +144,19 @@ class SamediggiArticleSaver:
         if self.test:
             print "Adding and committing: "  + " ".join(self.files_to_commit)
         else:
-            os.system('svn add '  + " ".join(self.files_to_commit))
-            os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit))
+            # Add 256 files in a batch (fearing restriction on number of arguments)
+            nr = len(self.files_to_commit)
+            start = 0
+            end = 256
+            while end > nr:
+                os.system('svn add '  + " ".join(self.files_to_commit[start:end]))
+                os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:end]))
+                start = start + 256
+                end = end + 256
+            os.system('svn add '  + " ".join(self.files_to_commit[start:nr - 1]))
+            os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:nr - 1]))
+    
+                
 
 class FeedHandler:
     def __init__(self, feedUrl):
