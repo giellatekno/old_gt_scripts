@@ -10,6 +10,7 @@ from HTMLParser import HTMLParseError
 import fileinput
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
+import re
 
 class ArticleSaver:
     def __init__(self):
@@ -97,6 +98,106 @@ class ArticleSaver:
             else:
                 print "No new files found"
 
+class RegjeringenArticleSaver(ArticleSaver):
+    def __init__(self):
+        ArticleSaver.__init__(self)
+        self.freehome = os.getenv('GTFREE')
+        if self.freehome is None:
+            print 'You have to set the environment variable $GTFREE'
+            print 'Use the gtsetup.sh which is in the'
+            print 'same folder as this script'
+            sys.exit(2)
+
+        self.set_variable('license_type','free')
+        self.set_variable('publChannel', 'http://regjeringen.no')
+        self.langs = {u'Bokmål': 'nob', 'Nynorsk': 'nno', 'English': 'eng'}
+        
+
+    def save_articles(self, link):
+        self.articles = {}
+        self.set_variable('filename', link)
+        #if self.test:
+            #print "Trying to save: " + link
+        parts = link.split('/')
+        articlename = '/' + parts[len(parts) - 1]
+
+        #if self.test:
+            #print "Trying to save: " + link
+            #print "With the aname: " + articlename
+            
+        if self.get_lang(link):
+            for lang, name in self.articles.iteritems():
+                path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
+                parts = name.split('/')
+                articlename = '/' + parts[len(parts) - 1]
+                fullname = path + articlename
+                if not os.path.exists(fullname):
+                    if lang not in ['sma', 'sme', 'smj']:
+                        self.fillbuffer('http://regjeringen.no' + name)
+                        self.set_variable('filename', 'http://regjeringen.no' + name)
+                    self.save_article(fullname)
+                    self.save_metadata(fullname)
+
+    def fillbuffer(self, name):
+        try:
+            origarticle = urllib2.urlopen(name)
+        except urllib2.HTTPError:
+            return 'undef'
+
+        self.filebuffer = origarticle.read()
+        origarticle.close()
+
+    def get_lang(self, name):
+        save = 0
+
+        try:
+            origarticle = urllib2.urlopen(name)
+        except urllib2.HTTPError:
+            return 'undef'
+
+        self.filebuffer = origarticle.read()
+        origarticle.close()
+
+        try:
+            soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+        except HTMLParseError:
+            return 'undef'
+
+        # Extract the text
+        comments = soup.findAll(text=lambda text:isinstance(text,
+ BeautifulSoup.Comment))
+        for comment in comments:
+            comment.extract()
+        scripts = soup.findAll('script')
+        for script in scripts:
+            script.extract()
+        body = soup.body(text=True)
+        text = ''.join(body)
+
+        # count the words
+        words = text.split(None)
+        self.set_variable('wordcount', str(len(words)))
+
+        # Find out if this is a Sámi doc or has a Sámi parallell
+        thislang = soup.find('li', attrs={'class': re.compile('.*Selected.*')})
+        if thislang('a')[0].contents[0] == u'Sámegiella':
+            # Find out what samegiella we have
+            samilang = self.detectLanguage(text)
+            self.articles[samilang] = thislang('a')[0]['href']
+            save = 1
+
+            langs = soup.findAll('li', attrs={'class': 'Selectable'})
+            lang = soup.find('li', attrs={'class': 'First Selectable'})
+            if lang:
+                langs.append(lang)
+
+            for lang in langs:
+                print lang('a')[0]['href']
+                self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
+
+        print self.articles
+        return save
+            
 class AvvirArticleSaver(ArticleSaver):
     def __init__(self):
         ArticleSaver.__init__(self)
@@ -222,6 +323,18 @@ class SamediggiFeedHandler(FeedHandler):
             saver.save_articles(article_number)
         saver.add_and_commit_files()
 
+class RegjeringenFeedHandler(FeedHandler):
+    def get_data_from_feed(self):
+        '''
+        Get metadata from feed
+        '''
+        saver = RegjeringenArticleSaver()
+        for entry in self.doc.entries:
+            saver.set_variable('year', str(entry.updated_parsed[0]))
+            saver.save_articles(entry.link)
+        saver.add_and_commit_files()
+
+    
 class AvvirFeedHandler(FeedHandler):
     def get_data_from_feed(self):
         saver = AvvirArticleSaver()
@@ -287,15 +400,18 @@ class SamediggiIdFetcher:
         saver.add_and_commit_files()
 
 if('--file' in sys.argv):
-    id_handler = IdFetcher(sys.argv[len(sys.argv) - 1])
+    id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
     id_handler.get_data_from_ids()
     
 else:
-    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+    #feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
-    for feed in feeds:
-        fd = SamediggiFeedHandler(feed)
-        fd.get_data_from_feed()
+    #for feed in feeds:
+        #fd = SamediggiFeedHandler(feed)
+        #fd.get_data_from_feed()
 
-    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    #fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    #fd.get_data_from_feed()
+
+    fd = RegjeringenFeedHandler('http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO')
     fd.get_data_from_feed()
