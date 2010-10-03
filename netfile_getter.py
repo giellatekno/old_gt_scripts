@@ -136,7 +136,9 @@ class RegjeringenArticleSaver(ArticleSaver):
                         self.fillbuffer('http://regjeringen.no' + name)
                         self.set_variable('filename', 'http://regjeringen.no' + name)
                     self.save_article(fullname)
+                    self.set_parallel_info(lang)
                     self.save_metadata(fullname)
+                    self.del_parallel_info()
 
     def fillbuffer(self, name):
         try:
@@ -147,47 +149,60 @@ class RegjeringenArticleSaver(ArticleSaver):
         self.filebuffer = origarticle.read()
         origarticle.close()
 
-    def get_lang(self, name):
-        save = 0
-
         try:
-            origarticle = urllib2.urlopen(name)
-        except urllib2.HTTPError:
-            return 'undef'
-
-        self.filebuffer = origarticle.read()
-        origarticle.close()
-
-        try:
-            soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+            self.soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
         except HTMLParseError:
             return 'undef'
 
         # Extract the text
-        comments = soup.findAll(text=lambda text:isinstance(text,
+        comments = self.soup.findAll(text=lambda text:isinstance(text,
  BeautifulSoup.Comment))
         for comment in comments:
             comment.extract()
-        scripts = soup.findAll('script')
+        scripts = self.soup.findAll('script')
         for script in scripts:
             script.extract()
-        body = soup.body(text=True)
+        body = self.soup.body(text=True)
         text = ''.join(body)
 
         # count the words
         words = text.split(None)
         self.set_variable('wordcount', str(len(words)))
 
+        # Find the title
+        self.set_variable('title', self.soup.html.head.title.string.strip().encode('utf-8'))
+
+        # Find the language
+        return self.detectLanguage(text)
+        
+    def set_parallel_info(self, thislang):
+        if len(self.articles) > 1:
+            self.set_variable('parallel_texts', str(1))
+            for lang, name in self.articles.iteritems():
+                if lang != thislang:
+                    parts = name.split('/')
+                    articlename = parts[len(parts) - 1]
+                    self.set_variable('para_' + lang, articlename)
+
+    def del_parallel_info(self):
+        self.set_variable('parallel_texts', '')
+        for lang in ['eng', 'nno', 'nob', 'sma', 'sme', 'smj']:
+            self.set_variable('para_' + lang, '')
+            
+    def get_lang(self, name):
+        save = 0
+
+        samilang = self.fillbuffer(name)
+
         # Find out if this is a Sámi doc or has a Sámi parallell
-        thislang = soup.find('li', attrs={'class': re.compile('.*Selected.*')})
+        thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
         if thislang('a')[0].contents[0] == u'Sámegiella':
             # Find out what samegiella we have
-            samilang = self.detectLanguage(text)
             self.articles[samilang] = thislang('a')[0]['href']
             save = 1
 
-            langs = soup.findAll('li', attrs={'class': 'Selectable'})
-            lang = soup.find('li', attrs={'class': 'First Selectable'})
+            langs = self.soup.findAll('li', attrs={'class': 'Selectable'})
+            lang = self.soup.find('li', attrs={'class': 'First Selectable'})
             if lang:
                 langs.append(lang)
 
@@ -195,7 +210,9 @@ class RegjeringenArticleSaver(ArticleSaver):
                 print lang('a')[0]['href']
                 self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
 
-        print self.articles
+        if self.test:
+            print self.articles
+            
         return save
             
 class AvvirArticleSaver(ArticleSaver):
