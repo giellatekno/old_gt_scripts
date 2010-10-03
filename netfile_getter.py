@@ -14,26 +14,26 @@ import re
 
 class ArticleSaver:
     def __init__(self):
+        if('--test' in sys.argv):
+            self.test = 1
+        else:
+            self.test = 0
+
         self.gthome = os.getenv('GTHOME')
         if self.gthome is None:
             print 'You have to set the environment variable $GTHOME'
             print 'Use the gtsetup.sh which is in the'
             print 'same folder as this script'
             sys.exit(1)
+
+        self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
         self.change_variables = {}
         self.set_variable('sub_email', 'divvun@samediggi.no')
         self.filebuffer = ''
+        self.files_to_commit = []
         
     def set_variable(self, key, value):
         self.change_variables[key] = value
-
-        self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
-        self.files_to_commit = []
-
-        if('--test' in sys.argv):
-            self.test = 1
-        else:
-            self.test = 0
 
     def detectLanguage(self, text):
         text = text.encode("ascii", "ignore")
@@ -207,7 +207,7 @@ class RegjeringenArticleSaver(ArticleSaver):
                 langs.append(lang)
 
             for lang in langs:
-                print lang('a')[0]['href']
+                #print lang('a')[0]['href']
                 self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
 
         if self.test:
@@ -412,7 +412,7 @@ class SamediggiIdFetcher:
     def get_data_from_ids(self):
         saver = SamediggiArticleSaver()
         for article_id in self.article_ids:
-            print "getting article: " + article_id
+            #print "getting article: " + article_id
             saver.save_articles(article_id)
         saver.add_and_commit_files()
 
@@ -421,14 +421,16 @@ if('--file' in sys.argv):
     id_handler.get_data_from_ids()
     
 else:
-    #feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
-    #for feed in feeds:
-        #fd = SamediggiFeedHandler(feed)
-        #fd.get_data_from_feed()
+    for feed in feeds:
+        fd = SamediggiFeedHandler(feed)
+        fd.get_data_from_feed()
 
-    #fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
-    #fd.get_data_from_feed()
-
-    fd = RegjeringenFeedHandler('http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO')
+    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
     fd.get_data_from_feed()
+
+    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
+    for feed in feeds:
+        fd = RegjeringenFeedHandler(feed)
+        fd.get_data_from_feed()
