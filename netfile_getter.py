@@ -125,7 +125,7 @@ class RegjeringenArticleSaver(ArticleSaver):
             #print "Trying to save: " + link
             #print "With the aname: " + articlename
             
-        if self.get_lang(link):
+        if self.get_parallels(link):
             for lang, name in self.articles.iteritems():
                 path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
                 parts = name.split('/')
@@ -189,7 +189,7 @@ class RegjeringenArticleSaver(ArticleSaver):
         for lang in ['eng', 'nno', 'nob', 'sma', 'sme', 'smj']:
             self.set_variable('para_' + lang, '')
             
-    def get_lang(self, name):
+    def get_parallels(self, name):
         save = 0
 
         samilang = self.fillbuffer(name)
