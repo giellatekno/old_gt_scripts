@@ -70,6 +70,9 @@ class ArticleSaver:
     def set_variable(self, key, value):
         self.change_variables[key] = value
 
+    def get_variable(self, key):
+        return self.change_variables[key]
+
     def detectLanguage(self, text):
         text = text.encode("ascii", "ignore")
         return self.lg.classify(text)
@@ -259,7 +262,7 @@ class SamediggiArticleSaver(ArticleSaver):
             fullname = path + articlename
 
             if not os.path.exists(fullname):
-                if key == self.fillbuffer():
+                if key == self.fillbuffer(self.get_variable(filename)):
                     if self.test:
                         print "The article: " + fullname + " doesn't exist"
                     self.set_variable('mainlang', key)
@@ -374,24 +377,21 @@ class SamediggiIdFetcher:
             saver.save_articles(article_id)
         saver.add_and_commit_files()
 
-#if('--file' in sys.argv):
-    #id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
-    #id_handler.get_data_from_ids()
+if('--file' in sys.argv):
+    id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
+    id_handler.get_data_from_ids()
     
-#else:
-    #feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+else:
+    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
-    #for feed in feeds:
-        #fd = SamediggiFeedHandler(feed)
-        #fd.get_data_from_feed()
+    for feed in feeds:
+        fd = SamediggiFeedHandler(feed)
+        fd.get_data_from_feed()
 
-    #fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
-    #fd.get_data_from_feed()
+    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    fd.get_data_from_feed()
 
-    #feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
-    #for feed in feeds:
-        #fd = RegjeringenFeedHandler(feed)
-        #fd.get_data_from_feed()
-
-saver = RegjeringenArticleSaver()
-saver.save_articles('http://www.regjeringen.no/se/dep/krd/Preassaguovdda/Preassadieahusat/2010/doarjjaortnet-mii-galga-lasihit-dieuid-v.html?id=612629')
+    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
+    for feed in feeds:
+        fd = RegjeringenFeedHandler(feed)
+        fd.get_data_from_feed()
