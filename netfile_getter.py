@@ -32,6 +32,41 @@ class ArticleSaver:
         self.filebuffer = ''
         self.files_to_commit = []
         
+    def fillbuffer(self, name):
+        try:
+            origarticle = urllib2.urlopen(name)
+        except urllib2.HTTPError:
+            return 'undef'
+
+        self.filebuffer = origarticle.read()
+        origarticle.close()
+
+        try:
+            self.soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+        except HTMLParseError:
+            return 'undef'
+
+        # Extract the text
+        comments = self.soup.findAll(text=lambda text:isinstance(text,
+ BeautifulSoup.Comment))
+        for comment in comments:
+            comment.extract()
+        scripts = self.soup.findAll('script')
+        for script in scripts:
+            script.extract()
+        body = self.soup.body(text=True)
+        text = ''.join(body)
+
+        # count the words
+        words = text.split(None)
+        self.set_variable('wordcount', str(len(words)))
+
+        # Find the title
+        self.set_variable('title', self.soup.html.head.title.string.strip().encode('utf-8'))
+
+        # Find the language
+        return self.detectLanguage(text)
+
     def set_variable(self, key, value):
         self.change_variables[key] = value
 
@@ -115,7 +150,6 @@ class RegjeringenArticleSaver(ArticleSaver):
 
     def save_articles(self, link):
         self.articles = {}
-        self.set_variable('filename', link)
         #if self.test:
             #print "Trying to save: " + link
         parts = link.split('/')
@@ -132,49 +166,13 @@ class RegjeringenArticleSaver(ArticleSaver):
                 articlename = '/' + parts[len(parts) - 1]
                 fullname = path + articlename
                 if not os.path.exists(fullname):
-                    if lang not in ['sma', 'sme', 'smj']:
-                        self.fillbuffer('http://regjeringen.no' + name)
-                        self.set_variable('filename', 'http://regjeringen.no' + name)
+                    self.fillbuffer('http://regjeringen.no' + name)
+                    self.set_variable('filename', 'http://regjeringen.no' + name)
                     self.save_article(fullname)
                     self.set_parallel_info(lang)
                     self.save_metadata(fullname)
                     self.del_parallel_info()
 
-    def fillbuffer(self, name):
-        try:
-            origarticle = urllib2.urlopen(name)
-        except urllib2.HTTPError:
-            return 'undef'
-
-        self.filebuffer = origarticle.read()
-        origarticle.close()
-
-        try:
-            self.soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
-        except HTMLParseError:
-            return 'undef'
-
-        # Extract the text
-        comments = self.soup.findAll(text=lambda text:isinstance(text,
- BeautifulSoup.Comment))
-        for comment in comments:
-            comment.extract()
-        scripts = self.soup.findAll('script')
-        for script in scripts:
-            script.extract()
-        body = self.soup.body(text=True)
-        text = ''.join(body)
-
-        # count the words
-        words = text.split(None)
-        self.set_variable('wordcount', str(len(words)))
-
-        # Find the title
-        self.set_variable('title', self.soup.html.head.title.string.strip().encode('utf-8'))
-
-        # Find the language
-        return self.detectLanguage(text)
-        
     def set_parallel_info(self, thislang):
         if len(self.articles) > 1:
             self.set_variable('parallel_texts', str(1))
@@ -261,7 +259,7 @@ class SamediggiArticleSaver(ArticleSaver):
             fullname = path + articlename
 
             if not os.path.exists(fullname):
-                if key == self.get_lang_and_title():
+                if key == self.fillbuffer():
                     if self.test:
                         print "The article: " + fullname + " doesn't exist"
                     self.set_variable('mainlang', key)
@@ -277,46 +275,6 @@ class SamediggiArticleSaver(ArticleSaver):
 
                     self.save_article(fullname)
                     self.save_metadata(fullname)
-
-
-    def get_lang_and_title(self):
-        '''
-        Copy the article given in the feed. Count the words and set that
-        variable, too
-        '''
-        try:
-            origarticle = urllib2.urlopen(self.change_variables['filename'])
-        except urllib2.HTTPError:
-            return 'undef'
-            
-        self.filebuffer = origarticle.read()
-        origarticle.close()
-
-        try:
-            soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
-        except HTMLParseError:
-            return 'undef'
-
-        # Find the title
-        self.set_variable('title', soup.html.head.title.string.strip().encode('utf-8'))
-
-        # Extract the text
-        comments = soup.findAll(text=lambda text:isinstance(text,
- BeautifulSoup.Comment))
-        for comment in comments:
-            comment.extract()
-        scripts = soup.findAll('script')
-        for script in scripts:
-            script.extract()
-        body = soup.body(text=True)
-        text = ''.join(body)
-
-        # count the words
-        words = text.split(None)
-        self.set_variable('wordcount', str(len(words)))
-
-        # Detect the language
-        return self.detectLanguage(text)
 
 
 class FeedHandler:
@@ -384,7 +342,7 @@ class AvvirFeedHandler(FeedHandler):
 
             author.append('')
         else:
-            # Possibly both for and last name
+            # Possibly both fore and last name
             lastelement = namelist[-1:]
             if lastelement[0].find('@') > 0:
                 namelist = namelist[:-1]
@@ -416,21 +374,24 @@ class SamediggiIdFetcher:
             saver.save_articles(article_id)
         saver.add_and_commit_files()
 
-if('--file' in sys.argv):
-    id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
-    id_handler.get_data_from_ids()
+#if('--file' in sys.argv):
+    #id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
+    #id_handler.get_data_from_ids()
     
-else:
-    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+#else:
+    #feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
-    for feed in feeds:
-        fd = SamediggiFeedHandler(feed)
-        fd.get_data_from_feed()
+    #for feed in feeds:
+        #fd = SamediggiFeedHandler(feed)
+        #fd.get_data_from_feed()
 
-    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
-    fd.get_data_from_feed()
+    #fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    #fd.get_data_from_feed()
 
-    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
-    for feed in feeds:
-        fd = RegjeringenFeedHandler(feed)
-        fd.get_data_from_feed()
+    #feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
+    #for feed in feeds:
+        #fd = RegjeringenFeedHandler(feed)
+        #fd.get_data_from_feed()
+
+saver = RegjeringenArticleSaver()
+saver.save_articles('http://www.regjeringen.no/se/dep/krd/Preassaguovdda/Preassadieahusat/2010/doarjjaortnet-mii-galga-lasihit-dieuid-v.html?id=612629')
