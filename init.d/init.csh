@@ -39,7 +39,8 @@ source $GTHOME/gt/script/init.d/lookup-init.csh
 
 # Alias for svn update
 alias svnup "pushd $GTHOME && svn up && popd ; \
-    test -n \"$GTBIG\"  && test -x $GTBIG  && pushd $GTBIG && svn up && popd ; \
+    test -n \"$GTBIG\"  && test -x $GTBIG  && pushd $GTBIG  && svn up && popd ; \
+    test -n \"$GTFREE\" && test -x $GTFREE && pushd $GTFREE && svn up && popd ; \
     test -n \"$GTPRIV\" && test -x $GTPRIV && pushd $GTPRIV && svn up && popd"
 
 # Standardised aliases for Giellatekno work:
@@ -61,6 +62,9 @@ alias xsl2 "saxonXSL"
 
 # Unicode/UTF-8 aware rev:
 alias rev "perl -nle 'print scalar reverse \$_'"
+
+# utility command
+alias path "echo $PATH | tr ':' '\n'"
 
 # define append_path and prepend_path to add directory paths, e.g. PATH, MANPATH.
 # add to end of path
