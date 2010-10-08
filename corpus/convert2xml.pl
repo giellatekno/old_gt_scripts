@@ -188,7 +188,7 @@ sub process_file {
     print STDERR $file . "\n";
 
     # Check the filename
-    return unless ($file =~ m/\.(doc|pdf|htm|html|ptx|txt|svg|bible\.xml|correct\.xml)$/);
+    return unless ($file =~ m/\.(doc|pdf|htm|html|ptx|txt|svg|bible\.xml|correct\.xml)/);
     if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"]/ ) {
         print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
         return "ERROR";
@@ -206,7 +206,7 @@ sub process_file {
     my $orig = decode_utf8(cwd()) . "/" . $file;
     return if ($orig =~ m/\.svn/);
     (my $int = $orig) =~ s/$orig_dir/$gtbound_dir/;
-    $int =~ s/\.(doc|pdf|html|htm|ptx|txt|svg)$/\.\L$1\.xml/i;
+    $int = $int . ".xml";
     (my $doc_id = $orig) =~ s/$corpdir\/$orig_dir\///;
     $orig =~ /orig\/([^\/]+)\//;
     $dir_lang = $1;
@@ -267,7 +267,7 @@ sub process_file {
     }
 
     # xhtml documents
-    elsif ($file =~ /\.(htm|html)$/) {
+    elsif ($file =~ /\.(htm|html)/) {
         $error = convert_html($file, $orig, $tmp0, $xsl_file);
     }
 
