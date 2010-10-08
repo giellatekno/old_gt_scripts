@@ -285,7 +285,12 @@ class RegjeringenArticleSaver(ArticleSaver):
         samilang = self.fillbuffer(name)
 
         # Find out if this is a Sámi doc or has a Sámi parallell
-        thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
+        try:
+            thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
+        except AttributeError:
+            print "Error in thislang ..."
+            return save
+            
         if thislang('a')[0].contents[0] == u'Sámegiella':
             # Find out what samegiella we have
             self.articles[samilang] = thislang('a')[0]['href']
