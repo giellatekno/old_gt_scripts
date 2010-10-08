@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib2
+import urlparse
 import feedparser
 import os
 import sys
@@ -11,6 +12,7 @@ import fileinput
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
 import re
+import Queue
 
 class ArticleSaver:
     def __init__(self):
@@ -34,6 +36,8 @@ class ArticleSaver:
         
     def fillbuffer(self, name):
         try:
+            if self.test:
+                print "fillbuffer: " + name
             origarticle = urllib2.urlopen(name)
         except urllib2.HTTPError:
             return 'undef'
@@ -47,14 +51,23 @@ class ArticleSaver:
             return 'undef'
 
         # Extract the text
+
+        # First remove all comments
         comments = self.soup.findAll(text=lambda text:isinstance(text,
  BeautifulSoup.Comment))
         for comment in comments:
             comment.extract()
+
+        # Then remove script parts
         scripts = self.soup.findAll('script')
         for script in scripts:
             script.extract()
-        body = self.soup.body(text=True)
+        try:
+            body = self.soup.body(text=True)
+        except TypeError, e:
+            print "An error occured when trying to soup.body the link" + name
+            return 'undef'
+            
         text = ''.join(body)
 
         # count the words
@@ -136,86 +149,6 @@ class ArticleSaver:
             else:
                 print "No new files found"
 
-class RegjeringenArticleSaver(ArticleSaver):
-    def __init__(self):
-        ArticleSaver.__init__(self)
-        self.freehome = os.getenv('GTFREE')
-        if self.freehome is None:
-            print 'You have to set the environment variable $GTFREE'
-            print 'Use the gtsetup.sh which is in the'
-            print 'same folder as this script'
-            sys.exit(2)
-
-        self.set_variable('license_type','free')
-        self.set_variable('publChannel', 'http://regjeringen.no')
-        self.langs = {u'Bokmål': 'nob', 'Nynorsk': 'nno', 'English': 'eng'}
-        
-
-    def save_articles(self, link):
-        self.articles = {}
-        #if self.test:
-            #print "Trying to save: " + link
-        parts = link.split('/')
-        articlename = '/' + parts[len(parts) - 1]
-
-        #if self.test:
-            #print "Trying to save: " + link
-            #print "With the aname: " + articlename
-            
-        if self.get_parallels(link):
-            for lang, name in self.articles.iteritems():
-                path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
-                parts = name.split('/')
-                articlename = '/' + parts[len(parts) - 1]
-                fullname = path + articlename
-                if not os.path.exists(fullname):
-                    self.fillbuffer('http://regjeringen.no' + name)
-                    self.set_variable('filename', 'http://regjeringen.no' + name)
-                    self.save_article(fullname)
-                    self.set_parallel_info(lang)
-                    self.save_metadata(fullname)
-                    self.del_parallel_info()
-
-    def set_parallel_info(self, thislang):
-        if len(self.articles) > 1:
-            self.set_variable('parallel_texts', str(1))
-            for lang, name in self.articles.iteritems():
-                if lang != thislang:
-                    parts = name.split('/')
-                    articlename = parts[len(parts) - 1]
-                    self.set_variable('para_' + lang, articlename)
-
-    def del_parallel_info(self):
-        self.set_variable('parallel_texts', '')
-        for lang in ['eng', 'nno', 'nob', 'sma', 'sme', 'smj']:
-            self.set_variable('para_' + lang, '')
-            
-    def get_parallels(self, name):
-        save = 0
-
-        samilang = self.fillbuffer(name)
-
-        # Find out if this is a Sámi doc or has a Sámi parallell
-        thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
-        if thislang('a')[0].contents[0] == u'Sámegiella':
-            # Find out what samegiella we have
-            self.articles[samilang] = thislang('a')[0]['href']
-            save = 1
-
-            langs = self.soup.findAll('li', attrs={'class': 'Selectable'})
-            lang = self.soup.find('li', attrs={'class': 'First Selectable'})
-            if lang:
-                langs.append(lang)
-
-            for lang in langs:
-                #print lang('a')[0]['href']
-                self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
-
-        if self.test:
-            print self.articles
-            
-        return save
-            
 class AvvirArticleSaver(ArticleSaver):
     def __init__(self):
         ArticleSaver.__init__(self)
@@ -279,6 +212,104 @@ class SamediggiArticleSaver(ArticleSaver):
                     self.save_article(fullname)
                     self.save_metadata(fullname)
 
+class RegjeringenArticleSaver(ArticleSaver):
+    def __init__(self):
+        ArticleSaver.__init__(self)
+        self.freehome = os.getenv('GTFREE')
+        if self.freehome is None:
+            print 'You have to set the environment variable $GTFREE'
+            print 'Use the gtsetup.sh which is in the'
+            print 'same folder as this script'
+            sys.exit(2)
+
+        self.set_variable('license_type','free')
+        self.set_variable('publChannel', 'http://regjeringen.no')
+        self.langs = {u'Bokmål': 'nob', 'Nynorsk': 'nno', 'English': 'eng'}
+        self.urls = set()
+        self.followed = []
+
+    def save_articles(self, link):
+        self.articles = {}
+        #if self.test:
+            #print "Trying to save: " + link
+        parts = link.split('/')
+        articlename = '/' + parts[len(parts) - 1]
+
+        #if self.test:
+            #print "Trying to save: " + link
+            #print "With the aname: " + articlename
+
+        if self.get_parallels(link):
+            self.get_urls()
+            for lang, name in self.articles.iteritems():
+                path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
+                parts = name.split('/')
+                articlename = '/' + parts[len(parts) - 1]
+                fullname = path + articlename
+                if not os.path.exists(fullname):
+                    link = 'http://regjeringen.no' + name
+                    self.fillbuffer(link)
+                    self.remove_nav()
+                    self.set_variable('filename', link)
+                    self.followed.append(link)
+                    self.save_article(fullname)
+                    self.set_parallel_info(lang)
+                    self.save_metadata(fullname)
+                    self.del_parallel_info()
+
+    def set_parallel_info(self, thislang):
+        if len(self.articles) > 1:
+            self.set_variable('parallel_texts', str(1))
+            for lang, name in self.articles.iteritems():
+                if lang != thislang:
+                    parts = name.split('/')
+                    articlename = parts[len(parts) - 1]
+                    self.set_variable('para_' + lang, articlename)
+
+    def get_urls(self):
+        addresses = self.soup.findAll('a', href=True)
+        for address in addresses:
+            url = address['href']
+            if url.find('#') < 0 and not re.search('facebook', url) \
+                and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url):
+                self.urls.add('http://www.regjeringen.no' + url)
+
+    def del_parallel_info(self):
+        self.set_variable('parallel_texts', '')
+        for lang in ['eng', 'nno', 'nob', 'sma', 'sme', 'smj']:
+            self.set_variable('para_' + lang, '')
+
+    def get_parallels(self, name):
+        save = 0
+
+        samilang = self.fillbuffer(name)
+
+        # Find out if this is a Sámi doc or has a Sámi parallell
+        thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
+        if thislang('a')[0].contents[0] == u'Sámegiella':
+            # Find out what samegiella we have
+            self.articles[samilang] = thislang('a')[0]['href']
+            save = 1
+            
+            langs = self.soup.findAll('li', attrs={'class': 'Selectable'})
+            lang = self.soup.find('li', attrs={'class': 'First Selectable'})
+            if lang:
+                langs.append(lang)
+
+            for lang in langs:
+                #print lang('a')[0]['href']
+                self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
+
+        if self.test:
+            print self.articles
+
+        return save
+
+    def remove_nav(self):
+        navs = self.soup.findAll('ul', attrs = {'id': 'AreaTopLanguageNav'})
+        for nav in navs:
+            #print nav
+            nav.extract()
 
 class FeedHandler:
     def __init__(self, feedUrl):
@@ -377,21 +408,72 @@ class SamediggiIdFetcher:
             saver.save_articles(article_id)
         saver.add_and_commit_files()
 
-if('--file' in sys.argv):
-    id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
-    id_handler.get_data_from_ids()
-    
-else:
-    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+class RegjeringenCrawler:
+    def __init__(self, root):
+        self.root = root
+        self.host = urlparse.urlparse(root)[1]
 
-    for feed in feeds:
-        fd = SamediggiFeedHandler(feed)
-        fd.get_data_from_feed()
+    def crawl(self):
+        saver = RegjeringenArticleSaver()
+        saver.save_articles(self.root)
+        urls = Queue.Queue()
+        for url in saver.urls:
+            print "the url is: " + url
+            urls.put(url)
 
-    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
-    fd.get_data_from_feed()
+        if saver.test:
+            print urls.qsize()
 
-    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
-    for feed in feeds:
-        fd = RegjeringenFeedHandler(feed)
-        fd.get_data_from_feed()
+        followeds = set()
+        for followed in saver.followed:
+            followeds.add(followed)
+
+        if saver.test:
+            print len(followeds)
+
+        while not urls.empty():
+            if saver.test:
+                print 'urls ' + str(urls.qsize())
+
+            url = urls.get()
+            if url not in followeds:
+                host = urlparse.urlparse(url)[1]
+                if re.match(".*%s" % self.host, host):
+                    followeds.add(url)
+                    saver = RegjeringenArticleSaver()
+                    saver.save_articles(url)
+                    for url in saver.urls:
+                        print "the url is: " + url
+                        urls.put(url)
+                    for followed in saver.followed:
+                        followeds.add(followed)
+                    if saver.test:
+                        print 'followeds ' + str(len(followeds))
+
+def main():
+    #saver = RegjeringenArticleSaver()
+    #saver.save_articles('http://www.regjeringen.no/se/dep/jd.html?id=463')
+    rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
+    rcrawler.crawl()
+
+    #if('--file' in sys.argv):
+        #id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
+        #id_handler.get_data_from_ids()
+
+    #else:
+        #feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+
+        #for feed in feeds:
+            #fd = SamediggiFeedHandler(feed)
+            #fd.get_data_from_feed()
+
+        #fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+        #fd.get_data_from_feed()
+
+        #feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
+        #for feed in feeds:
+            #fd = RegjeringenFeedHandler(feed)
+            #fd.get_data_from_feed()
+
+if __name__ == "__main__":
+    main()
