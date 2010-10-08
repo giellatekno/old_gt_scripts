@@ -188,7 +188,7 @@ sub process_file {
     print STDERR $file . "\n";
 
     # Check the filename
-    return unless ($file =~ m/\.(doc|pdf|htm|html|ptx|txt|svg|bible\.xml|correct\.xml)/);
+    return unless ($file =~ m/\.(doc|pdf|htm|html|html\?id=\d*|ptx|txt|svg|bible\.xml|correct\.xml)$/);
     if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"]/ ) {
         print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
         return "ERROR";
