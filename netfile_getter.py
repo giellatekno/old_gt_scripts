@@ -39,9 +39,11 @@ class ArticleSaver:
             if self.test:
                 print "fillbuffer: " + name
             origarticle = urlopen(name)
-        except HTTPError:
+        except HTTPError, e:
+            print 'Error code: ', e.code
             return 'undef'
         except URLError, e:
+            print e.reason
             print e.code
             print e.read()
             return 'undef'
@@ -276,7 +278,7 @@ class RegjeringenArticleSaver(ArticleSaver):
         for address in addresses:
             url = address['href']
             if url.find('#') < 0 and not re.search('facebook', url) \
-                and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif', url) and not re.search('.*pdf', url):
+                and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif', url) and not re.search('.*pdf', url) and not re.search('.*doc', url):
                 self.urls.add('http://www.regjeringen.no' + url)
 
     def del_parallel_info(self):
