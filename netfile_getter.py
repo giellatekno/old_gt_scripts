@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib2
+from  urllib2 import HTTPError, URLError, urlopen
 import urlparse
 import feedparser
 import os
@@ -38,9 +38,14 @@ class ArticleSaver:
         try:
             if self.test:
                 print "fillbuffer: " + name
-            origarticle = urllib2.urlopen(name)
-        except urllib2.HTTPError:
+            origarticle = urlopen(name)
+        except HTTPError:
             return 'undef'
+        except URLError, e:
+            print e.code
+            print e.read()
+            return 'undef'
+        
 
         self.filebuffer = origarticle.read()
         origarticle.close()
@@ -271,7 +276,7 @@ class RegjeringenArticleSaver(ArticleSaver):
         for address in addresses:
             url = address['href']
             if url.find('#') < 0 and not re.search('facebook', url) \
-                and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url):
+                and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif', url) and not re.search('.*pdf', url):
                 self.urls.add('http://www.regjeringen.no' + url)
 
     def del_parallel_info(self):
@@ -290,8 +295,8 @@ class RegjeringenArticleSaver(ArticleSaver):
         except AttributeError:
             print "Error in thislang ..."
             return save
-            
-        if thislang('a')[0].contents[0] == u'Sámegiella':
+
+        if not thislang == None and thislang('a')[0].contents[0] == u'Sámegiella':
             # Find out what samegiella we have
             self.articles[samilang] = thislang('a')[0]['href']
             save = 1
@@ -304,6 +309,7 @@ class RegjeringenArticleSaver(ArticleSaver):
             for lang in langs:
                 #print lang('a')[0]['href']
                 self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
+            
 
         if self.test:
             print self.articles
