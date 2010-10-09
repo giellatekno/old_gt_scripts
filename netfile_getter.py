@@ -13,6 +13,7 @@ sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
 import re
 import Queue
+import optparse
 
 class ArticleSaver:
     def __init__(self):
@@ -498,36 +499,54 @@ class RegjeringenCrawler:
                     if saver.test:
                         print 'followeds ' + str(len(followeds))
 
-def main():
-    #saver = RegjeringenArticleSaver()
-<<<<<<< Updated upstream
-    #saver.save_articles('http://www.regjeringen.no/se/dep/jd.html?id=463')
-    #rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
-    #rcrawler.crawl()
-=======
-    #saver.save_articles('http://www.regjeringen.no/se/dep/nhd/Departemeantta-birra/Organisauvdna/Ossodagat/Joiheaddjit--/Departemeanttarai-kantuvra/Vuosttakonsuleanta-Cecilie-Bjornskau.html?id=437457')
+def parse_options():
+    parser = optparse.OptionParser()
+    
+    parser.add_option('-c', '--crawl', action = "callback", callback = crawl, help = '"crawl known sites')
+    parser.add_option('-f', '--feed', action = "callback", callback = feed, help = 'get files from known feeds')
+    parser.add_option('-d', '--dontcommit', action = "store_true", default = False, dest = "dontcommit", help = "don't add and commit files to svn")
+    parser.add_option('-v', '--verbose', action = "store_false", default=False, dest = "verbose", help = 'verbose mode, get more info on what is happening')
+    
+    (options, args) = parser.parse_args()
+    
+    if len(args) < 1:
+        parser.print_help()
+        raise SystemExit, 1
+    
+    return opts, args
+
+def crawl():
     rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
     rcrawler.crawl()
->>>>>>> Stashed changes
 
-    if('--file' in sys.argv):
-        id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
-        id_handler.get_data_from_ids()
+def feed():
+    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
-    else:
-        feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
-
-        for feed in feeds:
-            fd = SamediggiFeedHandler(feed)
-            fd.get_data_from_feed()
-
-        fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    for feed in feeds:
+        fd = SamediggiFeedHandler(feed)
         fd.get_data_from_feed()
 
-        feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
-        for feed in feeds:
-            fd = RegjeringenFeedHandler(feed)
-            fd.get_data_from_feed()
+    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    fd.get_data_from_feed()
+
+    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
+    for feed in feeds:
+        fd = RegjeringenFeedHandler(feed)
+        fd.get_data_from_feed()
+
+def main():
+    """
+    Everything happens in the functions above here, depending on which
+    options are given to the program
+    """
+    (opts, args) = parse_options()
+    pass
+    #saver = RegjeringenArticleSaver()
+    #saver.save_articles('http://www.regjeringen.no/se/dep/jd.html?id=463')
+
+    #if('--file' in sys.argv):
+        #id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
+        #id_handler.get_data_from_ids()
 
 if __name__ == "__main__":
     main()
