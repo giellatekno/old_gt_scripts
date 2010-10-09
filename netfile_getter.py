@@ -502,24 +502,23 @@ class RegjeringenCrawler:
 def parse_options():
     parser = optparse.OptionParser()
     
-    parser.add_option('-c', '--crawl', action = "callback", callback = crawl, help = '"crawl known sites')
-    parser.add_option('-f', '--feed', action = "callback", callback = feed, help = 'get files from known feeds')
-    parser.add_option('-d', '--dontcommit', action = "store_true", default = False, dest = "dontcommit", help = "don't add and commit files to svn")
-    parser.add_option('-v', '--verbose', action = "store_false", default=False, dest = "verbose", help = 'verbose mode, get more info on what is happening')
+    parser.add_option("-c", "--crawl", action = "store_true", default = False, dest = "crawl", help = "crawl known sites")
+    parser.add_option("-f", "--feed", action = "store_true", default = False, dest = "feed", help = "get files from known feeds")
+    parser.add_option("-t", "--test", action = "store_false", default=False, dest = "test", help = "test mode, get more info on what is happening, don't commit fetched files to the corpus svn")
     
     (options, args) = parser.parse_args()
     
-    if len(args) < 1:
-        parser.print_help()
-        raise SystemExit, 1
+    #if len(args) < 1:
+        #parser.print_help()
+        #raise SystemExit, 1
     
-    return opts, args
+    return options, args
 
-def crawl():
+def crawl(totest):
     rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
     rcrawler.crawl()
 
-def feed():
+def feed(totest):
     feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
     for feed in feeds:
@@ -540,7 +539,13 @@ def main():
     options are given to the program
     """
     (opts, args) = parse_options()
-    pass
+
+    if opts.crawl:
+        crawl(opts.test)
+
+    if opts.feed:
+        feed(opts.test)
+        
     #saver = RegjeringenArticleSaver()
     #saver.save_articles('http://www.regjeringen.no/se/dep/jd.html?id=463')
 
