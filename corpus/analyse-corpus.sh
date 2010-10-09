@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd $GTHOME
+svn up
 SVNREVISION=`svn info | grep Revision | cut -f1 -d" "`
 
 ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
@@ -9,6 +10,8 @@ mkdir $ANALYSED_DIR
 
 for SMILANG in sma sme smj
 do
+    cd $GTHOME/gt
+    make TARGET=$SMILANG
     if [ $SMILANG == "sma" ]
     then
         PREPROCESS="preprocess"
