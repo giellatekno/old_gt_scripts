@@ -34,27 +34,30 @@ class ArticleSaver:
         self.filebuffer = ''
         self.files_to_commit = []
         
-    def fillbuffer(self, name):
+    def fillbuffer(self, url):
         try:
             if self.test:
-                print "fillbuffer: " + name
-            origarticle = urlopen(name)
+                print 'fillbuffer: ', url
+            origarticle = urlopen(url)
         except HTTPError, e:
             print 'Error code: ', e.code
-            return 'undef'
+            return False
         except URLError, e:
             print e.reason
-            print e.code
-            print e.read()
-            return 'undef'
-        
+            return False
 
         self.filebuffer = origarticle.read()
         origarticle.close()
 
+        return True
+        
+
+    def parse_html(self):
         try:
             self.soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
-        except HTMLParseError:
+        except HTMLParseError, e:
+            print 'Cannot parse the document'
+            print 'Reason', e
             return 'undef'
 
         # Extract the text
@@ -66,13 +69,14 @@ class ArticleSaver:
             comment.extract()
 
         # Then remove script parts
-        scripts = self.soup.findAll('script')
+        scripts = self.soup.findAll('script')   
         for script in scripts:
             script.extract()
+
         try:
             body = self.soup.body(text=True)
         except TypeError, e:
-            print "An error occured when trying to soup.body the link" + name
+            print "An error occured when trying to soup.body the link", e
             return 'undef'
             
         text = ''.join(body)
@@ -101,10 +105,16 @@ class ArticleSaver:
         # Save the file in the correct folder
         if(self.test):
             print "Saving the article: " + filename
-        svnarticle = open(filename, 'w')
-        svnarticle.write(self.filebuffer)
-        svnarticle.close()
-        self.files_to_commit.append(filename)
+
+        try:
+            svnarticle = open(filename, 'w')
+            svnarticle.write(self.filebuffer)
+            svnarticle.close()
+            self.files_to_commit.append(filename)
+        except IOError, e:
+            print "Couldn't save: ", filename
+            print "because:", e
+            
 
     def save_metadata(self, filename):
         '''
@@ -113,17 +123,21 @@ class ArticleSaver:
         if(self.test):
             print "Saving the metadata: " + filename + '.xsl'
         template = open(self.gthome + '/gt/script/corpus/XSL-template.xsl', 'r')
-        metadata = open(filename + '.xsl', 'w')
+        try:
+            metadata = open(filename + '.xsl', 'w')
 
-        for line in template:
-            for key, value in self.change_variables.iteritems():
-                if line.find('"' + key + '"') != -1:
-                    line = line.replace('\'\'', '\'' + value.replace('&', '&amp;') + '\'')
-                    #if(self.test):
-                        #print "The line is: " + line
-            metadata.write(line)
-        metadata.close()
-        self.files_to_commit.append(filename + '.xsl')
+            for line in template:
+                for key, value in self.change_variables.iteritems():
+                    if line.find('"' + key + '"') != -1:
+                        line = line.replace('\'\'', '\'' + value.replace('&', '&amp;') + '\'')
+                        #if(self.test):
+                            #print "The line is: " + line
+                metadata.write(line)
+            metadata.close()
+            self.files_to_commit.append(filename + '.xsl')
+        except IOError, e:
+            print "Couldn't save: ", filename
+            print "because:", e
 
     def add_and_commit_files(self):
         '''
@@ -249,6 +263,7 @@ class RegjeringenArticleSaver(ArticleSaver):
         if self.get_parallels(link):
             self.get_urls()
             for lang, name in self.articles.iteritems():
+                self.followed.append(link)
                 path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
                 parts = name.split('/')
                 articlename = '/' + parts[len(parts) - 1]
@@ -258,11 +273,13 @@ class RegjeringenArticleSaver(ArticleSaver):
                     self.fillbuffer(link)
                     self.remove_nav()
                     self.set_variable('filename', link)
-                    self.followed.append(link)
                     self.save_article(fullname)
                     self.set_parallel_info(lang)
                     self.save_metadata(fullname)
                     self.del_parallel_info()
+                
+        else:
+            self.followed.append(link)
 
     def set_parallel_info(self, thislang):
         if len(self.articles) > 1:
@@ -277,8 +294,8 @@ class RegjeringenArticleSaver(ArticleSaver):
         addresses = self.soup.findAll('a', href=True)
         for address in addresses:
             url = address['href']
-            if url.find('#') < 0 and not re.search('facebook', url) \
-                and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif', url) and not re.search('.*pdf', url) and not re.search('.*doc', url):
+            
+            if url.find('#') < 0 and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif$', url) and not re.search('.*jpg$', url) and not re.search('.*eps$', url) and not re.search('.*tif$', url) and not re.search('.*telefonlist.*', url):
                 self.urls.add('http://www.regjeringen.no' + url)
 
     def del_parallel_info(self):
@@ -287,34 +304,52 @@ class RegjeringenArticleSaver(ArticleSaver):
             self.set_variable('para_' + lang, '')
 
     def get_parallels(self, name):
+
         save = 0
+        if self.fillbuffer(name):
+            if re.search('.*pdf', name) or re.search('.*PDF', name) or re.search('.*doc', name) or re.search('.*ppt', name) or re.search('.*xls', name) or re.search('.*odt', name) or re.search('.*ods', name) or re.search('.*odp', name):
+                parts = name.split('/')
+                filename = parts[len(parts) - 1]
+                fullname = self.freehome + '/' + filename
+                self.save_article(fullname)
+                self.set_variable('filename', name)
+                self.save_metadata(fullname)
+                if self.test:
+                    print "non-html file saved"
+            else:
+                # Find out what samegiella we have
+                samilang = self.parse_html()
+                if samilang != 'undef':
+                    # Find out if this is a Sámi doc or has a Sámi parallell
+                    try:
+                        thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
+                    except AttributeError:
+                        print "Error in thislang ..."
+                        return 0
 
-        samilang = self.fillbuffer(name)
+                    if thislang != None and thislang('a')[0].contents[0] == u'Sámegiella':
+                        
+                        self.articles[samilang] = thislang('a')[0]['href']
 
-        # Find out if this is a Sámi doc or has a Sámi parallell
-        try:
-            thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
-        except AttributeError:
-            print "Error in thislang ..."
-            return save
+                        langs = self.soup.findAll('li', attrs={'class': 'Selectable'})
+                        lang = self.soup.find('li', attrs={'class': 'First Selectable'})
+                        if lang:
+                            langs.append(lang)
 
-        if not thislang == None and thislang('a')[0].contents[0] == u'Sámegiella':
-            # Find out what samegiella we have
-            self.articles[samilang] = thislang('a')[0]['href']
-            save = 1
-            
-            langs = self.soup.findAll('li', attrs={'class': 'Selectable'})
-            lang = self.soup.find('li', attrs={'class': 'First Selectable'})
-            if lang:
-                langs.append(lang)
+                        for lang in langs:
+                            #print lang('a')[0]['href']
+                            keylang = lang('a')[0].contents[0]
 
-            for lang in langs:
-                #print lang('a')[0]['href']
-                self.articles[self.langs[lang('a')[0].contents[0]]] = lang('a')[0]['href']
-            
+                            # Sometime Bokmål appears as u'Bokm\ufffd\ufffdl'
+                            # e.g. in http://www.regjeringen.no/se/dep/nhd/Departemeantta-birra/Organisauvdna/Ossodagat/Joiheaddjit--/Departemeanttarai-kantuvra/Vuosttakonsuleanta-Cecilie-Bjornskau.html?id=437457
+                            if re.search('Bokm.*', keylang):
+                                keylang = u'Bokmål'
+                            self.articles[self.langs[keylang]] = lang('a')[0]['href']
 
-        if self.test:
-            print self.articles
+                        if self.test:
+                            print self.articles
+
+                        save = 1
 
         return save
 
@@ -431,8 +466,8 @@ class RegjeringenCrawler:
         saver.save_articles(self.root)
         urls = Queue.Queue()
         for url in saver.urls:
-            print "the url is: " + url
-            urls.put(url)
+            #print "the url is: " + url
+            urls.put(url.encode('utf-8'))
 
         if saver.test:
             print urls.qsize()
@@ -456,8 +491,8 @@ class RegjeringenCrawler:
                     saver = RegjeringenArticleSaver()
                     saver.save_articles(url)
                     for url in saver.urls:
-                        print "the url is: " + url
-                        urls.put(url)
+                        #print "the url is: " + url
+                        urls.put(url.encode('utf-8'))
                     for followed in saver.followed:
                         followeds.add(followed)
                     if saver.test:
@@ -465,9 +500,15 @@ class RegjeringenCrawler:
 
 def main():
     #saver = RegjeringenArticleSaver()
+<<<<<<< Updated upstream
     #saver.save_articles('http://www.regjeringen.no/se/dep/jd.html?id=463')
     #rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
     #rcrawler.crawl()
+=======
+    #saver.save_articles('http://www.regjeringen.no/se/dep/nhd/Departemeantta-birra/Organisauvdna/Ossodagat/Joiheaddjit--/Departemeanttarai-kantuvra/Vuosttakonsuleanta-Cecilie-Bjornskau.html?id=437457')
+    rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
+    rcrawler.crawl()
+>>>>>>> Stashed changes
 
     if('--file' in sys.argv):
         id_handler = SamediggiIdFetcher(sys.argv[len(sys.argv) - 1])
