@@ -16,11 +16,8 @@ import Queue
 import optparse
 
 class ArticleSaver:
-    def __init__(self):
-        if('--test' in sys.argv):
-            self.test = 1
-        else:
-            self.test = 0
+    def __init__(self, totest):
+        self.test = totest
 
         self.gthome = os.getenv('GTHOME')
         if self.gthome is None:
@@ -172,8 +169,8 @@ class ArticleSaver:
                 print "No new files found"
 
 class AvvirArticleSaver(ArticleSaver):
-    def __init__(self):
-        ArticleSaver.__init__(self)
+    def __init__(self, totest):
+        ArticleSaver.__init__(self, totest)
         self.boundhome = os.getenv('GTBOUND')
         if self.boundhome is None:
             print 'You have to set the environment variable GTBOUND'
@@ -194,8 +191,8 @@ class AvvirArticleSaver(ArticleSaver):
             self.save_metadata(fullname)
             
 class SamediggiArticleSaver(ArticleSaver):
-    def __init__(self):
-        ArticleSaver.__init__(self)
+    def __init__(self, totest):
+        ArticleSaver.__init__(self, totest)
         self.freehome = os.getenv('GTFREE')
         if self.freehome is None:
             print 'You have to set the environment variable $GTFREE'
@@ -235,8 +232,8 @@ class SamediggiArticleSaver(ArticleSaver):
                     self.save_metadata(fullname)
 
 class RegjeringenArticleSaver(ArticleSaver):
-    def __init__(self):
-        ArticleSaver.__init__(self)
+    def __init__(self, totest):
+        ArticleSaver.__init__(self, totest)
         self.freehome = os.getenv('GTFREE')
         if self.freehome is None:
             print 'You have to set the environment variable $GTFREE'
@@ -361,19 +358,23 @@ class RegjeringenArticleSaver(ArticleSaver):
             nav.extract()
 
 class FeedHandler:
-    def __init__(self, feedUrl):
+    def __init__(self, feedUrl, totest):
         '''
         Get a rssfeed, parse it and normalize it
         '''
         self.doc = feedparser.parse(feedUrl)
+        self.test = totest
 
     
 class SamediggiFeedHandler(FeedHandler):
+    def __init__(self, feedUrl, totest):
+        FeedHandler.__init__(self, feedUrl, totest)
+   
     def get_data_from_feed(self):
         '''
         Get metadata from feed
         '''
-        saver = SamediggiArticleSaver()
+        saver = SamediggiArticleSaver(self.test)
         for entry in self.doc.entries:
             entry_id = entry.id[entry.id.rfind('/') + 1:]
             article_number = entry_id[3:]
@@ -382,11 +383,14 @@ class SamediggiFeedHandler(FeedHandler):
         saver.add_and_commit_files()
 
 class RegjeringenFeedHandler(FeedHandler):
+    def __init__(self, feedUrl, totest):
+        FeedHandler.__init__(self, feedUrl, totest)
+
     def get_data_from_feed(self):
         '''
         Get metadata from feed
         '''
-        saver = RegjeringenArticleSaver()
+        saver = RegjeringenArticleSaver(self.test)
         for entry in self.doc.entries:
             saver.set_variable('year', str(entry.updated_parsed[0]))
             saver.save_articles(entry.link)
@@ -394,8 +398,11 @@ class RegjeringenFeedHandler(FeedHandler):
 
     
 class AvvirFeedHandler(FeedHandler):
+    def __init__(self, feedUrl, totest):
+        FeedHandler.__init__(self, feedUrl, totest)
+
     def get_data_from_feed(self):
-        saver = AvvirArticleSaver()
+        saver = AvvirArticleSaver(self.test)
         for entry in self.doc.entries:
             saver.set_variable('filename', entry.id.replace('index', 'feed') + '&output_type=txt')
             saver.set_variable('title', entry.title.encode('utf-8'))
@@ -436,8 +443,9 @@ class AvvirFeedHandler(FeedHandler):
         return author
 
 class SamediggiIdFetcher:
-    def __init__(self, idsfile):
+    def __init__(self, idsfile, totest):
         idf = open(idsfile, 'r')
+        self.test = totest
         self.article_ids = set()
         for line in fileinput.FileInput(idsfile):
             nline = line.lower()
@@ -451,19 +459,20 @@ class SamediggiIdFetcher:
                     self.article_ids.add(nline.strip().split('=')[1])
 
     def get_data_from_ids(self):
-        saver = SamediggiArticleSaver()
+        saver = SamediggiArticleSaver(totest)
         for article_id in self.article_ids:
             #print "getting article: " + article_id
             saver.save_articles(article_id)
         saver.add_and_commit_files()
 
 class RegjeringenCrawler:
-    def __init__(self, root):
+    def __init__(self, root, totest):
         self.root = root
         self.host = urlparse.urlparse(root)[1]
+        self.test = totest
 
     def crawl(self):
-        saver = RegjeringenArticleSaver()
+        saver = RegjeringenArticleSaver(self.test)
         saver.save_articles(self.root)
         urls = Queue.Queue()
         for url in saver.urls:
@@ -515,22 +524,22 @@ def parse_options():
     return options, args
 
 def crawl(totest):
-    rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4')
+    rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4', totest)
     rcrawler.crawl()
 
 def feed(totest):
     feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
 
     for feed in feeds:
-        fd = SamediggiFeedHandler(feed)
+        fd = SamediggiFeedHandler(feed, totest)
         fd.get_data_from_feed()
 
-    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom')
+    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom', totest)
     fd.get_data_from_feed()
 
     feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
     for feed in feeds:
-        fd = RegjeringenFeedHandler(feed)
+        fd = RegjeringenFeedHandler(feed, totest)
         fd.get_data_from_feed()
 
 def main():
