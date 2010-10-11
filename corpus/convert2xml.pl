@@ -758,6 +758,7 @@ sub print_help {
   print"    --multi-coding  Document contains more than one different encodings, character \n";
   print"                    decoding is done paragraph-wise.\n";
   print"    --upload        Do conversion in the upload-directory. \n";
+  print"    --force         Convert the file even if it already has been converted. \n";
   print"    --test          Don't delete temporary files, log more info.\n";
   print"    --help          Print this message and exit.\n";
 };
