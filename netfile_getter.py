@@ -536,7 +536,7 @@ def feed(totest):
         if feed.find("www.sametinget.no") > 0:
             fd = SamediggiFeedHandler(feed, totest)
         if feed.find("avvir.no") > 0:
-            fd = AvvirFeedHandler(totest)
+            fd = AvvirFeedHandler(feed, totest)
         fd.get_data_from_feed()
 
 def main():
