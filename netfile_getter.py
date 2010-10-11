@@ -528,18 +528,15 @@ def crawl(totest):
     rcrawler.crawl()
 
 def feed(totest):
-    feeds = ['http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk']
+    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk', 'http://avvir.no/feed.php?output_type=atom']
 
     for feed in feeds:
-        fd = SamediggiFeedHandler(feed, totest)
-        fd.get_data_from_feed()
-
-    fd = AvvirFeedHandler('http://avvir.no/feed.php?output_type=atom', totest)
-    fd.get_data_from_feed()
-
-    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO']
-    for feed in feeds:
-        fd = RegjeringenFeedHandler(feed, totest)
+        if feed.find("www.regjeringen.no") > 0:
+            fd = RegjeringenFeedHandler(feed, totest)
+        if feed.find("www.sametinget.no") > 0:
+            fd = SamediggiFeedHandler(feed, totest)
+        if feed.find("avvir.no") > 0:
+            fd = AvvirFeedHandler(totest)
         fd.get_data_from_feed()
 
 def main():
