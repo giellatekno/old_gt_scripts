@@ -380,7 +380,7 @@ sub process_file {
     # hyphenate the file
     # check size. Too big files causes crashes,
     # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
-    if (! $no_hyph && -s $file < 1000000 ) {
+    if (! $no_hyph) {
         if ($all_hyph) { $command = "$hyphenate --all --infile=\"$tmp0\" --outfile=\"$tmp1\""; }
         else { $command = "$hyphenate --infile=\"$tmp0\" --outfile=\"$tmp1\"";}
         exec_com($command, $file);
@@ -390,7 +390,7 @@ sub process_file {
     # Text categorization
     # check size. Too big files causes crashes,
     # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
-    if (! $upload && -s $file < 1000000 ) {
+    if (! $upload) {
         my $lmdir = $textcatdir . "/LM";
         my $command = "$text_cat -q -x -d $lmdir \"$tmp0\"";
         exec_com($command, $file);
@@ -486,101 +486,6 @@ sub convert_pdf {
     return convert_txt($file, $tmp3, $int, \$no_decode_this_time_ref);
 }
 
-sub convert_pdf_jpedal {
-    my ($file, $orig, $int, $xsl_file) = @_;
-    
-    my $main_sizes;
-    my $title_sizes;
-    my $title_styles;
-    my $main_font_elt;
-    my $col_num=1;
-    my $lower;
-    my $excluded;
-    if(! $noxsl) {
-        my $document = XML::Twig->new;
-        if (! $document->safe_parsefile("$xsl_file")) {
-            carp "ERROR parsing the XSL-file failed: $@\n";
-            return "ERROR";
-        }
-    
-        my $root = $document->root;
-    
-        $main_font_elt = $root->first_child('xsl:variable[@name="main_sizes"]');
-        if ($main_font_elt) { $main_sizes = $main_font_elt->{'att'}{'select'}; }
-    
-        my $title_font_elt = $root->first_child('xsl:variable[@name="title_sizes"]');
-        if ($title_font_elt) { $title_sizes = $title_font_elt->{'att'}{'select'}; }
-    
-        my $title_styles_elt = $root->first_child('xsl:variable[@name="title_styles"]');
-        if ($title_styles_elt) { $title_styles = $title_styles_elt->{'att'}{'select'}; }
-
-        my $column_elt = $root->first_child('xsl:variable[@name="columns"]');
-        if ($column_elt) { $col_num = $column_elt->{'att'}{'select'}; }
-
-        my $lower_elt = $root->first_child('xsl:variable[@name="lower"]');
-        if ($lower_elt) { $lower = $lower_elt->{'att'}{'select'}; $lower =~ s/\'//g;}
-
-        my $excluded_elt = $root->first_child('xsl:variable[@name="excluded"]');
-        if ($excluded_elt) { $excluded = $excluded_elt->{'att'}{'select'}; $excluded =~ s/\'//g; }
-
-    }
-#     if ($main_font_elt) {
-#     
-#         my $arguments="";
-#         (my $base = $file ) =~ s/\.pdf//;
-# 
-#         $command = "rm -rf $tmpdir/$base/*";
-#         exec_com($command, $file);
-#     
-#         if ($col_num eq "'2'") { $arguments .= "-Dcol"; }
-#         if ($lower) { $arguments .= " -Dlower=$lower"; }
-#         if ($excluded) { $arguments .= " -Dexcl=$excluded"; }
-#         else { $arguments .=" -Dexcl=\"0\""; }
-# 
-#         $command = "$jpedal $orig $tmpdir $arguments";
-#         my $error = exec_com($command, $file);
-# 
-#         if ($error) { carp "$error"; return "ERROR"; }
-# 
-#         $command="find \"$tmpdir/$base\" -type f | xargs perl -pi -e \"s/\\&/\\&amp\\;/g\"";
-#         exec_com($command, $file);
-#     
-#         $command = "$pdf2xml --dir=\"$tmpdir/$base/\" --outfile=\"$int\" --main_sizes=\"$main_sizes\" --title_sizes=\"$title_sizes\" --title_styles=\"$title_styles\"";
-#         exec_com($command, $file);
-# 
-# 
-#         #exit;
-#         if( -z $int && ! $upload ) {
-#             print "ERROR $file: no pdf2xml output. STOP.\n";
-#             return "ERROR";
-#         }
-#         return 0;
-#     }
-    
-    my $xsl;
-    if ($convxsl) { $xsl = $convxsl; }
-    else { $xsl = $htmlxsl; }
-    my $html = $tmpdir . "/" . $file . ".tmp3";
-    $command = "pdftotext -enc UTF-8 -nopgbrk -htmlmeta -eol unix \"$orig\" \"$html\"";
-    exec_com($command, $file);
-    
-    # If there were severe errors in pdftotext, the html file is not created.
-    if(! -f $html && ! $upload ) {
-        print "$file: no pdftotext output. STOP.\n";
-        return "ERROR";
-    }
-    #&pdfclean($html);
-    $command = "$tidy \"$html\" | xsltproc \"$xsl\" -  > \"$int\"";
-    exec_com($command, $file);
-
-    # remove temporary files unless testing.
-    if (! $test) {
-        $command = "rm -rf \"$html\"";
-        exec_com($command, $file);
-    }
-    return 0;
-}
-
 sub convert_txt {
     my ($file, $orig, $int, $no_decode_this_time_ref) = @_;
 
@@ -672,30 +577,26 @@ sub file_specific_xsl {
     $command = "xsltproc --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
     exec_com($command, $file);
 
-    # check size. Too big files causes crashes,
-    # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
-    if( -s $file < 1000000 ) {
-        # Check the main language,  add if it is missing.
-        my $document = XML::Twig->new;
-        if (! $document->safe_parsefile("$tmp")) {
-            carp "ERROR parsing the XML-file «$tmp» failed ";
-            return "ERROR";
-        }
-        my $root = $document->root;
-        my $mainlang = $root->{'att'}->{'xml:lang'};
-        my $id = $root->{'att'}->{'id'};
-
-        if(! $mainlang || $mainlang eq "unknown") {
-	  #print "setting language: $language \n";
-	  #$root->set_att('xml:lang', $language);
-	  # Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
-	  print "setting language: $dir_lang \n";
-	  $root->set_att('xml:lang', $dir_lang);
-        }
-        open(FH, ">$tmp") or die "Cannot open $tmp $!";
-        $document->set_pretty_print('indented');
-        $document->print(\*FH);
+    # Check the main language,  add if it is missing.
+    my $document = XML::Twig->new;
+    if (! $document->safe_parsefile("$tmp")) {
+        carp "ERROR parsing the XML-file «$tmp» failed ";
+        return "ERROR";
     }
+    my $root = $document->root;
+    my $mainlang = $root->{'att'}->{'xml:lang'};
+    my $id = $root->{'att'}->{'id'};
+
+    if(! $mainlang || $mainlang eq "unknown") {
+        #print "setting language: $language \n";
+        #$root->set_att('xml:lang', $language);
+        # Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
+        print "setting language: $dir_lang \n";
+        $root->set_att('xml:lang', $dir_lang);
+    }
+    open(FH, ">$tmp") or die "Cannot open $tmp $!";
+    $document->set_pretty_print('indented');
+    $document->print(\*FH);
 
     # Validate the xml-file unless web upload.
     if(! $upload && ($file !~ /.ptx$/)) {
