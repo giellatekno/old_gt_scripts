@@ -480,7 +480,7 @@ sub convert_pdf {
 
     my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 
-    $command = "pdftotext -enc UTF-8 \"$orig\" - | sed -e \'s///g\' > \"$tmp3\"";
+    $command = "pdftotext -enc UTF-8 -nopgbrk -eol unix \"$orig\" - | sed -e 's/\x18//g'  -e 's/\xef\x83\xa0//' -e 's/\xef\x83\x9f//' -e 's/\xef\x81\xae//'  -e 's/\x04//' -e 's/\x07//' > \"$tmp3\"";
     exec_com($command, $file);
     
     return convert_txt($file, $tmp3, $int, \$no_decode_this_time_ref);
