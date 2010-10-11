@@ -42,6 +42,7 @@ my $tmpdir = '';
 my $no_hyph = 0; 
 my $all_hyph = 0; 
 my $noxsl = 0;
+my $force = 0;
 my $corpdir;
 my $bindir = "$ENV{'GTHOME'}/gt/script";
 my $textcatdir = "$ENV{'GTHOME'}/tools/lang-guesser";
@@ -95,6 +96,7 @@ GetOptions ("no-decode" => \$no_decode,
             "all-hyph" => \$all_hyph,
             "multi-coding" => \$multi_coding,
             "upload" => \$upload,
+            "force" => \$force,
             "test" => \$test,
             "help" => \$help);
 
@@ -237,190 +239,193 @@ sub process_file {
     }
 
     my $xsl_file = $orig . ".xsl";
-    if(! $noxsl) {
-        # Copy it from template, if not exist.
-        if(! -f $xsl_file) {
-            print "Creating " . $xsl_file . "... ";
-            copy ($xsltemplate, $xsl_file)
-                or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+
+    if ($force || to_convert($int, $xsl_file)) {
+        if(! $noxsl) {
+            # Copy it from template, if not exist.
+            if(! -f $xsl_file) {
+                print "Creating " . $xsl_file . "... ";
+                copy ($xsltemplate, $xsl_file)
+                    or print STDERR "ERROR: copy failed ($xsltemplate $xsl_file)\n";
+            }
         }
-    }
 
-    print "Converting " . $file . "\n";
+        print "Converting " . $file . "\n";
 
-    # remove temporary files to get a clean start.
-    remove_tmp_files($tmpdir, $file);
+        # remove temporary files to get a clean start.
+        remove_tmp_files($tmpdir, $file);
 
-    ##### Start conversion ############
-    my $error;
-    my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
+        ##### Start conversion ############
+        my $error;
+        my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
 
-    # Process the file-specific xsl file to import the common.xsl file from $GTHOME:
-    my $tmp = $orig . ".xsl.tmp";
-    $command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
-    exec_com($command, $file);
-    $xsl_file = $tmp ;
+        # Process the file-specific xsl file to import the common.xsl file from $GTHOME:
+        my $tmp = $orig . ".xsl.tmp";
+        $command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
+        exec_com($command, $file);
+        $xsl_file = $tmp ;
 
-    # Word documents
-    if ($file =~ /\.doc$/) {
-        $error = convert_doc($file, $orig, $tmp0);
-    }
+        # Word documents
+        if ($file =~ /\.doc$/) {
+            $error = convert_doc($file, $orig, $tmp0);
+        }
 
-    # xhtml documents
-    elsif ($file =~ /\.(htm|html)/) {
-        $error = convert_html($file, $orig, $tmp0, $xsl_file);
-    }
+        # xhtml documents
+        elsif ($file =~ /\.(htm|html)/) {
+            $error = convert_html($file, $orig, $tmp0, $xsl_file);
+        }
 
-    # pdf documents
-    elsif ($file =~ /\.pdf$/) {
-        $error = convert_pdf($file, $orig, $tmp0, $xsl_file);
-    }
+        # pdf documents
+        elsif ($file =~ /\.pdf$/) {
+            $error = convert_pdf($file, $orig, $tmp0, $xsl_file);
+        }
 
-    # paratext documents
-    elsif ($file =~ /\.ptx$/) {
-        $command = "$paratext2xml \"$orig\" --out=\"$tmp0\"";
-        $error = exec_com($command, $file);
-    }
+        # paratext documents
+        elsif ($file =~ /\.ptx$/) {
+            $command = "$paratext2xml \"$orig\" --out=\"$tmp0\"";
+            $error = exec_com($command, $file);
+        }
 
-    # bibles
-    elsif ($file =~ /\.bible\.xml$/) {
-        $command = "$bible2xml --out=\"$tmp0\" \"$orig\"";
-        $error = exec_com($command, $file);
-    }
+        # bibles
+        elsif ($file =~ /\.bible\.xml$/) {
+            $command = "$bible2xml --out=\"$tmp0\" \"$orig\"";
+            $error = exec_com($command, $file);
+        }
 
-    # Conversion of text documents
-    elsif ($file =~ /\.txt$/) {
-        $error = convert_txt($file, $orig, $tmp0, \$no_decode_this_time);
-    }
+        # Conversion of text documents
+        elsif ($file =~ /\.txt$/) {
+            $error = convert_txt($file, $orig, $tmp0, \$no_decode_this_time);
+        }
 
-    # Conversion of svg documents
-    elsif ($file =~ /\.svg$/) {
-        convert_svg($file, $orig, $tmp0, $xsl_file);
-    }
+        # Conversion of svg documents
+        elsif ($file =~ /\.svg$/) {
+            convert_svg($file, $orig, $tmp0, $xsl_file);
+        }
 
-    # Conversion of documents with error markup
-    # Conversion of XML documents with manual error markup
-    elsif ($file =~ /(\.correct\.xml)$/) {
-        $int =~ s/\.correct//;
+        # Conversion of documents with error markup
+        # Conversion of XML documents with manual error markup
+        elsif ($file =~ /(\.correct\.xml)$/) {
+            $int =~ s/\.correct//;
+            my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+            # Do extra formatting for prooftest-directory.
+            my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
+            if (! $document->safe_parsefile ("$orig") ) {
+                carp "ERROR parsing the XML-file $orig failed. STOP\n";
+                return "ERROR";
+            }
+            if (! open (FH, ">$tmp1")) {
+                carp "ERROR cannot open file STOP";
+                return "ERROR";
+            }
+            $document->set_pretty_print('indented');
+            $document->print( \*FH);
+            exec_com("cp \"$tmp1\" \"$tmp0\"", $file);
+
+            print_log($log_file, $file);
+        }
+        else {
+            $error = 1;
+        }
+
+        # If there were errors in the conversion, remove
+        # the xml-file and proceed to the next file.
+        if ($error || ! -f $tmp0 || -z $tmp0 ) {
+            print "ERROR: First conversion step from original failed. STOP.\n";
+            if ($log_file) { print "See $log_file for details.\n"; }
+            if (! $upload) {
+                carp "ERROR: First conversion step from original failed. STOP.\n";
+            }
+            if (! $test) { remove_tmp_files($tmpdir, $file); }
+            return "ERROR";
+        }
+        elsif ($file =~ /\.correct\.xml$/) {
+            copy ($tmp0, $int);
+            return 0;
+        }
+
+        # end of line conversion.
         my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-        # Do extra formatting for prooftest-directory.
-        my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
-        if (! $document->safe_parsefile ("$orig") ) {
-            carp "ERROR parsing the XML-file $orig failed. STOP\n";
-            return "ERROR";
-        }
-        if (! open (FH, ">$tmp1")) {
-            carp "ERROR cannot open file STOP";
-            return "ERROR";
-        }
-        $document->set_pretty_print('indented');
-        $document->print( \*FH);
-        exec_com("cp \"$tmp1\" \"$tmp0\"", $file);
+        my $command = "$convert_eol \"$tmp0\" > \"$tmp1\"";
+        exec_com($command, $file);
+        copy ($tmp1, $tmp0) ;
 
-        print_log($log_file, $file);
-    }
-    else {
-        $error = 1;
-    }
-
-    # If there were errors in the conversion, remove
-    # the xml-file and proceed to the next file.
-    if ($error || ! -f $tmp0 || -z $tmp0 ) {
-        print "ERROR: First conversion step from original failed. STOP.\n";
-        if ($log_file) { print "See $log_file for details.\n"; }
-        if (! $upload) {
-            carp "ERROR: First conversion step from original failed. STOP.\n";
-        }
-        if (! $test) { remove_tmp_files($tmpdir, $file); }
-        return "ERROR";
-    }
-    elsif ($file =~ /\.correct\.xml$/) {
-        copy ($tmp0, $int);
-        return 0;
-    }
-
-    # end of line conversion.
-    my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-    my $command = "$convert_eol \"$tmp0\" > \"$tmp1\"";
-    exec_com($command, $file);
-    copy ($tmp1, $tmp0) ;
-
-    $error = character_encoding($file, $tmp0, $no_decode_this_time);
-    if ($error) {
-        if (! $test) { remove_tmp_files($tmpdir, $file); }
-        return "ERROR";
-    }
-
-    # Run the file specific xsl-script.
-    if (! $noxsl) {
-        file_specific_xsl($file, $tmp0, $xsl_file, $doc_id);
+        $error = character_encoding($file, $tmp0, $no_decode_this_time);
         if ($error) {
             if (! $test) { remove_tmp_files($tmpdir, $file); }
             return "ERROR";
         }
-    }
 
-    # Do extra formatting for prooftest-directory.
-    if ($orig =~ /$goldstandard_orig_dir/) {
-        my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
-        if (! $document->safe_parsefile ("$tmp0") ) {
-            carp "ERROR parsing the XML-file $tmp0 failed. STOP\n";
-            return "ERROR";
+        # Run the file specific xsl-script.
+        if (! $noxsl) {
+            file_specific_xsl($file, $tmp0, $xsl_file, $doc_id);
+            if ($error) {
+                if (! $test) { remove_tmp_files($tmpdir, $file); }
+                return "ERROR";
+            }
         }
-        if (! open (FH, ">$tmp1")) {
-            carp "ERROR cannot open file STOP";
-            return "ERROR";
+
+        # Do extra formatting for prooftest-directory.
+        if ($orig =~ /$goldstandard_orig_dir/) {
+            my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
+            if (! $document->safe_parsefile ("$tmp0") ) {
+                carp "ERROR parsing the XML-file $tmp0 failed. STOP\n";
+                return "ERROR";
+            }
+            if (! open (FH, ">$tmp1")) {
+                carp "ERROR cannot open file STOP";
+                return "ERROR";
+            }
+            $document->set_pretty_print('indented');
+            $document->print( \*FH);
+            $command = "cp \"$tmp1\" \"$tmp0\" ";
+            exec_com($command, $file);
         }
-        $document->set_pretty_print('indented');
-        $document->print( \*FH);
-        $command = "cp \"$tmp1\" \"$tmp0\" ";
-        exec_com($command, $file);
+
+        # hyphenate the file
+        # check size. Too big files causes crashes,
+        # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
+        if (! $no_hyph) {
+            if ($all_hyph) { $command = "$hyphenate --all --infile=\"$tmp0\" --outfile=\"$tmp1\""; }
+            else { $command = "$hyphenate --infile=\"$tmp0\" --outfile=\"$tmp1\"";}
+            exec_com($command, $file);
+            copy ($tmp1, $tmp0) ;
+        }
+
+        # Text categorization
+        # check size. Too big files causes crashes,
+        # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
+        if (! $upload) {
+            my $lmdir = $textcatdir . "/LM";
+            my $command = "$text_cat -q -x -d $lmdir \"$tmp0\"";
+            exec_com($command, $file);
+        }
+
+    #    # Validate the xml-file unless web upload.
+    #    if(! $upload && ($file !~ /.ptx$/)) {
+    #        $command = "xmllint --valid --encode UTF-8 --noout \"$int\"";
+    #        if( exec_com($command, $file) != 0 ) {
+    #            carp "ERROR: not valid xml. STOP.\n";
+    #            return "ERROR";
+    #        }
+    #    }
+
+        # If gone this far, copy the temporary file to the correct directory.
+        exec_com("cp $tmp0 $int", $file);
+        # chmod and chgrp the new xml-file.
+        if(! $upload) {
+            chmod 0660, $int;
+        }
+
+        # Remove temporary files unless testing.
+        if (! $test) {
+            remove_tmp_files($tmpdir, $file);
+            # Also remove the temporary, file-specific xsl file:
+            $command = "rm -rf $xsl_file";
+            exec_com($command, $file);
+        }
+
+        print_log($log_file, $file);
     }
-
-    # hyphenate the file
-    # check size. Too big files causes crashes,
-    # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
-    if (! $no_hyph) {
-        if ($all_hyph) { $command = "$hyphenate --all --infile=\"$tmp0\" --outfile=\"$tmp1\""; }
-        else { $command = "$hyphenate --infile=\"$tmp0\" --outfile=\"$tmp1\"";}
-        exec_com($command, $file);
-        copy ($tmp1, $tmp0) ;
-    }
-
-    # Text categorization
-    # check size. Too big files causes crashes,
-    # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
-    if (! $upload) {
-        my $lmdir = $textcatdir . "/LM";
-        my $command = "$text_cat -q -x -d $lmdir \"$tmp0\"";
-        exec_com($command, $file);
-    }
-
-#    # Validate the xml-file unless web upload.
-#    if(! $upload && ($file !~ /.ptx$/)) {
-#        $command = "xmllint --valid --encode UTF-8 --noout \"$int\"";
-#        if( exec_com($command, $file) != 0 ) {
-#            carp "ERROR: not valid xml. STOP.\n";
-#            return "ERROR";
-#        }
-#    }
-
-    # If gone this far, copy the temporary file to the correct directory.
-    exec_com("cp $tmp0 $int", $file);
-    # chmod and chgrp the new xml-file.
-    if(! $upload) {
-        chmod 0660, $int;
-    }
-
-    # Remove temporary files unless testing.
-    if (! $test) {
-        remove_tmp_files($tmpdir, $file);
-        # Also remove the temporary, file-specific xsl file:
-        $command = "rm -rf $xsl_file";
-        exec_com($command, $file);
-    }
-
-    print_log($log_file, $file);
 
     return 0;
 }
@@ -830,5 +835,42 @@ sub test_setup {
 
     if ($invalid_setup) {
         exit(-1);
+    }
+}
+
+sub to_convert {
+    my ($int, $xsl_file) = @_;
+
+    if (not -e $xsl_file) {
+        print "$xsl_file doesn't\n";
+        return 1;
+    }
+    if (not -e $int) {
+        print "$int doesn't exist\n";
+        return 1;
+    }
+    if (-M $int > -M $xsl_file) {
+        return 1;
+    }
+    if (-M $int > -M $commonxsl) {
+        return 1;
+    }
+    if (-M $int > -M $preprocxsl) {
+        return 1;
+    }
+    if (-M $int > -M $docxsl) {
+        return 1;
+    }
+    if (-M $int > -M $htmlxsl) {
+        return 1;
+    }
+    if (-M $int > -M $svgxsl) {
+        return 1;
+    }
+    if (-M $int > -M $pdfxsl) {
+        return 1;
+    }
+    if (-M $int > -M $xsltemplate) {
+        return 1;
     }
 }
