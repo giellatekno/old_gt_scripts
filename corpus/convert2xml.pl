@@ -121,7 +121,7 @@ my %languages = (sme => 1,
 # todo: This should create an error message.
 if (! $language || ! $languages{$language}) { $language = "sme"; }
 
-my $tidy = "tidy -config $bindir/tidy-config.txt -utf8 -quiet -asxml -language $language";
+my $tidy = "tidy -config $bindir/tidy-config.txt -utf8 -quiet -asxml";
 my $hyphenate = $bindir . "/add-hyph-tags.pl";
 my $text_cat = $textcatdir . "/text_cat.pl";
 my $convert_eol = $bindir . "/convert_eol.pl";
@@ -272,7 +272,7 @@ sub process_file {
 
         # xhtml documents
         elsif ($file =~ /\.(htm|html)/) {
-            $error = convert_html($file, $orig, $tmp0, $xsl_file);
+            $error = convert_html($file, $orig, $tmp0, $xsl_file, $dir_lang);
         }
 
         # pdf documents
@@ -534,7 +534,7 @@ sub convert_txt {
 }
 
 sub convert_html {
-    my ($file, $orig, $int, $xsl_file) = @_;
+    my ($file, $orig, $int, $xsl_file, $dir_lang) = @_;
 
     my $coding;
     if(! $noxsl) {
@@ -562,7 +562,7 @@ sub convert_html {
     my $xsl;
     if ($convxsl) { $xsl = $convxsl; }
     else { $xsl = $htmlxsl; }
-    $command = "$tidy \"$tmp4\" > \"$tmp3\"";
+    $command = "$tidy -language $dir_lang \"$tmp4\" > \"$tmp3\"";
     exec_com($command, $file);
 
     $command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
