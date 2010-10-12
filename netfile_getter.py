@@ -271,6 +271,7 @@ class RegjeringenArticleSaver(ArticleSaver):
                     self.fillbuffer(link)
                     self.remove_nav()
                     self.set_variable('filename', link)
+                    self.set_variable('mainlang', key)
                     self.save_article(fullname)
                     self.set_parallel_info(lang)
                     self.save_metadata(fullname)
