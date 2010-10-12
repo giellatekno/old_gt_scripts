@@ -165,8 +165,6 @@ class ArticleSaver:
                     end = end + distance
                 os.system('svn add '  + " ".join(self.files_to_commit[start:nr]))
                 os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:nr]))
-            else:
-                print "No new files found"
 
 class AvvirArticleSaver(ArticleSaver):
     def __init__(self, totest):
