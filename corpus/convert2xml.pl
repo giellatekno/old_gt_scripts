@@ -843,11 +843,9 @@ sub to_convert {
     my ($int, $xsl_file) = @_;
 
     if (not -e $xsl_file) {
-        print "$xsl_file doesn't\n";
         return 1;
     }
     if (not -e $int) {
-        print "$int doesn't exist\n";
         return 1;
     }
     if (-M $int > -M $xsl_file) {
