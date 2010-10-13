@@ -114,14 +114,19 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="html:ol">
-
  <list>
-  <xsl:apply-templates select="html:li[not(html:ol) and not(html:ul)]"/>
+  <xsl:apply-templates/>
+  <xsl:apply-templates select="html:li//html:ol"/>
+  <xsl:apply-templates select="html:li//html:ul"/>
  </list>
-<xsl:apply-templates select="html:li//html:ol"/>
-<xsl:apply-templates select="html:li//html:ul"/>
 </xsl:template>
-        
+
+<!-- <xsl:template match="html:ol/html:ol"> -->
+<!--     <list> -->
+<!--         <xsl:apply-templates/> -->
+<!--     </list> -->
+<!-- </xsl:template> -->
+
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="html:dl">
   <xsl:for-each select="html:dt">
