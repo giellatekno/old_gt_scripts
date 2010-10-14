@@ -16,9 +16,19 @@ import Queue
 import optparse
 
 class ArticleSaver:
-    def __init__(self, totest):
-        self.test = totest
+    def __init__(self, test=False):
+        """Inititialise the ArticleSaver class
 
+        Keyword arguments
+        test -- Whether the code is run in test mode (default is False)
+
+        Class-global variables
+        self.change_variables -- a dictionary containing metadata variable-value pairs
+        self.filebuffer -- a buffer to fetch files in-memory
+        self.files_to_commit -- a list of files that should be committed to svn
+        """
+        self.test = test
+    
         self.gthome = os.getenv('GTHOME')
         if self.gthome is None:
             print 'You have to set the environment variable $GTHOME'
@@ -33,6 +43,12 @@ class ArticleSaver:
         self.files_to_commit = []
         
     def fillbuffer(self, url):
+        """Get a file from the net.
+
+        Keyword arguments:
+        url - the address of the document
+        
+        """
         try:
             if self.test:
                 print 'fillbuffer: ', url
@@ -51,6 +67,11 @@ class ArticleSaver:
         
 
     def parse_html(self):
+        """Try to parse the document in self.filebuffer and return the language
+
+        In case of an error, return 'undef' as language
+        Sets the wordcount and title metadata variables
+        """
         try:
             self.soup = BeautifulSoup.BeautifulSoup(self.filebuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
         except HTMLParseError, e:
@@ -100,7 +121,13 @@ class ArticleSaver:
         return self.lg.classify(text)
 
     def save_article(self, filename):
-        # Save the file in the correct folder
+        """Save the filebuffer in 'filename'
+
+        Keyword arguments:
+        filename -- the full path
+
+        """
+        
         if(self.test):
             print "Saving the article: " + filename
 
@@ -115,8 +142,11 @@ class ArticleSaver:
             
 
     def save_metadata(self, filename):
-        '''
-        Save all the gathered metadata to the xsl filebuffer
+        '''Save all the gathered metadata to filename + '.xsl'
+
+        Keyword arguments:
+        filename -- the full path
+        
         '''
         if(self.test):
             print "Saving the metadata: " + filename + '.xsl'
@@ -138,8 +168,7 @@ class ArticleSaver:
             print "because:", e
 
     def add_and_commit_files(self):
-        '''
-        Add and commit the file pair to svn
+        '''Add and commit the files in self.files_to_commit to svn
         '''
         if self.test:
             start = 0
@@ -167,8 +196,8 @@ class ArticleSaver:
                 os.system('svn ci -m"Added automatically by the atomfilesaver" '  + " ".join(self.files_to_commit[start:nr]))
 
 class AvvirArticleSaver(ArticleSaver):
-    def __init__(self, totest):
-        ArticleSaver.__init__(self, totest)
+    def __init__(self, test=False):
+        ArticleSaver.__init__(self, test)
         self.boundhome = os.getenv('GTBOUND')
         if self.boundhome is None:
             print 'You have to set the environment variable GTBOUND'
@@ -189,8 +218,8 @@ class AvvirArticleSaver(ArticleSaver):
             self.save_metadata(fullname)
             
 class SamediggiArticleSaver(ArticleSaver):
-    def __init__(self, totest):
-        ArticleSaver.__init__(self, totest)
+    def __init__(self, test=False):
+        ArticleSaver.__init__(self, test)
         self.freehome = os.getenv('GTFREE')
         if self.freehome is None:
             print 'You have to set the environment variable $GTFREE'
@@ -204,6 +233,13 @@ class SamediggiArticleSaver(ArticleSaver):
         self.set_variable('publChannel', 'http://samediggi.no')
 
     def save_articles(self, article_number):
+        """Save Northern Sami - Norsk bokmål article pairs
+
+        Keyword arguments:
+        article_number -- the unique id of the article. Computed from the url
+
+        
+        """
         for key, value in self.langs.iteritems():
             self.set_variable('filename', 'http://samediggi.no/Artikkel.aspx?aid=' + article_number + '&sprak=' + value + '&Print=1')
 
@@ -212,7 +248,7 @@ class SamediggiArticleSaver(ArticleSaver):
             fullname = path + articlename
 
             if not os.path.exists(fullname):
-                if key == self.fillbuffer(self.get_variable('filename')):
+                if self.fillbuffer(self.get_variable('filename')) and key ==  self.parse_html():
                     if self.test:
                         print "The article: " + fullname + " doesn't exist"
                     self.set_variable('mainlang', key)
@@ -230,8 +266,25 @@ class SamediggiArticleSaver(ArticleSaver):
                     self.save_metadata(fullname)
 
 class RegjeringenArticleSaver(ArticleSaver):
-    def __init__(self, totest):
-        ArticleSaver.__init__(self, totest)
+    """Save a Sami article and its parallels from http://regjeringen.no, given one link
+
+    Class global variables:
+    self.freehome -- Where the freecorpus working copy is
+    self.langs -- dict which maps from the language indicator found in the
+                  web page and its iso-639-2 equivalent
+    self.urls -- a set containing urls found in a web page
+    self.followed -- a list of urls to documents that have been saved
+    self.articles -- a dict with the iso-639-2 as the key and the url of the document as value
+    """
+    
+    def __init__(self, test=False):
+        """Inititialise the RegjeringenArticleSaver class
+
+        Keyword arguments:
+        test -- whether the code is run in test mode (default = False)
+
+        """
+        ArticleSaver.__init__(self, test)
         self.freehome = os.getenv('GTFREE')
         if self.freehome is None:
             print 'You have to set the environment variable $GTFREE'
@@ -244,11 +297,15 @@ class RegjeringenArticleSaver(ArticleSaver):
         self.langs = {u'Bokmål': 'nob', 'Nynorsk': 'nno', 'English': 'eng'}
         self.urls = set()
         self.followed = []
+        self.articles = {}
 
     def save_articles(self, link):
-        self.articles = {}
-        #if self.test:
-            #print "Trying to save: " + link
+        """Save the article and its parallels (if the link contains a sami article)
+
+        Keyword arguments:
+        link -- the url of the document
+
+        """
         parts = link.split('/')
         articlename = '/' + parts[len(parts) - 1]
 
@@ -269,7 +326,7 @@ class RegjeringenArticleSaver(ArticleSaver):
                     self.fillbuffer(link)
                     self.remove_nav()
                     self.set_variable('filename', link)
-                    self.set_variable('mainlang', key)
+                    self.set_variable('mainlang', lang)
                     self.save_article(fullname)
                     self.set_parallel_info(lang)
                     self.save_metadata(fullname)
@@ -279,6 +336,13 @@ class RegjeringenArticleSaver(ArticleSaver):
             self.followed.append(link)
 
     def set_parallel_info(self, thislang):
+        """Compute the parallel info used in the metadata for a document
+
+        Keyword arguments:
+        thislang -- language of the document we are setting the metadata for
+                    Used as key to get the documents url
+                    
+        """
         if len(self.articles) > 1:
             self.set_variable('parallel_texts', str(1))
             for lang, name in self.articles.iteritems():
@@ -288,21 +352,30 @@ class RegjeringenArticleSaver(ArticleSaver):
                     self.set_variable('para_' + lang, articlename)
 
     def get_urls(self):
+        """Harvest the addresses found in self.filebuffer and add them to self.urls"""
+        
         addresses = self.soup.findAll('a', href=True)
         for address in addresses:
             url = address['href']
             
-            if url.find('#') < 0 and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif$', url) and not re.search('.*jpg$', url) and not re.search('.*eps$', url) and not re.search('.*tif$', url) and not re.search('.*telefonlist.*', url):
+            if url.find('#') < 0 and not re.search('.*http.*', url) and not re.search('.*tel:.*', url) and not re.search('.*javascrip.*', url) and not re.search('.*querystring.*', url) and not re.search('.*RSSEngine.*', url) and not re.search('.*gif$', url) and not re.search('.*jpg$', url) and not re.search('.*eps$', url) and not re.search('.*tif$', url) and not re.search('.*elefonlist.*', url):
                 self.urls.add('http://www.regjeringen.no' + url)
 
     def del_parallel_info(self):
+        """Delete the parallel info from the metadata"""
+        
         self.set_variable('parallel_texts', '')
         for lang in ['eng', 'nno', 'nob', 'sma', 'sme', 'smj']:
             self.set_variable('para_' + lang, '')
 
     def get_parallels(self, name):
+        """Get the addresses of parallel documents. Return a boolean indicating
+        if we are interested in saving this document and its parallels
+        
+        """
+        save = False
 
-        save = 0
+        # If we have a non-html document, just save it in self.freehome
         if self.fillbuffer(name):
             if re.search('.*pdf', name) or re.search('.*PDF', name) or re.search('.*doc', name) or re.search('.*ppt', name) or re.search('.*xls', name) or re.search('.*odt', name) or re.search('.*ods', name) or re.search('.*odp', name):
                 parts = name.split('/')
@@ -322,7 +395,7 @@ class RegjeringenArticleSaver(ArticleSaver):
                         thislang = self.soup.find('li', attrs={'class': re.compile('.*Selected.*')})
                     except AttributeError:
                         print "Error in thislang ..."
-                        return 0
+                        return False
 
                     if thislang != None and thislang('a')[0].contents[0] == u'Sámegiella':
                         
@@ -346,28 +419,31 @@ class RegjeringenArticleSaver(ArticleSaver):
                         if self.test:
                             print self.articles
 
-                        save = 1
+                        save = True
 
         return save
 
     def remove_nav(self):
+        """Remove the part of the document pointing to the parallels, they
+        are already saved in get_parallels()"""
+        
         navs = self.soup.findAll('ul', attrs = {'id': 'AreaTopLanguageNav'})
         for nav in navs:
             #print nav
             nav.extract()
 
 class FeedHandler:
-    def __init__(self, feedUrl, totest):
+    def __init__(self, feedUrl, test = False):
         '''
         Get a rssfeed, parse it and normalize it
         '''
         self.doc = feedparser.parse(feedUrl)
-        self.test = totest
+        self.test = test
 
     
 class SamediggiFeedHandler(FeedHandler):
-    def __init__(self, feedUrl, totest):
-        FeedHandler.__init__(self, feedUrl, totest)
+    def __init__(self, feedUrl, test = False):
+        FeedHandler.__init__(self, feedUrl, test)
    
     def get_data_from_feed(self):
         '''
@@ -382,8 +458,8 @@ class SamediggiFeedHandler(FeedHandler):
         saver.add_and_commit_files()
 
 class RegjeringenFeedHandler(FeedHandler):
-    def __init__(self, feedUrl, totest):
-        FeedHandler.__init__(self, feedUrl, totest)
+    def __init__(self, feedUrl, test = False):
+        FeedHandler.__init__(self, feedUrl, test)
 
     def get_data_from_feed(self):
         '''
@@ -397,8 +473,8 @@ class RegjeringenFeedHandler(FeedHandler):
 
     
 class AvvirFeedHandler(FeedHandler):
-    def __init__(self, feedUrl, totest):
-        FeedHandler.__init__(self, feedUrl, totest)
+    def __init__(self, feedUrl, test = False):
+        FeedHandler.__init__(self, feedUrl, test)
 
     def get_data_from_feed(self):
         saver = AvvirArticleSaver(self.test)
@@ -442,9 +518,9 @@ class AvvirFeedHandler(FeedHandler):
         return author
 
 class SamediggiIdFetcher:
-    def __init__(self, idsfile, totest):
+    def __init__(self, idsfile, test = False):
         idf = open(idsfile, 'r')
-        self.test = totest
+        self.test = test
         self.article_ids = set()
         for line in fileinput.FileInput(idsfile):
             nline = line.lower()
@@ -458,17 +534,17 @@ class SamediggiIdFetcher:
                     self.article_ids.add(nline.strip().split('=')[1])
 
     def get_data_from_ids(self):
-        saver = SamediggiArticleSaver(totest)
+        saver = SamediggiArticleSaver(self.test)
         for article_id in self.article_ids:
             #print "getting article: " + article_id
             saver.save_articles(article_id)
         saver.add_and_commit_files()
 
 class RegjeringenCrawler:
-    def __init__(self, root, totest):
+    def __init__(self, root, test = False):
         self.root = root
         self.host = urlparse.urlparse(root)[1]
-        self.test = totest
+        self.test = test
 
     def crawl(self):
         saver = RegjeringenArticleSaver(self.test)
@@ -512,7 +588,7 @@ def parse_options():
     
     parser.add_option("-c", "--crawl", action = "store_true", default = False, dest = "crawl", help = "crawl known sites")
     parser.add_option("-f", "--feed", action = "store_true", default = False, dest = "feed", help = "get files from known feeds")
-    parser.add_option("-t", "--test", action = "store_false", default=False, dest = "test", help = "test mode, get more info on what is happening, don't commit fetched files to the corpus svn")
+    parser.add_option("-t", "--test", action = "store_true", default=False, dest = "test", help = "test mode, get more info on what is happening, don't commit fetched files to the corpus svn")
     
     (options, args) = parser.parse_args()
     
@@ -522,20 +598,25 @@ def parse_options():
     
     return options, args
 
-def crawl(totest):
-    rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4', totest)
+def crawl(test = False):
+    rcrawler = RegjeringenCrawler('http://regjeringen.no/se.html?=id4', test)
     rcrawler.crawl()
 
-def feed(totest):
-    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO', 'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk', 'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk', 'http://avvir.no/feed.php?output_type=atom']
-
+def feed(test = False):
+    feeds = ['http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1150&language=se-NO',
+    'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO',
+    'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO',
+    'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO',
+    'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk',
+    'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk', 'http://avvir.no/feed.php?output_type=atom']
+    
     for feed in feeds:
         if feed.find("www.regjeringen.no") > 0:
-            fd = RegjeringenFeedHandler(feed, totest)
+            fd = RegjeringenFeedHandler(feed, test)
         if feed.find("www.sametinget.no") > 0:
-            fd = SamediggiFeedHandler(feed, totest)
+            fd = SamediggiFeedHandler(feed, test)
         if feed.find("avvir.no") > 0:
-            fd = AvvirFeedHandler(feed, totest)
+            fd = AvvirFeedHandler(feed, test)
         fd.get_data_from_feed()
 
 def main():
@@ -550,7 +631,7 @@ def main():
 
     if opts.feed:
         feed(opts.test)
-        
+            
     #saver = RegjeringenArticleSaver()
     #saver.save_articles('http://www.regjeringen.no/se/dep/jd.html?id=463')
 
