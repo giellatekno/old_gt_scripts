@@ -294,7 +294,7 @@ sub process_file {
 
         # Conversion of text documents
         elsif ($file =~ /\.txt$/) {
-            $error = convert_txt($file, $orig, $tmp0, \$no_decode_this_time);
+            $error = convert_txt($file, $orig, $tmp0, $xsl_file, \$no_decode_this_time);
         }
 
         # Conversion of svg documents
@@ -477,7 +477,7 @@ sub convert_svg {
 }
 
 sub convert_pdf {
-    my ($file, $orig, $int, $no_decode_this_time_ref) = @_;
+    my ($file, $orig, $int, $xsl_file, $no_decode_this_time_ref) = @_;
 
     print STDERR "convert_pdf $file, $orig\n";
 
@@ -486,11 +486,11 @@ sub convert_pdf {
     $command = "pdftotext -enc UTF-8 -nopgbrk -eol unix \"$orig\" - | sed -e 's/\x18//g'  -e 's/\xef\x83\xa0//' -e 's/\xef\x83\x9f//' -e 's/\xef\x81\xae//'  -e 's/\x04//' -e 's/\x07//' > \"$tmp3\"";
     exec_com($command, $file);
     
-    return convert_txt($file, $tmp3, $int, \$no_decode_this_time_ref);
+    return convert_txt($file, $tmp3, $int, $xsl_file, \$no_decode_this_time_ref);
 }
 
 sub convert_txt {
-    my ($file, $orig, $int, $no_decode_this_time_ref) = @_;
+    my ($file, $orig, $int, $xsl_file, $no_decode_this_time_ref) = @_;
 
     copy($orig,$int);
 
@@ -498,7 +498,23 @@ sub convert_txt {
   ENCODING:
     if (! $no_decode && ! $$no_decode_this_time_ref ) {
 
-        my $coding = &guess_text_encoding($int, $tmp4, $language);
+        my $coding;
+        if(! $noxsl) {
+            my $document = XML::Twig->new;
+            if (! $document->safe_parsefile("$xsl_file")) {
+                carp "ERROR parsing the XSL-file failed: $@\n";
+                return "ERROR";
+            }
+
+            my $root = $document->root;
+
+            my $coding_elt = $root->first_child('xsl:variable[@name="text_encoding"]');
+            if ($coding_elt) { $coding = $coding_elt->{'att'}{'select'}; }
+        }
+
+        if (! $coding) {
+            $coding = &guess_text_encoding($int, $tmp4, $language);
+        }
 
         if ($coding eq 0) {
             if ($test) { print STDERR "Correct character encoding.\n"; }
