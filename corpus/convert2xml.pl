@@ -498,7 +498,7 @@ sub convert_txt {
   ENCODING:
     if (! $no_decode && ! $$no_decode_this_time_ref ) {
 
-        my $coding;
+        my $coding = 'xxx';
         if(! $noxsl) {
             my $document = XML::Twig->new;
             if (! $document->safe_parsefile("$xsl_file")) {
@@ -512,19 +512,10 @@ sub convert_txt {
             if ($coding_elt) { $coding = $coding_elt->{'att'}{'select'}; }
         }
 
-        if (! $coding) {
-            $coding = &guess_text_encoding($int, $tmp4, $language);
-        }
-
-        if ($coding eq 0) {
-            if ($test) { print STDERR "Correct character encoding.\n"; }
-        }
-        elsif( $coding eq -1 ) {
-            carp "ERROR Was not able to determine character encoding. STOP.\n";
-            return "ERROR";
-        }
-        else {
+        
+        if ( $coding =~ m/xxx/ ) {
             copy($int, $tmp4);
+            $coding = &guess_text_encoding($orig, $tmp4, $language);
             if ($test) { print STDERR "Character decoding: $coding\n"; }
             my $error = &decode_text_file($tmp4, $coding, $int);
             if ($error eq -1){ return "ERROR"; }
