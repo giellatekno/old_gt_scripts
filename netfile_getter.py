@@ -320,7 +320,7 @@ class RegjeringenArticleSaver(ArticleSaver):
                 path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
                 parts = name.split('/')
                 articlename = '/' + parts[len(parts) - 1]
-                fullname = path + articlename
+                fullname = path.lower() + articlename.lower()
                 if not os.path.exists(fullname):
                     link = 'http://regjeringen.no' + name
                     self.fillbuffer(link)
