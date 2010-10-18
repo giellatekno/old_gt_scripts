@@ -382,8 +382,6 @@ sub process_file {
         }
 
         # hyphenate the file
-        # check size. Too big files causes crashes,
-        # e.g. $GTFREE/orig/sme/admin/NAC_1993_34.pdf
         if (! $no_hyph) {
             if ($all_hyph) { $command = "$hyphenate --all --infile=\"$tmp0\" --outfile=\"$tmp1\""; }
             else { $command = "$hyphenate --infile=\"$tmp0\" --outfile=\"$tmp1\"";}
