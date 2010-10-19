@@ -21,6 +21,16 @@ do
 
     for CORPUS in boundcorpus freecorpus
     do
+        # ccat makes nonvalid utf8 of some files, remove them
+        for f in `find /Users/hoavda/Public/corp/$CORPUS/converted -type f`
+        do
+            ccat -a $f | iconv -f utf-8 -t utf-8 > /dev/null
+            if [ ! $? -eq 0 ]
+            then
+                rm -v $f
+            fi
+        done
+        
         for GENREDIR in `ls /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG`
         do
             touch $ANALYSED_DIR/$SMILANG-$GENREDIR-dep.txt
