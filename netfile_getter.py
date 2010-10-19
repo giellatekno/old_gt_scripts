@@ -319,12 +319,12 @@ class RegjeringenArticleSaver(ArticleSaver):
                 self.followed.append(link)
                 path = self.freehome + '/orig/' + lang + '/admin/depts/regjeringen.no'
                 parts = name.split('/')
-                articlename = '/' + parts[len(parts) - 1]
+                articlename = parts[len(parts) - 1]
                 # Remove - chars in the start of the name
                 while articlename.find('-') == 0:
                     articlename = articlename[1:]
 
-                fullname = path.lower() + articlename.lower()
+                fullname = path + '/' + articlename.lower()
                 if not os.path.exists(fullname):
                     link = 'http://regjeringen.no' + name
                     self.fillbuffer(link)
