@@ -157,7 +157,9 @@ class ArticleSaver:
             for line in template:
                 for key, value in self.change_variables.iteritems():
                     if line.find('"' + key + '"') != -1:
-                        line = line.replace('\'\'', '\'' + value.replace('&', '&amp;') + '\'')
+                        value = value.replace('&', '&amp;')
+                        value = value.replace("'", "’")
+                        line = line.replace('\'\'', '\'' + value + '\'')
                         #if(self.test):
                             #print "The line is: " + line
                 metadata.write(line)
