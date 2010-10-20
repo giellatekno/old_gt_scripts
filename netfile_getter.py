@@ -159,6 +159,7 @@ class ArticleSaver:
                     if line.find('"' + key + '"') != -1:
                         value = value.replace('&', '&amp;')
                         value = value.replace("'", "’")
+                        value = value.replace('"', '&#34;')
                         line = line.replace('\'\'', '\'' + value + '\'')
                         #if(self.test):
                             #print "The line is: " + line
