@@ -190,7 +190,7 @@ sub process_file {
     print STDERR $file . "\n";
 
     # Check the filename
-    return unless ($file =~ m/\.(doc|pdf|htm|html|html\?id=\d*|ptx|txt|svg|bible\.xml|correct\.xml)$/);
+    return unless ($file =~ m/\.(doc|rtf|pdf|htm|html|html\?id=\d*|ptx|txt|svg|bible\.xml|correct\.xml)$/);
     if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"]/ ) {
         print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
         return "ERROR";
@@ -270,6 +270,11 @@ sub process_file {
             $error = convert_doc($file, $orig, $tmp0);
         }
 
+        # RTF documents
+        if ($file =~ /\.rtf$/) {
+            $error = convert_rtf($file, $orig, $tmp0, $xsl_file, $dir_lang);
+        }
+        
         # xhtml documents
         elsif ($file =~ /\.(htm|html)/) {
             $error = convert_html($file, $orig, $tmp0, $xsl_file, $dir_lang);
@@ -576,7 +581,16 @@ sub convert_html {
     return 0;
 }
 
+sub convert_rtf {
+    my ($file, $orig, $int, $xsl_file, $dir_lang) = @_;
 
+    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+
+    $command = "unrtf --html \"$orig\" > \"$tmp3\"";
+    exec_com($command, $file);
+
+    return convert_html($file, $tmp3, $int, $xsl_file, $dir_lang);
+}
 
 # File specific xsl-script
 sub file_specific_xsl {
@@ -819,6 +833,16 @@ sub test_setup {
         print "Ubuntu/Debian: sudo apt-get install libxml2-utils\n";
         print "Fedora/Red Hat/CentOS: sudo yum install libxml2\n";
         print "SUSE: sudo zypper install libxml2\n\n";
+        $invalid_setup = 1;
+    }
+    if (qx{which unrtf} eq "") {
+        print "Didn't find unrtf\n";
+        print "Install it on Mac by issuing the command\n\n";
+        print "sudo port install unrtf\n\n";
+        print "For Linux, issue one of these commands:\n";
+        print "Ubuntu/Debian: sudo apt-get install unrtf\n";
+        print "Fedora/Red Hat/CentOS: sudo yum install unrtf\n";
+        print "SUSE: sudo zypper install unrtf\n\n";
         $invalid_setup = 1;
     }
 
