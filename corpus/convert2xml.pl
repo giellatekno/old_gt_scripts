@@ -269,9 +269,9 @@ sub process_file {
         if ($file =~ /\.doc$/) {
             $error = convert_doc($file, $orig, $tmp0);
         }
-
+        
         # RTF documents
-        if ($file =~ /\.rtf$/) {
+        elsif ($file =~ /\.rtf$/) {
             $error = convert_rtf($file, $orig, $tmp0, $xsl_file, $dir_lang);
         }
         
