@@ -522,6 +522,10 @@ sub convert_txt {
             copy($int, $tmp4);
             $coding = &guess_text_encoding($orig, $tmp4, $language);
             if ($test) { print STDERR "Character decoding: $coding\n"; }
+            if ( $coding eq -1 ) {
+                print STDERR "Wasn't able to guess text encoding\n";
+                return ERROR;
+            }
             my $error = &decode_text_file($tmp4, $coding, $int);
             if ($error eq -1){ return "ERROR"; }
             $$no_decode_this_time_ref=1;
