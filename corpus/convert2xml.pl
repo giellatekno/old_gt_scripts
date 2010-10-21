@@ -524,7 +524,7 @@ sub convert_txt {
             if ($test) { print STDERR "Character decoding: $coding\n"; }
             if ( $coding eq -1 ) {
                 print STDERR "Wasn't able to guess text encoding\n";
-                return ERROR;
+                return "ERROR";
             }
             my $error = &decode_text_file($tmp4, $coding, $int);
             if ($error eq -1){ return "ERROR"; }
