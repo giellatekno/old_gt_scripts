@@ -187,7 +187,6 @@ sub process_file {
     $file = shift (@_) if (!$file);
 
     my $no_decode_this_time = 0;
-    print STDERR $file . "\n";
 
     # Check the filename
     return unless ($file =~ m/\.(doc|rtf|pdf|htm|html|html\?id=\d*|ptx|txt|svg|bible\.xml|correct\.xml)$/);
@@ -196,6 +195,7 @@ sub process_file {
         return "ERROR";
     }
 
+    print STDERR $file . "\n";
     # correct.xml is not converted.
     if ($file =~ /correct\.xml/) { $noxsl=1; }
 
