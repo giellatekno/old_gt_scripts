@@ -576,9 +576,12 @@ sub convert_html {
     my $xsl;
     if ($convxsl) { $xsl = $convxsl; }
     else { $xsl = $htmlxsl; }
-    $command = "$tidy -language $dir_lang \"$tmp4\" > \"$tmp3\"";
-    exec_com($command, $file);
-
+    $command = "$tidy -language $dir_lang \"$tmp4\" 2>&1 > \"$tmp3\"";
+    my $error = qx{$command};
+    if ( $error =~ /Error/ ) {
+        print "Error in tidy: $error\n";
+        return "ERROR";
+    }
     $command = "/usr/bin/xsltproc \"$xsl\" \"$tmp3\" > \"$int\"";
     exec_com($command, $file);
 
