@@ -953,16 +953,36 @@ sub read_corr {
 		my ($error, $correct) = split(/\t+/);
 		if ($error && $correct) {
 			$error =~ s/\s$//;
+			#. , - : ? ! ;
+			my @possibleEnd = ('.', ',', '-', ':', '?', '!', ';');
+			
+			#print "error is --- $error  AND correct is $correct\n";
+
 			$$corr_href{$error} = $correct;
+			$$corr_href{$error.','} = $correct.',';
 			my ($first, $last) = split(/ /, $error, 2);
+			#print "first last error is ::: $first  AND $last\n";
 			$$corr_short_href{$first} = 1;
+			$$corr_short_href{$first.','} = 1;
+			foreach my $end (@possibleEnd) {
+			  #print "error is --- $error$end  AND correct is $correct$end\n";
+			  $$corr_href{$error.$end} = $correct.$end;
+			  my ($first, $last) = split(/ /, $error.$end, 2);
+			  #print "first last error is ::: $first  AND $last\n";
+			  $$corr_short_href{$first.$end} = 1;
+			}
+
 		}
 		else { print STDERR "preprocess warning: Line not included to typos: $_\n"; }
 	}
-#	for my $key (keys %$corr_href) {
-#		print "$key $$corr_href{$key}\n";
-#	}
-}
+
+# 	print STDOUT "begin ....... debug \n";
+# 	for my $k (keys %$corr_href) {
+# 	  print STDOUT "$k $$corr_href{$k}\n";
+# 	}
+# 	print STDOUT "end ....... debug \n";
+
+      }
 
 
 sub read_abbr {
