@@ -40,8 +40,15 @@ cd $GTHOME/st/fao/src
 nice time make
 echo ""
 echo "===>     Greenlandic     <===" 
-cd $GTHOME/st/kal/src
-nice time make TARGET=sloppy
+echo
+echo Greenlandic takes 1,5 hour to compile. 
+echo It is therefore removed from the makeall list.
+echo If you want to compile it, do this:
+echo
+echo cd \$GTHOME/st/kal/src
+echo nice time make TARGET=sloppy
+# cd $GTHOME/st/kal/src
+# nice time make TARGET=sloppy
 echo ""
 echo "===>      Bokmål      <===" 
 cd $GTHOME/st/nob/src
