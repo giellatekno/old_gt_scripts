@@ -90,7 +90,7 @@ class divvunApacheLogParser:
 		the lines that has one our download goals, which has been fully fetched
 		and which hasn't been downloaded by a bot.
 		"""
-		for accessFile in glob.glob(os.path.join(self.logDirectory, 'access*')):
+		for accessFile in glob.glob(os.path.join(self.logDirectory, '*access*')):
 			sys.stderr.write('Now handling  ' + accessFile + '\n')
 			if accessFile[-3:] == '.gz':
 				infile = gzip.open(accessFile)
