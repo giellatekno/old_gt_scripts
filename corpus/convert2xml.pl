@@ -577,6 +577,9 @@ sub convert_html {
     if ($convxsl) { $xsl = $convxsl; }
     else { $xsl = $htmlxsl; }
     $command = "$tidy -language $dir_lang \"$tmp4\" 2>&1 > \"$tmp3\"";
+    if ($test) {
+        print STDERR "exec_com: $command\n";
+    }
     my $error = qx{$command};
     if ( $error =~ /Error/ ) {
         print "Error in tidy: $error\n";
