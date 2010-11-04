@@ -20,7 +20,7 @@ class divvunApacheLogParser:
 		"""
 		self.logDirectory, self.outfile = args
 		self.ourTargets = {'DivvunInstaller.exe':'MSOffice/Windows', 'sami-proofing-tools.dmg':'MSOffice/Mac', 'indesign-divvuntools.dmg':'InDesign/Mac', 'smi-pack.zip':'OpenOffice.org, pre 3.0', 'smi.oxt':'OpenOffice.org 3.0', 'hunspell-se.tar.gz':'Hunspell/Unix, Northern Sami', 'hunspell-smj.tar.gz':'Hunspell/Unix, Lule Sami', 'smi.zip':'Hunspell/Generic'}
-		self.bots = ['Yanga WorldSearch', 'Yahoo! Slurp', 'msnbot', 'setooz', 'Baiduspider', 'Googlebot', 'Java/', 'Charlotte', 'Fetch API Request', 'Creative ZENcast', 'iRc Search', 'Webbot', 'thorseek', 'Jakarta Commons-HttpClient', 'mlbot', 'ia_archiver', 'HTTrack', '"Mozilla/5.0"', 'Gigabot', 'Yandex', 'Jeeves', 'rdfbot', 'Mail.Ru', 'ichiro', 'larbin', 'Eniro NO', 'Gaisbot', 'localhost:8888', 'Twiceler', 'Nutch', 'T-Rank', 'webalta', 'Microsoft URL Control', 'favicon.ico', 'DigExt', 'Indy Library', 'ScoutJet', 'DBLBot', 'msrbot', 'MSIECrawler']
+		self.bots = ['Yanga WorldSearch', 'Yahoo! Slurp', 'msnbot', 'setooz', 'Baiduspider', 'Googlebot', 'Java/', 'Charlotte', 'Fetch API Request', 'Creative ZENcast', 'iRc Search', 'Webbot', 'thorseek', 'Jakarta Commons-HttpClient', 'mlbot', 'ia_archiver', 'HTTrack', '"Mozilla/5.0"', 'Gigabot', 'Yandex', 'Jeeves', 'rdfbot', 'Mail.Ru', 'ichiro', 'larbin', 'Eniro NO', 'Gaisbot', 'localhost:8888', 'Twiceler', 'Nutch', 'T-Rank', 'webalta', 'Microsoft URL Control', 'favicon.ico', 'DigExt', 'Indy Library', 'ScoutJet', 'DBLBot', 'msrbot', 'MSIECrawler', 'Arachmo', 'yacybot', 'FAST Search Enterprise Crawler', 'DKIMRepBot', 'DotBot', 'BDFetch', 'speedy_spider', 'Python-urllib', 'page_verifier', '80legs.com', 'archive.org_bot', 'SiteBot', 'swish-e', 'findfiles.net', 'libwww-perl', 'bingbot', 'TurnitinBot', 'CCBot', 'crawler', 'citeseerxbot', 'Bot.ara.com.tr', 'discobot', 'LexxeBot', 'Search17Bot', 'FDM 3.x']
 		self.foundLists = []
 		for i in range(0, len(self.ourTargets.keys())):
 			self.foundLists.append([])
@@ -42,7 +42,7 @@ class divvunApacheLogParser:
 		for x, target in enumerate(self.ourTargets.keys()):
 			self.reportFile.write('* ' + self.ourTargets[target] + ' has been downloaded ' +  str(len(self.foundLists[x])) + ' times\n')
 		return totalFound
-		
+
 	def writeByYear(self):
 		self.reportFile.write('\n!!Downloads sorted by year\n')
 		for x, target in enumerate(self.ourTargets.keys()):
@@ -58,7 +58,7 @@ class divvunApacheLogParser:
 			self.reportFile.write('|| Year || Count\n')
 			for year, count in yearDict.items():
 				self.reportFile.write('|' + year + ' | ' + str(count) + '\n')
-			
+
 	def writeByCountry(self):
 		self.reportFile.write('\n!!Downloads sorted by country\n')
 		for x, target in enumerate(self.ourTargets.keys()):
@@ -71,8 +71,9 @@ class divvunApacheLogParser:
 					countedCountries[country] = 1
 			self.reportFile.write('\n!' + self.ourTargets[target] + '\n')
 			self.reportFile.write('|| Country || Count\n')
-			for country, count in countedCountries.items():
-				self.reportFile.write('|' + country + ' | ' + str(count) + '\n')
+			
+			for country in sorted(countedCountries, key = countedCountries.get, reverse = True):
+				self.reportFile.write('|' + country + ' | ' + str(countedCountries[country]) + '\n')
 
 	def getYear(self, line):
 		"""
@@ -105,8 +106,8 @@ class divvunApacheLogParser:
 				if botFlag == False:
 					for x, target in enumerate(self.ourTargets.keys()):
 						if (line.find(target) != -1 and line.find(' 200 ') != -1):
-							self.foundLists[x].append(line)
-							pass
+								self.foundLists[x].append(line)
+								pass
 				else:
 					pass
 
@@ -127,12 +128,12 @@ class divvunApacheLogParser:
 		debugfile.write('Number of lines' + str(numLines) + '\n')
 		debugfile.write('TotalFound reported: ' + str(totalFound) + '\n')
 		debugfile.close()
-		
+
 def main():
 	if len(sys.argv) != 3:
 		print __doc__
 		sys.exit(0)
-    # parse command line options
+	# parse command line options
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
 	except getopt.error, msg:
@@ -153,4 +154,4 @@ def main():
 	
 
 if __name__ == "__main__":
-    main()
+	main()
