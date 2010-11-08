@@ -39,7 +39,7 @@ do
 						CCAT_FILE="$ANALYSED_DIR/$SMILANG-$TRANSLATED_FROM-$GENREDIR.ccat.txt"
 					fi
 					touch $CCAT_FILE
-					echo "ccat'ing $f into $CCAT_FILE"
+# 					echo "ccat'ing $f into $CCAT_FILE"
 					ccat -l $SMILANG -a $f >> $CCAT_FILE
 				else
 					echo "ccat made invalid utf8, ignoring $f"
