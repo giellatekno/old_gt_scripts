@@ -60,6 +60,7 @@ my $htmlxsl     = $bindir . $c_script . "/xhtml2corpus.xsl";
 my $svgxsl      = $bindir . $c_script . "/svg2xml.xsl";
 my $pdfxsl      = $bindir . $c_script . "/pdf2xml.xsl";
 my $xsltemplate = $bindir . $c_script . "/XSL-template.xsl";
+my $avvirxsl    = $bindir . $c_script . "/avvir2corpus.xsl";
 
 my $log_file;
 my $language;
@@ -189,7 +190,7 @@ sub process_file {
     my $no_decode_this_time = 0;
 
     # Check the filename
-    return unless ($file =~ m/\.(doc|rtf|pdf|htm|html|html\?id=\d*|ptx|txt|svg|bible\.xml|correct\.xml)$/);
+    return unless ($file =~ m/\.(doc|rtf|pdf|htm|html|html\?id=\d*|ptx|txt|svg|bible\.xml|correct\.xml|xml)$/);
     if ( $file =~ m/[\;\<\>\*\|\`\&\$\(\)\[\]\{\}\'\"]/ ) {
         print STDERR "$file: ERROR. Filename contains special characters that cannot be handled. STOP\n";
         return "ERROR";
@@ -327,6 +328,10 @@ sub process_file {
             exec_com("cp \"$tmp1\" \"$tmp0\"", $file);
 
             print_log($log_file, $file);
+        }
+
+        elsif ($file =~ /\.xml$/) {
+			convert_avvir($file, $orig, $tmp0, $xsl_file);
         }
         else {
             $error = 1;
@@ -476,6 +481,20 @@ sub convert_svg {
     my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
 
     $command = "xsltproc \"$svgxsl\" \"$orig\" > \"$int\"";
+    exec_com($command, $file);
+
+    return 0;
+}
+
+sub convert_avvir {
+    my ($file, $orig, $int, $xsl_file) = @_;
+
+    print STDERR "convert_avvir $file, $orig\n";
+
+    my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
+    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+
+    $command = "xsltproc \"$avvirxsl\" \"$orig\" > \"$int\"";
     exec_com($command, $file);
 
     return 0;
