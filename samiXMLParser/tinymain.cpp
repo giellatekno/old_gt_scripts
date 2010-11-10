@@ -41,15 +41,7 @@ void PrintHelp();
 
 int main( int argc, char *argv[] )
 {
-    char const * filename = argv[1];
-    TiXmlDocument doc( filename );
-    doc.LoadFile();
-
-    TiXmlHandle docHandle( &doc );
-
-    DumpAttribsToStdout( docHandle.FirstChild( "document" ).ToElement() );
-    RecurseTree( docHandle.FirstChild( "document" ).FirstChild( "body" ).ToNode() );
-    bool bRecursive = false;
+   bool bRecursive = false;
     DIR* dirp;
     string path;
 
@@ -184,6 +176,14 @@ void TraverseDir(DIR* dirp, string path) {
 
 void ProcessFile(const char *pFile)
 {
+    TiXmlDocument doc( pFile );
+    doc.LoadFile();
+
+    TiXmlHandle docHandle( &doc );
+
+    DumpAttribsToStdout( docHandle.FirstChild( "document" ).ToElement() );
+    RecurseTree( docHandle.FirstChild( "document" ).FirstChild( "body" ).ToNode() );
+    
 }
 
 int DumpAttribsToStdout(TiXmlElement* pElement)
