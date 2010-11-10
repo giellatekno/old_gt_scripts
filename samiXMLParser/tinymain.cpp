@@ -29,6 +29,7 @@ bool bPrintTypos = false;
 bool bPrintSpeller = false;
 bool bAddID = false;
 bool bInline = false;
+bool hitString = false;
 
 int iParaNum = 0;
 
@@ -230,6 +231,7 @@ void RecurseTree( TiXmlNode* pParent )
         int t = pParent->Type();
         string tag;
         
+        
         switch ( t )
         {
         case TiXmlNode::DOCUMENT:
@@ -238,6 +240,7 @@ void RecurseTree( TiXmlNode* pParent )
             break;
 
         case TiXmlNode::ELEMENT:
+            hitString = false;
             tag = pParent->Value();
             if (tag == "p") {
                 bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
@@ -280,6 +283,7 @@ void RecurseTree( TiXmlNode* pParent )
             break;
 
         case TiXmlNode::TEXT:
+            hitString = true;
             pText = pParent->ToText();
             if ((sLang[0] == '\0' || bElementLang) &&
                 (bPrintPara && bInPara)   ||
@@ -315,12 +319,14 @@ void RecurseTree( TiXmlNode* pParent )
                 (bPrintTitle && bInTitle) ||
                 (bPrintList && bInList)   ||
                 (bPrintTable && bInTable)) {
-                if (bAddID) {
-                    cout << "</p>";
-                } else {
-                    cout << "¶";
+                if (hitString) {
+                    if (bAddID) {
+                        cout << "</p>";
+                    } else {
+                        cout << "¶";
+                    }
+                    cout << endl;
                 }
-                cout << endl;
             }
         } else if ( tag.substr(0,5) == "error" ) {
             /*cout << endl;
