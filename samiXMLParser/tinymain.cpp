@@ -34,10 +34,10 @@ static string const version = "$Revision$";
 
 void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
-int dump_attribs_to_stdout(TiXmlElement* pElement);
-void recurse_tree( TiXmlNode* pParent );
-void print_version();
-void print_help();
+int DumpAttribsToStdout(TiXmlElement* pElement);
+void RecurseTree( TiXmlNode* pParent );
+void PrintVersion();
+void PrintHelp();
 
 int main( int argc, char *argv[] )
 {
@@ -47,13 +47,13 @@ int main( int argc, char *argv[] )
 
     TiXmlHandle docHandle( &doc );
 
-    dump_attribs_to_stdout( docHandle.FirstChild( "document" ).ToElement() );
-    recurse_tree( docHandle.FirstChild( "document" ).FirstChild( "body" ).ToNode() );
+    DumpAttribsToStdout( docHandle.FirstChild( "document" ).ToElement() );
+    RecurseTree( docHandle.FirstChild( "document" ).FirstChild( "body" ).ToNode() );
     bool bRecursive = false;
     DIR* dirp;
     string path;
 
-    if (argc == 1) { print_help(); return 0; }
+    if (argc == 1) { PrintHelp(); return 0; }
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-r") == 0) {
@@ -133,18 +133,18 @@ int main( int argc, char *argv[] )
         }
 
         else if (strcmp(argv[i], "-h") == 0) {
-            print_help();
+            PrintHelp();
             return 0;
         }
 
         else if (strcmp(argv[i], "-v") == 0) {
-            print_version();
+            PrintVersion();
             return 0;
         }
 
         else {
             cout << "\nOption " << argv [i] << " is not supported.\n";
-            print_help();
+            PrintHelp();
             return 0;
         }
     }
@@ -186,7 +186,7 @@ void ProcessFile(const char *pFile)
 {
 }
 
-int dump_attribs_to_stdout(TiXmlElement* pElement)
+int DumpAttribsToStdout(TiXmlElement* pElement)
 {
         if ( !pElement ) return 0;
 
@@ -208,7 +208,7 @@ int dump_attribs_to_stdout(TiXmlElement* pElement)
         return i;
 }
 
-void recurse_tree( TiXmlNode* pParent )
+void RecurseTree( TiXmlNode* pParent )
 {
     if( pParent ) {
         TiXmlNode* pChild;
@@ -229,7 +229,7 @@ void recurse_tree( TiXmlNode* pParent )
             tag = pParent->Value();
         
                 
-                num=dump_attribs_to_stdout(pParent->ToElement());
+//                 num=DumpAttribsToStdout(pParent->ToElement());
 //                 switch(num)
 //                 {
 //                         case 0:  printf( " (No attributes)"); break;
@@ -260,15 +260,15 @@ void recurse_tree( TiXmlNode* pParent )
 
        for ( pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
         {
-            recurse_tree( pChild );
+            RecurseTree( pChild );
         }
         if ( tag == "p" ) {
-            cout << endl;
+            cout << "¶" << endl;
         }
     }
 }
 
-void print_help()
+void PrintHelp()
 {
     cout << "\nUsage: ccat <options> [FileName]\n";
     cout << "Print the contents of a corpus file in XML format.\n";
@@ -295,7 +295,7 @@ void print_help()
     cout << endl;
 }
 
-void print_version()
+void PrintVersion()
 {
     cout << "ccat version " << version << endl;
 }
