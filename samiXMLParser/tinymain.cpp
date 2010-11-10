@@ -28,7 +28,7 @@ bool bPrintMorphSynCorr = false;
 bool bPrintTypos = false;
 bool bPrintSpeller = false;
 bool bAddID = false;
-bool bInline = false;
+bool bOutsideError = true;
 bool hitString = false;
 
 int iParaNum = 0;
@@ -264,6 +264,8 @@ void RecurseTree( TiXmlNode* pParent )
                 ) {
                     DumpTag(pParent->ToElement());
                 }
+            } else if (tag.substr(0,5) == "error") {
+                bOutsideError = false;
             } else if (tag == "document") {
                 bDocLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
                 if (bAddID) {
@@ -285,19 +287,25 @@ void RecurseTree( TiXmlNode* pParent )
         case TiXmlNode::TEXT:
             hitString = true;
             pText = pParent->ToText();
-            if ((sLang[0] == '\0' || bElementLang) &&
-                (bPrintPara && bInPara)   ||
-                (bPrintTitle && bInTitle) ||
-                (bPrintList && bInList)   ||
-                (bPrintTable && bInTable)) {
-                if (bPrintSpeller) {
-                    istringstream iss(pText->Value());
-                    copy(istream_iterator<string>(iss),
-                        istream_iterator<string>(),
-                        ostream_iterator<string>(cout, "\n"));
-                } else {
-                    cout << pText->Value() << " ";
+            if (bOutsideError) {
+                if (!bPrintTypos) {
+                    if ((sLang[0] == '\0' || bElementLang) &&
+                        (bPrintPara && bInPara)   ||
+                        (bPrintTitle && bInTitle) ||
+                        (bPrintList && bInList)   ||
+                        (bPrintTable && bInTable)) {
+                        if (bPrintSpeller) {
+                            istringstream iss(pText->Value());
+                            copy(istream_iterator<string>(iss),
+                                istream_iterator<string>(),
+                                ostream_iterator<string>(cout, "\n"));
+                        } else {
+                            cout << pText->Value() << " ";
+                        }
+                    }
                 }
+            } else {
+                cout << pText->Value() << " ";
             }
             break;
 
@@ -319,7 +327,7 @@ void RecurseTree( TiXmlNode* pParent )
                 (bPrintTitle && bInTitle) ||
                 (bPrintList && bInList)   ||
                 (bPrintTable && bInTable)) {
-                if (hitString) {
+                if (hitString && !bPrintTypos) {
                     if (bAddID) {
                         cout << "</p>";
                     } else {
@@ -333,10 +341,11 @@ void RecurseTree( TiXmlNode* pParent )
             DumpTag(pParent->ToElement());
             cout << endl;
             */
+            bOutsideError = true;
             string corr = GetAttribValue(pParent->ToElement(), "correct");
 
             
-            if((bPrintOrtCorr && tag == "errorort") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex") || bPrintCorr ) {
+            if((bPrintOrtCorr && tag == "errorort") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex") || bPrintCorr || bPrintTypos) {
                 if (corr != "") {
                     cout << "\t" << corr << " ";
                 }
