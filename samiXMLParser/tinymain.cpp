@@ -1,6 +1,7 @@
 #include <tinyxml.h>
 #include <iostream>
 #include <dirent.h>
+#include <iterator>
 
 using namespace std;
 
@@ -34,7 +35,8 @@ static string const version = "$Revision$";
 
 void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
-int DumpAttribsToStdout(TiXmlElement* pElement);
+void DumpTag(TiXmlElement* pElement);
+string GetAttribValue(TiXmlElement *pElement, string attrName);
 void RecurseTree( TiXmlNode* pParent );
 void PrintVersion();
 void PrintHelp();
@@ -181,33 +183,42 @@ void ProcessFile(const char *pFile)
 
     TiXmlHandle docHandle( &doc );
 
-    DumpAttribsToStdout( docHandle.FirstChild( "document" ).ToElement() );
-    RecurseTree( docHandle.FirstChild( "document" ).FirstChild( "body" ).ToNode() );
+    RecurseTree( docHandle.FirstChild( "document" ).ToNode() );
     
 }
 
-int DumpAttribsToStdout(TiXmlElement* pElement)
+void DumpTag(TiXmlElement* pElement)
 {
-        if ( !pElement ) return 0;
+    if (pElement) {
+
+        cout << "<" << pElement->Value();
 
         TiXmlAttribute* pAttrib=pElement->FirstAttribute();
-        int i=0;
-        int ival;
-        double dval;
-        printf("\n");
         while (pAttrib)
         {
-                printf( "%s: value=[%s]", pAttrib->Name(), pAttrib->Value());
-
-                if (pAttrib->QueryIntValue(&ival)==TIXML_SUCCESS)    printf( " int=%d", ival);
-                if (pAttrib->QueryDoubleValue(&dval)==TIXML_SUCCESS) printf( " d=%1.1f", dval);
-                printf( "\n" );
-                i++;
-                pAttrib=pAttrib->Next();
+            cout << " " << pAttrib->Name() << "=\"" << pAttrib->Value();
+            pAttrib=pAttrib->Next();
         }
-        return i;
+        cout << ">" << endl;
+    }
 }
 
+string GetAttribValue(TiXmlElement *pElement, string attrName)
+{
+    string result = "";
+    if (pElement) {
+        TiXmlAttribute* pAttrib=pElement->FirstAttribute();
+        while (pAttrib)
+        {
+            if (pAttrib->Name() == attrName) {
+                result = pAttrib->Value();
+            }
+            pAttrib=pAttrib->Next();
+        }
+        
+    }
+    return result;
+}
 void RecurseTree( TiXmlNode* pParent )
 {
     if( pParent ) {
@@ -222,37 +233,74 @@ void RecurseTree( TiXmlNode* pParent )
         switch ( t )
         {
         case TiXmlNode::DOCUMENT:
-            cout << "Document" << endl;
+            cerr << "Document" << endl;
+            exit(2);
             break;
 
         case TiXmlNode::ELEMENT:
             tag = pParent->Value();
-        
-                
-//                 num=DumpAttribsToStdout(pParent->ToElement());
-//                 switch(num)
-//                 {
-//                         case 0:  printf( " (No attributes)"); break;
-//                         case 1:  printf( "%s1 attribute", getIndentAlt(indent)); break;
-//                         default: printf( "%s%d attributes", getIndentAlt(indent), num); break;
-//                 }
+            if (tag == "document") {
+                bDocLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
+                if (bAddID) {
+                    DumpTag(pParent->ToElement());
+                }
+            } else if (tag == "p") {
+                bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
+//                 cout << "p lang " << GetAttribValue(pParent->ToElement(), "xml:lang") << " sLang " << sLang << " bElementLang " << bElementLang << endl;
+                if( bDocLang ) {
+                    (bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == "" || GetAttribValue(pParent->ToElement(), "xml:lang") == sLang)  ? true : false;
+                }
+
+                bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
+                bInTitle = GetAttribValue(pParent->ToElement(), "type") == "title" ? true : false;
+                bInList = GetAttribValue(pParent->ToElement(), "type") == "listitem" ? true : false;
+                bInTable = GetAttribValue(pParent->ToElement(), "type") == "tablecell" ? true : false;
+
+
+                if (bAddID &&
+                    ((sLang[0] == '\0' || bElementLang) &&
+                    (bPrintPara && bInPara)   ||
+                    (bPrintTitle && bInTitle) ||
+                    (bPrintList && bInList)   ||
+                    (bPrintTable && bInTable)
+                    )
+                ) {
+                    DumpTag(pParent->ToElement());
+                }
+            }
             break;
 
         case TiXmlNode::COMMENT:
-            printf( "Comment: [%s]", pParent->Value());
+            cerr << "Comment: " << pParent->Value() << endl;
+            exit (2);
             break;
 
         case TiXmlNode::UNKNOWN:
-            cout << "Unknown" << endl;
+            cerr << "Unknown" << endl;
+            exit (2);
             break;
 
         case TiXmlNode::TEXT:
             pText = pParent->ToText();
-            cout << pText->Value() << " ";
+            if ((sLang[0] == '\0' || bElementLang) &&
+                (bPrintPara && bInPara)   ||
+                (bPrintTitle && bInTitle) ||
+                (bPrintList && bInList)   ||
+                (bPrintTable && bInTable)) {
+                if (bPrintSpeller) {
+                    istringstream iss(pText->Value());
+                    copy(istream_iterator<string>(iss),
+                        istream_iterator<string>(),
+                        ostream_iterator<string>(cout, "\n"));
+                } else {
+                    cout << pText->Value() << " ";
+                }
+            }
             break;
 
         case TiXmlNode::DECLARATION:
-            cout << "Declaration" << endl;
+            cerr << "Declaration" << endl;
+            exit (2);
             break;
         default:
             break;
@@ -263,7 +311,18 @@ void RecurseTree( TiXmlNode* pParent )
             RecurseTree( pChild );
         }
         if ( tag == "p" ) {
-            cout << "¶" << endl;
+            if ( bElementLang) {
+                if (bAddID) {
+                    cout << "</p>";
+                } else {
+                    cout << "¶";
+                }
+                cout << endl;
+            }
+        } else if ( tag == "document" ) {
+            if (bAddID) {
+                cout << "</" << tag << ">" << endl;
+            }
         }
     }
 }
