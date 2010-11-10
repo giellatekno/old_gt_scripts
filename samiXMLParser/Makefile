@@ -6,7 +6,7 @@ PREFIX = /usr/local
 all: ccat
 
 clean:
-	-rm *.o *~ ccat
+	-rm -f *.o *~ ccat
 
 ccat: $(CXXOBJECTS)
 	$(CXX) -g -o $@ $(LDFLAGS) $(CXXOBJECTS)
