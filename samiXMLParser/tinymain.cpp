@@ -1,7 +1,8 @@
-#include <tinyxml.h>
+#include "tinyxml.h"
 #include <iostream>
 #include <dirent.h>
 #include <iterator>
+#include <sstream>
 
 using namespace std;
 
@@ -184,7 +185,7 @@ void ProcessFile(const char *pFile)
 
     TiXmlHandle docHandle( &doc );
 
-    RecurseTree( docHandle.FirstChild( "document" ).FirstChild("body").ToNode() );
+    RecurseTree( docHandle.FirstChild( "document" ).ToNode() );
     
 }
 
@@ -247,7 +248,6 @@ void RecurseTree( TiXmlNode* pParent )
                 }
             } else if (tag == "p") {
                 bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
-//                 cout << "p lang " << GetAttribValue(pParent->ToElement(), "xml:lang") << " sLang " << sLang << " bElementLang " << bElementLang << endl;
                 if( bDocLang ) {
                     (bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == "" || GetAttribValue(pParent->ToElement(), "xml:lang") == sLang)  ? true : false;
                 }
@@ -268,8 +268,6 @@ void RecurseTree( TiXmlNode* pParent )
                 ) {
                     DumpTag(pParent->ToElement());
                 }
-            } else if (tag != "body" ) {
-                bInline = true;
             }
             break;
 
@@ -296,11 +294,7 @@ void RecurseTree( TiXmlNode* pParent )
                         istream_iterator<string>(),
                         ostream_iterator<string>(cout, "\n"));
                 } else {
-                    if (bInline) {
-                        cout << " ";
-                        bInline = false;
-                    }
-                    cout << pText->Value();
+                    cout << pText->Value() << " ";
                 }
             }
             break;
@@ -318,7 +312,11 @@ void RecurseTree( TiXmlNode* pParent )
             RecurseTree( pChild );
         }
         if ( tag == "p" ) {
-            if ( bElementLang) {
+            if ((sLang[0] == '\0' || bElementLang) &&
+                (bPrintPara && bInPara)   ||
+                (bPrintTitle && bInTitle) ||
+                (bPrintList && bInList)   ||
+                (bPrintTable && bInTable)) {
                 if (bAddID) {
                     cout << "</p>";
                 } else {
