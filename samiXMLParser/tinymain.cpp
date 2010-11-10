@@ -27,6 +27,7 @@ bool bPrintMorphSynCorr = false;
 bool bPrintTypos = false;
 bool bPrintSpeller = false;
 bool bAddID = false;
+bool bInline = false;
 
 int iParaNum = 0;
 
@@ -183,7 +184,7 @@ void ProcessFile(const char *pFile)
 
     TiXmlHandle docHandle( &doc );
 
-    RecurseTree( docHandle.FirstChild( "document" ).ToNode() );
+    RecurseTree( docHandle.FirstChild( "document" ).FirstChild("body").ToNode() );
     
 }
 
@@ -267,6 +268,8 @@ void RecurseTree( TiXmlNode* pParent )
                 ) {
                     DumpTag(pParent->ToElement());
                 }
+            } else if (tag != "body" ) {
+                bInline = true;
             }
             break;
 
@@ -293,7 +296,11 @@ void RecurseTree( TiXmlNode* pParent )
                         istream_iterator<string>(),
                         ostream_iterator<string>(cout, "\n"));
                 } else {
-                    cout << pText->Value() << " ";
+                    if (bInline) {
+                        cout << " ";
+                        bInline = false;
+                    }
+                    cout << pText->Value();
                 }
             }
             break;
