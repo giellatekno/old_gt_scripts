@@ -231,6 +231,7 @@ void RecurseTree( TiXmlNode* pParent )
         unsigned int indent = 0;
         bool printNewLine = false;
         string tag;
+        string corr;
         
         switch ( t )
         {
@@ -241,12 +242,7 @@ void RecurseTree( TiXmlNode* pParent )
 
         case TiXmlNode::ELEMENT:
             tag = pParent->Value();
-            if (tag == "document") {
-                bDocLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
-                if (bAddID) {
-                    DumpTag(pParent->ToElement());
-                }
-            } else if (tag == "p") {
+            if (tag == "p") {
                 bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
                 if( bDocLang ) {
                     (bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == "" || GetAttribValue(pParent->ToElement(), "xml:lang") == sLang)  ? true : false;
@@ -266,6 +262,31 @@ void RecurseTree( TiXmlNode* pParent )
                     (bPrintTable && bInTable)
                     )
                 ) {
+                    DumpTag(pParent->ToElement());
+                }
+            } else if ( tag == "errorort" ) {
+                if (bPrintCorr || bPrintOrtCorr) {
+                    corr = GetAttribValue(pParent->ToElement(), "correct");
+                }
+            } else if ( tag == "errorsyn" ) {
+                if (bPrintCorr || bPrintSynCorr) {
+                    corr = GetAttribValue(pParent->ToElement(), "correct");
+                }
+            } else if ( tag == "errormorphsyn" ) {
+                if (bPrintCorr || bPrintMorphSynCorr) {
+                    corr = GetAttribValue(pParent->ToElement(), "correct");
+                }
+            } else if ( tag == "errorlex" ) {
+                if (bPrintCorr || bPrintLexCorr) {
+                    corr = GetAttribValue(pParent->ToElement(), "correct");
+                }
+            } else if ( tag == "error" ) {
+                if (bPrintCorr) {
+                    corr = GetAttribValue(pParent->ToElement(), "correct");
+                }
+            } else if (tag == "document") {
+                bDocLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
+                if (bAddID) {
                     DumpTag(pParent->ToElement());
                 }
             }
@@ -324,7 +345,27 @@ void RecurseTree( TiXmlNode* pParent )
                 }
                 cout << endl;
             }
-        } else if ( tag == "document" ) {
+        } else if( tag == "errorort" ) {
+            if((bPrintCorr || bPrintOrtCorr) && corr != "") {
+                cout << "\t" << corr << " ";
+            }
+        } else if( tag == "errorsyn" ) {
+            if((bPrintCorr || bPrintSynCorr) && corr != "") {
+                cout << "\t" << corr << " ";
+            }
+        } else if( tag == "errormorphsyn" ) {
+            if((bPrintCorr || bPrintMorphSynCorr) && corr != "") {
+                cout << "\t" << corr << " ";
+            }
+        } else if( tag == "errorlex" ) {
+            if((bPrintCorr || bPrintLexCorr) && corr != "") {
+                cout << "\t" << corr << " ";
+            }
+        }  else if( tag == "error" ) {
+            if(bPrintCorr && corr != "") {
+                cout << "\t" << corr << " ";
+            }
+        }else if ( tag == "document" ) {
             if (bAddID) {
                 cout << "</" << tag << ">" << endl;
             }
