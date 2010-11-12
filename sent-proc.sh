@@ -1,10 +1,10 @@
 #! /bin/bash
 
 # sent-disamb.sh
-# This is a shell script for analysing (at the moment, only) Northern Sámi sentences with the vislcg3 parser.
+# This is a shell script for analysing sentences with the vislcg3 parser.
 # It gives the analysis, and optionally the number of the disambiguation rules.
 
-#usage:
+# usage:
 # <script_name> (-t) -l=<lang_code> <sentence_to_analyze>
 # to output the number of disambiguation rules, too, use the parameter '-t'
 # parametized for language (sme as default)
@@ -55,10 +55,10 @@ else
 fi
 
 # lang group
-if [[ "$l" == "sme" ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]]
+if [[ "$l" == "sme" ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]]
 then
     lg="gt"
-elif [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "fkv" ]]
+elif [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "fkv" ]] || [[ "$l" == "mhr" ]]
 then
     lg="kt"
 else
@@ -127,7 +127,7 @@ fi
 
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
 dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/$l-dis.rle $t"
-dep_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/sme/src/sme-dep.rle $t"
+dep_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle $t"
 
 # processing step
 case $s in
