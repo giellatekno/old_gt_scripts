@@ -147,14 +147,14 @@ class StaticSiteBuilder:
         """Search for files ending with html and pdf in the build site. Give all
         these files the ending '.lang'. Move them to the 'built' dir
         """
-        langdir = os.path.join(self.builddir, "build/site/en")
+        langdir = os.path.join(self.builddir, "build/site")
         builtdir = os.path.join(self.builddir, "built")
         tree = os.walk(os.path.join(langdir))
 
         for leafs in tree:
             olddir = leafs[0]
             newdir = leafs[0].replace(langdir, builtdir)
-            print "newdir", newdir
+            #print "newdir", newdir
             if newdir != builtdir:
                 try:
                     os.mkdir(newdir)
@@ -170,7 +170,7 @@ class StaticSiteBuilder:
                 if htmlpdf_file.endswith((".html", ".pdf")):
                     newname = htmlpdf_file + "." + lang
                 
-                print "fullname", os.path.join(olddir, htmlpdf_file), "newfullname", os.path.join(newdir, newname)
+                #print "fullname", os.path.join(olddir, htmlpdf_file), "newfullname", os.path.join(newdir, newname)
                 os.rename(os.path.join(olddir, htmlpdf_file), os.path.join(newdir, newname))
 
     def copy_to_site(self, path):
@@ -191,7 +191,7 @@ class StaticSiteBuilder:
                     pass
 
             for filename in leafs[2]:
-                print "olddir:", olddir, "newdir", newdir, "filename", filename
+                #print "olddir:", olddir, "newdir", newdir, "filename", filename
                 os.rename(os.path.join(olddir, filename), os.path.join(newdir, filename))
             
         
@@ -214,7 +214,7 @@ def main():
             sys.exit(0)
 
     #args = sys.argv[1:]
-    langs = ["fi", "nb", "sma", "sme", "smj", "sv", "en" ]
+    langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
     builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/sd"))
 
     builder.validate()
