@@ -143,7 +143,7 @@ class StaticSiteBuilder:
                 if langfile.find("." + lang + ".") > 1:
                     self.lang_specific_files.append(os.path.join(part_path, langfile))
 
-    def rename_site_files(self, lang):
+    def rename_site_files(self, lang = ""):
         """Search for files ending with html and pdf in the build site. Give all
         these files the ending '.lang'. Move them to the 'built' dir
         """
@@ -167,7 +167,7 @@ class StaticSiteBuilder:
                 print htmlpdf_file
                 newname = htmlpdf_file
                 
-                if htmlpdf_file.endswith((".html", ".pdf")):
+                if htmlpdf_file.endswith((".html", ".pdf")) and lang != "":
                     newname = htmlpdf_file + "." + lang
                 
                 #print "fullname", os.path.join(olddir, htmlpdf_file), "newfullname", os.path.join(newdir, newname)
@@ -223,7 +223,14 @@ def main():
         builder.setlang(lang)
         builder.buildsite(lang)
         builder.rename_site_files(lang)
+    builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
+    builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/techdoc"))
+    builder.validate()
+    # Ensure menus and tabs are in english for techdoc
+    builder.setlang("en")
+    builder.buildsite("en")
+    builder.rename_site_files()
     builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
