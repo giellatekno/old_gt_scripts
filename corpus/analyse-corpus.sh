@@ -13,6 +13,7 @@ then
 else
 	mkdir $ANALYSED_DIR
 fi
+chmod 777 $ANALYSED_DIR
 
 for SMILANG in sma sme smj
 do
