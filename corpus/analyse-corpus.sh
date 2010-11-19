@@ -58,14 +58,14 @@ do
         PREPROCESS="preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt"
     fi
 
-	echo "analysing $SMILANG"
     for i in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
 		echo "Preprocessing $i …"
 		time cat $i | $PREPROCESS 2> /dev/null | lookup -flags mbTT $GTHOME/gt/$SMILANG/bin/$SMILANG.fst | lookup2cg > $i.lookup2cg
-		echo "dis analysis going on …"
+		echo "$SMILANG dis analysis going on …"
 		time vislcg3 -g $GTHOME/gt/$SMILANG/bin/$SMILANG-dis.bin $i.lookup2cg > $i.dis
-		echo "dep analysis going on …"
+		echo "$SMILANG dep analysis going on …"
+		touch $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
 		time vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin $i.dis >> $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
 	done
 done
