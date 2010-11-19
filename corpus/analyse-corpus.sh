@@ -1,7 +1,8 @@
 #!/bin/bash
 
 cd $GTHOME
-svn up
+echo "svn up in $GTHOME"
+svn -q up
 SVNREVISION=`svn info | grep Revision | cut -f1 -d" "`
 
 ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
