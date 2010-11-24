@@ -26,27 +26,29 @@ do
         cd /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG
         for GENREDIR in `ls`
         do
-#             touch $ANALYSED_DIR/$SMILANG-$GENREDIR-dep.txt
-            for f in `find $GENREDIR -type f`
-            do
-				# ccat makes nonvalid utf8 of some files, ignore them
-				ccat -a $f | iconv -f utf-8 -t utf-8 > /dev/null
-				if [ $? -eq 0 ]
-				then
-					TRANSLATED_FROM=`grep translated_from $f | cut -f2 -d'"'`
-					if [ "$TRANSLATED_FROM" == "" ]
+			if [ "`basename $f`" != "xb.html.xml" -a "`basename $f`" != "lule_sami_new_testament.html.xml" ]
+			then
+				for f in `find $GENREDIR -type f`
+				do
+					# ccat makes nonvalid utf8 of some files, ignore them
+					ccat -a $f | iconv -f utf-8 -t utf-8 > /dev/null
+					if [ $? -eq 0 ]
 					then
-						CCAT_FILE="$ANALYSED_DIR/$SMILANG-$GENREDIR.ccat.txt"
+						TRANSLATED_FROM=`grep translated_from $f | cut -f2 -d'"'`
+						if [ "$TRANSLATED_FROM" == "" ]
+						then
+							CCAT_FILE="$ANALYSED_DIR/$SMILANG-$GENREDIR.ccat.txt"
+						else
+							CCAT_FILE="$ANALYSED_DIR/$SMILANG-$TRANSLATED_FROM-$GENREDIR.ccat.txt"
+						fi
+						touch $CCAT_FILE
+	# 					echo "ccat'ing $f into $CCAT_FILE"
+						ccat -l $SMILANG -a $f >> $CCAT_FILE
 					else
-						CCAT_FILE="$ANALYSED_DIR/$SMILANG-$TRANSLATED_FROM-$GENREDIR.ccat.txt"
+						echo "ccat made invalid utf8, ignoring $f"
 					fi
-					touch $CCAT_FILE
-# 					echo "ccat'ing $f into $CCAT_FILE"
-					ccat -l $SMILANG -a $f >> $CCAT_FILE
-				else
-					echo "ccat made invalid utf8, ignoring $f"
-				fi
-			done
+				done
+			fi
         done
     done
 
