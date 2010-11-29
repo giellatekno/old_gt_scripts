@@ -9,11 +9,92 @@ import shutil
 import time
 import re
 import getopt
+from lxml import etree
+
+class Translate_XML_tags:
+	"""Load site.xml and tabs.xml and their translation files.
+	Translate the tags 
+	"""
+
+	def __init__(self, site, lang):
+		self.lang = lang
+		self.sitehome = os.path.join(os.getenv("GTHOME"), "xtdoc/" + site)
+		self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
+		#self.site.xinclude()
+		self.tabs = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"))
+		#self.tabs.xinclude()
+		self.backup_orig()
+
+	def parse_translations(self):
+		tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
+		menu_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
+
+		self.tabst = {}
+		self.menut = {}
+		for child in tabs_translation.getroot():
+			#print child.get("key"), child.text
+			#print child.get("key"), child.text
+			self.tabst[child.get("key")] = child.text
+			#print self.tabst[child.get("key")]
+
+		for child in menu_translation.getroot():
+			self.menut[child.get("key")] = child.text
+
+	def translate(self):
+		"""Translate site.xml and tabs.xml to self.lang
+		"""
+		print "translate", self.lang
+		for el in self.site.getroot().iter():
+			try:
+				el.attrib["label"]
+			except KeyError:
+				continue
+			else:
+				try:
+					self.menut[el.attrib["label"]]
+				except KeyError:
+					pass
+				else:
+					print "Orig label", el.attrib["label"]
+					el.attrib["label"] = self.menut[el.attrib["label"]]
+					print "Trans label", el.attrib["label"]
+
+		for el in self.tabs.getroot().iter():
+			try:
+				el.attrib["label"]
+			except KeyError:
+				continue
+			else:
+				try:
+					self.menut[el.attrib["label"]]
+				except KeyError:
+					pass
+				else:
+					print "Orig label", el.attrib["label"]
+					el.attrib["label"] = self.menut[el.attrib["label"]]
+					print "Trans label", el.attrib["label"]
+
+	def print_xml(self):
+		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), "w")
+		outfile.write(etree.tostring(self.site.getroot()))
+		outfile.close()
+		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"), "w")
+		outfile.write(etree.tostring(self.tabs.getroot()))
+		outfile.close()
+
+	def backup_orig(self):
+		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml.orig"))
+		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"), os.path.join(self.sitehome,"src/documentation/content/xdocs/tabs.xml.orig"))
+
+	def rescue_orig(self):
+		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml.orig"), os.path.join(self.sitehome,"src/documentation/content/xdocs/site.xml"))
+		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml.orig"), os.path.join(self.sitehome,"src/documentation/content/xdocs/tabs.xml"))
 
 class StaticSiteBuilder:
 	"""This class is used to build a static version of the divvun site.
 	"""
-	def __init__(self, builddir):
+
+	def __init__(self, site):
 		"""
 			builddir: tells where the forrest should begin its crawl
 			make a directory, built, where generated sites are stored
@@ -22,21 +103,19 @@ class StaticSiteBuilder:
 			lang_specific_file: keeps trace of which files are localized
 		"""
 		print "Setting up..."
-		print builddir
-		self.builddir = builddir
-	
+		print site
+		self.site = site
+		self.builddir = os.path.join(os.getenv("GTHOME"), "xtdoc/" + self.site)
+
 		if os.path.isdir(os.path.join(self.builddir, "built")):
 		   shutil.rmtree(os.path.join(self.builddir, "built"))
-	
+
 		os.mkdir(os.path.join(self.builddir, "built"))
-
 		self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
-	
 		os.rename(os.path.join(self.builddir, "forrest.properties"), os.path.join(self.builddir, "forrest.properties.build"))
-
 		os.environ['LC_ALL'] = "C"
-
 		self.lang_specific_files = []
+		
 		print "Done with setup"
 
 	def __del__(self):
@@ -74,12 +153,18 @@ class StaticSiteBuilder:
 		"""
 		os.chdir(self.builddir)
 
+		trans = Translate_XML_tags( self.site, lang)
+		trans.parse_translations()
+		trans.translate()
+		trans.print_xml()
+
 		print "Building", lang, "..."
 		subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
 		subp.wait()
 		if subp.returncode == 1:
 			print >>sys.stderr, "Linking errors detected\n"
 
+		trans.rescue_orig()
 		print "Done building ", lang
 
 	def setlang(self, lang):
@@ -132,6 +217,7 @@ class StaticSiteBuilder:
 		tree. Compute the relative path (which will be seen in the web browser)
 		to together with the file name, and store this in self.lang_specific_file
 		"""
+
 		fullpath = os.path.join(self.builddir, "src/documentation/content/xdocs")
 		fullpath_len = len(fullpath) + 1
 		xdocs_tree = os.walk(fullpath)
@@ -147,6 +233,7 @@ class StaticSiteBuilder:
 		"""Search for files ending with html and pdf in the build site. Give all
 		these files the ending '.lang'. Move them to the 'built' dir
 		"""
+
 		langdir = os.path.join(self.builddir, "build/site")
 		builtdir = os.path.join(self.builddir, "built")
 		tree = os.walk(os.path.join(langdir))
@@ -176,6 +263,7 @@ class StaticSiteBuilder:
 	def copy_to_site(self, path):
 		"""Copy the entire site to 'path'
 		"""
+
 		builtdir = os.path.join(self.builddir, "built")
 		tree = os.walk(builtdir)
 
@@ -214,8 +302,9 @@ def main():
 			sys.exit(0)
 
 	#args = sys.argv[1:]
-	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/sd"))
+	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	langs = ["smj"]
+	builder = StaticSiteBuilder("sd")
 
 	builder.validate()
 	
@@ -225,13 +314,13 @@ def main():
 		builder.rename_site_files(lang)
 	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	builder = StaticSiteBuilder(os.path.join(os.getenv("GTHOME"), "xtdoc/techdoc"))
-	builder.validate()
-	# Ensure menus and tabs are in english for techdoc
-	builder.setlang("en")
-	builder.buildsite("en")
-	builder.rename_site_files()
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	#builder = StaticSiteBuilder("techdoc")
+	#builder.validate()
+	## Ensure menus and tabs are in english for techdoc
+	#builder.setlang("en")
+	#builder.buildsite("en")
+	#builder.rename_site_files()
+	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
 	main()
