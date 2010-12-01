@@ -21,10 +21,8 @@ class Translate_XML:
 		self.sitehome = os.path.join(os.getenv("GTHOME"), "xtdoc/" + site)
 
 		os.chdir(self.sitehome)
-		subp = subprocess.Popen(["svn", "revert", "src/documentation/content/xdocs/site.xml"])
+		subp = subprocess.call(["svn", "revert", "src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "src/documentation/skins/common/xslt/html/document-to-html.xsl", "src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
-		subp = subprocess.Popen(["svn", "revert", "src/documentation/content/xdocs/tabs.xml"])
-		
 		self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
 		try:
 			self.site.xinclude()
@@ -35,6 +33,8 @@ class Translate_XML:
 			self.tabs.xinclude()
 		except etree.XIncludeError:
 			print "xinclude in tabs.xml failed for site", site
+
+		self.dth = etree.parse(os.path.join(self.sitehome, "src/documentation/skins/common/xslt/html/document-to-html.xsl"))
 
 	def parse_translations(self):
 		tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
@@ -50,16 +50,14 @@ class Translate_XML:
 		if self.lang != "en":
 			self.commont = {}
 			common_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/ContractsMessages_" + self.lang + ".xml"))
-			for child in menu_translation.getroot():
-				self.menut[child.get("key")] = child.text
-
-
-
+			for child in common_translation.getroot():
+				print child.get("key"), child.text
+				self.commont[child.get("key")] = child.text
 
 	def translate(self):
 		"""Translate site.xml and tabs.xml to self.lang
 		"""
-		print "translate", self.lang
+		print self.translate.__name__, self.lang
 		for el in self.site.getroot().iter():
 			try:
 				el.attrib["label"]
@@ -73,6 +71,10 @@ class Translate_XML:
 				else:
 					el.attrib["label"] = self.menut[el.attrib["label"]]
 
+		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), "w")
+		outfile.write(etree.tostring(self.site.getroot()))
+		outfile.close()
+		
 		for el in self.tabs.getroot().iter():
 			try:
 				el.attrib["label"]
@@ -80,18 +82,24 @@ class Translate_XML:
 				continue
 			else:
 				try:
-					self.menut[el.attrib["label"]]
+					self.tabst[el.attrib["label"]]
 				except KeyError:
 					pass
 				else:
-					el.attrib["label"] = self.menut[el.attrib["label"]]
+					el.attrib["label"] = self.tabst[el.attrib["label"]]
 
-	def print_xml(self):
-		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), "w")
-		outfile.write(etree.tostring(self.site.getroot()))
-		outfile.close()
 		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"), "w")
 		outfile.write(etree.tostring(self.tabs.getroot()))
+		outfile.close()
+
+		for el in self.dth.getroot().iter():
+			#print "dth", el.tag
+			if el.tag == "{http://apache.org/cocoon/i18n/2.1}text":
+				print "Old", el.text
+				el.text = self.commont[el.text]
+				print "New", el.text
+		outfile = open(os.path.join(self.sitehome,"src/documentation/skins/common/xslt/html/document-to-html.xsl"), "w")
+		outfile.write(etree.tostring(self.dth.getroot()))
 		outfile.close()
 
 class StaticSiteBuilder:
@@ -160,7 +168,6 @@ class StaticSiteBuilder:
 		trans = Translate_XML( self.site, lang)
 		trans.parse_translations()
 		trans.translate()
-		trans.print_xml()
 
 		print "Building", lang, "..."
 		subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
@@ -168,6 +175,15 @@ class StaticSiteBuilder:
 		if subp.returncode == 1:
 			print >>sys.stderr, "Linking errors detected\n"
 
+		sdf = ["find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'"]
+
+		if lang != "en":
+			sdf.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + "Last Published:" + "/" + trans.commont["Last Published:"].encode('utf-8') + "/g'")
+			sdf.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + "Font size:" + "/" + trans.commont["Font size:"].encode('utf-8') + "/g'")
+		for sd in sdf:
+			print "the command", sd
+			print sd + " hoi!"
+			os.system(sd)
 		print "Done building ", lang
 
 	def setlang(self, lang):
@@ -305,8 +321,8 @@ def main():
 			sys.exit(0)
 
 	#args = sys.argv[1:]
-	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	#langs = ["smj"]
+	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	langs = ["smj", "sma"]
 	builder = StaticSiteBuilder("sd")
 
 	builder.validate()
@@ -317,13 +333,13 @@ def main():
 		builder.rename_site_files(lang)
 	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	builder = StaticSiteBuilder("techdoc")
-	builder.validate()
-	# Ensure menus and tabs are in english for techdoc
-	builder.setlang("en")
-	builder.buildsite("en")
-	builder.rename_site_files()
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	#builder = StaticSiteBuilder("techdoc")
+	#builder.validate()
+	## Ensure menus and tabs are in english for techdoc
+	#builder.setlang("en")
+	#builder.buildsite("en")
+	#builder.rename_site_files()
+	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
 	main()
