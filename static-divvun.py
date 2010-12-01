@@ -11,7 +11,7 @@ import re
 import getopt
 from lxml import etree
 
-class Translate_XML_tags:
+class Translate_XML:
 	"""Load site.xml and tabs.xml and their translation files.
 	Translate the tags 
 	"""
@@ -20,14 +20,15 @@ class Translate_XML_tags:
 		self.lang = lang
 		self.sitehome = os.path.join(os.getenv("GTHOME"), "xtdoc/" + site)
 		self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
-		#self.site.xinclude()
+		self.site.xinclude()
 		self.tabs = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"))
-		#self.tabs.xinclude()
+		self.tabs.xinclude()
 		self.backup_orig()
 
 	def parse_translations(self):
 		tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
 		menu_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
+		common_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
 
 		self.tabst = {}
 		self.menut = {}
@@ -153,7 +154,7 @@ class StaticSiteBuilder:
 		"""
 		os.chdir(self.builddir)
 
-		trans = Translate_XML_tags( self.site, lang)
+		trans = Translate_XML( self.site, lang)
 		trans.parse_translations()
 		trans.translate()
 		trans.print_xml()
