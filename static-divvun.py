@@ -92,15 +92,16 @@ class Translate_XML:
 		outfile.write(etree.tostring(self.tabs.getroot()))
 		outfile.close()
 
-		for el in self.dth.getroot().iter():
-			#print "dth", el.tag
-			if el.tag == "{http://apache.org/cocoon/i18n/2.1}text":
-				print "Old", el.text
-				el.text = self.commont[el.text]
-				print "New", el.text
-		outfile = open(os.path.join(self.sitehome,"src/documentation/skins/common/xslt/html/document-to-html.xsl"), "w")
-		outfile.write(etree.tostring(self.dth.getroot()))
-		outfile.close()
+		if self.lang != "en":
+			for el in self.dth.getroot().iter():
+				#print "dth", el.tag
+				if el.tag == "{http://apache.org/cocoon/i18n/2.1}text":
+					print "Old", el.text
+					el.text = self.commont[el.text]
+					print "New", el.text
+			outfile = open(os.path.join(self.sitehome,"src/documentation/skins/common/xslt/html/document-to-html.xsl"), "w")
+			outfile.write(etree.tostring(self.dth.getroot()))
+			outfile.close()
 
 class StaticSiteBuilder:
 	"""This class is used to build a static version of the divvun site.
@@ -175,11 +176,14 @@ class StaticSiteBuilder:
 		if subp.returncode == 1:
 			print >>sys.stderr, "Linking errors detected\n"
 
-		sdf = ["find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'"]
+		sdf = ["find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'"]
 
 		if lang != "en":
-			sdf.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + "Last Published:" + "/" + trans.commont["Last Published:"].encode('utf-8') + "/g'")
-			sdf.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + "Font size:" + "/" + trans.commont["Font size:"].encode('utf-8') + "/g'")
+			for key, value in trans.commont.items():
+				try:
+					sdf.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value.encode('utf-8') + "/g'")
+				except TypeError:
+					continue
 		for sd in sdf:
 			print "the command", sd
 			print sd + " hoi!"
@@ -321,8 +325,8 @@ def main():
 			sys.exit(0)
 
 	#args = sys.argv[1:]
-	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	langs = ["smj", "sma"]
+	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	#langs = ["smj", "sma"]
 	builder = StaticSiteBuilder("sd")
 
 	builder.validate()
@@ -333,13 +337,13 @@ def main():
 		builder.rename_site_files(lang)
 	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	#builder = StaticSiteBuilder("techdoc")
-	#builder.validate()
-	## Ensure menus and tabs are in english for techdoc
-	#builder.setlang("en")
-	#builder.buildsite("en")
-	#builder.rename_site_files()
-	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	builder = StaticSiteBuilder("techdoc")
+	builder.validate()
+	# Ensure menus and tabs are in english for techdoc
+	builder.setlang("en")
+	builder.buildsite("en")
+	builder.rename_site_files()
+	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
 	main()
