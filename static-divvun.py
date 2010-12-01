@@ -19,27 +19,42 @@ class Translate_XML:
 	def __init__(self, site, lang):
 		self.lang = lang
 		self.sitehome = os.path.join(os.getenv("GTHOME"), "xtdoc/" + site)
+
+		os.chdir(self.sitehome)
+		subp = subprocess.Popen(["svn", "revert", "src/documentation/content/xdocs/site.xml"])
+
+		subp = subprocess.Popen(["svn", "revert", "src/documentation/content/xdocs/tabs.xml"])
+		
 		self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
-		self.site.xinclude()
+		try:
+			self.site.xinclude()
+		except etree.XIncludeError:
+			print "xinclude in site.xml failed for site", site
 		self.tabs = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"))
-		self.tabs.xinclude()
-		self.backup_orig()
+		try:
+			self.tabs.xinclude()
+		except etree.XIncludeError:
+			print "xinclude in tabs.xml failed for site", site
 
 	def parse_translations(self):
 		tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
-		menu_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
-		common_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
-
 		self.tabst = {}
-		self.menut = {}
 		for child in tabs_translation.getroot():
-			#print child.get("key"), child.text
-			#print child.get("key"), child.text
 			self.tabst[child.get("key")] = child.text
-			#print self.tabst[child.get("key")]
 
+		menu_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
+		self.menut = {}
 		for child in menu_translation.getroot():
 			self.menut[child.get("key")] = child.text
+
+		if self.lang != "en":
+			self.commont = {}
+			common_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/ContractsMessages_" + self.lang + ".xml"))
+			for child in menu_translation.getroot():
+				self.menut[child.get("key")] = child.text
+
+
+
 
 	def translate(self):
 		"""Translate site.xml and tabs.xml to self.lang
@@ -56,9 +71,7 @@ class Translate_XML:
 				except KeyError:
 					pass
 				else:
-					print "Orig label", el.attrib["label"]
 					el.attrib["label"] = self.menut[el.attrib["label"]]
-					print "Trans label", el.attrib["label"]
 
 		for el in self.tabs.getroot().iter():
 			try:
@@ -71,9 +84,7 @@ class Translate_XML:
 				except KeyError:
 					pass
 				else:
-					print "Orig label", el.attrib["label"]
 					el.attrib["label"] = self.menut[el.attrib["label"]]
-					print "Trans label", el.attrib["label"]
 
 	def print_xml(self):
 		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), "w")
@@ -82,14 +93,6 @@ class Translate_XML:
 		outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"), "w")
 		outfile.write(etree.tostring(self.tabs.getroot()))
 		outfile.close()
-
-	def backup_orig(self):
-		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml.orig"))
-		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"), os.path.join(self.sitehome,"src/documentation/content/xdocs/tabs.xml.orig"))
-
-	def rescue_orig(self):
-		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml.orig"), os.path.join(self.sitehome,"src/documentation/content/xdocs/site.xml"))
-		os.rename(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml.orig"), os.path.join(self.sitehome,"src/documentation/content/xdocs/tabs.xml"))
 
 class StaticSiteBuilder:
 	"""This class is used to build a static version of the divvun site.
@@ -165,7 +168,6 @@ class StaticSiteBuilder:
 		if subp.returncode == 1:
 			print >>sys.stderr, "Linking errors detected\n"
 
-		trans.rescue_orig()
 		print "Done building ", lang
 
 	def setlang(self, lang):
@@ -303,8 +305,8 @@ def main():
 			sys.exit(0)
 
 	#args = sys.argv[1:]
-	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	langs = ["smj"]
+	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	#langs = ["smj"]
 	builder = StaticSiteBuilder("sd")
 
 	builder.validate()
@@ -315,13 +317,13 @@ def main():
 		builder.rename_site_files(lang)
 	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	#builder = StaticSiteBuilder("techdoc")
-	#builder.validate()
-	## Ensure menus and tabs are in english for techdoc
-	#builder.setlang("en")
-	#builder.buildsite("en")
-	#builder.rename_site_files()
-	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	builder = StaticSiteBuilder("techdoc")
+	builder.validate()
+	# Ensure menus and tabs are in english for techdoc
+	builder.setlang("en")
+	builder.buildsite("en")
+	builder.rename_site_files()
+	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
 	main()
