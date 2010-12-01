@@ -51,7 +51,6 @@ class Translate_XML:
 			self.commont = {}
 			common_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/ContractsMessages_" + self.lang + ".xml"))
 			for child in common_translation.getroot():
-				print child.get("key"), child.text
 				self.commont[child.get("key")] = child.text
 
 	def translate(self):
