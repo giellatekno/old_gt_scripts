@@ -325,17 +325,6 @@ def main():
 			sys.exit(0)
 
 	#args = sys.argv[1:]
-	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	#langs = ["smj", "sma"]
-	builder = StaticSiteBuilder("sd")
-
-	builder.validate()
-	
-	for lang in langs:
-		builder.setlang(lang)
-		builder.buildsite(lang)
-		builder.rename_site_files(lang)
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 	builder = StaticSiteBuilder("techdoc")
 	builder.validate()
@@ -343,6 +332,17 @@ def main():
 	builder.setlang("en")
 	builder.buildsite("en")
 	builder.rename_site_files()
+	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+
+	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	#langs = ["smj", "sma"]
+	builder = StaticSiteBuilder("sd")
+	builder.validate()
+	
+	for lang in langs:
+		builder.setlang(lang)
+		builder.buildsite(lang)
+		builder.rename_site_files(lang)
 	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
 if __name__ == "__main__":
