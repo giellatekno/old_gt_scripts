@@ -286,23 +286,9 @@ class StaticSiteBuilder:
 		"""
 
 		builtdir = os.path.join(self.builddir, "built")
-		tree = os.walk(builtdir)
+		os.chdir(builtdir)
+		os.system("scp -r * sd@divvun.no:Sites/.")
 
-		for leafs in tree:
-			olddir = leafs[0]
-			newdir = leafs[0].replace(builtdir, path)
-
-			if newdir != path:
-				try:
-					os.mkdir(newdir)
-				except OSError, e:
-					print e
-					pass
-
-			for filename in leafs[2]:
-				#print "olddir:", olddir, "newdir", newdir, "filename", filename
-				os.rename(os.path.join(olddir, filename), os.path.join(newdir, filename))
-	
 	
 
 def main():
