@@ -106,7 +106,7 @@ class StaticSiteBuilder:
 	"""This class is used to build a static version of the divvun site.
 	"""
 
-	def __init__(self, site):
+	def __init__(self, site, lang = ""):
 		"""
 			builddir: tells where the forrest should begin its crawl
 			make a directory, built, where generated sites are stored
@@ -119,12 +119,15 @@ class StaticSiteBuilder:
 		self.site = site
 		self.builddir = os.path.join(os.getenv("GTHOME"), "xtdoc/" + self.site)
 
+		os.chdir(self.builddir)
+		subprocess.call(["svn", "revert", "forrest.properties"])
+		subprocess.call(["forrest", "clean"])
+		
 		if os.path.isdir(os.path.join(self.builddir, "built")):
 		   shutil.rmtree(os.path.join(self.builddir, "built"))
 
 		os.mkdir(os.path.join(self.builddir, "built"))
 		self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
-		os.rename(os.path.join(self.builddir, "forrest.properties"), os.path.join(self.builddir, "forrest.properties.build"))
 		os.environ['LC_ALL'] = "C"
 		self.lang_specific_files = []
 		
@@ -134,7 +137,8 @@ class StaticSiteBuilder:
 		"""Move the backup to the original file_type
 		Close the logfile
 		"""
-		os.rename(os.path.join(self.builddir, "forrest.properties.build"), os.path.join(self.builddir, "forrest.properties"))
+		os.chdir(self.builddir)
+		subprocess.call(["svn", "revert", "forrest.properties"])
 		self.logfile.close()
 
 	def validate(self):
@@ -155,7 +159,7 @@ class StaticSiteBuilder:
 	
 				raise SystemExit(subp.returncode)
 	
-	def buildsite(self, lang):
+	def buildsite(self):
 		"""Builds a site in the specified language
 		Clean up the build files
 		Validate files. If they don't validate, exit program
@@ -164,12 +168,13 @@ class StaticSiteBuilder:
 		If we aren't able to rename the built site, exit program
 		"""
 		os.chdir(self.builddir)
+		subprocess.call(["forrest", "clean"])
 
 		trans = Translate_XML( self.site, lang)
 		trans.parse_translations()
 		trans.translate()
 
-		print "Building", lang, "..."
+		print "Building", self.lang, "..."
 		subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
 		subp.wait()
 		if subp.returncode == 1:
@@ -177,7 +182,7 @@ class StaticSiteBuilder:
 
 		commands = ["find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'"]
 
-		if lang != "en":
+		if self.lang != "en":
 			for key, value in trans.commont.items():
 				try:
 					if key != "Search":
@@ -186,7 +191,7 @@ class StaticSiteBuilder:
 					continue
 		for command in commands:
 			os.system(command)
-		print "Done building ", lang
+		print "Done building ", self.lang
 
 	def setlang(self, lang):
 		"""Set the language in the file forrest.properties
@@ -194,14 +199,16 @@ class StaticSiteBuilder:
 		Exit if an IOError occurs
 		"""
 		try:
-			inproperties = open(os.path.join(self.builddir, "forrest.properties.build"), 'r')
+			inproperties = open(os.path.join(self.builddir, "forrest.properties"), 'r')
 		except IOError:
 			print >>sys.stderr, e
-			self.logfile.write("Problems when reading content in forrest.properties.build")
+			self.logfile.write("Problems when reading content in forrest.properties")
 			self.logfile.write("IOError\n")
 			self.logfile.write(str(e) + "\n")
 			raise SystemExit(2)
-	
+		incontent = inproperties.readlines()
+		inproperties.close()
+		
 		try:
 			outproperties = open(os.path.join(self.builddir, "forrest.properties"), 'w')
 		except IOError:
@@ -211,8 +218,7 @@ class StaticSiteBuilder:
 			self.logfile.write(str(e) + "\n")
 			raise SystemExit(2)
 
-		incontent = inproperties.readlines()
-	
+
 		search_pattern = re.compile("user.language=\w{1,3}")
 
 		for line in incontent:
@@ -230,7 +236,6 @@ class StaticSiteBuilder:
 
 			outproperties.write(line)
 
-		inproperties.close()
 		outproperties.close()
 	
 	def find_langspecific_files(self, lang):
@@ -255,31 +260,27 @@ class StaticSiteBuilder:
 		these files the ending '.lang'. Move them to the 'built' dir
 		"""
 
-		langdir = os.path.join(self.builddir, "build/site")
+		builddir = os.path.join(self.builddir, "build/site")
 		builtdir = os.path.join(self.builddir, "built")
-		tree = os.walk(os.path.join(langdir))
+		
+		# Copy the site to builtdir/lang
+		if lang != "":
+			langdir = os.path.join(builtdir, lang) 
+			os.mkdir(langdir)
+			os.chdir(builddir)
+			subprocess.call("cp", "-a", "*", langdir)
+			
+		
+		tree = os.walk(os.path.join(builddir))
 
 		for leafs in tree:
-			olddir = leafs[0]
-			newdir = leafs[0].replace(langdir, builtdir)
-			#print "newdir", newdir
-			if newdir != builtdir:
-				try:
-					os.mkdir(newdir)
-				except OSError, e:
-					print e
-					pass
-
 			files = leafs[2]
 			for htmlpdf_file in files:
-				print htmlpdf_file
-				newname = htmlpdf_file
-	
 				if htmlpdf_file.endswith((".html", ".pdf")) and lang != "":
-					newname = htmlpdf_file + "." + lang
-	
-				#print "fullname", os.path.join(olddir, htmlpdf_file), "newfullname", os.path.join(newdir, newname)
-				os.rename(os.path.join(olddir, htmlpdf_file), os.path.join(newdir, newname))
+					os.rename(htmlpdf_file, htmlpdf_file + "." + lang)
+					
+		# Copy the site with renamed files to builtdir
+		subprocess.call("cp", "-a", "*", builtdir)
 
 	def copy_to_site(self, path):
 		"""Copy the entire site to 'path'
@@ -287,7 +288,7 @@ class StaticSiteBuilder:
 
 		builtdir = os.path.join(self.builddir, "built")
 		os.chdir(builtdir)
-		os.system("scp -r * sd@divvun.no:Sites/.")
+		os.system("scp -r * ~/Sites/.")
 
 	
 
