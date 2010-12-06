@@ -106,7 +106,7 @@ class StaticSiteBuilder:
 	"""This class is used to build a static version of the divvun site.
 	"""
 
-	def __init__(self, site, lang = ""):
+	def __init__(self, site):
 		"""
 			builddir: tells where the forrest should begin its crawl
 			make a directory, built, where generated sites are stored
@@ -159,7 +159,7 @@ class StaticSiteBuilder:
 	
 				raise SystemExit(subp.returncode)
 	
-	def buildsite(self):
+	def buildsite(self, lang):
 		"""Builds a site in the specified language
 		Clean up the build files
 		Validate files. If they don't validate, exit program
@@ -174,7 +174,7 @@ class StaticSiteBuilder:
 		trans.parse_translations()
 		trans.translate()
 
-		print "Building", self.lang, "..."
+		print "Building", lang, "..."
 		subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
 		subp.wait()
 		if subp.returncode == 1:
@@ -182,7 +182,7 @@ class StaticSiteBuilder:
 
 		commands = ["find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'"]
 
-		if self.lang != "en":
+		if lang != "en":
 			for key, value in trans.commont.items():
 				try:
 					if key != "Search":
@@ -191,7 +191,7 @@ class StaticSiteBuilder:
 					continue
 		for command in commands:
 			os.system(command)
-		print "Done building ", self.lang
+		print "Done building "
 
 	def setlang(self, lang):
 		"""Set the language in the file forrest.properties
@@ -268,7 +268,8 @@ class StaticSiteBuilder:
 			langdir = os.path.join(builtdir, lang) 
 			os.mkdir(langdir)
 			os.chdir(builddir)
-			subprocess.call("cp", "-a", "*", langdir)
+			os.system("cp -a * " + langdir)
+			
 			
 		
 		tree = os.walk(os.path.join(builddir))
@@ -277,10 +278,11 @@ class StaticSiteBuilder:
 			files = leafs[2]
 			for htmlpdf_file in files:
 				if htmlpdf_file.endswith((".html", ".pdf")) and lang != "":
-					os.rename(htmlpdf_file, htmlpdf_file + "." + lang)
+					#print leafs[0], htmlpdf_file
+					os.rename(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0], htmlpdf_file + "." + lang))
 					
 		# Copy the site with renamed files to builtdir
-		subprocess.call("cp", "-a", "*", builtdir)
+		os.system("cp -a * " + builtdir)
 
 	def copy_to_site(self, path):
 		"""Copy the entire site to 'path'
@@ -311,18 +313,18 @@ def main():
 
 	#args = sys.argv[1:]
 
-	builder = StaticSiteBuilder("techdoc")
-	builder.validate()
-	# Ensure menus and tabs are in english for techdoc
-	builder.setlang("en")
-	builder.buildsite("en")
-	builder.rename_site_files()
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	#builder = StaticSiteBuilder("techdoc")
+	#builder.validate()
+	## Ensure menus and tabs are in english for techdoc
+	#builder.setlang("en")
+	#builder.buildsite("en")
+	#builder.rename_site_files()
+	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	#langs = ["smj", "sma"]
+	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	langs = ["smj", "sma"]
 	builder = StaticSiteBuilder("sd")
-	builder.validate()
+	#builder.validate()
 	
 	for lang in langs:
 		builder.setlang(lang)
