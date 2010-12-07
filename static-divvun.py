@@ -326,7 +326,7 @@ class StaticSiteBuilder:
 
 		builtdir = os.path.join(self.builddir, "built")
 		os.chdir(builtdir)
-		os.system("scp -r * ~/Sites/.")
+		os.system("scp -r * sd@divvun:Sites/.")
 
 	
 
@@ -349,18 +349,18 @@ def main():
 
 	#args = sys.argv[1:]
 
-	#builder = StaticSiteBuilder("techdoc")
-	#builder.validate()
-	## Ensure menus and tabs are in english for techdoc
-	#builder.setlang("en")
-	#builder.buildsite("en")
-	#builder.rename_site_files()
-	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	builder = StaticSiteBuilder("techdoc")
+	builder.validate()
+	# Ensure menus and tabs are in english for techdoc
+	builder.setlang("en")
+	builder.buildsite("en")
+	builder.rename_site_files()
+	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	langs = ["smj", "sma"]
+	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	#langs = ["smj", "sma"]
 	builder = StaticSiteBuilder("sd")
-	#builder.validate()
+	builder.validate()
 	
 	for lang in langs:
 		builder.setlang(lang)
