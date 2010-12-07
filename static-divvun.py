@@ -292,8 +292,8 @@ class StaticSiteBuilder:
 		#shutil.copy(builddir, builtdir)
 
 	def add_lang_info(self, filename, lang):
-		trlangs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-		trlangs.remove(lang)
+		trlangs = {"fi": "Suomeksi", "nb": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Oarjjelijsábmáj", "sv": "På svenska" , "en": "In english"}
+		del trlangs[lang]
 		#print 'filename', filename
 		#print 'path', self.builddir + "/build/site"
 		the_rest = filename[len(self.builddir + "/build/site"):]
@@ -305,10 +305,10 @@ class StaticSiteBuilder:
 		filebuf = infile.readlines()
 		for line in filebuf:
 			if line.find('id="content"') > -1:
-				line += "<table><td>"
-				for trlang in trlangs:
-					line += '<td><a href="/' + trlang + the_rest + '">' + trlang + '</td>'
-				line += '</td></table>'
+				line += '<div id="lang-choice">\n<ul>\n'
+				for trlang, value in trlangs.items():
+					line += '<li><a href="/' + trlang + the_rest + '">' + value + '</a>\n</li>\n'
+				line += '</ul>\n</div>\n'
 				print 'the line became', line
 			outfile1.write(line)
 			outfile2.write(line)
