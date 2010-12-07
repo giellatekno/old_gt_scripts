@@ -267,30 +267,66 @@ class StaticSiteBuilder:
 		if lang != "":
 			langdir = os.path.join(builtdir, lang) 
 			os.mkdir(langdir)
-			os.chdir(builddir)
-			os.system("cp -a * " + langdir)
 			
+			tree = os.walk(os.path.join(builddir))
 			
-		
-		tree = os.walk(os.path.join(builddir))
+			for leafs in tree:
+				for directory in leafs[1]:
+					os.mkdir(langdir + leafs[0][len(builddir):] + "/" + directory)
+					try:
+						os.mkdir(builtdir + leafs[0][len(builddir):] + "/" + directory)
+					except OSError:
+						continue
+				files = leafs[2]
+				for htmlpdf_file in files:
+					if htmlpdf_file.endswith(".html"):
+						print leafs[0], htmlpdf_file
+						self.add_lang_info(os.path.join(leafs[0], htmlpdf_file), lang)
+						#shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0], htmlpdf_file + "." + lang))
+						os.unlink(os.path.join(leafs[0], htmlpdf_file))
+					else:
+						shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, builtdir),htmlpdf_file))
+						shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file))
 
-		for leafs in tree:
-			files = leafs[2]
-			for htmlpdf_file in files:
-				if htmlpdf_file.endswith((".html", ".pdf")) and lang != "":
-					#print leafs[0], htmlpdf_file
-					os.rename(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0], htmlpdf_file + "." + lang))
-					
 		# Copy the site with renamed files to builtdir
-		os.system("cp -a * " + builtdir)
+		#shutil.copy(builddir, builtdir)
 
+	def add_lang_info(self, filename, lang):
+		trlangs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+		trlangs.remove(lang)
+		#print 'filename', filename
+		#print 'path', self.builddir + "/build/site"
+		the_rest = filename[len(self.builddir + "/build/site"):]
+		#print 'the_rest', the_rest
+		infile = open(filename)
+		outfile1 = open(self.builddir + "/built" + the_rest + "." + lang, "w")
+		outfile2 = open(self.builddir + "/built/" + lang + the_rest, "w")
+		
+		filebuf = infile.readlines()
+		for line in filebuf:
+			if line.find('id="content"') > -1:
+				line += "<table><td>"
+				for trlang in trlangs:
+					line += '<td><a href="/' + trlang + the_rest + '">' + trlang + '</td>'
+				line += '</td></table>'
+				print 'the line became', line
+			outfile1.write(line)
+			outfile2.write(line)
+			
+		infile.close()
+		outfile1.close()
+		outfile2.close()
+		
+		if lang == "nb":
+			shutil.copy(self.builddir + "/built" + the_rest + "." + lang, self.builddir + "/built" + the_rest + "." + "no")
+		
 	def copy_to_site(self, path):
 		"""Copy the entire site to 'path'
 		"""
 
 		builtdir = os.path.join(self.builddir, "built")
 		os.chdir(builtdir)
-		os.system("scp -r * sd@divvun.no:/Sites/.")
+		os.system("scp -r * ~/Sites/.")
 
 	
 
@@ -313,18 +349,18 @@ def main():
 
 	#args = sys.argv[1:]
 
-	builder = StaticSiteBuilder("techdoc")
-	builder.validate()
-	# Ensure menus and tabs are in english for techdoc
-	builder.setlang("en")
-	builder.buildsite("en")
-	builder.rename_site_files()
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	#builder = StaticSiteBuilder("techdoc")
+	#builder.validate()
+	## Ensure menus and tabs are in english for techdoc
+	#builder.setlang("en")
+	#builder.buildsite("en")
+	#builder.rename_site_files()
+	#builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
 
-	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	#langs = ["smj", "sma"]
+	#langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
+	langs = ["smj", "sma"]
 	builder = StaticSiteBuilder("sd")
-	builder.validate()
+	#builder.validate()
 	
 	for lang in langs:
 		builder.setlang(lang)
