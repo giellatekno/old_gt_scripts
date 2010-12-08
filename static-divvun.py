@@ -312,7 +312,7 @@ class StaticSiteBuilder:
 					if trlang != lang:
 						line += '<li><a href="/' + trlang + the_rest + '">' + value + '</a>\n</li>\n'
 					else:
-						line += '<li>' + value '</li>\n'
+						line += '<li>' + value + '</li>\n'
 				line += '</ul>\n</div>\n'
 				#print 'the line became', line
 			outfile1.write(line)
