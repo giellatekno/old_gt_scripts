@@ -287,6 +287,9 @@ class StaticSiteBuilder:
 					else:
 						shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, builtdir),htmlpdf_file))
 						shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file))
+		else:
+			os.chdir(builddir)
+			os.system("mv *" + builddir)
 
 		# Copy the site with renamed files to builtdir
 		#shutil.copy(builddir, builtdir)
