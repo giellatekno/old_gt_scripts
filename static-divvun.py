@@ -95,9 +95,9 @@ class Translate_XML:
 			for el in self.dth.getroot().iter():
 				#print "dth", el.tag
 				if el.tag == "{http://apache.org/cocoon/i18n/2.1}text":
-					print "Old", el.text
+					#print "Old", el.text
 					el.text = self.commont[el.text]
-					print "New", el.text
+					#print "New", el.text
 			outfile = open(os.path.join(self.sitehome,"src/documentation/skins/common/xslt/html/document-to-html.xsl"), "w")
 			outfile.write(etree.tostring(self.dth.getroot()))
 			outfile.close()
