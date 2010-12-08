@@ -326,7 +326,7 @@ class StaticSiteBuilder:
 
 		builtdir = os.path.join(self.builddir, "built")
 		os.chdir(builtdir)
-		os.system("scp -r * sd@divvun:Sites/.")
+		os.system("scp -r * sd@divvun.no:Sites/.")
 
 	
 
