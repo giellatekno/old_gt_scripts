@@ -158,7 +158,8 @@ sub guess_text_encoding() {
 	  # Read the file
 
 	  if (-f $file) {  
-		  $error = &read_file($file, \@text_array, 1); 
+		  my $allow_nonutf = system("iconv -f UTF-8 -t UTF-8 $file");
+		  $error = &read_file($file, \@text_array, $allow_nonutf); 
 		  if ($error) { last CORRECT; }
 	  }
 	  #return;
