@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This script builds a multilingual forrest site."""
+"""This script builds a multilingual forrest site.
+-d an ssh destination
+-c the version control system
+-s where sd and techdoc lives"""
+
 import subprocess
 import os
 import sys
@@ -11,30 +15,40 @@ import re
 import getopt
 from lxml import etree
 
+def revert_files(vcs, files):
+	if vcs == "svn":
+		subp = subprocess.call(["svn", "revert"] + files)
+	if vcs == "git":
+		subp = subprocess.call(["git", "checkout"] + files)
+		
 class Translate_XML:
 	"""Load site.xml and tabs.xml and their translation files.
 	Translate the tags 
 	"""
 
-	def __init__(self, site, lang):
+	def __init__(self, sitehome, lang, vcs):
 		self.lang = lang
-		self.sitehome = os.path.join(os.getenv("GTHOME"), "xtdoc/" + site)
-
+		self.sitehome = sitehome
+		self.vcs = vcs
+		
 		os.chdir(self.sitehome)
-		subp = subprocess.call(["svn", "revert", "src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "src/documentation/skins/common/xslt/html/document-to-html.xsl", "src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
+		revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "src/documentation/skins/common/xslt/html/document-to-html.xsl", "src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
 		self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
 		try:
 			self.site.xinclude()
 		except etree.XIncludeError:
-			print "xinclude in site.xml failed for site", site
+			print "xinclude in site.xml failed for site", sitehome
 		self.tabs = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"))
 		try:
 			self.tabs.xinclude()
 		except etree.XIncludeError:
-			print "xinclude in tabs.xml failed for site", site
+			print "xinclude in tabs.xml failed for site", sitehome
 
 		self.dth = etree.parse(os.path.join(self.sitehome, "src/documentation/skins/common/xslt/html/document-to-html.xsl"))
+
+	def __del__(self):
+		revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "src/documentation/skins/common/xslt/html/document-to-html.xsl", "src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
 	def parse_translations(self):
 		tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
@@ -106,8 +120,11 @@ class StaticSiteBuilder:
 	"""This class is used to build a static version of the divvun site.
 	"""
 
-	def __init__(self, site):
+	def __init__(self, builddir, destination, vcs):
 		"""
+			site: The directory where the forrest site is
+			destination: where the built site is copied (using ssh)
+			
 			builddir: tells where the forrest should begin its crawl
 			make a directory, built, where generated sites are stored
 			logfile: print all errors into this one
@@ -115,12 +132,14 @@ class StaticSiteBuilder:
 			lang_specific_file: keeps trace of which files are localized
 		"""
 		print "Setting up..."
-		print site
-		self.site = site
-		self.builddir = os.path.join(os.getenv("GTHOME"), "xtdoc/" + self.site)
+		print builddir
+		self.builddir = builddir
+		self.destination = destination
+		self.vcs = vcs
+		
 
 		os.chdir(self.builddir)
-		subprocess.call(["svn", "revert", "forrest.properties"])
+		revert_files(self.vcs, ["forrest.properties"])
 		subprocess.call(["forrest", "clean"])
 		
 		if os.path.isdir(os.path.join(self.builddir, "built")):
@@ -138,7 +157,7 @@ class StaticSiteBuilder:
 		Close the logfile
 		"""
 		os.chdir(self.builddir)
-		subprocess.call(["svn", "revert", "forrest.properties"])
+		revert_files(self.vcs, ["forrest.properties"])
 		self.logfile.close()
 
 	def validate(self):
@@ -170,7 +189,7 @@ class StaticSiteBuilder:
 		os.chdir(self.builddir)
 		subprocess.call(["forrest", "clean"])
 
-		trans = Translate_XML( self.site, lang)
+		trans = Translate_XML( self.builddir, lang, self.vcs)
 		trans.parse_translations()
 		trans.translate()
 
@@ -325,23 +344,22 @@ class StaticSiteBuilder:
 		if lang == "nb":
 			shutil.copy(self.builddir + "/built" + the_rest + "." + lang, self.builddir + "/built" + the_rest + "." + "no")
 		
-	def copy_to_site(self, path):
+	def copy_to_site(self):
 		"""Copy the entire site to 'path'
 		"""
 
 		builtdir = os.path.join(self.builddir, "built")
 		os.chdir(builtdir)
-		os.system("scp -r * sd@divvun.no:Sites/.")
+		os.system("scp -r * " + self.destination)
 
 	
 
 def main():
-	#if len(sys.argv) != 3:
-		#print __doc__
-		#sys.exit(0)
 	# parse command line options
+	vcs = "svn"
+
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+		opts, args = getopt.getopt(sys.argv[1:], "hc:d:s:", ["help", "vcs", "destination"])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -350,28 +368,39 @@ def main():
 	for o, a in opts:
 		if o in ("-h", "--help"):
 			print __doc__
-			sys.exit(0)
+			sys.exit(1)
+		elif o in ("-c", "--vcs"):
+			if a != "":
+				vcs = a
+		elif o in ("-d", "--destination"):
+			destination = a
+		elif o in ("-s", "--sitehome"):
+			sitehome = a
+		else:
+			assert False, "unhandled option"
 
-	#args = sys.argv[1:]
+	if len(args) != 0:
+		print __doc__
+		sys.exit(3)
 
-	builder = StaticSiteBuilder("techdoc")
+	builder = StaticSiteBuilder(os.path.join(sitehome, 'techdoc'), destination, vcs)
 	builder.validate()
 	# Ensure menus and tabs are in english for techdoc
 	builder.setlang("en")
 	builder.buildsite("en")
 	builder.rename_site_files()
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	builder.copy_to_site()
 
 	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
 	#langs = ["smj", "sma"]
-	builder = StaticSiteBuilder("sd")
+	builder = StaticSiteBuilder(os.path(sitehome, 'sd'), destination, vcs)
 	builder.validate()
 	
 	for lang in langs:
 		builder.setlang(lang)
 		builder.buildsite(lang)
 		builder.rename_site_files(lang)
-	builder.copy_to_site(os.path.join(os.getenv("HOME"), "Sites"))
+	builder.copy_to_site()
 
 if __name__ == "__main__":
 	main()
