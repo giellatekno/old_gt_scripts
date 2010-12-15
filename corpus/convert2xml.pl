@@ -355,7 +355,7 @@ sub process_file {
 
         # end of line conversion.
         my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-        my $command = "PERL_UNICODE=S $convert_eol \"$tmp0\" > \"$tmp1\"";
+        my $command = "PERL_UNICODE= $convert_eol \"$tmp0\" > \"$tmp1\"";
         exec_com($command, $file);
         copy ($tmp1, $tmp0) ;
 
