@@ -31,6 +31,7 @@ use samiChar::Decode;
 use langTools::Corpus;
 use Carp qw(cluck carp);
 use Encode;
+use File::Temp qw/ tempfile tempdir /;
 
 test_setup();
 
@@ -258,10 +259,12 @@ sub process_file {
 
         ##### Start conversion ############
         my $error;
-        my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
+        (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+        my $tmp0 = $filename;
 
         # Process the file-specific xsl file to import the common.xsl file from $GTHOME:
-        my $tmp = $orig . ".xsl.tmp";
+		($fh, $filename) = tempfile( DIR => $tmpdir );
+        my $tmp = $filename;
         $command = "xsltproc --novalid --stringparam commonxsl \"$commonxsl\" \"$preprocxsl\" \"$xsl_file\" > \"$tmp\"";
         exec_com($command, $file);
         $xsl_file = $tmp ;
@@ -312,7 +315,9 @@ sub process_file {
         # Conversion of XML documents with manual error markup
         elsif ($file =~ /(\.correct\.xml)$/) {
             $int =~ s/\.correct//;
-            my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
+
+            ($fh, $filename) = tempfile( DIR => $tmpdir );
+            my $tmp1 = $filename;
             # Do extra formatting for prooftest-directory.
             my $document = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
             if (! $document->safe_parsefile ("$orig") ) {
@@ -354,8 +359,9 @@ sub process_file {
         }
 
         # end of line conversion.
-        my $tmp1 = $tmpdir . "/" . $file . ".tmp1";
-        my $command = "PERL_UNICODE= $convert_eol \"$tmp0\" > \"$tmp1\"";
+        ($fh, $filename) = tempfile( DIR => $tmpdir );
+        my $tmp1 = $filename;
+        my $command = "$convert_eol \"$tmp0\" > \"$tmp1\"";
         exec_com($command, $file);
         copy ($tmp1, $tmp0) ;
 
@@ -455,8 +461,8 @@ sub print_log {
 
 sub convert_doc {
     my ($file, $orig, $int) = @_;
-
-    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+	(my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp3 = $filename;
 
     my $xsl;
     if ($convxsl) { $xsl = $convxsl; }
@@ -477,8 +483,10 @@ sub convert_svg {
 
     print STDERR "convert_svg $file, $orig\n";
 
-    my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
-    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp0 = $filename;
+    ($fh, $filename) = tempfile( DIR => $tmpdir );
+    my $tmp3 = $filename;
 
     $command = "xsltproc \"$svgxsl\" \"$orig\" > \"$int\"";
     exec_com($command, $file);
@@ -491,8 +499,10 @@ sub convert_avvir {
 
     print STDERR "convert_avvir $file, $orig\n";
 
-    my $tmp0 = $tmpdir . "/" . $file . ".tmp0";
-    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp0 = $filename;
+    ($fh, $filename) = tempfile( DIR => $tmpdir );
+    my $tmp3 = $filename;
 
     $command = "xsltproc \"$avvirxsl\" \"$orig\" > \"$int\"";
     exec_com($command, $file);
@@ -505,7 +515,8 @@ sub convert_pdf {
 
     print STDERR "convert_pdf $file, $orig\n";
 
-    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp3 = $filename;
 
     $command = "pdftotext -enc UTF-8 -nopgbrk -eol unix \"$orig\" - | sed -e 's/\x18//g'  -e 's/\xef\x83\xa0//' -e 's/\xef\x83\x9f//' -e 's/\xef\x81\xae//'  -e 's/\x04//' -e 's/\x07//' > \"$tmp3\"";
     exec_com($command, $file);
@@ -518,7 +529,8 @@ sub convert_txt {
 
     copy($orig,$int);
 
-    my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp4 = $filename;
   ENCODING:
     if (! $no_decode && ! $$no_decode_this_time_ref ) {
 
@@ -583,8 +595,10 @@ sub convert_html {
         if ($coding_elt) { $coding = $coding_elt->{'att'}{'select'}; }
     }
 
-    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
-    my $tmp4 = $tmpdir . "/" . $file . ".tmp4";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp3 = $filename;
+    ($fh, $filename) = tempfile( DIR => $tmpdir );
+    my $tmp4 = $filename;
 
     if (! $no_decode) {
         if (! $coding) { $coding = &guess_text_encoding($orig, $tmp3, $language); }
@@ -613,7 +627,8 @@ sub convert_html {
 sub convert_rtf {
     my ($file, $orig, $int, $xsl_file, $dir_lang) = @_;
 
-    my $tmp3 = $tmpdir . "/" . $file . ".tmp3";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp3 = $filename;
 
     $command = "unrtf --html \"$orig\" > \"$tmp3\"";
     exec_com($command, $file);
@@ -626,7 +641,8 @@ sub file_specific_xsl {
     my ($file, $int, $xsl_file, $doc_id) = @_;
 
     # Execute the file specific .xsl-script.
-    my $tmp = $tmpdir . "/" . $file . ".tmp";
+    (my $fh, my $filename) = tempfile( DIR => $tmpdir );
+    my $tmp = $filename;
     $command = "xsltproc --stringparam document_id \"$doc_id\" \"$xsl_file\" \"$int\" > \"$tmp\"";
     exec_com($command, $file);
 
