@@ -614,6 +614,7 @@ def feed(test = False):
     'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1334&language=se-NO',
     'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1781&language=se-NO',
     'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1170&language=se-NO',
+    'http://www.regjeringen.no/Utilities/RSSEngine/rssprovider.aspx?pageid=1753&language=se-NO', 
     'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=1&Spraak=Samisk',
     'http://www.sametinget.no/artikkelrss.ashx?NyhetsKategoriId=3539&Spraak=Samisk', 'http://avvir.no/feed.php?output_type=atom']
     
