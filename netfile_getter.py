@@ -380,11 +380,13 @@ class RegjeringenArticleSaver(ArticleSaver):
         if we are interested in saving this document and its parallels
         
         """
+        if self.test:
+           print "get parallels, name: ", name
         save = False
 
         # If we have a non-html document, just save it in self.freehome
         if self.fillbuffer(name):
-            if re.search('.*pdf', name) or re.search('.*PDF', name) or re.search('.*doc', name) or re.search('.*ppt', name) or re.search('.*xls', name) or re.search('.*odt', name) or re.search('.*ods', name) or re.search('.*odp', name):
+            if re.search('.*\.pdf', name) or re.search('.*\.PDF', name) or re.search('.*\.doc', name) or re.search('.*\.ppt', name) or re.search('.*\.xls', name) or re.search('.*\.odt', name) or re.search('.*\.ods', name) or re.search('.*\.odp', name):
                 parts = name.split('/')
                 filename = parts[len(parts) - 1]
                 fullname = self.freehome + '/' + filename
@@ -458,10 +460,8 @@ class SamediggiFeedHandler(FeedHandler):
         '''
         saver = SamediggiArticleSaver(self.test)
         for entry in self.doc.entries:
-            entry_id = entry.id[entry.id.rfind('/') + 1:]
-            article_number = entry_id[3:]
-            saver.set_variable('year', str(entry.updated_parsed[0]))
-            saver.save_articles(article_number)
+            rcrawler = RegjeringenCrawler(entry.link, self.test)
+            rcrawler.crawl()
         saver.add_and_commit_files()
 
 class RegjeringenFeedHandler(FeedHandler):
