@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """This script builds a multilingual forrest site.
--d an ssh destination
--c the version control system
--s where sd and techdoc lives"""
+--destination (-d) an ssh destination
+--vcd (-c) the version control system
+--sitehome (-s= where sd and techdoc lives
+--langs (-l) comma separated list of languages"""
 
 import subprocess
 import os
@@ -199,18 +200,20 @@ class StaticSiteBuilder:
 		if subp.returncode == 1:
 			print >>sys.stderr, "Linking errors detected\n"
 
-		commands = ["find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'", "find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/ with google//g'"]
+		commands = [u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/ with google//g'"]
 
 		if lang != "en":
 			commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/Search/" + trans.commont["Search"] + "/g'")
 			for key, value in trans.commont.items():
 				try:
 					if key != "Search":
-						commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value.encode('utf-8') + "/g'")
+						print value
+						commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value + "/g'")
 				except TypeError:
 					continue
 		for command in commands:
-			os.system(command)
+			print command
+			os.system(command.encode('utf-8'))
 		print "Done building "
 
 	def setlang(self, lang):
@@ -258,23 +261,6 @@ class StaticSiteBuilder:
 
 		outproperties.close()
 	
-	def find_langspecific_files(self, lang):
-		"""Find the files that are translated in the forrest documentation
-		tree. Compute the relative path (which will be seen in the web browser)
-		to together with the file name, and store this in self.lang_specific_file
-		"""
-
-		fullpath = os.path.join(self.builddir, "src/documentation/content/xdocs")
-		fullpath_len = len(fullpath) + 1
-		xdocs_tree = os.walk(fullpath)
-		for leafs in xdocs_tree:
-			part_path = leafs[0]
-			part_path = part_path[fullpath_len:]
-			files = leafs[2]
-			for langfile in files:
-				if langfile.find("." + lang + ".") > 1:
-					self.lang_specific_files.append(os.path.join(part_path, langfile))
-
 	def rename_site_files(self, lang = ""):
 		"""Search for files ending with html and pdf in the build site. Give all
 		these files the ending '.lang'. Move them to the 'built' dir
@@ -300,7 +286,7 @@ class StaticSiteBuilder:
 				files = leafs[2]
 				for htmlpdf_file in files:
 					if htmlpdf_file.endswith(".html"):
-						print leafs[0], htmlpdf_file
+						#print leafs[0], htmlpdf_file
 						self.add_lang_info(os.path.join(leafs[0], htmlpdf_file), lang)
 						#shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0], htmlpdf_file + "." + lang))
 						os.unlink(os.path.join(leafs[0], htmlpdf_file))
@@ -309,7 +295,7 @@ class StaticSiteBuilder:
 						shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file))
 		else:
 			os.chdir(builddir)
-			os.system("mv *" + builtdir)
+			os.system("mv * " + builtdir)
 
 		# Copy the site with renamed files to builtdir
 		#shutil.copy(builddir, builtdir)
@@ -358,9 +344,9 @@ class StaticSiteBuilder:
 def main():
 	# parse command line options
 	vcs = "svn"
-
+	langs = []
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hc:d:s:", ["help", "vcs", "destination"])
+		opts, args = getopt.getopt(sys.argv[1:], "hc:d:s:l:", ["help", "vcs", "destination", "langs"])
 	except getopt.error, msg:
 		print msg
 		print "for help use --help"
@@ -377,6 +363,9 @@ def main():
 			destination = a
 		elif o in ("-s", "--sitehome"):
 			sitehome = a
+		elif o in ("-l", "--langs"):
+			for l in a.split(","):
+				langs.append(l)
 		else:
 			assert False, "unhandled option"
 
@@ -384,23 +373,16 @@ def main():
 		print __doc__
 		sys.exit(3)
 
-	builder = StaticSiteBuilder(os.path.join(sitehome, 'techdoc'), destination, vcs)
-	builder.validate()
-	# Ensure menus and tabs are in english for techdoc
-	builder.setlang("en")
-	builder.buildsite("en")
-	builder.rename_site_files()
-	builder.copy_to_site()
-
-	langs = ["fi", "nb", "sma", "se", "smj", "sv", "en" ]
-	#langs = ["smj", "sma"]
-	builder = StaticSiteBuilder(os.path(sitehome, 'sd'), destination, vcs)
+	builder = StaticSiteBuilder(sitehome, destination, vcs)
 	builder.validate()
 	
 	for lang in langs:
 		builder.setlang(lang)
 		builder.buildsite(lang)
-		builder.rename_site_files(lang)
+		if len(langs) == 1:
+			builder.rename_site_files()
+		else:
+			builder.rename_site_files(lang)
 	builder.copy_to_site()
 
 if __name__ == "__main__":
