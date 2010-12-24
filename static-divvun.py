@@ -4,7 +4,7 @@
 """This script builds a multilingual forrest site.
 --destination (-d) an ssh destination
 --vcd (-c) the version control system
---sitehome (-s= where sd and techdoc lives
+--sitehome (-s) where sd and techdoc lives
 --langs (-l) comma separated list of languages"""
 
 import subprocess
@@ -207,12 +207,10 @@ class StaticSiteBuilder:
 			for key, value in trans.commont.items():
 				try:
 					if key != "Search":
-						print value
 						commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value + "/g'")
 				except TypeError:
 					continue
 		for command in commands:
-			print command
 			os.system(command.encode('utf-8'))
 		print "Done building "
 
