@@ -60,12 +60,12 @@ build_gt() {
 	  do
 	  fstdir=/opt/smi/$lang/bin/
 
-	  cd $tmpdir/gt/ && make TARGET=$lang clean
-	  cd $tmpdir/gt/ && make TARGET=$lang >/dev/null
-	  cd $tmpdir/gt/ && make TARGET=$lang hyph-$lang.fst >/dev/null
-	  cd $tmpdir/gt/ && make TARGET=$lang ifst-norm >/dev/null
-	  cd $tmpdir/gt/ && make TARGET=$lang hi-norm >/dev/null
-	  cd $tmpdir/gt/ && make TARGET=$lang dis-bin >/dev/null
+	  cd $tmpdir/gt/ && make GTLANG=$lang clean
+	  cd $tmpdir/gt/ && make GTLANG=$lang >/dev/null
+	  cd $tmpdir/gt/ && make GTLANG=$lang hyph-$lang.fst >/dev/null
+	  cd $tmpdir/gt/ && make GTLANG=$lang ifst-norm >/dev/null
+	  cd $tmpdir/gt/ && make GTLANG=$lang hi-norm >/dev/null
+	  cd $tmpdir/gt/ && make GTLANG=$lang dis-bin >/dev/null
 	  
 	  cp $tmpdir/gt/$lang/bin/$lang.fst $fstdir
 	  cp $tmpdir/gt/$lang/bin/i$lang.fst $fstdir

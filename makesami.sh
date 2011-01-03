@@ -5,32 +5,31 @@
 echo ""
 echo " This script will compile all our Sami analysers and lexica "
 echo ""
-pushd .
-cd $GTHOME/gt
+pushd $GTHOME/gt
 echo "===>                    <===" 
 echo "===>   Sámi languages   <===" 
 echo "===>                    <===" 
 echo ""
 echo "===>     South Sámi      <==="
-nice time make TARGET=sma all
+nice time make GTLANG=sma all
 echo ""
 echo "===>     North Sámi      <==="
-nice time make TARGET=sme all
+nice time make GTLANG=sme all
 echo ""
 echo "===>     Lule Sámi       <==="
-nice time make TARGET=smj all
+nice time make GTLANG=smj all
 echo ""
 echo "===>     Inari Sámi      <==="
-nice time make TARGET=smn all
+nice time make GTLANG=smn all
 echo ""
 echo "===>     Skolt Sámi      <==="
-nice time make TARGET=sms all
+nice time make GTLANG=sms all
 echo ""
 echo "===>     Kildin Sámi     <==="
-nice time make TARGET=sjd all
+nice time make GTLANG=sjd all
 echo ""
 echo "===>      Pite Sámi      <==="
-nice time make TARGET=sje all
+nice time make GTLANG=sje all
 
 echo "===>                    <===" 
 echo "===>  Bilingual transd. <===" 
@@ -55,4 +54,6 @@ echo ""
 echo "===>   Geographic fst   <===" 
 cd $GTHOME/words/dicts/smi/geo/src/
 nice time make
-
+echo ""
+echo "===>   DONE!!!   <===" 
+popd

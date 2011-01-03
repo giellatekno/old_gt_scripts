@@ -12,25 +12,25 @@ echo "===>   Sámi languages   <==="
 echo "===>                    <===" 
 echo ""
 echo "===>     South Sámi      <==="
-nice time make clean TARGET=sma
+nice time make clean GTLANG=sma
 echo ""
 echo "===>     North Sámi      <==="
-nice time make clean TARGET=sme
+nice time make clean GTLANG=sme
 echo ""
 echo "===>     Lule Sámi       <==="
-nice time make clean TARGET=smj
+nice time make clean GTLANG=smj
 echo ""
 echo "===>     Inari Sámi      <==="
-nice time make clean TARGET=smn
+nice time make clean GTLANG=smn
 echo ""
 echo "===>     Skolt Sámi      <==="
-nice time make clean TARGET=sms
+nice time make clean GTLANG=sms
 echo ""
 echo "===>     Kildin Sámi     <==="
-nice time make clean TARGET=sjd
+nice time make clean GTLANG=sjd
 echo ""
 echo "===>      Pite Sámi      <==="
-nice time make clean TARGET=sje
+nice time make clean GTLANG=sje
 echo "===>                    <===" 
 echo "===>   Other languages  <===" 
 echo "===>                    <===" 
@@ -41,7 +41,7 @@ nice time make clean
 echo ""
 echo "===>     Greenlandic     <===" 
 cd $GTHOME/st/kal/src
-nice time make clean TARGET=sloppy
+nice time make clean GTLANG=sloppy
 echo ""
 echo "===>      Bokmål      <===" 
 cd $GTHOME/st/nob/src

@@ -16,7 +16,7 @@ binmode STDOUT;
 # /beta$ $0$.$2$,$ <=>vv/ twin
 # /$2$0$0$7$-$-$0$4$-$-$1$4<=>i$D/ twin
 #
-# The language is taken from an input parameter ($(TARGET) in the makefile)
+# The language is taken from an input parameter ($(GTLANG) in the makefile)
 # The version string is taken from a file
 # The date string is taken from a system call.
 #

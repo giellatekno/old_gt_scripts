@@ -52,7 +52,7 @@ do
     done
 
     cd $GTHOME/gt
-    make TARGET=$SMILANG
+    make GTLANG=$SMILANG
     if [ $SMILANG == "sma" ]
     then
         PREPROCESS="preprocess"

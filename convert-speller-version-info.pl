@@ -43,7 +43,7 @@ sub print_help {
 	print"Usage: convert-speller-version-info.pl [OPTIONS] [FILES]\n";
 	print "The available options:\n";
 	print"    --lang=<LANG>     The target language of the make command.\n";
-    print"                      It corresponds to the TARGET make variable.\n";
+    print"                      It corresponds to the GTLANG make variable.\n";
     print"    --rel=<release>   The release string.\n";
     print"    --infile=<file>   The input data file.\n";
     print"    --plxfile=<file>  The PLX-formated output file.\n";

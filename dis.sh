@@ -35,6 +35,6 @@ pwd=$(pwd)
 #echo "VISLCG"
 #echo $vislcg
 
-cd $GTHOME/gt/ && make dis TARGET=sme M4FLAGS="$m4flags"
+cd $GTHOME/gt/ && make dis GTLANG=sme M4FLAGS="$m4flags"
 cd $pwd && exec $vislcg<&0
 
