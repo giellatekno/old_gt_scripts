@@ -36,7 +36,7 @@ echo "===>                    <==="
 echo ""
 echo "===>       Faroese       <===" 
 cd $GTHOME/st/fao/src
-nice time make
+nice time make -f Makefile.orig
 echo ""
 echo "===>     Greenlandic     <===" 
 echo
