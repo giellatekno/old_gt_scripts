@@ -104,9 +104,7 @@ sub convert2intermediate {
 sub convert2xml {
 	my( $self ) = @_;
 
-	if( ! -e File::Basename::dirname($self->getInt())) {
-		File::Path::mkpath(File::Basename::dirname($self->getInt()));
-	}
+	$self->makeIntDir();
 
 	my $command = "xsltproc \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
 	return $self->exec_com($command);
