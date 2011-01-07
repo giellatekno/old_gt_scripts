@@ -14,7 +14,7 @@ require_ok('langTools::Converter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc";
+my $doc_name = "fakecorpus/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml";
 ok(my $converter = langTools::Converter->new($doc_name, 0));
 
 #
@@ -22,22 +22,21 @@ ok(my $converter = langTools::Converter->new($doc_name, 0));
 #
 is($converter->getOrig(), Cwd::abs_path($doc_name));
 
-#
-# Check that the name of the converted file is correct
-#
-is($converter->getInt(), Cwd::cwd() . "/fakecorpus/converted/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc.xml");
+(my $int = $converter->getOrig()) =~ s/\/orig\//\/converted\//;
+is($converter->getInt(), $int .".xml", "Check if path to the converted doc is computed correctly");
 
-#
-# Check if the random file name is made and is of the expected length
-#
 is(length($converter->getTmpFilebase()), '8');
 
-#
-# Check the return value of the function
-#
-#is($converter->convert2xml, '0');
+is($converter->getCommonXsl(), "$ENV{'GTHOME'}/gt/script/corpus/common.xsl", "Check if common.xsl is set");
 
-#
-# Check the return value of the function
-#
-is($converter->makeXslFile(), '0');
+is($converter->getPreprocXsl(), "$ENV{'GTHOME'}/gt/script/corpus/preprocxsl.xsl", "Check if preprocxsl.xsl is set");
+
+isnt($converter->getDoclang(), "", "Check if doclang is empty");
+
+is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
+
+is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
+
+is($converter->checklang(), '0', "Check lang. If not set, set it");
+
+is($converter->checkxml(), '0', "Check if the final xml is valid");

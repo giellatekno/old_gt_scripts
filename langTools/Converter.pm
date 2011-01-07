@@ -1,35 +1,31 @@
 package langTools::Converter;
+use langTools::AvvirXMLConverter;
 use strict;
-use File::Basename;
-use File::Path;
-use Cwd;
 use utf8;
+use Carp qw(cluck carp);
+use XML::Twig;
 
 sub new {
 	my ($class, $filename, $test) = @_;
 
-	my $abs_path = Cwd::abs_path($filename);
-	die("$filename: file doesn't exist") unless (-e $filename);
-	die("$abs_path: filename must exist inside a corpus directory") unless $abs_path =~ m/orig\//;
-
-# 	my ($fname, $directories, $suffix) = File::Basename::fileparse($abs_path);
-# 	print "fileparse: b $fname b $directories  b $suffix b\n";
 	my $self = {};
-	$self->{_orig_file} = $abs_path;
 	$self->{_test} = $test;
 	$self->{_bindir} = "$ENV{'GTHOME'}/gt/script";
 	$self->{_corpus_script} = $self->{_bindir} . "/corpus";
 	$self->{_common_xsl} = $self->{_corpus_script} . "/common.xsl";
 	$self->{_preproc_xsl} = $self->{_corpus_script} . "/preprocxsl.xsl";
-	$self->{_tmpfile_base} = join ( '', map {('a'..'z')[rand 26]} 0..7 );
 
-	my @values = split("/orig/", $abs_path);
-	$self->{_tmpdir} = $values[0] . "/tmp";
-	if ( ! -e $self->{_tmpdir} ) {
-		File::Path::mkpath($self->{_tmpdir});
-	}
+	my $preconverter = langTools::AvvirXMLConverter->new($filename, $test);
+	$self->{_intermediate_xml} = $preconverter->convert2intermediate();
+	$self->{_tmpfile_base} = $preconverter->getTmpFilebase();
+	$self->{_orig_file} = $preconverter->getOrig();
+	$self->{_tmpdir} = $preconverter->getTmpDir();
 
+	my @values = split("/orig/", $preconverter->getOrig());
+	@values = split("/", $values[1]);
+	$self->{_doclang} = $values[0];
 	bless $self, $class;
+
 	return $self;
 }
 
@@ -74,6 +70,11 @@ sub getIntermediateXml {
 	return $self->{_intermediate_xml};
 }
 
+sub getDoclang {
+	my( $self ) = @_;
+	return $self->{_doclang};
+}
+
 sub makeXslFile {
 	my( $self ) = @_;
 	$self->{_metadata_xsl} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".xsl";
@@ -111,6 +112,40 @@ sub convert2xml {
 
 	my $command = "xsltproc \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
 	return $self->exec_com($command);
+}
+
+sub checkxml {
+	my( $self ) = @_;
+	
+	my $command = "xmllint --valid --encode UTF-8 " . $self->getInt() . " > /dev/null";
+	return $self->exec_com($command);
+}
+
+sub checklang {
+	my( $self ) = @_;
+	
+	# Check the main language,  add if it is missing.
+	my $tmp = $self->getInt();
+	my $document = XML::Twig->new;
+	if (! $document->safe_parsefile("$tmp")) {
+		carp "ERROR parsing the XML-file «$tmp» failed ";
+		return "1";
+	}
+	my $root = $document->root;
+	my $mainlang = $root->{'att'}->{'xml:lang'};
+	my $id = $root->{'att'}->{'id'};
+
+	if(! $mainlang || $mainlang eq "unknown") {
+		#print "setting language: $language \n";
+		#$root->set_att('xml:lang', $language);
+		# Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
+		$root->set_att('xml:lang', $self->getDoclang());
+	}
+	open(FH, ">$tmp") or die "Cannot open $tmp $!";
+	$document->set_pretty_print('indented');
+	$document->print(\*FH);
+
+	return 0;
 }
 
 1;
