@@ -1,7 +1,7 @@
 package langTools::AvvirXMLConverter;
 
-use langTools::Converter;
-@ISA = ("langTools::Converter");
+use langTools::Preconverter;
+@ISA = ("langTools::Preconverter");
 
 sub new {
 	my ($class, $filename, $test) = @_;
@@ -21,9 +21,10 @@ sub getXsl {
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	$self->{_intermediate_xml} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".tmp1";
-	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->getIntermediateXml() . "\"";
-	return $self->exec_com($command);
+	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->gettmp1() . "\"";
+	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
+	
+	return $self->gettmp1();
 }
 
 1;
