@@ -1,5 +1,11 @@
 package langTools::Converter;
 use langTools::AvvirXMLConverter;
+use langTools::BibleXMLConverter;
+use langTools::HTMLConverter;
+use langTools::ParatextConverter;
+use langTools::RTFConverter;
+use langTools::DOCConverter;
+
 use strict;
 use utf8;
 use Carp qw(cluck carp);
@@ -8,14 +14,37 @@ use XML::Twig;
 sub new {
 	my ($class, $filename, $test) = @_;
 
+	my $abs_path = Cwd::abs_path($filename);
+
 	my $self = {};
 	$self->{_test} = $test;
 	$self->{_bindir} = "$ENV{'GTHOME'}/gt/script";
 	$self->{_corpus_script} = $self->{_bindir} . "/corpus";
 	$self->{_common_xsl} = $self->{_corpus_script} . "/common.xsl";
 	$self->{_preproc_xsl} = $self->{_corpus_script} . "/preprocxsl.xsl";
-
-	my $preconverter = langTools::AvvirXMLConverter->new($filename, $test);
+	my $preconverter = undef;
+	if( $abs_path =~ /Avvir/ && $abs_path =~ /\.xml$/ ) {
+		print "avvir\n";
+		$preconverter = langTools::AvvirXMLConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
+		print "bible.xml\n";
+		$preconverter = langTools::BibleXMLConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.html\?id=\d*/ ) {
+		print "html\n";
+		$preconverter = langTools::HTMLConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.ptx$/ ) {
+		print "ptx\n";
+		$preconverter = langTools::ParatextConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.rtf$/ ) {
+		print "rtf\n";
+		$preconverter = langTools::RTFConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.doc$/ ) {
+		print "rtf\n";
+		$preconverter = langTools::DOCConverter->new($filename, $test);
+	} else {
+		die("unable to handle $filename\n");
+	}
+	die("Preconverter is undefined") unless $self->{_preconverter} = $preconverter;
 	$self->{_intermediate_xml} = $preconverter->convert2intermediate();
 	$self->{_tmpfile_base} = $preconverter->getTmpFilebase();
 	$self->{_orig_file} = $preconverter->getOrig();
