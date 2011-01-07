@@ -1,14 +1,15 @@
 package langTools::ParatextConverter;
 
-use langTools::Converter;
-@ISA = ("langTools::Converter");
+use langTools::Preconverter;
+@ISA = ("langTools::Preconverter");
 
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	$self->{_intermediate_xml} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".tmp1";
-	my $command = $self->{_corpus_script} . "/paratext2xml.pl --out \"" . $self->getIntermediateXml() . "\" \"" . $self->getOrig() . "\"";
-	return $self->exec_com($command);
+	my $command = $self->{_corpus_script} . "/paratext2xml.pl --out \"" . $self->gettmp1() . "\" \"" . $self->getOrig() . "\"";
+	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
+	
+	return $self->gettmp1();
 }
 
 1;
