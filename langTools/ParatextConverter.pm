@@ -3,15 +3,6 @@ package langTools::ParatextConverter;
 use langTools::Converter;
 @ISA = ("langTools::Converter");
 
-sub new {
-	my ($class, $filename, $test) = @_;
-
-	my $self = $class->SUPER::new($filename, $test);
-
-	bless $self, $class;
-	return $self;
-}
-
 sub convert2intermediate {
 	my( $self ) = @_;
 
