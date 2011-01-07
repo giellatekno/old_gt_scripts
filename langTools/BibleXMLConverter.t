@@ -37,8 +37,6 @@ file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
 is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
 
-is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/avvir2corpus.xsl", "Check if avvir2corpus.xsl is set");
-
 is($converter->convert2intermediate(), '0', "Check if conversion to internal xml goes well");
 
 is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");

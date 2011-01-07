@@ -20,7 +20,6 @@ sub new {
 	$self->{_corpus_script} = $self->{_bindir} . "/corpus";
 	$self->{_common_xsl} = $self->{_corpus_script} . "/common.xsl";
 	$self->{_preproc_xsl} = $self->{_corpus_script} . "/preprocxsl.xsl";
-	$self->{ _converter_xsl } = $self->{_corpus_script} . "/avvir2corpus.xsl";
 	$self->{_tmpfile_base} = join ( '', map {('a'..'z')[rand 26]} 0..7 );
 
 	my @values = split("/orig/", $abs_path);
@@ -67,11 +66,6 @@ sub getTmpDir {
 sub getMetadataXsl() {
 	my( $self ) = @_;
 	return $self->{_metadata_xsl};
-}
-
-sub getXsl {
-	my( $self ) = @_;
-	return $self->{_converter_xsl};
 }
 
 sub getIntermediateXml {
