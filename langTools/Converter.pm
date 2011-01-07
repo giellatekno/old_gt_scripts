@@ -3,12 +3,13 @@ use strict;
 use File::Basename;
 use File::Path;
 use Cwd;
+use utf8;
 
 sub new {
 	my ($class, $filename, $test) = @_;
 
 	my $abs_path = Cwd::abs_path($filename);
-	die("$abs_path: file doesn't exist") unless (-e $abs_path);
+	die("$filename: file doesn't exist") unless (-e $filename);
 	die("$abs_path: filename must exist inside a corpus directory") unless $abs_path =~ m/orig\//;
 
 # 	my ($fname, $directories, $suffix) = File::Basename::fileparse($abs_path);
@@ -77,7 +78,7 @@ sub makeXslFile {
 	my( $self ) = @_;
 	$self->{_metadata_xsl} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".xsl";
 
-	my $command = "xsltproc --novalid --stringparam commonxsl \"" . $self->getCommonXsl() . "\" \"" . $self->getPreprocXsl() . "\" \"" . $self->getOrig() . ".xsl" . "\" > \"" . $self->getMetadataXsl() . "\"";
+	my $command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getOrig() . ".xsl" . " > " . $self->getMetadataXsl();
 	return $self->exec_com($command);
 }
 
@@ -92,12 +93,12 @@ sub exec_com {
 	my ( $self, $com ) = @_;
 
 	if ($self->{_test}) {
-		print STDERR "$self->getOrig() exec_com: $com\n";
+		print STDERR $self->getOrig() . " exec_com: $com\n";
 	}
 
 	my $result = system($com);
 	if ($result != 0) {
-		print STDERR "ERROR errors in $com: $!\n";
+		print STDERR "Errnr: $result. Errmsg: $com: $!\n";
 	}
 
 	return $result;
