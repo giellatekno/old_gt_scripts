@@ -22,16 +22,13 @@ sub convert2intermediate {
 	my( $self ) = @_;
 
 	my $command = "antiword -s -x db \"" . $self->getOrig() . "\" > \"" . $self->gettmp2() . "\"";
-	print "$command\n";
-	$self->exec_com($command);
+	die("Wasn't able to convert " . $self->getOrig() . " to intermediate docbook") if $self->exec_com($command);
 
 	$command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
-	print "$command\n";
-	$self->exec_com($command);
+	die("Wasn't able to convert " . $self->gettmp2() . " to intermediate xml format") if $self->exec_com($command);
 
 	$command = "perl -pi -e \"s/\x{00B6}/<\\/p><p>/g\" \"" . $self->gettmp1() . "\"";
-	print "$command\n";
-	$self->exec_com($command);
+	die("Wasn't able to convert " . $self->gettmp1() . " to intermediate xml format") if $self->exec_com($command);
 
     return $self->gettmp1();
 }
