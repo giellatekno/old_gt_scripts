@@ -1,15 +1,13 @@
 package langTools::HTMLConverter;
 
-use langTools::Converter;
-@ISA = ("langTools::Converter");
+use langTools::Preconverter;
+@ISA = ("langTools::Preconverter");
 
 sub new {
 	my ($class, $filename, $test) = @_;
 
 	my $self = $class->SUPER::new($filename, $test);
 	$self->{ _converter_xsl } = $self->{_corpus_script} . "/xhtml2corpus.xsl";
-	$self->{_intermediate_xml2} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".tmp2";
-	$self->{_intermediate_xml} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".tmp1";
 	
 	bless $self, $class;
 	return $self;
@@ -18,11 +16,6 @@ sub new {
 sub getXsl {
 	my( $self ) = @_;
 	return $self->{_converter_xsl};
-}
-
-sub gettmp2 {
-	my( $self ) = @_;
-	return $self->{_intermediate_xml2};
 }
 
 sub tidyHTML {
@@ -35,8 +28,10 @@ sub tidyHTML {
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->getIntermediateXml() . "\"";
-	return $self->exec_com($command);
+	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->gettmp1() . "\"";
+	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
+	
+	return $self->gettmp1();
 }
 
 1;
