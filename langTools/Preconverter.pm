@@ -14,8 +14,6 @@ sub new {
 	die("$filename: file doesn't exist") unless (-e $filename);
 	die("$abs_path: filename must exist inside a corpus directory") unless $abs_path =~ m/orig\//;
 
-# 	my ($fname, $directories, $suffix) = File::Basename::fileparse($abs_path);
-# 	print "fileparse: b $fname b $directories  b $suffix b\n";
 	my $self = {};
 	$self->{_orig_file} = $abs_path;
 	$self->{_test} = $test;
