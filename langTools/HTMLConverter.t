@@ -16,18 +16,21 @@ require_ok('langTools::HTMLConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232";
-my $converter = langTools::HTMLConverter->new($doc_name, 0);
-isa_ok($converter, 'langTools::HTMLConverter', 'converter');
+my @doc_names = ("fakecorpus/orig/sma/facta/skuvlahistorja1/albert_s.html", "fakecorpus/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232");
 
-isa_ok($converter, 'langTools::Preconverter', 'converter');
+foreach my $doc_name (@doc_names) {
+	my $converter = langTools::HTMLConverter->new($doc_name, 0);
+	isa_ok($converter, 'langTools::HTMLConverter', 'converter');
 
-is($converter->getOrig(), Cwd::abs_path($doc_name), "Check if path to the orig doc is  correct");
+	isa_ok($converter, 'langTools::Preconverter', 'converter');
 
-file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
+	is($converter->getOrig(), Cwd::abs_path($doc_name), "Check if path to the orig doc is  correct");
 
-is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/xhtml2corpus.xsl", "Check if xhtml2corpus.xsl is set");
+	file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
-isnt($converter->tidyHTML(), '512', "Check if html is tidied");
+	is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/xhtml2corpus.xsl", "Check if xhtml2corpus.xsl is set");
 
-isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+	isnt($converter->tidyHTML(), '512', "Check if html is tidied");
+
+	isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+}
