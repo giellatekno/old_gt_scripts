@@ -5,6 +5,8 @@ use langTools::HTMLConverter;
 use langTools::ParatextConverter;
 use langTools::RTFConverter;
 use langTools::DOCConverter;
+use langTools::PlaintextConverter;
+use langTools::PDFConverter;
 
 use strict;
 use utf8;
@@ -41,6 +43,12 @@ sub new {
 	} elsif( $abs_path =~ /\.doc$/ ) {
 		print "rtf\n";
 		$preconverter = langTools::DOCConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.txt$/ ) {
+		print "plaintext\n";
+		$preconverter = langTools::PlaintextConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.pdf$/ ) {
+		print "pdf\n";
+		$preconverter = langTools::PDFConverter->new($filename, $test);
 	} else {
 		die("unable to handle $filename\n");
 	}
