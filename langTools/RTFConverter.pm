@@ -25,7 +25,7 @@ sub convert2intermediate {
 # 	die("Couldn't convert rtf doc to html") if 
 	$self->exec_com($command);
 	
-	$command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
+	$command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
 	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
 	
 	return $self->gettmp1();
