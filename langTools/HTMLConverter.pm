@@ -21,14 +21,15 @@ sub getXsl {
 sub tidyHTML {
 	my( $self ) = @_;
 	
-	$command = "tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet -output " . $self->gettmp2() . " " . $self->getOrig();
+	$command = "tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet " . $self->getOrig() . " > " . $self->gettmp2();
 	return $self->exec_com($command);
 }
 
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->gettmp1() . "\"";
+	$self->tidyHTML();
+	my $command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
 	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
 	
 	return $self->gettmp1();
