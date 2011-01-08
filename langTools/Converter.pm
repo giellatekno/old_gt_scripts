@@ -29,7 +29,7 @@ sub new {
 	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
 		print "bible.xml\n";
 		$preconverter = langTools::BibleXMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.html\?id=\d*/ ) {
+	} elsif( $abs_path =~ /\.html\?id=\d*/ || $abs_path =~ /\.html$/ ) {
 		print "html\n";
 		$preconverter = langTools::HTMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.ptx$/ ) {
