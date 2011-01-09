@@ -9,23 +9,23 @@ use Cwd;
 # Load the modules we are testing
 #
 BEGIN {
-	use_ok('langTools::AvvirXMLConverter', "usage of package ok");
+	use_ok('langTools::SVGConverter', "usage of package ok");
 }
-require_ok('langTools::AvvirXMLConverter');
+require_ok('langTools::SVGConverter');
 
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml";
-my $converter = langTools::AvvirXMLConverter->new($doc_name, 1);
-isa_ok($converter, 'langTools::AvvirXMLConverter', 'converter');
+my $doc_name = "fakecorpus/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT.200910.svg";
+my $converter = langTools::SVGConverter->new($doc_name, 1);
+isa_ok($converter, 'langTools::SVGConverter', 'converter');
 
 isa_ok($converter, 'langTools::Preconverter', 'converter');
 
-is($converter->getOrig(), Cwd::abs_path($doc_name), "Check if path to the orig doc is  correct");
+is($converter->getOrig(), Encode::decode_utf8(Cwd::abs_path($doc_name)), "Check if path to the orig doc is  correct");
 
 file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
-is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/avvir2corpus.xsl", "Check if avvir2corpus.xsl is set");
+is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/svg2corpus.xsl", "Check if svg2corpus.xsl is set");
 
 isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
