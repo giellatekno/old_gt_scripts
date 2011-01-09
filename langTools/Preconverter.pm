@@ -6,11 +6,12 @@ use Cwd;
 use utf8;
 use Carp qw(cluck carp);
 use XML::Twig;
+use Encode;
 
 sub new {
 	my ($class, $filename, $test) = @_;
 
-	my $abs_path = Cwd::abs_path($filename);
+	my $abs_path = Encode::decode_utf8(Cwd::abs_path($filename));
 	die("$filename: file doesn't exist") unless (-e $filename);
 	die("$abs_path: filename must exist inside a corpus directory") unless $abs_path =~ m/orig\//;
 
