@@ -2,6 +2,8 @@ use Test::More 'no_plan';
 use Test::Exception;
 use strict;
 use Cwd;
+use Encode;
+use utf8;
 
 #
 # Load the modules we are testing
@@ -15,7 +17,7 @@ require_ok('langTools::Converter');
 # Set a file name, try to make an instance of our object
 #
 #
-my @doc_names = ("fakecorpus/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml", "fakecorpus/orig/sme/bible/ot/Salmmat__garvasat.bible.xml", "fakecorpus/orig/nob/bible/ot/01GENNNST.u8.ptx", "fakecorpus/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf", "fakecorpus/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232", "fakecorpus/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc", "fakecorpus/orig/sma/facta/skuvlahistorja1/albert_s.html", "fakecorpus/orig/sme/laws/nac1-1994-24.txt", "fakecorpus/orig/sme/facta/callinravvagat.pdf");
+my @doc_names = ("fakecorpus/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml", "fakecorpus/orig/sme/bible/ot/Salmmat__garvasat.bible.xml", "fakecorpus/orig/nob/bible/ot/01GENNNST.u8.ptx", "fakecorpus/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf", "fakecorpus/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232", "fakecorpus/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc", "fakecorpus/orig/sma/facta/skuvlahistorja1/albert_s.html", "fakecorpus/orig/sme/laws/nac1-1994-24.txt", "fakecorpus/orig/sme/facta/callinravvagat.pdf", "fakecorpus/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg");
 foreach my $doc_name (@doc_names) {
 	print "\nTrying to convert $doc_name\n";
 	ok(my $converter = langTools::Converter->new($doc_name, 0));
@@ -23,7 +25,7 @@ foreach my $doc_name (@doc_names) {
 	#
 	# Test if the original is the given file name
 	#
-	is($converter->getOrig(), Cwd::abs_path($doc_name));
+	is($converter->getOrig(), Encode::decode_utf8(Cwd::abs_path($doc_name)));
 
 	(my $int = $converter->getOrig()) =~ s/\/orig\//\/converted\//;
 	is($converter->getInt(), $int .".xml", "Check if path to the converted doc is computed correctly");

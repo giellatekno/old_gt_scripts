@@ -7,6 +7,7 @@ use langTools::RTFConverter;
 use langTools::DOCConverter;
 use langTools::PlaintextConverter;
 use langTools::PDFConverter;
+use langTools::SVGConverter;
 
 use strict;
 use utf8;
@@ -49,6 +50,9 @@ sub new {
 	} elsif( $abs_path =~ /\.pdf$/ ) {
 		print "pdf\n";
 		$preconverter = langTools::PDFConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.svg$/ ) {
+		print "svg\n";
+		$preconverter = langTools::SVGConverter->new($filename, $test);
 	} else {
 		die("unable to handle $filename\n");
 	}
