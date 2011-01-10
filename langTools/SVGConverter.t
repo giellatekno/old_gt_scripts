@@ -16,7 +16,7 @@ require_ok('langTools::SVGConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT.200910.svg";
+my $doc_name = "$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT.200910.svg";
 my $converter = langTools::SVGConverter->new($doc_name, 1);
 isa_ok($converter, 'langTools::SVGConverter', 'converter');
 

@@ -16,7 +16,7 @@ require_ok('langTools::ParatextConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/nob/bible/ot/01GENNNST.u8.ptx";
+my $doc_name = "$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx";
 my $converter = langTools::ParatextConverter->new($doc_name, 0);
 isa_ok($converter, 'langTools::ParatextConverter', 'converter');
 

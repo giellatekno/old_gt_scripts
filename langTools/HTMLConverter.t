@@ -16,7 +16,7 @@ require_ok('langTools::HTMLConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my @doc_names = ("fakecorpus/orig/sma/facta/skuvlahistorja1/albert_s.html", "fakecorpus/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232");
+my @doc_names = ("$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html", "$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232");
 
 foreach my $doc_name (@doc_names) {
 	my $converter = langTools::HTMLConverter->new($doc_name, 0);

@@ -15,7 +15,7 @@ require_ok('langTools::Preconverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT.200910.svg";
+my $doc_name = "$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT.200910.svg";
 ok(my $converter = langTools::Preconverter->new($doc_name, 0));
 
 isnt($converter->getDoclang(), "", "Check if doclang is empty");
@@ -30,7 +30,3 @@ is($converter->getOrig(), Encode::decode_utf8(Cwd::abs_path($doc_name)));
 #
 is(length($converter->getTmpFilebase()), '8');
 
-#
-# Check the return value of the function
-#
-#is($converter->convert2xml, '0');

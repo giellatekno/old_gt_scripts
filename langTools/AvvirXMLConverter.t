@@ -16,7 +16,7 @@ require_ok('langTools::AvvirXMLConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml";
+my $doc_name = "$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml";
 my $converter = langTools::AvvirXMLConverter->new($doc_name, 1);
 isa_ok($converter, 'langTools::AvvirXMLConverter', 'converter');
 

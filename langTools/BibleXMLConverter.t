@@ -16,7 +16,7 @@ require_ok('langTools::BibleXMLConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/bible/ot/Salmmat__garvasat.bible.xml";
+my $doc_name = "$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml";
 my $converter = langTools::BibleXMLConverter->new($doc_name, 0);
 isa_ok($converter, 'langTools::BibleXMLConverter', 'converter');
 

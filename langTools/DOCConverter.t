@@ -16,7 +16,7 @@ require_ok('langTools::DOCConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc";
+my $doc_name = "$ENV{GTFREE}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc";
 my $converter = langTools::DOCConverter->new($doc_name, 0);
 isa_ok($converter, 'langTools::DOCConverter', 'converter');
 
