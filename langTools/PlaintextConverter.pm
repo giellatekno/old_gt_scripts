@@ -1,15 +1,30 @@
 package langTools::PlaintextConverter;
-
-use langTools::Corpus;
-use langTools::Preconverter;
 @ISA = ("langTools::Preconverter");
+use langTools::Preconverter;
+
+use samiChar::Decode;
+use langTools::Corpus;
 
 sub convert2intermediate {
 	my( $self ) = @_;
-	
-	langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1(), "");
-	
-	$self->gettmp1();
-}
 
+	my $encoding = &guess_text_encoding($self->getOrig(), $self->gettmp1(), $self->getDoclang());
+	
+	if ($encoding) {
+		if (&decode_text_file($self->getOrig(), $encoding, $self->gettmp2())) {
+			die("Couldn't decode " . $self->getOrig() . " with encoding $encoding");
+		}
+		langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1, $self->getDoclang());
+	
+	} else {
+		langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1, $self->getDoclang());
+	}
+	
+	
+	if( $self->getTest() ){ 
+		print "the intermediate doc is now in " . $self->gettmp1() . "\n";
+	}
+	
+	return $self->gettmp1();
+}
 1;
