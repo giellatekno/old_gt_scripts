@@ -44,7 +44,7 @@ sub new {
 		print "rtf\n";
 		$preconverter = langTools::RTFConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.doc$/ ) {
-		print "rtf\n";
+		print "doc\n";
 		$preconverter = langTools::DOCConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.txt$/ ) {
 		print "plaintext\n";
