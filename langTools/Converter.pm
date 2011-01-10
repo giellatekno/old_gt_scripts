@@ -196,8 +196,15 @@ sub checklang {
 }
 
 sub character_encoding {
-    my ($file, $int, $no_decode_this_time) = @_;
-
+	my ($self) = @_;
+    #my ($file, $int, $no_decode_this_time) = @_;
+	my $file = $self->getOrig();
+	my $int = $self->getInt();
+	my $no_decode_this_time = 0;
+	my $no_decode = 0;
+	my $multi_coding = 0;
+	my $test = $self->getTest();
+	my $language = $self->getDoclang();
     # Check if the file contains characters that are wrongly
     # utf-8 encoded and decode them.
 
