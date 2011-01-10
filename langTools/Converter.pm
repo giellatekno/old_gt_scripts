@@ -195,4 +195,77 @@ sub checklang {
 	return 0;
 }
 
+sub character_encoding {
+    my ($file, $int, $no_decode_this_time) = @_;
+
+    # Check if the file contains characters that are wrongly
+    # utf-8 encoded and decode them.
+
+    if (! $no_decode ) {
+        &read_char_tables;
+        # guess encoding and decode each paragraph at the time.
+        if( $multi_coding ) {
+            my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para(@_); } });
+            if (! $document->safe_parsefile ("$int") ) {
+                carp "ERROR parsing the XML-file failed. STOP\n";
+                return "ERROR";
+            }
+            if (! open (FH, ">$int")) {
+                carp "ERROR cannot open file STOP";
+                return "ERROR";
+            }
+            $document->set_pretty_print('indented');
+            $document->print( \*FH);
+        } else {
+            # assume same encoding for the whole file.
+            my $coding = &guess_encoding($int, $language, 0);
+            if ($coding eq -1) {
+                carp "ERROR Was not able to determine character encoding. STOP.";
+                return "ERROR";
+            }
+            elsif ($coding eq 0) {
+                if($test) { print STDERR "Correct character encoding.\n"; }
+                if($file =~ /\.doc$/) {
+                    # Document title in msword documents is generally wrongly encoded,
+                    # check that separately.
+                    my $d=XML::Twig->new(twig_handlers=>{
+                        'p[@type="title"]'=> sub{call_decode_title(@_, $coding); },
+                        'title'=>sub{call_decode_title(@_);}
+                    }
+                                         );
+                    if (! $d->safe_parsefile ("$int") ) {
+                        carp "ERROR parsing the XML-file failed.\n";
+                        return "ERROR";
+                    }
+                    if (! open (FH, ">$int")) {
+                        carp "ERROR cannot open file";
+                        return "ERROR";
+                    }
+                    $d->set_pretty_print('indented');
+                    $d->print( \*FH);
+                }
+                return 0;
+            }
+            # Continue decoding the file.
+            if ($no_decode_this_time && $coding eq "latin6") { return 0; }
+            if($test) { print STDERR "Character decoding: $coding\n"; }
+            my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
+                                                 'title'=>sub{call_decode_para(@_, $coding);}
+                                             }
+                                 );
+            if (! $d->safe_parsefile ("$int") ) {
+                carp "ERROR parsing the XML-file failed.\n";
+                return "ERROR";
+            }
+            if (! open (FH, ">$int")) {
+                carp "ERROR cannot open file";
+                return "ERROR";
+            }
+            $d->set_pretty_print('indented');
+            $d->print( \*FH);
+        }
+    }
+    return 0;
+} 
+
 1;
