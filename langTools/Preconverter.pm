@@ -27,6 +27,8 @@ sub new {
 	if ( ! -e $self->{_tmpdir} ) {
 		File::Path::mkpath($self->{_tmpdir});
 	}
+	@values = split("/", $values[1]);
+	$self->{_doclang} = $values[0];
 
 	bless $self, $class;
 
@@ -34,6 +36,11 @@ sub new {
 	$self->{_intermediate_xml} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".tmp1";
 
 	return $self;
+}
+
+sub getTest {
+	my( $self ) = @_;
+	return ($self->{_test});
 }
 
 sub getOrig {
@@ -59,6 +66,11 @@ sub gettmp1 {
 sub gettmp2 {
 	my( $self ) = @_;
 	return $self->{_intermediate_xml2};
+}
+
+sub getDoclang {
+	my( $self ) = @_;
+	return $self->{_doclang};
 }
 
 sub exec_com {

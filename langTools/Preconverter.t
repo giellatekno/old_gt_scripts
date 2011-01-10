@@ -18,6 +18,8 @@ require_ok('langTools::Preconverter');
 my $doc_name = "fakecorpus/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT.200910.svg";
 ok(my $converter = langTools::Preconverter->new($doc_name, 0));
 
+isnt($converter->getDoclang(), "", "Check if doclang is empty");
+
 #
 # Test if the original is the given file name
 #
