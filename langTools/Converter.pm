@@ -14,6 +14,7 @@ use utf8;
 use Carp qw(cluck carp);
 use XML::Twig;
 use File::Copy;
+use samiChar::Decode;
 
 sub new {
 	my ($class, $filename, $test) = @_;
@@ -115,6 +116,11 @@ sub getXslTemplate {
 	return $self->{_xsltemplate};
 }
 
+sub getPreconverter {
+	my ($self) = @_;
+	return $self->{_preconverter};
+}
+
 sub makeXslFile {
 	my( $self ) = @_;
 	$self->{_metadata_xsl} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".xsl";
@@ -158,6 +164,7 @@ sub convert2xml {
 	$self->makeIntDir();
 
 	my $command = "xsltproc \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
+
 	return $self->exec_com($command);
 }
 
@@ -186,7 +193,7 @@ sub checklang {
 		#print "setting language: $language \n";
 		#$root->set_att('xml:lang', $language);
 		# Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
-		$root->set_att('xml:lang', $self->{_preconverter}->getDoclang());
+		$root->set_att('xml:lang', $self->getPreconverter()->getDoclang());
 	}
 	open(FH, ">$tmp") or die "Cannot open $tmp $!";
 	$document->set_pretty_print('indented');
@@ -203,8 +210,8 @@ sub character_encoding {
 	my $no_decode_this_time = 0;
 	my $no_decode = 0;
 	my $multi_coding = 0;
-	my $test = $self->getTest();
-	my $language = $self->getDoclang();
+	my $test = $self->getPreconverter()->getTest();
+	my $language = $self->getPreconverter()->getDoclang();
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
 
@@ -212,7 +219,7 @@ sub character_encoding {
 		&read_char_tables;
 		# guess encoding and decode each paragraph at the time.
 		if( $multi_coding ) {
-			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para(@_); } });
+			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para($self, @_); } });
 			if (! $document->safe_parsefile ("$int") ) {
 				carp "ERROR parsing the XML-file failed. STOP\n";
 				return "ERROR";
@@ -236,8 +243,8 @@ sub character_encoding {
 					# Document title in msword documents is generally wrongly encoded,
 					# check that separately.
 					my $d=XML::Twig->new(twig_handlers=>{
-						'p[@type="title"]'=> sub{call_decode_title(@_, $coding); },
-						'title'=>sub{call_decode_title(@_);}
+						'p[@type="title"]'=> sub{call_decode_title($self, @_, $coding); },
+						'title'=>sub{call_decode_title($self, @_);}
 					}
 											);
 					if (! $d->safe_parsefile ("$int") ) {
@@ -256,23 +263,55 @@ sub character_encoding {
 			# Continue decoding the file.
 			if ($no_decode_this_time && $coding eq "latin6") { return 0; }
 			if($test) { print STDERR "Character decoding: $coding\n"; }
-			my $d=XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para(@_, $coding);},
-													'title'=>sub{call_decode_para(@_, $coding);}
-												}
-									);
-			if (! $d->safe_parsefile ("$int") ) {
-				carp "ERROR parsing the XML-file failed.\n";
-				return "ERROR";
+			my $document = XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para($self, @_, $coding);},
+                                                 'title'=>sub{call_decode_para($self, @_, $coding);}
+                                             }
+                                 );
+			if (! $document->safe_parsefile("$int")) {
+				carp "ERROR parsing the XML-file «$int» failed ";
+				return "1";
+			} else {
+				if (! open (FH, ">$int")) {
+					carp "ERROR cannot open file";
+					return "ERROR";
+				}
+				$document->set_pretty_print('indented');
+				$document->print( \*FH);
 			}
-			if (! open (FH, ">$int")) {
-				carp "ERROR cannot open file";
-				return "ERROR";
-			}
-			$d->set_pretty_print('indented');
-			$d->print( \*FH);
 		}
 	}
 	return 0;
 } 
+
+# Decode false utf8-encoding for text paragraph.
+sub call_decode_para {
+    my ( $self, $twig, $para, $coding) = @_;
+
+	my $language = $self->getPreconverter()->getDoclang();
+	my $text = $para->text;
+
+	my $error = &decode_para($language, \$text, $coding);
+    $para->set_text($text);
+
+	return $error;
+}
+
+# Decode false utf8-encoding for titles.
+sub call_decode_title {
+    my ( $self, $twig, $title, $coding ) = @_;
+
+	my $language = $self->getPreconverter()->getDoclang();
+    my $text = $title->text;
+
+    if(!$coding) {
+        my $error = &decode_para($language, \$text);
+    }
+
+    my $error = &decode_title($language, \$text, $coding);
+
+    $title->set_text($text);
+
+    return $error;
+}
 
 1;

@@ -30,6 +30,7 @@ my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf",
 "$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
 "$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
 "$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm");
+
 foreach my $doc_name (@doc_names) {
 	print "\nTrying to convert $doc_name\n";
 	ok(my $converter = langTools::Converter->new($doc_name, 0));
@@ -56,6 +57,10 @@ foreach my $doc_name (@doc_names) {
 
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	
+	is(check_decode_para($converter), '0', "Check if decode para works");
+	
+	is($converter->character_encoding(), '0', "Fix character encoding");
+	
 	is(search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
 }
 
@@ -78,5 +83,26 @@ sub search_for_faulty_characters {
 			}
 		}
 	}
+	return $error;
+}
+
+use XML::Twig;
+use samiChar::Decode;
+
+sub check_decode_para {
+	my ($converter) = @_;
+	
+	my $error = 0;
+	my $tmp = "Converter-data/Lovom037.pdf.xml";
+	my $document = XML::Twig->new;
+	if ( $document->safe_parsefile("$tmp")) {
+		my $root = $document->root;
+		my $sub = $root->{'last_child'}->{'first_child'};
+		&read_char_tables;
+		$error = $converter->call_decode_para($document, $sub, "samimac_roman");
+	} else {
+		die "ERROR parsing the XML-file «$tmp» failed ";
+	}
+	
 	return $error;
 }
