@@ -14,10 +14,10 @@ sub convert2intermediate {
 		if (&decode_text_file($self->getOrig(), $encoding, $self->gettmp2())) {
 			die("Couldn't decode " . $self->getOrig() . " with encoding $encoding");
 		}
-		langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1, $self->getDoclang());
+		langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1(), $self->getDoclang());
 	
 	} else {
-		langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1, $self->getDoclang());
+		langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1(), $self->getDoclang());
 	}
 	
 	
