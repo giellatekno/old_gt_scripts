@@ -17,7 +17,19 @@ require_ok('langTools::Converter');
 # Set a file name, try to make an instance of our object
 #
 #
-my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/Lovom37.pdf", "$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml", "$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml", "$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx", "$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf", "$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232", "$ENV{'GTFREE'}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc", "$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html", "$ENV{'GTFREE'}/orig/sme/laws/nac1-1994-24.txt", "$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf", "$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg", "$ENV{'GTFREE'}/orig/sme/laws/jus.txt", "$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm");
+my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf",
+"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml",
+"$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml",
+"$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx",
+"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
+"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232",
+"$ENV{'GTFREE'}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc",
+"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
+"$ENV{'GTFREE'}/orig/sme/laws/nac1-1994-24.txt",
+"$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf",
+"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
+"$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
+"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm");
 foreach my $doc_name (@doc_names) {
 	print "\nTrying to convert $doc_name\n";
 	ok(my $converter = langTools::Converter->new($doc_name, 0));
@@ -43,4 +55,28 @@ foreach my $doc_name (@doc_names) {
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
+	
+	is(search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
+}
+
+sub search_for_faulty_characters {
+	my( $filename ) = @_;
+	
+	my $error = 0;
+	my $lineno = 0;
+	if( !open (FH, "<:encoding(UTF-8)", $filename )) {
+		print "Cannot open $filename\n";
+		$error = 1;
+	} else {
+		while (<FH>) {
+			$lineno++;
+			chomp($_);
+			if ( $_ =~ m/(¥|ª|Ω|π|∏)/) {
+				print "Failed at line: $lineno with line\n$_\n";
+				$error = 1;
+				last;
+			}
+		}
+	}
+	return $error;
 }
