@@ -76,14 +76,4 @@ sub exec_com {
 	return $result;
 }
 
-sub convert2xml {
-	my( $self ) = @_;
-
-	$self->makeIntDir();
-
-	my $command = "xsltproc \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
-	return $self->exec_com($command);
-}
-
-
 1;
