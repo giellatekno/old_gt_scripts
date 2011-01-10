@@ -1,5 +1,4 @@
-use strict;
-
+#!/usr/bin/perl -w
 use Test::More 'no_plan';
 use Test::Exception;
 use Test::File;
@@ -16,7 +15,9 @@ require_ok('langTools::PlaintextConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my @doc_names = ("fakecorpus/orig/sme/laws/nac1-1994-24.txt");
+#
+my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/nac1-1994-24.txt", "$ENV{'GTFREE'}/orig/sme/laws/jus.txt");
+
 
 foreach my $doc_name (@doc_names) {
 	my $converter = langTools::PlaintextConverter->new($doc_name, 0);
