@@ -13,6 +13,7 @@ use strict;
 use utf8;
 use Carp qw(cluck carp);
 use XML::Twig;
+use File::Copy;
 
 sub new {
 	my ($class, $filename, $test) = @_;
@@ -25,6 +26,7 @@ sub new {
 	$self->{_corpus_script} = $self->{_bindir} . "/corpus";
 	$self->{_common_xsl} = $self->{_corpus_script} . "/common.xsl";
 	$self->{_preproc_xsl} = $self->{_corpus_script} . "/preprocxsl.xsl";
+	$self->{_xsltemplate} = $self->{_corpus_script} . "/XSL-template.xsl";
 	my $preconverter = undef;
 	if( $abs_path =~ /Avvir/ && $abs_path =~ /\.xml$/ ) {
 		print "avvir\n";
@@ -116,11 +118,23 @@ sub getDoclang {
 	return $self->{_doclang};
 }
 
+sub getXslTemplate {
+	my( $self ) = @_;
+	return $self->{_xsltemplate};
+}
+
 sub makeXslFile {
 	my( $self ) = @_;
 	$self->{_metadata_xsl} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".xsl";
 
-	my $command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getOrig() . ".xsl" . " > " . $self->getMetadataXsl();
+	my $command = undef;
+	
+	if ( -e $self->getOrig() . ".xsl" ) {
+		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getOrig() . ".xsl" . " > " . $self->getMetadataXsl();
+	} else {
+		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getXslTemplate() . " > " . $self->getMetadataXsl();
+	}
+	
 	return $self->exec_com($command);
 }
 
