@@ -16,7 +16,7 @@ require_ok('langTools::PDFConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my @doc_names = ("fakecorpus/orig/sme/facta/callinravvagat.pdf");
+my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf", "$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf");
 
 foreach my $doc_name (@doc_names) {
 	my $converter = langTools::PDFConverter->new($doc_name, 1);
