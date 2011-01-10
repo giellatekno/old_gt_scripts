@@ -24,6 +24,8 @@ sub convert2intermediate {
 	if( $self->getTest() ){ 
 		print "the intermediate doc is now in " . $self->gettmp1() . "\n";
 	}
+	$command = "perl -pi -e 's/\x14//g' " . $self->gettmp1();
+	$self->exec_com($command);
 	
 	return $self->gettmp1();
 }
