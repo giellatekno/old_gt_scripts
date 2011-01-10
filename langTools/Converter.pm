@@ -64,9 +64,6 @@ sub new {
 	$self->{_orig_file} = $preconverter->getOrig();
 	$self->{_tmpdir} = $preconverter->getTmpDir();
 
-	my @values = split("/orig/", $preconverter->getOrig());
-	@values = split("/", $values[1]);
-	$self->{_doclang} = $values[0];
 	bless $self, $class;
 
 	return $self;
@@ -111,11 +108,6 @@ sub getMetadataXsl() {
 sub getIntermediateXml {
 	my( $self ) = @_;
 	return $self->{_intermediate_xml};
-}
-
-sub getDoclang {
-	my( $self ) = @_;
-	return $self->{_doclang};
 }
 
 sub getXslTemplate {
@@ -194,7 +186,7 @@ sub checklang {
 		#print "setting language: $language \n";
 		#$root->set_att('xml:lang', $language);
 		# Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
-		$root->set_att('xml:lang', $self->getDoclang());
+		$root->set_att('xml:lang', $self->{_preconverter}->getDoclang());
 	}
 	open(FH, ">$tmp") or die "Cannot open $tmp $!";
 	$document->set_pretty_print('indented');
