@@ -16,7 +16,7 @@ require_ok('langTools::RTFConverter');
 #
 # Set a file name, try to make an instance of our object
 #
-my $doc_name = "fakecorpus/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf";
+my $doc_name = "$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf";
 my $converter = langTools::RTFConverter->new($doc_name, 0);
 isa_ok($converter, 'langTools::RTFConverter', 'converter');
 
@@ -28,4 +28,4 @@ file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
 is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/xhtml2corpus.xsl", "Check if xhtml2corpus.xsl is set");
 
-is($converter->convert2intermediate(), '0', "Check if conversion to internal xml goes well");
+isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well");
