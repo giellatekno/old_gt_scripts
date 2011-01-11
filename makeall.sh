@@ -163,12 +163,13 @@ nice time make && make install
 
 
 
-#cd $GTHOME/kt/kom/src
-# For some reason, the Makefile timing does not work here. Have a look.
-#echo "===>              <==="
-#echo "===>     Komi     <===" 
-#echo "===>              <==="
-#nice time make
+cd $GTHOME/kt/kom/src
+ For some reason, the Makefile timing does not work here. Have a look.
+echo "===>              <==="
+echo "===>     Komi     <===" 
+echo "===>              <==="
+nice time make lexfiles
+nice time make
 
 echo ""
 echo ""
