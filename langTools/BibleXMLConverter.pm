@@ -6,10 +6,13 @@ use langTools::Preconverter;
 sub convert2intermediate {
 	my( $self ) = @_;
 
+	my $error = 1;
 	my $command = "bible2xml.pl --out \"" . $self->gettmp1() . "\" \"" . $self->getOrig() . "\"";
-	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
-	
-	return $self->gettmp1();
+	if ($self->exec_com($command)) {
+		$error = 1;
+	}
+
+	return $error;
 }
 
 1;

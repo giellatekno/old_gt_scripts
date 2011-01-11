@@ -21,14 +21,26 @@ sub getXsl {
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	my $command = "unrtf --nopict --html " . $self->getOrig() . " | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet > " . $self->gettmp2();
-# 	die("Couldn't convert rtf doc to html") if 
-	$self->exec_com($command);
+	my $error = 0;
+	my $command = "unrtf --nopict --html " . $self->getOrig() . " > " . $self->gettmp1();
+	if ($self->exec_com($command)) {
+		print STDERR "Couldn't convert rtf doc to html\n";
+		$error = 1;
+	} else {
+		$command ="tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet " . $self->gettmp1() . " > " . $self->gettmp2();
+		if ($self->exec_com($command) == 512) {
+			print STDERR "Couldn't tidy rtfhtml\n";
+			$error = 1;
+		} else {
+			$command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
+			if ($self->exec_com($command)) {
+				print STDERR "Wasn't able to convert " . $self->getOrig() . " to intermediate xml format\n";
+				$error = 1;
+			}
+		}
+	}
 	
-	$command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
-	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
-	
-	return $self->gettmp1();
+	return $error;
 }
 
 1;

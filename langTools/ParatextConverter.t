@@ -26,4 +26,4 @@ is($converter->getOrig(), Cwd::abs_path($doc_name), "Check if path to the orig d
 
 file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
-isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+is($converter->convert2intermediate(), '0', "Check if conversion to internal xml goes well");

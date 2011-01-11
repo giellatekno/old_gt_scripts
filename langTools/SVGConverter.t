@@ -28,4 +28,4 @@ file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
 is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/svg2corpus.xsl", "Check if svg2corpus.xsl is set");
 
-isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+is($converter->convert2intermediate(), '0', "Check if conversion to internal xml goes well");

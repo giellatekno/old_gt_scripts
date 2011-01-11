@@ -8,14 +8,18 @@ use langTools::Corpus;
 sub convert2intermediate {
 	my( $self ) = @_;
 
+	my $error = 0;
 	my $encoding = &guess_text_encoding($self->getOrig(), $self->gettmp1(), $self->getDoclang());
 	
-	if ($encoding) {
+	if ($encoding == -1) {
+		$error = 1;
+	} elsif ($encoding) {
 		if (&decode_text_file($self->getOrig(), $encoding, $self->gettmp2())) {
-			die("Couldn't decode " . $self->getOrig() . " with encoding $encoding");
+			print STDERR "Couldn't decode " . $self->getOrig() . " with encoding $encoding\n";
+			$error = 1;
+		} else {
+			langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1(), $self->getDoclang());
 		}
-		langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1(), $self->getDoclang());
-	
 	} else {
 		langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1(), $self->getDoclang());
 	}
@@ -27,6 +31,6 @@ sub convert2intermediate {
 	$command = "perl -pi -e 's/\x14//g' " . $self->gettmp1();
 	$self->exec_com($command);
 	
-	return $self->gettmp1();
+	return $error;
 }
 1;

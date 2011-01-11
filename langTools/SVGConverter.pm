@@ -21,10 +21,14 @@ sub getXsl {
 sub convert2intermediate {
 	my( $self ) = @_;
 
+	my $error = 0;
 	my $command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->gettmp1() . "\"";
-	$self->exec_com($command);
+	if ($self->exec_com($command)) {
+		print STDERR "Couldn't convertert " . $self->getOrig . " to intermediate format\n";
+		$error = 1;
+	}
 	
-	return $self->gettmp1();
+	return $error;
 }
 
 1;

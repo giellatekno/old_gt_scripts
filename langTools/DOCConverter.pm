@@ -21,15 +21,21 @@ sub getXsl {
 sub convert2intermediate {
 	my( $self ) = @_;
 
+	my $error = 0;
+	
 	my $command = "antiword -s -x db \"" . $self->getOrig() . "\" > \"" . $self->gettmp2() . "\"";
-	die("Wasn't able to convert " . $self->getOrig() . " to intermediate docbook") if $self->exec_com($command);
+	
+	if ($self->exec_com($command)) {
+		$error = 1;
+	} else {
+		$command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
+		if ($self->exec_com($command)) {
+			$error = 1;
+		} else {
+			$command = "perl -CS -pi -e 's/\x{00B6}/<\\/p><p>/g' \"" . $self->gettmp1() . "\"";
+			$self->exec_com($command);
+		}
+	}
 
-	$command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
-	die("Wasn't able to convert " . $self->gettmp2() . " to intermediate xml format") if $self->exec_com($command);
-
-	$command = "perl -CS -pi -e 's/\x{00B6}/<\\/p><p>/g' \"" . $self->gettmp1() . "\"";
-	$self->exec_com($command);
-# 	die("Wasn't able to convert " . $self->gettmp1() . " to intermediate xml format") if 
-
-    return $self->gettmp1();
+	return $error;
 }

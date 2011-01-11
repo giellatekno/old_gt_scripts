@@ -60,10 +60,10 @@ sub new {
 		die("unable to handle $filename\n");
 	}
 	die("Preconverter is undefined") unless $self->{_preconverter} = $preconverter;
-	$self->{_intermediate_xml} = $preconverter->convert2intermediate();
 	$self->{_tmpfile_base} = $preconverter->getTmpFilebase();
 	$self->{_orig_file} = $preconverter->getOrig();
 	$self->{_tmpdir} = $preconverter->getTmpDir();
+	$self->{_intermediate_xml} = $preconverter->gettmp1();
 
 	bless $self, $class;
 
@@ -158,6 +158,13 @@ sub exec_com {
 	return $result;
 }
 
+sub convert2intermediatexml {
+	my ($self) = @_;
+	
+	return $self->getPreconverter()->convert2intermediate();
+}
+
+
 sub convert2xml {
 	my( $self ) = @_;
 
@@ -216,7 +223,7 @@ sub character_encoding {
 	# utf-8 encoded and decode them.
 
 	if (! $no_decode ) {
-		&read_char_tables;
+		samiChar::Decode::read_char_tables();
 		# guess encoding and decode each paragraph at the time.
 		if( $multi_coding ) {
 			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para($self, @_); } });

@@ -32,5 +32,5 @@ foreach my $doc_name (@doc_names) {
 
 	isnt($converter->tidyHTML(), '512', "Check if html is tidied");
 
-	isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+	is($converter->convert2intermediate(), '0', "Check if conversion to internal xml goes well");
 }

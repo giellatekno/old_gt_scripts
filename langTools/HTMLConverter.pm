@@ -28,11 +28,16 @@ sub tidyHTML {
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	$self->tidyHTML();
-	my $command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
-	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
-	
-	return $self->gettmp1();
+	my $error = 0;
+	if ( $self->tidyHTML() == 512) {
+		$error = 1;
+	} else {
+		my $command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
+		if ( $self->exec_com($command) ) {
+			$error = 1;
+		}
+	}
+	return $error;
 }
 
 1;

@@ -51,6 +51,8 @@ foreach my $doc_name (@doc_names) {
 
 	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
 
+	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
+	
 	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
 
 	is($converter->checklang(), '0', "Check lang. If not set, set it");

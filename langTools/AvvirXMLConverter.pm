@@ -21,10 +21,14 @@ sub getXsl {
 sub convert2intermediate {
 	my( $self ) = @_;
 
-	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->gettmp1() . "\"";
-	die("Wasn't able to convert " . $self->getOrig() . " to intermediate xml format") if $self->exec_com($command);
+	my $error = 0;
 	
-	return $self->gettmp1();
+	my $command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->getOrig() . "\" > \"" . $self->gettmp1() . "\"";
+	if ($self->exec_com($command)) {
+		$error = 1;
+	}
+	
+	return $error;
 }
 
 1;

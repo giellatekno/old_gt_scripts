@@ -19,7 +19,7 @@ require_ok('langTools::PDFConverter');
 my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf", "$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf");
 
 foreach my $doc_name (@doc_names) {
-	my $converter = langTools::PDFConverter->new($doc_name, 1);
+	my $converter = langTools::PDFConverter->new($doc_name, 0);
 	isa_ok($converter, 'langTools::PDFConverter', 'converter');
 
 	isa_ok($converter, 'langTools::Preconverter', 'converter');
@@ -28,5 +28,5 @@ foreach my $doc_name (@doc_names) {
 
 	file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 
-	isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+	is($converter->convert2intermediate(), '0', "Check if conversion to internal xml goes well");
 }
