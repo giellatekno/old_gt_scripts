@@ -27,8 +27,9 @@ sub convert2intermediate {
 	$command = "xsltproc \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
 	die("Wasn't able to convert " . $self->gettmp2() . " to intermediate xml format") if $self->exec_com($command);
 
-	$command = "perl -pi -e \"s/\x{00B6}/<\\/p><p>/g\" \"" . $self->gettmp1() . "\"";
-	die("Wasn't able to convert " . $self->gettmp1() . " to intermediate xml format") if $self->exec_com($command);
+	$command = "perl -CS -pi -e 's/\x{00B6}/<\\/p><p>/g' \"" . $self->gettmp1() . "\"";
+	$self->exec_com($command);
+# 	die("Wasn't able to convert " . $self->gettmp1() . " to intermediate xml format") if 
 
     return $self->gettmp1();
 }
