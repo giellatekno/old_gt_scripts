@@ -37,13 +37,16 @@ sub search_for_faulty_characters {
 	
 	my $error = 0;
 	my $lineno = 0;
-	if( !open (FH, "<:encoding(utf-8)", $filename )) {
+	if( !open (FH, "<:encoding(UTF-8)", $filename )) {
 		print "Cannot open $filename\n";
 		$error = 1;
 	} else {
 		while (<FH>) {
 			$lineno++;
-			if ( $_ =~ m/\xB6/) {
+			# Looking for ¶, but since we are running perl with
+			# PERL_UNICODE=, we have to write the utf8 versions of them literally. 
+			# If not, then lots of «Malformed UTF-8 character» will be spewed out.
+			if ( $_ =~ m/\xC2\xB6/) {
 				print "Failed at line: $lineno with line\n$_\n";
 				$error = 1;
 				last;
