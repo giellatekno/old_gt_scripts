@@ -17,7 +17,7 @@ require_ok('langTools::DOCConverter');
 # Set a file name, try to make an instance of our object
 #
 my $doc_name = "$ENV{GTFREE}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc";
-my $converter = langTools::DOCConverter->new($doc_name, 0);
+my $converter = langTools::DOCConverter->new($doc_name, 1);
 isa_ok($converter, 'langTools::DOCConverter', 'converter');
 
 isa_ok($converter, 'langTools::Preconverter', 'converter');
@@ -29,3 +29,26 @@ file_exists_ok($converter->getTmpDir(), "Check if tmpdir exists");
 is($converter->getXsl(), "$ENV{'GTHOME'}/gt/script/corpus/docbook2corpus2.xsl", "Check if docbook2corpus.xsl is set");
 
 isnt($converter->convert2intermediate(), "", "Check if conversion to internal xml goes well and the filename is returned");
+
+is(search_for_faulty_characters($converter->gettmp1()), 0, "Check if ¶ has been removed");
+
+sub search_for_faulty_characters {
+	my( $filename ) = @_;
+	
+	my $error = 0;
+	my $lineno = 0;
+	if( !open (FH, "<:encoding(utf-8)", $filename )) {
+		print "Cannot open $filename\n";
+		$error = 1;
+	} else {
+		while (<FH>) {
+			$lineno++;
+			if ( $_ =~ m/\xB6/) {
+				print "Failed at line: $lineno with line\n$_\n";
+				$error = 1;
+				last;
+			}
+		}
+	}
+	return $error;
+}
