@@ -50,9 +50,10 @@ alias g5='ssh divvun.no'
 alias xs='ssh divvun.no'
 
 # forrest run port 8 og 9
-alias f8="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8\""
-alias f9="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djetty.port=8889\""
-alias f7="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djetty.port=8887\""
+alias fo="forrest     -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true\""
+alias f8="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true\""
+alias f9="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true -Djetty.port=8889\""
+alias f7="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true -Djetty.port=8887\""
 
 alias  saxonXQ="java net.sf.saxon.Query"
 alias saxonXSL="java net.sf.saxon.Transform"
