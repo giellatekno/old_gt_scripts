@@ -326,4 +326,5 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:map"/>
 <xsl:template match="html:iframe"/>
 <xsl:template match="html:noscript"/>
+<xsl:template match="html:select"/>
 </xsl:stylesheet>
