@@ -140,9 +140,11 @@ class StaticSiteBuilder:
 		
 
 		os.chdir(self.builddir)
-		revert_files(self.vcs, ["forrest.properties"])
+		revert_files(self.vcs, ["forrest.properties", "src/documentation/resources/schema/symbols-project-v10.ent"])
 		subprocess.call(["forrest", "clean"])
 		
+		self.set_font_path()
+
 		if os.path.isdir(os.path.join(self.builddir, "built")):
 		   shutil.rmtree(os.path.join(self.builddir, "built"))
 
@@ -158,8 +160,14 @@ class StaticSiteBuilder:
 		Close the logfile
 		"""
 		os.chdir(self.builddir)
-		revert_files(self.vcs, ["forrest.properties"])
+		revert_files(self.vcs, ["forrest.properties", "src/documentation/resources/schema/symbols-project-v10.ent"])
 		self.logfile.close()
+
+	def set_font_path(self):
+		import fileinput
+		for line in fileinput.FileInput(os.path.join(self.builddir, "src/documentation/resources/schema/symbols-project-v10.ent"), inplace=1):
+			line = line.replace("/Users/sd/trunk/xtdoc/sd", self.builddir).strip()
+			print line
 
 	def validate(self):
 		print "Validating..."
@@ -288,6 +296,9 @@ class StaticSiteBuilder:
 						self.add_lang_info(os.path.join(leafs[0], htmlpdf_file), lang)
 						#shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0], htmlpdf_file + "." + lang))
 						os.unlink(os.path.join(leafs[0], htmlpdf_file))
+					elif htmlpdf_file.endswith(".pdf"):
+						shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, builtdir),htmlpdf_file + "." + lang))
+						shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file + "." + lang))
 					else:
 						shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, builtdir),htmlpdf_file))
 						shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file))
