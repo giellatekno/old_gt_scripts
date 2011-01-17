@@ -4,6 +4,7 @@ use strict;
 use Cwd;
 use Encode;
 use utf8;
+use Getopt::Long;
 
 #
 # Load the modules we are testing
@@ -13,56 +14,63 @@ BEGIN {
 }
 require_ok('langTools::Converter');
 
-#
-# Set a file name, try to make an instance of our object
-#
-#
-my @doc_names = ("$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf",
-"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml",
-"$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml",
-"$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx",
-"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
-"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232",
-"$ENV{'GTFREE'}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc",
-"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
-"$ENV{'GTFREE'}/orig/sme/laws/nac1-1994-24.txt",
-"$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf",
-"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
-"$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
-"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm");
+my $debug = 0;
+GetOptions ("debug" => \$debug);
+print "debug is $debug $#ARGV\n";
 
-foreach my $doc_name (@doc_names) {
-	print "\nTrying to convert $doc_name\n";
-	ok(my $converter = langTools::Converter->new($doc_name, 0));
+my $numArgs = $#ARGV + 1;
+if ($#ARGV > -1) {
+	foreach my $argnum (0 .. $#ARGV) {
+		each_file_checks($ARGV[$argnum]);
+	}
+} else {
+	my @doc_names = (
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html?id=170397", 
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html?id=306", 
+	"$ENV{'GTFREE'}/orig/sme/admin/sd/Strategalaš_plána_sámi_mánáidgárddiide_2001–2005.pdf", "$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf",
+	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml",
+	"$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml",
+	"$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx",
+	"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232",
+	"$ENV{'GTFREE'}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc",
+	"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
+	"$ENV{'GTFREE'}/orig/sme/laws/nac1-1994-24.txt",
+	"$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf",
+	"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
+	"$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
+	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm"
+	);
 
-	#
-	# Test if the original is the given file name
-	#
-	is($converter->getOrig(), Encode::decode_utf8(Cwd::abs_path($doc_name)));
+	one_time_checks($doc_names[0]);
+	foreach my $doc_name (@doc_names) {
+		each_file_checks($doc_name);
+	}
+}
 
-	(my $int = $converter->getOrig()) =~ s/\/orig\//\/converted\//;
-	is($converter->getInt(), $int .".xml", "Check if path to the converted doc is computed correctly");
+sub one_time_checks {
+	my ($doc_name) = @_;
 
-	is(length($converter->getTmpFilebase()), '8');
-
+	ok(my $converter = langTools::Converter->new($doc_name, $debug));
 	is($converter->getCommonXsl(), "$ENV{'GTHOME'}/gt/script/corpus/common.xsl", "Check if common.xsl is set");
-
 	is($converter->getPreprocXsl(), "$ENV{'GTHOME'}/gt/script/corpus/preprocxsl.xsl", "Check if preprocxsl.xsl is set");
-
-	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
-
-	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
-	
-	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
-
-	is($converter->checklang(), '0', "Check lang. If not set, set it");
-
-	is($converter->checkxml(), '0', "Check if the final xml is valid");
-	
 	is(check_decode_para($converter), '0', "Check if decode para works");
-	
+}
+
+sub each_file_checks {
+	my ($doc_name) = @_;
+
+	print "\nTrying to convert $doc_name\n";
+	ok(my $converter = langTools::Converter->new($doc_name, $debug));
+	is($converter->getOrig(), Encode::decode_utf8(Cwd::abs_path($doc_name)));
+	is($converter->getInt(), $converter->getTmpDir() . "/" . $converter->getTmpFilebase() . ".xml", "Check if path to the converted doc is computed correctly");
+	is(length($converter->getTmpFilebase()), '8');
+	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
+	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
+	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
+	is($converter->checklang(), '0', "Check lang. If not set, set it");
+	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
-	
 	is(search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
 }
 
