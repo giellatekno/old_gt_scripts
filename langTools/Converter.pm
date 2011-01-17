@@ -77,7 +77,8 @@ sub getOrig {
 
 sub getInt {
 	my( $self ) = @_;
-	(my $int = $self->getOrig()) =~ s/\/orig\//\/converted\//;
+# 	(my $int = $self->getOrig()) =~ s/\/orig\//\/converted\//;
+	my $int = $self->getTmpDir() . "/" . $self->getTmpFilebase();
 	return $int . ".xml";
 }
 

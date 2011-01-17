@@ -9,19 +9,19 @@ use langTools::Converter;
 
 my $numArgs = $#ARGV + 1;
 print "thanks, you gave me $numArgs command-line arguments:\n";
+	open (FH, ">problematic_files.txt");
 
 foreach my $argnum (0 .. $#ARGV) {
 	
-	print "converting $ARGV[$argnum]\n";
-	open (FH, ">problematic_files.txt");
 	if (convertdoc($ARGV[$argnum])) {
 		print FH "$ARGV[$argnum]\n";
 		print "|";
 	} else {
 		print ".";
 	}
-	close (FH);
 }
+print "\n";
+close (FH);
 
 sub convertdoc {
 	my( $filename ) = @_;
@@ -31,27 +31,26 @@ sub convertdoc {
 	
 	$filename = Encode::decode_utf8($filename);
 	if ($converter->convert2intermediatexml()) {
-		print STDERR "Couldn't convert $filename to intermediate xml format\n";
+		print FH "Couldn't convert $filename to intermediate xml format\n";
 		$error = 1;
 	} elsif ($converter->convert2xml()) {
-		print STDERR "Couldn't combine $filename and $filename.xsl\n";
+		print FH "Couldn't combine $filename and $filename.xsl\n";
 		$error = 1;
 	} elsif ($converter->checklang()) {
-		print STDERR "Couldn't set the lang of $filename\n";
+		print FH "Couldn't set the lang of $filename\n";
 		$error = 1;
 	} elsif ($converter->checkxml()) {
-		print STDERR "Wasn't able to make valid xml out of $filename\n";
+		print FH "Wasn't able to make valid xml out of $filename\n";
 		$error = 1;
 	} elsif ($converter->character_encoding()) {
-		print "Wasn't able to set correct encoding of $filename\n";
+		print FH "Wasn't able to set correct encoding of $filename\n";
 		$error = 1;
 	} else {
 		if (search_for_faulty_characters($converter->getInt())) {
+			print FH "Found faulty chars in $filename\n";
 			$error = 1;
 		}
 	}
-
-	print "$error error\n";
 	return $error;
 }
 
@@ -60,7 +59,7 @@ sub search_for_faulty_characters {
 	
 	my $error = 0;
 	my $lineno = 0;
-	print "opening $filename\n";
+# 	print "opening $filename\n";
 	if( !open (FH, "<:encoding(utf8)", $filename )) {
 		print "Cannot open $filename\n";
 		$error = 1;
