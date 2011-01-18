@@ -27,10 +27,13 @@ sub convertdoc {
 	my( $filename ) = @_;
 	my $error = 0;
 	my $converter = langTools::Converter->new($filename);
-	$converter->makeXslFile();
+	
 	
 	$filename = Encode::decode_utf8($filename);
-	if ($converter->convert2intermediatexml()) {
+	if ($converter->makeXslFile()) {
+		print FH "Couldn't use $filename.xsl\n";
+		$error = 1;
+	} elsif ($converter->convert2intermediatexml()) {
 		print FH "Couldn't convert $filename to intermediate xml format\n";
 		$error = 1;
 	} elsif ($converter->convert2xml()) {
