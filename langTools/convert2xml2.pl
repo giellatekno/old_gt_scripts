@@ -7,6 +7,7 @@ use utf8;
 use langTools::Converter;
 
 my $counter = 0;
+my $errors = 0;
 my $numArgs = $#ARGV + 1;
 print "thanks, you gave me $numArgs command-line arguments:\n";
 my $filename = "problematic_files.txt";
@@ -16,6 +17,7 @@ foreach my $argnum (0 .. $#ARGV) {
 
 	if (convertdoc($ARGV[$argnum])) {
 		print "|";
+		$errors++;
 	} else {
 		print ".";
 	}
@@ -24,6 +26,7 @@ foreach my $argnum (0 .. $#ARGV) {
 	}
 }
 print "\n";
+print FILE "$counter files processed, $errors errors among them\n\n";
 close (FILE);
 
 sub convertdoc {
