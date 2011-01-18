@@ -48,11 +48,6 @@ sub getOrig {
 	return $self->{_orig_file};
 }
 
-sub getMetadataXsl() {
-	my( $self ) = @_;
-	return $self->getOrig() . ".xsl";
-}
-
 sub getTmpFilebase {
 	my( $self ) = @_;
 	return $self->{_tmpfile_base};
@@ -76,14 +71,6 @@ sub gettmp2 {
 sub getDoclang {
 	my( $self ) = @_;
 	return $self->{_doclang};
-}
-
-sub isXslValid {
-	my ($self) = @_;
-	
-	
-	my $command = "xsltproc " . $self->getMetadataXsl() . "> /dev/null";
-	return $self->exec_com($command);
 }
 
 sub exec_com {
