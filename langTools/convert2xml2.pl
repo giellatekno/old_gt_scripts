@@ -12,14 +12,15 @@ print "thanks, you gave me $numArgs command-line arguments:\n";
 my $filename = "problematic_files.txt";
 open (FILE, ">>:encoding(utf8)", $filename );
 foreach my $argnum (0 .. $#ARGV) {
-	
+	$counter++;
+
 	if (convertdoc($ARGV[$argnum])) {
 		print "|";
 	} else {
 		print ".";
 	}
-	unless ( ($counter % 50) == 0 ) {
-		print "\n";
+	unless ( $counter % 50) {
+		print " $counter\n";
 	}
 }
 print "\n";
