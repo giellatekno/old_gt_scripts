@@ -6,17 +6,20 @@ use Encode;
 use utf8;
 use langTools::Converter;
 
-my $errors = 0;
+my $counter = 0;
 my $numArgs = $#ARGV + 1;
 print "thanks, you gave me $numArgs command-line arguments:\n";
 my $filename = "problematic_files.txt";
-open (FILE, ">:encoding(utf8)", $filename );
+open (FILE, ">>:encoding(utf8)", $filename );
 foreach my $argnum (0 .. $#ARGV) {
 	
 	if (convertdoc($ARGV[$argnum])) {
 		print "|";
 	} else {
 		print ".";
+	}
+	if ( ($counter % 50) == 0 ) {
+		print "\n";
 	}
 }
 print "\n";
