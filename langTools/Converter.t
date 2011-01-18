@@ -40,7 +40,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/facta/callinravvagat.pdf",
 	"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
 	"$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
-	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm"
+	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm",
+	"$ENV{'GTFREE'}/orig/sma/facta/Utlysningsteks_sørsamisk_2_.doc"
 	);
 
 	one_time_checks($doc_names[0]);
@@ -73,6 +74,7 @@ sub each_file_checks {
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
 	is(search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
+	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	file_exists_ok($converter->move_int_to_converted(), "Check if xml has been moved to final destination");
 }
 
