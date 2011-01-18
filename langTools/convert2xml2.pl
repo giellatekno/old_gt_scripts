@@ -18,7 +18,7 @@ foreach my $argnum (0 .. $#ARGV) {
 	} else {
 		print ".";
 	}
-	if ( ($counter % 50) == 0 ) {
+	unless ( ($counter % 50) == 0 ) {
 		print "\n";
 	}
 }
@@ -34,34 +34,27 @@ sub convertdoc {
 	if ($converter->makeXslFile()) {
 		print FILE "Couldn't use $filename.xsl\n";
 		$error = 1;
-		$errors =+ 1;
 	} elsif ($converter->convert2intermediatexml()) {
 		print FILE "Couldn't convert $filename to intermediate xml format\n";
 		$error = 1;
-		$errors =+ 1;
 	} elsif ($converter->convert2xml()) {
 		print FILE "Couldn't combine $filename and $filename.xsl\n";
 		$error = 1;
 	} elsif ($converter->checklang()) {
 		print FILE "Couldn't set the lang of $filename\n";
 		$error = 1;
-		$errors =+ 1;
 	} elsif ($converter->checkxml()) {
 		print FILE "Wasn't able to make valid xml out of $filename\n";
 		$error = 1;
-		$errors =+ 1;
 	} elsif ($converter->character_encoding()) {
 		print FILE "Wasn't able to set correct encoding of $filename\n";
 		$error = 1;
-		$errors =+ 1;
 	} elsif (search_for_faulty_characters($converter->getInt())) {
 		print FILE "Found faulty chars in $filename\n";
 		$error = 1;
-		$errors =+ 1;
 	} elsif ($converter->checkxml()) {
 		print FILE "Wasn't able to make valid xml out of $filename\n";
 		$error = 1;
-		$errors =+ 1;
 	} else {
 		$converter->move_int_to_converted();
 	}
