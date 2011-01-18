@@ -75,7 +75,7 @@ sub getOrig {
 
 sub getInt {
 	my( $self ) = @_;
-# 	(my $int = $self->getOrig()) =~ s/\/orig\//\/converted\//;
+# 	
 	my $int = $self->getTmpDir() . "/" . $self->getTmpFilebase();
 	return $int . ".xml";
 }
@@ -120,6 +120,12 @@ sub getPreconverter {
 	return $self->{_preconverter};
 }
 
+sub getFinalName() {
+	my ($self) = @_;
+	(my $int = $self->getOrig()) =~ s/\/orig\//\/converted\//;
+	return $int . ".xml";
+}
+
 sub makeXslFile {
 	my( $self ) = @_;
 	$self->{_metadata_xsl} = $self->getTmpDir() . "/" . $self->getTmpFilebase() . ".xsl";
@@ -135,10 +141,10 @@ sub makeXslFile {
 	return $self->exec_com($command);
 }
 
-sub makeIntDir {
+sub makeFinalDir {
 	my( $self ) = @_;
-	if( ! -e File::Basename::dirname($self->getInt())) {
-		File::Path::mkpath(File::Basename::dirname($self->getInt()));
+	if( ! -e File::Basename::dirname($self->getFinalName())) {
+		File::Path::mkpath(File::Basename::dirname($self->getFinalName()));
 	}
 }
 
@@ -166,8 +172,6 @@ sub convert2intermediatexml {
 
 sub convert2xml {
 	my( $self ) = @_;
-
-	$self->makeIntDir();
 
 	my $command = "xsltproc \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
 
@@ -318,6 +322,18 @@ sub call_decode_title {
     $title->set_text($text);
 
     return $error;
+}
+
+sub move_int_to_converted {
+	my ($self) = @_;
+	
+	$self->makeFinalDir();
+	if (-e $self->getInt()) {
+		copy($self->getInt(), $self->getFinalName());
+		return $self->getFinalName();
+	} else {
+		return undef;
+	}
 }
 
 1;

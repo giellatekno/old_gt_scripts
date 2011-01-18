@@ -1,5 +1,6 @@
 use Test::More 'no_plan';
 use Test::Exception;
+use Test::File;
 use strict;
 use Cwd;
 use Encode;
@@ -72,6 +73,7 @@ sub each_file_checks {
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
 	is(search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
+	file_exists_ok($converter->move_int_to_converted(), "Check if xml has been moved to final destination");
 }
 
 sub search_for_faulty_characters {
