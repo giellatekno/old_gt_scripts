@@ -19,8 +19,6 @@ use samiChar::Decode;
 sub new {
 	my ($class, $filename, $test) = @_;
 
-	my $abs_path = Cwd::abs_path($filename);
-
 	my $self = {};
 	$self->{_test} = $test;
 	$self->{_bindir} = "$ENV{'GTHOME'}/gt/script";
@@ -28,46 +26,46 @@ sub new {
 	$self->{_common_xsl} = $self->{_corpus_script} . "/common.xsl";
 	$self->{_preproc_xsl} = $self->{_corpus_script} . "/preprocxsl.xsl";
 	$self->{_xsltemplate} = $self->{_corpus_script} . "/XSL-template.xsl";
-	my $preconverter = undef;
-	if( $abs_path =~ /Avvir/ && $abs_path =~ /\.xml$/ ) {
-		print "avvir\n";
-		$preconverter = langTools::AvvirXMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
-		print "bible.xml\n";
-		$preconverter = langTools::BibleXMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.html\?id=\d*/ || $abs_path =~ /\.html$/ || $abs_path =~ /\.htm$/ ) {
-		print "html\n";
-		$preconverter = langTools::HTMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.ptx$/ ) {
-		print "ptx\n";
-		$preconverter = langTools::ParatextConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.rtf$/ ) {
-		print "rtf\n";
-		$preconverter = langTools::RTFConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.doc$/ ) {
-		print "doc\n";
-		$preconverter = langTools::DOCConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.txt$/ ) {
-		print "plaintext\n";
-		$preconverter = langTools::PlaintextConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.pdf$/ ) {
-		print "pdf\n";
-		$preconverter = langTools::PDFConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.svg$/ ) {
-		print "svg\n";
-		$preconverter = langTools::SVGConverter->new($filename, $test);
-	} else {
-		die("unable to handle $filename\n");
-	}
-	die("Preconverter is undefined") unless $self->{_preconverter} = $preconverter;
-	$self->{_tmpfile_base} = $preconverter->getTmpFilebase();
-	$self->{_orig_file} = $preconverter->getOrig();
-	$self->{_tmpdir} = $preconverter->getTmpDir();
-	$self->{_intermediate_xml} = $preconverter->gettmp1();
 
 	bless $self, $class;
 
+	$self->makePreconverter($filename, $test);
+	die("Preconverter is undefined") unless $self->getPreconverter();
+	$self->{_tmpfile_base} = $self->getPreconverter()->getTmpFilebase();
+	$self->{_orig_file} = $self->getPreconverter()->getOrig();
+	$self->{_tmpdir} = $self->getPreconverter()->getTmpDir();
+	$self->{_intermediate_xml} = $self->getPreconverter()->gettmp1();
+
 	return $self;
+}
+
+sub makePreconverter {
+	my ($self, $filename, $test) = @_;
+	
+	my $abs_path = Cwd::abs_path($filename);
+	$self->{_preconverter} = undef;
+
+	if( $abs_path =~ /Avvir/ && $abs_path =~ /\.xml$/ ) {
+		$self->{_preconverter} = langTools::AvvirXMLConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
+		$self->{_preconverter} = langTools::BibleXMLConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.html\?id=\d*/ || $abs_path =~ /\.html$/ || $abs_path =~ /\.htm$/ ) {
+		$self->{_preconverter} = langTools::HTMLConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.ptx$/ ) {
+		$self->{_preconverter} = langTools::ParatextConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.rtf$/ ) {
+		$self->{_preconverter} = langTools::RTFConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.doc$/ ) {
+		$self->{_preconverter} = langTools::DOCConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.txt$/ ) {
+		$self->{_preconverter} = langTools::PlaintextConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.pdf$/ ) {
+		$self->{_preconverter} = langTools::PDFConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.svg$/ ) {
+		$self->{_preconverter} = langTools::SVGConverter->new($filename, $test);
+	} else {
+		die("unable to handle $filename\n");
+	}
 }
 
 sub getOrig {
@@ -133,7 +131,7 @@ sub makeXslFile {
 	} else {
 		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getXslTemplate() . " > " . $self->getMetadataXsl();
 	}
-	
+
 	return $self->exec_com($command);
 }
 
