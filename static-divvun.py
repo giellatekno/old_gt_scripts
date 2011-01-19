@@ -248,18 +248,9 @@ class StaticSiteBuilder:
 			raise SystemExit(2)
 
 
-		search_pattern = re.compile("user.language=\w{1,3}")
-
 		for line in incontent:
 			if "jvmargs" in line:
-				"Replace or add content"
-	
-				match = search_pattern.search(line).group()
-				if match:
-					line = line.replace(match, "user.language=" + lang)
-				else:
-					line = line[:-1] + " -Duser.language=" + lang + "\n"
-	
+				line = line[:-1] + " -Duser.language=" + lang + "\n"
 				if line[0] == "#":
 					line = line[1:]
 
