@@ -83,7 +83,6 @@ sub search_for_faulty_characters {
 	
 	my $error = 0;
 	my $lineno = 0;
-	print "opening $filename\n";
 	if( !open (FH, "<:encoding(utf8)", $filename )) {
 		print "Cannot open $filename\n";
 		$error = 1;
