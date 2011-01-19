@@ -13,7 +13,7 @@ my $debug = 0;
 GetOptions ("debug" => \$debug);
 
 my $numArgs = $#ARGV + 1;
-print "thanks, you gave me $numArgs command-line arguments:\n";
+print "thanks, you gave me $numArgs files to process:\n";
 my $filename = "problematic_files.txt";
 open (FILE, ">>:encoding(utf8)", $filename );
 foreach my $argnum (0 .. $#ARGV) {
