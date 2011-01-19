@@ -5,9 +5,13 @@ use Cwd;
 use Encode;
 use utf8;
 use langTools::Converter;
+use Getopt::Long;
 
 my $counter = 0;
 my $errors = 0;
+my $debug = 0;
+GetOptions ("debug" => \$debug);
+
 my $numArgs = $#ARGV + 1;
 print "thanks, you gave me $numArgs command-line arguments:\n";
 my $filename = "problematic_files.txt";
@@ -32,7 +36,7 @@ close (FILE);
 sub convertdoc {
 	my( $filename ) = @_;
 	my $error = 0;
-	my $converter = langTools::Converter->new($filename);
+	my $converter = langTools::Converter->new($filename, $debug);
 	
 	$filename = Encode::decode_utf8($filename);
 	if ($converter->makeXslFile()) {
