@@ -76,13 +76,12 @@ sub getDoclang {
 sub exec_com {
 	my ( $self, $com ) = @_;
 
+	my $result = system($com);
 	if ($self->{_test}) {
 		print STDERR $self->getOrig() . " exec_com: $com\n";
-	}
-
-	my $result = system($com);
-	if ($result != 0) {
-		print STDERR "Errnr: $result. Errmsg: $com: $!\n";
+		if ($result != 0 ) {
+			print STDERR "Errnr: $result. Errmsg: $!\n";
+		}
 	}
 
 	return $result;
