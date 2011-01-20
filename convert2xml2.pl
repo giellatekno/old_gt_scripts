@@ -38,30 +38,29 @@ sub convertdoc {
 	my $error = 0;
 	my $converter = langTools::Converter->new($filename, $debug);
 	
-	$filename = Encode::decode_utf8($filename);
 	if ($converter->makeXslFile()) {
-		print FILE "Couldn't use $filename.xsl\n";
+		print FILE "Couldn't use " . $self->getOrig() . ".xsl\n";
 		$error = 1;
 	} elsif ($converter->convert2intermediatexml()) {
-		print FILE "Couldn't convert $filename to intermediate xml format\n";
+		print FILE "Couldn't convert " . $self->getOrig() . " to intermediate xml format\n";
 		$error = 1;
 	} elsif ($converter->convert2xml()) {
-		print FILE "Couldn't combine $filename and $filename.xsl\n";
+		print FILE "Couldn't combine " . $self->getOrig() . " and " . $self->getOrig() . ".xsl\n";
 		$error = 1;
 	} elsif ($converter->checklang()) {
-		print FILE "Couldn't set the lang of $filename\n";
+		print FILE "Couldn't set the lang of " . $self->getOrig() . "\n";
 		$error = 1;
 	} elsif ($converter->checkxml()) {
-		print FILE "Wasn't able to make valid xml out of $filename\n";
+		print FILE "Wasn't able to make valid xml out of " . $self->getOrig() . "\n";
 		$error = 1;
 	} elsif ($converter->character_encoding()) {
-		print FILE "Wasn't able to set correct encoding of $filename\n";
+		print FILE "Wasn't able to set correct encoding of " . $self->getOrig() . "\n";
 		$error = 1;
 	} elsif ($converter->search_for_faulty_characters()) {
-		print FILE "Found faulty chars in $filename\n";
+		print FILE "Found faulty chars in " . $self->getOrig() . "\n";
 		$error = 1;
 	} elsif ($converter->checkxml()) {
-		print FILE "Wasn't able to make valid xml out of $filename\n";
+		print FILE "Wasn't able to make valid xml out of " . $self->getOrig() . "\n";
 		$error = 1;
 	} else {
 		$converter->move_int_to_converted();
