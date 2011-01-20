@@ -108,3 +108,9 @@ if ( -d /opt/local/bin ) then
 	append_path  MANPATH  /opt/local/share/man
 	append_path  INFOPATH /opt/local/share/info
 endif
+
+# This environment variable will by default exclude the .svn subdirs from being
+# searched when grepping files, which is almost always what you want.
+# It requires at least GNU grep 2.5.3. Default on Snow Leopard is 2.5.0, via
+# MacPorts GNU grep 2.7.0 or newer is available
+setenv GREP_OPTIONS "--exclude-dir=\.svn"
