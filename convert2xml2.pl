@@ -57,7 +57,7 @@ sub convertdoc {
 	} elsif ($converter->character_encoding()) {
 		print FILE "Wasn't able to set correct encoding of $filename\n";
 		$error = 1;
-	} elsif (search_for_faulty_characters($converter->getInt())) {
+	} elsif ($converter->search_for_faulty_characters()) {
 		print FILE "Found faulty chars in $filename\n";
 		$error = 1;
 	} elsif ($converter->checkxml()) {
@@ -66,31 +66,5 @@ sub convertdoc {
 	} else {
 		$converter->move_int_to_converted();
 	}
-	return $error;
-}
-
-sub search_for_faulty_characters {
-	my( $filename ) = @_;
-	
-	my $error = 0;
-	my $lineno = 0;
-# 	print "opening $filename\n";
-	if( !open (FH, "<:encoding(utf8)", $filename )) {
-		print "Cannot open $filename\n";
-		$error = 1;
-	} else {
-		while (<FH>) {
-			$lineno++;
-			# We are looking for (¥ª|Ω|π|∏ , but since we are running perl with
-			# PERL_UNICODE=, we have to write the utf8 versions of them literally. 
-			# If not, then lots of «Malformed UTF-8 character» will be spewed out.
-			if ( $_ =~ m/(\xC2\xA5|\xC2\xAA|Ω|\xCF\x80|\xE2\x88\x8F)/) { 
-				print "Failed at line: $lineno with line\n$_\n";
-				$error = 1;
-				last;
-			}
-		}
-	}
-	close(FH);
 	return $error;
 }
