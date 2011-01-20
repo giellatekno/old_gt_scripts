@@ -100,8 +100,6 @@ fi
 
 if ( [ "$big_setup_done"  == "YES" ] ) ; then
 	check_links
-else
-    echo "No link checking!"
 fi
 
 # Variable to record whether the RC file was actually changed:
