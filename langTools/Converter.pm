@@ -336,4 +336,30 @@ sub move_int_to_converted {
 	}
 }
 
+sub search_for_faulty_characters {
+	my( $self ) = @_;
+	
+	my $error = 0;
+	my $lineno = 0;
+	if( !open (FH, "<:encoding(utf8)", $self->getInt() )) {
+		print "Cannot open " . $self->getInt() . "\n";
+		$error = 1;
+	} else {
+		while (<FH>) {
+			$lineno++;
+			# We are looking for (¥ª|Ω|π|∏ , but since we are running perl with
+			# PERL_UNICODE=, we have to write the utf8 versions of them literally. 
+			# If not, then lots of «Malformed UTF-8 character» will be spewed out.
+			if ( $_ =~ m/(\xC2\xA5|\xC2\xAA|Ω|\xCF\x80|\xE2\x88\x8F)/) { 
+				print "In file " . $self->getInt() . " derived from " . $self->getOrig() . "\n";
+				print "Faulty character at line: $lineno with line\n$_\n";
+				$error = 1;
+				last;
+			}
+		}
+	}
+	close(FH);
+	return $error;
+}
+
 1;

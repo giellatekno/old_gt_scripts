@@ -73,34 +73,9 @@ sub each_file_checks {
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
-	is(search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
+	is($converter->search_for_faulty_characters(), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	file_exists_ok($converter->move_int_to_converted(), "Check if xml has been moved to final destination");
-}
-
-sub search_for_faulty_characters {
-	my( $filename ) = @_;
-	
-	my $error = 0;
-	my $lineno = 0;
-	if( !open (FH, "<:encoding(utf8)", $filename )) {
-		print "Cannot open $filename\n";
-		$error = 1;
-	} else {
-		while (<FH>) {
-			$lineno++;
-			# We are looking for (¥ª|Ω|π|∏ , but since we are running perl with
-			# PERL_UNICODE=, we have to write the utf8 versions of them literally. 
-			# If not, then lots of «Malformed UTF-8 character» will be spewed out.
-			if ( $_ =~ m/(\xC2\xA5|\xC2\xAA|Ω|\xCF\x80|\xE2\x88\x8F)/) { 
-				print "Failed at line: $lineno with line\n$_\n";
-				$error = 1;
-				last;
-			}
-		}
-	}
-	close(FH);
-	return $error;
 }
 
 use XML::Twig;
