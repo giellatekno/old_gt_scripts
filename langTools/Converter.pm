@@ -205,10 +205,11 @@ sub checklang {
 		# Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
 		$root->set_att('xml:lang', $self->getPreconverter()->getDoclang());
 	}
-	open(FH, ">$tmp") or die "Cannot open $tmp $!";
+	open(FH, ">:encoding(utf8)", $tmp) or die "Cannot open $tmp $!";
 	$document->set_pretty_print('indented');
 	$document->print(\*FH);
 
+	
 	return 0;
 }
 
@@ -234,7 +235,7 @@ sub character_encoding {
 				carp "ERROR parsing the XML-file failed. STOP\n";
 				return "ERROR";
 			}
-			if (! open (FH, ">$int")) {
+			if (! open (FH, ">:encoding(utf8)", $int)) {
 				carp "ERROR cannot open file STOP";
 				return "ERROR";
 			}
@@ -261,7 +262,7 @@ sub character_encoding {
 						carp "ERROR parsing the XML-file failed.\n";
 						return "ERROR";
 					}
-					if (! open (FH, ">$int")) {
+					if (! open (FH, ">:encoding(utf8)", $int)) {
 						carp "ERROR cannot open file";
 						return "ERROR";
 					}
@@ -281,7 +282,7 @@ sub character_encoding {
 				carp "ERROR parsing the XML-file «$int» failed ";
 				return "1";
 			} else {
-				if (! open (FH, ">$int")) {
+				if (! open (FH, ">:encoding(utf8)", $int)) {
 					carp "ERROR cannot open file";
 					return "ERROR";
 				}
