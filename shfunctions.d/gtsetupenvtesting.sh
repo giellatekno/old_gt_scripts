@@ -154,3 +154,17 @@ undo_setup () {
     rm -f $HOME/$RC.$NEWSUFF
     display_undo
 }
+
+check_links () {
+	if (
+	     [ -L $GTHOME/gt/sme/zcorp/               ] &&
+	     [ -L $GTHOME/gt/smj/zcorp/               ] &&
+	     [ -L $GTHOME/gt/sma/zcorp/               ] &&
+	     [ -L $GTHOME/techdoc/proof/hyph/testing  ] &&
+	     [ -L $GTHOME/techdoc/proof/spell/testing ]
+	   ) ; then
+		links_ok=YES
+	else 
+		links_ok=NO
+	fi
+}

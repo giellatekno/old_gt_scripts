@@ -1,6 +1,5 @@
 # -*-Shell-script-*-
 # GT setup functions to set up the big repository.
-# $Id$
 
 big_command_csh () {
     BIGCMD="\
@@ -70,6 +69,8 @@ EOF
 
 link_biggies () {
 	ln -sf $GTBIG/gt/sme/corp $GTHOME/gt/sme/zcorp
+	ln -sf $GTBIG/gt/smj/corp $GTHOME/gt/smj/zcorp
+	ln -sf $GTBIG/gt/sma/corp $GTHOME/gt/sma/zcorp
 	ln -sf $GTBIG/techdoc/proof/hyph/testing $GTHOME/techdoc/proof/hyph/testing
 	ln -sf $GTBIG/techdoc/proof/spelling/testing $GTHOME/techdoc/proof/spell/testing
 }

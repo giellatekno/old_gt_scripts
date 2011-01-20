@@ -64,6 +64,20 @@ msg_already_setup (){
     echo set up for Giellatekno already.
 }
 
+msg_mostly_setup (){
+    echo Your environment seems to be correctly
+    echo set up for Giellatekno already, except for
+    echo some missing links to dirs in $GTBIG.
+    echo I will now add those links.
+}
+
+msg_links_done (){
+    echo All links to dirs in $GTBIG
+    echo are now (re)created. Your Giellatekno
+    echo environment should be ready. Please
+    echo open a new terminal window to start working.
+}
+
 msg_main_only_setup (){
     echo Your environment seems to be correctly
     echo set up for the main part of Giellatekno.
@@ -101,6 +115,40 @@ EOF
     ;;
 	NO)
     msg_title; echo""; msg_already_setup
+    ;;
+    esac
+}
+
+display_mostly_setup (){
+    case $ONCONSOLE in
+        YES)
+    osascript <<-EOF
+    tell application "Finder"
+	activate
+	set dd to display dialog "`msg_title`\n\n`msg_mostly_setup`" buttons {"OK"} default button 1 giving up after 20 
+    set UserResponse to button returned of dd
+    end tell
+EOF
+    ;;
+	NO)
+    msg_title; echo""; msg_mostly_setup
+    ;;
+    esac
+}
+
+display_links_done (){
+    case $ONCONSOLE in
+        YES)
+    osascript <<-EOF
+    tell application "Finder"
+	activate
+	set dd to display dialog "`msg_title`\n\n`msg_links_done`" buttons {"OK"} default button 1 giving up after 20 
+    set UserResponse to button returned of dd
+    end tell
+EOF
+    ;;
+	NO)
+    msg_title; echo""; msg_links_done
     ;;
     esac
 }

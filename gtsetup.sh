@@ -100,6 +100,10 @@ if grep GTPRIV $TMPFILE >/dev/null 2>&1 ; then
     priv_setup_done=YES
 fi
 
+if ( [ "$big_setup_done"  == "YES" ] ) ; then
+	check_links
+fi
+
 # Variable to record whether the RC file was actually changed:
 RC_CHANGED=NO
 ALL_RC_CHANGES=""
@@ -108,10 +112,20 @@ ALL_RC_CHANGES=""
 # TODO: Test for other sensible things, too. 
 if ( [ "$main_setup_done" == "YES" ] &&
      [ "$big_setup_done"  == "YES" ] &&
-     [ "$free_setup_done"  == "YES" ] &&
-     [ "$priv_setup_done" == "YES" ]   ) ; then
+     [ "$free_setup_done" == "YES" ] &&
+     [ "$priv_setup_done" == "YES" ] &&
+     [ "$links_ok"        == "YES" ]  ) ; then
     # Yes: everything is already set up
     display_already_setup
+elif ( [ "$main_setup_done" == "YES" ] &&
+       [ "$big_setup_done"  == "YES" ] &&
+       [ "$free_setup_done" == "YES" ] &&
+       [ "$priv_setup_done" == "YES" ] &&
+       [ "$links_ok"        == "NO"  ]  ) ; then
+    # Yes: everything but links are already set up
+    display_mostly_setup
+    link_biggies
+    display_links_done
 else
     # No: we need to do something
     eval `grep LOGINSHELL $TMPFILE`
