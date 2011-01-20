@@ -72,7 +72,7 @@ msg_mostly_setup (){
 
 msg_links_done (){
     echo All links to dirs in $GTBIG
-    echo are now (re)created. Your Giellatekno
+    echo are now created. Your Giellatekno
     echo environment should be ready. Please
     echo open a new terminal window to start working.
 }
