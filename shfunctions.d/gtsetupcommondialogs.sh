@@ -1,6 +1,5 @@
 # -*-Shell-script-*-
 # Common GT setup dialog elements.
-# $Id$
 
 msg_title () {
     echo ---------------------------------------
