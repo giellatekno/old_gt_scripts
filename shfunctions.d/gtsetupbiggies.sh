@@ -70,6 +70,8 @@ EOF
 
 link_biggies () {
 	ln -sf $GTBIG/gt/sme/corp $GTHOME/gt/sme/zcorp
+	ln -sf $GTBIG/techdoc/proof/hyph/testing $GTHOME/techdoc/proof/hyph/testing
+	ln -sf $GTBIG/techdoc/proof/spelling/testing $GTHOME/techdoc/proof/spell/testing
 }
 
 display_choose_big_do () {
