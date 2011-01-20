@@ -41,7 +41,6 @@
 #                 repository is checked out
 # 
 
-
 # Where am I:
 case "$0" in
     /*)
@@ -65,7 +64,6 @@ source "${SCRIPTPATH}"/shfunctions.d/gtsetupbiggies.sh
 source "${SCRIPTPATH}"/shfunctions.d/gtsetupfreecorpus.sh
 source "${SCRIPTPATH}"/shfunctions.d/gtsetuppriv.sh
 
-
 ### Main program:
 
 # A temporary file for communicating with a login shell 
@@ -79,10 +77,6 @@ do_isconsole
 
 # Run a login shell to see whether the Giellatekno paths are already set up.
 do_login_test
-
-# Set GTHOME based on the location of this setup script.
-# Does also check for the existence of big and private working copies.
-set_gthome
 
 # Check whether the environment is already in place:
 if grep GTHOME $TMPFILE >/dev/null 2>&1 ; then
@@ -126,6 +120,11 @@ elif ( [ "$main_setup_done" == "YES" ] &&
     display_links_done
 else
     # No: we need to do something
+
+    # Set GTHOME based on the location of this setup script.
+    # Does also check for the existence of big and private working copies.
+    set_gthome
+
     eval `grep LOGINSHELL $TMPFILE`
     if [ -z $LOGINSHELL ]; then
         Result="\nYour startup scripts contain an error.\nI am giving up. Bye.\n"
