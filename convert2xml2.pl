@@ -16,7 +16,6 @@ sub main {
 	my ($ref_to_argv, $debug) = @_;
 	my $counter = 0;
 	my $errors = 0;
-	my $debug = 0;
 
 	my $numArgs = $#{$ref_to_argv} + 1;
 	print "thanks, you gave me $numArgs files to process:\n";
