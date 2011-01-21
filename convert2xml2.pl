@@ -10,22 +10,22 @@ use Getopt::Long;
 my $debug = 0;
 GetOptions ("debug" => \$debug);
 
-main(@ARGV, $debug);
+main(\@ARGV, $debug);
 
 sub main {
-	my (@argv, $debug) = @_;
+	my ($ref_to_argv, $debug) = @_;
 	my $counter = 0;
 	my $errors = 0;
 	my $debug = 0;
 
-	my $numArgs = $#argv + 1;
+	my $numArgs = $#{$ref_to_argv} + 1;
 	print "thanks, you gave me $numArgs files to process:\n";
 	my $filename = "problematic_files.txt";
 	open (FILE, ">>:encoding(utf8)", $filename );
-	foreach my $argnum (0 .. $#argv) {
+	foreach my $argnum (0 .. $#{$ref_to_argv}) {
 		$counter++;
 
-		if (convertdoc($argv[$argnum], $debug)) {
+		if (convertdoc(${$ref_to_argv}[$argnum], $debug)) {
 			print "|";
 			$errors++;
 		} else {
