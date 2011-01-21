@@ -41,7 +41,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
 	"$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
 	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm",
-	"$ENV{'GTFREE'}/orig/sma/facta/Utlysningsteks_sørsamisk_2_.doc"
+	"$ENV{'GTFREE'}/orig/sma/facta/Utlysningsteks_sørsamisk_2_.doc",
+	"$ENV{'GTFREE'}/orig/sma/facta/moerh.pdf"
 	);
 
 	one_time_checks($doc_names[0]);
