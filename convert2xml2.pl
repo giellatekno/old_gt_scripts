@@ -7,34 +7,41 @@ use utf8;
 use langTools::Converter;
 use Getopt::Long;
 
-my $counter = 0;
-my $errors = 0;
 my $debug = 0;
 GetOptions ("debug" => \$debug);
 
-my $numArgs = $#ARGV + 1;
-print "thanks, you gave me $numArgs files to process:\n";
-my $filename = "problematic_files.txt";
-open (FILE, ">>:encoding(utf8)", $filename );
-foreach my $argnum (0 .. $#ARGV) {
-	$counter++;
+main(@ARGV, $debug);
 
-	if (convertdoc($ARGV[$argnum])) {
-		print "|";
-		$errors++;
-	} else {
-		print ".";
+sub main {
+	my (@argv, $debug) = @_;
+	my $counter = 0;
+	my $errors = 0;
+	my $debug = 0;
+
+	my $numArgs = $#argv + 1;
+	print "thanks, you gave me $numArgs files to process:\n";
+	my $filename = "problematic_files.txt";
+	open (FILE, ">>:encoding(utf8)", $filename );
+	foreach my $argnum (0 .. $#argv) {
+		$counter++;
+
+		if (convertdoc($argv[$argnum], $debug)) {
+			print "|";
+			$errors++;
+		} else {
+			print ".";
+		}
+		unless ( $counter % 50) {
+			print " $counter\n";
+		}
 	}
-	unless ( $counter % 50) {
-		print " $counter\n";
-	}
+	print "\n";
+	print FILE "$counter files processed, $errors errors among them\n\n";
+	close (FILE);
 }
-print "\n";
-print FILE "$counter files processed, $errors errors among them\n\n";
-close (FILE);
 
 sub convertdoc {
-	my( $filename ) = @_;
+	my( $filename, $debug ) = @_;
 	my $error = 0;
 	my $converter = langTools::Converter->new($filename, $debug);
 	
