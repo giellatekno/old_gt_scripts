@@ -35,7 +35,7 @@ sub main {
 			print " $counter\n";
 		}
 	}
-	print "\n";
+	print " $counter \nProcessing finished\n";
 	print FILE "$counter files processed, $errors errors among them\n\n";
 	close (FILE);
 }
