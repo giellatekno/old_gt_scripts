@@ -43,7 +43,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm",
 	"$ENV{'GTFREE'}/orig/sma/facta/Utlysningsteks_sørsamisk_2_.doc",
 	"$ENV{'GTFREE'}/orig/sma/facta/moerh.pdf",
-	"$ENV{'GTFREE'}/orig/sma/admin/depts/Handlingsplan_2009_samisk_sprak_sorsamisk.pdf"
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/Handlingsplan_2009_samisk_sprak_sorsamisk.pdf",
+	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html"
 	);
 
 	one_time_checks($doc_names[0]);
