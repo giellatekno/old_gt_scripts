@@ -363,4 +363,13 @@ sub search_for_faulty_characters {
 	return $error;
 }
 
+sub remove_temp_files {
+	my ($self) = @_;
+	
+	unlink( $self->getInt() );
+	unlink( $self->getIntermediateXml() );
+	unlink( $self->getPreconverter()->gettmp2() );
+	unlink( $self->getMetadataXsl() );
+}
+
 1;

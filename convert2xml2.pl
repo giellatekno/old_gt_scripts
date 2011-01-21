@@ -71,6 +71,9 @@ sub convertdoc {
 		$error = 1;
 	} else {
 		$converter->move_int_to_converted();
+		if (! $debug ) {
+			$converter->remove_temp_files();
+		}
 	}
 	return $error;
 }
