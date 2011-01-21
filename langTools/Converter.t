@@ -42,7 +42,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/laws/jus.txt",
 	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm",
 	"$ENV{'GTFREE'}/orig/sma/facta/Utlysningsteks_sørsamisk_2_.doc",
-	"$ENV{'GTFREE'}/orig/sma/facta/moerh.pdf"
+	"$ENV{'GTFREE'}/orig/sma/facta/moerh.pdf",
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/Handlingsplan_2009_samisk_sprak_sorsamisk.pdf"
 	);
 
 	one_time_checks($doc_names[0]);
