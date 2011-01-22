@@ -1,7 +1,17 @@
 #!/usr/bin/perl -w
-#
+
+# Warning!!
+# Warning!!
+# Warning!!
+
+# Warning!! This script is obsolete, and kept for reference.
+# It has been replaced with the convert2xml2.pl script
+
+# Note: This script is a symlink, whereas the convert2xml2.pl
+# is not, it is found one level up. Todo: cleanup.
+
 # convert2xml.pl
-# Perl script for converting doc-, html-, svg- and pdf-files to xml-format
+# Obsolete Perl script for converting doc-, html-, svg- and pdf-files to xml-format
 # The default directory for searching the files and storing the converted
 # xml-files is /usr/local/share/corp. The file that is given to the script
 # is expected to be in the corpus hierarchy, under subdirectory orig. 
