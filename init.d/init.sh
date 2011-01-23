@@ -130,4 +130,4 @@ fi
 # searched when grepping files, which is almost always what you want.
 # It requires at least GNU grep 2.5.3. Default on Snow Leopard is 2.5.0, via
 # MacPorts GNU grep 2.7.0 or newer is available
-export GREP_OPTIONS="--exclude-dir=\.svn"
+#export GREP_OPTIONS="--exclude-dir=\.svn"
