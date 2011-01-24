@@ -55,7 +55,7 @@ sub makePreconverter {
 		$self->{_preconverter} = langTools::ParatextConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.rtf$/ ) {
 		$self->{_preconverter} = langTools::RTFConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.doc$/ ) {
+	} elsif( $abs_path =~ /\.doc$/i ) {
 		$self->{_preconverter} = langTools::DOCConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.txt$/ ) {
 		$self->{_preconverter} = langTools::PlaintextConverter->new($filename, $test);
