@@ -64,6 +64,7 @@ sub makePreconverter {
 	} elsif( $abs_path =~ /\.svg$/ ) {
 		$self->{_preconverter} = langTools::SVGConverter->new($filename, $test);
 	} else {
+		print "Unrecoverable error: unable to handle $filename\n";
 		die("unable to handle $filename\n");
 	}
 }
