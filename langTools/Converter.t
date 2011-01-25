@@ -46,7 +46,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/Handlingsplan_2009_samisk_sprak_sorsamisk.pdf",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html?id=1689",
-# 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html?id=601912",
+ 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html?id=601912",
 	"$ENV{'GTBOUND'}/orig/sma/facta/AKTEPJ~1.DOC"
 	);
 
