@@ -47,32 +47,30 @@ sub convertdoc {
 		$counter++;
 		my $converter = langTools::Converter->new($filename, $debug);
 		$converter->redirect_stderr_to_log();
-		if ($converter->get_debug()) {
-			print STDERR "«\n\n$filename»\n";
-		}
+		print STDERR "«\n\n$filename»\n";
 		if ($converter->makeXslFile()) {
-			print FILE "Couldn't use " . $converter->getOrig() . ".xsl\n";
+			print STDERR "Couldn't use " . $converter->getOrig() . ".xsl\n";
 			$error = 1;
 		} elsif ($converter->convert2intermediatexml()) {
-			print FILE "Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
+			print STDERR "Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
 			$error = 1;
 		} elsif ($converter->convert2xml()) {
-			print FILE "Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
+			print STDERR "Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
 			$error = 1;
 		} elsif ($converter->checklang()) {
-			print FILE "Couldn't set the lang of " . $converter->getOrig() . "\n";
+			print STDERR "Couldn't set the lang of " . $converter->getOrig() . "\n";
 			$error = 1;
 		} elsif ($converter->checkxml()) {
-			print FILE "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+			print STDERR "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 			$error = 1;
 		} elsif ($converter->character_encoding()) {
-			print FILE "Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
+			print STDERR "Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 			$error = 1;
 		} elsif ($converter->search_for_faulty_characters()) {
-			print FILE "Found faulty chars in " . $converter->getOrig() . "\n";
+			print STDERR "Found faulty chars in " . $converter->getOrig() . "\n";
 			$error = 1;
 		} elsif ($converter->checkxml()) {
-			print FILE "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+			print STDERR "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 			$error = 1;
 		} else {
 			$converter->move_int_to_converted();
