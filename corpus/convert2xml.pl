@@ -42,7 +42,7 @@ sub convertdoc {
 	my $error = 0;
 	my $feedback;
 
-	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$)/ || -d $filename) ) {
+	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$)/ || -d $filename) ) {
 		
 		$counter++;
 		my $converter = langTools::Converter->new($filename, $debug);
