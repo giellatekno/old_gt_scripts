@@ -42,36 +42,39 @@ sub main {
 sub convertdoc {
 	my( $filename, $debug ) = @_;
 	my $error = 0;
-	my $converter = langTools::Converter->new($filename, $debug);
-	
-	if ($converter->makeXslFile()) {
-		print FILE "Couldn't use " . $converter->getOrig() . ".xsl\n";
-		$error = 1;
-	} elsif ($converter->convert2intermediatexml()) {
-		print FILE "Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
-		$error = 1;
-	} elsif ($converter->convert2xml()) {
-		print FILE "Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
-		$error = 1;
-	} elsif ($converter->checklang()) {
-		print FILE "Couldn't set the lang of " . $converter->getOrig() . "\n";
-		$error = 1;
-	} elsif ($converter->checkxml()) {
-		print FILE "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-		$error = 1;
-	} elsif ($converter->character_encoding()) {
-		print FILE "Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
-		$error = 1;
-	} elsif ($converter->search_for_faulty_characters()) {
-		print FILE "Found faulty chars in " . $converter->getOrig() . "\n";
-		$error = 1;
-	} elsif ($converter->checkxml()) {
-		print FILE "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-		$error = 1;
-	} else {
-		$converter->move_int_to_converted();
-		if (! $debug ) {
-			$converter->remove_temp_files();
+
+	if (! ($filename =~ /(\.xsl$|\.svn\/)/ || -d $filename) ) {
+		my $converter = langTools::Converter->new($filename, $debug);
+		
+		if ($converter->makeXslFile()) {
+			print FILE "Couldn't use " . $converter->getOrig() . ".xsl\n";
+			$error = 1;
+		} elsif ($converter->convert2intermediatexml()) {
+			print FILE "Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
+			$error = 1;
+		} elsif ($converter->convert2xml()) {
+			print FILE "Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
+			$error = 1;
+		} elsif ($converter->checklang()) {
+			print FILE "Couldn't set the lang of " . $converter->getOrig() . "\n";
+			$error = 1;
+		} elsif ($converter->checkxml()) {
+			print FILE "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+			$error = 1;
+		} elsif ($converter->character_encoding()) {
+			print FILE "Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
+			$error = 1;
+		} elsif ($converter->search_for_faulty_characters()) {
+			print FILE "Found faulty chars in " . $converter->getOrig() . "\n";
+			$error = 1;
+		} elsif ($converter->checkxml()) {
+			print FILE "Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+			$error = 1;
+		} else {
+			$converter->move_int_to_converted();
+			if (! $debug ) {
+				$converter->remove_temp_files();
+			}
 		}
 	}
 	return $error;
