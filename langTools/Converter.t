@@ -48,6 +48,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html?id=1689",
  	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html?id=601912",
 	"$ENV{'GTBOUND'}/orig/sma/facta/AKTEPJ~1.DOC"
+# 	,
+# 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
 
 	one_time_checks($doc_names[0]);
@@ -82,11 +84,11 @@ sub each_file_checks {
 	is($converter->search_for_faulty_characters(), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	file_exists_ok($converter->move_int_to_converted(), "Check if xml has been moved to final destination");
-	$converter->remove_temp_files();
-	file_not_exists_ok( $converter->getInt() );
-	file_not_exists_ok( $converter->getIntermediateXml() );
-	file_not_exists_ok( $converter->getPreconverter->gettmp2() );
-	file_not_exists_ok( $converter->getMetadataXsl() );
+# 	$converter->remove_temp_files();
+# 	file_not_exists_ok( $converter->getInt() );
+# 	file_not_exists_ok( $converter->getIntermediateXml() );
+# 	file_not_exists_ok( $converter->getPreconverter->gettmp2() );
+# 	file_not_exists_ok( $converter->getMetadataXsl() );
 }
 
 
