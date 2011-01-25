@@ -120,10 +120,15 @@ sub getPreconverter {
 	return $self->{_preconverter};
 }
 
-sub getFinalName() {
+sub getFinalName {
 	my ($self) = @_;
 	(my $int = $self->getOrig()) =~ s/\/orig\//\/converted\//;
 	return $int . ".xml";
+}
+
+sub get_debug {
+	my ($self) = @_;
+	return $self->{_test};
 }
 
 sub makeXslFile {
@@ -151,7 +156,7 @@ sub makeFinalDir {
 sub exec_com {
 	my ( $self, $com ) = @_;
 
-	if ($self->{_test}) {
+	if ($self->get_debug()) {
 		print STDERR $self->getOrig() . " exec_com: $com\n";
 	}
 
@@ -370,6 +375,15 @@ sub remove_temp_files {
 	unlink( $self->getIntermediateXml() );
 	unlink( $self->getPreconverter()->gettmp2() );
 	unlink( $self->getMetadataXsl() );
+}
+
+# Redirect STDERR to log files.
+sub redirect_stderr_to_log {
+ 	my ($self) = @_;
+	if (! $self->get_debug()) {
+		$self->{_log_file} = $self->getPreconverter()->getTmpDir() . "/" . File::Basename::basename( $self->getOrig() ) . ".log";
+		open STDERR, '>', $self->{_log_file} or die "Can't redirect STDERR: $!";
+	}
 }
 
 1;

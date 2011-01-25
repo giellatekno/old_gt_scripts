@@ -21,7 +21,7 @@ sub getXsl {
 sub tidyHTML {
 	my( $self ) = @_;
 	
-	$command = "sed -e 's/<?xml:namespace.*?>//g' -e 's/<v:.*>//g' -e 's/<o:lock.*\/>//g'  " . $self->getOrig() . " | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet > " . $self->gettmp2();
+	$command = "sed -e 's_<?xml:namespace.*?>__g' -e 's_<v:.*>__g' -e 's_<o:lock.*/>__g'  " . $self->getOrig() . " | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet > " . $self->gettmp2();
 	return $self->exec_com($command);
 }
 

@@ -19,9 +19,7 @@ main(\@ARGV, $debug);
 sub main {
 	my ($ref_to_argv, $debug) = @_;
 	my $numArgs = $#{$ref_to_argv} + 1;
-	print "thanks, you gave me $numArgs files to process:\n";
-	my $filename = "problematic_files.txt";
-	open (FILE, ">>:encoding(utf8)", $filename );
+	print "Processing files\n";
 	foreach my $argnum (0 .. $#{$ref_to_argv}) {
 		my $tmp = ${$ref_to_argv}[$argnum];
 		if ( -d $tmp ) {
@@ -32,8 +30,8 @@ sub main {
 	}
 	print " $counter \nProcessing finished\n";
 	print "$counter files processed, $errors errors among them\n\n";
-	close (FILE);
 }
+
 sub convertdoc2 {
 	my ($tmp) = Cwd::abs_path($_);
 	convertdoc($tmp);
@@ -42,13 +40,16 @@ sub convertdoc2 {
 sub convertdoc {
 	my ($filename) = Cwd::abs_path(@_);
 	my $error = 0;
+	my $feedback;
 
 	if (! ($filename =~ /(\.xsl$|\/\.svn)/ || -d $filename) ) {
-		print "«$filename»\n";
-
+		
 		$counter++;
 		my $converter = langTools::Converter->new($filename, $debug);
-		
+		$converter->redirect_stderr_to_log();
+		if ($converter->get_debug()) {
+			print STDERR "«\n\n$filename»\n";
+		}
 		if ($converter->makeXslFile()) {
 			print FILE "Couldn't use " . $converter->getOrig() . ".xsl\n";
 			$error = 1;
@@ -80,14 +81,20 @@ sub convertdoc {
 			}
 		}
 		
+		
 		if ($error) {
-			print "|";
+			$feedback = "|";
 			$errors++;
 		} else {
-			print ".";
+			$feedback = ".";
 		}
-		unless ( $counter % 50) {
-			print " $counter\n";
+		
+		unless ($converter->get_debug()) {
+			print $feedback;
+			unless ( $counter % 50) {
+				print " $counter\n";
+			}
 		}
 	}
 }
+
