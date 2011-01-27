@@ -49,7 +49,7 @@ sub makePreconverter {
 		$self->{_preconverter} = langTools::AvvirXMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
 		$self->{_preconverter} = langTools::BibleXMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.html\?id=\d*/ || $abs_path =~ /\.html$/ || $abs_path =~ /\.htm$/ ) {
+	} elsif( $abs_path =~ /(\.html\?id=\d*|\.html$|\.htm$|\.php\?id=\d*)/ ) {
 		$self->{_preconverter} = langTools::HTMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.ptx$/ ) {
 		$self->{_preconverter} = langTools::ParatextConverter->new($filename, $test);
@@ -130,6 +130,11 @@ sub getFinalName {
 sub get_debug {
 	my ($self) = @_;
 	return $self->{_test};
+}
+
+sub get_logfile {
+	my ($self) = @_;
+	return $self->{_logfile};
 }
 
 sub makeXslFile {
