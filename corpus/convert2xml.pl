@@ -11,8 +11,10 @@ use File::Find;
 my $counter = 0;
 my $errors = 0;
 
+my $shallow = 0;
 my $debug = 0;
-GetOptions ("debug" => \$debug);
+GetOptions ("debug" => \$debug,
+			"shallow" => \$shallow);
 
 main(\@ARGV, $debug);
 
@@ -33,7 +35,7 @@ sub main {
 }
 
 sub convertdoc2 {
-	my ($tmp) = Cwd::abs_path($_);
+	my ($tmp) = $_;
 	convertdoc($tmp);
 }
 
@@ -42,55 +44,55 @@ sub convertdoc {
 	my $error = 0;
 	my $feedback;
 
-	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$)/ || -d $filename) ) {
-		
-		$counter++;
+	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
-		$converter->redirect_stderr_to_log();
-		print STDERR "«\n\n$filename»\n";
-		if ($converter->makeXslFile()) {
-			print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
-			$error = 1;
-		} elsif ($converter->convert2intermediatexml()) {
-			print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
-			$error = 1;
-		} elsif ($converter->convert2xml()) {
-			print STDERR "Conversion failed: Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
-			$error = 1;
-		} elsif ($converter->checklang()) {
-			print STDERR "Conversion failed: Couldn't set the lang of " . $converter->getOrig() . "\n";
-			$error = 1;
-		} elsif ($converter->checkxml()) {
-			print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-			$error = 1;
-		} elsif ($converter->character_encoding()) {
-			print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
-			$error = 1;
-		} elsif ($converter->search_for_faulty_characters()) {
-			print STDERR "Conversion failed: Found faulty chars in " . $converter->getOrig() . "\n";
-			$error = 1;
-		} elsif ($converter->checkxml()) {
-			print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-			$error = 1;
-		} else {
-			$converter->move_int_to_converted();
-			if (! $debug ) {
-				$converter->remove_temp_files();
+		if (! ($shallow && -f $converter->getFinalName()) ) {
+			$converter->redirect_stderr_to_log();
+			$counter++;
+			print STDERR "«\n\n$filename»\n";
+			if ($converter->makeXslFile()) {
+				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
+				$error = 1;
+			} elsif ($converter->convert2intermediatexml()) {
+				print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
+				$error = 1;
+			} elsif ($converter->convert2xml()) {
+				print STDERR "Conversion failed: Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
+				$error = 1;
+			} elsif ($converter->checklang()) {
+				print STDERR "Conversion failed: Couldn't set the lang of " . $converter->getOrig() . "\n";
+				$error = 1;
+			} elsif ($converter->checkxml()) {
+				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+				$error = 1;
+			} elsif ($converter->character_encoding()) {
+				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
+				$error = 1;
+			} elsif ($converter->search_for_faulty_characters()) {
+				print STDERR "Conversion failed: Found faulty chars in " . $converter->getOrig() . "\n";
+				$error = 1;
+			} elsif ($converter->checkxml()) {
+				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+				$error = 1;
+			} else {
+				$converter->move_int_to_converted();
+				if (! $debug ) {
+					$converter->remove_temp_files();
+				}
 			}
-		}
-		
-		
-		if ($error) {
-			$feedback = "|";
-			$errors++;
-		} else {
-			$feedback = ".";
-		}
-		
-		unless ($converter->get_debug()) {
-			print $feedback;
-			unless ( $counter % 50) {
-				print " $counter\n";
+			
+			if ($error) {
+				$feedback = "|";
+				$errors++;
+			} else {
+				$feedback = ".";
+			}
+			
+			unless ($converter->get_debug()) {
+				print $feedback;
+				unless ( $counter % 50) {
+					print " $counter\n";
+				}
 			}
 		}
 	}
