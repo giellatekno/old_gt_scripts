@@ -21,7 +21,8 @@ sub getXsl {
 sub tidyHTML {
 	my( $self ) = @_;
 	
-	$command = "sed -e 's_<?xml:namespace.*?>__g' -e 's_<v:shapetype.*/v:shapetype>__g' -e 's_<v:shape.*/v:shape>__g'  " . $self->getOrig() . " | sed -e 's_<o:lock.*/o:lock>__g' -e 's_<o:p.*/o:p>__g' | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet > " . $self->gettmp2();
+	# sed -e 's_\303\245_\345_g == sed -e 's_Ã¥_å_g
+	$command = "sed -e 's_<?xml:namespace.*?>__g' -e 's_<v:shapetype.*/v:shapetype>__g' -e 's_<v:shape.*/v:shape>__g'  " . $self->getOrig() . " | sed -e 's_<o:lock.*/o:lock>__g' -e 's_<o:p.*/o:p>__g' | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet | sed -e 's_\303\245_\345_g' > " . $self->gettmp2();
 	return $self->exec_com($command);
 }
 
