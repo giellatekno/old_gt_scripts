@@ -55,9 +55,6 @@ sub convertdoc {
 			if ($converter->makeXslFile()) {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
-			} elsif ($converter->search_for_faulty_characters($converter->getMetadataXsl())) {
-				print STDERR "Faulty chars in " . $converter->getMetadataXsl() . ".xsl\n";
-				$error = 1;
 			} elsif ($converter->convert2intermediatexml()) {
 				print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
 				$error = 1;
