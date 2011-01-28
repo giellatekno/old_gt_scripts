@@ -359,7 +359,7 @@ sub search_for_faulty_characters {
 	} else {
 		while (<FH>) {
 			$lineno++;
-			my $searchstring = Encode::decode_utf8("¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ο|ν|χ|υ|τ|Δ|Λ|ð|ñ|ç|ó|þ|±|¢|³|º|¹|„|¿|˜|¾|è|˜|¼");
+			my $searchstring = Encode::decode_utf8("¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ο|ν|χ|υ|τ|Δ|Λ|ð|ñ|ç|þ|±|¢|¹|„|¿|˜|¾|˜|¼");
 			if ( $_ =~ /($searchstring)/) { 
 				print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 				print STDERR "Faulty character at line: $lineno with line\n$_\n";
