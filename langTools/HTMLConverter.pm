@@ -21,8 +21,7 @@ sub getXsl {
 sub tidyHTML {
 	my( $self ) = @_;
 	
-	# sed -e 's_\303\245_\345_g == sed -e 's_Ã¥_å_g
-	$command = "sed -e 's_<?xml:namespace.*?>__g' -e 's_<v:shapetype.*/v:shapetype>__g' -e 's_<v:shape.*/v:shape>__g'  " . $self->getOrig() . " | sed -e 's_<o:lock.*/o:lock>__g' -e 's_<o:p.*/o:p>__g' | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet | sed -e 's_\303\245_\345_g' > " . $self->gettmp2();
+	$command = "sed -e 's_<?xml:namespace.*?>__g' -e 's_<v:shapetype.*/v:shapetype>__g' -e 's_<v:shape.*/v:shape>__g'  " . $self->getOrig() . " | sed -e 's_<o:lock.*/o:lock>__g' -e 's_<o:p.*/o:p>__g' | tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet > " . $self->gettmp2();
 	return $self->exec_com($command);
 }
 
@@ -36,9 +35,34 @@ sub convert2intermediate {
 		my $command = "xsltproc --novalid \"" . $self->getXsl() . "\" \"" . $self->gettmp2() . "\" > \"" . $self->gettmp1() . "\"";
 		if ( $self->exec_com($command) ) {
 			$error = 1;
+		} else {
+			$self->clean_doc();
 		}
 	}
 	return $error;
+}
+
+sub clean_doc {
+	my ($self) = @_;
+	
+	my %replacements = (
+		"„" => "«",
+		"“" => "»");
+	
+	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	my @file = <FH>;
+	close(FH);
+
+	open(FH, ">:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	foreach my $string (@file) {
+		foreach my $a (keys %replacements) {
+			my $ii = Encode::decode_utf8($a);
+			my $i = Encode::decode_utf8($replacements{$a});
+			$string =~ s/$ii/$i/g;
+		}
+		print FH $string;
+	}
+	close(FH);
 }
 
 1;
