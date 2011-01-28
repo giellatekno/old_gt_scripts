@@ -32,10 +32,33 @@ sub convert2intermediate {
 		if ($self->exec_com($command)) {
 			$error = 1;
 		} else {
-			$command = "perl -CS -pi -e 's/\x{00B6}/<\\/p><p>/g' \"" . $self->gettmp1() . "\"";
-			$self->exec_com($command);
+			$self->clean_doc();
 		}
 	}
 
 	return $error;
+}
+
+sub clean_doc {
+	my ($self) = @_;
+	
+	my %replacements = (
+		"¶" => "<\/p><p>",
+		"Ã¯" => "ï",
+		"Ã…" => "Å" );
+	
+	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	my @file = <FH>;
+	close(FH);
+
+	open(FH, ">:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	foreach my $string (@file) {
+		foreach my $a (keys %replacements) {
+			my $ii = Encode::decode_utf8($a);
+			my $i = Encode::decode_utf8($replacements{$a});
+			$string =~ s/$ii/$i/g;
+		}
+		print FH $string;
+	}
+	close(FH);
 }
