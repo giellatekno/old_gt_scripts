@@ -50,7 +50,8 @@ sub clean_doc {
 		"Ã¡" => "á",
 		"Ä‘" => "đ",
 		"Å¡" => "š",
-		"Ã¥" => "å");
+		"Ã¥" => "å",
+		"ν " => " ");
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
 	my @file = <FH>;
