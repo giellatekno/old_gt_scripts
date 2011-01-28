@@ -52,11 +52,11 @@ sub convertdoc {
 			$converter->redirect_stderr_to_log();
 			$counter++;
 			print STDERR "\n\n«$filename»\n";
-			if ($converter->search_for_faulty_characters($converter->getOrig() . ".xsl")) {
-				print STDERR "Faulty chars in " . $converter->getOrig() . ".xsl\n";
-				$error = 1;
-			} elsif ($converter->makeXslFile()) {
+			if ($converter->makeXslFile()) {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
+				$error = 1;
+			} elsif ($converter->search_for_faulty_characters($converter->getMetadataXsl())) {
+				print STDERR "Faulty chars in " . $converter->getMetadataXsl() . ".xsl\n";
 				$error = 1;
 			} elsif ($converter->convert2intermediatexml()) {
 				print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
@@ -73,8 +73,8 @@ sub convertdoc {
 			} elsif ($converter->character_encoding()) {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
-			} elsif ($converter->search_for_faulty_characters()) {
-				print STDERR "Conversion failed: Found faulty chars in " . $converter->getOrig() . "\n";
+			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
+				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";

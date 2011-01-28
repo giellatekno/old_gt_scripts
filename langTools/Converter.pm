@@ -351,16 +351,15 @@ sub move_int_to_converted {
 sub search_for_faulty_characters {
 	my( $self, $filename ) = @_;
 	
-	print "search_faulty: filename is $filename\n";
 	my $error = 0;
 	my $lineno = 0;
 	if( !open (FH, "<:encoding(utf8)", $filename )) {
-		print "Cannot open " . $filename . "\n";
+		print "(Search for faulty) Cannot open: " . $filename . "\n";
 		$error = 1;
 	} else {
 		while (<FH>) {
 			$lineno++;
-			if ( $_ =~ /(¥ª|Ω|π|∏|Ã)/) { 
+			if ( $_ =~ /(¥ª|Ω|π|∏|Ã|Œ)/) { 
 				print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 				print STDERR "Faulty character at line: $lineno with line\n$_\n";
 				$error = 1;
