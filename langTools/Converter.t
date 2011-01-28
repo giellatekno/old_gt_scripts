@@ -47,7 +47,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html?id=1689",
  	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html?id=601912",
-	"$ENV{'GTBOUND'}/orig/sma/facta/AKTEPJ~1.DOC"
+	"$ENV{'GTBOUND'}/orig/sma/facta/AKTEPJ~1.DOC",
+	"$ENV{'GTFREE'}/orig/nob/admin/others/aktivitetsplan_2002_no.doc"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
@@ -75,20 +76,21 @@ sub each_file_checks {
 	is($converter->getOrig(), Encode::decode_utf8(Cwd::abs_path($doc_name)));
 	is($converter->getInt(), $converter->getTmpDir() . "/" . $converter->getTmpFilebase() . ".xml", "Check if path to the converted doc is computed correctly");
 	is(length($converter->getTmpFilebase()), '8');
+	is($converter->search_for_faulty_characters($converter->getOrig() . ".xsl"), '0', "Check if metadata is correcty encoded");
 	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
 	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
 	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
-	is($converter->search_for_faulty_characters(), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
+	is($converter->search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is wrongly encoded");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	file_exists_ok($converter->move_int_to_converted(), "Check if xml has been moved to final destination");
-# 	$converter->remove_temp_files();
-# 	file_not_exists_ok( $converter->getInt() );
-# 	file_not_exists_ok( $converter->getIntermediateXml() );
-# 	file_not_exists_ok( $converter->getPreconverter->gettmp2() );
-# 	file_not_exists_ok( $converter->getMetadataXsl() );
+	$converter->remove_temp_files();
+	file_not_exists_ok( $converter->getInt() );
+	file_not_exists_ok( $converter->getIntermediateXml() );
+	file_not_exists_ok( $converter->getPreconverter->gettmp2() );
+	file_not_exists_ok( $converter->getMetadataXsl() );
 }
 
 

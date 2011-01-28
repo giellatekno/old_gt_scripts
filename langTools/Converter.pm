@@ -143,7 +143,7 @@ sub makeXslFile {
 
 	my $command = undef;
 	
-	if ( -e $self->getOrig() . ".xsl" ) {
+	if ( -f $self->getOrig() . ".xsl" ) {
 		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getOrig() . ".xsl" . " > " . $self->getMetadataXsl();
 	} else {
 		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getXslTemplate() . " > " . $self->getMetadataXsl();
@@ -340,7 +340,7 @@ sub move_int_to_converted {
 	my ($self) = @_;
 	
 	$self->makeFinalDir();
-	if (-e $self->getInt()) {
+	if (-f $self->getInt()) {
 		copy($self->getInt(), $self->getFinalName());
 		return $self->getFinalName();
 	} else {
@@ -349,24 +349,21 @@ sub move_int_to_converted {
 }
 
 sub search_for_faulty_characters {
-	my( $self ) = @_;
+	my( $self, $filename ) = @_;
 	
+	print "search_faulty: filename is $filename\n";
 	my $error = 0;
 	my $lineno = 0;
-	if( !open (FH, "<:encoding(utf8)", $self->getInt() )) {
-		print "Cannot open " . $self->getInt() . "\n";
+	if( !open (FH, "<:encoding(utf8)", $filename )) {
+		print "Cannot open " . $filename . "\n";
 		$error = 1;
 	} else {
 		while (<FH>) {
 			$lineno++;
-			# We are looking for (¥ª|Ω|π|∏ , but since we are running perl with
-			# PERL_UNICODE=, we have to write the utf8 versions of them literally. 
-			# If not, then lots of «Malformed UTF-8 character» will be spewed out.
-			if ( $_ =~ m/(\xC2\xA5|\xC2\xAA|Ω|\xCF\x80|\xE2\x88\x8F)/) { 
-				print "In file " . $self->getInt() . " derived from " . $self->getOrig() . "\n";
-				print "Faulty character at line: $lineno with line\n$_\n";
+			if ( $_ =~ /(¥ª|Ω|π|∏|Ã)/) { 
+				print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
+				print STDERR "Faulty character at line: $lineno with line\n$_\n";
 				$error = 1;
-				last;
 			}
 		}
 	}
