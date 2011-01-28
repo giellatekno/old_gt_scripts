@@ -45,7 +45,8 @@ sub clean_doc {
 	my %replacements = (
 		"¶" => "<\/p><p>",
 		"Ã¯" => "ï",
-		"Ã…" => "Å" );
+		"Ã…" => "Å",
+		"Ã¦" => "æ" );
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
 	my @file = <FH>;

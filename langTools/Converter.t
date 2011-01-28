@@ -50,7 +50,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sma/facta/AKTEPJ~1.DOC",
 	"$ENV{'GTFREE'}/orig/nob/admin/others/aktivitetsplan_2002_no.doc",
 	"$ENV{'GTFREE'}/orig/nob/admin/sd/samediggi.no/samediggi-article-84.html",
-	"$ENV{'GTFREE'}/orig/sma/admin/depts/Åarjelsaemien_gïelen_divvun.doc"
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/Åarjelsaemien_gïelen_divvun.doc",
+	"$ENV{'GTFREE'}/orig/sme/admin/guovda/Čoahkkinprotokolla_27.06.02.doc"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
