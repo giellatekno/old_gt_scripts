@@ -359,7 +359,7 @@ sub search_for_faulty_characters {
 	} else {
 		while (<FH>) {
 			$lineno++;
-			if ( $_ =~ /(¥ª|Ω|π|∏|Ã|Œ)/) { 
+			if ( $_ =~ /(¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ο|ν|χ|υ|τ|Δ|Λ|ð|ñ|ç|ó|þ|±|¢|³|º|¹|„|¿|˜|¾|è|˜|¼)/) { 
 				print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 				print STDERR "Faulty character at line: $lineno with line\n$_\n";
 				$error = 1;
