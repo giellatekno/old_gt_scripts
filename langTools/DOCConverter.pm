@@ -68,3 +68,5 @@ sub clean_doc {
 	}
 	close(FH);
 }
+
+1;
