@@ -353,21 +353,25 @@ sub search_for_faulty_characters {
 	
 	my $error = 0;
 	my $lineno = 0;
-	if( !open (FH, "<:encoding(utf8)", $filename )) {
-		print "(Search for faulty) Cannot open: " . $filename . "\n";
-		$error = 1;
-	} else {
-		while (<FH>) {
-			$lineno++;
-			my $searchstring = Encode::decode_utf8("¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ο|ν|χ|υ|τ|Δ|Λ|ð|ñ|ç|þ|±|¢|¹|„|¿|˜|¾|˜|¼");
-			if ( $_ =~ /($searchstring)/) { 
-				print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
-				print STDERR "Faulty character at line: $lineno with line\n$_\n";
-				$error = 1;
+	
+	# The theory is that only the sami languages can be erroneously encoded ...
+	if ($self->getPreconverter->getDoclang() =~ /(sma|sme|smj)/) {
+		if( !open (FH, "<:encoding(utf8)", $filename )) {
+			print "(Search for faulty) Cannot open: " . $filename . "\n";
+			$error = 1;
+		} else {
+			while (<FH>) {
+				$lineno++;
+				my $searchstring = Encode::decode_utf8("¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|„|¿|˜|˜");
+				if ( $_ =~ /($searchstring)/) { 
+					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
+					print STDERR "Faulty character at line: $lineno with line\n$_\n";
+					$error = 1;
+				}
 			}
 		}
+		close(FH);
 	}
-	close(FH);
 	return $error;
 }
 
