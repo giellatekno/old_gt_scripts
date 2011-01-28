@@ -8,13 +8,15 @@ use langTools::Converter;
 use Getopt::Long;
 use File::Find;
 
-my $counter = 0;
-my $errors = 0;
-
+# options
 my $shallow = 0;
 my $debug = 0;
 GetOptions ("debug" => \$debug,
 			"shallow" => \$shallow);
+
+# global variables
+my $counter = 0;
+my $errors = 0;
 
 main(\@ARGV, $debug);
 
@@ -49,8 +51,11 @@ sub convertdoc {
 		if (! ($shallow && -f $converter->getFinalName()) ) {
 			$converter->redirect_stderr_to_log();
 			$counter++;
-			print STDERR "«\n\n$filename»\n";
-			if ($converter->makeXslFile()) {
+			print STDERR "\n\n«$filename»\n";
+			if ($converter->search_for_faulty_characters($converter->getOrig() . ".xsl")) {
+				print STDERR "Faulty chars in " . $converter->getOrig() . ".xsl\n";
+				$error = 1;
+			} elsif ($converter->makeXslFile()) {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 			} elsif ($converter->convert2intermediatexml()) {
