@@ -54,7 +54,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/guovda/Čoahkkinprotokolla_27.06.02.doc",
 	"$ENV{'GTFREE'}/orig/sme/admin/guovda/Dá_lea_gihppagaš_mas_leat_dieđut_skuvlla_birra.doc",
 	"$ENV{'GTFREE'}/orig/sme/admin/others/Tillegg_til_forskrift_vann-_og_avløpsgebyrer_2004.doc",
-	"$ENV{'GTFREE'}/orig/sma/admin/depts/Torkel_saemien_divvun.doc"
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/Torkel_saemien_divvun.doc",
+	"$ENV{'GTBOUND'}/orig/sma/facta/Vi_vill___MP.pdf"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
@@ -83,7 +84,6 @@ sub each_file_checks {
 	is($converter->getInt(), $converter->getTmpDir() . "/" . $converter->getTmpFilebase() . ".xml", "Check if path to the converted doc is computed correctly");
 	is(length($converter->getTmpFilebase()), '8');
 	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
-	is($converter->search_for_faulty_characters($converter->getMetadataXsl()), '0', "Check if metadata is correcty encoded");
 	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
 	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
