@@ -59,7 +59,7 @@ sub makePreconverter {
 		$self->{_preconverter} = langTools::DOCConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.txt$/ ) {
 		$self->{_preconverter} = langTools::PlaintextConverter->new($filename, $test);
-	} elsif( $abs_path =~ /\.pdf$/ ) {
+	} elsif( $abs_path =~ /(\.pdf$|\.ai$)/ ) {
 		$self->{_preconverter} = langTools::PDFConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.svg$/ ) {
 		$self->{_preconverter} = langTools::SVGConverter->new($filename, $test);
