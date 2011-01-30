@@ -46,7 +46,7 @@ sub convertdoc {
 	my $error = 0;
 	my $feedback;
 
-	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$)/ || -d $filename) ) {
+	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
 		if (! ($shallow && -f $converter->getFinalName()) ) {
 			$converter->redirect_stderr_to_log();
