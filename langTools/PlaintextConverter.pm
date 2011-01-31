@@ -22,15 +22,37 @@ sub convert2intermediate {
 		}
 	} else {
 		langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1(), $self->getDoclang());
+		
 	}
 	
 	
 	if( $self->getTest() ){ 
 		print "the intermediate doc is now in " . $self->gettmp1() . "\n";
 	}
-	$command = "perl -pi -e 's/\x14//g' " . $self->gettmp1();
-	$self->exec_com($command);
-	
+	$self->clean_doc();
 	return $error;
 }
+sub clean_doc {
+	my ($self) = @_;
+	
+	my %replacements = (
+		"\x0" => "",
+		"\x14" => "");
+	
+	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	my @file = <FH>;
+	close(FH);
+
+	open(FH, ">:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	foreach my $string (@file) {
+		foreach my $a (keys %replacements) {
+			my $ii = Encode::decode_utf8($a);
+			my $i = Encode::decode_utf8($replacements{$a});
+			$string =~ s/$ii/$i/g;
+		}
+		print FH $string;
+	}
+	close(FH);
+}
+
 1;
