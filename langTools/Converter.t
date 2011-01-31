@@ -56,7 +56,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/others/Tillegg_til_forskrift_vann-_og_avløpsgebyrer_2004.doc",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/Torkel_saemien_divvun.doc",
 	"$ENV{'GTBOUND'}/orig/sma/facta/Vi_vill___MP.pdf",
-	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2010_xml-filer/SL_Einar_Wiggo_Isaksen(a).article.xml"
+	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2010_xml-filer/SL_Einar_Wiggo_Isaksen(a).article.xml",
+	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/SL_Enare_&_Østsamisk.article.xml"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
