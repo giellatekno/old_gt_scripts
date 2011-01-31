@@ -27,7 +27,8 @@ sub clean_doc {
 	my %replacements = (
 		"\x7" => "",
 		"\x8" => "",
-		"\x18" => "");
+		"\x13" => "",
+		"\x18" => "",);
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
 	my @file = <FH>;
