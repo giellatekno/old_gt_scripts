@@ -60,7 +60,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/SL_Enare_&_Østsamisk.article.xml",
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.47/03-47-NB2.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.94/10-94-kronihkka.txt",
-	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG02_2008.pdf"
+	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG02_2008.pdf",
+	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
