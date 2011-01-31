@@ -120,13 +120,19 @@ sub convertdoc {
 
 sub conclusion {
 	print " $counter \nProcessing finished\n";
-	print "$counter files processed, $errors errors among them\n";
-	print "The errors were distributed like this:\n";
-	foreach my $key (keys %error_hash) {
-		print "$key $error_hash{$key} ";
-		my $percents = sprintf "%.0f", $error_hash{$key}/$errors*100;
-		print $percents, "% of errors\n";
+	print "$counter files processed, "; 
+	
+	if ($errors) {
+		print "$errors errors among them\n";
+		print "The errors were distributed like this:\n";
+		foreach my $key (keys %error_hash) {
+			print "$key $error_hash{$key} ";
+			my $percents = sprintf "%.0f", $error_hash{$key}/$errors*100;
+			print $percents, "% of errors\n";
+		}
+		print "To find which files caused the errors, do the command\n";
+		print "grep \"Conversion failed\" tmp/*.log\n";
+	} else {
+		print "no errors encountered\n";
 	}
-	print "To find which files caused the errors, do the command\n";
-	print "grep \"Conversion failed\" tmp/*.log\n";
 }
