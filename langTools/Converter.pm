@@ -144,7 +144,10 @@ sub makeXslFile {
 	my $command = undef;
 	
 	if ( -f $self->getOrig() . ".xsl" ) {
-		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getOrig() . ".xsl" . " > " . $self->getMetadataXsl();
+		my $protected = $self->getOrig();
+		$protected =~ s/\(/\\(/g;
+		$protected =~ s/\)/\\)/g;
+		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $protected . ".xsl" . " > " . $self->getMetadataXsl();
 	} else {
 		$command = "xsltproc --novalid --stringparam commonxsl " . $self->getCommonXsl() . " " . $self->getPreprocXsl() . " " . $self->getXslTemplate() . " > " . $self->getMetadataXsl();
 	}
