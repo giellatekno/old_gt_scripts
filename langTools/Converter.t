@@ -58,7 +58,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sma/facta/Vi_vill___MP.pdf",
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2010_xml-filer/SL_Einar_Wiggo_Isaksen(a).article.xml",
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/SL_Enare_&_Østsamisk.article.xml",
-	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.47/03-47-NB2.txt"
+	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.47/03-47-NB2.txt",
+	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.94/10-94-kronihkka.txt"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
