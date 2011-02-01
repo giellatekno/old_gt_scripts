@@ -158,30 +158,6 @@ sub guess_text_encoding() {
 		my $error;
 		# Read the file
 
-		if (-f $file) {  
-			my $allow_nonutf = system("iconv -f UTF-8 -t UTF-8 $file > /dev/null");
-			$error = &read_file($file, \@text_array, $allow_nonutf); 
-			if (!$error) {
-				my $count = 0;
-				my $total_count = 0;
-				for my $line (@text_array) {
-					$total_count += length($line);
-					my @unpacked = unpack("U*", $line);
-					for my $byte (@unpacked) {
-						if( $count_table{$byte} ) { $count++; }
-					}
-				}
-
-				if ($total_count != 0 ) {
-					$correct = 100 * ($count / $total_count);
-				}
-				if($Test) {
-					my $rounded_correct = sprintf("%.3f", $correct);
-					print $file, " CORRECT ",  $rounded_correct, "\n";
-				}
-			}
-		}
-
 		# Go through each encoding
 		my $coding_total=0;
 		if ($total_count) { $coding_total = $total_count; }
