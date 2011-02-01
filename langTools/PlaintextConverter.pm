@@ -12,6 +12,7 @@ sub convert2intermediate {
 	my $encoding = &guess_text_encoding($self->getOrig(), $self->gettmp1(), $self->getDoclang());
 	
 	if ($encoding == -1) {
+		print STDERR "Couldn't guess encoding\n";
 		$error = 1;
 	} elsif ($encoding) {
 		if (&decode_text_file($self->getOrig(), $encoding, $self->gettmp2())) {
@@ -22,16 +23,15 @@ sub convert2intermediate {
 		}
 	} else {
 		langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1(), $self->getDoclang());
-		
 	}
 	
-	
-	if( $self->getTest() ){ 
-		print "the intermediate doc is now in " . $self->gettmp1() . "\n";
+	unless ( $error ) {
+		$self->clean_doc();
 	}
-	$self->clean_doc();
+	
 	return $error;
 }
+
 sub clean_doc {
 	my ($self) = @_;
 	
