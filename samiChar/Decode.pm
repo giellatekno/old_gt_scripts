@@ -200,13 +200,20 @@ sub guess_text_encoding() {
 			}
 		}
 
-		if($Test) {
+		if ($Test) {
 			if ($encoding eq $NO_ENCODING && $correct != 0 ) { print "Correct encoding.\n"; }
 			else { print "$encoding \n"; }
 		}
 		# If no encoding, the file may still be broken.
 		# Test next if there are any sámi characters in the text
-		if ($encoding eq $NO_ENCODING && $correct == 0) { return $ERROR; }
+		if ($encoding eq $NO_ENCODING && $correct == 0) { 
+			my $command="iconv -f UTF-8 -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
+			if (system($command)) {
+				$encoding = $ERROR;
+			} else {
+				$encoding = "UTF8";
+			}
+		}
 
     }
     return $encoding
