@@ -216,9 +216,10 @@ class AvvirArticleSaver(ArticleSaver):
         path = self.boundhome + '/orig/sme/news/avvir.no/'
         fullname = path + articlename
 
-        if not os.path.exists(fullname):
-            self.save_article(fullname)
-            self.save_metadata(fullname)
+        if not os.path.exists(fullname):        
+            if self.fillbuffer(self.get_variable('filename')):
+                self.save_article(fullname)
+                self.save_metadata(fullname)
             
 class SamediggiArticleSaver(ArticleSaver):
     def __init__(self, test=False):
