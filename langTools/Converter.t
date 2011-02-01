@@ -62,7 +62,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG02_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
-	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf"
+	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
+	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);

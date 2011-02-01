@@ -43,6 +43,7 @@ sub clean_doc {
 	my %replacements = (
 		"\x0" => "",
 		"\x1" => "",
+		"\x8" => "",
 		"\x14" => "");
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "clean_doc: Cannot open " . $self->gettmp1() . "$!";
