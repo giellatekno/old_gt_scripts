@@ -17,7 +17,6 @@ require_ok('langTools::Converter');
 
 my $debug = 0;
 GetOptions ("debug" => \$debug);
-print "debug is $debug $#ARGV\n";
 
 my $numArgs = $#ARGV + 1;
 if ($#ARGV > -1) {
