@@ -91,6 +91,10 @@ sub convertdoc {
 				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
 				$error_hash{"faulty_chars"}++;
+			} elsif ($converter->text_categorization()) {
+				print STDERR "Conversion failed: Wasn't able to categorize the language(s) inside the text " . $converter->getOrig() . "\n";
+				$error = 1;
+				$error_hash{"checkxml_after_faulty"}++;
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 				$error = 1;

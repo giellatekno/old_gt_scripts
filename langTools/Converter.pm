@@ -197,7 +197,7 @@ sub convert2xml {
 sub checkxml {
 	my( $self ) = @_;
 	
-	my $command = "xmllint --valid --encode UTF-8 " . $self->getInt() . " > /dev/null";
+	my $command = "xmllint --encode UTF-8 " . $self->getInt() . " > /dev/null";
 	return $self->exec_com($command);
 }
 
@@ -394,6 +394,13 @@ sub redirect_stderr_to_log {
 		$self->{_log_file} = $self->getPreconverter()->getTmpDir() . "/" . File::Basename::basename( $self->getOrig() ) . ".log";
 		open STDERR, '>', $self->{_log_file} or die "Can't redirect STDERR: $!";
 	}
+}
+
+sub text_categorization {
+	my ($self) = @_;
+	
+	my $command = "$ENV{'GTHOME'}/tools/lang-guesser/text_cat.pl -q -x -d $ENV{'GTHOME'}/tools/lang-guesser/LM \"". $self->getInt() . "\"";
+	return $self->exec_com($command);
 }
 
 1;
