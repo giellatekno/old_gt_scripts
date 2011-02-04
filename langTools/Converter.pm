@@ -49,7 +49,7 @@ sub makePreconverter {
 		$self->{_preconverter} = langTools::AvvirXMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
 		$self->{_preconverter} = langTools::BibleXMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /(\.html\?id=\d*|\.html$|\.htm$|\.php\?id=\d*)/ ) {
+	} elsif( $abs_path =~ /(\.html\?id=\d*|\.html$|\.htm$|\.php\?id=\d*|\.php$)/ ) {
 		$self->{_preconverter} = langTools::HTMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.ptx$/ ) {
 		$self->{_preconverter} = langTools::ParatextConverter->new($filename, $test);
@@ -63,6 +63,8 @@ sub makePreconverter {
 		$self->{_preconverter} = langTools::PDFConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.svg$/ ) {
 		$self->{_preconverter} = langTools::SVGConverter->new($filename, $test);
+	} elsif( $abs_path =~ /\.correct.xml$/ ) {
+		$self->{_preconverter} = langTools::CorrectXMLConverter->new($filename, $test);
 	} else {
 		print "Unrecoverable error: unable to handle $filename\n";
 		die("unable to handle $filename\n");
@@ -257,6 +259,7 @@ sub character_encoding {
 			}
 			$document->set_pretty_print('indented');
 			$document->print( \*FH);
+			close (FH);
 		} else {
 			# assume same encoding for the whole file.
 			my $coding = &guess_encoding($int, $language, 0);
@@ -284,6 +287,7 @@ sub character_encoding {
 					}
 					$d->set_pretty_print('indented');
 					$d->print( \*FH);
+					close (FH);
 				}
 				return 0;
 			}
@@ -304,6 +308,7 @@ sub character_encoding {
 				}
 				$document->set_pretty_print('indented');
 				$document->print( \*FH);
+				close (FH);
 			}
 		}
 	}
@@ -341,6 +346,27 @@ sub call_decode_title {
     return $error;
 }
 
+sub add_error_markup {
+	my ($self) = @_;
+	
+	my $error = 0;
+	my $int = $self->getInt();
+	my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para($self, @_); } });
+	if (! $document->safe_parsefile ("$int") ) {
+		carp "ERROR parsing the XML-file failed. STOP\n";
+		return 1;
+	}
+	if (! open (FH, ">:encoding(utf8)", $int)) {
+		carp "ERROR cannot open file STOP";
+		return 1;
+	}
+	$document->set_pretty_print('indented');
+	$document->print( \*FH);
+	close (FH);
+
+	return $error;
+}
+
 sub move_int_to_converted {
 	my ($self) = @_;
 	
@@ -366,7 +392,7 @@ sub search_for_faulty_characters {
 		} else {
 			while (<FH>) {
 				$lineno++;
-				if ( $_ =~ /(¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|„|¿|˜|˜)/) { 
+				if ( $_ =~ /(¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|„|¿|˜)/) { 
 					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 					print STDERR "Faulty character at line: $lineno with line\n$_\n";
 					$error = 1;

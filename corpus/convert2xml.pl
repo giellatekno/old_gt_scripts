@@ -28,7 +28,9 @@ my %error_hash = (
 	"checkxml_after_checklang" => 0,
 	"character_encoding" => 0,
 	"faulty_chars" => 0,
-	"checkxml_after_faulty" => 0 );
+	"checkxml_after_faulty" => 0,
+	"text_categorization" => 0,
+	"add_error_markup" => 0);
 
 main(\@ARGV, $debug);
 
@@ -57,7 +59,7 @@ sub convertdoc {
 	my $error = 0;
 	my $feedback;
 
-	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$|\.jpg$|\.docx$)/ || -d $filename) ) {
+	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$|\.jpg$|\.docx$|\.odt$|\.js$|\.gif$|\.css$|\.png$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
 		if (! ($shallow && -f $converter->getFinalName()) ) {
 			$converter->redirect_stderr_to_log();
@@ -87,6 +89,10 @@ sub convertdoc {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"character_encoding"}++;
+			} elsif ($converter->add_error_markup()) {
+				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+				$error = 1;
+				$error_hash{"add_error_markup"}++;
 			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
 				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
@@ -94,7 +100,7 @@ sub convertdoc {
 			} elsif ($converter->text_categorization()) {
 				print STDERR "Conversion failed: Wasn't able to categorize the language(s) inside the text " . $converter->getOrig() . "\n";
 				$error = 1;
-				$error_hash{"checkxml_after_faulty"}++;
+				$error_hash{"text_categorization"}++;
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 				$error = 1;

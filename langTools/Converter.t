@@ -63,7 +63,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
-	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt"
+	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
+	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
@@ -97,6 +98,7 @@ sub each_file_checks {
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
+	is($converter->add_error_markup(), '0', "Add error markup");
 	is($converter->search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is correctly encoded");
 	is($converter->text_categorization(), '0', "Check if text categorization goes well");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
