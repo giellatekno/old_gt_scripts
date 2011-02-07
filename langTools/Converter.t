@@ -25,6 +25,8 @@ if ($#ARGV > -1) {
 	}
 } else {
 	my @doc_names = (
+	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/index.php",
+	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html?id=170397", 
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html?id=306", 
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/Strategalaš_plána_sámi_mánáidgárddiide_2001–2005.pdf", "$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf",
@@ -63,8 +65,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
-	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
-	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml"
+	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt"
 # 	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
 	);
