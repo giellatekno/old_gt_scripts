@@ -4,6 +4,7 @@ use langTools::Preconverter;
 
 use samiChar::Decode;
 use langTools::Corpus;
+use File::Copy;
 
 sub convert2intermediate {
 	my( $self ) = @_;
@@ -11,8 +12,8 @@ sub convert2intermediate {
 	my $error = 0;
 
 	if (-f $self->getOrig()) {
-		copy($self->getOrig(), $self->getInt());
-	else {
+		File::Copy::copy($self->getOrig(), $self->gettmp1());
+	} else {
 		$error = 1;
 	}
 	
