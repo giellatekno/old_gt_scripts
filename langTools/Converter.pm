@@ -330,25 +330,25 @@ sub call_decode_para {
 
 # Decode false utf8-encoding for titles.
 sub call_decode_title {
-    my ( $self, $twig, $title, $coding ) = @_;
+	my ( $self, $twig, $title, $coding ) = @_;
 
 	my $language = $self->getPreconverter()->getDoclang();
-    my $text = $title->text;
+	my $text = $title->text;
 
-    if(!$coding) {
-        my $error = &decode_para($language, \$text);
-    }
+	if(!$coding) {
+		my $error = &decode_para($language, \$text);
+	}
 
-    my $error = &decode_title($language, \$text, $coding);
+	my $error = &decode_title($language, \$text, $coding);
 
-    $title->set_text($text);
+	$title->set_text($text);
 
-    return $error;
+	return $error;
 }
 
 sub add_error_markup {
 	my ($self) = @_;
-	
+
 	my $error = 0;
 	my $int = $self->getInt();
 	my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para($self, @_); } });
@@ -369,7 +369,7 @@ sub add_error_markup {
 
 sub move_int_to_converted {
 	my ($self) = @_;
-	
+
 	$self->makeFinalDir();
 	if (-f $self->getInt()) {
 		File::Copy::copy($self->getInt(), $self->getFinalName());
@@ -381,7 +381,7 @@ sub move_int_to_converted {
 
 sub search_for_faulty_characters {
 	my( $self, $filename ) = @_;
-	
+
 	my $error = 0;
 	my $lineno = 0;
 	# The theory is that only the sami languages can be erroneously encoded ...
@@ -406,7 +406,7 @@ sub search_for_faulty_characters {
 
 sub remove_temp_files {
 	my ($self) = @_;
-	
+
 	unlink( $self->getInt() );
 	unlink( $self->getIntermediateXml() );
 	unlink( $self->getPreconverter()->gettmp2() );
