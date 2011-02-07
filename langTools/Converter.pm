@@ -8,12 +8,12 @@ use langTools::DOCConverter;
 use langTools::PlaintextConverter;
 use langTools::PDFConverter;
 use langTools::SVGConverter;
+use langTools::CorrectXMLConverter;
 
 use strict;
 use utf8;
 use Carp qw(cluck carp);
 use XML::Twig;
-use File::Copy;
 use samiChar::Decode;
 
 sub new {
@@ -146,7 +146,7 @@ sub makeXslFile {
 	my $command = undef;
 	
 	if (! -f $self->getOrig() . ".xsl" ) {
-		copy( $self->getXslTemplate(), $self->getOrig() . ".xsl");
+		File::Copy::copy( $self->getXslTemplate(), $self->getOrig() . ".xsl");
 	}
 
 	my $protected = $self->getOrig();
@@ -199,7 +199,7 @@ sub convert2xml {
 sub checkxml {
 	my( $self ) = @_;
 	
-	my $command = "xmllint --encode UTF-8 " . $self->getInt() . " > /dev/null";
+	my $command = "xmllint --valid --encode UTF-8 " . $self->getInt() . " > /dev/null";
 	return $self->exec_com($command);
 }
 
@@ -372,7 +372,7 @@ sub move_int_to_converted {
 	
 	$self->makeFinalDir();
 	if (-f $self->getInt()) {
-		copy($self->getInt(), $self->getFinalName());
+		File::Copy::copy($self->getInt(), $self->getFinalName());
 		return $self->getFinalName();
 	} else {
 		return undef;
