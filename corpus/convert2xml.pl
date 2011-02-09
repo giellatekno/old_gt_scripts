@@ -37,23 +37,21 @@ main(\@ARGV, $debug);
 sub main {
 	my ($ref_to_argv, $debug) = @_;
 	my $numArgs = $#{$ref_to_argv} + 1;
-	if ($numArgs > 0) {
-		print "Processing files\n";
 
-		if (sanity_check()) {
-			print "Your dependencies aren't setup correctly.\n";
-			print "Follow the instructions above to be able to use this program\n";
-		} else {
-			foreach my $argnum (0 .. $#{$ref_to_argv}) {
-				my $tmp = ${$ref_to_argv}[$argnum];
-				if ( -d $tmp ) {
-					File::Find::find( \&convertdoc, $tmp );
-				} else {
-					convertdoc($tmp);
-				}
+	if (sanity_check()) {
+		print "Your dependencies aren't setup correctly.\n";
+		print "Follow the instructions above to be able to use this program\n";
+	} else if ($numArgs > 0) {
+		print "Processing files\n";
+		foreach my $argnum (0 .. $#{$ref_to_argv}) {
+			my $tmp = ${$ref_to_argv}[$argnum];
+			if ( -d $tmp ) {
+				File::Find::find( \&convertdoc, $tmp );
+			} else {
+				convertdoc($tmp);
 			}
-			conclusion();
 		}
+		conclusion();
 	} else {
 		print_help();
 	}
