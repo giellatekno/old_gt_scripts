@@ -41,7 +41,7 @@ sub main {
 	if (sanity_check()) {
 		print "Your dependencies aren't setup correctly.\n";
 		print "Follow the instructions above to be able to use this program\n";
-	} else if ($numArgs > 0) {
+	} elsif ($numArgs > 0) {
 		print "Processing files\n";
 		foreach my $argnum (0 .. $#{$ref_to_argv}) {
 			my $tmp = ${$ref_to_argv}[$argnum];
@@ -58,7 +58,7 @@ sub main {
 }
 
 sub convertdoc {
-	my $file = decode_utf8($_);
+	my $file = $_;
 	$file = shift (@_) if (!$file);
 
 	my $filename = Cwd::abs_path($file);
