@@ -25,6 +25,7 @@ if ($#ARGV > -1) {
 	}
 } else {
 	my @doc_names = (
+	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/printfriendly.aspx",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/index.php",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html?id=170397", 
