@@ -20,7 +20,7 @@ my $counter = 0;
 my $errors = 0;
 
 # error hash
-my %error_hash = ( 
+my %error_hash = (
 	"xsl" => 0,
 	"intermediate" => 0,
 	"convert2xml" => 0,
@@ -37,7 +37,7 @@ main(\@ARGV, $debug);
 sub main {
 	my ($ref_to_argv, $debug) = @_;
 	my $numArgs = $#{$ref_to_argv} + 1;
-	if ($numArgs > 1) { 
+	if ($numArgs > 0) {
 		print "Processing files\n";
 
 		if (sanity_check()) {
@@ -47,7 +47,7 @@ sub main {
 			foreach my $argnum (0 .. $#{$ref_to_argv}) {
 				my $tmp = ${$ref_to_argv}[$argnum];
 				if ( -d $tmp ) {
-					File::Find::find( \&convertdoc2, $tmp );
+					File::Find::find( \&convertdoc, $tmp );
 				} else {
 					convertdoc($tmp);
 				}
@@ -59,13 +59,11 @@ sub main {
 	}
 }
 
-sub convertdoc2 {
-	my ($tmp) = $_;
-	convertdoc($tmp);
-}
-
 sub convertdoc {
-	my ($filename) = Cwd::abs_path(@_);
+	my $file = decode_utf8($_);
+	$file = shift (@_) if (!$file);
+
+	my $filename = Cwd::abs_path($file);
 	my $error = 0;
 	my $feedback;
 
