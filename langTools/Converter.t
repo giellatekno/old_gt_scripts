@@ -28,14 +28,14 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/printfriendly.aspx",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/index.php",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html?id=170397", 
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html?id=306", 
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html_id=170397", 
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html_id=306", 
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/Strategalaš_plána_sámi_mánáidgárddiide_2001–2005.pdf", "$ENV{'GTFREE'}/orig/sme/laws/Lovom037.pdf",
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml",
 	"$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml",
 	"$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx",
 	"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
-	"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html?id=609232",
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html_id=609232",
 	"$ENV{'GTFREE'}/orig/sme/facta/psykiatriijavideo_nr_1_-_abc-company.doc",
 	"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
 	"$ENV{'GTFREE'}/orig/sme/laws/nac1-1994-24.txt",
@@ -47,8 +47,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sma/facta/moerh.pdf",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/Handlingsplan_2009_samisk_sprak_sorsamisk.pdf",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html",
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html?id=1689",
- 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html?id=601912",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html_id=1689",
+ 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html_id=601912",
 	"$ENV{'GTBOUND'}/orig/sma/facta/AKTEPJ~1.DOC",
 	"$ENV{'GTFREE'}/orig/nob/admin/others/aktivitetsplan_2002_no.doc",
 	"$ENV{'GTFREE'}/orig/nob/admin/sd/samediggi.no/samediggi-article-84.html",
@@ -68,7 +68,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt"
 # 	,
-# 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html?id=423"
+# 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
 
 	one_time_checks($doc_names[0]);

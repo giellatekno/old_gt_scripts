@@ -49,7 +49,7 @@ sub makePreconverter {
 		$self->{_preconverter} = langTools::AvvirXMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.bible\.xml$/ ) {
 		$self->{_preconverter} = langTools::BibleXMLConverter->new($filename, $test);
-	} elsif( $abs_path =~ /(\.html\?id=\d*|\.html$|\.htm$|\.php\?id=\d*|\.php$|\.aspx$)/ ) {
+	} elsif( $abs_path =~ /(\.html_id=\d*|\.html$|\.htm$|\.php\?id=\d*|\.php$|\.aspx$)/ ) {
 		$self->{_preconverter} = langTools::HTMLConverter->new($filename, $test);
 	} elsif( $abs_path =~ /\.ptx$/ ) {
 		$self->{_preconverter} = langTools::ParatextConverter->new($filename, $test);
