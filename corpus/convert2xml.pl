@@ -121,6 +121,10 @@ sub convertdoc {
 			if ($error) {
 				$feedback = "|";
 				$errors++;
+				if (-f $converter->getFinalName()) {
+					unlink($converter->getFinalName());
+					print STDERR "Removed: " . $converter->getFinalName() . "\n";
+				}
 			} else {
 				$feedback = ".";
 			}
