@@ -153,76 +153,79 @@ sub guess_text_encoding() {
 		}
 		$encoding = $NO_ENCODING;
     } else {
-
-		# Read the tested characters.
-		for my $char (keys % { $Sami_Chars{$lang}}){
-			$count_table{$char} = 1;
-		}
-
-		# Count first the sámi characters that already exist in the text.
+		my $not_utf8 = system("iconv -f UTF8 -t UTF8 $file > /dev/null");
 		my $correct=0;
-		my $total_count=0;
+		
+		if ($not_utf8) {
+			# Read the tested characters.
+			for my $char (keys % { $Sami_Chars{$lang}}){
+				$count_table{$char} = 1;
+			}
 
-		my @text_array;
-		my $error;
-		# Read the file
-
-		# Go through each encoding
-		my $coding_total=0;
-		if ($total_count) { $coding_total = $total_count; }
-		for my $enc (@encodings) {
-
-			my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
-			if ( system($command) != 0 ) {  next; }
-
-			my %test_table;
+			# Count first the sámi characters that already exist in the text.
+			my $total_count=0;
 
 			my @text_array;
 			my $error;
-			# Read the output
-			if (-f $outfile) { $error = &read_file($outfile, \@text_array); }
-			next if ($error);
-			my $count = 0;
-			for my $line (@text_array) {
-				if (! $total_count) { $coding_total += length($line); }
-				my @unpacked = unpack("U*", $line);
-				for my $byte (@unpacked) {
-					if( $count_table{$byte} ) { $count++; }
+			# Read the file
+
+			# Go through each encoding
+			my $coding_total=0;
+			if ($total_count) { $coding_total = $total_count; }
+			for my $enc (@encodings) {
+
+				my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
+				if ( system($command) != 0 ) {  next; }
+
+				my %test_table;
+
+				my @text_array;
+				my $error;
+				# Read the output
+				if (-f $outfile) { $error = &read_file($outfile, \@text_array); }
+				next if ($error);
+				my $count = 0;
+				for my $line (@text_array) {
+					if (! $total_count) { $coding_total += length($line); }
+					my @unpacked = unpack("U*", $line);
+					for my $byte (@unpacked) {
+						if( $count_table{$byte} ) { $count++; }
+					}
+				}
+				if ($coding_total != 0 ) {
+					$results{$enc} = 100 * ($count / $coding_total);
+				}
+			}			
+			# Select the best encoding by comparing the amount of chars to be converted.
+			my $last_val;
+			for my $key (sort { $results{$a} <=> $results{$b} } keys %results) {
+				if($Test) {
+					my $rounded_correct = sprintf("%.3f", $results{$key});
+					print $file, " ", $key, " ",  $rounded_correct, "\n";
+				}
+				$last_val = $key;
+			}
+			if (%results && $results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
+				if (! $correct || $results{$last_val} > $correct) {
+					$encoding = $last_val;
 				}
 			}
-			if ($coding_total != 0 ) {
-				$results{$enc} = 100 * ($count / $coding_total);
-			}
-		}			
-		# Select the best encoding by comparing the amount of chars to be converted.
-		my $last_val;
-		for my $key (sort { $results{$a} <=> $results{$b} } keys %results) {
-			if($Test) {
-				my $rounded_correct = sprintf("%.3f", $results{$key});
-				print $file, " ", $key, " ",  $rounded_correct, "\n";
-			}
-			$last_val = $key;
-		}
-		if (%results && $results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
-			if (! $correct || $results{$last_val} > $correct) {
-				$encoding = $last_val;
+		} else {
+			if ($encoding eq $NO_ENCODING && $correct == 0) { 
+				my $command="iconv -f UTF-8 -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
+				if (system($command)) {
+					$encoding = $ERROR;
+				} else {
+					$encoding = "UTF8";
+				}
 			}
 		}
-
 		if ($Test) {
 			if ($encoding eq $NO_ENCODING && $correct != 0 ) { print "Correct encoding.\n"; }
 			else { print "$encoding \n"; }
 		}
 		# If no encoding, the file may still be broken.
 		# Test next if there are any sámi characters in the text
-		if ($encoding eq $NO_ENCODING && $correct == 0) { 
-			my $command="iconv -f UTF-8 -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
-			if (system($command)) {
-				$encoding = $ERROR;
-			} else {
-				$encoding = "UTF8";
-			}
-		}
 
     }
     return $encoding
