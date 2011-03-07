@@ -40,7 +40,8 @@ sub clean_doc {
 		"\x1B" => "",
 		"\x1C" => "",
 		"\x1D" => "",
-		"\x1E" => "");
+		"\x1E" => "",
+		"Ď" => "đ");
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
 	my @file = <FH>;
