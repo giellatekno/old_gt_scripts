@@ -119,7 +119,7 @@ use samiChar::Decode;
 
 sub check_decode_para {
 	my ($converter) = @_;
-	
+
 	my $error = 0;
 	my $tmp = "Converter-data/Lovom037.pdf.xml";
 	my $document = XML::Twig->new;

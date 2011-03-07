@@ -227,7 +227,7 @@ sub checklang {
 	$document->set_pretty_print('indented');
 	$document->print(\*FH);
 
-	
+
 	return 0;
 }
 
