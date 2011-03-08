@@ -131,7 +131,7 @@ our $ERROR = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 0.3;
+our $MIN_AMOUNT = 0.1;
 
 # Printing some test data, chars and their amounts
 our $Test=0;
