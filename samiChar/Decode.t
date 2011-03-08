@@ -69,3 +69,16 @@ $command = "iconv -f utf8 -t utf8 $outfile -o $outfile.test";
 is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
 $command = "diff $outfile.test $file";
 is(system($command), '0', "Check if infile is identical to test file");
+
+$language = "nob";
+$file = "$ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/Eldre_rekrutt1.txt";
+$outfile = File::Basename::basename($file);
+is($encoding = &guess_text_encoding($file, $outfile, $language), "MAC-SAMI", "Check for correct encoding");
+&decode_text_file($file, $encoding, $outfile);
+file_exists_ok($outfile);
+
+$command = "iconv -f utf8 -t MAC-SAMI $outfile -o $outfile.test";
+is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
+$command = "diff $outfile.test $file";
+is(system($command), '0', "Check if infile is identical to test file");
+
