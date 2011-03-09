@@ -17,6 +17,7 @@ require_ok('langTools::Converter');
 
 my $debug = 0;
 GetOptions ("debug" => \$debug);
+$samiChar::Decode::Test = $debug;
 
 my $numArgs = $#ARGV + 1;
 if ($#ARGV > -1) {
