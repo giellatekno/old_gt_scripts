@@ -48,6 +48,16 @@ our %Char_Tables;
 # Few characters from Norwegian/Swedish are added to North Sámi
 # to ensure the correct encoding for texts with mixed content.
 our %Sami_Chars = (
+			"sma" => {
+			0x00C5 => 1, #"LATIN CAPITAL LETTER A WITH RING ABOVE"
+			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
+			0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
+			0x00F6 => 1, #"LATIN CAPITAL LETTER O WITH DIAERESIS"
+            0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
+			0x00D8 => 1, #"LATIN CAPITAL LETTER O WITH STROKE"
+            0x00E6 => 1, #"LATIN SMALL LETTER AE"
+			},
+			
 			"sme" =>  {
 		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
 		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
