@@ -49,6 +49,7 @@ our %Char_Tables;
 # to ensure the correct encoding for texts with mixed content.
 our %Sami_Chars = (
 			"sma" => {
+			0x00D2 => 1,
 			0x00C5 => 1, #"LATIN CAPITAL LETTER A WITH RING ABOVE"
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 			0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
@@ -60,7 +61,8 @@ our %Sami_Chars = (
 			},
 			
 			"sme" =>  {
-		   0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
+		   0x00D2 => 1,
+			0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
 		   0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 		   0x010C => 1, #"LATIN CAPITAL LETTER C WITH CARON"
 			0x010D => 1, #"LATIN SMALL LETTER C WITH CARON"
@@ -86,6 +88,7 @@ our %Sami_Chars = (
 
 				   "smj" => {
 #			0x00C1 => 1, #"LATIN CAPITAL LETTER A WITH ACUTE"
+			0x00D2 => 1,
 			0x00E1 => 1, #"LATIN SMALL LETTER A WITH ACUTE"
 #			0x00C4 => 1, #"LATIN CAPITAL LETTER A WITH DIAERESIS"
 		   0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
@@ -98,6 +101,7 @@ our %Sami_Chars = (
 # sms => {},
 # smn => {},
 				   "nob" => {
+			0x00D2 => 1,
 			0x0111 => 1, #"LATIN SMALL LETTER D WITH STROKE"
 			0x0161 => 1, #"LATIN SMALL LETTER S WITH CARON"
 			0x017E => 1,  #"LATIN SMALL LETTER Z WITH CARON"
@@ -112,7 +116,8 @@ our %Sami_Chars = (
 			},
 
 				   "nno" => {
-		   0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
+		   0x00D2 => 1,
+			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 			0x00F8 => 1, #"LATIN SMALL LETTER O WITH STROKE"
 			0x00D8 => 1, #"LATIN CAPITAL LETTER O WITH STROKE"
             0x00E4 => 1, #"LATIN SMALL LETTER A WITH DIAERESIS"
@@ -127,6 +132,7 @@ our %Sami_Chars = (
 
 				   "dan" => {
 #			0x00C5 => 1, #"LATIN CAPITAL LETTER A WITH RING ABOVE"
+			0x00D2 => 1,
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 #           0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
             0x00F6 => 1, #"LATIN CAPITAL LETTER O WITH DIAERESIS"
@@ -135,6 +141,7 @@ our %Sami_Chars = (
 		    },
 		    
 			"swe" => {
+			0x00D2 => 1,
 			0x00C5 => 1, #"LATIN CAPITAL LETTER A WITH RING ABOVE"
 			0x00E5 => 1, #"LATIN SMALL LETTER A WITH RING ABOVE"
 			0x00D6 => 1, #"LATIN SMALL LETTER O WITH DIAERESIS"
@@ -227,8 +234,8 @@ sub guess_text_encoding() {
 				}
 				$last_val = $key;
 			}
-			if (%results && $results{$last_val} && $results{$last_val} > $MIN_AMOUNT) {
-				if (! $correct || $results{$last_val} > $correct) {
+			if (%results && $results{$last_val} >= $MIN_AMOUNT) {
+				if (! $correct || $results{$last_val} >= $correct) {
 					$encoding = $last_val;
 				}
 			}
