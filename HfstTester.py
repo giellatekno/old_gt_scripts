@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 
 # HfstTester.py 1.0 - Copyright (c) 2011 
 # Brendan Molloy <brendan@bbqsrc.net>
@@ -14,7 +15,7 @@
 # - make WHY it failed much more clear.
 
 import sys
-#if sys.hexversion < 0x02070000:
+if sys.hexversion < 0x02070000:
 	print "You must use Python 2.7 or greater."
 	sys.exit(255)
 
@@ -108,6 +109,7 @@ class HfstTester:
 
 		try:
 			f = yaml.load(open(self.args.test_file[0]))
+#			print yaml.dump(f, encoding=('utf-8')) # DEBUG
 		except:
 			try:
 				f = json.load(open(self.args.test_file[0]))
@@ -118,8 +120,9 @@ class HfstTester:
 		self.gen = f["Config"]["Gen"]
 		self.morph = f["Config"]["Morph"]
 		for i in (self.gen, self.morph):
+#			print "Testing for file %s." % i # DEBUG
 			if not os.path.isfile(i):
-				print "File %s does not exist."
+				print "File %s does not exist." % i
 				sys.exit(2)
 		self.tests = f["Tests"]
 		self.run_tests(self.args.test)
@@ -139,6 +142,7 @@ class HfstTester:
 		
 		else:
 			for t in self.tests.keys():
+#				print "The input test key is: %s" % t # DEBUG
 				if self.args.lexical: self.run_lexical_test(t)
 				if self.args.surface: self.run_surface_test(t)
 
@@ -163,7 +167,7 @@ class HfstTester:
 				p1 = Popen(['echo', sform], stdout=PIPE)
 				p2 = Popen(['hfst-lookup', self.morph], stdin=p1.stdout, stdout=PIPE)
 				p1.stdout.close()
-				res = p2.communicate()[0].split('\n')
+				res = p2.communicate()[0].decode("utf-8").split('\n')
 				for i in res:
 					if i.strip() != '':
 						lex = i.split('\t')[1].strip()
@@ -192,7 +196,7 @@ class HfstTester:
 			p1 = Popen(['echo', l], stdout=PIPE)
 			p2 = Popen(['hfst-lookup', self.gen], stdin=p1.stdout, stdout=PIPE)
 			p1.stdout.close()
-			res = p2.communicate()[0].split('\n')
+			res = p2.communicate()[0].decode("utf-8").split('\n')
 			for i in res:
 				if i.strip() != '':
 					r = i.split('\t')[1].strip()
