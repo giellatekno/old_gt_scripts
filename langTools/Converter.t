@@ -26,7 +26,13 @@ if ($#ARGV > -1) {
 	}
 } else {
 	my @doc_names = (
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_samiskversjon.pdf",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/101-05/_AJ-porsanger.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/034-07/_AJ-Ohcejoga_proseakta.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/036-05/_AJ-katrine_boine.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/016-07/_AJ-juoigan.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/017-06/_AJ-Josef_vedhuggnes.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/046-06/_1side-46.doc",
+"$ENV{'GTFREE'}/orig/sme/admin/depts/Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_samiskversjon.pdf",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/printfriendly.aspx",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/index.php",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
@@ -69,7 +75,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt"
-# 	,
+	,
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
 
