@@ -274,7 +274,8 @@ sub character_encoding {
 					# check that separately.
 					my $d=XML::Twig->new(twig_handlers=>{
 						'p[@type="title"]'=> sub{call_decode_title($self, @_, $coding); },
-						'title'=>sub{call_decode_title($self, @_);}
+						'title'=>sub{call_decode_title($self, @_);},
+						'person'=>sub{call_decode_person($self, @_);}
 					}
 											);
 					if (! $d->safe_parsefile ("$int") ) {
@@ -344,6 +345,24 @@ sub call_decode_title {
 	$title->set_text($text);
 
 	return $error;
+}
+
+sub call_decode_person {
+	my ( $self, $twig, $person ) = @_;
+
+	my $key;
+	my $value;
+	
+	while ( ($key, $value) = each %{$person->atts} ) {
+		$value =~ s/Ã¦/æ/g;
+		$value =~ s/Ã¤/ä/g;
+		$value =~ s/¿/ø/g;
+		$value =~ s/Ã¸/ø/g;
+		$value =~ s/Ã/Á/g;
+		$value =~ s/Œ/å/g;
+		$value =~ s/Ã¥/å/g;
+		${$person->atts}{$key} = $value;
+	}
 }
 
 sub add_error_markup {
