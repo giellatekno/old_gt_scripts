@@ -273,7 +273,7 @@ sub character_encoding {
 					# Document title in msword documents is generally wrongly encoded,
 					# check that separately.
 					my $d=XML::Twig->new(twig_handlers=>{
-						'p[@type="title"]'=> sub{call_decode_title($self, @_, $coding); },
+						'p[@type="title"]'=> sub{call_decode_title($self, @_); },
 						'title'=>sub{call_decode_title($self, @_);},
 						'person'=>sub{call_decode_person($self, @_);}
 					}
@@ -331,20 +331,26 @@ sub call_decode_para {
 
 # Decode false utf8-encoding for titles.
 sub call_decode_title {
-	my ( $self, $twig, $title, $coding ) = @_;
+	my ( $self, $twig, $title ) = @_;
 
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $title->text;
 
-	if(!$coding) {
-		my $error = &decode_para($language, \$text);
-	}
-
-	my $error = &decode_title($language, \$text, $coding);
+	$text =~ s/Â«/«/g;
+	$text =~ s/Â»/»/g;
+	$text =~ s/Ã˜/Ø/g;
+	$text =~ s/Ã¸/ø/g;
+	$text =~ s/Ã¤/ä/g;
+	$text =~ s/Ã\?/Á/g;
+	$text =~ s/Ä\?/č/g;
+	$text =~ s/Å‹/ŋ/g;
+	$text =~ s/Å /Š/g;
+	$text =~ s/Å¾/ž/g;
+	$text =~ s/Œ/å/g;
 
 	$title->set_text($text);
 
-	return $error;
+	return 0;
 }
 
 sub call_decode_person {
@@ -411,7 +417,7 @@ sub search_for_faulty_characters {
 		} else {
 			while (<FH>) {
 				$lineno++;
-				if ( $_ =~ /(Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|„|¿|˜)/) { 
+				if ( $_ =~ /(¤|Ä\?|Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|„|¿|˜)/) { 
 					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 					print STDERR "Faulty character at line: $lineno with line\n$_\n";
 					$error = 1;
