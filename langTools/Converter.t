@@ -26,6 +26,8 @@ if ($#ARGV > -1) {
 	}
 } else {
 	my @doc_names = (
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/075-2007/_AH-Manglende_samepolitikk_i_Sverige_.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/046-05/_AH-kummalohkki,_NY.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/101-05/_AJ-porsanger.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/034-07/_AJ-Ohcejoga_proseakta.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/036-05/_AJ-katrine_boine.doc",
@@ -74,8 +76,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
-	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt"
-	,
+	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
 

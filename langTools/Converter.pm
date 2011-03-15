@@ -336,17 +336,23 @@ sub call_decode_title {
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $title->text;
 
+	$text =~ s/Ä\?/Đ/g;
+	$text =~ s/Ã¡/á/g;
+	$text =~ s/Ã¶/ö/g;
 	$text =~ s/Â«/«/g;
 	$text =~ s/Â»/»/g;
+	$text =~ s/Ä\?/č/g;
 	$text =~ s/Ã˜/Ø/g;
 	$text =~ s/Ã¸/ø/g;
+	$text =~ s/Ã«/Ä/g;
 	$text =~ s/Ã¤/ä/g;
 	$text =~ s/Ã\?/Á/g;
-	$text =~ s/Ä\?/č/g;
 	$text =~ s/Å‹/ŋ/g;
 	$text =~ s/Å /Š/g;
+	$text =~ s/Å§/ŧ/g;
 	$text =~ s/Å¾/ž/g;
 	$text =~ s/Œ/å/g;
+	$text =~ s/¿/ø/g;
 
 	$title->set_text($text);
 
@@ -417,7 +423,7 @@ sub search_for_faulty_characters {
 		} else {
 			while (<FH>) {
 				$lineno++;
-				if ( $_ =~ /(¤|Ä\?|Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|„|¿|˜)/) { 
+				if ( $_ =~ /(¤|Ä\?|Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|¿|˜)/) { 
 					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 					print STDERR "Faulty character at line: $lineno with line\n$_\n";
 					$error = 1;
