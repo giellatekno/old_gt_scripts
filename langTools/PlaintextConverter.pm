@@ -43,6 +43,7 @@ sub clean_doc {
 	my %replacements = (
 		"\x0" => "",
 		"\x1" => "",
+		"\x3" => "",
 		"\x8" => "",
 		"\x14" => "");
 	

@@ -26,6 +26,7 @@ if ($#ARGV > -1) {
 	}
 } else {
 	my @doc_names = (
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/011-05/_Govvamuitu_nr_6.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/029-05/_ÅP-Májjá_gávppaša.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/004-07/_Alm-GP_driftstekniker.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/023-07/_Alm-Bilfører_65+.doc",
