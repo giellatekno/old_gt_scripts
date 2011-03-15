@@ -423,7 +423,7 @@ sub search_for_faulty_characters {
 		} else {
 			while (<FH>) {
 				$lineno++;
-				if ( $_ =~ /(¤|Ä\?|Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|ñ|þ|±|¢|¹|¿|˜)/) { 
+				if ( $_ =~ /(¤|Ä\?|Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|þ|±|¢|¹|¿|˜)/) { 
 					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 					print STDERR "Faulty character at line: $lineno with line\n$_\n";
 					$error = 1;
