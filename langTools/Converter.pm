@@ -267,7 +267,7 @@ sub character_encoding {
 				carp "ERROR Was not able to determine character encoding. STOP.";
 				return "ERROR";
 			}
-			elsif ($coding eq 0) {
+# 			elsif ($coding eq 0) {
 				if($test) { print STDERR "Correct character encoding.\n"; }
 				if($file =~ /\.doc$/) {
 					# Document title in msword documents is generally wrongly encoded,
@@ -289,9 +289,10 @@ sub character_encoding {
 					$d->set_pretty_print('indented');
 					$d->print( \*FH);
 					close (FH);
+					return 0;
 				}
-				return 0;
-			}
+				
+# 			}
 			# Continue decoding the file.
 			if ($no_decode_this_time && $coding eq "latin6") { return 0; }
 			if($test) { print STDERR "Character decoding: $coding\n"; }
@@ -353,6 +354,7 @@ sub call_decode_title {
 	$text =~ s/Å¾/ž/g;
 	$text =~ s/Œ/å/g;
 	$text =~ s/¿/ø/g;
+	$text =~ s/Ó/\"/g;
 
 	$title->set_text($text);
 

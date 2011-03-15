@@ -26,6 +26,7 @@ if ($#ARGV > -1) {
 	}
 } else {
 	my @doc_names = (
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/023-07/_Alm-Bilfører_65+.doc",
 	"$ENV{'GTBOUND'}/orig/smj/facta/Aktisasj_goahte_-_biejvvegirjásj_-_Samefolket_6.4.2006.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/039-05/_AJG-NYjoatkaskuvla.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/075-2007/_AH-Manglende_samepolitikk_i_Sverige_.doc",
