@@ -355,7 +355,10 @@ sub call_decode_title {
 	$text =~ s/Œ/å/g;
 	$text =~ s/¿/ø/g;
 	$text =~ s/Ó/\"/g;
-
+	$text =~ s/ç/Á/g;
+	$text =~ s/¥/•/g;
+	$text =~ s/â€\?/”/g;
+	$text =~ s/Ã©/é/g;
 	$title->set_text($text);
 
 	return 0;
