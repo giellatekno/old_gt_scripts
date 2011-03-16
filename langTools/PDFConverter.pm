@@ -26,6 +26,7 @@ sub clean_doc {
 	
 	my %replacements = (
 		"\x3" => "",
+		"\x4" => "",
 		"\x7" => "",
 		"\x8" => "",
 		"\xF" => "",
