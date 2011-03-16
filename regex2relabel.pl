@@ -1,4 +1,9 @@
-#!/usr/bin/env perl
-chomp;
-($1,$2,$3)=split / /;
-print "$3\t$1\n";
+#!/usr/bin/env perl -w
+while (<>) {
+  chomp;
+  my ($target,$operator,$source)=split / /;
+  $source =~ s/[,;%]//g;
+  $target =~ s/^0$/@ 0@/;
+  $target =~ s/[ %]//;
+  print "$source\t$target\n";
+}
