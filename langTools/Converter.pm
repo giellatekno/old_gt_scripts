@@ -337,6 +337,7 @@ sub call_decode_title {
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $title->text;
 
+	print "coding is $coding\n";
 	$text =~ s/Ä\?/Đ/g;
 	$text =~ s/Ã¡/á/g;
 	$text =~ s/Ã¶/ö/g;
@@ -388,6 +389,7 @@ sub call_decode_person {
 		$value =~ s/Ã/Á/g;
 		$value =~ s/Œ/å/g;
 		$value =~ s/¿/ø/g;
+		$value =~ s/¥/•/g;
 		${$person->atts}{$key} = $value;
 	}
 }
