@@ -3,7 +3,7 @@
 # Written by Børre Gaup <borre.gaup@samediggi.no>
 
 import sys
-import fileinput
+from lxml import etree
 
 def usage():
 	print 'This is a script that changes empty values in a corpus xsl file'
@@ -26,17 +26,25 @@ for index in range(1, len(sys.argv) - 1, 2):
 
 xsl_filename = sys.argv[len(sys.argv) - 1]
 if (xsl_filename.rfind('.xsl') > 0):
-    try:
-        # Do an inline replacement of lines in the xsl file
-        for line in fileinput.FileInput(xsl_filename, inplace = 1):
-            for key, value in change_variables.iteritems():
-                if line.find('"' + key + '"') != -1:
-                    line = line.replace('\'\'', '\'' + value + '\'')
-            sys.stdout.write(line)
-    except:
-        print xsl_filename + " doesn't exist"
-        sys.exit(1)
+	tree = etree.parse(xsl_filename)
+	root = tree.getroot()
+	for element in root.iter():
+		for key, value in change_variables.iteritems():
+			if element.attrib.get('name') == key:
+				element.set('select', value)
+
+	try:
+		f = open(xsl_filename, 'w')
+	except IOError:
+		print 'cannot open', xsl_filename
+		sys.exit(255)
+	else:
+		f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+		f.write(etree.tostring(root))
+		f.write('\n')
+		f.close()
+
 else:
-    print "This is not an xsl file: " + xsl_filename
-    print
-    usage()
+	print "This is not an xsl file: " + xsl_filename
+	print
+	usage()
