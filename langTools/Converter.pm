@@ -273,8 +273,8 @@ sub character_encoding {
 					# Document title in msword documents is generally wrongly encoded,
 					# check that separately.
 					my $d=XML::Twig->new(twig_handlers=>{
-						'p[@type="title"]'=> sub{call_decode_title($self, @_); },
-						'title'=>sub{call_decode_title($self, @_);},
+						'p[@type="title"]'=> sub{call_decode_title($self, @_, $coding); },
+						'title'=>sub{call_decode_title($self, @_, $coding);},
 						'person'=>sub{call_decode_person($self, @_);}
 					}
 											);
@@ -332,7 +332,7 @@ sub call_decode_para {
 
 # Decode false utf8-encoding for titles.
 sub call_decode_title {
-	my ( $self, $twig, $title ) = @_;
+	my ( $self, $twig, $title, $coding ) = @_;
 
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $title->text;
@@ -362,6 +362,13 @@ sub call_decode_title {
 	$text =~ s/Ó/\"/g;
 	$text =~ s/ç/Á/g;
 	$text =~ s/¥/•/g;
+	
+	if ($coding eq "samimac_roman") {
+		$text =~ s/»/š/g;
+		$text =~ s/‡/á/g;
+		$text =~ s/¸/č/g;
+		$text =~ s/¹/đ/g;
+	}
 	$title->set_text($text);
 
 	return 0;
@@ -376,11 +383,11 @@ sub call_decode_person {
 	while ( ($key, $value) = each %{$person->atts} ) {
 		$value =~ s/Ã¦/æ/g;
 		$value =~ s/Ã¤/ä/g;
-		$value =~ s/¿/ø/g;
 		$value =~ s/Ã¸/ø/g;
+		$value =~ s/Ã¥/å/g;
 		$value =~ s/Ã/Á/g;
 		$value =~ s/Œ/å/g;
-		$value =~ s/Ã¥/å/g;
+		$value =~ s/¿/ø/g;
 		${$person->atts}{$key} = $value;
 	}
 }
