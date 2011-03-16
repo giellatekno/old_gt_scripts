@@ -342,6 +342,7 @@ sub call_decode_title {
 	$text =~ s/Ã¶/ö/g;
 	$text =~ s/Â«/«/g;
 	$text =~ s/Â»/»/g;
+	$text =~ s/Ã¨/č/g;
 	$text =~ s/Ä\?/č/g;
 	$text =~ s/Ã˜/Ø/g;
 	$text =~ s/Ã¸/ø/g;
@@ -350,6 +351,7 @@ sub call_decode_title {
 	$text =~ s/Ã\?/Á/g;
 	$text =~ s/Å‹/ŋ/g;
 	$text =~ s/Å /Š/g;
+	$text =~ s/Â¹/š/g;
 	$text =~ s/Å§/ŧ/g;
 	$text =~ s/Å¾/ž/g;
 	$text =~ s/â€\?/”/g;
