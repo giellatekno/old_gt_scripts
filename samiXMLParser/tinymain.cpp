@@ -290,10 +290,10 @@ void RecurseTree( TiXmlNode* pParent )
             if (bOutsideError) {
                 if (!bPrintTypos) {
                     if ((sLang[0] == '\0' || bElementLang) &&
-                        (bPrintPara && bInPara)   ||
+                        ((bPrintPara && bInPara)   ||
                         (bPrintTitle && bInTitle) ||
                         (bPrintList && bInList)   ||
-                        (bPrintTable && bInTable)) {
+                        (bPrintTable && bInTable))) {
                         if (bPrintSpeller) {
                             istringstream iss(pText->Value());
                             copy(istream_iterator<string>(iss),
@@ -323,10 +323,10 @@ void RecurseTree( TiXmlNode* pParent )
         }
         if ( tag == "p" ) {
             if ((sLang[0] == '\0' || bElementLang) &&
-                (bPrintPara && bInPara)   ||
+                ((bPrintPara && bInPara)   ||
                 (bPrintTitle && bInTitle) ||
                 (bPrintList && bInList)   ||
-                (bPrintTable && bInTable)) {
+                (bPrintTable && bInTable))) {
                 if (hitString && !bPrintTypos) {
                     if (bAddID) {
                         cout << "</p>";
