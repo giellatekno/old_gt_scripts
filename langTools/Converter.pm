@@ -337,7 +337,6 @@ sub call_decode_title {
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $title->text;
 
-	print "coding is $coding\n";
 	$text =~ s/Ä\?/Đ/g;
 	$text =~ s/Ã¡/á/g;
 	$text =~ s/Ã¶/ö/g;
