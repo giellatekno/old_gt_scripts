@@ -42,6 +42,7 @@ sub new {
 sub makePreconverter {
 	my ($self, $filename, $test) = @_;
 	
+	my $error = 0;
 	my $abs_path = Cwd::abs_path($filename);
 	$self->{_preconverter} = undef;
 
@@ -66,9 +67,16 @@ sub makePreconverter {
 	} elsif( $abs_path =~ /\.correct.xml$/ ) {
 		$self->{_preconverter} = langTools::CorrectXMLConverter->new($filename, $test);
 	} else {
-		print "Unrecoverable error: unable to handle $filename\n";
+		print "\nUnable to handle \n$filename\n";
+		print "Get rid of this error by executing the following command from the\n";
+		print "freecorpus and boundcorpus directories:\n\n";
+		print "svn status | grep ^? | cut -f8 -d\" \" | xargs rm -v\n\n";
+		print "If the problem persists after that command, issue a bug in\n";
+		print "http://giellatekno.uit.no/bugzilla\n";
 		die("unable to handle $filename\n");
+		$error = 1;
 	}
+	return $error;
 }
 
 sub getOrig {
