@@ -182,7 +182,7 @@ sub guess_text_encoding() {
 		}
 		$encoding = $NO_ENCODING;
     } else {
-		my $not_utf8 = system("iconv -f UTF8 -t UTF8 $file > /dev/null");
+		my $not_utf8 = system("iconv -f UTF-8 -t UTF-8 $file > /dev/null");
 		my $correct=0;
 		
 		if ($not_utf8) {
