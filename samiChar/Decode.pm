@@ -7,6 +7,8 @@ use strict;
 use warnings;
 use Carp qw(cluck carp);
 
+use Data::Dumper;
+
 use utf8;
 
 use Exporter;
@@ -151,7 +153,211 @@ our %Sami_Chars = (
 
 			);
 
+our %Error_Types = (
+	# mac-sami converted as iconv -f mac -t utf8
+	"type01" => {
+		"á" => "á",
+		"ª" => "š",
+		"¥" => "Š",
+		"º" => "ŧ",
+		"µ" => "Ŧ",
+		"∫" => "ŋ",
+		"±" => "Ŋ",
+		"π" => "đ",
+		"∞" => "Đ",
+		"Ω" => "ž",
+		"∑" => "Ž",
+		"∏" => "č",
+		"¢" => "Č",
+		"æ" => "æ",
+		"Æ" => "Æ",
+		"ø" => "ø",
+		"Ø" => "Ø",
+		"å" => "å",
+		"Å" => "Å",
+		"ä" => "ä",
+		"Ä" => "Ä",
+		"ö" => "ö",
+		"Ö" => "Ö",
+	},
+	
+	# iso-ir-197 converted as iconv -f mac -t utf8
+	"type02" => {
+		"·" => "á",
+		"¡" => "Á",
+		"≥" => "š",
+		"≤" => "Š",
+		"∏" => "ŧ",
+		"µ" => "Ŧ",
+		"±" => "ŋ",
+		"Ø" => "Ŋ",
+		"§" => "đ",
+		"£" => "Đ",
+		"∫" => "ž",
+		"π" => "Ž",
+		"¢" => "č",
+		"°" => "Č",
+		"Ê" => "æ",
+		"Δ" => "Æ",
+		"¯" => "ø",
+		"ÿ" => "Ø",
+		"Â" => "å",
+		"≈" => "Å",
+		"‰" => "ä",
+		"ƒ" => "Ä",
+		"ˆ" => "ö",
+		"÷" => "Ö",
+	},
 
+	# winsami2 converted as iconv -f mac -t utf8
+	"type03" => {
+		"·" => "á",
+		"¡" => "Á",
+		"ö" => "š",
+		"ä" => "Š",
+		"º" => "ŧ",
+		"∫" => "Ŧ",
+		"π" => "ŋ",
+		"∏" => "Ŋ",
+		"ò" => "đ",
+		"â" => "Đ",
+		"ø" => "ž",
+		"æ" => "Ž",
+		"Ñ" => "č",
+		"Ç" => "Č",
+		"Ê" => "æ",
+		"Δ" => "Æ",
+		"¯" => "ø",
+		"ÿ" => "Ø",
+		"Â" => "å",
+		"≈" => "Å",
+		"‰" => "ä",
+		"ƒ" => "Ä",
+		"ˆ" => "ö",
+		"÷" => "Ö",
+	},
+
+	# winsami2 converted as iconv -f latin1 -t utf8
+	"type04" => {
+		"á" => "á",
+		"Á" => "Á", 
+		"" => "š",
+		"" => "Š",
+		"¼" => "ŧ",
+		"º" => "Ŧ",
+		"¹" => "ŋ",
+		"¸" => "Ŋ",
+		"" => "đ",
+		"" => "Đ",
+		"¿" => "ž",
+		"¾" => "Ž",
+		"" => "č",
+		"" => "Č",
+		"æ" => "æ",
+		"Æ" => "Æ",
+		"ø" => "ø",
+		"Ø" => "Ø",
+		"å" => "å",
+		"Å" => "Å",
+		"ä" => "ä",
+		"Ä" => "Ä",
+		"ö" => "ö",
+		"Ö" => "Ö",
+	},
+	
+	# iso-ir-197 converted as iconv -f latin1 -t utf8
+	"type05" => {
+		"á" => "á",
+		"³" => "š",
+		"²" => "Š",
+		"¸" => "ŧ",
+		"µ" => "Ŧ",
+		"±" => "ŋ",
+		"¯" => "Ŋ",
+		"¤" => "đ",
+		"£" => "Đ",
+		"º" => "ž",
+		"¹" => "Ž",
+		"¢" => "č",
+		"¡" => "Č",
+		"æ" => "æ",
+		"Æ" => "Æ",
+		"ø" => "ø",
+		"Ø" => "Ø",
+		"å" => "å",
+		"Å" => "Å",
+		"ä" => "ä",
+		"Ä" => "Ä",
+		"ö" => "ö",
+		"Ö" => "Ö",
+	},
+	
+	# mac-sami to latin1
+	"type06" => {
+		"‡" => "á",
+		"ç" => "Á", 
+		"»" => "š",
+		"´" => "Š",
+		"¼" => "ŧ",
+		"µ" => "Ŧ",
+		"º" => "ŋ",
+		"±" => "Ŋ",
+		"¹" => "đ",
+		"°" => "Đ",
+		"½" => "ž",
+		"·" => "Ž",
+		"¸" => "č",
+		"¢" => "Č",
+		"¾" => "æ",
+		"®" => "Æ",
+		"¿" => "ø",
+		"¯" => "Ø",
+		"" => "å",
+		"" => "Å",
+		"" => "ä",
+		"" => "Ä",
+		"" => "ö",
+		"" => "Ö",
+		"Ê" => " ",
+	},
+	
+	# found in titles in Min Áigi docs
+	"type07" => {
+		"á" => "á",
+		"š" => "š",
+		"đ" => "đ",
+		"Ã°" => "đ",
+		"Â¹" => "š",
+		"Ã¨" => "č",
+		"â€\?" => "”",
+		"Ã©" => "é",
+		"Ä\\?" => "č",
+		"Å§" => "ŧ",
+# 		"Ä\\?" => "Đ",
+		"Ãŧ" => "ø",
+		"Å " => "Š",
+		"Ã¤" => "ä",
+		"Ã«" => "Ä",
+# 		"Ã\?" => "Á",
+		"ÄŒ" => "Č",
+		"Å‹" => "ŋ",
+		"Ã¸" => "ø",
+		"Å¾" => "ž",
+		"Ã\\?" => "Á",
+	},
+	
+	"type08" => {
+		"Œ" => "å",
+		"¿" => "ø",
+		"¥" => "•",
+	},
+
+	"type09" => {
+		"á" => "á",
+		"ð" => "đ",
+	},
+	
+);
 
 our $UNCONVERTED = 0;
 our $CORRECT = 1;
@@ -163,102 +369,9 @@ our $ERROR = -1;
 our $MIN_AMOUNT = 0.0;
 
 # Printing some test data, chars and their amounts
-our $Test=0;
+our $Test=1;
 
-# Subroutine for determining the correct encoding for text
-# Text is assumed not to be converted to utf-8 earlier.
-sub guess_text_encoding() {
 
-	my ($file, $outfile, $lang) = @_;
-
-	my $encoding = 0;
-	my @encodings = ("MAC-SAMI", "WINSAMI2", "LATIN-9", "L1", "UTF8");
-	my %results;
-	my %count_table;
-
-    if (!$lang || ! $Sami_Chars{$lang}) {
-		if ($Test) {
-			carp "guess_encoding: language is not specified or language $lang is not supported\n";
-		}
-		$encoding = $NO_ENCODING;
-    } else {
-		my $not_utf8 = system("iconv -f UTF-8 -t UTF-8 $file > /dev/null");
-		my $correct=0;
-		
-		if ($not_utf8) {
-			# Read the tested characters.
-			for my $char (keys % { $Sami_Chars{$lang}}){
-				$count_table{$char} = 1;
-			}
-
-			# Count first the sámi characters that already exist in the text.
-			my $total_count=0;
-
-			my @text_array;
-			my $error;
-			# Read the file
-
-			# Go through each encoding
-			my $coding_total=0;
-			if ($total_count) { $coding_total = $total_count; }
-			for my $enc (@encodings) {
-
-				my $command="iconv -f $enc -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
-				if ( system($command) != 0 ) {  next; }
-
-				my %test_table;
-
-				my @text_array;
-				my $error;
-				# Read the output
-				if (-f $outfile) { $error = &read_file($outfile, \@text_array); }
-				next if ($error);
-				my $count = 0;
-				for my $line (@text_array) {
-					if (! $total_count) { $coding_total += length($line); }
-					my @unpacked = unpack("U*", $line);
-					for my $byte (@unpacked) {
-						if( $count_table{$byte} ) { $count++; }
-					}
-				}
-				if ($coding_total != 0 ) {
-					$results{$enc} = 100 * ($count / $coding_total);
-				}
-			}			
-			# Select the best encoding by comparing the amount of chars to be converted.
-			my $last_val;
-			for my $key (sort { $results{$a} <=> $results{$b} } keys %results) {
-				if($Test) {
-					my $rounded_correct = sprintf("%.3f", $results{$key});
-					print $file, " ", $key, " ",  $rounded_correct, "\n";
-				}
-				$last_val = $key;
-			}
-			if (%results && $results{$last_val} >= $MIN_AMOUNT) {
-				if (! $correct || $results{$last_val} >= $correct) {
-					$encoding = $last_val;
-				}
-			}
-		} else {
-			if ($encoding eq $NO_ENCODING && $correct == 0) { 
-				my $command="iconv -f UTF-8 -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
-				if (system($command)) {
-					$encoding = $ERROR;
-				} else {
-					$encoding = "UTF8";
-				}
-			}
-		}
-		if ($Test) {
-			if ($encoding eq $NO_ENCODING && $correct != 0 ) { print "Correct encoding.\n"; }
-			else { print "$encoding \n"; }
-		}
-		# If no encoding, the file may still be broken.
-		# Test next if there are any sámi characters in the text
-
-    }
-    return $encoding
-}
 # Subroutine for decoding text file. Just iconv call.
 sub decode_text_file() {
 
@@ -276,7 +389,8 @@ sub decode_text_file() {
 		print "Converting $file -> $outfile\n";
 	}
 
-	my $command="iconv -f $encoding -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
+	print "encoding is: $encoding\n";
+	my $command="iconv -f LATIN1 -t UTF-8 -o \"$outfile\" \"$file\" 2>/dev/null";
 	system($command) == 0 or return "Encoding failed: $!";
 
 	return 0;
@@ -287,13 +401,6 @@ sub decode_text_file() {
 sub guess_encoding () {
     my ($file, $lang, $para_ref) = @_;
 
-    if (!$lang || ! $Sami_Chars{$lang}) {
-		if ($Test) {
-			carp "guess_encoding: language is not specified or language $lang is not supported\n";
-		}
-		return $NO_ENCODING;
-    }
-
 	my @text_array;
 	my $error=0;
     # Read the corpus file
@@ -301,124 +408,45 @@ sub guess_encoding () {
 	if ($error ) { carp "non-utf8 bytes.\n"; return $ERROR; }
 	elsif (! @text_array) { @text_array = split("\n", $$para_ref); }
     
-    # Store the statistics here
-    my %statistics = ();
+	my $encoding = $NO_ENCODING;
+	my $last_count = 0;
+	for my $type (sort( keys %Error_Types )) {
+		my $count = 0;
 
-    for my $encoding (keys %Char_Files) {
-
-		# Read the encoding table
-		my %convert_table = %{ $Char_Tables{$encoding} };
-
-		# test_table contains the tested sámi chars in both utf and tested encoding.
-		# count_table is for counting the occurences of sámi chars,
-		# both those in tested encoding and already correct ones.
-		my %test_table; 
-		my %count_table;
-	  CHAR_TABLE:
-		for my $char (keys % { $Sami_Chars{$lang}}){
-			$count_table{$char}->[$UNCONVERTED] = 0;
-			$count_table{$char}->[$CORRECT] = 0;
-		  CONVERT_TABLE:
-			# pick the tested sámi chars from conversion table
-			for my $key (keys %convert_table) {
-				if ($convert_table{$key} == $char) {
-					$test_table{$key} = $char;
-					last CONVERT_TABLE;
-				}
-			} #CONVERT_TABLE
-		} #CHAR_TABLE
-		
-		# Count the occurences of the sami characters
-		# in the corpus file line by line
-		my $total_char_count=0;
-	  LINE:
 		for my $line (@text_array) {
-			my @unpacked = unpack("U*", $line);
-		  BYTE:
-			for my $byte (@unpacked) {
-				$total_char_count++;
-				if ($test_table{$byte}) {
-					# Sámi char in tested encoding is found
-					$count_table{$test_table{$byte}}->[$UNCONVERTED]++;
-				}
-				elsif ($count_table{$byte}) {
-					# Already correctly coded sámi char
-					$count_table{$byte}->[$CORRECT]++;
-				}
-			} # BYTE
-		} # LINE
-
-		# Count the total
-		# Add the statistical tests here if needed.
-		my $unconv_total = 0;
-		my $other_total = 0;
-		for my $key (keys %count_table) {
-			$unconv_total += $count_table{$key}->[$UNCONVERTED];
-			$other_total += $count_table{$key}->[$CORRECT];
-		}
-		my $total_sami = $unconv_total + $other_total;		
-		if ($total_sami > 0) {
-			$statistics{$encoding}->[$UNCONVERTED] = 100 * ($unconv_total /  $total_sami) ;
-			$statistics{$encoding}->[$CORRECT] = 100 * ($other_total /  $total_sami) ;
-		}
-		# Test print
-		if($Test) {
-			for my $key (keys %count_table) {
-				my $found = 0;
-				for my $key2 (keys %test_table) {
-					if ($key == $test_table{$key2}) {
-						print $encoding, " ", $key, " ", pack("U*", $key), " ", pack("U*", $key2), " ", $count_table{$key}->[$UNCONVERTED], " ", $count_table{$key}->[$CORRECT], "\n";
-						$found = 1;
-						last;
-					}
-				}
-				if ($found == 0) {
-					print $encoding, " ", $key, " ", pack("U*", $key), " ", $count_table{$key}->[$UNCONVERTED], " ", $count_table{$key}->[$CORRECT], "\n";
+			foreach( keys % {$Error_Types{$type}}) {
+				while ($line =~ /$_/g) {
+					$count++;
 				}
 			}
-		} # Test print
-		
-	}
-    # Select the best encoding by comparing the amount of chars to be converted.
-    my $encoding = $NO_ENCODING;
-    my $last_val;
-    for  my $key (sort { $statistics{$a}->[$UNCONVERTED] <=> $statistics{$b}->[$UNCONVERTED] } keys %statistics) {
-		if($Test) {
-			my $rounded_unconv = sprintf("%.2f", $statistics{$key}->[$UNCONVERTED]);
-			my $rounded_correct = sprintf("%.2f", $statistics{$key}->[$CORRECT]);
-			print $key, " ", $rounded_unconv, " ", $rounded_correct, "\n";
 		}
-		$last_val = $key;
+		if ($count >= $last_count) {
+			$encoding = $type;
+			$last_count = $count;
+		}
+		if ($Test) {
+			print "type is $type, count is $count\n";
+		}
 	}
-	if (! $last_val) { return $NO_ENCODING; }
-
-	my $min;
-	if($min_amount{$last_val}) { $min = $min_amount{$last_val}; }
-	else { $min=$MIN_AMOUNT; }
-    if ($statistics{$last_val}->[$UNCONVERTED] && $statistics{$last_val}->[$UNCONVERTED] > $min ) {
-		$encoding = $last_val;
-    }
-	if($Test) {
-		if ($encoding eq $NO_ENCODING ) { print "Correct encoding.\n"; }
-		else { print "$encoding \n"; }
-	}
-    return $encoding;
+	return $encoding;
 }
 
 sub decode_para (){
 	my ($lang, $para_ref, $encoding) = @_;
 	
 	if (! $encoding) { $encoding = &guess_encoding(undef, $lang, $para_ref); }
-	if ($encoding eq $NO_ENCODING) { return; }
+	if (!$encoding eq $NO_ENCODING) { return; }
 
-	my %convert_table = %{ $Char_Tables{$encoding} };
-	my @unpacked = unpack("U*", $$para_ref);
-	for my $byte (@unpacked) {
-		if ($convert_table{$byte}) {
-			$byte = $convert_table{$byte};
-		}
+	if ($Test) {
+		print "\n\npara_ref before $$para_ref\n\n";
 	}
-	$$para_ref = pack("U*", @unpacked);
+	foreach ( keys % {$Error_Types{$encoding}}) {
+		$$para_ref =~ s/$_/${$Error_Types{$encoding}}{$_}/g;
+	}
+	if ($Test) {
+		print "\n\npara_ref after $encoding\n $$para_ref\n\n";
+	}
+
 	return 0;
 }
 
@@ -504,7 +532,7 @@ sub decode_file (){
 	
     if ($encoding eq $NO_ENCODING) { return 0; }
 	
-    if (! $encoding || !$Char_Files{$encoding}) {
+    if (! $encoding || !$Error_Types{$encoding}) {
 		return "convert_file: Encoding is not specified or encoding $encoding is not supported: $!\n";
     }
 	
@@ -519,15 +547,10 @@ sub decode_file (){
 	if ($error) { cluck "Non-utf8 bytes.\n"; return $ERROR; }
 
 	my $in_title;
-    for my $line (@text_array) {
-
-		my @unpacked = unpack("U*", $line);
-		for my $byte (@unpacked) {
-			if ($convert_table{$byte}) {
-				$byte = $convert_table{$byte};
-			}
+	for my $line (@text_array) {
+		foreach ( keys % {$Error_Types{$encoding}}) {
+			print "char is $_ replacment is ${$Error_Types{$encoding}}{$_}\n";
 		}
-		$line = pack("U*", @unpacked);
 	}
 	
     if (! open (FH, ">$outfile")) { 
@@ -542,23 +565,17 @@ sub decode_file (){
 sub read_file {
     my ($file, $text_aref, $allow_nonutf) =  @_;
 
-	if ($allow_nonutf) {
-		if (! open (FH, "<$file")) { 
-			carp "Cannot open file $file";
-			return $ERROR;
-		} 
+	if (! open (FH, "<utf8", "$file")) { 
+		carp "Cannot open file $file";
+		return $ERROR;
 	} else {
-		if (! open (FH, "<utf8", "$file")) { 
-			carp "Cannot open file $file";
-			return $ERROR;
+		while (<FH>) {
+			if (! utf8::is_utf8($_)) { return "ERROR"; }
+			push (@$text_aref, $_);
 		}
+		close (FH);
+		return 0;
 	}
-    while (<FH>) {
-		if (! utf8::is_utf8($_)) { return "ERROR"; }
-		push (@$text_aref, $_);
-    }
-    close (FH);
-    return 0;
 }
 
 sub read_char_tables {
