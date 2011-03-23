@@ -270,20 +270,16 @@ sub character_encoding {
 			close (FH);
 		} else {
 			# assume same encoding for the whole file.
-			my $coding = &guess_encoding($int, $language, 0);
-			if ($coding eq -1) {
-				carp "ERROR Was not able to determine character encoding. STOP.";
-				return "ERROR";
-			}
+# 			my $coding = &guess_encoding($int, $language, 0);
 # 			elsif ($coding eq 0) {
 				if($test) { print STDERR "Correct character encoding.\n"; }
 				if($file =~ /\.doc$/) {
 					# Document title in msword documents is generally wrongly encoded,
 					# check that separately.
 					my $d=XML::Twig->new(twig_handlers=>{
-						'p[@type="title"]'=> sub{call_decode_title($self, @_, $coding); },
-						'title'=>sub{call_decode_title($self, @_, $coding);},
-						'person'=>sub{call_decode_person($self, @_);}
+						'p[@type="title"]'=> sub{call_decode_para($self, @_); },
+						'title'=>sub{call_decode_para($self, @_);},
+						'person'=>sub{call_decode_para($self, @_);}
 					}
 											);
 					if (! $d->safe_parsefile ("$int") ) {
@@ -302,10 +298,8 @@ sub character_encoding {
 				
 # 			}
 			# Continue decoding the file.
-			if ($no_decode_this_time && $coding eq "latin6") { return 0; }
-			if($test) { print STDERR "Character decoding: $coding\n"; }
-			my $document = XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para($self, @_, $coding);},
-                                                 'title'=>sub{call_decode_para($self, @_, $coding);}
+			my $document = XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para($self, @_);},
+                                                 'title'=>sub{call_decode_para($self, @_);}
                                              }
                                  );
 			if (! $document->safe_parsefile("$int")) {
@@ -447,7 +441,7 @@ sub search_for_faulty_characters {
 		} else {
 			while (<FH>) {
 				$lineno++;
-				if ( $_ =~ /(¤|Ä\?|Ď|¥|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|þ|±|¢|¹|¿|˜)/) { 
+				if ( $_ =~ /(¤|Ä\?|Ď|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|ð|þ|±|¢|¹|¿|˜)/) { 
 					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
 					print STDERR "Faulty character at line: $lineno with line\n$_\n";
 					$error = 1;
