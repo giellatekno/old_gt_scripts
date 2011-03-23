@@ -29,102 +29,30 @@ is(&guess_encoding(undef, $language, \$text), "type07", "check for type07");
 my $text = "Lasáhus Ä?áhce- ja kloahkkadivatnjuolggadusaide";
 is(&guess_encoding(undef, $language, \$text), "type07", "check for type07");
 
-my $text = "geassemánu 12. 1987 nr. 56 Sámedikki ja eará sámi
+$text = "geassemánu 12. 1987 nr. 56 Sámedikki ja eará sámi
                 vuoigatvuoðaid birra1(oðða organiseren bargui sámi
                 gielaid ovddas)";
 is(&guess_encoding(undef, $language, \$text), "type09", "check for type09");
 
 system("iconv -f latin1 -t utf8 $ENV{'GTFREE'}/orig/sme/laws/jus.txt > jus.txt");
-# $outfile = File::Basename::basename($file);
 is($encoding = &guess_encoding("jus.txt", $language), "type04", "Check for type04");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t winsami2 $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $file = "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2003/bildetekst_lakselv.txt";
-# $outfile = File::Basename::basename($file);
-# 
-# is($encoding = &guess_encoding($file, $outfile, $language), "UTF8", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "diff $outfile $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $language = "swe";
-# $file = "$ENV{'GTBOUND'}/orig/swe/bible/bibeln-2.1/56.txt";
-# $outfile = File::Basename::basename($file);
-# 
-# is($encoding = &guess_encoding($file, $outfile, $language), "WINSAMI2", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t winsami2 $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $language = "sme";
-# $file = "$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-998.txt";
-# $outfile = File::Basename::basename($file);
-# 
-# is($encoding = &guess_encoding($file, $outfile, $language), "UTF8", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t utf8 $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $language = "nob";
-# $file = "$ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/Eldre_rekrutt1.txt";
-# $outfile = File::Basename::basename($file);
-# is($encoding = &guess_encoding($file, $outfile, $language), "MAC-SAMI", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t MAC-SAMI $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $language = "nob";
-# $file = "$ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/alm_hagelaget.txt";
-# $outfile = File::Basename::basename($file);
-# is($encoding = &guess_encoding($file, $outfile, $language), "MAC-SAMI", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t MAC-SAMI $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $language = "sme";
-# $file = "$ENV{'GTBOUND'}/orig/sme/news/Assu/1997/A47-97/BESKJEDTEO-21.7.txt";
-# $outfile = File::Basename::basename($file);
-# is($encoding = &guess_text($file, $outfile, $language), "MAC-SAMI", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t MAC-SAMI $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
-# 
-# $language = "sme";
-# $file = "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/094-04_Urfolk/__ordfører-_engelsk_tekst.txt";
-# $outfile = File::Basename::basename($file);
-# is($encoding = &guess_encoding($file, $outfile, $language), "MAC-SAMI", "Check for correct encoding");
-# &decode_text_file($file, $encoding, $outfile);
-# file_exists_ok($outfile);
-# 
-# $command = "iconv -f utf8 -t MAC-SAMI $outfile -o $outfile.test";
-# is(system($command), '0', "Check if converting from utf8 to original encoding goes well");
-# $command = "diff $outfile.test $file";
-# is(system($command), '0', "Check if infile is identical to test file");
+
+$language = "swe";
+system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/swe/bible/bibeln-2.1/56.txt > 56.txt");
+is($encoding = &guess_encoding("jus.txt", $language), "type04", "Check for type04");
+
+$language = "nob";
+system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/Eldre_rekrutt1.txt > Eldre_rekrutt1.txt");
+is($encoding = &guess_encoding("Eldre_rekrutt1.txt", $language), "type06", "Check type06");
+
+$language = "nob";
+system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/alm_hagelaget.txt > alm_hagelaget.txt");
+is($encoding = &guess_encoding("alm_hagelaget.txt", $language), "type06", "Check type06");
+
+$language = "sme";
+system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/Assu/1997/A47-97/BESKJEDTEO-21.7.txt > BESKJEDTEO-21.7.txt");
+is($encoding = &guess_encoding("BESKJEDTEO-21.7.txt", $language), "type06", "Check type06");
+
+$language = "sme";
+system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/094-04_Urfolk/__ordfører-_engelsk_tekst.txt > __ordfører-_engelsk_tekst.txt");
+is($encoding = &guess_encoding("__ordfører-_engelsk_tekst.txt", $language),, "type06", "Check type06");
