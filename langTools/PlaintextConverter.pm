@@ -14,14 +14,8 @@ sub convert2intermediate {
 		print STDERR "PlaintextConverter::convert2intermediate: " . File::Basename::basename($self->getOrig()) . " is an empty file\n";
 		$error = 1;
 	} else {
-		my $encoding = &guess_text_encoding($self->getOrig(), $self->gettmp1(), $self->getDoclang());
-		
-		if ($encoding == -1) {
-			print STDERR "Couldn't guess encoding\n";
-			$error = 1;
-		} elsif ($encoding) {
-			if (&decode_text_file($self->getOrig(), $encoding, $self->gettmp2())) {
-				print STDERR "Couldn't decode " . $self->getOrig() . " with encoding $encoding\n";
+		if (system("iconv -f UTF-8 -t UTF-8 " . $self->getOrig() . " > /dev/null")) {
+			if (system("iconv -f latin1 -t UTF-8 " . $self->getOrig() . " > " . $self->gettmp2())) {
 				$error = 1;
 			} else {
 				langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1(), $self->getDoclang());
@@ -29,11 +23,9 @@ sub convert2intermediate {
 		} else {
 			langTools::Corpus::txtclean($self->getOrig(), $self->gettmp1(), $self->getDoclang());
 		}
-		
-		unless ( $error ) {
-			$self->clean_doc();
-		}
+		$self->clean_doc();
 	}
+	
 	return $error;
 }
 
