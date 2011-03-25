@@ -14,8 +14,8 @@ sub convert2intermediate {
 		print STDERR "Couldn't convert pdf to plaintext\n";
 		$error = 1;
 	} else {
-		langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1(), "");
 		$self->clean_doc();
+		langTools::Corpus::txtclean($self->gettmp2(), $self->gettmp1(), "");
 	}
 
 	return $error;
@@ -25,6 +25,21 @@ sub clean_doc {
 	my ($self) = @_;
 	
 	my %replacements = (
+		"\\[dstrok\\]", "đ",
+		"\\[Dstrok\\]", "Đ",
+		"\\[tstrok\\]", "ŧ",
+		"\\[Tstrok\\]", "Ŧ",
+		"\\[scaron\\]", "š",
+		"\\[Scaron\\]", "Š",
+		"\\[zcaron\\]", "ž",
+		"\\[Zcaron\\]", "Ž",
+		"\\[ccaron\\]", "č",
+		"\\[Ccaron\\]", "Č",
+		"\\[eng", "ŋ",
+		" \\]", "",
+		"^\\]", "",
+		"Ď" => "đ",
+		"ď" => "đ",
 		"\x3" => "",
 		"\x4" => "",
 		"\x7" => "",
@@ -42,16 +57,15 @@ sub clean_doc {
 		"\x1C" => "",
 		"\x1D" => "",
 		"\x1E" => "",
-		"Ď" => "đ",
-		"ď" => "đ");
+		);
 	
-	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	open(FH, "<:encoding(utf8)", $self->gettmp2()) or die "Cannot open " . $self->gettmp1() . "$!";
 	my @file = <FH>;
 	close(FH);
 
-	open(FH, ">:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";
+	open(FH, ">:encoding(utf8)", $self->gettmp2()) or die "Cannot open " . $self->gettmp1() . "$!";
 	foreach my $string (@file) {
-		foreach my $a (keys %replacements) {
+		foreach my $a (sort(keys %replacements)) {
 			my $ii = Encode::decode_utf8($a);
 			my $i = Encode::decode_utf8($replacements{$a});
 			$string =~ s/$ii/$i/g;
