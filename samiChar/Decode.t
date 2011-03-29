@@ -14,8 +14,7 @@ BEGIN {
 }
 require_ok('samiChar::Decode');
 
-my $debug = 0;
-GetOptions ("debug" => \$debug);
+my $debug = 1;
 $samiChar::Decode::Test = $debug;
 my $file;
 my $outfile;
@@ -23,18 +22,35 @@ my $encoding;
 my $command;
 my $language = "sme";
 
-my $text = "Maid oÃ°Ã°a guolleÂ¹lájaid buktin sáhttá váikkuhit Ã¨ázádahkii";
-is(&guess_encoding(undef, $language, \$text), "type07", "check for type07");
+my $text = "Dutket ain »»i";
+$encoding = &guess_encoding(undef, $language, \$text);
+is($encoding, "type06", "check for type06");
+&decode_para($language, \$text, $encoding);
+is($text, "Dutket ain ášši", "Testing decoding");
 
-my $text = "Lasáhus Ä?áhce- ja kloahkkadivatnjuolggadusaide";
-is(&guess_encoding(undef, $language, \$text), "type07", "check for type07");
+my $text = "Maid oÃ°Ã°a guolleÂ¹lájaid buktin sáhttá váikkuhit Ã¨ázádahkii";
+$encoding = &guess_encoding(undef, $language, \$text);
+is($encoding, "type07", "check for type07");
+&decode_para($language, \$text, $encoding);
+is($text, "Maid ođđa guollešlájaid buktin sáhttá váikkuhit čázádahkii", "Testing decoding");
+
+$text = "Lasáhus Ä?áhce- ja kloahkkadivatnjuolggadusaide";
+$encoding = &guess_encoding(undef, $language, \$text);
+is($encoding, "type07", "check for type07");
+&decode_para($language, \$text, $encoding);
+is($text, "Lasáhus čáhce- ja kloahkkadivatnjuolggadusaide", "Testing decoding");
 
 $text = "geassemánu 12. 1987 nr. 56 Sámedikki ja eará sámi
                 vuoigatvuoðaid birra1(oðða organiseren bargui sámi
                 gielaid ovddas)";
-is(&guess_encoding(undef, $language, \$text), "type09", "check for type09");
+$encoding = &guess_encoding(undef, $language, \$text);
+is($encoding,  "type09", "check for type09");
+&decode_para($language, \$text, $encoding);
+is($text, "geassemánu 12. 1987 nr. 56 Sámedikki ja eará sámi
+                vuoigatvuođaid birra1(ođđa organiseren bargui sámi
+                gielaid ovddas)", "Testing decoding");
 
-system("iconv -f latin1 -t utf8 $ENV{'GTFREE'}/orig/sme/laws/jus.txt > jus.txt");
+system("iconv -f latin1 -t utf8 $ENV{'GTFREE'}/orig/sme/laws/other_files/jus.txt > jus.txt");
 is($encoding = &guess_encoding("jus.txt", $language), "type04", "Check for type04");
 
 $language = "swe";
@@ -55,4 +71,8 @@ is($encoding = &guess_encoding("BESKJEDTEO-21.7.txt", $language), "type06", "Che
 
 $language = "sme";
 system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/094-04_Urfolk/__ordfører-_engelsk_tekst.txt > __ordfører-_engelsk_tekst.txt");
-is($encoding = &guess_encoding("__ordfører-_engelsk_tekst.txt", $language),, "type06", "Check type06");
+is($encoding = &guess_encoding("__ordfører-_engelsk_tekst.txt", $language), "type06", "Check type06");
+
+$language = "sme";
+system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/007_04/_VM_Kroa_MLA.txt > _VM_Kroa_MLA.txt");
+is($encoding = &guess_encoding("_VM_Kroa_MLA.txt", $language), "type06", "Check type06");
