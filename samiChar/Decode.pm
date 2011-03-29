@@ -294,7 +294,7 @@ our %Error_Types = (
 	
 	# mac-sami to latin1
 	"type06" => {
-		"‡" => "á",
+		"" => "á",
 		"ç" => "Á", 
 		"»" => "š",
 		"´" => "Š",
@@ -319,6 +319,7 @@ our %Error_Types = (
 		"" => "ö",
 		"" => "Ö",
 		"Ê" => " ",
+		"¤" => "§",
 	},
 	
 	# found in titles in Min Áigi docs
@@ -425,7 +426,7 @@ sub guess_encoding () {
 			$last_count = $count;
 		}
 		if ($Test) {
-			print "type is $type, count is $count\n";
+			print "encoding is $encoding, count is $count\n";
 		}
 	}
 	return $encoding;
