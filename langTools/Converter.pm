@@ -244,85 +244,46 @@ sub character_encoding {
     #my ($file, $int, $no_decode_this_time) = @_;
 	my $file = $self->getOrig();
 	my $int = $self->getInt();
-	my $no_decode_this_time = 0;
-	my $no_decode = 0;
-	my $multi_coding = 0;
 	my $test = $self->getPreconverter()->getTest();
 	my $language = $self->getPreconverter()->getDoclang();
+	my $error = 0;
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
 
-	if (! $no_decode ) {
-		samiChar::Decode::read_char_tables();
-		# guess encoding and decode each paragraph at the time.
-		if( $multi_coding ) {
-			my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para($self, @_); } });
-			if (! $document->safe_parsefile ("$int") ) {
-				carp "ERROR parsing the XML-file failed. STOP\n";
-				return "ERROR";
-			}
-			if (! open (FH, ">:encoding(utf8)", $int)) {
-				carp "ERROR cannot open file STOP";
-				return "ERROR";
-			}
-			$document->set_pretty_print('indented');
-			$document->print( \*FH);
-			close (FH);
-		} else {
-			# assume same encoding for the whole file.
-# 			my $coding = &guess_encoding($int, $language, 0);
-# 			elsif ($coding eq 0) {
-				if($test) { print STDERR "Correct character encoding.\n"; }
-				if($file =~ /\.doc$/) {
-					# Document title in msword documents is generally wrongly encoded,
-					# check that separately.
-					my $d=XML::Twig->new(twig_handlers=>{
-						'p[@type="title"]'=> sub{call_decode_para($self, @_); },
-						'title'=>sub{call_decode_para($self, @_);},
-						'person'=>sub{call_decode_para($self, @_);}
-					}
-											);
-					if (! $d->safe_parsefile ("$int") ) {
-						carp "ERROR parsing the XML-file failed.\n";
-						return "ERROR";
-					}
-					if (! open (FH, ">:encoding(utf8)", $int)) {
-						carp "ERROR cannot open file";
-						return "ERROR";
-					}
-					$d->set_pretty_print('indented');
-					$d->print( \*FH);
-					close (FH);
-					return 0;
-				}
-				
-# 			}
-			# Continue decoding the file.
-			my $document = XML::Twig->new(twig_handlers=>{'p'=>sub{call_decode_para($self, @_);},
-                                                 'title'=>sub{call_decode_para($self, @_);}
-                                             }
-                                 );
-			if (! $document->safe_parsefile("$int")) {
-				carp "ERROR parsing the XML-file «$int» failed ";
-				return "1";
-			} else {
-				if (! open (FH, ">:encoding(utf8)", $int)) {
-					carp "ERROR cannot open file";
-					return "ERROR";
-				}
-				$document->set_pretty_print('indented');
-				$document->print( \*FH);
-				close (FH);
-			}
-		}
+	my $encoding = &guess_encoding($int, $language);
+	if ($test) {
+		print "(character_encoding) Encoding is: $encoding\n";
 	}
-	return 0;
+	
+	my $d=XML::Twig->new(
+		twig_handlers=>{
+			'p'=> sub{call_decode_para($self, @_, $encoding); },
+			'title'=>sub{call_decode_para($self, @_);},
+			'person'=>sub{call_decode_para($self, @_);},
+		}
+	);
+	
+	if (! $d->safe_parsefile ("$int") ) {
+		carp "ERROR parsing the XML-file failed.\n";
+		$error = 1;
+	} elsif (! open (FH, ">:encoding(utf8)", $int)) {
+		carp "ERROR cannot open file";
+		$error = 2;
+	} else {
+		$d->set_pretty_print('indented');
+		$d->print( \*FH);
+		close (FH);
+	}
+	
+	return $error;
+				
 } 
 
 # Decode false utf8-encoding for text paragraph.
 sub call_decode_para {
     my ( $self, $twig, $para, $coding) = @_;
 
+	print "(call_decode_para) encoding $coding\n";
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $para->text;
 
@@ -330,69 +291,6 @@ sub call_decode_para {
     $para->set_text($text);
 
 	return $error;
-}
-
-# Decode false utf8-encoding for titles.
-sub call_decode_title {
-	my ( $self, $twig, $title, $coding ) = @_;
-
-	my $language = $self->getPreconverter()->getDoclang();
-	my $text = $title->text;
-
-	$text =~ s/Ä\?/Đ/g;
-	$text =~ s/Ã¡/á/g;
-	$text =~ s/Ã¶/ö/g;
-	$text =~ s/Â«/«/g;
-	$text =~ s/Â»/»/g;
-	$text =~ s/Ã¨/č/g;
-	$text =~ s/Ä\?/č/g;
-	$text =~ s/Ã˜/Ø/g;
-	$text =~ s/Ã¸/ø/g;
-	$text =~ s/Ã«/Ä/g;
-	$text =~ s/Ã¤/ä/g;
-	$text =~ s/Ã\?/Á/g;
-	$text =~ s/Å‹/ŋ/g;
-	$text =~ s/Å /Š/g;
-	$text =~ s/Â¹/š/g;
-	$text =~ s/Å§/ŧ/g;
-	$text =~ s/Å¾/ž/g;
-	$text =~ s/â€\?/”/g;
-	$text =~ s/Ã©/é/g;
-	$text =~ s/Ã°/đ/g;
-	$text =~ s/Œ/å/g;
-	$text =~ s/¿/ø/g;
-	$text =~ s/Ó/\"/g;
-	$text =~ s/ç/Á/g;
-	$text =~ s/¥/•/g;
-	
-	if ($coding eq "samimac_roman") {
-		$text =~ s/»/š/g;
-		$text =~ s/‡/á/g;
-		$text =~ s/¸/č/g;
-		$text =~ s/¹/đ/g;
-	}
-	$title->set_text($text);
-
-	return 0;
-}
-
-sub call_decode_person {
-	my ( $self, $twig, $person ) = @_;
-
-	my $key;
-	my $value;
-	
-	while ( ($key, $value) = each %{$person->atts} ) {
-		$value =~ s/Ã¦/æ/g;
-		$value =~ s/Ã¤/ä/g;
-		$value =~ s/Ã¸/ø/g;
-		$value =~ s/Ã¥/å/g;
-		$value =~ s/Ã/Á/g;
-		$value =~ s/Œ/å/g;
-		$value =~ s/¿/ø/g;
-		$value =~ s/¥/•/g;
-		${$person->atts}{$key} = $value;
-	}
 }
 
 sub add_error_markup {
