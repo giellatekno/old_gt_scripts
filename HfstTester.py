@@ -83,6 +83,7 @@ def whereis(program):
 
 class HfstTester:
 	def __init__(self):
+		self.fails = 0
 		self.count = []
 		if not whereis("hfst-lookup"):
 			print "Cannot find hfst-lookup. Check $PATH."
@@ -181,6 +182,8 @@ class HfstTester:
 							self.count[c][1] += 1
 		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
 			self.count[c][1], self.count[c][0] + self.count[c][1]), 2)
+		
+		self.fails = self.fails + self.count[c][1]
 
 	def run_lexical_test(self, input):
 		c = len(self.count)
@@ -210,5 +213,7 @@ class HfstTester:
 						self.count[c][1] += 1
 		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0], 
 			self.count[c][1], self.count[c][0] + self.count[c][1]), 2)
+		self.fails = self.fails + self.count[c][1]
 
-HfstTester()
+hfst = HfstTester()
+sys.exit(hfst.fails)
