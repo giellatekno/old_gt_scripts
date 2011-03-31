@@ -5,8 +5,8 @@
 set HOSTNAME = `hostname`
 
 if ( $HOSTNAME == 'victorio.uit.no' )
-then setenv LOOKUP '/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup-2.5.7 -flags mbTT'
-else setenv LOOKUP 'lookup -flags mbTT'
+then setenv LOOKUP '/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup-2.5.7 -q -flags mbTT'
+else setenv LOOKUP 'lookup -q -flags mbTT'
 endif
 
 # Sámi languages:

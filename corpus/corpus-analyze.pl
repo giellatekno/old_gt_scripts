@@ -556,11 +556,11 @@ sub test_config {
     print "No cap file found, preprocessing without it\n\n\n";
 
 
-    $analyze = "$preprocess | $lookup -flags mbTT -utf8 $fst 2>/dev/null | $lookup2cg | $vislcg3";
+    $analyze = "$preprocess | $lookup -q -flags mbTT -utf8 $fst 2>/dev/null | $lookup2cg | $vislcg3";
 
 #    print "fuck it deeply $analyze\n\n\n";
   } else {
-    $analyze = "$preprocess | $lookup -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3";
+    $analyze = "$preprocess | $lookup -q -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3";
   }
   
   if ($config_error) {

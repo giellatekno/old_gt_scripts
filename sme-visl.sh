@@ -9,7 +9,7 @@ do                                          # run the following loop
 echo -n "Atte cealkaga (ctrl-C = STOP): "          # (message to user)
 read sentence                               # next 3 lines is the usual command
 echo $sentence | preprocess --abbr=$GTHOME/gt/sme/bin/abbr.txt | \
-lookup -flags mbTT -utf8 $GTHOME/gt/sme/bin/sme.fst | $GTHOME/gt/script/lookup2cg | \
+lookup -q -flags mbTT -utf8 $GTHOME/gt/sme/bin/sme.fst | $GTHOME/gt/script/lookup2cg | \
 vislcg --grammar $HOME/gtsvn/gt/sme/src/sme-dis.rle | $GTHOME/gt/script/cg2visl.pl
 #$GTHOME/gt/script/dis.sh --grammar $GTHOME/gt/sme/bin/sme-dis.rle  # m4
  #--minimal

@@ -63,7 +63,7 @@ do
     for i in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
         echo "Preprocessing $i …"
-        time cat $i | $PREPROCESS 2> /dev/null | lookup -flags mbTT $GTHOME/gt/$SMILANG/bin/$SMILANG.fst | lookup2cg > $i.lookup2cg
+        time cat $i | $PREPROCESS 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$SMILANG/bin/$SMILANG.fst | lookup2cg > $i.lookup2cg
         echo "$SMILANG dis analysis of $i.lookup2cg …"
         time vislcg3 -g $GTHOME/gt/$SMILANG/bin/$SMILANG-dis.bin -I $i.lookup2cg > $i.dis
         echo "$SMILANG dep analysis of $i.dis …"
