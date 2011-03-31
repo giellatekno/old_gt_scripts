@@ -7,7 +7,7 @@
 
 # Taken from:
 # http://apertium.svn.sourceforge.net/svnroot/apertium/incubator/apertium-tgl-ceb/dev/verbs/HfstTester.py@28665
-# Copied in here instead of just referenced, since file externals don't work for
+# Copied into the GT svn instead of just referenced, since file externals don't work for
 # foreign repositories.
 
 # TODO:
@@ -110,7 +110,6 @@ class HfstTester:
 
 		try:
 			f = yaml.load(open(self.args.test_file[0]))
-#			print yaml.dump(f, encoding=('utf-8')) # DEBUG
 		except:
 			try:
 				f = json.load(open(self.args.test_file[0]))
@@ -134,7 +133,6 @@ class HfstTester:
 		self.gen = f[configkey]["Gen"]
 		self.morph = f[configkey]["Morph"]
 		for i in (self.gen, self.morph):
-#			print "Testing for file %s." % i # DEBUG
 			if not os.path.isfile(i):
 				print "File %s does not exist." % i
 				sys.exit(2)
@@ -156,7 +154,6 @@ class HfstTester:
 		
 		else:
 			for t in self.tests.keys():
-#				print "The input test key is: %s" % t # DEBUG
 				if self.args.lexical: self.run_lexical_test(t)
 				if self.args.surface: self.run_surface_test(t)
 
