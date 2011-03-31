@@ -150,7 +150,7 @@ class HfstTester:
 		c = len(self.count)
 		self.count.append([0, 0])
 
-		title = "Test %d: %s (Surface)" % (c, input)
+		title = "Test %d: %s (Surface/Analysis)" % (c, input)
 		print self.c("-"*len(title), 1)
 		print self.c(title, 1)
 		print self.c("-"*len(title), 1)
@@ -186,7 +186,7 @@ class HfstTester:
 		c = len(self.count)
 		self.count.append([0, 0])
 
-		title = "Test %d: %s (Lexical)" % (c, input)
+		title = "Test %d: %s (Lexical/Generation)" % (c, input)
 		print self.c("-"*len(title), 1)
 		print self.c(title, 1)
 		print self.c("-"*len(title), 1)
