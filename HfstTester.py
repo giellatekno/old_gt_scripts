@@ -165,10 +165,10 @@ class HfstTester:
 
 			for sform in sforms:
 				p1 = Popen(['echo', sform], stdout=PIPE)
-				p2 = Popen(['hfst-lookup', self.morph], stdin=p1.stdout, stdout=PIPE)
+				p2 = Popen(['hfst-lookup', self.morph], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
 				p1.stdout.close()
-				res = p2.communicate()[0].decode("utf-8").split('\n')
-				for i in res:
+				(res, err) = p2.communicate()
+				for i in res.decode("utf-8").split('\n'):
 					if i.strip() != '':
 						lex = i.split('\t')[1].strip()
 						if lex in lexors:
@@ -194,10 +194,10 @@ class HfstTester:
 		for l in self.tests[input].keys():
 			sforms = s2l(self.tests[input][l])
 			p1 = Popen(['echo', l], stdout=PIPE)
-			p2 = Popen(['hfst-lookup', self.gen], stdin=p1.stdout, stdout=PIPE)
+			p2 = Popen(['hfst-lookup', self.gen], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
 			p1.stdout.close()
-			res = p2.communicate()[0].decode("utf-8").split('\n')
-			for i in res:
+			(res, err) = p2.communicate()
+			for i in res.decode("utf-8").split('\n'):
 				if i.strip() != '':
 					r = i.split('\t')[1].strip()
 					if (r in sforms):
