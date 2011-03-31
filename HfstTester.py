@@ -121,13 +121,14 @@ class HfstTester:
 		if self.args.xerox:
 			print "Testing Xerox FST dictionaries"
 			configkey = "XfstConfig"
+			self.program = "lookup"
 		else:
 			print "Testing Helsinki FST dictionaries"
 			configkey = "HfstConfig"
+			self.program = "hfst-lookup"
 			
-		self.program = f[configkey]["Lookup"]
 		if not whereis(self.program):
-			print "Cannot find lookup. Check $PATH."
+			print "Cannot find %s. Check $PATH." % self.program
 			sys.exit(1)
 
 		self.gen = f[configkey]["Gen"]
