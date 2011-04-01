@@ -92,6 +92,8 @@ class HfstTester:
 			)
 		argparser.add_argument("-c", "--colour", dest="colour", action="store_true",
 			help="Colours the output")
+		argparser.add_argument("-i", "--ignore_extra_analyses", dest="ignore_extra_analyses", action="store_true",
+			help="Ignore extra analyses")
 		argparser.add_argument("-s", "--surface", dest="surface", action="store_true",
 			help="Dump output by surface form")
 		argparser.add_argument("-l", "--lexical", dest="lexical", action="store_true",
@@ -139,6 +141,7 @@ class HfstTester:
 				sys.exit(2)
 		self.tests = f["Tests"]
 		self.run_tests(self.args.test)
+		print "Total fails", self.fails
 	
 	def c(self, s, o=None):
 		if self.args.colour:
@@ -176,21 +179,36 @@ class HfstTester:
 						lexors.append(i)
 
 			for sform in sforms:
+				#print 
 				p1 = Popen(['echo', sform], stdout=PIPE)
 				p2 = Popen([self.program, self.morph], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
 				p1.stdout.close()
 				(res, err) = p2.communicate()
-				for i in res.decode("utf-8").split('\n'):
-					if i.strip() != '':
-						lex = i.split('\t')[1].strip()
-						if lex in lexors:
-							if not self.args.hide_pass:
-								print self.c("[PASS] %s => %s" % (sform, lex))
-							self.count[c][0] += 1
-						else:
-							if not self.args.hide_fail:
-								print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex))
-							self.count[c][1] += 1
+				#print "\nsform", sform, "res", res
+				if self.args.ignore_extra_analyses:
+					if res.decode("utf-8").find(u"\t" + l) > 0:
+						print self.c("[PASS] %s => %s" % (sform, l))
+						self.count[c][0] += 1
+					else:
+						for i in res.decode("utf-8").split('\n'):
+							if i.strip() != '':
+								lex = i.split('\t')[1].strip()
+								if not lex in lexors:
+									if not self.args.hide_fail:
+										print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex))
+									self.count[c][1] += 1
+				else:
+					for i in res.decode("utf-8").split('\n'):
+						if i.strip() != '':
+							lex = i.split('\t')[1].strip()
+							if lex in lexors:
+								if not self.args.hide_pass:
+									print self.c("[PASS] %s => %s" % (sform, lex))
+								self.count[c][0] += 1
+							else:
+								if not self.args.hide_fail:
+									print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex))
+								self.count[c][1] += 1
 		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
 			self.count[c][1], self.count[c][0] + self.count[c][1]), 2)
 		
