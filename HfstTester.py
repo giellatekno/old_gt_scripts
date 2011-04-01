@@ -27,17 +27,19 @@ def s2l(thing):
 		return [thing]
 	elif type(thing) in (list, tuple):
 		return thing
-	return None
+	else:
+		return None
 
 def l2s(thing):
 	if type(thing) in (str, unicode):
 		return thing
 	elif type(thing) in (list, tuple):
 		if len(thing) > 1:
-			return thing #bail out!
+			return 'Either ' + ' or '.join(thing)
 		else:
 			return thing[0]
-	return None
+	else:
+		return None
 
 def colourise(string, opt=None):
 	def red(s="", r="\033[m"):
