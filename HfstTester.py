@@ -153,8 +153,9 @@ class HfstTester:
 				sys.exit(2)
 		self.tests = f["Tests"]
 		
-		# Assume that the command line input is utf-8, convert it to unicode
-		self.args.test[0] = self.args.test[0].decode('utf-8')
+		if self.args.test:
+			# Assume that the command line input is utf-8, convert it to unicode
+			self.args.test[0] = self.args.test[0].decode('utf-8')
 		self.run_tests(self.args.test)
 		print "Total fails", self.fails
 	
