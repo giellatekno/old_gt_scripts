@@ -166,9 +166,9 @@ class HfstTester:
 		self.count.append([0, 0])
 
 		title = "Test %d: %s (Surface/Analysis)" % (c, input)
-		print self.c("-"*len(title), 1)
-		print self.c(title, 1)
-		print self.c("-"*len(title), 1)
+		print self.c("-"*len(title), 1).encode('utf-8')
+		print self.c(title, 1).encode('utf-8')
+		print self.c("-"*len(title), 1).encode('utf-8')
 
 		for l in self.tests[input].keys():
 			sforms = s2l(self.tests[input][l])
@@ -184,33 +184,31 @@ class HfstTester:
 				p2 = Popen([self.program, self.morph], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
 				p1.stdout.close()
 				(res, err) = p2.communicate()
-				#print "\nsform", sform, "res", res
+				lexes = self.parse_fst_output(res.decode('utf-8'))
+				#print lexes
+				#print "\nl", l, "sform", sform, "res", res
 				if self.args.ignore_extra_analyses:
-					if res.decode("utf-8").find(u"\t" + l) > 0:
-						print self.c("[PASS] %s => %s" % (sform, l))
+					if l in lexes:
+						print self.c("[PASS] %s => %s" % (sform, l)).encode('utf-8')
 						self.count[c][0] += 1
 					else:
-						for i in res.decode("utf-8").split('\n'):
-							if i.strip() != '':
-								lex = i.split('\t')[1].strip()
-								if not lex in lexors:
-									if not self.args.hide_fail:
-										print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex))
-									self.count[c][1] += 1
-				else:
-					for i in res.decode("utf-8").split('\n'):
-						if i.strip() != '':
-							lex = i.split('\t')[1].strip()
-							if lex in lexors:
-								if not self.args.hide_pass:
-									print self.c("[PASS] %s => %s" % (sform, lex))
-								self.count[c][0] += 1
-							else:
+						for lex in lexes:
+							if not lex in lexors:
 								if not self.args.hide_fail:
-									print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex))
+									print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
 								self.count[c][1] += 1
+				else:
+					for lex in lexes:
+						if lex in lexors:
+							if not self.args.hide_pass:
+								print self.c("[PASS] %s => %s" % (sform, lex)).encode('utf-8')
+							self.count[c][0] += 1
+						else:
+							if not self.args.hide_fail:
+								print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
+							self.count[c][1] += 1
 		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
-			self.count[c][1], self.count[c][0] + self.count[c][1]), 2)
+			self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
 		
 		self.fails = self.fails + self.count[c][1]
 
@@ -219,9 +217,9 @@ class HfstTester:
 		self.count.append([0, 0])
 
 		title = "Test %d: %s (Lexical/Generation)" % (c, input)
-		print self.c("-"*len(title), 1)
-		print self.c(title, 1)
-		print self.c("-"*len(title), 1)
+		print self.c("-"*len(title), 1).encode('utf-8')
+		print self.c(title, 1).encode('utf-8')
+		print self.c("-"*len(title), 1).encode('utf-8')
 
 		for l in self.tests[input].keys():
 			sforms = s2l(self.tests[input][l])
@@ -229,20 +227,34 @@ class HfstTester:
 			p2 = Popen([self.program, self.gen], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
 			p1.stdout.close()
 			(res, err) = p2.communicate()
-			for i in res.decode("utf-8").split('\n'):
-				if i.strip() != '':
-					r = i.split('\t')[1].strip()
-					if (r in sforms):
-						if not self.args.hide_pass:
-							print self.c("[PASS] %s => %s" % (l, r) )
-						self.count[c][0] += 1
-					else:
-						if not self.args.hide_fail:
-							print self.c("[FAIL] %s => Expected: %s, Got: %s" % (l, l2s(sforms), r))
-						self.count[c][1] += 1
+			lexes = self.parse_fst_output(res.decode('utf-8'))
+			for r in lexes:
+				if (r in sforms):
+					if not self.args.hide_pass:
+						print self.c("[PASS] %s => %s" % (l, r) ).encode('utf-8')
+					self.count[c][0] += 1
+				else:
+					if not self.args.hide_fail:
+						print self.c("[FAIL] %s => Expected: %s, Got: %s" % (l, l2s(sforms), r)).encode('utf-8')
+					self.count[c][1] += 1
 		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0], 
-			self.count[c][1], self.count[c][0] + self.count[c][1]), 2)
+			self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
 		self.fails = self.fails + self.count[c][1]
+
+	def parse_fst_output(self, result):
+		"Receive a unicode string"
+		return_lex = []
+		if type(result) == unicode:
+			for i in result.split('\n'):
+				if i.strip() != '':
+					lexes = i.split('\t')
+					#print "lexes", lexes
+					if len(lexes) > 2 and lexes[2][0] == '+':
+						lex = lexes[1].strip() + lexes[2].strip()
+					else:
+						lex = lexes[1].strip()
+					return_lex.append(lex)
+		return return_lex
 
 hfst = HfstTester()
 sys.exit(hfst.fails)
