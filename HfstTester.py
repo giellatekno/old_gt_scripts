@@ -202,16 +202,9 @@ class HfstTester:
 				lexes = self.parse_fst_output(res.decode('utf-8'))
 				#print lexes
 				#print "\nl", l, "sform", sform, "res", res
-				if self.args.ignore_extra_analyses:
-					if l in lexes:
-						print self.c("[PASS] %s => %s" % (sform, l)).encode('utf-8')
-						self.count[c][0] += 1
-					else:
-						for lex in lexes:
-							if not lex in lexors:
-								if not self.args.hide_fail:
-									print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
-								self.count[c][1] += 1
+				if self.args.ignore_extra_analyses and l in lexes:
+					print self.c("[PASS] %s => %s" % (sform, l)).encode('utf-8')
+					self.count[c][0] += 1
 				else:
 					for lex in lexes:
 						if lex in lexors:
