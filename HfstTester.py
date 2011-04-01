@@ -120,19 +120,19 @@ class HfstTester:
 
 		if self.args.xerox:
 			print "Testing Xerox FST dictionaries"
-			configkey = "XfstConfig"
+			configkey = "xerox"
 			self.program = "lookup"
 		else:
 			print "Testing Helsinki FST dictionaries"
-			configkey = "HfstConfig"
+			configkey = "hfst"
 			self.program = "hfst-lookup"
 			
 		if not whereis(self.program):
 			print "Cannot find %s. Check $PATH." % self.program
 			sys.exit(1)
 
-		self.gen = f[configkey]["Gen"]
-		self.morph = f[configkey]["Morph"]
+		self.gen = f["Config"][configkey]["Gen"]
+		self.morph = f["Config"][configkey]["Morph"]
 		for i in (self.gen, self.morph):
 			if not os.path.isfile(i):
 				print "File %s does not exist." % i
