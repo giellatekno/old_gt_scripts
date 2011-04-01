@@ -41,7 +41,7 @@ def l2s(thing):
 
 def colourise(string, opt=None):
 	def red(s="", r="\033[m"):
-		return "\033[0;31m%s%s" % (s, r) 
+		return "\033[1;31m%s%s" % (s, r) 
 	def green(s="", r="\033[m"):
 		return "\033[0;32m%s%s" % (s, r) 
 	def orange(s="", r="\033[m"):
@@ -56,7 +56,7 @@ def colourise(string, opt=None):
 		return "\033[m%s" % s
 
 	if not opt:
-		x = string.replace('+', red('+'))
+		x = string.replace('+', '+')
 		x = x.replace("=>", blue("=>"))
 		x = x.replace("<=", blue("<="))
 		x = x.replace(":", blue(":"))
@@ -87,7 +87,7 @@ class HfstTester:
 		self.count = []
 
 		argparser = argparse.ArgumentParser(
-			description="Test HFST dictionaries for consistency. hfst-lookup (or lookup in the Xerox case) must be available on the PATH.",
+			description="Test HFST dictionaries for consistency. `hfst-lookup` (or `lookup` in the Xerox case) must be available on the PATH.",
 			epilog="Will run all tests from file by default."
 			)
 		argparser.add_argument("-c", "--colour", dest="colour", action="store_true",
