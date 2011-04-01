@@ -1,8 +1,9 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# HfstTester.py 1.0 - Copyright (c) 2011 
+# HfstTester.py 1.1 - Copyright (c) 2010-2011 
 # Brendan Molloy <brendan@bbqsrc.net>
+# Børre Gaup <boerre@skolelinux.no>
 # Licensed under Creative Commons Zero (CC0)
 
 # Taken from:
@@ -151,6 +152,9 @@ class HfstTester:
 				print "File %s does not exist." % i
 				sys.exit(2)
 		self.tests = f["Tests"]
+		
+		# Assume that the command line input is utf-8, convert it to unicode
+		self.args.test[0] = self.args.test[0].decode('utf-8')
 		self.run_tests(self.args.test)
 		print "Total fails", self.fails
 	
