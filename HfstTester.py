@@ -87,26 +87,35 @@ class HfstTester:
 		self.count = []
 
 		argparser = argparse.ArgumentParser(
-			description="Test HFST dictionaries for consistency. `hfst-lookup` (or `lookup` in the Xerox case) must be available on the PATH.",
-			epilog="Will run all tests from file by default."
+			description="Test morphological transducers for consistency. `hfst-lookup` (or Xerox' `lookup` with argument -x) must be available on the PATH.",
+			epilog="Will run all tests in the test_file by default."
 			)
-		argparser.add_argument("-c", "--colour", dest="colour", action="store_true",
+		argparser.add_argument("-c", "--colour",
+			dest="colour", action="store_true",
 			help="Colours the output")
-		argparser.add_argument("-i", "--ignore_extra_analyses", dest="ignore_extra_analyses", action="store_true",
-			help="Ignore extra analyses")
-		argparser.add_argument("-s", "--surface", dest="surface", action="store_true",
-			help="Dump output by surface form")
-		argparser.add_argument("-l", "--lexical", dest="lexical", action="store_true",
-			help="Dump output by lexical form")
-		argparser.add_argument("-f", "--no-pass", dest="hide_pass", action="store_true",
+		argparser.add_argument("-i", "--ignore_extra_analyses",
+			dest="ignore_extra_analyses", action="store_true",
+			help="Ignore extra analyses when there are more than one, will FAIL only if all are wrong.")
+		argparser.add_argument("-s", "--surface",
+			dest="surface", action="store_true",
+			help="Surface input/analysis tests only")
+		argparser.add_argument("-l", "--lexical",
+			dest="lexical", action="store_true",
+			help="Lexical input/generation tests only")
+		argparser.add_argument("-f", "--no-pass",
+			dest="hide_pass", action="store_true",
 			help="Suppresses passes to make finding failures easier")
-		argparser.add_argument("-p", "--no-fail", dest="hide_fail", action="store_true",
+		argparser.add_argument("-p", "--no-fail",
+			dest="hide_fail", action="store_true",
 			help="Suppresses failures to make finding passes easier")
-		argparser.add_argument("-x", "--xerox", dest="xerox", action="store_true",
-			required=False, help="Test Xerox fst's instead (default is HFST transducers)")
-		argparser.add_argument("-t", "--test", dest="test", 
-			nargs=1, required=False, help="Which test to run (Default: all)")
-		argparser.add_argument("test_file", nargs=1, help="YAML/JSON file with test rules")
+		argparser.add_argument("-x", "--xerox",
+			dest="xerox", action="store_true",
+			required=False, help="Use the Xerox `lookup` tool (default is `hfst_lookup`)")
+		argparser.add_argument("-t", "--test",
+			dest="test", nargs=1, required=False,
+			help="Which test to run (Default: all). TEST = test ID, e.g. 'Noun - gåetie'")
+		argparser.add_argument("test_file", nargs=1,
+			help="YAML/JSON file with test rules")
 		self.args = argparser.parse_args()
 		
 
