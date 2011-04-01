@@ -87,7 +87,7 @@ class HfstTester:
 		self.count = []
 
 		argparser = argparse.ArgumentParser(
-			description="Test FST dictionaries for consistency.",
+			description="Test HFST dictionaries for consistency. hfst-lookup (or lookup in the Xerox case) must be available on the PATH.",
 			epilog="Will run all tests from file by default."
 			)
 		argparser.add_argument("-c", "--colour", dest="colour", action="store_true",
@@ -100,10 +100,10 @@ class HfstTester:
 			help="Suppresses passes to make finding failures easier")
 		argparser.add_argument("-p", "--no-fail", dest="hide_fail", action="store_true",
 			help="Suppresses failures to make finding passes easier")
+		argparser.add_argument("-x", "--xerox", dest="xerox", action="store_true",
+			required=False, help="Test Xerox fst's instead (default is HFST transducers)")
 		argparser.add_argument("-t", "--test", dest="test", 
 			nargs=1, required=False, help="Which test to run (Default: all)")
-		argparser.add_argument("-x", "--xerox", dest="xerox", action="store_true",
-			required=False, help="Test Xerox fst")
 		argparser.add_argument("test_file", nargs=1, help="YAML/JSON file with test rules")
 		self.args = argparser.parse_args()
 		
