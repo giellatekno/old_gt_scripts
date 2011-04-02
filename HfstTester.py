@@ -236,7 +236,7 @@ class HfstTester:
 			args = ""
 			for sform in sforms:
 				args += sform + '\n'
-			app.stdin.write(args)
+			app.stdin.write(args.encode('utf-8'))
 			res = app.communicate()[0].split('\n\n')
 
 			for num, sform in enumerate(sforms):
@@ -281,7 +281,7 @@ class HfstTester:
 		args = ""
 		for k in self.tests[input].keys():
 			args += k + '\n'
-		app.stdin.write(args)
+		app.stdin.write(args.encode('utf-8'))
 		res = app.communicate()[0].split('\n\n')
 
 		for num, l in enumerate(self.tests[input].keys()):
