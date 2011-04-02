@@ -283,7 +283,7 @@ sub character_encoding {
 sub call_decode_para {
     my ( $self, $twig, $para, $coding) = @_;
 
-	print "(call_decode_para) encoding $coding\n";
+# 	print "(call_decode_para) encoding $coding\n";
 	my $language = $self->getPreconverter()->getDoclang();
 	my $text = $para->text;
 
