@@ -22,7 +22,7 @@ if sys.hexversion < 0x02070000:
 
 from subprocess import *
 from collections import OrderedDict
-import os, argparse, json, yaml
+import os, argparse, json, yaml, traceback
 
 def s2l(thing):
 	if type(thing) in (str, unicode):
@@ -60,7 +60,7 @@ def colourise(string, opt=None):
 		return "\033[m%s" % s
 
 	if not opt:
-		x = string.replace('+', '+')
+		x = string
 		x = x.replace("=>", blue("=>"))
 		x = x.replace("<=", blue("<="))
 		x = x.replace(":", blue(":"))
@@ -126,7 +126,8 @@ class HfstTester:
 		self.count = []
 
 		argparser = argparse.ArgumentParser(
-			description="Test morphological transducers for consistency. `hfst-lookup` (or Xerox' `lookup` with argument -x) must be available on the PATH.",
+			description="""Test morphological transducers for consistency. 
+			`hfst-lookup` (or Xerox' `lookup` with argument -x) must be available on the PATH.""",
 			epilog="Will run all tests in the test_file by default."
 			)
 		argparser.add_argument("-c", "--colour",
@@ -166,6 +167,7 @@ class HfstTester:
 			try:
 				f = json.load(open(self.args.test_file[0]))
 			except Exception, e:
+				traceback.print_exc()
 				print "File not valid YAML or JSON. Bailing out."
 				print "Check your YAML for spurious hidden tabs."
 				sys.exit(255)
@@ -238,24 +240,24 @@ class HfstTester:
 				args += sform + '\n'
 			app.stdin.write(args.encode('utf-8'))
 			res = app.communicate()[0].split('\n\n')
+			#for i in res: print i, 
 
 			for num, sform in enumerate(sforms):
 				lexes = self.parse_fst_output(res[num].decode('utf-8'))
 				#print lexes
-				#print "\nl", l, "sform", sform, "res", res
-				if self.args.ignore_extra_analyses and l in lexes:
-					print self.c("[PASS] %s => %s" % (sform, l)).encode('utf-8')
-					self.count[c][0] += 1
-				else:
-					for lex in lexes:
-						if lex in lexors:
-							if not self.args.hide_pass and not self.args.compact:
-								print self.c("[PASS] %s => %s" % (sform, lex)).encode('utf-8')
-							self.count[c][0] += 1
-						else:
-							if not self.args.hide_fail and not self.args.compact:
-								print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
-							self.count[c][1] += 1
+				#print "\nl", l, "sform", sform, "res", res[num]
+				passed = False
+				for lex in lexes:
+					if lex in lexors:
+						if not self.args.hide_pass and not self.args.compact:
+							print self.c("[PASS] %s => %s" % (sform, lex)).encode('utf-8')
+						passed = True
+						self.count[c][0] += 1
+					elif self.args.ignore_extra_analyses and passed: continue
+					else:
+						if not self.args.hide_fail and not self.args.compact:
+							print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
+						self.count[c][1] += 1
 		
 		if not self.args.compact:
 			print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
@@ -283,7 +285,7 @@ class HfstTester:
 			args += k + '\n'
 		app.stdin.write(args.encode('utf-8'))
 		res = app.communicate()[0].split('\n\n')
-
+		#for i in res: print i, 
 		for num, l in enumerate(self.tests[input].keys()):
 			sforms = s2l(self.tests[input][l])
 			lexes = self.parse_fst_output(res[num].decode('utf-8'))
@@ -315,9 +317,9 @@ class HfstTester:
 				if i.strip() != '':
 					lexes = i.split('\t')
 					#print "lexes", lexes
-					if len(lexes) > 2 and lexes[2][0] == '+':
-						lex = lexes[1].strip() + lexes[2].strip()
-					elif len(lexes) == 2:
+					#if len(lexes) > 2:
+					#	lex = lexes[1].strip()# + lexes[2].strip()
+					if len(lexes) >= 2:
 						lex = lexes[1].strip()
 					else: continue
 					return_lex.append(lex)
