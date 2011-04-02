@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# HfstTester.py 1.1 - Copyright (c) 2010-2011 
+# HfstTester.py 1.2 - Copyright (c) 2011 
 # Brendan Molloy <brendan@bbqsrc.net>
 # Børre Gaup <boerre@skolelinux.no>
 # Licensed under Creative Commons Zero (CC0)
@@ -96,7 +96,10 @@ class HfstTester:
 		argparser.add_argument("-c", "--colour",
 			dest="colour", action="store_true",
 			help="Colours the output")
-		argparser.add_argument("-i", "--ignore_extra_analyses",
+		argparser.add_argument("-C", "--compact",
+			dest="compact", action="store_true",
+			help="Makes output more compact")
+		argparser.add_argument("-i", "--ignore-extra-analyses",
 			dest="ignore_extra_analyses", action="store_true",
 			help="Ignore extra analyses when there are more than one, will FAIL only if all are wrong.")
 		argparser.add_argument("-s", "--surface",
@@ -119,8 +122,7 @@ class HfstTester:
 			help="Which test to run (Default: all). TEST = test ID, e.g. 'Noun - gåetie'")
 		argparser.add_argument("test_file", nargs=1,
 			help="YAML/JSON file with test rules")
-		self.args = argparser.parse_args()
-		
+		self.args = argparser.parse_args()	
 
 		try:
 			f = yaml.load(open(self.args.test_file[0]))
@@ -130,8 +132,8 @@ class HfstTester:
 			except Exception, e:
 				print "File not valid YAML or JSON. Bailing out."
 				print "Check your YAML for spurious hidden tabs."
-				sys.exit(1)
-
+				sys.exit(255)
+		
 		if self.args.xerox:
 			print "Testing Xerox FST dictionaries"
 			configkey = "xerox"
@@ -140,24 +142,23 @@ class HfstTester:
 			print "Testing Helsinki FST dictionaries"
 			configkey = "hfst"
 			self.program = "hfst-lookup"
-			
+
 		if not whereis(self.program):
 			print "Cannot find %s. Check $PATH." % self.program
-			sys.exit(1)
+			sys.exit(255)
 
 		self.gen = f["Config"][configkey]["Gen"]
 		self.morph = f["Config"][configkey]["Morph"]
 		for i in (self.gen, self.morph):
 			if not os.path.isfile(i):
 				print "File %s does not exist." % i
-				sys.exit(2)
+				sys.exit(255)	
 		self.tests = f["Tests"]
-		
+
 		if self.args.test:
 			# Assume that the command line input is utf-8, convert it to unicode
 			self.args.test[0] = self.args.test[0].decode('utf-8')
 		self.run_tests(self.args.test)
-		print "Total fails", self.fails
 	
 	def c(self, s, o=None):
 		if self.args.colour:
@@ -180,11 +181,12 @@ class HfstTester:
 	def run_surface_test(self, input):
 		c = len(self.count)
 		self.count.append([0, 0])
-
+		
 		title = "Test %d: %s (Surface/Analysis)" % (c, input)
-		print self.c("-"*len(title), 1).encode('utf-8')
-		print self.c(title, 1).encode('utf-8')
-		print self.c("-"*len(title), 1).encode('utf-8')
+		if not self.args.compact:
+			print self.c("-"*len(title), 1).encode('utf-8')
+			print self.c(title, 1).encode('utf-8')
+			print self.c("-"*len(title), 1).encode('utf-8')
 
 		for l in self.tests[input].keys():
 			sforms = s2l(self.tests[input][l])
@@ -194,13 +196,15 @@ class HfstTester:
 					if s in s2l(self.tests[input][i]):
 						lexors.append(i)
 
+			app = Popen([self.program, self.morph], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+			args = ""
 			for sform in sforms:
-				#print 
-				p1 = Popen(['echo', sform], stdout=PIPE)
-				p2 = Popen([self.program, self.morph], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
-				p1.stdout.close()
-				(res, err) = p2.communicate()
-				lexes = self.parse_fst_output(res.decode('utf-8'))
+				args += sform + '\n'
+			app.stdin.write(args)
+			res = app.communicate()[0].split('\n\n')
+
+			for num, sform in enumerate(sforms):
+				lexes = self.parse_fst_output(res[num].decode('utf-8'))
 				#print lexes
 				#print "\nl", l, "sform", sform, "res", res
 				if self.args.ignore_extra_analyses and l in lexes:
@@ -209,61 +213,81 @@ class HfstTester:
 				else:
 					for lex in lexes:
 						if lex in lexors:
-							if not self.args.hide_pass:
+							if not self.args.hide_pass and not self.args.compact:
 								print self.c("[PASS] %s => %s" % (sform, lex)).encode('utf-8')
 							self.count[c][0] += 1
 						else:
-							if not self.args.hide_fail:
+							if not self.args.hide_fail and not self.args.compact:
 								print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
 							self.count[c][1] += 1
-		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
-			self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
 		
-		self.fails = self.fails + self.count[c][1]
+		if not self.args.compact:
+			print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
+				self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
+		else:
+			if self.count[c][1] > 0:
+				print "FAIL - %s" % title
+			else:
+				print "PASS - %s" % title
+		
+		self.fails += self.count[c][1]
 
 	def run_lexical_test(self, input):
 		c = len(self.count)
 		self.count.append([0, 0])
-
 		title = "Test %d: %s (Lexical/Generation)" % (c, input)
-		print self.c("-"*len(title), 1).encode('utf-8')
-		print self.c(title, 1).encode('utf-8')
-		print self.c("-"*len(title), 1).encode('utf-8')
+		if not self.args.compact:	
+			print self.c("-"*len(title), 1).encode('utf-8')
+			print self.c(title, 1).encode('utf-8')
+			print self.c("-"*len(title), 1).encode('utf-8')
+		
+		app = Popen([self.program, self.gen], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		args = ""
+		for k in self.tests[input].keys():
+			args += k + '\n'
+		app.stdin.write(args)
+		res = app.communicate()[0].split('\n\n')
 
-		for l in self.tests[input].keys():
+		for num, l in enumerate(self.tests[input].keys()):
 			sforms = s2l(self.tests[input][l])
-			p1 = Popen(['echo', l], stdout=PIPE)
-			p2 = Popen([self.program, self.gen], stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
-			p1.stdout.close()
-			(res, err) = p2.communicate()
-			lexes = self.parse_fst_output(res.decode('utf-8'))
+			lexes = self.parse_fst_output(res[num].decode('utf-8'))
 			for r in lexes:
 				if (r in sforms):
-					if not self.args.hide_pass:
+					if not self.args.hide_pass and not self.args.compact:
 						print self.c("[PASS] %s => %s" % (l, r) ).encode('utf-8')
 					self.count[c][0] += 1
 				else:
-					if not self.args.hide_fail:
+					if not self.args.hide_fail and not self.args.compact:
 						print self.c("[FAIL] %s => Expected: %s, Got: %s" % (l, l2s(sforms), r)).encode('utf-8')
 					self.count[c][1] += 1
-		print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0], 
-			self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
-		self.fails = self.fails + self.count[c][1]
+		
+		if not self.args.compact:
+			print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0], 
+				self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
+		else:
+			if self.count[c][1] > 0:
+				print "FAIL - %s" % title
+			else:
+				print "PASS - %s" % title
+		self.fails += self.count[c][1]
 
-	def parse_fst_output(self, result):
+	def parse_fst_output(self, res):
 		"Receive a unicode string"
 		return_lex = []
-		if type(result) == unicode:
-			for i in result.split('\n'):
+		if type(res) == unicode:
+			for i in res.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
 				if i.strip() != '':
 					lexes = i.split('\t')
 					#print "lexes", lexes
 					if len(lexes) > 2 and lexes[2][0] == '+':
 						lex = lexes[1].strip() + lexes[2].strip()
-					else:
+					elif len(lexes) == 2:
 						lex = lexes[1].strip()
+					else: continue
 					return_lex.append(lex)
 		return return_lex
 
-hfst = HfstTester()
-sys.exit(hfst.fails)
+if __name__ == "__main__":
+	hfst = HfstTester()
+	print "Total fails:", hfst.fails
+	sys.exit(hfst.fails)
