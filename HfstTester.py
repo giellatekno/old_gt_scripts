@@ -317,11 +317,13 @@ class HfstTester:
 				if i.strip() != '':
 					lexes = i.split('\t')
 					#print "lexes", lexes
-					#if len(lexes) > 2:
-					#	lex = lexes[1].strip()# + lexes[2].strip()
-					if len(lexes) >= 2:
+					
+					# This test is needed because xfst's lookup sometimes output strings like
+					# bearkoe\tbearkoe\t+N+Sg+Nom, instead of the expected bearkoe\tbearkoe+N+Sg+Nom
+					if len(lexes) > 2 and lexes[2][0] == '+':
+						lex = lexes[1].strip() + lexes[2].strip()
+					else:
 						lex = lexes[1].strip()
-					else: continue
 					return_lex.append(lex)
 		return return_lex
 
