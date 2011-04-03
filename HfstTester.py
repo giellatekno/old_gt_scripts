@@ -266,8 +266,8 @@ class HfstTester:
 
 			for num, sform in enumerate(sforms):
 				lexes = self.parse_fst_output(res[num].decode('utf-8'))
-				#print lexes
-				#print "\nl", l, "sform", sform, "res", res[num]
+				#print "\nLexes: ", lexes
+				#print "\nl: ", l, "sform", sform, "res", res[num]
 				passed = False
 				for lex in lexes:
 					if lex in lexors:
@@ -275,7 +275,9 @@ class HfstTester:
 							print self.c("[PASS] %s => %s" % (sform, lex)).encode('utf-8')
 						passed = True
 						self.count[c][0] += 1
-					elif self.args.ignore_extra_analyses and passed: continue
+					elif self.args.ignore_extra_analyses and passed:
+					   #print "\n\nHere I was ignoring extra analyses!!!"
+					   continue
 					else:
 						if not self.args.hide_fail and not self.args.compact:
 							print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
