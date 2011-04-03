@@ -275,9 +275,9 @@ class HfstTester:
 				self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
 		else:
 			if self.count[c][1] > 0:
-				print "FAIL - %s" % title
+				print self.c("[FAIL] - %s" % title)
 			else:
-				print "PASS - %s" % title
+				print self.c("[PASS] - %s" % title)
 		
 		self.fails += self.count[c][1]
 
@@ -315,9 +315,9 @@ class HfstTester:
 				self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
 		else:
 			if self.count[c][1] > 0:
-				print "FAIL - %s" % title
+				print self.c("[FAIL] - %s" % title)
 			else:
-				print "PASS - %s" % title
+				print self.c("[PASS] - %s" % title)
 		self.fails += self.count[c][1]
 
 	def parse_fst_output(self, res):
