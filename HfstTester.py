@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # HfstTester.py 1.4 - Copyright (c) 2011 
@@ -20,7 +20,7 @@ try:
 	import argparse
 except:
 	print "Looks like you're on an older Python version."
-	print "Please easy_install argparse."
+	print "Please do `sudo easy_install argparse`."
 	sys.exit(255)
 
 try:
@@ -30,10 +30,17 @@ except:
 		from ordereddict import OrderedDict
 	except:
 		print "Looks like you're on an older Python version."
-		print "Please easy_install ordereddict."
+		print "Please do `sudo easy_install ordereddict`."
 		
+try:
+	import yaml
+except:
+	print "Looks like you're missing the YAML parser."
+	print "Please do `sudo easy_install pyyaml`."
+	sys.exit(255)
+
 from subprocess import *
-import os, json, yaml, traceback
+import os, json, traceback
 
 def s2l(thing):
 	if type(thing) in (str, unicode):
@@ -138,7 +145,8 @@ class HfstTester:
 
 		argparser = argparse.ArgumentParser(
 			description="""Test morphological transducers for consistency. 
-			`hfst-lookup` (or Xerox' `lookup` with argument -x) must be available on the PATH.""",
+			`hfst-lookup` (or Xerox' `lookup` with argument -x) must be
+			available on the PATH.""",
 			epilog="Will run all tests in the test_file by default."
 			)
 		argparser.add_argument("-c", "--colour",
@@ -149,7 +157,8 @@ class HfstTester:
 			help="Makes output more compact")
 		argparser.add_argument("-i", "--ignore-extra-analyses",
 			dest="ignore_extra_analyses", action="store_true",
-			help="Ignore extra analyses when there are more than one, will FAIL only if all are wrong.")
+			help="""Ignore extra analyses when there are more than expected,
+			will PASS if the expected one is found.""")
 		argparser.add_argument("-s", "--surface",
 			dest="surface", action="store_true",
 			help="Surface input/analysis tests only")
@@ -164,10 +173,12 @@ class HfstTester:
 			help="Suppresses failures to make finding passes easier")
 		argparser.add_argument("-x", "--xerox",
 			dest="xerox", action="store_true",
-			required=False, help="Use the Xerox `lookup` tool (default is `hfst_lookup`)")
+			required=False, help="""Use the Xerox `lookup` tool (default is
+			`hfst_lookup`)""")
 		argparser.add_argument("-t", "--test",
 			dest="test", nargs=1, required=False,
-			help="Which test to run (Default: all). TEST = test ID, e.g. 'Noun - gåetie'")
+			help="""Which test to run (Default: all). TEST = test ID, e.g.
+			'Noun - gåetie' (remember quotes if the ID contains spaces)""")
 		argparser.add_argument("test_file", nargs=1,
 			help="YAML/JSON file with test rules")
 		self.args = argparser.parse_args()	
