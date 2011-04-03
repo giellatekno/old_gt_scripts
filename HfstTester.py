@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-# HfstTester.py 1.2 - Copyright (c) 2011 
+# HfstTester.py 1.4 - Copyright (c) 2011 
 # Brendan Molloy <brendan@bbqsrc.net>
 # Børre Gaup <boerre@skolelinux.no>
 # Licensed under Creative Commons Zero (CC0)
@@ -16,13 +16,24 @@
 # - make WHY it failed much more clear.
 
 import sys
-if sys.hexversion < 0x02070000:
-	print "You must use Python 2.7 or greater."
+try:
+	import argparse
+except:
+	print "Looks like you're on an older Python version."
+	print "Please easy_install argparse."
 	sys.exit(255)
 
+try:
+	from collections import OrderedDict
+except:
+	try:
+		from ordereddict import OrderedDict
+	except:
+		print "Looks like you're on an older Python version."
+		print "Please easy_install ordereddict."
+		
 from subprocess import *
-from collections import OrderedDict
-import os, argparse, json, yaml, traceback
+import os, json, yaml, traceback
 
 def s2l(thing):
 	if type(thing) in (str, unicode):
@@ -316,10 +327,11 @@ class HfstTester:
 			for i in res.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
 				if i.strip() != '':
 					lexes = i.split('\t')
-					#print "lexes", lexes
 					
-					# This test is needed because xfst's lookup sometimes output strings like
-					# bearkoe\tbearkoe\t+N+Sg+Nom, instead of the expected bearkoe\tbearkoe+N+Sg+Nom
+					# This test is needed because xfst's lookup
+					# sometimes output strings like
+					# bearkoe\tbearkoe\t+N+Sg+Nom, instead of the expected
+					# bearkoe\tbearkoe+N+Sg+Nom
 					if len(lexes) > 2 and lexes[2][0] == '+':
 						lex = lexes[1].strip() + lexes[2].strip()
 					else:
