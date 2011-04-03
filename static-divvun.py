@@ -18,10 +18,15 @@ from lxml import etree
 
 def revert_files(vcs, files):
 	if vcs == "svn":
-		subp = subprocess.call(["svn", "revert"] + files)
+		subp = subprocess.Popen(["svn", "revert"] + files, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		(output, error) = subp.communicate()
+		if subp.returncode != 0:
+			print >>sys.stderr, "Could not revert files"
+			self.logfile.writelines(output)
+			self.logfile.writelines(error)
 	if vcs == "git":
 		subp = subprocess.call(["git", "checkout"] + files)
-		
+
 class Translate_XML:
 	"""Load site.xml and tabs.xml and their translation files.
 	Translate the tags 
@@ -71,7 +76,7 @@ class Translate_XML:
 	def translate(self):
 		"""Translate site.xml and tabs.xml to self.lang
 		"""
-		print self.translate.__name__, self.lang
+		print 'Translating', self.lang, '...'
 		for el in self.site.getroot().iter():
 			try:
 				el.attrib["label"]
@@ -133,7 +138,6 @@ class StaticSiteBuilder:
 			lang_specific_file: keeps trace of which files are localized
 		"""
 		print "Setting up..."
-		print builddir
 		self.builddir = builddir
 		self.destination = destination
 		self.vcs = vcs
@@ -141,8 +145,13 @@ class StaticSiteBuilder:
 
 		os.chdir(self.builddir)
 		revert_files(self.vcs, ["forrest.properties", "src/documentation/resources/schema/symbols-project-v10.ent"])
-		subprocess.call(["forrest", "clean"])
-		
+		subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		(output, error) = subp.communicate()
+		if subp.returncode != 0:
+				print >>sys.stderr, "forrest clean failed"
+				self.logfile.writelines(output)
+				self.logfile.writelines(error)
+
 		self.set_font_path()
 
 		if os.path.isdir(os.path.join(self.builddir, "built")):
@@ -152,8 +161,6 @@ class StaticSiteBuilder:
 		self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
 		os.environ['LC_ALL'] = "C"
 		self.lang_specific_files = []
-		
-		print "Done with setup"
 
 	def __del__(self):
 		"""Move the backup to the original file_type
@@ -175,15 +182,11 @@ class StaticSiteBuilder:
 		subp = subprocess.Popen(["forrest", "validate"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(output, error) = subp.communicate()
 
-		if subp.returncode == 1:
-	
+		if subp.returncode != 1:
 			if "Could not validate document" in error:
-	
 				print >>sys.stderr, "\n\nCould not validate doc\n\n"
 				self.logfile.writelines(output)
 				self.logfile.writelines(error)
-				#print >>sys.stderr, output
-				#print >>sys.stderr, error
 	
 				raise SystemExit(subp.returncode)
 	
@@ -196,7 +199,12 @@ class StaticSiteBuilder:
 		If we aren't able to rename the built site, exit program
 		"""
 		os.chdir(self.builddir)
-		subprocess.call(["forrest", "clean"])
+		subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		(output, error) = subp.communicate()
+		if subp.returncode != 0:
+				print >>sys.stderr, "forrest clean failed"
+				self.logfile.writelines(output)
+				self.logfile.writelines(error)
 
 		trans = Translate_XML( self.builddir, lang, self.vcs)
 		trans.parse_translations()
