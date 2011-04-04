@@ -42,8 +42,8 @@ except:
 try:
 	import json
 except:
-	print "Looks like you're missing the JSON parser."
-	print "Please do `sudo easy_install json`."
+	print "Looks like you're on an older Python version and missing the JSON parser."
+	print "Please do `sudo easy_install simplejson`."
 	sys.exit(255)
 
 from subprocess import *
