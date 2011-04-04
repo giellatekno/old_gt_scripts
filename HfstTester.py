@@ -148,6 +148,9 @@ class OrderedDictYAMLLoader(yaml.Loader):
 class HfstTester:
 	def __init__(self):
 		self.fails = 0
+		self.passes = 0
+		self.ignores = 0
+
 		self.count = []
 
 		argparser = argparse.ArgumentParser(
@@ -273,9 +276,9 @@ class HfstTester:
 
 			for num, sform in enumerate(sforms):
 				lexes = self.parse_fst_output(res[num].decode('utf-8'))
-				#print "\nLexes: ", lexes
+				#print "Lexes: ", lexes
 				#print "\nl: ", l, "sform", sform, "res", res[num]
-				#print "\nLexors: ", lexors
+				#print "Lexors: ", lexors
 				
 				passed = False
 				for lexor in lexors: # for each "facit" analysis
@@ -293,6 +296,8 @@ class HfstTester:
 						if not self.args.hide_fail and not self.args.compact:
 							print self.c("[FAIL] %s => Expected: %s, Got: %s" % (sform, l, lex)).encode('utf-8')
 						self.count[c][1] += 1
+				else:
+					self.ignores += len(lexes)
 		
 		if not self.args.compact:
 			print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0],
@@ -303,6 +308,7 @@ class HfstTester:
 			else:
 				print self.c("[PASS] - %s" % title)
 		
+		self.passes += self.count[c][0]
 		self.fails += self.count[c][1]
 
 	def run_lexical_test(self, input):
@@ -342,6 +348,8 @@ class HfstTester:
 				print self.c("[FAIL] - %s" % title)
 			else:
 				print self.c("[PASS] - %s" % title)
+		
+		self.passes += self.count[c][0]
 		self.fails += self.count[c][1]
 
 	def parse_fst_output(self, res):
@@ -365,5 +373,8 @@ class HfstTester:
 
 if __name__ == "__main__":
 	hfst = HfstTester()
-	print "Total fails:", hfst.fails
+	print "Total passes:", hfst.passes, 'of', hfst.fails + hfst.passes + hfst.ignores
+	print "Total fails:", hfst.fails, 'of', hfst.fails + hfst.passes + hfst.ignores
+	if hfst.args.ignore_extra_analyses:
+		print "Total ignores:", hfst.ignores, 'of', hfst.fails + hfst.passes + hfst.ignores
 	sys.exit(hfst.fails)
