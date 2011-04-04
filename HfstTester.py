@@ -39,8 +39,15 @@ except:
 	print "Please do `sudo easy_install pyyaml`."
 	sys.exit(255)
 
+try:
+	import json
+except:
+	print "Looks like you're missing the JSON parser."
+	print "Please do `sudo easy_install json`."
+	sys.exit(255)
+
 from subprocess import *
-import os, json, traceback
+import os, traceback
 
 def s2l(thing):
 	if type(thing) in (str, unicode):
