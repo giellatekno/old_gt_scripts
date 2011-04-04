@@ -275,15 +275,16 @@ class HfstTester:
 				lexes = self.parse_fst_output(res[num].decode('utf-8'))
 				#print "\nLexes: ", lexes
 				#print "\nl: ", l, "sform", sform, "res", res[num]
+				#print "\nLexors: ", lexors
 				passed = False
-				for lex in lexes:
-					if lex in lexors:
+				for lex in lexes: # for each analysis in the output:
+					if lex in lexors: # checks whether the analysis in question is ok - but if the first analysis returned is not expected, it will FAIL here even though the next analysis is ok - thus the -i flag doesn't work.
 						if not self.args.hide_pass and not self.args.compact:
 							print self.c("[PASS] %s => %s" % (sform, lex)).encode('utf-8')
 						passed = True
 						self.count[c][0] += 1
 					elif self.args.ignore_extra_analyses and passed:
-					   #print "\n\nHere I was ignoring extra analyses!!!"
+					   #print "\nHere I was ignoring extra analyses!!!" # This is the key point
 					   continue
 					else:
 						if not self.args.hide_fail and not self.args.compact:
