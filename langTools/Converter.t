@@ -122,7 +122,7 @@ sub each_file_checks {
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
-	is($converter->add_error_markup(), '0', "Add error markup");
+	is($converter->error_markup(), '0', "Add error markup");
 	is($converter->search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is correctly encoded");
 	is($converter->text_categorization(), '0', "Check if text categorization goes well");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");

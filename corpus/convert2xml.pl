@@ -30,7 +30,7 @@ my %error_hash = (
 	"faulty_chars" => 0,
 	"checkxml_after_faulty" => 0,
 	"text_categorization" => 0,
-	"add_error_markup" => 0);
+	"error_markup" => 0);
 
 main(\@ARGV, $debug);
 
@@ -95,10 +95,10 @@ sub convertdoc {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"character_encoding"}++;
-			} elsif ($converter->add_error_markup()) {
+			} elsif ($converter->error_markup()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 				$error = 1;
-				$error_hash{"add_error_markup"}++;
+				$error_hash{"error_markup"}++;
 			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
 				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
