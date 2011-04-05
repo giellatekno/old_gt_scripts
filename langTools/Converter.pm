@@ -293,12 +293,16 @@ sub call_decode_para {
 	return $error;
 }
 
-sub add_error_markup {
+sub error_markup {
 	my ($self) = @_;
 
 	my $error = 0;
 	my $int = $self->getInt();
-	my $document = XML::Twig->new(twig_handlers => { p => sub { call_decode_para($self, @_); } });
+	my $document = XML::Twig->new(
+		twig_handlers => {
+			'p' => sub { langTools::Corpus::add_error_markup(@_); }
+		}
+	);
 	if (! $document->safe_parsefile ("$int") ) {
 		carp "ERROR parsing the XML-file failed. STOP\n";
 		return 1;
