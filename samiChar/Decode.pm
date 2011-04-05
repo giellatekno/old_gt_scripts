@@ -421,7 +421,7 @@ sub guess_encoding () {
 				}
 			}
 		}
-		if ($count >= $last_count) {
+		if ($count > 0 && $count >= $last_count) {
 			$encoding = $type;
 			$last_count = $count;
 		}
