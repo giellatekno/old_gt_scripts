@@ -40,16 +40,6 @@ is($encoding, "type07", "check for type07");
 &decode_para($language, \$text, $encoding);
 is($text, "Lasáhus čáhce- ja kloahkkadivatnjuolggadusaide", "Testing decoding");
 
-$text = "geassemánu 12. 1987 nr. 56 Sámedikki ja eará sámi
-                vuoigatvuoðaid birra1(oðða organiseren bargui sámi
-                gielaid ovddas)";
-$encoding = &guess_encoding(undef, $language, \$text);
-is($encoding,  "type09", "check for type09");
-&decode_para($language, \$text, $encoding);
-is($text, "geassemánu 12. 1987 nr. 56 Sámedikki ja eará sámi
-                vuoigatvuođaid birra1(ođđa organiseren bargui sámi
-                gielaid ovddas)", "Testing decoding");
-
 system("iconv -f latin1 -t utf8 $ENV{'GTFREE'}/orig/sme/laws/other_files/jus.txt > jus.txt");
 is($encoding = &guess_encoding("jus.txt", $language), "type04", "Check for type04");
 
