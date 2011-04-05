@@ -147,8 +147,7 @@ sub check_decode_para {
 	if ( $document->safe_parsefile("$tmp")) {
 		my $root = $document->root;
 		my $sub = $root->{'last_child'}->{'first_child'};
-		&read_char_tables;
-		$error = $converter->call_decode_para($document, $sub, "samimac_roman");
+		$error = $converter->call_decode_para($document, $sub, "type06");
 	} else {
 		die "ERROR parsing the XML-file «$tmp» failed ";
 	}
