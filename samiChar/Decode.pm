@@ -353,11 +353,6 @@ our %Error_Types = (
 		"¥" => "•",
 	},
 
-	"type09" => {
-		"á" => "á",
-		"ð" => "đ",
-	},
-	
 );
 
 our $UNCONVERTED = 0;
