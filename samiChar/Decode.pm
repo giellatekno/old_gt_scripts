@@ -12,7 +12,6 @@ use utf8;
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 
-$VERSION = sprintf "%d", q$Revision$ =~ m/(\d+)/g;
 @ISA         = qw(Exporter);
 
 @EXPORT = qw(&guess_encoding &decode_para);
@@ -202,12 +201,18 @@ sub guess_encoding () {
 
 	my @text_array;
 	my $error=0;
-    # Read the corpus file
-	if ($file) { $error = &read_file($file, \@text_array); } 
-	if ($error ) { carp "non-utf8 bytes.\n"; return $ERROR; }
-	elsif (! @text_array) { @text_array = split("\n", $$para_ref); }
-    
 	my $encoding = $NO_ENCODING;
+	# Read the corpus file
+	if ($file) { 
+		$error = &read_file($file, \@text_array); 
+	} 
+	if ($error) { 
+		carp "non-utf8 bytes.\n";
+		return $ERROR; 
+	} elsif (! @text_array) { 
+		@text_array = split("\n", $$para_ref); 
+	}
+    
 	my $last_count = 0;
 	for my $type (sort( keys %Error_Types )) {
 		my $count = 0;
