@@ -11,9 +11,8 @@ use XML::Twig;
 use Carp qw(cluck carp);
 
 use Exporter;
-our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
+our (@ISA, @EXPORT, @EXPORT_OK);
 
-$VERSION = sprintf "%d", q$Revision$ =~ m/(\d+)/g;
 @ISA         = qw(Exporter);
 
 @EXPORT = qw(&add_error_markup &pdfclean &txtclean);
@@ -29,34 +28,39 @@ our %types = ("\$" => "errorort",
 			   "§" => "error");
 
 our $sep = quotemeta("€§£\$¥");
-our $sep_c = "\§|\$|€|\£|\¥";
 our $str = "[^$sep\\s\\(\\)]+?";
 our $str_par = "\\([^$sep\\(\\)]+?\\)";
 our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
+our $dummy1 = "($str|$str_par)( [$sep]|[$sep] | [$sep] )($str|$str_par)";
+our $dummy2 = "( [$sep]|[$sep] | [$sep] )($str|$str_par)";
 
 my $test = $main::test;
 
 # Change the manual error markup §,$,€,¥,£ to xml-structure.
-
 sub add_error_markup {
 	my ($twig, $para) = @_;
 
 	my @new_content;
 	for my $c ($para->children) {
 		my $text = $c->text;
-		my $new_text;
-		my $nomatch = 0;
         # separator: either §, $, €, ¥ or £
 		while ($text && $text =~ /[$sep]/) {
-
 			# No nested errors, no parentheses
-			if ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
+			if ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy1)(?:\))?(?=$|\n|\s|\p{P})//) {
+				if($1) {
+					push @new_content, $1;
+					push @new_content, $2;
+				}
+			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy2)(?:\))?(?=$|\n|\s|\p{P})//) {
+				if($1) {
+					push @new_content, $1;
+					push @new_content, $2;
+				}
+			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
 				if($1) { push @new_content, $1; }
 				if ($test) { print STDERR "Plain error: $2\n"; } # Debug print-out
 				get_error($2, \@new_content);
-			}
-
-			elsif ($text =~ s/^([^$sep\(\)]*\s)?(?:\()($plainerr)(?=[$sep])//) {
+			} elsif ($text =~ s/^([^$sep\(\)]*\s)?(?:\()($plainerr)(?=[$sep])//) {
 				if ($1) { push @new_content, $1; }
 				my $tmp = $2;
 				(my $error = $tmp) =~ s/[\(\)]//g;
@@ -69,8 +73,7 @@ sub add_error_markup {
 					if ($test) { print STDERR "Another complex error: $error\n"; } # Debug
 					get_error($error, \@new_content, $last_err);
 				}
-			}
-			else {
+			} else {
 				print "\n***\n*** WARNING - NO MATCH: $text\n***\n\n";
 				push @new_content, $text;
 				$text ="";
