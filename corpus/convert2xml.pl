@@ -13,7 +13,7 @@ my $shallow = 0;
 my $debug = 0;
 GetOptions ("debug" => \$debug,
 			"shallow" => \$shallow);
-$samiChar::Decode::Test = $debug;
+$langTools::Decode::Test = $debug;
 	
 # global variables
 my $counter = 0;
