@@ -2,7 +2,7 @@ package langTools::PlaintextConverter;
 @ISA = ("langTools::Preconverter");
 use langTools::Preconverter;
 
-use samiChar::Decode;
+use langTools::Decode;
 use langTools::Corpus;
 
 sub convert2intermediate {

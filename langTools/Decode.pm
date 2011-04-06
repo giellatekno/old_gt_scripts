@@ -1,5 +1,5 @@
 
-package samiChar::Decode;
+package langTools::Decode;
 
 use Getopt::Long;
 use File::Basename;

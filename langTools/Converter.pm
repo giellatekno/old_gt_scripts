@@ -9,12 +9,13 @@ use langTools::PlaintextConverter;
 use langTools::PDFConverter;
 use langTools::SVGConverter;
 use langTools::CorrectXMLConverter;
+use langTools::Decode;
 
 use strict;
 use utf8;
+use warnings;
 use Carp qw(cluck carp);
 use XML::Twig;
-use samiChar::Decode;
 
 sub new {
 	my ($class, $filename, $test) = @_;
@@ -255,7 +256,7 @@ sub character_encoding {
 		print "(character_encoding) Encoding is: $encoding\n";
 	}
 	
-	if ($encoding ne $samiChar::Decode::NO_ENCODING) {
+	if ($encoding ne $langTools::Decode::NO_ENCODING) {
 		my $d=XML::Twig->new(
 			twig_handlers=>{
 				'p'=> sub{call_decode_para($self, @_, $encoding); },

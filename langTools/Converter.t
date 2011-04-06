@@ -17,7 +17,7 @@ require_ok('langTools::Converter');
 
 my $debug = 0;
 GetOptions ("debug" => \$debug);
-$samiChar::Decode::Test = $debug;
+$langTools::Decode::Test = $debug;
 
 my $numArgs = $#ARGV + 1;
 if ($#ARGV > -1) {
@@ -134,9 +134,6 @@ sub each_file_checks {
 	file_not_exists_ok( $converter->getMetadataXsl() );
 }
 
-
-use XML::Twig;
-use samiChar::Decode;
 
 sub check_decode_para {
 	my ($converter) = @_;

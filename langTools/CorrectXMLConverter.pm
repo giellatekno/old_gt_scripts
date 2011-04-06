@@ -2,7 +2,7 @@ package langTools::CorrectXMLConverter;
 @ISA = ("langTools::Preconverter");
 use langTools::Preconverter;
 
-use samiChar::Decode;
+use langTools::Decode;
 use langTools::Corpus;
 use File::Copy;
 

@@ -11,10 +11,10 @@ use Getopt::Long;
 #
 BEGIN {
 # 1
-use_ok('samiChar::Decode');
+use_ok('langTools::Decode');
 }
 # 2
-require_ok('samiChar::Decode');
+require_ok('langTools::Decode');
 
 my $debug = 1;
 $samiChar::Decode::Test = $debug;
