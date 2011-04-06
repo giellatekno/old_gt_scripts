@@ -212,29 +212,48 @@ sub guess_encoding () {
 	for my $type (sort( keys %Error_Types )) {
 		my $count = 0;
 
-		my $hi = 0;
+		my $hit = 0;
 		for my $line (@text_array) {
-			print "line is: $line";
-			print "hits are: ";
 			foreach( keys % {$Error_Types{$type}}) {
 				while ($line =~ /$_/g) {
-					print " $_ ";
-					if (($type eq "type02" && ! /§/) || ($type eq "type03" && ! /öäøæ/)) {
-						$hi = 1;
+					if ($type eq "type02" && "Ø§" !~ $_) {
+# 						print "type $type, hit $_\n";
+						$hit = 1;
 					}
+					if ($type eq "type03" && "öäøæ" !~ $_) {
+# 						print "type $type, hit $_\n";
+						$hit = 1;
+					}
+# 					if ($type eq "type03") {
+# 						print "type $type, hit $_\n";
+# 					}
+					if ($type eq "type04" && ! /¾/) {
+# 						print "type $type, hit $_\n";
+						$hit = 1;
+					}
+					if ($type eq "type06" && "½»" !~ $_) {
+# 						print "type $type, hit $_\n";
+						$hit = 1;
+					}
+
 					$count++;
 				}
 			}
-			print "\n";
 		}
+
 		if ($count > 0 && $count >= $last_count) {
-			if (($type ne "type02" and $type ne "type03") || $hi == 0) {
+			if (($type eq "type02" or $type eq "type03" or $type eq "type04" or $type eq "type06") and $hit) {
+# 				print "special case\n";
+				$encoding = $type;
+				$last_count = $count;
+			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08") and !$hit) {
+# 				print "not speciel case\n";
 				$encoding = $type;
 				$last_count = $count;
 			}
 		}
 		if ($Test) {
-			print "type is $type, encoding is $encoding, count is $count\n";
+			print "type is $type, encoding is $encoding, count is $count, hit is $hit\n";
 		}
 	}
 	return $encoding;
