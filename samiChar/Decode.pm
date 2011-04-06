@@ -20,7 +20,6 @@ $VERSION = sprintf "%d", q$Revision$ =~ m/(\d+)/g;
 our %Error_Types = (
 	# mac-sami converted as iconv -f mac -t utf8
 	"type01" => {
-		"á" => "á",
 		"ª" => "š",
 		"¥" => "Š",
 		"º" => "ŧ",
@@ -33,16 +32,6 @@ our %Error_Types = (
 		"∑" => "Ž",
 		"∏" => "č",
 		"¢" => "Č",
-		"æ" => "æ",
-		"Æ" => "Æ",
-		"ø" => "ø",
-		"Ø" => "Ø",
-		"å" => "å",
-		"Å" => "Å",
-		"ä" => "ä",
-		"Ä" => "Ä",
-		"ö" => "ö",
-		"Ö" => "Ö",
 	},
 	
 	# iso-ir-197 converted as iconv -f mac -t utf8
@@ -103,10 +92,8 @@ our %Error_Types = (
 
 	# winsami2 converted as iconv -f latin1 -t utf8
 	"type04" => {
-		"á" => "á",
-		"Á" => "Á", 
-		"" => "š",
-		"" => "Š",
+		"\xc2\x9a" => "š",
+		"\xc2\x8a" => "Š",
 		"¼" => "ŧ",
 		"º" => "Ŧ",
 		"¹" => "ŋ",
@@ -115,23 +102,12 @@ our %Error_Types = (
 		"" => "Đ",
 		"¿" => "ž",
 		"¾" => "Ž",
-		"" => "č",
-		"" => "Č",
-		"æ" => "æ",
-		"Æ" => "Æ",
-		"ø" => "ø",
-		"Ø" => "Ø",
-		"å" => "å",
-		"Å" => "Å",
-		"ä" => "ä",
-		"Ä" => "Ä",
-		"ö" => "ö",
-		"Ö" => "Ö",
+		"\xc3\xb6" => "č",
+		"\xc3\x96" => "Č",
 	},
 	
 	# iso-ir-197 converted as iconv -f latin1 -t utf8
 	"type05" => {
-		"á" => "á",
 		"³" => "š",
 		"²" => "Š",
 		"¸" => "ŧ",
@@ -144,16 +120,6 @@ our %Error_Types = (
 		"¹" => "Ž",
 		"¢" => "č",
 		"¡" => "Č",
-		"æ" => "æ",
-		"Æ" => "Æ",
-		"ø" => "ø",
-		"Ø" => "Ø",
-		"å" => "å",
-		"Å" => "Å",
-		"ä" => "ä",
-		"Ä" => "Ä",
-		"ö" => "ö",
-		"Ö" => "Ö",
 	},
 	
 	# mac-sami to latin1
@@ -188,9 +154,6 @@ our %Error_Types = (
 	
 	# found in titles in Min Áigi docs
 	"type07" => {
-		"á" => "á",
-		"š" => "š",
-		"đ" => "đ",
 		"Ã°" => "đ",
 		"Â¹" => "š",
 		"Ã¨" => "č",
@@ -249,19 +212,29 @@ sub guess_encoding () {
 	for my $type (sort( keys %Error_Types )) {
 		my $count = 0;
 
+		my $hi = 0;
 		for my $line (@text_array) {
+			print "line is: $line";
+			print "hits are: ";
 			foreach( keys % {$Error_Types{$type}}) {
 				while ($line =~ /$_/g) {
+					print " $_ ";
+					if (($type eq "type02" && ! /§/) || ($type eq "type03" && ! /öäøæ/)) {
+						$hi = 1;
+					}
 					$count++;
 				}
 			}
+			print "\n";
 		}
 		if ($count > 0 && $count >= $last_count) {
-			$encoding = $type;
-			$last_count = $count;
+			if (($type ne "type02" and $type ne "type03") || $hi == 0) {
+				$encoding = $type;
+				$last_count = $count;
+			}
 		}
 		if ($Test) {
-			print "encoding is $encoding, count is $count\n";
+			print "type is $type, encoding is $encoding, count is $count\n";
 		}
 	}
 	return $encoding;
