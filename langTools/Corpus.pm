@@ -33,6 +33,8 @@ our $str_par = "\\([^$sep\\(\\)]+?\\)";
 our $plainerr = "($str|$str_par)[$sep]($str|$str_par)";
 our $dummy1 = "($str|$str_par)( [$sep]|[$sep] | [$sep] )($str|$str_par)";
 our $dummy2 = "( [$sep]|[$sep] | [$sep] )($str|$str_par)";
+our $dummy3 = "( [$sep]|[$sep] | [$sep] )";
+# our $dummy4 = "[$sep]";
 
 my $test = $main::test;
 
@@ -47,15 +49,38 @@ sub add_error_markup {
 		while ($text && $text =~ /[$sep]/) {
 			# No nested errors, no parentheses
 			if ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy1)(?:\))?(?=$|\n|\s|\p{P})//) {
-				if($1) {
+				if ($1) {
 					push @new_content, $1;
+				}
+				if ($2) {
 					push @new_content, $2;
 				}
 			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy2)(?:\))?(?=$|\n|\s|\p{P})//) {
-				if($1) {
+				if ($1) {
 					push @new_content, $1;
+				}
+				if ($2) {
 					push @new_content, $2;
 				}
+			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy3)(?:\))?(?=$|\n|\s|\p{P})//) {
+				if ($1) {
+					print "dummy3 1, $1\n";
+					push @new_content, $1;
+				}
+				if ($2) {
+					print "dummy3 2, $1\n";
+					push @new_content, $2;
+				}
+# 			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy4)(?:\))?(?=$|\n|\s|\p{P})//) {
+# 				print "hit dummy4\n";
+# 				if($1) {
+# 					print "dummy4 1, $1\n";
+# 					push @new_content, $1;
+# 				}
+# 				if ($2) {
+# 					print "dummy4 2, $2\n";
+# 					push @new_content, $2;
+# 				}
 			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
 				if($1) { push @new_content, $1; }
 				if ($test) { print STDERR "Plain error: $2\n"; } # Debug print-out
