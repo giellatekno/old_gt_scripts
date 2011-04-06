@@ -255,26 +255,27 @@ sub character_encoding {
 		print "(character_encoding) Encoding is: $encoding\n";
 	}
 	
-	my $d=XML::Twig->new(
-		twig_handlers=>{
-			'p'=> sub{call_decode_para($self, @_, $encoding); },
-			'title'=>sub{call_decode_para($self, @_);},
-			'person'=>sub{call_decode_para($self, @_);},
+	if ($encoding ne $samiChar::Decode::NO_ENCODING) {
+		my $d=XML::Twig->new(
+			twig_handlers=>{
+				'p'=> sub{call_decode_para($self, @_, $encoding); },
+				'title'=>sub{call_decode_para($self, @_);},
+				'person'=>sub{call_decode_para($self, @_);},
+			}
+		);
+		
+		if (! $d->safe_parsefile ("$int") ) {
+			carp "ERROR parsing the XML-file failed.\n";
+			$error = 1;
+		} elsif (! open (FH, ">:encoding(utf8)", $int)) {
+			carp "ERROR cannot open file";
+			$error = 2;
+		} else {
+			$d->set_pretty_print('indented');
+			$d->print( \*FH);
+			close (FH);
 		}
-	);
-	
-	if (! $d->safe_parsefile ("$int") ) {
-		carp "ERROR parsing the XML-file failed.\n";
-		$error = 1;
-	} elsif (! open (FH, ">:encoding(utf8)", $int)) {
-		carp "ERROR cannot open file";
-		$error = 2;
-	} else {
-		$d->set_pretty_print('indented');
-		$d->print( \*FH);
-		close (FH);
 	}
-	
 	return $error;
 				
 } 
