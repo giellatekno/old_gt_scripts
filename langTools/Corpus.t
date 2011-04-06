@@ -66,7 +66,7 @@ $document->set_pretty_print('indented');
 $document->print;
 
 # $document  = XML::Twig->new(twig_handlers => { p => sub { add_error_markup(@_); } });
-$document->parse('<p>Dego máŋgga iežá suohkaniin ge unnu Gáivuona suohkana olmmošlohku. Eastadandihte $(n,cmp|Eastadan dihte) dan, lea suohkan mearridan plánastis deattuhit barggu ovdanahttiimiin$(v,mix|ovdánahttimiin), ealáhusovdanemiin$(n,á|ealáhusovdánemiin), nuoraiguin ja birasgáhttemiin. Dasa lassin bargá suohkan dan ala ahte (ovdanit$(v,á|ovdánit))€(v,v,der|ovdánahttit) iežas fálaldaga kvalitehta. Suohkan bargá maid regionála dásis, ea.ea. nuoraidprošeavttain.
+$document->parse('<p>Dego máŋgga iežá suohkaniin ge unnu Gáivuona suohkana olmmošlohku. Eastadandihte$(n,cmp|Eastadan dihte) dan, lea suohkan mearridan plánastis deattuhit barggu ovdanahttiimiin$(v,mix|ovdánahttimiin), ealáhusovdanemiin$(n,á|ealáhusovdánemiin), nuoraiguin ja birasgáhttemiin. Dasa lassin bargá suohkan dan ala ahte (ovdanit$(v,á|ovdánit))€(v,v,der|ovdánahttit) iežas fálaldaga kvalitehta. Suohkan bargá maid regionála dásis, ea.ea. nuoraidprošeavttain.
 </p>');
 $document->set_pretty_print('indented');
 $document->print;
@@ -115,7 +115,7 @@ $document->set_pretty_print('indented');
 $document->print;
 $document->parse('<p type="text">Tabeallas oainnát mo moadde bustáva leat unicodas.
 mearka logilohkokoda
-
+$
 36
 a
 97
