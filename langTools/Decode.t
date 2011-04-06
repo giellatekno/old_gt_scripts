@@ -17,7 +17,7 @@ use_ok('langTools::Decode');
 require_ok('langTools::Decode');
 
 my $debug = 1;
-$samiChar::Decode::Test = $debug;
+$langTools::Decode::Test = $debug;
 my $file;
 my $outfile;
 my $encoding;
