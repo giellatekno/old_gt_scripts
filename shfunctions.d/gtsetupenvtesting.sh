@@ -116,7 +116,6 @@ do_priv_exists () {
 			do
 				GTPRIV=`pwd`
 				cd ..
-				echo "looping $GTPRIV"
 			done
 		fi
 		cd $GTPARENT
