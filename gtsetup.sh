@@ -12,7 +12,7 @@
 # This file is based on the file /sw/bin/pathsetup.sh in the Fink distro.
 # Copyright (c) 2003-2005 Martin Costabel
 # Copyright (c) 2003-2007 The Fink Package Manager Team
-# Copyright (c) 2009 The Divvun and Giellatekno teams
+# Copyright (c) 2009-2011 The Divvun and Giellatekno teams
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
