@@ -97,22 +97,30 @@ do_free_exists () {
 }
 
 do_priv_exists () {
-# Check whether there exists a directory parallell to GTHOME that seems to
-# contain a working copy of the private repository.
-# "polderland" is used as the test case - it only exists at the immediate
-# level below the working copy root in the private repository.
-    PRIVDIR=`find $GTPARENT -maxdepth 2 -mindepth 2 -name polderland 2> /dev/null`
-    if [ "$PRIVDIR" == "" ] ; then
-        PRIVDIR=`find $GTPARENT -maxdepth 3 -mindepth 3 -name polderland 2> /dev/null`
-    fi
-    if [ "$PRIVDIR" != "" ] ;
-    then
-        PRIV_EXISTS=YES
-        GTPRIV=${PRIVDIR%/*}
-    else
-        PRIV_EXISTS=NO
-        GTPRIV=$GTPARENT/priv
-    fi
+	# First set the default values
+	PRIV_EXISTS=NO
+	GTPRIV=$GTPARENT/priv
+	
+	# Then search for the directory polderland
+	for d in `find $GTPARENT -maxdepth 4 -mindepth 2 -name polderland -type d`
+	do
+		cd $d
+		# Check if we are really are inside a working copy of private
+		TESTSTRING=`svn info | grep private 2> /dev/null`
+		if [ "$TESTSTRING" != "" ]
+		then
+			PRIV_EXISTS=YES
+			# The polderland dir isn't the "mother" of private, descend down until 
+			# are outside the working copy
+			while [ "`svn info | grep private`" != "" ]
+			do
+				GTPRIV=`pwd`
+				cd ..
+				echo "looping $GTPRIV"
+			done
+		fi
+		cd $GTPARENT
+	done
 }
 
 make_RC_backup () {
