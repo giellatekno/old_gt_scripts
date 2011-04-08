@@ -25,6 +25,7 @@ sub clean_doc {
 	my ($self) = @_;
 	
 	my %replacements = (
+		"\xc2\xad\x0a", "",
 		"\\[dstrok\\]", "đ",
 		"\\[Dstrok\\]", "Đ",
 		"\\[tstrok\\]", "ŧ",
