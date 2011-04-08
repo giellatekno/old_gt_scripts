@@ -208,6 +208,16 @@ void ProcessFile(const char *pFile)
 void ProcessWord (TagParser &parse)
 {
    string word = parse.Value();
+   size_t hyph;
+
+   hyph = word.find("-");
+   if (hyph != string::npos)
+   {
+	   if(parse.GetNextToken()) {
+		   string wordend = parse.Value();
+		   word.append(wordend);
+	   }
+   }
 
 // if language is not given all the paras are printed.
    if ((sLang[0] == '\0' || bElementLang) &&
