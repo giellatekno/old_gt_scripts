@@ -1,8 +1,6 @@
 #!/bin/bash
 
 cd $GTHOME
-echo "svn up in $GTHOME"
-svn -q up
 SVNREVISION=`svn info | grep Revision | cut -f1 -d" "`
 
 ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
@@ -52,7 +50,7 @@ do
     done
 
     cd $GTHOME/gt
-    make GTLANG=$SMILANG
+#    make GTLANG=$SMILANG
     if [ $SMILANG == "sma" ]
     then
         PREPROCESS="preprocess"
