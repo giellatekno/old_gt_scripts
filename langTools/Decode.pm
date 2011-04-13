@@ -220,24 +220,25 @@ sub guess_encoding () {
 		my $hit = 0;
 		for my $line (@text_array) {
 			foreach( keys % {$Error_Types{$type}}) {
-				while ($line =~ /$_/g) {
-					if ($type eq "type02" && "Ø§" !~ $_) {
-# 						print "type $type, hit $_\n";
+				my $key = $_;
+				while ($line =~ /$key/g) {
+					if ($type eq "type02" && "Ø§" !~ $key) {
+# 						print "type $type, hit $key\n";
 						$hit = 1;
 					}
-					if ($type eq "type03" && "öäøæ" !~ $_) {
-# 						print "type $type, hit $_\n";
+					if ($type eq "type03" && "öäøæâ" !~ $key) {
+# 						print "type $type, hit $key\n";
 						$hit = 1;
 					}
 # 					if ($type eq "type03") {
-# 						print "type $type, hit $_\n";
+# 						print "type $type, hit $key\n";
 # 					}
 					if ($type eq "type04" && ! /¾/) {
-# 						print "type $type, hit $_\n";
+# 						print "type $type, hit $key\n";
 						$hit = 1;
 					}
-					if ($type eq "type06" && "½»" !~ $_) {
-# 						print "type $type, hit $_\n";
+					if ($type eq "type06" && "½»" !~ $key) {
+# 						print "type $type, hit $key\n";
 						$hit = 1;
 					}
 
