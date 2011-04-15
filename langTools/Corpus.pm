@@ -48,29 +48,29 @@ sub add_error_markup {
         # separator: either §, $, €, ¥ or £
 		while ($text && $text =~ /[$sep]/) {
 			# No nested errors, no parentheses
-			if ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy1)(?:\))?(?=$|\n|\s|\p{P})//) {
-				if ($1) {
-					push @new_content, $1;
-				}
-				if ($2) {
-					push @new_content, $2;
-				}
-			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy2)(?:\))?(?=$|\n|\s|\p{P})//) {
-				if ($1) {
-					push @new_content, $1;
-				}
-				if ($2) {
-					push @new_content, $2;
-				}
-			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy3)(?:\))?(?=$|\n|\s|\p{P})//) {
-				if ($1) {
-					print "dummy3 1, $1\n";
-					push @new_content, $1;
-				}
-				if ($2) {
-					print "dummy3 2, $1\n";
-					push @new_content, $2;
-				}
+# 			if ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy1)(?:\))?(?=$|\n|\s|\p{P})//) {
+# 				if ($1) {
+# 					push @new_content, $1;
+# 				}
+# 				if ($2) {
+# 					push @new_content, $2;
+# 				}
+# 			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy2)(?:\))?(?=$|\n|\s|\p{P})//) {
+# 				if ($1) {
+# 					push @new_content, $1;
+# 				}
+# 				if ($2) {
+# 					push @new_content, $2;
+# 				}
+# 			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy3)(?:\))?(?=$|\n|\s|\p{P})//) {
+# 				if ($1) {
+# 					print "dummy3 1, $1\n";
+# 					push @new_content, $1;
+# 				}
+# 				if ($2) {
+# 					print "dummy3 2, $1\n";
+# 					push @new_content, $2;
+# 				}
 # 			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($dummy4)(?:\))?(?=$|\n|\s|\p{P})//) {
 # 				print "hit dummy4\n";
 # 				if($1) {
@@ -81,7 +81,8 @@ sub add_error_markup {
 # 					print "dummy4 2, $2\n";
 # 					push @new_content, $2;
 # 				}
-			} elsif ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
+# 			} els
+			if ($text =~ s/^([^$sep]*\s)?(?:\()?($plainerr)(?:\))?(?=$|\n|\s|\p{P})//) {
 				if($1) { push @new_content, $1; }
 				if ($test) { print STDERR "Plain error: $2\n"; } # Debug print-out
 				get_error($2, \@new_content);
@@ -99,7 +100,7 @@ sub add_error_markup {
 					get_error($error, \@new_content, $last_err);
 				}
 			} else {
-				print "\n***\n*** WARNING - NO MATCH: $text\n***\n\n";
+# 				print "\n***\n*** WARNING - NO MATCH: $text\n***\n\n";
 				push @new_content, $text;
 				$text ="";
 			}
@@ -112,27 +113,15 @@ sub add_error_markup {
 
 
 sub get_error {
-	my ($text, $cont_ref, $first_err) = @_;
+	my ($error, $separator, $correct, $cont_ref, $first_err) = @_;
 
-	if ($text =~ m/^(.*?)([$sep])(.*)$/ ) {
 		
-		my $error = $1;
-		my $separator = $2;
-		my $correct = $3;
-		#print "JEE $separator\nERROR $error\nCORRECT $correct\n";
-
-		$error =~ s/\s$//g;
-		
-		(my $corr = $correct) =~ s/\s?$//;
-		$error =~ s/[\(\)]//g;
-		$corr =~ s/[\(\)]//g;
-
 		# look for extended attributes:
 		my $extatt = 0;
 		my $attlist = "";
-		if ($corr =~ /\|/ ) {
+		if ($correct =~ /\|/ ) {
 			$extatt = 1;
-			($attlist, $corr) = split(/\|/, $corr);
+			($attlist, $correct) = split(/\|/, $correct);
 			$attlist =~ s/\s//g;
 			if ($test) { print STDERR "Attribute list is: $attlist.\n"; }
 #			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
@@ -142,11 +131,11 @@ sub get_error {
 		my $error_elt_name = "error";
 		if ($types{$separator}) { $error_elt_name = $types{$separator}; }
 		if ($first_err && ! $error) {
-			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr});
+			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$correct});
 			$first_err->paste('last_child', $error_elt);
 		}
 		else {
-			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$corr}, $error);
+			$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$correct}, $error);
 		}
 		# Add extra attributes if found:
 		if ( $extatt ) {
@@ -237,8 +226,8 @@ sub get_error {
 				if ($teacher) { $error_elt->set_att('teacher', $teacher); }
 			}
 		}
-		push (@$cont_ref, $error_elt);		
-	} 
+		push (@$cont_ref, $error_elt);
+		print "$error_elt\n";
 	#else { print "NOT MATCH get_error: $text\n"; }
 }
 
@@ -468,6 +457,84 @@ sub txtclean {
 	close $FH1;
 }
 
+sub error_tester {
+	my ($expr) = @_;
+	my @new_content = undef;
+	my $continue_correction = 0;
+	my $error = undef;
+	my $separator = undef;
+	my $correction = undef;
+	my $parsing_finished = 0;
+	
+# 	print "expr $expr\n";
+	chomp($expr);
+	for my $tok (split('\s', $expr)) {
+		# Errors with word$sepword
+		if ($tok =~ m/(.*\w)([$sep])(\w.*)/) {
+			print "t1 $tok\n";
+			$error = $1;
+			$separator = $2;
+			$correction = $3;
+			$parsing_finished = 1;
+# 			get_error($error, $separator, $correct, \@new_content);
+			
+		}
+		# Errors with word$sep(expression)
+		elsif ($tok =~ m/(^\w.*\w)([$sep])(\(\w.*\w\))/) {
+			print "t2 $tok\n";
+			$error = $1;
+			$separator = $2;
+			$correction = $3;
+			$parsing_finished = 1;
+		}
+		# Errors with word$(start of expression end of expression)
+		elsif ($tok =~ m/(^\w.*\w)([$sep])(\(\w.*\w$)/) {
+			print "t3 $tok\n";
+			$error = $1;
+			$separator = $2;
+			$correction = $3;
+			$continue_correction = 1;
+			$parsing_finished = 0;
+		}
+		# continuation of the above
+		elsif ($continue_correction) {
+			$correction = $correction . " " . $tok;
+			if ($tok =~ m/(\w.*\))/) {
+				$continue_correction = 0;
+				print "t4 $correction\n";
+				$parsing_finished = 1;
+			}
+		} 
+		# Errors of this form 
+		# (álggahuvvon 1991) £ (num,advl,locsg,nomsg,case|álggahuvvon 1991:s)
+		elsif ($tok =~ m/(.*\))([$sep])(\(\w.*)/) {
+			print "t6 $tok\n";
+			$error = $1;
+			$separator = $2;
+			$correction = $3;
+
+			my $tmp;
+			do {
+				$tmp = pop(@new_content); 
+				$error = $tmp . " " . $error;
+			} while ( $tmp !~ /^\(/);
+			$continue_correction = 1;
+			$parsing_finished = 0;
+		}
+		# A usual word
+		else {
+			print "t5 $tok\n";
+			push(@new_content, $tok);
+		}
+		if ($parsing_finished) {
+			push(@new_content, $error);
+			push(@new_content, $separator);
+			push(@new_content, $correction);
+			$parsing_finished = 0;
+		}
+	}
+	return @new_content;
+}
 
 
 1;
