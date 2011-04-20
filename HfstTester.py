@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# HfstTester.py 1.4 - Copyright (c) 2011 
+# HfstTester.py 1.5 - Copyright (c) 2011 
 # Brendan Molloy <brendan@bbqsrc.net>
 # Børre Gaup <boerre@skolelinux.no>
 # Licensed under Creative Commons Zero (CC0)
@@ -10,10 +10,6 @@
 # http://apertium.svn.sourceforge.net/svnroot/apertium/incubator/apertium-tgl-ceb/dev/verbs/HfstTester.py@28665
 # Copied into the GT svn instead of just referenced, since file externals don't work for
 # foreign repositories.
-
-# TODO:
-# - create Rules: {} for JSON, to make parsing more dynamic 
-# - make WHY it failed much more clear.
 
 import sys
 try:
@@ -37,13 +33,6 @@ try:
 except:
 	print "Looks like you're missing the YAML parser."
 	print "Please do `sudo easy_install pyyaml`."
-	sys.exit(255)
-
-try:
-	import json
-except:
-	print "Looks like you're on an older Python version and missing the JSON parser."
-	print "Please do `sudo easy_install simplejson`."
 	sys.exit(255)
 
 from subprocess import *
@@ -152,13 +141,20 @@ class HfstTester:
 		self.ignores = 0
 
 		self.count = []
+		self.parse_args()
+		self.load_config()
 
+		if self.args.test:
+			# Assume that the command line input is utf-8, convert it to unicode
+			self.args.test[0] = self.args.test[0].decode('utf-8')
+		self.run_tests(self.args.test)
+
+	def parse_args(self):
 		argparser = argparse.ArgumentParser(
 			description="""Test morphological transducers for consistency. 
 			`hfst-lookup` (or Xerox' `lookup` with argument -x) must be
 			available on the PATH.""",
-			epilog="Will run all tests in the test_file by default."
-			)
+			epilog="Will run all tests in the test_file by default.")
 		argparser.add_argument("-c", "--colour",
 			dest="colour", action="store_true",
 			help="Colours the output")
@@ -182,27 +178,27 @@ class HfstTester:
 			dest="hide_fail", action="store_true",
 			help="Suppresses failures to make finding passes easier")
 		argparser.add_argument("-x", "--xerox",
-			dest="xerox", action="store_true",
-			required=False, help="""Use the Xerox `lookup` tool (default is
-			`hfst_lookup`)""")
+			dest="xerox", action="store_true", required=False, 
+			help="Use the Xerox `lookup` tool (default is `hfst_lookup`)")
 		argparser.add_argument("-t", "--test",
 			dest="test", nargs=1, required=False,
 			help="""Which test to run (Default: all). TEST = test ID, e.g.
 			'Noun - gåetie' (remember quotes if the ID contains spaces)""")
+		argparser.add_argument("-v", "--verbose",
+			dest="verbose", action="store_true",
+			help="More verbose output.")
 		argparser.add_argument("test_file", nargs=1,
-			help="YAML/JSON file with test rules")
-		self.args = argparser.parse_args()	
+			help="YAML file with test rules")
+		self.args = argparser.parse_args()
 
+	def load_config(self):
 		try:
 			f = yaml.load(open(self.args.test_file[0]), OrderedDictYAMLLoader)
 		except:
-			try:
-				f = json.load(open(self.args.test_file[0]))
-			except Exception, e:
-				traceback.print_exc()
-				print "File not valid YAML or JSON. Bailing out."
-				print "Check your YAML for spurious hidden tabs."
-				sys.exit(255)
+			traceback.print_exc()
+			print "File not valid YAML. Bailing out."
+			print "Check your YAML for spurious hidden tabs."
+			sys.exit(255)
 		
 		if self.args.xerox:
 			print "Testing Xerox FST dictionaries"
@@ -225,10 +221,6 @@ class HfstTester:
 				sys.exit(255)	
 		self.tests = f["Tests"]
 
-		if self.args.test:
-			# Assume that the command line input is utf-8, convert it to unicode
-			self.args.test[0] = self.args.test[0].decode('utf-8')
-		self.run_tests(self.args.test)
 	
 	def c(self, s, o=None):
 		if self.args.colour:
@@ -240,33 +232,56 @@ class HfstTester:
 			self.args.surface = self.args.lexical = True
 		
 		if(input != None):
-			if self.args.lexical: self.run_lexical_test(input[0])
-			if self.args.surface: self.run_surface_test(input[0])
+			if self.args.lexical: 
+				self.run_test(input[0], True)
+			if self.args.surface: 
+				self.run_test(input[0], False)
 		
 		else:
 			for t in self.tests.keys():
-				if self.args.lexical: self.run_lexical_test(t)
-				if self.args.surface: self.run_surface_test(t)
+				if self.args.lexical: 
+					self.run_test(t, True)
+				if self.args.surface: 
+					self.run_test(t, False)
 
-	def run_surface_test(self, input):
+	def run_test(self, input, is_lexical):
+		def gen_lex_dict(input):
+			tmp = OrderedDict()
+			for key, val in input.iteritems():
+				for v in s2l(val):
+					tmp.setdefault(v, []).append(key)
+			return tmp 
+
+		if is_lexical:
+			desc = "Lexical/Generation"
+			f = self.gen
+			tests = gen_lex_dict(self.tests[input])
+#			print tests
+
+		else: #surface
+			desc = "Surface/Analysis"
+			f = self.morph
+			tests = self.tests[input]
+#			print tests
+
 		c = len(self.count)
 		self.count.append([0, 0])
 		
-		title = "Test %d: %s (Surface/Analysis)" % (c, input)
+		title = "Test %d: %s (%s)" % (c, input, desc)
 		if not self.args.compact:
 			print self.c("-"*len(title), 1).encode('utf-8')
 			print self.c(title, 1).encode('utf-8')
 			print self.c("-"*len(title), 1).encode('utf-8')
 
-		for l in self.tests[input].keys():
-			sforms = s2l(self.tests[input][l])
+		for l in tests.keys():
 			lexors = []
+			sforms = s2l(tests.get(l))
 			for s in sforms:
-				for i in self.tests[input].keys():
-					if s in s2l(self.tests[input][i]):
+				for i in tests.keys():
+					if s in s2l(tests[i]):
 						lexors.append(i)
 
-			app = Popen([self.program, self.morph], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+			app = Popen([self.program, f], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 			args = ""
 			for sform in sforms:
 				args += sform + '\n'
@@ -311,47 +326,6 @@ class HfstTester:
 		self.passes += self.count[c][0]
 		self.fails += self.count[c][1]
 
-	def run_lexical_test(self, input):
-		c = len(self.count)
-		self.count.append([0, 0])
-		title = "Test %d: %s (Lexical/Generation)" % (c, input)
-		if not self.args.compact:	
-			print self.c("-"*len(title), 1).encode('utf-8')
-			print self.c(title, 1).encode('utf-8')
-			print self.c("-"*len(title), 1).encode('utf-8')
-		
-		app = Popen([self.program, self.gen], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-		args = ""
-		for k in self.tests[input].keys():
-			args += k + '\n'
-		app.stdin.write(args.encode('utf-8'))
-		res = app.communicate()[0].split('\n\n')
-		#for i in res: print i, 
-		for num, l in enumerate(self.tests[input].keys()):
-			sforms = s2l(self.tests[input][l])
-			lexes = self.parse_fst_output(res[num].decode('utf-8'))
-			for r in lexes:
-				if (r in sforms):
-					if not self.args.hide_pass and not self.args.compact:
-						print self.c("[PASS] %s => %s" % (l, r) ).encode('utf-8')
-					self.count[c][0] += 1
-				else:
-					if not self.args.hide_fail and not self.args.compact:
-						print self.c("[FAIL] %s => Expected: %s, Got: %s" % (l, l2s(sforms), r)).encode('utf-8')
-					self.count[c][1] += 1
-		
-		if not self.args.compact:
-			print self.c("Test %d - Passes: %d, Fails: %d, Total: %d\n" % (c, self.count[c][0], 
-				self.count[c][1], self.count[c][0] + self.count[c][1]), 2).encode('utf-8')
-		else:
-			if self.count[c][1] > 0:
-				print self.c("[FAIL] - %s" % title)
-			else:
-				print self.c("[PASS] - %s" % title)
-		
-		self.passes += self.count[c][0]
-		self.fails += self.count[c][1]
-
 	def parse_fst_output(self, res):
 		"Receive a unicode string"
 		return_lex = []
@@ -373,8 +347,10 @@ class HfstTester:
 
 if __name__ == "__main__":
 	hfst = HfstTester()
-	print "Total passes:", hfst.passes, 'of', hfst.fails + hfst.passes + hfst.ignores
-	print "Total fails:", hfst.fails, 'of', hfst.fails + hfst.passes + hfst.ignores
-	if hfst.args.ignore_extra_analyses:
-		print "Total ignores:", hfst.ignores, 'of', hfst.fails + hfst.passes + hfst.ignores
+	if hfst.args.verbose:
+		print "Total passes:", hfst.passes, 'of', hfst.fails + hfst.passes + hfst.ignores
+		print "Total fails:", hfst.fails, 'of', hfst.fails + hfst.passes + hfst.ignores
+		if hfst.args.ignore_extra_analyses:
+			res = hfst.fails + hfst.passes + hfst.ignores
+			print "Total ignores:", hfst.ignores, 'of', res
 	sys.exit(hfst.fails)
