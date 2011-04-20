@@ -243,7 +243,7 @@ void ProcessTag (TagParser &parse)
 
       if (bAddID) DumpTag(0, 0, parse);
     }
-  else if (parse.Value() == "p")
+  else if (parse.Value() == "p" || parse.Value() == "span")
     {
 //        list<TagAttribute*> &attr = parse.GetAttribs();
 //        for (list<TagAttribute*>::const_iterator i = attr.begin(); i != attr.end(), ++i)
