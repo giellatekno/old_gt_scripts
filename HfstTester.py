@@ -319,8 +319,10 @@ class HfstTester(object):
 
 			app = Popen([self.program, f], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 			args = '\n'.join(forms) + '\n'
+#			print "The command: %s %s %s" % (self.program, f, args) #DEBUG
 			app.stdin.write(args.encode('utf-8'))
 			res = app.communicate()[0].split('\n\n')
+#			print "The output is: %s" % res #DEBUG
 
 			for num, form in enumerate(forms):
 				results = self.parse_app_output(res[num].decode('utf-8'))
@@ -351,6 +353,7 @@ class HfstTester(object):
 
 	def parse_app_output(self, res):
 		"Receive a unicode string"
+#		print "Data in: %s" % res #DEBUG
 		ret = set()
 		if type(res) == unicode:
 			res = res.replace('\r\n','\n').replace('\r','\n')
@@ -366,6 +369,7 @@ class HfstTester(object):
 					else:
 						lex = results[1].strip()
 					ret.add(lex)
+#		print "Data out: %s" % ret #DEBUG
 		return ret
 
 if __name__ == "__main__":
