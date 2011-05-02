@@ -86,3 +86,7 @@ $text = "Vidar Zahl Arntzen lei duhtava»";
 $encoding = &guess_encoding(undef, $language, \$text);
 # 16
 is($encoding, "0", "testing for 0");
+
+$language = "sma";
+# 17
+is($encoding = &guess_encoding("$ENV{'GTBOUND'}/converted/sma/facta/other_files/lohkeme_4_til_trykk.doc.xml"), "type07", "Check for type07");
