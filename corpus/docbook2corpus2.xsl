@@ -157,6 +157,12 @@ Find the book element, which then is converted to the "document" tag
 	                 <xsl:apply-templates mode="para" />
     				</xsl:element>
     			</xsl:when>
+    			<xsl:when test="superscript">
+    				<xsl:element name="p">
+	                 <xsl:apply-templates mode="inpara" />
+    				</xsl:element>
+    			</xsl:when>
+    			
     			<xsl:otherwise>
 				<xsl:element name="p">
 		            <xsl:apply-templates mode="inpara"/>
@@ -173,6 +179,11 @@ Find the book element, which then is converted to the "document" tag
     </xsl:if>
 </xsl:template>
 
+
+
+<xsl:template match="superscript" mode="inpara">
+	<xsl:value-of select="text()"/><xsl:text> </xsl:text>
+</xsl:template>
 
 <!-- Emphasis -->
 <xsl:template match="emphasis|em">
@@ -323,7 +334,7 @@ Find the book element, which then is converted to the "document" tag
 <xsl:template match="tip"/>
 
 <xsl:template match="corpname"/>
-<xsl:template match="subscript|superscript"/>
+<xsl:template match="subscript"/>
 <xsl:template match="beginpage"/>
 
 </xsl:stylesheet>
