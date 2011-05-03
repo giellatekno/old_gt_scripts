@@ -100,7 +100,7 @@ have been checked out in $GTPARENT/big.
 
 I also added symbolic links within some language
 dirs to corpus resources for testing purposes.
-Check out gt/LANG/zcorp/.\n\n"
+Check out gt/GTLANG/zcorp/.\n\n"
             else
                 Result="The biggies part of the Giellatekno resources
 have been checked out in $GTBIG,
