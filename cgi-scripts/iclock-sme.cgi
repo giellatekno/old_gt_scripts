@@ -237,8 +237,8 @@ sub printinitialhtmlcodes
 
 #               Include some Copyright notices
 
-    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Romssa universitehta</H2>\n\n" ;
-    print "Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
+    print "<H2 ALIGN=\"center\">Romssa universitehta</H2>\n\n" ;
+    print "Copyright &copy; Giellatekno.\n<BR>\n<BR>\n" ;
 
 # consider trying to automate the update of the release number
 #    print "Pre-Release Version 0.1\n<BR>\n" ;

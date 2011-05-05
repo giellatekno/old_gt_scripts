@@ -203,16 +203,15 @@ sub printinitialhtmlcodes {
 						  -charset => 'utf-8');
 	print	$output->start_html('Sami morfologiija');
 						 
-	print $output->h2("S&aacute;mi instituhtta, Romssa universitehta");
-	print $output->p("Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.");
+	print $output->h2("Romssa universitehta");
+	print $output->p("Copyright &copy; Giellatekno.");
 	print $output->hr;
 }
 
 sub printfinalhtmlcodes
 {
     print $output->hr;
-	print $output->address("S&aacute;mi giellateknologiija, Trond
-Trosterud",$output->br,"http://www.hum.uit.no/sam/giellatekno/");
+	print $output->address("S&aacute;mi giellateknologiija",$output->br,"http://giellatekno.uit.no/");
 	print $output->br;
 	print $output->end_html;
 }

@@ -18,15 +18,15 @@ sub printinitialhtmlcodes
     print "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\">\n";
     
     print "<TITLE>S&aacute;mi morfologiija </TITLE>\n</HEAD>\n\n" ;
-    print "<H2 ALIGN=\"center\">S&aacute;mi instituhtta, Tromssa Universitehta</H2>\n\n" ;
-    print "Copyright &copy; S&aacute;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
+    print "<H2 ALIGN=\"center\">Romssa universitehta</H2>\n\n" ;
+    print "Copyright &copy; Giellatekno.\n<BR>\n<BR>\n" ;
 }
 
 sub printfinalhtmlcodes 
 {
     print "\n<ADDRESS>\n" ;
-    print "\nS&aacute;mi giellateknologiija, Trond Trosterud<BR>\n" ;
-    print "http://www.hum.uit.no/sam/giellatekno/\n<BR>\n" ;
+    print "\nS&aacute;mi giellateknologiija<BR>\n" ;
+    print "http://giellatekno.uit.no/\n<BR>\n" ;
     print "</ADDRESS>\n" ;
     
     print "\n</BODY>\n</HTML>\n" ;

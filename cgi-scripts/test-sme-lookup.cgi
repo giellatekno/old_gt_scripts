@@ -16,7 +16,7 @@ sub printinitialhtmlcodes
    print "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\">\n";
 
     print "<TITLE>S&#225;mi morfologiija </TITLE>\n</HEAD>\n\n" ;
-    print "<H2 ALIGN=\"center\">S&#225;mi instituhtta, Tromssa Universitehta</H2>\n\n" ;
+    print "<H2 ALIGN=\"center\">S&#225;mi instituhtta, Romssa universitehta</H2>\n\n" ;
     print "Copyright &copy; S&#225;mi giellateknologiijapro&#353;eakta.\n<BR>\n<BR>\n" ;
     print "<p>Om resultatet ikke blir leselig samisk, kan du hjelpe oss ved \
 &#229; gj&#248;re f&#248;lgende:\
@@ -43,8 +43,8 @@ sub printfinalhtmlcodes
 {
     print "<HR SIZE=4 NOSHADE>\n<BR>\n\n" ;
     print "\n<ADDRESS>\n" ;
-    print "\nS&#225;mi giellateknologiija, Trond Trosterud<BR>\n" ;
-    print "http://www.hum.uit.no/sam/giellatekno/\n<BR>\n" ;
+    print "\nS&#225;mi giellateknologiija<BR>\n" ;
+    print "http://giellatekno.uit.no/\n<BR>\n" ;
     print "</ADDRESS>\n" ;
 
     print "\n</BODY>\n</HTML>\n" ;
