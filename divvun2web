@@ -54,10 +54,10 @@ build_and_copy_site()
 	cd $BUILDDIR
 	# Build the site, at the same time checking the docs
 	forrest clean
-	forrest -Dforrest.jvmargs=-Djava.awt.headless=true validate-xdocs
+	forrest validate-xdocs
 	if [ "$?"  == "0" ]
 	then
-		nice -n 10 forrest -Dforrest.jvmargs=-Djava.awt.headless=true
+		nice -n 10 forrest
 		cd $BUILDDIR/build/site
 		# Fix defective utf-8 characters
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'
