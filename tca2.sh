@@ -1,10 +1,9 @@
 #!/bin/sh
 
-# $1 = -a 
-# $2 = anchor file
-# $3 = first input file
-# $4 = second input file
+# $1 = anchor file
+# $2 = first input file
+# $3 = second input file
 
 # sentence alignment tool
 # source code in $GTHOME/tools/alignment-tools
-java -Xms512m -Xmx1024m -jar /usr/local/share/tca2/alignment.jar $1 $2 $3 $4
+java -Xms512m -Xmx1024m -jar /usr/local/share/tca2/alignment.jar -cli -anchor=$1 -in1=$2 -in2=$3
