@@ -4,7 +4,7 @@
 # Tomi Pieski <tomi.pieski@hum.uit.no>
 # It is licensed under the GPL, version 2 or later.
 #
-# Shell script for exporting divvun.no and giellaktekno www-pages from cvs 
+# Shell script for exporting giellatekno www-pages from cvs 
 # to the official www-directory
 #
 # To get cvs ssh working without password prompting:
