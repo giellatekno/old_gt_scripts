@@ -18,6 +18,7 @@ sub getXsl {
 	return $self->{_converter_xsl};
 }
 
+# Clean out unwanted tags using sed, then run it through tidy
 sub tidyHTML {
 	my( $self ) = @_;
 	
@@ -25,6 +26,9 @@ sub tidyHTML {
 	return $self->exec_com($command);
 }
 
+# Clean the html
+# Convert the html to xml using xhtml2corpus.xsl
+# Clean the result a little, as well
 sub convert2intermediate {
 	my( $self ) = @_;
 
