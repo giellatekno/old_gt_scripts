@@ -90,6 +90,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
+	"$ENV{'GTFREE'}/orig/eng/admin/depts/regjeringen.no/state-secretary-karl-eirik-schjott-peder.html_id=439605"
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
 
