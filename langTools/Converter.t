@@ -6,6 +6,7 @@ use Cwd;
 use Encode;
 use utf8;
 use Getopt::Long;
+use warnings;
 
 #
 # Load the modules we are testing
@@ -92,6 +93,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
 	"$ENV{'GTFREE'}/orig/eng/admin/depts/regjeringen.no/state-secretary-karl-eirik-schjott-peder.html_id=439605",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/samisk.html_id=454913",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/132469-sa-sve.pdf",
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
 
