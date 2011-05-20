@@ -178,6 +178,16 @@ our %Error_Types = (
 		"¿" => "ø",
 		"¥" => "•",
 	},
+	
+	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
+	# and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc 
+	"type09" => {
+		"‚" => "Č",
+		"„" => "č",
+		"¹" => "ŋ",
+		"˜" => "đ",
+		"¿" => "ž",
+	},
 
 );
 
