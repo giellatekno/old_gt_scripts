@@ -225,24 +225,23 @@ sub guess_encoding () {
 					if ($type eq "type02" && "Ø§" !~ $key) {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
-					}
-					if ($type eq "type03" && "öäøæâ" !~ $key) {
+						$count++;
+					} elsif ($type eq "type03" && "[öäøæâ]" !~ $key) {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
-					}
-# 					if ($type eq "type03") {
-# 						print "type $type, hit $key\n";
-# 					}
-					if ($type eq "type04" && ! /¾/) {
+						$count++;
+					} elsif ($type eq "type04" && ! /¾/) {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
-					}
-					if ($type eq "type06" && "½»" !~ $key) {
+						$count++;
+					} elsif ($type eq "type06" && "½»" !~ $key) {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
+						$count++;
+					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08") {
+# 						print "default type $type, hit $key\n";
+						$count++;
 					}
-
-					$count++;
 				}
 			}
 		}
@@ -253,7 +252,7 @@ sub guess_encoding () {
 				$encoding = $type;
 				$last_count = $count;
 			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08") and !$hit) {
-# 				print "not speciel case\n";
+# 				print "not special case\n";
 				$encoding = $type;
 				$last_count = $count;
 			}
