@@ -410,11 +410,21 @@
 							 <xsl:element name="free">
 							 </xsl:element>
 						</xsl:when>
+						<xsl:when test="contract_id">
+							<xsl:element name="license">
+								<xsl:attribute name="type">	
+									<xsl:value-of select="$license_type"/>
+								</xsl:attribute>
+								<xsl:attribute name="contract_id">
+									<xsl:value-of select="$contract_id"/>
+								</xsl:attribute>
+							</xsl:element>
+						</xsl:when>
 						<xsl:otherwise>
 								<xsl:element name="license">
-								<xsl:attribute name="type">	
-								<xsl:value-of select="$license_type"/>
-								</xsl:attribute>
+									<xsl:attribute name="type">	
+										<xsl:value-of select="$license_type"/>
+									</xsl:attribute>
 								</xsl:element>
 						</xsl:otherwise>
 				</xsl:choose>
