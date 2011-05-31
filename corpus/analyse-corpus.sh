@@ -50,6 +50,8 @@ do
     done
 
     cd $GTHOME/gt
+    echo " "
+    echo "compiling the transducer $SMILANG.fst, and $SMILANG/bin/abbr.txt"
     make GTLANG=$SMILANG
     if [ $SMILANG == "sma" ]
     then
@@ -57,7 +59,7 @@ do
     else
         PREPROCESS="preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt"
     fi
-
+    
     for i in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
         echo "Preprocessing $i …"
