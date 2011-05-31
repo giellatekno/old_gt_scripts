@@ -63,9 +63,9 @@ do
         echo "Preprocessing $i …"
         time cat $i | $PREPROCESS 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$SMILANG/bin/$SMILANG.fst | lookup2cg > $i.lookup2cg
         echo "$SMILANG dis analysis of $i.lookup2cg …"
-        time vislcg3 -g $GTHOME/gt/$SMILANG/bin/$SMILANG-dis.bin -I $i.lookup2cg > $i.dis
+        time vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $i.lookup2cg > $i.dis
         echo "$SMILANG dep analysis of $i.dis …"
         touch $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
-        time vislcg3 -g $GTHOME/gt/smi/bin/smi-dep.bin -I $i.dis >> $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
+        time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $i.dis >> $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
     done
 done
