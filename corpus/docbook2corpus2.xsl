@@ -182,7 +182,7 @@ Find the book element, which then is converted to the "document" tag
 
 
 <xsl:template match="superscript" mode="inpara">
-	<xsl:value-of select="text()"/><xsl:text> </xsl:text>
+	<xsl:text> </xsl:text>
 </xsl:template>
 
 <!-- Emphasis -->
