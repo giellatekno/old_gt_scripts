@@ -248,6 +248,8 @@ sub guess_encoding () {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
+					} elsif ($type eq "type09" && "," !~ $key) {
+						$count++;
 					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08") {
 # 						print "default type $type, hit $key\n";
 						$count++;
