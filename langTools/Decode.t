@@ -4,6 +4,7 @@ use Test::File;
 use utf8;
 use strict;
 use Getopt::Long;
+use warnings;
 
 
 #
@@ -82,11 +83,15 @@ system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/007_0
 # 15
 is($encoding = &guess_encoding("_VM_Kroa_MLA.txt", $language), "type06", "Check type06");
 
+$language = "sme";
+# 16
+is($encoding = &guess_encoding("dc_00_1.txt", $language), "type09", "Check type09");
+
 $text = "Vidar Zahl Arntzen lei duhtava»";
 $encoding = &guess_encoding(undef, $language, \$text);
-# 16
+# 17
 is($encoding, "0", "testing for 0");
 
 $language = "sma";
-# 17
+# 18
 is($encoding = &guess_encoding("$ENV{'GTBOUND'}/converted/sma/facta/other_files/lohkeme_4_til_trykk.doc.xml"), "type07", "Check for type07");
