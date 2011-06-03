@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl -w
 #
 # hyphen-testres.pl
 # Combines hyphenator input and output to test results.
