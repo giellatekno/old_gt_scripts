@@ -263,7 +263,7 @@ sub guess_encoding () {
 # 				print "special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08") and !$hit) {
+			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08" or $type eq "type09") and !$hit) {
 # 				print "not special case\n";
 				$encoding = $type;
 				$last_count = $count;
