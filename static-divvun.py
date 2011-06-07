@@ -311,7 +311,7 @@ class StaticSiteBuilder:
 		#shutil.copy(builddir, builtdir)
 
 	def add_lang_info(self, filename, lang):
-		trlangs = {"fi": "Suomeksi", "nb": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Julevsábmáj", "sv": "På svenska" , "en": "In english"}
+		trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Julevsábmáj", "sv": "På svenska" , "en": "In english"}
 		#print 'filename', filename
 		#print 'path', self.builddir + "/build/site"
 		the_rest = filename[len(self.builddir + "/build/site"):]
@@ -337,10 +337,7 @@ class StaticSiteBuilder:
 		infile.close()
 		outfile1.close()
 		outfile2.close()
-		
-		if lang == "nb":
-			shutil.copy(self.builddir + "/built" + the_rest + "." + lang, self.builddir + "/built" + the_rest + "." + "no")
-		
+
 	def copy_to_site(self):
 		"""Copy the entire site to 'path'
 		"""
