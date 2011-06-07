@@ -91,8 +91,8 @@ alias   дudm='$LOOKUP $GTHOME/kt/udm/bin/iudm.fst'
 alias   уком='$LOOKUP $GTHOME/kt/kom/bin/kom.fst'
 alias   умчр='$LOOKUP $GTHOME/kt/mhr/bin/mhr.fst'
 alias   уудм='$LOOKUP $GTHOME/kt/udm/bin/udm.fst'
-alias   ufin='hfst-optimized-lookup $GTHOME/kt/fin/omorfi/src/mor-omorfi.cg.hfst.ol'
-alias   dfin='hfst-optimized-lookup $GTHOME/kt/fin/omorfi/src/mor-omorfi.inv.cg.hfst.ol'
+alias   ufin='/opt/local/bin/hfst-lookup $GTHOME/kt/fin/omorfi/src/morphology.cg.hfstol'
+alias   dfin='hfst-lookup $GTHOME/kt/fin/omorfi/src/morphology.generate.cg.hfstol'
 alias   xufin='$LOOKUP $GTHOME/kt/fin/bin/fin.fst'
 
 
