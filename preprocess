@@ -118,7 +118,7 @@ my %regex;
 # read the abbreviations from the file to a hash.
 if ($abbr_file) { &read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num, \%regex); 
 }
-# Read the corrections file (typos.txt)
+# Read the corrections file (corr.txt)
 if ($corr) { &read_corr (\%corrections, \%corr_short); }
 
 # Read one line at a time but keep track on the next line.
