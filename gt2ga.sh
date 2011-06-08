@@ -135,7 +135,7 @@ process ()
 
 	optdir="/opt/smi/$lang/bin"
 	abbr="$optdir/abbr.txt"
-	corr="$optdir/typos.txt"
+	corr="$optdir/corr.txt"
 	fst="$optdir/$lang.fst"
 	preprocess="preprocess --abbr=$abbr --corr=$corr"
 	lookup="lookup -flags mbTT -utf8 $optdir/$lang.fst"
