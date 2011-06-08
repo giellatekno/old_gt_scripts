@@ -55,8 +55,8 @@ alias f8="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headl
 alias f9="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true -Djetty.port=8889\""
 alias f7="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true -Djetty.port=8887\""
 
-alias  saxonXQ="java net.sf.saxon.Query"
-alias saxonXSL="java net.sf.saxon.Transform"
+alias  saxonXQ="java -Xmx2048m net.sf.saxon.Query"
+alias saxonXSL="java -Xmx2048m net.sf.saxon.Transform"
 alias xquery="saxonXQ"
 alias xslt2="saxonXSL"
 alias xsl2="saxonXSL"
