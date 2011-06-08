@@ -194,7 +194,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:i|html:em|html:u|html:strong">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u">
+		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:span|html:u">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4)">
@@ -224,17 +224,17 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:td|html:caption|html:th|html:thead">
 	<xsl:choose>
 		<xsl:when test="text()">
-		<xsl:choose>
-		<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+		  <xsl:choose>
+		    <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
 				<xsl:apply-templates select="text()"/>
-		</xsl:when>
-		<xsl:otherwise>
+		    </xsl:when>
+		    <xsl:otherwise>
 				<p><xsl:apply-templates select="text()"/></p>
-		</xsl:otherwise>
-		</xsl:choose>
+		    </xsl:otherwise>
+		  </xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
-				<xsl:apply-templates/>
+			<xsl:apply-templates/>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -246,7 +246,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4">
+		<xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:div[text()]">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
@@ -284,9 +284,19 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- other formatting -->
-<xsl:template match="html:span|html:font|html:div|html:idiv|html:note">
+<xsl:template match="html:span|html:font|html:idiv|html:div|html:note">
 	<xsl:choose>
 		<xsl:when test="text()">
+			<xsl:choose>
+				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong">
+					<xsl:apply-templates/>
+				</xsl:when>
+				<xsl:otherwise>
+					<p><xsl:apply-templates select="text()"/></p>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<xsl:when test="text() and html:* ">
 			<xsl:choose>
 				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong">
 					<xsl:apply-templates select="text()"/>
@@ -301,7 +311,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
-
 
 <xsl:template match="*">
 	<xsl:message>No template for <xsl:value-of select="name()"/>
@@ -319,7 +328,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- Ignored elements -->
 <xsl:template match="html:hr"/>
-<xsl:template match="html:h1[1]|html:h2[1]|html:h3[1]" priority="1"/>
+<!--xsl:template match="html:h1[1]|html:h2[1]|html:h3[1]" priority="1"/-->
 <xsl:template match="html:br"/>
 <xsl:template match="html:script"/>
 <xsl:template match="html:img"/>
