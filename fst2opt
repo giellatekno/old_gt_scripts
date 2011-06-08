@@ -75,7 +75,7 @@ build_gt() {
 	  cp $tmpdir/gt/$lang/src/$lang-dis.rle $fstdir # keep, we need both
 	  cp $tmpdir/gt/$lang/bin/$lang-dis.bin $fstdir
 	  cp $tmpdir/gt/$lang/bin/abbr.txt $fstdir
-	  cp $tmpdir/gt/$lang/src/typos.txt $fstdir
+	  cp $tmpdir/gt/$lang/bin/corr.txt $fstdir
 	  cp $tmpdir/gt/$lang/res/korpustags.$lang.txt $fstdir
 	  cp $tmpdir/gt/$lang/res/paradigm.$lang.txt $fstdir
 
