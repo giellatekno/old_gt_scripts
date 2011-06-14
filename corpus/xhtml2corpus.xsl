@@ -108,21 +108,13 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- LIST ELEMENTS -->
 
-<xsl:template match="html:ul">
-	<xsl:if test="string-length(normalize-space(html:li/text())) > 1">
-		<list>
-			<xsl:apply-templates select="html:li[not(html:ol) and not(html:ul)]"/>
-		</list>
-	</xsl:if>
-	<xsl:apply-templates select="html:li//html:ol"/>
-	<xsl:apply-templates select="html:li//html:ul"/>
-</xsl:template>
-
-<xsl:template match="html:ol">
+<!-- Beware: lists within lists are ok, lists within listitems are NOT ok: -->
+<xsl:template match="html:ul | html:ol">
 	<list>
 		<xsl:apply-templates/>
-		<xsl:apply-templates select="html:li//html:ol"/>
-		<xsl:apply-templates select="html:li//html:ul"/>
+		<xsl:if test="html:li//html:ul or html:li//html:ol">
+			<xsl:apply-templates select="html:li//html:ul | html:li//html:ol"/>
+		</xsl:if>
 	</list>
 </xsl:template>
 
@@ -130,13 +122,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
 <xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
-
-
-<!-- <xsl:template match="html:ol/html:ol"> -->
-<!--     <list> -->
-<!--         <xsl:apply-templates/> -->
-<!--     </list> -->
-<!-- </xsl:template> -->
+<xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
+<xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="html:dl">
@@ -162,11 +149,18 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="html:li">
-	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<p type="listitem">
-			<xsl:value-of select="text()"/>
-		</p>
-	</xsl:if>
+	<xsl:choose>
+		<!-- Block lists as daughters of listitems: -->
+		<xsl:when test="./html:ul or ./html:ol"/>
+		<xsl:when test="string-length(normalize-space(.)) > 1">
+			<p type="listitem">
+				<xsl:apply-templates/>
+			</p>
+		</xsl:when>
+		<!--xsl:otherwise>
+			<xsl:apply-templates/>
+		</xsl:otherwise-->
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:center">
@@ -300,11 +294,18 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- superscripts and subscripts are dropped to text -->
-<xsl:template match="html:big|html:small|html:sub|html:sup">
+<xsl:template match="html:big   |
+					 html:small |
+					 html:sub   |
+					 html:sup">
 	<xsl:choose>
 		<xsl:when test="text()">
 			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+				<xsl:when test="ancestor::html:p |
+								ancestor::html:b |
+								ancestor::html:i |
+								ancestor::html:u |
+								ancestor::html:a">
 					<xsl:apply-templates select="text()"/>
 				</xsl:when>
 				<xsl:otherwise>
