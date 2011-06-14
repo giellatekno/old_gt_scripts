@@ -100,14 +100,8 @@
 </xsl:template>
 -->
 
- <xsl:template match="node()|@*">
-     <xsl:copy>
-         <xsl:apply-templates select="node()|@*" />
-     </xsl:copy>
- </xsl:template>
 
-
-<!-- Add info about the main language: -->
+<!-- Add all metadata from the xsl file to the resulting xml file: -->
 <xsl:template  match="document">
     <xsl:element name="document">
     <xsl:attribute name="xml:lang">
@@ -882,5 +876,10 @@
   </xsl:choose>
 </xsl:template>
 
+ <xsl:template match="node()|@*">
+     <xsl:copy>
+         <xsl:apply-templates select="node()|@*" />
+     </xsl:copy>
+ </xsl:template>
 
 </xsl:stylesheet>
