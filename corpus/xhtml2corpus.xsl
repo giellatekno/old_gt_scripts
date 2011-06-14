@@ -40,8 +40,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				</xsl:when>
 				<xsl:otherwise>	
 					<xsl:value-of select="../html:body//html:h1[1]
-											|../html:body//html:h2[1]
-											|../html:body//html:h3[1]"/>
+										 |../html:body//html:h2[1]
+										 |../html:body//html:h3[1]"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</title>
@@ -54,8 +54,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<body>
 		<p type="title">
 			<xsl:value-of select=".//html:h1[1]
-									|.//html:h2[1]
-									|.//html:h3[1]"/>
+								 |.//html:h2[1]
+								 |.//html:h3[1]"/>
 		</p>
 		<xsl:apply-templates />
 	</body>
@@ -67,11 +67,11 @@ xsltproc xhtml2corpus.xsl - > file.xml
      for a named anchor as a child of the header or as the immediate preceding
      or following sibling -->
 <xsl:template match="html:h1
-              |html:h2
-              |html:h3
-              |html:h4
-              |html:h5
-              |html:h6">
+                    |html:h2
+                    |html:h3
+                    |html:h4
+                    |html:h5
+                    |html:h6">
 	<section>
 		<p type="title">
 			<xsl:apply-templates/>
@@ -80,10 +80,15 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 
-<xsl:template match="html:p|html:label">
+<xsl:template match="html:p |
+					 html:label">
 	<xsl:if test="string-length(normalize-space(.)) > 1">
 		<xsl:choose>
-			<xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p">
+			<xsl:when test="ancestor::html:i |
+							ancestor::html:u |
+							ancestor::html:b |
+							ancestor::html:p |
+							ancestor::html:li">
 				<xsl:apply-templates />
 			</xsl:when>
 			<xsl:otherwise>
@@ -120,6 +125,12 @@ xsltproc xhtml2corpus.xsl - > file.xml
 		<xsl:apply-templates select="html:li//html:ul"/>
 	</list>
 </xsl:template>
+
+<!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
+<!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
+<xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
+<xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
+
 
 <!-- <xsl:template match="html:ol/html:ol"> -->
 <!--     <list> -->
@@ -174,7 +185,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- inline formatting -->
 <xsl:template match="html:b">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u">
+		<xsl:when test="ancestor::html:b  |
+						ancestor::html:i  |
+						ancestor::html:em |
+						html:u">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
@@ -192,7 +206,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:i|html:em|html:u|html:strong">
+<xsl:template match="html:i  |
+					 html:u  |
+					 html:em |
+					 html:strong">
 	<xsl:choose>
 		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:span|html:u">
 			<xsl:apply-templates/>
@@ -221,11 +238,18 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:td|html:caption|html:th|html:thead">
+<xsl:template match="html:td      |
+					 html:th      |
+					 html:caption |
+					 html:thead">
 	<xsl:choose>
 		<xsl:when test="text()">
 		  <xsl:choose>
-		    <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+		    <xsl:when test="ancestor::html:p |
+		    				ancestor::html:b |
+		    				ancestor::html:i |
+		    				ancestor::html:u |
+		    				ancestor::html:a">
 				<xsl:apply-templates select="text()"/>
 		    </xsl:when>
 		    <xsl:otherwise>
@@ -246,8 +270,19 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:div[text()]">
-			<xsl:apply-templates/>
+		<xsl:when test="parent::html:p  |
+						parent::html:dt |
+						parent::html:dd |
+						parent::html:b  |
+						parent::html:i  |
+						parent::html:u  |
+						parent::html:h1 |
+						parent::html:h2 |
+						parent::html:h3 |
+						parent::html:h4 |
+						parent::html:li |
+						parent::html:div[text()]">
+			<xsl:apply-templates>XXX</xsl:apply-templates>
 		</xsl:when>
 		<xsl:otherwise>
 			<p><xsl:apply-templates/></p>
@@ -284,21 +319,26 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- other formatting -->
-<xsl:template match="html:span|html:font|html:idiv|html:div|html:note">
+<xsl:template match="html:span |
+					 html:font |
+					 html:idiv |
+					 html:div  |
+					 html:note">
 	<xsl:choose>
-		<xsl:when test="text()">
-			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong">
-					<xsl:apply-templates/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p><xsl:apply-templates select="text()"/></p>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:when>
+		<!-- Explicitly check for mixed content: -->
 		<xsl:when test="text() and html:* ">
 			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong">
+				<xsl:when test="ancestor::html:p  |
+								ancestor::html:b  |
+								ancestor::html:i  |
+								ancestor::html:u  |
+								ancestor::html:a  |
+								ancestor::html:dt |
+								ancestor::html:h1 |
+								ancestor::html:h2 |
+								ancestor::html:h3 |
+								ancestor::html:h4 |
+								ancestor::html:strong">
 					<xsl:apply-templates select="text()"/>
 				</xsl:when>
 				<xsl:otherwise>
@@ -306,6 +346,28 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
+		<!-- Then this must be text-only content: -->
+		<xsl:when test="text()">
+			<xsl:choose>
+				<xsl:when test="ancestor::html:p  |
+								ancestor::html:b  |
+								ancestor::html:i  |
+								ancestor::html:u  |
+								ancestor::html:a  |
+								ancestor::html:dt |
+								ancestor::html:h1 |
+								ancestor::html:h2 |
+								ancestor::html:h3 |
+								ancestor::html:h4 |
+								ancestor::html:strong">
+					<xsl:apply-templates/>
+				</xsl:when>
+				<xsl:otherwise>
+					<p><xsl:apply-templates select="text()"/></p>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<!-- And this element-only content: -->
 		<xsl:otherwise>
 			<xsl:apply-templates/>
 		</xsl:otherwise>
@@ -320,7 +382,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="@*">
-	<xsl:message>No template for <xsl:value-of select="name()"/>
+	<xsl:message>No template for attribute <xsl:value-of select="name()"/>
 		<xsl:text>: </xsl:text><xsl:value-of select="text()"/>
 	</xsl:message>
 	<xsl:apply-templates/>
