@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" 
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-                xmlns:fo="http://www.w3.org/1999/XSL/Format" 
                 xmlns:html="http://www.w3.org/1999/xhtml" 
-                xmlns:saxon="http://icl.com/saxon"
-                exclude-result-prefixes="xsl fo html saxon">
+                exclude-result-prefixes="xsl html">
 <!--$Revision$ -->
 
 <!-- 
@@ -205,10 +203,20 @@ xsltproc xhtml2corpus.xsl - > file.xml
 					 html:em |
 					 html:strong">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:span|html:u">
+		<xsl:when test="../html:strong |
+						../html:b      |
+						../html:i      |
+						../html:em     |
+						../html:span   |
+						../html:u">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4)">
+		<xsl:when test="not(../html:p  |
+							../html:a  |
+							../html:h1 |
+							../html:h2 |
+							../html:h3 |
+							../html:h4 )">
 			<p>
 				<em type="bold">
 					<xsl:apply-templates/>
@@ -261,8 +269,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:apply-templates />
 </xsl:template>
 
-<!-- references -->
-<xsl:template match="html:a">
+<!-- typically inline elements -->
+<xsl:template match="html:font |
+					 html:span |
+					 html:a">
 	<xsl:choose>
 		<xsl:when test="parent::html:p  |
 						parent::html:dt |
@@ -275,8 +285,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						parent::html:h3 |
 						parent::html:h4 |
 						parent::html:li |
-						parent::html:div[text()]">
-			<xsl:apply-templates>XXX</xsl:apply-templates>
+						parent::html:div">
+			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
 			<p><xsl:apply-templates/></p>
@@ -293,7 +303,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:apply-templates />
 </xsl:template>
 
-<!-- superscripts and subscripts are dropped to text -->
+<!-- superscripts and subscripts are dropped to text: (XXX this looks dangerous) -->
 <xsl:template match="html:big   |
 					 html:small |
 					 html:sub   |
@@ -320,51 +330,49 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- other formatting -->
-<xsl:template match="html:span |
-					 html:font |
-					 html:idiv |
+<xsl:template match="html:idiv |
 					 html:div  |
 					 html:note">
 	<xsl:choose>
 		<!-- Explicitly check for mixed content: -->
 		<xsl:when test="text() and html:* ">
 			<xsl:choose>
-				<xsl:when test="ancestor::html:p  |
-								ancestor::html:b  |
-								ancestor::html:i  |
-								ancestor::html:u  |
-								ancestor::html:a  |
-								ancestor::html:dt |
-								ancestor::html:h1 |
-								ancestor::html:h2 |
-								ancestor::html:h3 |
-								ancestor::html:h4 |
-								ancestor::html:strong">
-					<xsl:apply-templates select="text()"/>
+				<xsl:when test="parent::html:p  |
+								parent::html:b  |
+								parent::html:i  |
+								parent::html:u  |
+								parent::html:a  |
+								parent::html:dt |
+								parent::html:h1 |
+								parent::html:h2 |
+								parent::html:h3 |
+								parent::html:h4 |
+								parent::html:strong">
+					<xsl:apply-templates/>
 				</xsl:when>
 				<xsl:otherwise>
-					<p><xsl:apply-templates select="text()"/></p>
+					<p><xsl:apply-templates/></p>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
 		<!-- Then this must be text-only content: -->
 		<xsl:when test="text()">
 			<xsl:choose>
-				<xsl:when test="ancestor::html:p  |
-								ancestor::html:b  |
-								ancestor::html:i  |
-								ancestor::html:u  |
-								ancestor::html:a  |
-								ancestor::html:dt |
-								ancestor::html:h1 |
-								ancestor::html:h2 |
-								ancestor::html:h3 |
-								ancestor::html:h4 |
-								ancestor::html:strong">
+				<xsl:when test="parent::html:p  |
+								parent::html:b  |
+								parent::html:i  |
+								parent::html:u  |
+								parent::html:a  |
+								parent::html:dt |
+								parent::html:h1 |
+								parent::html:h2 |
+								parent::html:h3 |
+								parent::html:h4 |
+								parent::html:strong">
 					<xsl:apply-templates/>
 				</xsl:when>
 				<xsl:otherwise>
-					<p><xsl:apply-templates select="text()"/></p>
+					<p><xsl:apply-templates/></p>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
