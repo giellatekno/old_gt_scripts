@@ -208,7 +208,7 @@ sub convert2xml {
 sub checkxml {
 	my( $self ) = @_;
 	
-	my $command = "xmllint --valid --encode UTF-8 " . $self->getInt() . " > /dev/null";
+	my $command = "xmllint --noout --valid --encode UTF-8 " . $self->getInt();
 	return $self->exec_com($command);
 }
 
