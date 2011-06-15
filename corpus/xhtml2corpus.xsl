@@ -21,7 +21,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 		   encoding="UTF-8"
 		   indent="yes"
 		   doctype-public="-//UIT//DTD Corpus V1.0//EN"
-		   doctype-system="http://www.giellatekno.uit.no/dtd/corpus.dtd"/>
+		   doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/>
 
 <!-- Main block-level conversions -->
 <xsl:template match="html:html">
