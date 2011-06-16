@@ -84,7 +84,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 		<xsl:choose>
 			<!-- This is a not very satisfactory solution to deal with multi-
 				 paragraph list items. I don't have time now, thus this note. -->
-			<!-- If self contains text and is not a child if li, then turn into p: -->
+			<!-- If self contains text and is not a child of li, then turn into p: -->
 			<xsl:when test="self::*[text()][not(parent::html:li)]">
 				<p type="text"><xsl:apply-templates/></p>
 			</xsl:when>
@@ -96,18 +96,14 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				<xsl:apply-templates />
 			</xsl:when>
 			<xsl:otherwise>
-				<p> 
-					<xsl:apply-templates /> 
-				</p>
+				<p><xsl:apply-templates /></p>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:if>
 </xsl:template>
 
 <xsl:template match="html:pre">
-	<pre>
-		<xsl:apply-templates/>
-	</pre>
+	<pre><xsl:apply-templates/></pre>
 </xsl:template>
 
 <!-- LIST ELEMENTS -->
@@ -288,12 +284,16 @@ xsltproc xhtml2corpus.xsl - > file.xml
 					 html:span |
 					 html:a">
 	<xsl:choose>
-		<!-- If self is a span containing an a with text, then change to p: -->
+		<!-- If self is a span containing an a with text, then change to p
+			 unless we are already within a text block:   -->
+		<!-- Also ensure that if we are within a div with no text, wrap in p: -->
 		<!-- (this is needed to block a certain circularity between divs, spans
-		      and a elements causing text to be left without any p at all) -->
-		<xsl:when test="self::html:span/html:a[text()]">
+		      and a elements causing text to be left without any p at all)    -->
+		<xsl:when test="self::html:span[not(parent::*/text())]/html:a[text()] |
+						parent::html:div[not(text())]">
 			<p><xsl:apply-templates/></p>
 		</xsl:when>
+		<!-- When within a block element (=p), just continue: -->
 		<xsl:when test="ancestor::html:p  |
 						ancestor::html:dt |
 						ancestor::html:dd |
@@ -338,8 +338,17 @@ xsltproc xhtml2corpus.xsl - > file.xml
 					 html:div  |
 					 html:note">
 	<xsl:choose>
-		<!-- If self contains text, then turn into p: -->
-		<xsl:when test="self::*[text()]">
+		<!-- If self contains text only, then turn into p: -->
+		<xsl:when test="self::*[text()][not(./html:*)]">
+			<p type="text"><xsl:apply-templates/></p>
+		</xsl:when>
+		<!-- If self contains mixed content with embedded list, split it: -->
+		<xsl:when test="self::*[text()][html:ul | html:ol]">
+			<p type="text"><xsl:apply-templates select="text()"/></p>
+			<xsl:apply-templates select="html:ul | html:ol"/>
+		</xsl:when>
+		<!-- In other mixed contents turn into p: -->
+		<xsl:when test="self::*[text()][./html:*]">
 			<p type="text"><xsl:apply-templates/></p>
 		</xsl:when>
 		<!-- Avoid blocks within blocks, ie when either the parent
@@ -392,4 +401,5 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:iframe"/>
 <xsl:template match="html:noscript"/>
 <xsl:template match="html:select"/>
+<xsl:template match="html:textarea"/>
 </xsl:stylesheet>
