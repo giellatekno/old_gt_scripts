@@ -82,6 +82,12 @@ xsltproc xhtml2corpus.xsl - > file.xml
 					 html:label">
 	<xsl:if test="string-length(normalize-space(.)) > 1">
 		<xsl:choose>
+			<!-- This is a not very satisfactory solution to deal with multi-
+				 paragraph list items. I don't have time now, thus this note. -->
+			<!-- If self contains text and is not a child if li, then turn into p: -->
+			<xsl:when test="self::*[text()][not(parent::html:li)]">
+				<p type="text"><xsl:apply-templates/></p>
+			</xsl:when>
 			<xsl:when test="ancestor::html:i |
 							ancestor::html:u |
 							ancestor::html:b |
@@ -159,6 +165,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
 			<xsl:apply-templates/>
 		</xsl:otherwise-->
 	</xsl:choose>
+</xsl:template>
+<!-- There are some ugly, Word-generated list items that really are paragraphs: -->
+<xsl:template match="html:li[@style = 'list-style: none']">
+	<xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:center">
@@ -328,7 +338,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 					 html:div  |
 					 html:note">
 	<xsl:choose>
-		<!-- If self contains text, then replace with p: -->
+		<!-- If self contains text, then turn into p: -->
 		<xsl:when test="self::*[text()]">
 			<p type="text"><xsl:apply-templates/></p>
 		</xsl:when>
