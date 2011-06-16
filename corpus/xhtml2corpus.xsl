@@ -183,7 +183,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:u">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
+		<xsl:when test="not(ancestor::html:p |
+							ancestor::html:a)">
 				<p>
 				<em type="bold">
 					<xsl:apply-templates/>
@@ -198,25 +199,28 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<!-- Inline emphasis: -->
 <xsl:template match="html:i  |
 					 html:u  |
 					 html:em |
+					 html:big   |
+					 html:small |
 					 html:strong">
 	<xsl:choose>
-		<xsl:when test="../html:strong |
-						../html:b      |
-						../html:i      |
-						../html:em     |
-						../html:span   |
-						../html:u">
+		<xsl:when test="parent::html:strong |
+						parent::html:b      |
+						parent::html:i      |
+						parent::html:em     |
+						parent::html:span   |
+						parent::html:u">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="not(../html:p  |
-							../html:a  |
-							../html:h1 |
-							../html:h2 |
-							../html:h3 |
-							../html:h4 )">
+		<xsl:when test="not(parent::html:p  |
+							parent::html:a  |
+							parent::html:h1 |
+							parent::html:h2 |
+							parent::html:h3 |
+							parent::html:h4 )">
 			<p>
 				<em type="bold">
 					<xsl:apply-templates/>
@@ -274,18 +278,24 @@ xsltproc xhtml2corpus.xsl - > file.xml
 					 html:span |
 					 html:a">
 	<xsl:choose>
-		<xsl:when test="parent::html:p  |
-						parent::html:dt |
-						parent::html:dd |
-						parent::html:b  |
-						parent::html:i  |
-						parent::html:u  |
-						parent::html:h1 |
-						parent::html:h2 |
-						parent::html:h3 |
-						parent::html:h4 |
-						parent::html:li |
-						parent::html:div">
+		<!-- If self is a span containing an a with text, then change to p: -->
+		<!-- (this is needed to block a certain circularity between divs, spans
+		      and a elements causing text to be left without any p at all) -->
+		<xsl:when test="self::html:span/html:a[text()]">
+			<p><xsl:apply-templates/></p>
+		</xsl:when>
+		<xsl:when test="ancestor::html:p  |
+						ancestor::html:dt |
+						ancestor::html:dd |
+						ancestor::html:b  |
+						ancestor::html:i  |
+						ancestor::html:u  |
+						ancestor::html:h1 |
+						ancestor::html:h2 |
+						ancestor::html:h3 |
+						ancestor::html:h4 |
+						ancestor::html:li |
+						ancestor::html:div">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
@@ -294,91 +304,56 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:form|html:input">
+<xsl:template match="html:form |
+					 html:input">
 	<xsl:apply-templates/>
 </xsl:template>
 
 <!-- quotations -->
-<xsl:template match="html:blockquote|html:q">
+<xsl:template match="html:blockquote |
+					 html:q">
 	<xsl:apply-templates />
 </xsl:template>
 
-<!-- superscripts and subscripts are dropped to text: (XXX this looks dangerous) -->
-<xsl:template match="html:big   |
-					 html:small |
-					 html:sub   |
-					 html:sup">
-	<xsl:choose>
-		<xsl:when test="text()">
-			<xsl:choose>
-				<xsl:when test="ancestor::html:p |
-								ancestor::html:b |
-								ancestor::html:i |
-								ancestor::html:u |
-								ancestor::html:a">
-					<xsl:apply-templates select="text()"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p><xsl:apply-templates select="text()"/></p>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template>
+<!-- superscripts and subscripts are dropped. Please change and reconvert the
+	 offended docs if this is not what we want in the end. -->
+<xsl:template match="html:sub   |
+					 html:sup"/>
+<!--
+	[<xsl:apply-templates/>]
+</xsl:template-->
 
-<!-- other formatting -->
+<!-- Block-like elements: -->
 <xsl:template match="html:idiv |
 					 html:div  |
 					 html:note">
 	<xsl:choose>
-		<!-- Explicitly check for mixed content: -->
-		<xsl:when test="text() and html:* ">
-			<xsl:choose>
-				<xsl:when test="parent::html:p  |
-								parent::html:b  |
-								parent::html:i  |
-								parent::html:u  |
-								parent::html:a  |
-								parent::html:dt |
-								parent::html:h1 |
-								parent::html:h2 |
-								parent::html:h3 |
-								parent::html:h4 |
-								parent::html:strong">
-					<xsl:apply-templates/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p><xsl:apply-templates/></p>
-				</xsl:otherwise>
-			</xsl:choose>
+		<!-- If self contains text, then replace with p: -->
+		<xsl:when test="self::*[text()]">
+			<p type="text"><xsl:apply-templates/></p>
 		</xsl:when>
-		<!-- Then this must be text-only content: -->
-		<xsl:when test="text()">
-			<xsl:choose>
-				<xsl:when test="parent::html:p  |
-								parent::html:b  |
-								parent::html:i  |
-								parent::html:u  |
-								parent::html:a  |
-								parent::html:dt |
-								parent::html:h1 |
-								parent::html:h2 |
-								parent::html:h3 |
-								parent::html:h4 |
-								parent::html:strong">
-					<xsl:apply-templates/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p><xsl:apply-templates/></p>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:when>
-		<!-- And this element-only content: -->
-		<xsl:otherwise>
+		<!-- Avoid blocks within blocks, ie when either the parent
+			 or the children are blocks to be kept: -->
+		<xsl:when test="parent::html:p  |
+						parent::html:b  |
+						parent::html:i  |
+						parent::html:u  |
+						parent::html:a  |
+						parent::html:dt |
+						parent::html:h1 |
+						parent::html:h2 |
+						parent::html:h3 |
+						parent::html:h4 |
+						parent::html:li |
+						parent::html:div |
+						parent::html:strong |
+						./html:ol |
+						./html:ul
+						">
 			<xsl:apply-templates/>
+		</xsl:when>
+		<xsl:otherwise>
+			<p><xsl:apply-templates/></p>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
