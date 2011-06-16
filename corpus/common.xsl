@@ -876,6 +876,11 @@
   </xsl:choose>
 </xsl:template>
 
+<!-- The following template IS NOT TESTED! Please test properly before committing
+     an active version of this template. -->
+<!-- Remove completely empty elements within the body: >
+ <xsl:template match="*[ancestor::body][not(node())]"/-->
+
  <xsl:template match="node()|@*">
      <xsl:copy>
          <xsl:apply-templates select="node()|@*" />
