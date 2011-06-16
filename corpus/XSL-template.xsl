@@ -124,12 +124,12 @@
 <xsl:variable name="swelang" select="'swe'"/>
 
 
-<!-- Add all paragraphs that should have xml:lang=X-->
-<!-- Uncomment the following and add the paths, for example: -->
+<!-- Add all paragraphs that should have xml:lang=X           -->
+<!-- Uncomment the following and add the paths, for example:  -->
 <!-- <xsl:template match="/root/section[2]/paragraph[5] |
-                      /root/section[3]/paragraph[2] "> -->
+                      /root/section[3]/paragraph[2] ">        -->
 <!--
-<xsl:template match="">
+<xsl:template match="//body/p[5]">
 	<xsl:element name="p">
 	<xsl:attribute name="xml:lang">
 		<xsl:value-of select="$smelang"/>
@@ -139,33 +139,40 @@
  </xsl:template>
 -->
 
-<!-- Change or remove problematic characters from the text. -->
-<!-- add the template to match (here all p:s), and write the -->
-<!-- replaced characters and the replacements. -->
+<!-- Change or remove problematic characters from the text.   -->
+<!-- Specify the elements to match (here all p's within       -->
+<!-- //body, that do contain text, but do NOT contain em and  -->
+<!-- span elements), and specify the characters               -->
+<!-- to be replaced and the replacements. If needed,          -->
+<!-- copy this template and target several different elements,-->
+<!-- but don't make several templates that match the same set -->
+<!-- of elements - then only one of them will apply. Also try -->
+<!-- to restrict the template to nodes that do not contain    -->
+<!-- other markup, as such markup otherwise will be removed.  -->
 <!--
-<xsl:template match="p">
-<xsl:variable name="text" select='current()' />
-<xsl:variable name="type" select='@type' />
-<xsl:variable name="lang" select='@xml:lang' />
-<xsl:element name="p">
-            <xsl:if test="$type">
+<xsl:template match="p[parent::body][not(./em | ./span)][text()]">
+    <xsl:variable name="text" select='current()' />
+    <xsl:variable name="type" select='@type' />
+    <xsl:variable name="lang" select='@xml:lang' />
+    <xsl:element name="p">
+        <xsl:if test="$type">
             <xsl:attribute name="type">
-            <xsl:value-of select="$type"/>
+                <xsl:value-of select="$type"/>
             </xsl:attribute>
-            </xsl:if>
-            <xsl:if test="$lang">
+        </xsl:if>
+        <xsl:if test="$lang">
             <xsl:attribute name="xml:lang">
-            <xsl:value-of select="$lang"/>
+                <xsl:value-of select="$lang"/>
             </xsl:attribute>
-            </xsl:if>
+        </xsl:if>
 
-            <xsl:call-template name="globalTextReplace">
-               <xsl:with-param name="inputString" select="$text"/>
-               <xsl:with-param name="target" select="'str1/str2/str3/'"/>
-               <xsl:with-param name="replacement" select="'rpl1/rpl2/rpl3/'"/>
-                <xsl:with-param name="continue" select="0"/>
-            </xsl:call-template>
-</xsl:element>
+        <xsl:call-template name="globalTextReplace">
+           <xsl:with-param name="inputString" select="$text"/>
+           <xsl:with-param name="target" select="'str1/str2/str3/'"/>
+           <xsl:with-param name="replacement" select="'rpl1/rpl2/rpl3/'"/>
+           <xsl:with-param name="continue" select="0"/>
+        </xsl:call-template>
+    </xsl:element>
 </xsl:template>
 -->
 
