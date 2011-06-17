@@ -26,6 +26,7 @@ my %error_hash = (
 	"convert2xml" => 0,
 	"checklang" => 0,
 	"checkxml_after_checklang" => 0,
+	"checkxml_after_errormarkup" => 0,
 	"character_encoding" => 0,
 	"faulty_chars" => 0,
 	"checkxml_after_faulty" => 0,
@@ -91,14 +92,20 @@ sub convertdoc {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"checkxml_after_checklang"}++;
+			} elsif ($filename =~ m/\.correct\./) {
+				if ($converter->error_markup()) {
+					print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+					$error = 1;
+					$error_hash{"error_markup"}++;
+				} elsif ($converter->checkxml()) {
+					print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+					$error = 1;
+					$error_hash{"checkxml_after_errormarkup"}++;
+				}
 			} elsif ($converter->character_encoding()) {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"character_encoding"}++;
-# 			} elsif ($converter->error_markup()) {
-# 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-# 				$error = 1;
-# 				$error_hash{"error_markup"}++;
 			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
 				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
@@ -119,7 +126,7 @@ sub convertdoc {
 			}
 			
 			if ($error) {
-				$feedback = "|";
+				$feedback = "\nCouldn't convert $filename\n";
 				$errors++;
 				if (-f $converter->getFinalName()) {
 					unlink($converter->getFinalName());
