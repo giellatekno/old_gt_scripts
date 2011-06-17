@@ -94,6 +94,8 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/eng/admin/depts/regjeringen.no/state-secretary-karl-eirik-schjott-peder.html_id=439605",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/samisk.html_id=454913",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/132469-sa-sve.pdf",
+	"$ENV{'GTFREE'}/orig/nob/admin/depts/other_files/OTP200620070025000SE_12.html",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/OTP200620070025000SE_12.html",
 # 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
 
