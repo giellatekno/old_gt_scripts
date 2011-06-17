@@ -71,6 +71,9 @@
 <xsl:variable name="fkvlang" select="'fkv'"/>
 <xsl:variable name="kallang" select="'kal'"/>
 
+<xsl:variable name="debug" select="true()"/>
+<xsl:variable name="nl" select="'&#xa;'"/>
+
 
 <!-- Fix empty em-type according to the dtd -->
 <xsl:template match="em">
@@ -792,6 +795,15 @@
   <xsl:variable name="restTarget" select="substring($tmpTarget,2)"/>
   <xsl:variable name="restReplacement" select="substring($tmpReplacement,2)"/>
 
+  <xsl:if test="$debug">
+    <xsl:message terminate="no">
+      <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
+      <xsl:value-of select="concat('input string ', $inputString, $nl)"/>
+      <xsl:value-of select="'-----------------------------------------'"/>
+    </xsl:message>
+  </xsl:if>
+  
+
 <!--
   <xsl:message>
   inputString <xsl:value-of select="$inputString"/>
@@ -813,37 +825,37 @@
 	<xsl:value-of select="$inputString"/>	  
   </xsl:when>
   <xsl:otherwise>
+    <xsl:choose>
+      <!-- if a replacement was made, the search for the target continues at the -->
+      <!-- end of the string -->
+      <xsl:when test="$continue=1">
 	<xsl:choose>
-	<!-- if a replacement was made, the search for the target continues at the -->
-	<!-- end of the string -->
-	<xsl:when test="$continue=1">
-	  <xsl:choose>
-      <xsl:when test="contains($inputString, $OneTarget)">
-	  	  <xsl:variable name="before" select="substring-before($inputString,$OneTarget)"/>
-		  <xsl:variable name="after" select="substring-after($inputString,$OneTarget)"/>
-		  <xsl:variable name="prefix" select="concat($before,$OneReplacement)"/>
-		  <xsl:variable name="whole" select="concat($prefix,$after)"/>
-		  <xsl:call-template name="globalTextReplace">
-			<xsl:with-param name="continue" select="1"/>
-			<xsl:with-param name="inputString" select="$whole"/>
-			<xsl:with-param name="target" select="$target"/>
-			<xsl:with-param name="replacement" select="$replacement"/>
-		  </xsl:call-template>
+	  <xsl:when test="contains($inputString, $OneTarget)">
+	    <xsl:variable name="before" select="substring-before($inputString,$OneTarget)"/>
+	    <xsl:variable name="after" select="substring-after($inputString,$OneTarget)"/>
+	    <xsl:variable name="prefix" select="concat($before,$OneReplacement)"/>
+	    <xsl:variable name="whole" select="concat($prefix,$after)"/>
+	    <xsl:call-template name="globalTextReplace">
+	      <xsl:with-param name="continue" select="1"/>
+	      <xsl:with-param name="inputString" select="$whole"/>
+	      <xsl:with-param name="target" select="$target"/>
+	      <xsl:with-param name="replacement" select="$replacement"/>
+	    </xsl:call-template>
 	  </xsl:when>
 	  <xsl:otherwise>
-
-
-	  	  <xsl:call-template name="globalTextReplace">
-			<xsl:with-param name="continue" select="0"/>
-			<xsl:with-param name="inputString" select="$inputString"/>
-			<xsl:with-param name="target" select="$restTarget"/>
-			<xsl:with-param name="replacement" select="$restReplacement"/>
-		  </xsl:call-template>
+	    
+	    
+	    <xsl:call-template name="globalTextReplace">
+	      <xsl:with-param name="continue" select="0"/>
+	      <xsl:with-param name="inputString" select="$inputString"/>
+	      <xsl:with-param name="target" select="$restTarget"/>
+	      <xsl:with-param name="replacement" select="$restReplacement"/>
+	    </xsl:call-template>
 	  </xsl:otherwise>
-	  </xsl:choose>
-	</xsl:when>
-	<xsl:otherwise>	
-
+	</xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>	
+	
 	<!-- When the text is encountered first time, -->
 	  <!-- the whole text is searched --> 
 	  <xsl:choose>
