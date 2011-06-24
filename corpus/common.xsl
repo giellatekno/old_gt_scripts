@@ -71,7 +71,7 @@
 <xsl:variable name="fkvlang" select="'fkv'"/>
 <xsl:variable name="kallang" select="'kal'"/>
 
-<xsl:variable name="debug" select="true()"/>
+<xsl:variable name="debug" select="false()"/>
 <xsl:variable name="nl" select="'&#xa;'"/>
 
 
@@ -798,16 +798,16 @@
   <xsl:if test="$debug">
     <xsl:message terminate="no">
       <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
-      <xsl:value-of select="concat('input string ', $inputString, $nl)"/>
+      <xsl:value-of select="concat('input string |', $inputString, '|', $nl)"/>
 
-      <xsl:value-of select="concat('OneTarget ss-before-target ', $OneTarget, $nl)"/>
-      <xsl:value-of select="concat('OneReplacement ss-before-replacement', $OneReplacement, $nl)"/>
+      <xsl:value-of select="concat('OneTarget ss-before-slash-in-oneTarget |', $OneTarget, '|', $nl)"/>
+      <xsl:value-of select="concat('OneReplacement ss-before-OneReplacement |', $OneReplacement, '|', $nl)"/>
       
-      <xsl:value-of select="concat('tmpTarget ss-before-target ', $tmpTarget, $nl)"/>
-      <xsl:value-of select="concat('tmpReplacement ss-before-replacement', $tmpReplacement, $nl)"/>
+      <xsl:value-of select="concat('tmpTarget ss-before-slash-in-tmpTarget |', $tmpTarget, '|', $nl)"/>
+      <xsl:value-of select="concat('tmpReplacement ss-before-tmpReplacement |', $tmpReplacement, '|', $nl)"/>
 
-      <xsl:value-of select="concat('restTarget ss-tmp_target-2 ', restTarget, $nl)"/>
-      <xsl:value-of select="concat('restReplacement ss-tmp_replacement-2', restReplacement, $nl)"/>
+      <xsl:value-of select="concat('restTarget ss-tmp_target-2 |', restTarget, '|', $nl)"/>
+      <xsl:value-of select="concat('restReplacement ss-tmp_replacement-2 |', $restReplacement, '|', $nl)"/>
       
       <xsl:value-of select="'-----------------------------------------'"/>
     </xsl:message>
