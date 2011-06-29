@@ -22,8 +22,7 @@
 	      indent="yes"/>
   
   <!-- Input dir -->
-  <xsl:param name="inDir" select="'default'"/>
-  <xsl:param name="inFile" select="'default.txt'"/>
+  <xsl:param name="inDir" select="'converted'"/>
 
   <!-- Output dir and file -->
   <xsl:variable name="outDir" select="'corpus_report'"/>
@@ -31,85 +30,85 @@
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
   <xsl:variable name="file_name" select="substring-before((tokenize($inFile, '/'))[last()], '.xml')"/>
+  <xsl:variable name="nl" select="'&#xa;'"/>
 
   <xsl:template match="/" name="main">
     <xsl:variable name="file_inventory">
 	
-	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
-	  <!-- this is just in case you have some symbolic link in the converted directory pointing to itself; otherwise comment out or adapt accordingly! -->
-	  <xsl:if test="not(contains(document-uri(.), 'converted'))">
-	    
-	    <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
-	    <xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
-	    <xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
-	    <xsl:variable name="current_lang" select="./document/@xml:lang"/>
-
-	    <xsl:message terminate="no">
-	      Processing file: 
-	      <xsl:value-of select="$current_file"/>
-	    </xsl:message>
-
-	    <file xml:lang="{$current_lang}">
+      <xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+	<!-- no check needed xsl:if test="not(contains(document-uri(.), 'converted'))" -->
+	
+	<xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
+	<xsl:variable name="current_dir" select="substring-before(document-uri(.), $current_file)"/>
+	<xsl:variable name="current_location" select="concat($inDir, substring-after($current_dir, $inDir))"/>
+	<xsl:variable name="current_lang" select="./document/@xml:lang"/>
+	
+	<xsl:message terminate="no">
+	  <xsl:value-of select="concat('Processing file: ', $current_file, $nl)"/>
+	  <xsl:value-of select="concat('Location: ', $current_dir, $nl)"/>
+	</xsl:message>
+	
+	<file xml:lang="{$current_lang}">
+	  <xsl:element name="name">
+	    <xsl:value-of select="$current_file"/>
+	  </xsl:element>
+	  <xsl:element name="f_loc">
+	    <xsl:value-of select="$current_location"/>
+	  </xsl:element>
+	  <xsl:copy-of select=".//genre"/>
+	  <xsl:copy-of select=".//translated_from"/>
+	  <xsl:element name="title">
+	    <xsl:value-of select=".//title"/>
+	  </xsl:element>
+	  <xsl:for-each select=".//parallel_text">
+	    <xsl:element name="parallel_text">
+	      <xsl:copy-of select="./@xml:lang"/>
 	      <xsl:element name="name">
-		<xsl:value-of select="$current_file"/>
+		<xsl:value-of select="./@location"/>
 	      </xsl:element>
-	      <xsl:element name="f_loc">
-		<xsl:value-of select="$current_location"/>
+	      <xsl:element name="pf_loc">
+		<xsl:value-of select="concat(substring-before($current_location, $current_lang), 
+				      ./@xml:lang, 
+				      substring-after($current_location, $current_lang))"/>
 	      </xsl:element>
-	      <xsl:copy-of select=".//genre"/>
-	      <xsl:copy-of select=".//translated_from"/>
-	      <xsl:element name="title">
-		<xsl:value-of select=".//title"/>
-	      </xsl:element>
-	      <xsl:for-each select=".//parallel_text">
-		<xsl:element name="parallel_text">
-		  <xsl:copy-of select="./@xml:lang"/>
-		  <xsl:element name="name">
-		    <xsl:value-of select="./@location"/>
-		  </xsl:element>
-		  <xsl:element name="pf_loc">
-		    <xsl:value-of select="concat(substring-before($current_location, $current_lang), 
-					  ./@xml:lang, 
-					  substring-after($current_location, $current_lang))"/>
-		  </xsl:element>
-		</xsl:element>
-	      </xsl:for-each>
-	      <size>
-		<p_count>
-		  <xsl:value-of select="count(.//p)"/>
-		</p_count>
-		<e_p_count>
-		  <xsl:value-of select="count(.//p[normalize-space(.) = ''])"/>
-		</e_p_count>
-		<ne_p_count>
-		  <xsl:value-of select="count(.//p[not(normalize-space(.) = '')])"/>
-		</ne_p_count>
-		
-		<pre_count>
-		  <xsl:value-of select="count(.//pre)"/>
-		</pre_count>
-		<e_pre_count>
-		  <xsl:value-of select="count(.//pre[normalize-space(.) = ''])"/>
-		</e_pre_count>
-		<ne_pre_count>
-		  <xsl:value-of select="count(.//pre[not(normalize-space(.) = '')])"/>
-		</ne_pre_count>
-		
-		<section_count>
-		  <xsl:value-of select="count(.//section)"/>
-		</section_count>
-		
-		<e_section_count>
-		  <xsl:value-of select="count(.//section[normalize-space(.) = ''])"/>
-		</e_section_count>
-		
-		<ne_section_count>
-		  <xsl:value-of select="count(.//section[not(normalize-space(.) = '')])"/>
-		</ne_section_count>
-	      </size>
-	    </file>
-	  </xsl:if>
-	</xsl:for-each>
+	    </xsl:element>
+	  </xsl:for-each>
+	  <size>
+	    <p_count>
+	      <xsl:value-of select="count(.//p)"/>
+	    </p_count>
+	    <e_p_count>
+	      <xsl:value-of select="count(.//p[normalize-space(.) = ''])"/>
+	    </e_p_count>
+	    <ne_p_count>
+	      <xsl:value-of select="count(.//p[not(normalize-space(.) = '')])"/>
+	    </ne_p_count>
+	    
+	    <pre_count>
+	      <xsl:value-of select="count(.//pre)"/>
+	    </pre_count>
+	    <e_pre_count>
+	      <xsl:value-of select="count(.//pre[normalize-space(.) = ''])"/>
+	    </e_pre_count>
+	    <ne_pre_count>
+	      <xsl:value-of select="count(.//pre[not(normalize-space(.) = '')])"/>
+	    </ne_pre_count>
+	    
+	    <section_count>
+	      <xsl:value-of select="count(.//section)"/>
+	    </section_count>
+	    
+	    <e_section_count>
+	      <xsl:value-of select="count(.//section[normalize-space(.) = ''])"/>
+	    </e_section_count>
+	    
+	    <ne_section_count>
+	      <xsl:value-of select="count(.//section[not(normalize-space(.) = '')])"/>
+	    </ne_section_count>
+	  </size>
+	</file>
+	<!-- no check needed /xsl:if -->
+      </xsl:for-each>
     </xsl:variable>
     
     <xsl:result-document href="{$outDir}/{$outFile}.{$e}" format="{$outFormat}">
@@ -123,7 +122,7 @@
 	</xsl:attribute>
 	<xsl:copy-of select="$file_inventory"/>
       </corpus_summary>
-
+      
     </xsl:result-document>
     
   </xsl:template>
