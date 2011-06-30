@@ -147,37 +147,39 @@
 	</xsl:element>
       </xsl:for-each>
       <size>
-	<p_count>
-	  <xsl:value-of select="count($the_file//p)"/>
-	</p_count>
-	<e_p_count>
-	  <xsl:value-of select="count($the_file//p[normalize-space(.) = ''])"/>
-	</e_p_count>
-	<ne_p_count>
-	  <xsl:value-of select="count($the_file//p[not(normalize-space(.) = '')])"/>
-	</ne_p_count>
-	
-	<pre_count>
-	  <xsl:value-of select="count($the_file//pre)"/>
-	</pre_count>
-	<e_pre_count>
-	  <xsl:value-of select="count($the_file//pre[normalize-space(.) = ''])"/>
-	</e_pre_count>
-	<ne_pre_count>
-	  <xsl:value-of select="count($the_file//pre[not(normalize-space(.) = '')])"/>
-	</ne_pre_count>
-	
-	<section_count>
-	  <xsl:value-of select="count($the_file//section)"/>
-	</section_count>
-	
-	<e_section_count>
-	  <xsl:value-of select="count($the_file//section[normalize-space(.) = ''])"/>
-	</e_section_count>
-	
-	<ne_section_count>
-	  <xsl:value-of select="count($the_file//section[not(normalize-space(.) = '')])"/>
-	</ne_section_count>
+	<p>
+	  <xsl:attribute name="total">
+	    <xsl:value-of select="count($the_file//p)"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="non-emtpy">
+	    <xsl:value-of select="count($the_file//p[not(normalize-space(.) = '')])"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="empty">
+	    <xsl:value-of select="count($the_file//p[normalize-space(.) = ''])"/>
+	  </xsl:attribute>
+	</p>
+	<pre>
+	  <xsl:attribute name="total">
+	    <xsl:value-of select="count($the_file//pre)"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="non-emtpy">
+	    <xsl:value-of select="count($the_file//pre[not(normalize-space(.) = '')])"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="empty">
+	    <xsl:value-of select="count($the_file//pre[normalize-space(.) = ''])"/>
+	  </xsl:attribute>
+	</pre>
+	<section>
+	  <xsl:attribute name="total">
+	    <xsl:value-of select="count($the_file//section)"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="non-emtpy">
+	    <xsl:value-of select="count($the_file//section[not(normalize-space(.) = '')])"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="empty">
+	    <xsl:value-of select="count($the_file//section[normalize-space(.) = ''])"/>
+	  </xsl:attribute>
+	</section>
       </size>
     </file>
   </xsl:template>
