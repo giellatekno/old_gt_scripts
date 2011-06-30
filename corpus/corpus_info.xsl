@@ -55,6 +55,30 @@
   <xsl:variable name="file_counter" select="true()"/>
   
   <xsl:template match="/" name="main">
+    <xsl:if test="not($usage = 'seq')">
+      <xsl:variable name="file_inventory">
+	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+	  <!-- no check needed xsl:if test="not(contains(document-uri(.), 'converted'))" -->
+	  <xsl:call-template name="process_file">
+	    <xsl:with-param name="the_file" select="."/>
+	  </xsl:call-template>
+	  <!-- no check needed /xsl:if -->
+	</xsl:for-each>
+      </xsl:variable>
+      
+      <xsl:result-document href="{$outDir}/{$outFile}.{$e}" format="{$outFormat}">
+	<corpus_summary>
+	  <xsl:attribute name="location">
+	    <xsl:value-of select="$inDir"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="xml_files">
+	    <xsl:value-of select="count($file_inventory/file)"/>
+	  </xsl:attribute>
+	  <xsl:copy-of select="$file_inventory"/>
+	</corpus_summary>
+      </xsl:result-document>
+    </xsl:if>
+    
     <xsl:if test="$usage = 'seq'">
       <corpus_summary>
 	<xsl:attribute name="location">
