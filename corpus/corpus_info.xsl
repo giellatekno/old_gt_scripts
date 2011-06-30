@@ -1,8 +1,18 @@
 <?xml version="1.0"?>
 <!--+
-    | Usage: java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR
+    | Usage: 
+    |  __variant 1__: 
+    |    java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR outDir=PATH_TO_CORPUS_SUMMARY outFile=CORPUS_SUMMARY_FILE
+    |    __ all corpus info is collected into a variable which is then output at once into the PATH_TO_CORPUS_SUMMARY/CORPUS_SUMMARY_FILE, 
+    |       i.e., more memory space required
+    |    __ all three parameters can be specified in THIS_SCRIPT
     | 
-    | 
+    |  __variant 2__: 
+    |    java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR > CORPUS_SUMMARY_FILE
+    |    __ each file info is output sequentially into the CORPUS_SUMMARY_FILE, i.e., less memory space required, but since inDir is traversed twice,
+    |       in the first run, to count the xml files, and in the second run, to extract the infos from each file, it takes more time 
+    |    __ if you don't need the total number of xml files you can switch off file_counter (saving time)
+    |    __ only the inDir parameter can be specified in THIS_SCRIPT
     +-->
 
 <xsl:stylesheet version="2.0"
