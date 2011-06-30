@@ -1,18 +1,20 @@
 <?xml version="1.0"?>
 <!--+
     | Usage: 
-    |  __variant 1__: 
-    |    java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR outDir=PATH_TO_CORPUS_SUMMARY outFile=CORPUS_SUMMARY_FILE
+    | __variant 1__: 
+    |    java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR outDir=PATH_TO_CORPUS_SUMMARY outFile=CORPUS_SUMMARY_FILE usage=non_seq
     |    __ all corpus info is collected into a variable which is then output at once into the PATH_TO_CORPUS_SUMMARY/CORPUS_SUMMARY_FILE, 
     |       i.e., more memory space required
-    |    __ all three parameters can be specified in THIS_SCRIPT
+    |    __ all four parameters can be specified in THIS_SCRIPT, by that shortening the command
     | 
-    |  __variant 2__: 
-    |    java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR > CORPUS_SUMMARY_FILE
+    | __variant 2__: 
+    |    java -Xmx2048m net.sf.saxon.Transform -it main THIS_SCRIPT inDir=PATH_TO_CORPUS_DIR  usage=seq > CORPUS_SUMMARY_FILE
     |    __ each file info is output sequentially into the CORPUS_SUMMARY_FILE, i.e., less memory space required, but since inDir is traversed twice,
     |       in the first run, to count the xml files, and in the second run, to extract the infos from each file, it takes more time 
     |    __ if you don't need the total number of xml files you can switch off file_counter (saving time)
-    |    __ only the inDir parameter can be specified in THIS_SCRIPT
+    |    __ only inDir and usage can be specified in THIS_SCRIPT, by that shortening the command
+    |
+    | __ to switch between variant 1 (usage=non_seq) and variant 2 (usage=seq) choose the appropriate value of the usage parameter
     +-->
 
 <xsl:stylesheet version="2.0"
@@ -41,6 +43,8 @@
   
   <!-- Input dir -->
   <xsl:param name="inDir" select="'converted'"/>
+  <!-- Usage -->
+  <xsl:param name="usage" select="'seq'"/>
 
   <!-- Output dir and file -->
   <xsl:variable name="outDir" select="'corpus_report'"/>
@@ -51,29 +55,31 @@
   <xsl:variable name="file_counter" select="true()"/>
   
   <xsl:template match="/" name="main">
-    <corpus_summary>
-      <xsl:attribute name="location">
-	<xsl:value-of select="$inDir"/>
-      </xsl:attribute>
-
-      <!-- count all files in the dir with converted files -->
-      <xsl:if test="$file_counter">
-	<xsl:attribute name="xml_files">
-	  <xsl:call-template name="count_files">
-	    <xsl:with-param name="the_dir" select="$inDir"/>
-	  </xsl:call-template>
+    <xsl:if test="$usage = 'seq'">
+      <corpus_summary>
+	<xsl:attribute name="location">
+	  <xsl:value-of select="$inDir"/>
 	</xsl:attribute>
-      </xsl:if>
-      
-      <!-- extract infos from each converted file -->
-      <xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
-	<!-- xsl:if test="not(contains(document-uri(.), 'converted'))" -->
-	<xsl:call-template name="process_file">
-	  <xsl:with-param name="the_file" select="."/>
-	</xsl:call-template>
-	<!-- /xsl:if -->
-      </xsl:for-each>
-    </corpus_summary>
+	
+	<!-- count all files in the dir with converted files -->
+	<xsl:if test="$file_counter">
+	  <xsl:attribute name="xml_files">
+	    <xsl:call-template name="count_files">
+	      <xsl:with-param name="the_dir" select="$inDir"/>
+	    </xsl:call-template>
+	  </xsl:attribute>
+	</xsl:if>
+	
+	<!-- extract infos from each converted file -->
+	<xsl:for-each select="for $f in collection(concat($inDir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+	  <!-- xsl:if test="not(contains(document-uri(.), 'converted'))" -->
+	  <xsl:call-template name="process_file">
+	    <xsl:with-param name="the_file" select="."/>
+	  </xsl:call-template>
+	  <!-- /xsl:if -->
+	</xsl:for-each>
+      </corpus_summary>
+    </xsl:if>
     
   </xsl:template>
   
