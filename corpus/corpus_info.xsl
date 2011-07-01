@@ -216,10 +216,11 @@
     <xsl:value-of select="$total"/>
   </xsl:template>
 
-  <!-- simple word count: a word is whatever is between whitespaces
-       but it can be used as simple conversion test method against the
-       wordcount comming from conversion scripts as well as Trond's
-       (ccat combined with wc) or Sjur's (xmlsh) wordcount methods -->
+  <!-- simple word count (a word is whatever is between whitespaces),
+       but this routine can be used as simple conversion test method
+       against the wordcount comming from conversion scripts as well
+       as Trond's (ccat combined with wc) or Sjur's (xmlsh) wordcount
+       methods -->
 
   <xsl:template name="count_words">
     <xsl:param name="the_file"/>
