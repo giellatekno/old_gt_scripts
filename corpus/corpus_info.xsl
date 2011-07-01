@@ -147,6 +147,17 @@
 	</xsl:element>
       </xsl:for-each>
       <size>
+	<!-- simple wordcount based on whitespaces -->
+	<xsl:attribute name="word_count">
+	  <xsl:call-template name="count_words">
+	    <xsl:with-param name="the_file" select="$the_file"/>
+	  </xsl:call-template>
+	</xsl:attribute>
+	<!-- this is just for testing purposes: all_text>
+	  <xsl:call-template name="count_words">
+	    <xsl:with-param name="the_file" select="$the_file"/>
+	  </xsl:call-template>
+	</all_text -->
 	<p>
 	  <xsl:attribute name="total">
 	    <xsl:value-of select="count($the_file//p)"/>
@@ -187,7 +198,47 @@
   <!-- count xml files --> 
   <xsl:template name="count_files">
     <xsl:param name="the_dir"/>
-    <xsl:value-of select="count(collection(concat($the_dir,'?recurse=yes;select=*.xml;on-error=warning')))"/>
+    <xsl:message terminate="no">
+      <xsl:value-of select="'Counting xml converted files ....... '"/>
+    </xsl:message>
+    <!-- xsl:for-each select="for $f in collection(concat($the_dir,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
+      <xsl:message terminate="no">
+	<xsl:value-of select="concat('counter ', position())"/>
+      </xsl:message>
+    </xsl:for-each -->
+
+    <xsl:variable name="total" select="count(collection(concat($the_dir,'?recurse=yes;select=*.xml;on-error=warning')))"/>
+
+    <xsl:message terminate="no">
+      <xsl:value-of select="concat('.................................... ', $total , ' xml files found!', $nl)"/>
+    </xsl:message>
+    
+    <xsl:value-of select="$total"/>
+  </xsl:template>
+
+  <!-- simple word count: a word is whatever is between whitespaces
+       but it can be used as simple conversion test method against the
+       wordcount comming from conversion scripts as well as Trond's
+       (ccat combined with wc) or Sjur's (xmlsh) wordcount methods -->
+
+  <xsl:template name="count_words">
+    <xsl:param name="the_file"/>
+    
+    <xsl:variable name="all_text">
+      <xsl:for-each select="$the_file//p//text()">
+	<xsl:value-of select="concat(., ' ')"/>  
+      </xsl:for-each>
+    </xsl:variable>
+
+    <xsl:value-of select="count(tokenize($all_text, '\s+'))"/>
+
+    <!-- this is just for testing the tokens: counter>
+      <xsl:value-of select="count(tokenize($all_text, '\s+'))"/>
+    </counter>
+    <value>
+      <xsl:value-of select="tokenize($all_text, '\s+')"/>
+    </value -->
+
   </xsl:template>
   
 </xsl:stylesheet>
