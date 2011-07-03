@@ -71,6 +71,7 @@ sub get_error {
 	if ( $extatt ) {
 		# Add attributes for orthographical errors:
 		if ( $types{$separator} eq 'errorort') {
+#    		print "errorort: $attlist\n";
 			my ($pos, $errtype, $teacher) = split(/,/, $attlist);
 			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
 				$teacher = $errtype;
@@ -86,7 +87,8 @@ sub get_error {
 		}
 		# Add attributes for lexical errors:
 		if ( $types{$separator} eq 'errorlex') {
-			my ($pos, $origpos, $errtype, $teacher) = split(/,/, $attlist);
+#    		print "errorlex: $attlist\n";
+			my ($pos, $origpos, $errtype, $teacher) = split(/,/, $attlist, 4);
 			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
 				$teacher = $errtype;
 				$errtype = "";
@@ -106,7 +108,8 @@ sub get_error {
 		}
 		# Add attributes for morphosyntactic errors:
 		if ( $types{$separator} eq 'errormorphsyn') {
-			my ($pos, $const, $cat, $orig, $errtype, $teacher) = split(/,/, $attlist);
+#    		print "errormorphsyn: $attlist\n";
+			my ($pos, $const, $cat, $orig, $errtype, $teacher) = split(/,/, $attlist, 6);
 			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
 				$teacher = $errtype;
 				$errtype = "";
@@ -142,6 +145,7 @@ sub get_error {
 		}
 		# Add attributes for syntactic errors:
 		if ( $types{$separator} eq 'errorsyn') {
+#    		print "errorsyn: $attlist\n";
 			my ($pos, $errtype, $teacher) = split(/,/, $attlist);
 			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
 				$teacher = $errtype;
