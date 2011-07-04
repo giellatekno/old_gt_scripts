@@ -65,6 +65,7 @@ sub convertdoc {
 	my $filename = Cwd::abs_path($file);
 	my $error = 0;
 	my $feedback;
+	my $reason;
 
 	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$|\.jpg$|\.docx$|\.odt$|\.js$|\.gif$|\.css$|\.png$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
@@ -76,18 +77,22 @@ sub convertdoc {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 				$error_hash{"xsl"}++;
+				$reason = "makeXslFile";
 			} elsif ($converter->convert2intermediatexml()) {
 				print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
 				$error = 1;
 				$error_hash{"intermediate"}++;
+				$reason = "convert2intermediatexml";
 			} elsif ($converter->convert2xml()) {
 				print STDERR "Conversion failed: Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 				$error_hash{"convert2xml"}++;
+				$reason = "convert2xml";
 			} elsif ($converter->checklang()) {
 				print STDERR "Conversion failed: Couldn't verify the lang of " . $converter->getOrig() . " based on dir and metadata\n";
 				$error = 1;
 				$error_hash{"checklang"}++;
+				$reason = "checklang";
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after language verification\n";
 				$error = 1;
@@ -97,26 +102,32 @@ sub convertdoc {
 				print STDERR "Conversion failed: Wasn't able to make valid error markup out of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"error_markup"}++;
+				$reason = "error_markup";
             } elsif ($filename =~ m/\.correct\./ and $converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after error markup addition\n";
 				$error = 1;
 				$error_hash{"checkxml_after_errormarkup"}++;
+				$reason = "checkxml_after_checklang";
 			} elsif ($converter->character_encoding()) {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"character_encoding"}++;
+				$reason = "character_encoding";
 			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
 				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
 				$error_hash{"faulty_chars"}++;
+				$reason = "search_for_faulty_characters";
 			} elsif ($converter->text_categorization()) {
 				print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"text_categorization"}++;
+				$reason = "text_categorization";
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"checkxml_after_faulty"}++;
+				$reason = "checkxml_after_faulty";
 			} else {
 				$converter->move_int_to_converted();
 				if (! $debug ) {
@@ -125,7 +136,7 @@ sub convertdoc {
 			}
 			
 			if ($error) {
-				$feedback = "\nCouldn't convert $filename\n";
+				$feedback = "\nCouldn't convert $filename. Reason is $reason\n";
 				$errors++;
 				if (-f $converter->getFinalName()) {
 					unlink($converter->getFinalName());
