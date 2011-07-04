@@ -85,23 +85,22 @@ sub convertdoc {
 				$error = 1;
 				$error_hash{"convert2xml"}++;
 			} elsif ($converter->checklang()) {
-				print STDERR "Conversion failed: Couldn't set the lang of " . $converter->getOrig() . "\n";
+				print STDERR "Conversion failed: Couldn't verify the lang of " . $converter->getOrig() . " based on dir and metadata\n";
 				$error = 1;
 				$error_hash{"checklang"}++;
 			} elsif ($converter->checkxml()) {
-				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after language verification\n";
 				$error = 1;
 				$error_hash{"checkxml_after_checklang"}++;
-			} elsif ($filename =~ m/\.correct\./) {
-				if ($converter->error_markup()) {
-					print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-					$error = 1;
-					$error_hash{"error_markup"}++;
-				} elsif ($converter->checkxml()) {
-					print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-					$error = 1;
-					$error_hash{"checkxml_after_errormarkup"}++;
-				}
+			# Error markup conversion must be done before repairing characters, otherwise ¥ will be destrooyed
+			} elsif ($filename =~ m/\.correct\./ and $converter->error_markup()) {
+				print STDERR "Conversion failed: Wasn't able to make valid error markup out of " . $converter->getOrig() . "\n";
+				$error = 1;
+				$error_hash{"error_markup"}++;
+            } elsif ($filename =~ m/\.correct\./ and $converter->checkxml()) {
+				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after error markup addition\n";
+				$error = 1;
+				$error_hash{"checkxml_after_errormarkup"}++;
 			} elsif ($converter->character_encoding()) {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
@@ -111,7 +110,7 @@ sub convertdoc {
 				$error = 1;
 				$error_hash{"faulty_chars"}++;
 			} elsif ($converter->text_categorization()) {
-				print STDERR "Conversion failed: Wasn't able to categorize the language(s) inside the text " . $converter->getOrig() . "\n";
+				print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
 				$error = 1;
 				$error_hash{"text_categorization"}++;
 			} elsif ($converter->checkxml()) {
