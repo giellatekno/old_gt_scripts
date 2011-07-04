@@ -215,7 +215,7 @@ sub checkxml {
 sub checklang {
 	my( $self ) = @_;
 	
-	# Check the main language,  add if it is missing.
+	# Check the main language,  add whether it is missing.
 	my $tmp = $self->getInt();
 	my $document = XML::Twig->new;
 	if (! $document->safe_parsefile("$tmp")) {
@@ -287,11 +287,13 @@ sub call_decode_para {
 
 # 	print "(call_decode_para) encoding $coding\n";
 	my $language = $self->getPreconverter()->getDoclang();
-	my $text = $para->text;
-
-	my $error = &decode_para($language, \$text, $coding);
-    $para->set_text($text);
-
+    my $error = 0;
+	my @new_content;
+	for my $c ($para->children) {
+		my $text = $c->text;
+		$error = &decode_para($language, \$text, $coding);
+		$c->set_text($text);
+	}
 	return $error;
 }
 
