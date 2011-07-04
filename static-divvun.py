@@ -25,6 +25,7 @@ def revert_files(vcs, files):
 			print >>sys.stderr, "Could not revert files"
 			self.logfile.writelines(output)
 			self.logfile.writelines(error)
+
 	if vcs == "git":
 		subp = subprocess.call(["git", "checkout"] + files)
 
@@ -148,6 +149,7 @@ class StaticSiteBuilder:
 		revert_files(self.vcs, ["forrest.properties", "src/documentation/resources/schema/symbols-project-v10.ent"])
 		subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(output, error) = subp.communicate()
+
 		if subp.returncode != 0:
 				print >>sys.stderr, "forrest clean failed"
 				self.logfile.writelines(output)
