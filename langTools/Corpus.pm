@@ -43,6 +43,77 @@ sub add_error_markup {
 	$para->set_content(@new_content);
 }
 
+sub error_parser {
+	my ($text) = @_;
+
+	my $error = undef;
+	my $separator;
+	my $correct;
+	my $rest;
+	my $error_elt;
+	my @new_content;
+	
+
+	while ($text =~ m/\S[$sep]\S/) {
+		if ($test) {
+			print "error_parser $text\n";
+		}
+		# Look for error markupps
+		# The first group is an expression that:
+		# * begins with a ( and doesn't contain a ( and ends with a ) or
+		# * is a word containing only letters or
+		# * is a word containg only letters followed by a hyphen followed by a word containing only letters or
+		# * is a digit followed by a ’ followed by a word
+		# The second group is the separator
+		# The third groups is an expression that:
+		# * begins with a ( and doesn't contain a ) that ends with a ) or
+		# * an expression consisting of non-space characters
+		if ($text =~ s/(\([^\(]*\)|\w+|\w+-\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
+			$error = $1;
+			$separator = $2;
+			$correct = $3;
+			$rest = $4;
+			
+			if ($test) {
+				print "error_parser error $error separator $separator correct $correct\n";
+			}
+			
+			$error =~ s/\)//;
+			$error =~ s/\(//;
+			$correct =~ s/\)//;
+			$correct =~ s/\(//;
+			$error_elt = get_error($error, $separator, $correct);
+		}
+		
+		my @part1;
+		if ($rest =~ s/^\)//) {
+			$text =~ s/(\([^\)]*$)//;
+			my $e = $1;
+			$e =~ s/\(//;
+			push(@part1, $e);
+		}
+		
+		if ($rest =~ m/^[$sep]/) {
+			push(@part1, $error_elt);
+			
+			$error_elt = XML::Twig::Elt->new('dummy');
+			$error_elt->set_content(@part1);
+			while ($rest =~ s/(^[$sep])(\([^\)]*\))//) {
+				$separator = $1;
+				$correct = $2;
+				$correct =~ s/\)//;
+				$correct =~ s/\(//;
+				$error_elt = get_error($error_elt, $separator, $correct);
+			}
+		}
+		push(@new_content, $text);
+		push(@new_content, $error_elt);
+		$text = $rest;
+	}
+	push(@new_content, $text);
+	
+	return @new_content;
+}
 
 sub get_error {
 	my ($error, $separator, $correct) = @_;
@@ -401,78 +472,6 @@ sub txtclean {
 
 	print $FH1 qq|</document>|;
 	close $FH1;
-}
-
-sub error_parser {
-	my ($text) = @_;
-
-	my $error = undef;
-	my $separator;
-	my $correct;
-	my $rest;
-	my $error_elt;
-	my @new_content;
-	
-
-	while ($text =~ m/\S[$sep]\S/) {
-		if ($test) {
-			print "error_parser $text\n";
-		}
-		# Look for error markupps
-		# The first group is an expression that:
-		# * begins with a ( and doesn't contain a ( and ends with a ) or
-		# * is a word containing only letters or
-		# * is a word containg only letters followed by a hyphen followed by a word containing only letters or
-		# * is a digit followed by a ’ followed by a word
-		# The second group is the separator
-		# The third groups is an expression that:
-		# * begins with a ( and doesn't contain a ) that ends with a ) or
-		# * an expression consisting of non-space characters
-		if ($text =~ s/(\([^\(]*\)|\w+|\w+-\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
-			$error = $1;
-			$separator = $2;
-			$correct = $3;
-			$rest = $4;
-			
-			if ($test) {
-				print "error_parser error $error separator $separator correct $correct\n";
-			}
-			
-			$error =~ s/\)//;
-			$error =~ s/\(//;
-			$correct =~ s/\)//;
-			$correct =~ s/\(//;
-			$error_elt = get_error($error, $separator, $correct);
-		}
-		
-		my @part1;
-		if ($rest =~ s/^\)//) {
-			$text =~ s/(\([^\)]*$)//;
-			my $e = $1;
-			$e =~ s/\(//;
-			push(@part1, $e);
-		}
-		
-		if ($rest =~ m/^[$sep]/) {
-			push(@part1, $error_elt);
-			
-			$error_elt = XML::Twig::Elt->new('dummy');
-			$error_elt->set_content(@part1);
-			while ($rest =~ s/(^[$sep])(\([^\)]*\))//) {
-				$separator = $1;
-				$correct = $2;
-				$correct =~ s/\)//;
-				$correct =~ s/\(//;
-				$error_elt = get_error($error_elt, $separator, $correct);
-			}
-		}
-		push(@new_content, $text);
-		push(@new_content, $error_elt);
-		$text = $rest;
-	}
-	push(@new_content, $text);
-	
-	return @new_content;
 }
 
 1;
