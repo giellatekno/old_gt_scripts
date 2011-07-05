@@ -7,6 +7,7 @@ use Cwd;
 use Encode;
 use utf8;
 use Getopt::Long;
+use XML::Twig;
 
 #
 # Load the modules we are testing
@@ -21,109 +22,15 @@ GetOptions ("debug" => \$debug);
 # $samiChar::Decode::Test = $debug;
 
 my %question_answer = (
-# 	'— Sámit dat galggasedje§galggašedje duoddara badjel mearridit. Dan
-# 	goittot oaivvildit buot boazosámit. Nu čielgasit vástideigga Mikkel
-# 	Per Persen Sara ja bárdni Mikkel Isak Sára Áisaroaivvis gažaldahkii
-# 	geain galggasii§galggašii leat vuoigatvuohta Finnmarkku§Finnmárkku
-# 	duoddariidda, sámi álbmogis vai Norgga stáhtas.' => ' galggasedje § galggašedje galggasii § galggašii Finnmarkku § Finnmárkku',
-
-# 	'— Sámit dat galggasedje §galggašedje duoddara badjel mearridit. Dan
-# 	goittot oaivvildit buot boazosámit. Nu čielgasit vástideigga Mikkel
-# 	Per Persen Sara ja bárdni Mikkel Isak Sára Áisaroaivvis gažaldahkii
-# 	geain galggasii§galggašii leat vuoigatvuohta Finnmarkku§Finnmárkku
-# 	duoddariidda, sámi álbmogis vai Norgga stáhtas.' => ' galggasii § galggašii Finnmarkku § Finnmárkku',
-# 
-# 	'— Sámit dat galggasedje§ galggašedje duoddara badjel mearridit. Dan
-# 	goittot oaivvildit buot boazosámit. Nu čielgasit vástideigga Mikkel
-# 	Per Persen Sara ja bárdni Mikkel Isak Sára Áisaroaivvis gažaldahkii
-# 	geain galggasii§galggašii leat vuoigatvuohta Finnmarkku§Finnmárkku
-# 	duoddariidda, sámi álbmogis vai Norgga stáhtas.' => ' galggasii § galggašii Finnmarkku § Finnmárkku',
-# 	
-# 	'— Sámit dat galggasedje § galggašedje duoddara badjel mearridit. Dan
-# 	goittot oaivvildit buot boazosámit. Nu čielgasit vástideigga Mikkel
-# 	Per Persen Sara ja bárdni Mikkel Isak Sára Áisaroaivvis gažaldahkii
-# 	geain galggasii§galggašii leat vuoigatvuohta Finnmarkku§Finnmárkku
-# 	duoddariidda, sámi álbmogis vai Norgga stáhtas.' => ' galggasii § galggašii Finnmarkku § Finnmárkku',
-# 
-# 	'— Sámit dat galggasedje § galggašedje duoddara badjel mearridit. Dan
-# 	goittot oaivvildit buot boazosámit. Nu čielgasit vástideigga Mikkel
-# 	Per Persen Sara ja bárdni Mikkel Isak Sára Áisaroaivvis gažaldahkii
-# 	geain galggasii§galggašii leat vuoigatvuohta Finnmarkku §Finnmárkku
-# 	duoddariidda, sámi álbmogis vai Norgga stáhtas.' => ' galggasii § galggašii',
-
-	'Dego máŋgga iežá suohkaniin ge unnu Gáivuona suohkana olmmošlohku. Eastadandihte$(n,cmp|Eastadan dihte) dan, lea suohkan mearridan plánastis deattuhit barggu ovdanahttiimiin$(v,mix|ovdánahttimiin), ealáhusovdanemiin$(n,á|ealáhusovdánemiin), nuoraiguin ja birasgáhttemiin. Dasa lassin bargá suohkan dan ala ahte (ovdanit$(v,á|ovdánit))€(v,v,der|ovdánahttit) iežas fálaldaga kvalitehta. Suohkan bargá maid regionála dásis, ea.ea. nuoraidprošeavttain.' => ' Dego máŋgga iežá suohkaniin ge unnu Gáivuona suohkana olmmošlohku. Eastadandihte $ (n,cmp|Eastadan dihte) dan, lea suohkan mearridan plánastis deattuhit barggu ovdanahttiimiin $ (v,mix|ovdánahttimiin) ealáhusovdanemiin $ (n,á|ealáhusovdánemiin)',
-
-# 	'Riddu Riđđu Festivála lea sápmelaš kulturfestivála ja riikkaidgaskasaš álgoálbmotfestivála ja dat lea (álggahuvvon 1991)£(num,advl,locsg,nomsg,case|álggahuvvon 1991:s). Riddu Riđđu lea šaddan oktan (daid njunuš kulturlágidemiin)£(dem,attr,locpl,genpl,agr|dain njunuš kulturlágidemiin) Davvi-Kalohtas$(prop,cmp|Davvikalohtas). Dat lea riikkaidgaskasaš dáhpáhus; deaddu lea máilmmi davviguovlluid kultuvrras. Festivála čájeha dovdduseamos$(adj,mix|dovdoseamos) sámi ártisttaid$(n,a|artisttaid) ja álggahalli sámi ártisttaid$(n,a|artisttaid) sihke ártisttaid$(n,a|artisttaid) Davvi-Kalohtas(prop,cmp|Davvikalohtas), Sibiris$(prop,mix|Sibirjjás), Ruonáeatnamis, Kanadas ja eará riikkain.
-# 	Boahtte festivála teman$(n,á|temán) lea árktalaš guovlluid rituáladánsun. Mii áigut maid čájehit kultuvrraid guovtte$(num,svow|guovtti) álbmogis, mat leat eret Nuorta-Sibiris$(prop,mix|Nuorta-Sibirjjás). Dan lassin leat dieđusge konsearttat, čájáhusat, mánáid festivála, seminárat ja kurssat.
-# 	Festivála lágiduvvo mearrasápmelaš guovllus, Olmmáivákkis, Gáivuonas.
-# 	' => ' Riddu Riđđu Festivála lea sápmelaš kulturfestivála ja riikkaidgaskasaš álgoálbmotfestivála ja dat lea (álggahuvvon 1991) £ (num,advl,locsg,nomsg,case|álggahuvvon 1991:s). Riddu Riđđu lea šaddan oktan (daid njunuš kulturlágidemiin) £ (dem,attr,locpl,genpl,agr|dain njunuš kulturlágidemiin) Davvi-Kalohtas $ (prop,cmp|Davvikalohtas) Dat lea riikkaidgaskasaš dáhpáhus; deaddu lea máilmmi davviguovlluid kultuvrras. Festivála čájeha dovdduseamos $ (adj,mix|dovdoseamos) sámi ártisttaid $ (n,a|artisttaid) ja álggahalli sámi ártisttaid $ (n,a|artisttaid) sihke ártisttaid $ (n,a|artisttaid) Davvi-Kalohtas(prop,cmp|Davvikalohtas), Sibiris $ (prop,mix|Sibirjjás) Ruonáeatnamis, Kanadas ja eará riikkain.  Boahtte festivála teman $ (n,á|temán) lea árktalaš guovlluid rituáladánsun. Mii áigut maid čájehit kultuvrraid guovtte $ (num,svow|guovtti) álbmogis, mat leat eret Nuorta-Sibiris $ (prop,mix|Nuorta-Sibirjjás) Dan lassin leat dieđusge konsearttat, čájáhusat, mánáid festivála, seminárat ja kurssat.  Festivála lágiduvvo mearrasápmelaš guovllus, Olmmáivákkis, Gáivuonas.',
-# 
-# 	'Valáštallansearvvi Nordlys jođiheaddji
-# 		Peder Birkely Kárášjogas lea garrasit suhttan go ohpit leat
-# 		gaikon ja bilidan searvvi kioskkaid. – Dát nuorra skealmmat orrot
-# 		bilideamin§bilideamen dušše bilideami dihte, lohká eddon
-# 		Birkely.' => ' bilideamin § bilideamen',
-# 
-# 	' , ja berre fátmmastit fágadidaktihka
-# 	ja hárjehallanoahpu. Studeanta galgá maiddái sáhttit duođaštit sámegielat gelbbolašvuođa
-# 	fágas.
-# 	Sámi oahpaheaddjeoahpu studeanttat, geat váldet dárogielas 30 oahppočuoggá,
-# 	friddjejuvvojit nuppis dáin guovtti dárogiela suopmana geahččaleamis. Sii geat váldet 60
-# 	oahppočuoggá dárogiela, eai friddjejuvvo dákkár geahččaleamis.
-# 	Lávdegotti árvvoštallan
-# 	Lávdegoddi lea evttohan ovdalis namuhuvvon friddjenmearrádusaid almma dárkilut
-# 	čilgemiin.
-# 	Departemeantta árvvoštallan
-# 	Departemeanta imaštallá friddjema gáržžideami nuppi dáin dárogiela suopmaniin, ja
-# 	árvvoštallá našunála láhkaásahusa addit viidát vejolašvuođaid. Allaskuvllas lea almmatge
-# 	vejolašvuohta ráhkadit báikkálaš mearrádusaid. Departemeanta lea dattege ovttamielalaš sámi
-# 	rámmaplánalávdegottiin das, ahte friddjema eaktun galgá leat duođaštuvvon sámegielalaš
-# 	gelbbolašvuohta. Departemeantta evttohus boahtá ovdán láhkaásahusevttohusa
-# 	mielddusteavsttas.
-# 	§ 6 FÁPMUIBOAHTIN JA GASKABODDOSAŠ NJUOLGGADUSAT' => '',
-# 
-# 	' §22.5.1 3. Beavdegirji sápmelaččaid birra' => '',
-# 
-# 	'• Jakov Semjonovits Jakovlev, Málet guokte stuorra historjjás muitaleaddji gova: 1000 €' => '',
-# 	'Tabeallas oainnát mo moadde bustáva leat unicodas.
-# 	mearka logilohkokoda
-# 	$
-# 	36
-# 	a
-# 	97
-# 	z
-# 	122
-# 	š
-# 	246
-# 	ž
-# 	248
-# 	Č
-# 	268
-# 	č
-# 	269
-# 	Đ
-# 	272
-# 	ŋ
-# 	331
-# 	ž
-# 	382
-# 	Я
-# 	831
-# 	€
-# 	8449
-# 	' => '',
+	'DNB-feaskáris§(DnB-feaskáris)' => 'error DNB-feaskáris DnB-feaskáris',
+	'boade§boađe' => 'error boade boađe',
+	'2005’as§2005:s' => 'error 2005’as 2005:s',
+	'NSRii§NSR:ii' => 'error NSRii NSR:ii',
 );
 
 foreach (sort (keys % question_answer)) {
-	my @answer = langTools::Corpus::error_tester($_);
-	is(join(' ', @answer), $question_answer{$_}, "gaga");
-# 	print "\n";
-# 	my $d = XML::Twig->new(
-# 		twig_handlers => {
-# 			'p' => sub { langTools::Corpus::add_error_markup(@_); }
-# 		}
-# 	);
-# 
-# 	$d->parse("<p>" . $_ . "</p>");
-# 	$d->print();
+	my @answer = langTools::Corpus::error_parser($_);
+	my $twig = $answer[1];
+	my $a = $twig->name . " " . $twig->text . " " . $twig->{'att'}->{'correct'};
+	is($a, $question_answer{$_}, "gaga");
 }
