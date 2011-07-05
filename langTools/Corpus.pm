@@ -418,7 +418,16 @@ sub error_parser {
 		if ($test) {
 			print "error_parser $text\n";
 		}
-		# Look for 
+		# Look for error markupps
+		# The first group is an expression that:
+		# * begins with a ( and doesn't contain a ( and ends with a ) or
+		# * is a word containing only letters or
+		# * is a word containg only letters followed by a hyphen followed by a word containing only letters or
+		# * is a digit followed by a ’ followed by a word
+		# The second group is the separator
+		# The third groups is an expression that:
+		# * begins with a ( and doesn't contain a ) that ends with a ) or
+		# * an expression consisting of non-space characters
 		if ($text =~ s/(\([^\(]*\)|\w+|\w+-\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
 			$error = $1;
 			$separator = $2;
