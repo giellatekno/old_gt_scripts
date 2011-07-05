@@ -32,6 +32,8 @@ my %question_answer = (
 	'ovtta¥(num,redun| )' => 'errorsyn ovtta num redun  ',
 	'dábálaš€(adv,adj,der|dábálaččat)' => 'errorlex dábálaš adv adj der dábálaččat',
 	'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => 'errormorphsyn Nieiddat leat nourra adj spred nompl nomsg agr Nieiddat leat nuorat',
+	'(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)' => 'errormorphsyn guokte ganddat n nump gensg nompl case guokte gándda',
+	'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)' => 'errormorphsyn leat okta máná v v sg3prs pl3prs agr lea okta mánná',
 );
 
 foreach (sort (keys % question_answer)) {
