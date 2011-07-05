@@ -54,7 +54,9 @@ sub error_parser {
 	my @new_content;
 	
 
-	while ($text =~ m/\S[$sep]\S/) {
+	my $counter = 0;
+	while ($text =~ m/\S[$sep]\S/ and $counter < 200) {
+		$counter++;
 		if ($test) {
 			print "error_parser $text\n";
 		}
