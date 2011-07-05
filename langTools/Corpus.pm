@@ -102,9 +102,18 @@ sub get_error {
 				$origpos = "";
 				$errtype = "";
 			}
-			if ($pos)     { $error_elt->set_att('pos',     $pos); }
-			if ($errtype) { $error_elt->set_att('errtype', $errtype); }
-			if ($teacher) { $error_elt->set_att('teacher', $teacher); }
+			if ($pos) { 
+				$error_elt->set_att('pos', $pos); 
+			}
+			if ($errtype) { 
+				$error_elt->set_att('errtype', $errtype); 
+			}
+			if ($teacher) { 
+				$error_elt->set_att('teacher', $teacher); 
+			}
+			if ($origpos) { 
+				$error_elt->set_att('origpos', $origpos); 
+			}
 		}
 		# Add attributes for morphosyntactic errors:
 		if ( $types{$separator} eq 'errormorphsyn') {
@@ -397,23 +406,29 @@ sub txtclean {
 sub error_parser {
 	my ($text) = @_;
 
-	my $error;
+	my $error = undef;
 	my $separator;
 	my $correct;
 	my $rest;
 	my $error_elt;
 	my @new_content;
 	
-	if ($test) {
-		print "404 $text\n";
-	}
 
 	while ($text =~ m/\S[$sep]\S/) {
-		if ($text =~ s/(\S+|\([^\(]*\))([$sep])(\([^\)]*\))(.*)//s || $text =~ s/(\S+|\([^\(]*\))([$sep])(\S+)(.*)//s) {
+		if ($test) {
+			print "error_parser $text\n";
+		}
+		# Look for 
+		if ($text =~ s/(\([^\(]*\)|\w+|\w+-\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
 			$error = $1;
 			$separator = $2;
 			$correct = $3;
 			$rest = $4;
+			
+			if ($test) {
+				print "error_parser error $error separator $separator correct $correct\n";
+			}
+			
 			$error =~ s/\)//;
 			$error =~ s/\(//;
 			$correct =~ s/\)//;
