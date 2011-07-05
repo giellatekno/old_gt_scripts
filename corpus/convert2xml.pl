@@ -97,6 +97,7 @@ sub convertdoc {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after language verification\n";
 				$error = 1;
 				$error_hash{"checkxml_after_checklang"}++;
+				$reason = "checkxml_after_checklang";
 			# Error markup conversion must be done before repairing characters, otherwise ¥ will be destrooyed
 			} elsif ($filename =~ m/\.correct\./ and $converter->error_markup()) {
 				print STDERR "Conversion failed: Wasn't able to make valid error markup out of " . $converter->getOrig() . "\n";
@@ -107,7 +108,7 @@ sub convertdoc {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after error markup addition\n";
 				$error = 1;
 				$error_hash{"checkxml_after_errormarkup"}++;
-				$reason = "checkxml_after_checklang";
+				$reason = "checkxml_after_errormarkup";
 			} elsif ($converter->character_encoding()) {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
