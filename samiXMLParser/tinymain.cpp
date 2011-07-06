@@ -25,6 +25,7 @@ bool bPrintOrtCorr = false;
 bool bPrintSynCorr = false;
 bool bPrintLexCorr = false;
 bool bPrintMorphSynCorr = false;
+bool bPrintOnlyCorr = false;
 bool bPrintTypos = false;
 bool bPrintSpeller = false;
 bool bAddID = false;
@@ -108,6 +109,10 @@ int main( int argc, char *argv[] )
             bPrintMorphSynCorr = true;
         }
 
+        else if (strcmp(argv[i], "-c") == 0) {
+            bPrintOnlyCorr = true;
+        }
+        
         else if (strcmp(argv[i], "-typos") == 0) {
             bPrintTypos = true;
         }
@@ -309,7 +314,9 @@ void RecurseTree( TiXmlNode* pParent )
                     }
                 }
             } else {
-                cout << pText->Value() << " ";
+                if (!bPrintOnlyCorr) {
+                    cout << pText->Value() << " ";
+                }
             }
             break;
 
@@ -372,6 +379,10 @@ void RecurseTree( TiXmlNode* pParent )
                 }
                 cout << endl;
 
+            } else if (bPrintOnlyCorr) {
+                if (corr != "") {
+                    cout << corr << " ";
+                }
             }
         } else if ( tag == "document" ) {
             if (bAddID) {
@@ -402,6 +413,7 @@ void PrintHelp()
     cout << "\t-morphsyn\t Print corrected xml-files with morphological and syntactical corrections.\n";
     cout << "\t-typos\t Print corrections with tabs separated output.\n";
     cout << "\t-S\t Print the whole text in a word per line. Errors are tab separated. \n";
+    cout << "\t-c\t Print corrections instead of errors, everything else is a usual. \n";
     cout << "\t-r <dir> Recursively process directory dir and subdirs encountered.\n";
     cout << "\t-h\t Print this help message.\n";
 
