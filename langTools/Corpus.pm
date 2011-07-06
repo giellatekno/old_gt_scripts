@@ -60,7 +60,8 @@ sub error_parser {
 		if ($test) {
 			print "error_parser $text\n";
 		}
-		# Look for error markupps
+		
+		# Look for error markups
 		# The first group is an expression that:
 		# * begins with a ( and doesn't contain a ( and ends with a ) or
 		# * is a word containing only letters or
@@ -70,6 +71,11 @@ sub error_parser {
 		# The third groups is an expression that:
 		# * begins with a ( and doesn't contain a ) that ends with a ) or
 		# * an expression consisting of non-space characters
+		# The fourth group is the rest of the text, 
+		# which might contain a nested expression
+		# After the regexp has been run $text contains everything in front
+		# of the error expression. In some cases this includes the first part
+		# of an nested error expression. This is taken care further down.
 		if ($text =~ s/(\([^\(]*\)|\w+|\w+-\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
 			$error = $1;
 			$separator = $2;
@@ -87,14 +93,23 @@ sub error_parser {
 			$error_elt = get_error($error, $separator, $correct);
 		}
 		
+		# Check if $rest is a continuation of an error markup
 		my @part1;
+		
+		# If this test is true, then we have a nested markup, containing a
+		# parenthesized error
+		# Pick out the rest of the error part of that expression here
 		if ($rest =~ s/^\)//) {
 			$text =~ s/(\([^\)]*$)//;
 			my $e = $1;
 			$e =~ s/\(//;
+			if ($test) {
+				print "error_parser e $e\n";
+			}
 			push(@part1, $e);
 		}
 		
+		# Then pick out the correction(s)
 		if ($rest =~ m/^[$sep]/) {
 			push(@part1, $error_elt);
 			
@@ -108,8 +123,11 @@ sub error_parser {
 				$error_elt = get_error($error_elt, $separator, $correct);
 			}
 		}
+		# Push everything in front of the error on the stack
 		push(@new_content, $text);
+		# Push the error on the stack
 		push(@new_content, $error_elt);
+		# $rest contains the rest of the text
 		$text = $rest;
 	}
 	push(@new_content, $text);
