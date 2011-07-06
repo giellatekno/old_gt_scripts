@@ -294,14 +294,14 @@ void RecurseTree( TiXmlNode* pParent )
                         (bPrintTitle && bInTitle) ||
                         (bPrintList && bInList)   ||
                         (bPrintTable && bInTable))) {
-                        if (bPrintSpeller) {
-                            istringstream iss(pText->Value());
-                            copy(istream_iterator<string>(iss),
-                                istream_iterator<string>(),
-                                ostream_iterator<string>(cout, "\n"));
-                        } else {
-                            cout << pText->Value() << " ";
-                        }
+                        cout << pText->Value() << " ";
+                    }
+                } else {
+                    if (bPrintSpeller) {
+                        istringstream iss(pText->Value());
+                        copy(istream_iterator<string>(iss),
+                            istream_iterator<string>(),
+                            ostream_iterator<string>(cout, "\n"));
                     }
                 }
             } else {
