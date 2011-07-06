@@ -12,4 +12,5 @@ ccat: $(CXXOBJECTS)
 	$(CXX) -g -o $@ $(LDFLAGS) $(CXXOBJECTS)
 
 install: ccat
+	install -m 0755 -d $(PREFIX)/bin
 	install -m 0755 ccat $(PREFIX)/bin
