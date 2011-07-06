@@ -297,7 +297,11 @@ void RecurseTree( TiXmlNode* pParent )
                         cout << pText->Value() << " ";
                     }
                 } else {
-                    if (bPrintSpeller) {
+                    if (bPrintSpeller &&
+                        ((bPrintPara && bInPara)   ||
+                        (bPrintTitle && bInTitle) ||
+                        (bPrintList && bInList)   ||
+                        (bPrintTable && bInTable))) {
                         istringstream iss(pText->Value());
                         copy(istream_iterator<string>(iss),
                             istream_iterator<string>(),
