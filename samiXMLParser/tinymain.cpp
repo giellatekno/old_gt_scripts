@@ -281,7 +281,6 @@ void RecurseTree( TiXmlNode* pParent )
 
         case TiXmlNode::COMMENT:
             cerr << "Comment: " << pParent->Value() << endl;
-            exit (2);
             break;
 
         case TiXmlNode::UNKNOWN:
