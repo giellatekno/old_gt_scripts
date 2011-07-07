@@ -26,6 +26,7 @@ my %question_answer = (
 	'boade§boađe' => 'error boade boađe',
 	'2005’as§2005:s' => 'error 2005’as 2005:s',
 	'NSRii§NSR:ii' => 'error NSRii NSR:ii',
+	'Nordkjosbotn\'ii§Nordkjosbotnii' => 'error Nordkjosbotn\'ii Nordkjosbotnii',
 	'nourra$(a,meta|nuorra)' => 'errorort nourra a meta nuorra',
 	'(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => 'errormorphsyn Nieiddat leat nuorra a spred nompl nomsg agr Nieiddat leat nuorat',
 	'(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)' => 'errorsyn riŋgen nieidda lusa x pph riŋgen niidii',
