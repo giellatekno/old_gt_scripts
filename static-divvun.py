@@ -3,7 +3,7 @@
 
 """This script builds a multilingual forrest site.
 --destination (-d) an ssh destination
---vcd (-c) the version control system
+--vcs (-c) the version control system
 --sitehome (-s) where sd and techdoc lives
 --langs (-l) comma separated list of languages"""
 
