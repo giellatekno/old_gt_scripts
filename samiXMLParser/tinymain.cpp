@@ -315,7 +315,7 @@ void RecurseTree( TiXmlNode* pParent )
                 }
             } else {
                 if (!bPrintOnlyCorr) {
-                    cout << pText->Value() << " ";
+                    cout << pText->Value();
                 }
             }
             break;
@@ -358,7 +358,7 @@ void RecurseTree( TiXmlNode* pParent )
             
             if((bPrintOrtCorr && tag == "errorort") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex") || bPrintCorr || bPrintTypos) {
                 if (corr != "") {
-                    cout << "\t" << corr << " ";
+                    cout << "\t" << corr;
                 }
                 TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
                 bool firstattr = true;
