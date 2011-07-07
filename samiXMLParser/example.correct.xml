@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//UIT//DTD Corpus V1.0//EN" "http://giellatekno.uit.no/dtd/corpus.dtd">
+<document id="no_id" xml:lang="sme">
+	<header>
+		<title>23 12 2006 10:22:34</title>
+		<genre/>
+		<author>
+			<person born="" firstname="" lastname="" nationality="en_US" sex="unknown"/>
+		</author>
+		<year>2007</year>
+		<availability>
+			<license type="free"/>
+		</availability>
+		<multilingual>
+			<language xml:lang="sme"/>
+			<language xml:lang="nob"/>
+		</multilingual>
+		<metadata>
+			<uncomplete/>
+		</metadata>
+		<version>XSLtemplate  1.19 ; file-specific xsl  $Revision: 1.5 $; common.xsl  $Revision$; </version>
+	</header>
+	<body>
+		<p type="text" xml:lang="sme">
+			<error correct="MÁRKANSLUSKA">MáRKANSLUSKA</error>
+		</p>
+		
+		<p type="text" xml:lang="sme">
+			Ihtin lea ruohttabeaivi.
+		</p>
+		
+		<p type="text" xml:lang="sme">
+			Ánne Márjá illuda.
+		</p>
+		
+		<p type="text" xml:lang="sme">
+			Odne lea <error correct="DnB-feaskáris">DNB-feaskáris</error>; <error correct="boađe">boade</error> ullubuvssaid oastit. Vaikke dál lea bivval, de goas nu <error correct="buolašta">buolasta</error>.
+		</p>
+		
+		<p type="text" xml:lang="nob">
+			TINGRIK OG TIDFATTIG..?
+		</p>
+		
+		<p type="text" xml:lang="sme">
+			Lei okta almmái gii oktii logai:
+		</p>
+		
+		<p type="text" xml:lang="nob">
+			”Vi er blitt tidfattige og tingrike”.
+		</p>
+		
+		<!-- errorort -->
+		<p xml:lang="sme">
+			- ovttasogat <errorort correct="elliin" errtype="mono" pos="noun">ealliin</errorort>, mat leat jogo <errorort correct="njiŋŋálasat" errtype="á" pos="noun">njiŋŋalasat</errorort> dahje varrásat, sohkabealli <errorort correct="mearriduvvo" errtype="soggi" pos="verb">mearreduvvo</errorort> árbbi mielde.
+		</p>
+		
+		<!-- errormorphsyn -->
+		<p xml:lang="sme">
+			- divrriin varrásiin ii leat go okta x-kr ja <errorort correct="njiŋŋálasain" errtype="á" pos="noun">niŋŋalasain</errorort> xx, nu ahte <errormorphsyn cat="nomsg" const="spred" correct="varrásat leat x0-tiippat" errtype="num" orig="nompl" pos="noun">varrásat leat x0-tiippa</errormorphsyn>.
+		</p>
+		
+		<!-- errorsyn -->
+		<p xml:lang="sme">
+			Sivilisašuvdna definerejuvvo <errorort correct="dávjá" errtype="á" pos="adv">dávja</errorort> dan vuođul <errorsyn correct=" " errtype="redun" pos="cs">ahte</errorsyn> <errorort correct="movt" errtype="con" pos="adv">moht</errorort> dat meannuda iežas <errorort correct="geahnohepmosiid" errtype="conc" pos="adj">geahohepmosiid</errorort>. Jus dat leačča duohta de eat leat beare guhkasČ(adv,á|guhkás) joavdan. 
+		</p>
+		
+		<!-- errorsyn -->
+		<p xml:lang="sme">
+			Lean <errorort correct="baicce" errtype="a" pos="adv">báicce</errorort> <errorort correct="veahá" errtype="á" pos="adv">veaha</errorort> <errorort correct="oahpásmuvvan" errtype="á" pos="verb">oahpasmuvvan</errorort> ránnjáiguin danČ(dem,á|dán) vahku. Leat máŋga olgoriikkalačča mu lobus, ja lea buorre vejolašvuohta munnje beassat <errorort correct="eŋgelasgiellan" errtype="suf" pos="noun">eŋgelasgielan</errorort> hárjehallat. Lea nai hui suohtas singuin hoallat, go in leat duođas deaivan nie máŋgasiid amas kultuvrrain. Ja <errorort correct="miellagiddevaš" errtype="conc" pos="adj">mielagiddevaš</errorort> hájat leat gievkkanáimmus <errorort correct="x" errtype="x" pos="x">ovttelit</errorort>... Muhto lea rivgonieida geainna lean eanemusat hoallan, orru guokte uvssa mus eret, ja orru oalle hávski. Lea moadde jagi mus boarráset, dego 23-24 jagi boaresČ(adj,soggi|boaris), ja muhtun sivas váldá muinna oktavuođa go oaidná mu. Soaitá munnje liikot, in dieđe, muhto in <errorsyn correct="jáhke ahte" errtype="missing" pos="cs">jáhke</errorsyn> dat lea sivva ge. Ii leat nu ahte orru munnje viggame, muhto orru <errorort correct="háliideame" errtype="ii" pos="verb">hálideame</errorort> oktavuođa. Imaš. 
+		</p>
+		
+		<!-- errorlex -->
+		<p xml:lang="sme">
+			Oslos lei dán giđa maŋimus árktalaš <errorort correct="parlamentarihkkáriid" errtype="a" pos="loan">parlamentárihkkariid</errorort> bissovaš <errorort correct="komitéa" errtype="vow" pos="loan">komitea</errorort> čoakkán 7.6.2010. Čoakkán lei ollislaččat geahčadettiin hui beroštahtti ja ávkkálaš. Dánmárkku <errorlex correct="olgoriikaministtar">olgoáššiidministtar</errorlex> Lene Espersen muitalii čoakkáma álggus Dánmárkku árktalaš ráđi ságadoalli áigodaga ulbmiliin. Árktalaš ráđi jođiheapmi lea dán vuoru dan dáfus hárvenaš, ahte ságadoalliriikka báiki lea guhtta jagi maŋŋálaga davviriikkaid hálddus. Ságadoallivuohta sirdása Norggas Dánmárkui, mas dat sirdása Ruŧŧii jagi geahčen. Dánmárku sávvá gávdnat iežas jođihanáigodaga áigge čovdosa ođđa bissovaš dárkojeddjiid váldimii árktalaš ráđđái. Eatnamat dego Kiinná, Lulli-Korea ja Japána ja organisašuvnnat dego <errorort correct="Eurohpá Uniovdna" errtype="cap" pos="prop">Eurohpá uniovdna</errorort> leat viggame árktalaš ráđi bissovaš dárkojeaddjin.
+		</p>
+		
+		<!-- p type="title" -->
+		<p type="title" xml:lang="sma">
+			1. MAADTHVUAJNOE JÏH VISJOVNH 5
+		</p>
+		
+		<p type="title" xml:lang="sma">
+			NØØRJEN SAEMIEJ RIJHKESIEBRIEN BÏJRE (NSR) 5
+		</p>
+
+		<!-- list, p type="listitem -->
+		<list>
+			<p type="listitem" xml:lang="sme">
+				Ole Henrik Magga, Guovdageaidnu (1989–1997)
+			</p>
+			
+			<p type="listitem" xml:lang="sme">
+				Sven-Roald Nystø, Dievtasvuotna/Tysfjord (1997–2005)
+			</p>
+		</list>
+		
+		<!-- table -->
+		<table>
+			<row>
+				<p type="tablecell" xml:lang="sme">
+					Sáhkaovddideaddji 
+				</p>
+				
+				<p type="tablecell" xml:lang="sme">
+					Replihkka
+				</p>
+			</row>
+			
+			<row>
+				<p type="tablecell">
+					1.
+				</p>
+				<p type="tablecell" xml:lang="nob">
+					Randi S. Pedersen
+				</p>
+			</row>
+		</table>
+		
+		
+	</body>
+</document>
