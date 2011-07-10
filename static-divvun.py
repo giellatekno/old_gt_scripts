@@ -218,7 +218,7 @@ class StaticSiteBuilder:
 		subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
 		subp.wait()
 		if subp.returncode != 0:
-			print >>sys.stderr, "Linking errors detected\n"
+			print >>sys.stderr, "Linking errors detected when building", lang
 
 		commands = [u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/ with google//g'"]
 
