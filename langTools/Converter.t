@@ -103,6 +103,7 @@ if ($#ARGV > -1) {
 	my @correct_names = (
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Tjaebpemes_låvnadahke.ocrorig.correct.doc",
+	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Saajve-Læjsa.ocrorig.correct.doc",
 	);
 	
 	my @avvir_names = (
@@ -190,11 +191,9 @@ sub each_file_checks {
 	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
 	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
 	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
-	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
-	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->error_markup(), '0', "Add error markup");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is correctly encoded");
