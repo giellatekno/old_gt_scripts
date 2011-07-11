@@ -96,9 +96,12 @@ sub error_parser {
 		# Check if $rest is a continuation of an error markup
 		my @part1;
 		
-		# If this test is true, then we have a nested markup, containing a
-		# parenthesized error
-		# Pick out the rest of the error part of that expression here
+		# Nested errors appear in these forms:
+		# (error1[$sep]correction1)[$sep](correction2) or
+		# (bla bla error1[$sep]correction1)[$sep](correction2) or
+		# (error1[$sep]correction1 bla bla)[$sep](correction2)
+		# The if below parses the two first types
+		# The elsif below parses the last type
 		if ($rest =~ s/^\)//) {
 			$text =~ s/(\([^\)]*$)//;
 			my $e = $1;
