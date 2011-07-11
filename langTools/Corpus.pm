@@ -107,12 +107,20 @@ sub error_parser {
 				print "error_parser e $e\n";
 			}
 			push(@part1, $e);
+			push(@part1, $error_elt);
+		} elsif ($text =~ s/\(//) {
+			$rest =~ s/( [^\)]*\))//;
+			my $e = $1;
+			$e =~ s/\)//;
+			if ($test) {
+				print "error_parser text «$text» e «$e» rest «$rest»\n";
+			}
+			push(@part1, $error_elt);
+			push(@part1, $e);
 		}
 		
 		# Then pick out the correction(s)
 		if ($rest =~ m/^[$sep]/) {
-			push(@part1, $error_elt);
-			
 			$error_elt = XML::Twig::Elt->new('dummy');
 			$error_elt->set_content(@part1);
 			while ($rest =~ s/(^[$sep])(\([^\)]*\))//) {
