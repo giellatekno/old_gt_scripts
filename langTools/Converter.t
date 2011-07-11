@@ -26,7 +26,7 @@ if ($#ARGV > -1) {
 		each_file_checks($ARGV[$argnum]);
 	}
 } else {
-	my @doc_names = (
+	my @txt_names = (
 	"$ENV{'GTFREE'}/orig/sme/laws/other_files/nac1-1994-24.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/007_04/_VM_Kroa_MLA.txt",
 	"$ENV{'GTFREE'}/orig/sme/laws/other_files/jus.txt",
@@ -34,6 +34,9 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.94/10-94-kronihkka.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/011-05/_Govvamuitu_nr_6.txt",
+	);
+	
+	my @pdf_names = (
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG02_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf",
 	"$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
@@ -46,6 +49,9 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_samiskversjon.pdf",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/Strategalaš_plána_sámi_mánáidgárddiide_2001–2005.pdf", "$ENV{'GTFREE'}/orig/sme/laws/other_files/Lovom037.pdf",
 	"$ENV{'GTBOUND'}/orig/nob/facta/other_files/Nordområdestrategi06.pdf",
+	);
+	
+	my @doc_names = (
 	"$ENV{'GTFREE'}/orig/sma/facta/other_files/Utlysningsteks_sørsamisk_2_.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/101-04_Scooter/_Midts._fra_Fred_2610,_sami.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2003/other_files/_Lohkki_Mathisen.doc",
@@ -73,6 +79,9 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/others/Tillegg_til_forskrift_vann-_og_avløpsgebyrer_2004.doc",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Torkel_saemien_divvun.doc",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Åarjelsaemien_gïelen_divvun.doc",
+	);
+	
+	my @html_names = (
 	"$ENV{'GTFREE'}/orig/nob/admin/sd/samediggi.no/samediggi-article-84.html",
 	"$ENV{'GTFREE'}/orig/eng/admin/depts/regjeringen.no/state-secretary-karl-eirik-schjott-peder.html_id=439605",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/samisk.html_id=454913",
@@ -87,21 +96,77 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/index.php",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html_id=170397", 
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html_id=306", 
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html_id=306",
+	# 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
+	);
+	
+	my @correct_names = (
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
+	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Tjaebpemes_låvnadahke.ocrorig.correct.doc",
+	);
+	
+	my @avvir_names = (
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/s3_lohkki_NSR.article_2.xml",
-	"$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml",
-	"$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx",
-	"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
-	"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2010_xml-filer/SL_Einar_Wiggo_Isaksen(a).article.xml",
 	"$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2008_xml-filer/SL_Enare_&_Østsamisk.article.xml",
-# 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
 	);
-
+	
+	my @biblexml_names = (
+	"$ENV{'GTBOUND'}/orig/sme/bible/ot/Salmmat__garvasat.bible.xml",
+	);
+	
+	my @ptx_names = (
+	"$ENV{'GTBOUND'}/orig/nno/bible/ot/01GENNNST.u8.ptx",
+	);
+	
+	my @rtf_names = (
+	"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
+	);
+	
+	my @svg_names = (
+	"$ENV{'GTBOUND'}/orig/sme/facta/RidduRiđđu-aviissat/Riddu_Riddu_avis_TXT_200612.svg",
+	);
+	
 	one_time_checks($doc_names[0]);
+	
+	foreach my $txt_name (@txt_names) {
+		each_file_checks($txt_name);
+	}
+	
+	foreach my $pdf_name (@pdf_names) {
+		each_file_checks($pdf_name);
+	}
+
 	foreach my $doc_name (@doc_names) {
 		each_file_checks($doc_name);
+	}
+
+	foreach my $html_name (@html_names) {
+		each_file_checks($html_name);
+	}
+
+	foreach my $correct_name (@correct_names) {
+		each_file_checks($correct_name);
+	}
+
+	foreach my $avvir_name (@avvir_names) {
+		each_file_checks($avvir_name);
+	}
+
+	foreach my $biblexml_name (@biblexml_names) {
+		each_file_checks($biblexml_name);
+	}
+
+	foreach my $ptx_name (@ptx_names) {
+		each_file_checks($ptx_name);
+	}
+
+	foreach my $rtf_name (@rtf_names) {
+		each_file_checks($rtf_name);
+	}
+
+	foreach my $svg_name (@svg_names) {
+		each_file_checks($svg_name);
 	}
 }
 
@@ -125,10 +190,13 @@ sub each_file_checks {
 	is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
 	is($converter->convert2intermediatexml(), '0', "Check if we are able to make an intermediate xml file");
 	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
+	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->character_encoding(), '0', "Fix character encoding");
+	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->error_markup(), '0', "Add error markup");
+	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is correctly encoded");
 	is($converter->text_categorization(), '0', "Check if text categorization goes well");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
