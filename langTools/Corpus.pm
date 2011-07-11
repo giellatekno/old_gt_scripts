@@ -76,7 +76,7 @@ sub error_parser {
 		# After the regexp has been run $text contains everything in front
 		# of the error expression. In some cases this includes the first part
 		# of an nested error expression. This is taken care further down.
-		if ($text =~ s/(\([^\(]*\)|\w+|\w+[-\']\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
+		if ($text =~ s/(\([^\(]*\)|\w+|\w+[-\':]\w+|\d+’\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
 			$error = $1;
 			$separator = $2;
 			$correct = $3;

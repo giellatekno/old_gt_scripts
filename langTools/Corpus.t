@@ -22,6 +22,7 @@ GetOptions ("debug" => \$debug);
 # $samiChar::Decode::Test = $debug;
 
 my %question_answer = (
+	'CD:t§CD:at' => 'error CD:t CD:at',
 	'DNB-feaskáris§(DnB-feaskáris)' => 'error DNB-feaskáris DnB-feaskáris',
 	'boade§boađe' => 'error boade boađe',
 	'2005’as§2005:s' => 'error 2005’as 2005:s',
