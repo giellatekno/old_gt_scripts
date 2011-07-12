@@ -34,6 +34,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.94/10-94-kronihkka.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/avvir.no/avvir-article-1258.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/011-05/_Govvamuitu_nr_6.txt",
+	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.85/07-85-sak-neseplaster.txt",
 	);
 	
 	my @pdf_names = (
@@ -104,7 +105,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Tjaebpemes_låvnadahke.ocrorig.correct.doc",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Saajve-Læjsa.ocrorig.correct.doc",
-	"$ENV{'GTBOUND'}/goldstandard/orig/sme/learner/uno1.3.correct.txt',
+	"$ENV{'GTBOUND'}/goldstandard/orig/sme/learner/uno1.3.correct.txt",
 	);
 	
 	my @avvir_names = (
