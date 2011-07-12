@@ -151,6 +151,8 @@ our %Error_Types = (
 		"¤" => "§",
 		"Ò" => "“",
 		"ª" => "™",
+		"Ã" => "√",
+		"Ð" => "–",
 	},
 	
 	# found in titles in Min Áigi docs
