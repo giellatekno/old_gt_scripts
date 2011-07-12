@@ -104,6 +104,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/Barnehageplan_Samisk_3.pdf.correct.xml",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Tjaebpemes_låvnadahke.ocrorig.correct.doc",
 	"$ENV{'GTBOUND'}/goldstandard/orig/sma/ficti/Saajve-Læjsa.ocrorig.correct.doc",
+	"$ENV{'GTBOUND'}/goldstandard/orig/sme/learner/uno1.3.correct.txt',
 	);
 	
 	my @avvir_names = (
