@@ -217,7 +217,7 @@ our $ERROR = -1;
 our $MIN_AMOUNT = 0.0;
 
 # Printing some test data, chars and their amounts
-our $Test=1;
+our $Test=0;
 
 
 # Guess text encoding from a file $file if it's given.

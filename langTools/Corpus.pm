@@ -29,7 +29,7 @@ our %types = ("\$" => "errorort",
 
 our $sep = quotemeta("€§£\$¥");
 
-my $test = 1; #$main::test;
+my $test = $main::test;
 
 # Change the manual error markup §,$,€,¥,£ to xml-structure.
 sub add_error_markup {
