@@ -22,6 +22,7 @@ GetOptions ("debug" => \$debug);
 # $samiChar::Decode::Test = $debug;
 
 my %question_answer = (
+	'jne.$(adv,typo|jna.)' => 'errorort jne. adv typo jna.',
 	'(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)' => 'errormorphsyn šaddai ollu áššit verb fin pl3prs sg3prs tense šadde ollu áššit',
 	'daesn\'$daesnie' => 'errorort daesn\'   daesnie',
 	'1]§Ij' => 'error 1] Ij',
