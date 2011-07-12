@@ -190,12 +190,14 @@ our %Error_Types = (
 	},
 	
 	# found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
+	# and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
 	"type10" => {
 		"ð" => "đ",
 		"Ç" => "Č",
 		"ç" => "č",
 		"ó" => "š",
 		"ý" => "ŧ",
+		"þ" => "ž",
 	},
 	
 
