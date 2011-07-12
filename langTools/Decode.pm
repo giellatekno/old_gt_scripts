@@ -188,6 +188,16 @@ our %Error_Types = (
 		"˜" => "đ",
 		"¿" => "ž",
 	},
+	
+	# found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
+	"type10" => {
+		"ð" => "đ",
+		"Ç" => "Č",
+		"ç" => "č",
+		"ó" => "š",
+		"ý" => "ŧ",
+	},
+	
 
 );
 
@@ -250,7 +260,7 @@ sub guess_encoding () {
 						$count++;
 					} elsif ($type eq "type09" && "," !~ $key) {
 						$count++;
-					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08") {
+					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08" || $type eq "type10") {
 # 						print "default type $type, hit $key\n";
 						$count++;
 					}
@@ -263,7 +273,7 @@ sub guess_encoding () {
 # 				print "special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08" or $type eq "type09") and !$hit) {
+			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08" or $type eq "type09" or $type eq "type10") and !$hit) {
 # 				print "not special case\n";
 				$encoding = $type;
 				$last_count = $count;
