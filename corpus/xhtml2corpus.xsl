@@ -319,7 +319,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- Ignored elements -->
 <xsl:template match="html:hr"/>
-<xsl:template match="html:h1[1]|html:h2[1]|html:h3[1]" priority="1"/>
 <xsl:template match="html:br"/>
 <xsl:template match="html:script"/>
 <xsl:template match="html:img"/>
