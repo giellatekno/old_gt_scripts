@@ -36,7 +36,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/011-05/_Govvamuitu_nr_6.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.85/07-85-sak-neseplaster.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2003/other_files/IU-narko.txt",
-	"$ENV{'GTBOUND'}/orig/orig/sme/news/MinAigi/2003/other_files/PONDUS.txt",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2003/other_files/PONDUS.txt",
 	);
 	
 	my @pdf_names = (
@@ -125,7 +125,7 @@ if ($#ARGV > -1) {
 	);
 	
 	my @rtf_names = (
-	"$ENV{'GTBOUND'}/orig/sma/admin/depts/Samisk_som_andresprak_sorsamisk.rtf",
+	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Samisk_som_andresprak_sorsamisk.rtf",
 	);
 	
 	my @svg_names = (
