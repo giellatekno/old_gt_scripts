@@ -22,7 +22,10 @@ sub getXsl {
 sub tidyHTML {
 	my( $self ) = @_;
 	
-	$command = "sed -e 's_<?xml:namespace.*?>__g' -e 's_<v:shapetype.*/v:shapetype>__g' -e 's_<v:shape.*/v:shape>__g' " . $self->getOrig() . " | sed -e 's_<o:lock.*/o:lock>__g' -e 's_<o:p.*/o:p>__g' -e 's_<st1:metricconverter.*/st1:metricconverter>__g' -e 's_<st1:place.*/st1:place>__g'| tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet > " . $self->gettmp2();
+	$command = "tidy.py " . $self->getOrig() . " " . $self->gettmp1();
+	$self->exec_com($command);
+	$command = "tidy -config " . $self->{_bindir} . "/tidy-config.txt -utf8 -asxml -quiet " . $self->gettmp1() . " > " . $self->gettmp2();
+	
 	return $self->exec_com($command);
 }
 
