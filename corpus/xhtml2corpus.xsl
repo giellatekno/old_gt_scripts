@@ -125,6 +125,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
 <xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
+<xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
+<xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
 
 <!-- <xsl:template match="html:ol/html:ol"> -->
 <!--     <list> -->
