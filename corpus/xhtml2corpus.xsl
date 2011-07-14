@@ -283,8 +283,16 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:span//text()">  
+  <span><xsl:value-of select="."/></span>  
+</xsl:template>  
+   
+<xsl:template match="html:span">  
+  <xsl:apply-templates/>  
+</xsl:template> 
+
 <!-- other formatting -->
-<xsl:template match="html:span|html:font|html:div|html:idiv|html:note">
+<xsl:template match="html:font|html:div|html:idiv|html:note">
 	<xsl:choose>
 		<xsl:when test="text()">
 			<xsl:choose>
