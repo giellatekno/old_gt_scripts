@@ -100,7 +100,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/index.php",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html_id=170397", 
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html_id=306",
-	# 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/tema.html_id=423"
+	"$ENV{'GTFREE'}/orig/nob/admin/depts/other_files/stdie-nr-10-2003-2004.html",
 	);
 	
 	my @correct_names = (
