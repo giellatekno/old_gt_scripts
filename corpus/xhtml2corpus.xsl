@@ -83,7 +83,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:p|html:label">
 	<xsl:if test="string-length(normalize-space(.)) > 1">
 		<xsl:choose>
-			<xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p">
+			<xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p|ancestor::html:li">
 				<xsl:apply-templates />
 			</xsl:when>
 			<xsl:otherwise>
@@ -103,21 +103,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- LIST ELEMENTS -->
 
-<xsl:template match="html:ul">
-	<xsl:if test="string-length(normalize-space(html:li/text())) > 1">
-		<list>
-			<xsl:apply-templates select="html:li[not(html:ol) and not(html:ul)]"/>
-		</list>
-	</xsl:if>
-	<xsl:apply-templates select="html:li//html:ol"/>
-	<xsl:apply-templates select="html:li//html:ul"/>
-</xsl:template>
-
-<xsl:template match="html:ol">
+<xsl:template match="html:ul|html:ol">
 	<list>
 		<xsl:apply-templates/>
-		<xsl:apply-templates select="html:li//html:ol"/>
-		<xsl:apply-templates select="html:li//html:ul"/>
 	</list>
 </xsl:template>
 
@@ -157,12 +145,21 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:li//text()">
+	<xsl:choose>
+		<xsl:when test="ancestor::html:strong|ancestor::html:em">
+			<xsl:value-of select="."/>
+		</xsl:when>
+		<xsl:otherwise>
+			<p type="listitem">
+				<xsl:value-of select="."/>
+			</p>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 <xsl:template match="html:li">
-	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<p type="listitem">
-			<xsl:value-of select="text()"/>
-		</p>
-	</xsl:if>
+	<xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:center">
@@ -253,7 +250,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4">
+		<xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:li">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
