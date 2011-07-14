@@ -329,7 +329,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="@*">
-	<xsl:message>No template for <xsl:value-of select="name()"/>
+	<xsl:message>No template for attribute <xsl:value-of select="name()"/>
 		<xsl:text>: </xsl:text><xsl:value-of select="text()"/>
 	</xsl:message>
 	<xsl:apply-templates/>
