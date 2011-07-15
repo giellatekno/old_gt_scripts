@@ -40,8 +40,6 @@ for remove_tag in remove_tags:
 	for remove in removes:
 		remove.extract()
 
-print 'finding text', soup.findAll(text="<")
-
 try:
 	if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
 		soup.html.attrs.append(("xmlns", "http://www.w3.org/1999/xhtml"))
