@@ -52,6 +52,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_samiskversjon.pdf",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/Strategalaš_plána_sámi_mánáidgárddiide_2001–2005.pdf", "$ENV{'GTFREE'}/orig/sme/laws/other_files/Lovom037.pdf",
 	"$ENV{'GTBOUND'}/orig/nob/facta/other_files/Nordområdestrategi06.pdf",
+	"$ENV{'GTBOUND'}/orig/sme/bible/other_files/vitkan.pdf",
 	);
 	
 	my @doc_names = (
@@ -84,6 +85,12 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Åarjelsaemien_gïelen_divvun.doc",
 	"$ENV{'GTBOUND'}/orig/smj/facta/other_files/Samisk_som_andresprak_lulesamisk.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/062-06/_HS-WISLØFF.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/095-06/_AJ-BB.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/070-06/_alm_ØFAS.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/051-06/_UHCA_SAMIGP-CD.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/038-07/_Alm-Finnmark_fylke-felles_16.05.07.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/085-05/_UHCA-NYHET-giellaguovddáš.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/057-05/_s_12-Rabababb.no.doc",
 	);
 	
 	my @html_names = (
@@ -137,45 +144,45 @@ if ($#ARGV > -1) {
 	
 	one_time_checks($doc_names[0]);
 	
-#	foreach my $txt_name (@txt_names) {
-#		each_file_checks($txt_name);
-#	}
+	foreach my $txt_name (@txt_names) {
+		each_file_checks($txt_name);
+	}
 	
-#	foreach my $pdf_name (@pdf_names) {
-#		each_file_checks($pdf_name);
-#	}
+	foreach my $pdf_name (@pdf_names) {
+		each_file_checks($pdf_name);
+	}
 
 	foreach my $doc_name (@doc_names) {
 		each_file_checks($doc_name);
 	}
 
-#	foreach my $html_name (@html_names) {
-#		each_file_checks($html_name);
-#	}
+	foreach my $html_name (@html_names) {
+		each_file_checks($html_name);
+	}
 
-#	foreach my $correct_name (@correct_names) {
-#		each_file_checks($correct_name);
-#	}
+	foreach my $correct_name (@correct_names) {
+		each_file_checks($correct_name);
+	}
 
-#	foreach my $avvir_name (@avvir_names) {
-#		each_file_checks($avvir_name);
-#	}
+	foreach my $avvir_name (@avvir_names) {
+		each_file_checks($avvir_name);
+	}
 
-#	foreach my $biblexml_name (@biblexml_names) {
-#		each_file_checks($biblexml_name);
-#	}
+	foreach my $biblexml_name (@biblexml_names) {
+		each_file_checks($biblexml_name);
+	}
 
-#	foreach my $ptx_name (@ptx_names) {
-#		each_file_checks($ptx_name);
-#	}
+	foreach my $ptx_name (@ptx_names) {
+		each_file_checks($ptx_name);
+	}
 
-#	foreach my $rtf_name (@rtf_names) {
-#		each_file_checks($rtf_name);
-#	}
+	foreach my $rtf_name (@rtf_names) {
+		each_file_checks($rtf_name);
+	}
 
-#	foreach my $svg_name (@svg_names) {
-#		each_file_checks($svg_name);
-#	}
+	foreach my $svg_name (@svg_names) {
+		each_file_checks($svg_name);
+	}
 }
 
 sub one_time_checks {
