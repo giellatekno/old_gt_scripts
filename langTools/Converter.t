@@ -82,6 +82,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/others/Tillegg_til_forskrift_vann-_og_avløpsgebyrer_2004.doc",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Torkel_saemien_divvun.doc",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Åarjelsaemien_gïelen_divvun.doc",
+	"$ENV{'GTBOUND'}/orig/smj/facta/other_files/Samisk_som_andresprak_lulesamisk.doc",
 	);
 	
 	my @html_names = (

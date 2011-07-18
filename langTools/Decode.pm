@@ -181,6 +181,7 @@ our %Error_Types = (
 		"Œ" => "å",
 		"¿" => "ø",
 		"¥" => "•",
+		"ç" => "á",
 	},
 	
 	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
