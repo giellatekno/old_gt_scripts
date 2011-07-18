@@ -155,26 +155,15 @@ our %Error_Types = (
 		"Ð" => "–",
 	},
 	
-	# found in titles in Min Áigi docs
+	# found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
+	# and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
 	"type07" => {
-		"Ã°" => "đ",
-		"Â¹" => "š",
-		"Ã¨" => "č",
-		"â€\?" => "”",
-		"Ã©" => "é",
-		"Ä\\?" => "č",
-		"Å§" => "ŧ",
-# 		"Ä\\?" => "Đ",
-		"Ãŧ" => "ø",
-		"Å " => "Š",
-		"Ã¤" => "ä",
-		"Ã«" => "Ä",
-# 		"Ã\?" => "Á",
-		"ÄŒ" => "Č",
-		"Å‹" => "ŋ",
-		"Ã¸" => "ø",
-		"Å¾" => "ž",
-		"Ã\\?" => "Á",
+		"ð" => "đ",
+		"Ç" => "Č",
+		"ç" => "č",
+		"ó" => "š",
+		"ý" => "ŧ",
+		"þ" => "ž",
 	},
 	
 	"type08" => {
@@ -194,17 +183,32 @@ our %Error_Types = (
 		"¿" => "ž",
 	},
 	
-	# found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
-	# and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
+	# found in titles in Min Áigi docs
+	# double utf'ed letters
 	"type10" => {
-		"ð" => "đ",
-		"Ç" => "Č",
-		"ç" => "č",
-		"ó" => "š",
-		"ý" => "ŧ",
-		"þ" => "ž",
+		"Ã¡" => "á",
+		"Ã¥" => "å",
+		"Ã°" => "đ",
+		"Ä‘" => "đ",
+		"Å¡" => "š",
+		"Â¹" => "š",
+		"Ã¨" => "č",
+		"â€\?" => "”",
+		"Ã©" => "é",
+		"Ä\\?" => "č",
+		"Å§" => "ŧ",
+# 		"Ä\\?" => "Đ",
+		"Ãŧ" => "ø",
+		"Å " => "Š",
+		"Ã¤" => "ä",
+		"Ã«" => "Ä",
+# 		"Ã\?" => "Á",
+		"ÄŒ" => "Č",
+		"Å‹" => "ŋ",
+		"Ã¸" => "ø",
+		"Å¾" => "ž",
+		"Ã\\?" => "Á",
 	},
-	
 
 );
 
