@@ -83,6 +83,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Torkel_saemien_divvun.doc",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Åarjelsaemien_gïelen_divvun.doc",
 	"$ENV{'GTBOUND'}/orig/smj/facta/other_files/Samisk_som_andresprak_lulesamisk.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/062-06/_HS-WISLØFF.doc",
 	);
 	
 	my @html_names = (
@@ -144,13 +145,13 @@ if ($#ARGV > -1) {
 #		each_file_checks($pdf_name);
 #	}
 
-#	foreach my $doc_name (@doc_names) {
-#		each_file_checks($doc_name);
-#	}
-
-	foreach my $html_name (@html_names) {
-		each_file_checks($html_name);
+	foreach my $doc_name (@doc_names) {
+		each_file_checks($doc_name);
 	}
+
+#	foreach my $html_name (@html_names) {
+#		each_file_checks($html_name);
+#	}
 
 #	foreach my $correct_name (@correct_names) {
 #		each_file_checks($correct_name);
@@ -168,9 +169,9 @@ if ($#ARGV > -1) {
 #		each_file_checks($ptx_name);
 #	}
 
-	foreach my $rtf_name (@rtf_names) {
-		each_file_checks($rtf_name);
-	}
+#	foreach my $rtf_name (@rtf_names) {
+#		each_file_checks($rtf_name);
+#	}
 
 #	foreach my $svg_name (@svg_names) {
 #		each_file_checks($svg_name);

@@ -23,7 +23,7 @@ sub convert2intermediate {
 
 	my $error = 0;
 	
-	my $command = "antiword -s -x db \"" . $self->getOrig() . "\" > \"" . $self->gettmp2() . "\"";
+	my $command = "antiword -x db \"" . $self->getOrig() . "\" > \"" . $self->gettmp2() . "\"";
 	
 	if ($self->exec_com($command)) {
 		$error = 1;
@@ -51,6 +51,7 @@ sub clean_doc {
 		"Ä‘" => "đ",
 		"Å¡" => "š",
 		"Ã¥" => "å",
+		"Ã¸" => "ø",
 		"¶" => "<\/p><p>",
 		"„" => "«",
 		"“" => "»");
