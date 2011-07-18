@@ -261,7 +261,7 @@ sub character_encoding {
 			twig_handlers=>{
 				'p'=> sub{call_decode_para($self, @_, $encoding); },
 				'title'=>sub{call_decode_para($self, @_);},
-				'person'=>sub{call_decode_para($self, @_);},
+				'person'=>sub{call_decode_person($self, @_);},
 			}
 		);
 		
@@ -294,7 +294,23 @@ sub call_decode_para {
 		$error = &decode_para($language, \$text, $coding);
 		$c->set_text($text);
 	}
+
 	return $error;
+}
+
+sub call_decode_person {
+    my ( $self, $twig, $para, $coding) = @_;
+
+	my $language = $self->getPreconverter()->getDoclang();
+    my $error = 0;
+ 
+	for my $a (keys(%{$para->atts})) {
+		my $text = ${$para->atts}{$a};
+		$error = &decode_para($language, \$text, $coding);
+		$para->atts->{$a} = $text;
+	}
+	
+	return $error
 }
 
 sub error_markup {
