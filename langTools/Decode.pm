@@ -1,4 +1,3 @@
-
 package langTools::Decode;
 
 use Getopt::Long;
@@ -124,6 +123,7 @@ our %Error_Types = (
 	# mac-sami to latin1
 	"type06" => {
 		"" => "á",
+		"‡" => "á",
 		"ç" => "Á", 
 		"»" => "š",
 		"´" => "Š",
@@ -142,6 +142,7 @@ our %Error_Types = (
 		"¿" => "ø",
 		"¯" => "Ø",
 		"" => "å",
+#		"Œ" => "å",
 		"" => "Å",
 		"" => "ä",
 		"" => "Ä",
@@ -171,6 +172,9 @@ our %Error_Types = (
 		"¿" => "ø",
 		"¥" => "•",
 		"ç" => "á",
+		"Đ" => "–",
+		"Ç" => "«",
+		"È" => "»",
 	},
 	
 	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
@@ -183,31 +187,45 @@ our %Error_Types = (
 		"¿" => "ž",
 	},
 	
+	# found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
+	"type10" => {
+		"ð" => "đ",
+		"è" => "č",
+		"¹"	=> "š",
+		"¿" => "ŋ",
+		"¾" => "ž",
+		"¼" => "ŧ",
+	},
+	
 	# found in titles in Min Áigi docs
 	# double utf'ed letters
-	"type10" => {
+	"type11" => {
 		"Ã¡" => "á",
-		"Ã¥" => "å",
-		"Ã°" => "đ",
-		"Ä‘" => "đ",
-		"Å¡" => "š",
-		"Â¹" => "š",
-		"Ã¨" => "č",
-		"â€\?" => "”",
-		"Ã©" => "é",
-		"Ä\\?" => "č",
-		"Å§" => "ŧ",
-# 		"Ä\\?" => "Đ",
-		"Ãŧ" => "ø",
-		"Å " => "Š",
-		"Ã¤" => "ä",
-		"Ã«" => "Ä",
-# 		"Ã\?" => "Á",
-		"ÄŒ" => "Č",
-		"Å‹" => "ŋ",
-		"Ã¸" => "ø",
-		"Å¾" => "ž",
 		"Ã\\?" => "Á",
+		"Å¡" => "š",
+		"Å¾" => "ž",
+		"Â«" => "«",
+		"â‰¤" => "«",
+		"Â»" => "»",
+		"â‰¥" => "»",
+		"Ã…" => "Å",
+		"Ã¥" => "å",
+		"Ã…" => "Å",
+		"Ä\\?" => "č",
+		"ÄŒ" => "Č",
+		"Ä‘" => "đ",
+		"Ä\\?" => "Đ",
+		"Ã¸" => "ø",
+		"Ã˜" => "Ø",
+		"Ã¤" => "ö",
+		"Ã¤" => "ä",
+		"Ã„" => "Ä",
+		"Å§" => "ŧ",
+		"Ã©" => "é",
+		"â€\\?" => "”",
+		"Ã¦" => "æ",
+		"Å‹" => "ŋ",
+		"â€¢" => "•",
 	},
 
 );
@@ -265,13 +283,13 @@ sub guess_encoding () {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
-					} elsif ($type eq "type06" && "½»" !~ $key) {
-# 						print "type $type, hit $key\n";
+					} elsif ($type eq "type06" && "Ã½»" !~ $key) {
+#						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
 					} elsif ($type eq "type09" && "," !~ $key) {
 						$count++;
-					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08" || $type eq "type10") {
+					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08" || $type eq "type10" || $type eq "type11") {
 # 						print "default type $type, hit $key\n";
 						$count++;
 					}
@@ -284,7 +302,7 @@ sub guess_encoding () {
 # 				print "special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08" or $type eq "type09" or $type eq "type10") and !$hit) {
+			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08" or $type eq "type09" or $type eq "type10" or $type eq "type11") and !$hit) {
 # 				print "not special case\n";
 				$encoding = $type;
 				$last_count = $count;
@@ -306,7 +324,7 @@ sub decode_para (){
 	if ($Test) {
 		print "\n\npara_ref before $$para_ref\n\n";
 	}
-	foreach ( keys % {$Error_Types{$encoding}}) {
+	foreach (sort( keys % {$Error_Types{$encoding}})) {
 		$$para_ref =~ s/$_/${$Error_Types{$encoding}}{$_}/g;
 	}
 	if ($Test) {
