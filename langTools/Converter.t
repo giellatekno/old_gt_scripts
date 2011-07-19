@@ -111,6 +111,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/organisauvdna.html_id=774",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/samisk.html_id=454913",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html_id=1689",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stdie-nr-28-2007-2008-.html_id=514290",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/suodjaluspolitihka-ja-guhkesaiggiplanema-ossodat.html_id=1352",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3101.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html",

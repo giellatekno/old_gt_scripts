@@ -72,11 +72,18 @@ xsltproc xhtml2corpus.xsl - > file.xml
               |html:h4
               |html:h5
               |html:h6">
-	<section>
-		<p type="title">
-			<xsl:apply-templates/>
-		</p>
-	</section>
+	<xsl:choose>
+		<xsl:when test="ancestor::html:li">
+			<span><xsl:apply-templates/></span>
+		</xsl:when>
+		<xsl:otherwise>
+			<section>
+				<p type="title">
+					<xsl:apply-templates/>
+				</p>
+			</section>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 
