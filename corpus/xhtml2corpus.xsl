@@ -320,7 +320,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:choose>
 		<xsl:when test="text()">
 			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong|ancestor::html:span">
+				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong|ancestor::html:span|ancestor::html:li">
 					<xsl:apply-templates select="text()"/>
 				</xsl:when>
 				<xsl:otherwise>
