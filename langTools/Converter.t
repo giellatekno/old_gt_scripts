@@ -106,6 +106,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html_id=609232",
 	"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/OTP200620070025000SE_12.html",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/1.html_id=458646",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html_id=170397", 
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html_id=306",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/organisauvdna.html_id=774",
