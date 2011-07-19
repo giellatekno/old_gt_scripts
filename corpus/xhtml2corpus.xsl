@@ -103,24 +103,45 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- LIST ELEMENTS -->
 
-<xsl:template match="html:ul|html:ol">
-	<list>
-		<xsl:apply-templates/>
+<!-- Beware: lists within lists are ok, lists within listitems are NOT ok: -->
+<xsl:template match="html:ul | html:ol">
+ 	<list>
+ 		<xsl:apply-templates/>
+		<xsl:apply-templates select="html:li//html:ol"/>
+		<xsl:apply-templates select="html:li//html:ul"/>
+		<xsl:if test="html:li//html:ul or html:li//html:ol">
+			<xsl:apply-templates select="html:li//html:ul | html:li//html:ol"/>
+		</xsl:if>
 	</list>
+</xsl:template>
+
+<xsl:template match="html:li">
+	<xsl:choose>
+		<!-- Block lists as daughters of listitems: -->
+		<xsl:when test="./html:ul or ./html:ol"/>
+		<xsl:when test="string-length(normalize-space(.)) > 1">
+			<p type="listitem">
+				<xsl:apply-templates/>
+			</p>
+		</xsl:when>
+	</xsl:choose>
 </xsl:template>
 
 <!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
 <!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
 <xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
+<xsl:template match="html:ul[contains(@class,'QuickNav')]"/>
+<xsl:template match="html:div[contains(@id,'AreaTopSiteNav')]"/>
+<xsl:template match="html:div[contains(@id,'AreaTopRight')]"/>
+<xsl:template match="html:div[contains(@id,'AreaLeft')]"/>
+<xsl:template match="html:div[contains(@id,'AreaRight')]"/>
+<xsl:template match="html:div[contains(@id,'ShareArticle')]"/>
+<xsl:template match="html:div[contains(@id,'tipafriend')]"/>
+<xsl:template match="html:p[contains(@class,'breadcrumbs')]"/>
 <xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
 <xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
-
-<!-- <xsl:template match="html:ol/html:ol"> -->
-<!--     <list> -->
-<!--         <xsl:apply-templates/> -->
-<!--     </list> -->
-<!-- </xsl:template> -->
+<xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/> <!-- page footer in sami parliament pages -->
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="html:dl">
@@ -143,30 +164,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 			</p>
 		</xsl:otherwise>
 	</xsl:choose>
-</xsl:template>
-
-<xsl:template match="html:li//text()">
-	<xsl:choose>
-		<xsl:when test="ancestor::html:strong|ancestor::html:em">
-			<xsl:value-of select="."/>
-		</xsl:when>
-		<xsl:when test="ancestor::html:i">
-			<p type="listitem">
-				<em type="italic">
-					<xsl:value-of select="."/>
-				</em>
-			</p>
-		</xsl:when>
-		<xsl:otherwise>
-			<p type="listitem">
-				<xsl:value-of select="."/>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
-</xsl:template>
-
-<xsl:template match="html:li">
-	<xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:center">
@@ -205,10 +202,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:i|html:em|html:u|html:strong">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|html:u|ancestor::html:li">
+		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:u|ancestor::html:li">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4)">
+		<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:li)">
 			<p>
 				<em type="bold">
 					<xsl:apply-templates/>
