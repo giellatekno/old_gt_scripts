@@ -202,8 +202,11 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:i|html:em|html:u|html:strong">
 	<xsl:choose>
-		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:u|ancestor::html:li">
+		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:u">
 			<xsl:apply-templates/>
+		</xsl:when>
+		<xsl:when test="ancestor::html:li">
+			<em><xsl:apply-templates/></em>
 		</xsl:when>
 		<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:li)">
 			<p>
