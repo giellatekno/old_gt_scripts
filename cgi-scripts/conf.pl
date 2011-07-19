@@ -94,6 +94,7 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
+	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
 #	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
 	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
