@@ -179,22 +179,20 @@ our %Error_Types = (
 	
 	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
 	# and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc 
-	"type09" => {
+	# found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
+	"type10" => {
+		"ð" => "đ",
+		"È" => "Č",
+		"è" => "č",
+		"¹" => "š",
+		"¿" => "ŋ",
+		"¾" => "ž",
+		"¼" => "ŧ",
 		"‚" => "Č",
 		"„" => "č",
 		"¹" => "ŋ",
 		"˜" => "đ",
 		"¿" => "ž",
-	},
-	
-	# found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
-	"type10" => {
-		"ð" => "đ",
-		"è" => "č",
-		"¹"	=> "š",
-		"¿" => "ŋ",
-		"¾" => "ž",
-		"¼" => "ŧ",
 	},
 	
 	# found in titles in Min Áigi docs
@@ -203,6 +201,7 @@ our %Error_Types = (
 		"Ã¡" => "á",
 		"Ã\\?" => "Á",
 		"Å¡" => "š",
+		"Â¹" => "š",
 		"Å¾" => "ž",
 		"Â«" => "«",
 		"â‰¤" => "«",
@@ -212,6 +211,7 @@ our %Error_Types = (
 		"Ã¥" => "å",
 		"Ã…" => "Å",
 		"Ä\\?" => "č",
+		"Ã¨" => "č",
 		"ÄŒ" => "Č",
 		"Ä‘" => "đ",
 		"Ã°" => "đ",

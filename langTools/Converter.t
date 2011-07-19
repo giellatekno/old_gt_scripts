@@ -90,6 +90,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/guovda/Čoahkkinprotokolla_27.06.02.doc",
 	"$ENV{'GTFREE'}/orig/sme/admin/guovda/Dá_lea_gihppagaš_mas_leat_dieđut_skuvlla_birra.doc",
 	"$ENV{'GTFREE'}/orig/sme/admin/others/Tillegg_til_forskrift_vann-_og_avløpsgebyrer_2004.doc",
+	"$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/dc_3_99.doc",
 	"$ENV{'GTFREE'}/orig/sme/facta/other_files/psykiatriijavideo_nr_1_-_abc-company.doc",
 	);
 	
@@ -145,9 +146,9 @@ if ($#ARGV > -1) {
 	
 	one_time_checks($doc_names[0]);
 	
-	foreach my $txt_name (@txt_names) {
-		each_file_checks($txt_name);
-	}
+# 	foreach my $txt_name (@txt_names) {
+# 		each_file_checks($txt_name);
+# 	}
 	
 	foreach my $pdf_name (@pdf_names) {
 		each_file_checks($pdf_name);
@@ -157,33 +158,33 @@ if ($#ARGV > -1) {
 		each_file_checks($doc_name);
 	}
 
-	foreach my $html_name (@html_names) {
-		each_file_checks($html_name);
-	}
-
-	foreach my $correct_name (@correct_names) {
-		each_file_checks($correct_name);
-	}
-
-	foreach my $avvir_name (@avvir_names) {
-		each_file_checks($avvir_name);
-	}
-
-	foreach my $biblexml_name (@biblexml_names) {
-		each_file_checks($biblexml_name);
-	}
-
-	foreach my $ptx_name (@ptx_names) {
-		each_file_checks($ptx_name);
-	}
-
-	foreach my $rtf_name (@rtf_names) {
-		each_file_checks($rtf_name);
-	}
-
-	foreach my $svg_name (@svg_names) {
-		each_file_checks($svg_name);
-	}
+# 	foreach my $html_name (@html_names) {
+# 		each_file_checks($html_name);
+# 	}
+# 
+# 	foreach my $correct_name (@correct_names) {
+# 		each_file_checks($correct_name);
+# 	}
+# 
+# 	foreach my $avvir_name (@avvir_names) {
+# 		each_file_checks($avvir_name);
+# 	}
+# 
+# 	foreach my $biblexml_name (@biblexml_names) {
+# 		each_file_checks($biblexml_name);
+# 	}
+# 
+# 	foreach my $ptx_name (@ptx_names) {
+# 		each_file_checks($ptx_name);
+# 	}
+# 
+# 	foreach my $rtf_name (@rtf_names) {
+# 		each_file_checks($rtf_name);
+# 	}
+# 
+# 	foreach my $svg_name (@svg_names) {
+# 		each_file_checks($svg_name);
+# 	}
 }
 
 sub one_time_checks {
