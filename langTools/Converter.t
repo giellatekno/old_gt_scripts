@@ -108,13 +108,14 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/OTP200620070025000SE_12.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html_id=170397", 
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/oktavuohtadiehtojuohkin.html_id=306",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/organisauvdna.html_id=774",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/samisk.html_id=454913",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/stahtaalli-ola-t-heggem-.html_id=1689",
+	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/suodjaluspolitihka-ja-guhkesaiggiplanema-ossodat.html_id=1352",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3101.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html",
 	"$ENV{'GTFREE'}/orig/sme/laws/other_files/hl_19700619_069.html",
  	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html_id=601912",
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/suodjaluspolitihka-ja-guhkesaiggiplanema-ossodat.html_id=1352",
 	);
 	
 	my @correct_names = (
