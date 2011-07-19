@@ -317,8 +317,15 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>  
    
-<xsl:template match="html:span">  
-  <xsl:apply-templates/>  
+<xsl:template match="html:span">
+	<xsl:choose>
+		<xsl:when test="preceding-sibling::html:p">
+			<p><xsl:apply-templates/></p>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates/>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template> 
 
 <!-- other formatting -->
