@@ -91,6 +91,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2007/038-07/_Alm-Finnmark_fylke-felles_16.05.07.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/085-05/_UHCA-NYHET-giellaguovddáš.doc",
 	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2005/057-05/_s_12-Rabababb.no.doc",
+	"$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2006/002-06/_JK-Kron-sami.doc",
 	);
 	
 	my @html_names = (
