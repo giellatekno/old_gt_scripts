@@ -104,6 +104,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/nob/admin/depts/other_files/stdie-nr-10-2003-2004.html",
 	"$ENV{'GTFREE'}/orig/nob/admin/depts/regjeringen.no/sok.html_id=86008",
 	"$ENV{'GTFREE'}/orig/nob/admin/sd/samediggi.no/samediggi-article-84.html",
+	"$ENV{'GTFREE'}/orig/nob/facta/nav.no/Foreldrepenger+ved+adopsjon.html",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/arromelastoeviertieh-prosjektasse--laavlomefaamoe-berlevagesne.html_id=609232",
 	"$ENV{'GTFREE'}/orig/sma/facta/skuvlahistorja1/albert_s.html",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/OTP200620070025000SE_12.html",

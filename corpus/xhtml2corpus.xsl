@@ -379,5 +379,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
 <xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
 <xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/> <!-- page footer in sami parliament pages -->
+<xsl:template match="html:div[contains(@id,'NAVheaderContainer')]"/>
+<xsl:template match="html:div[contains(@id,'NAVbreadcrumbContainer')]"/>
+<xsl:template match="html:div[contains(@id,'NAVsubmenuContainer')]"/>
 
 </xsl:stylesheet>
