@@ -136,21 +136,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
-<!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
-<!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
-<xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
-<xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
-<xsl:template match="html:ul[contains(@class,'QuickNav')]"/>
-<xsl:template match="html:div[contains(@id,'AreaTopSiteNav')]"/>
-<xsl:template match="html:div[contains(@id,'AreaTopRight')]"/>
-<xsl:template match="html:div[contains(@id,'AreaLeft')]"/>
-<xsl:template match="html:div[contains(@id,'AreaRight')]"/>
-<xsl:template match="html:div[contains(@id,'ShareArticle')]"/>
-<xsl:template match="html:div[contains(@id,'tipafriend')]"/>
-<xsl:template match="html:p[contains(@class,'breadcrumbs')]"/>
-<xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
-<xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
-<xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/> <!-- page footer in sami parliament pages -->
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="html:dl">
@@ -373,4 +358,20 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:iframe"/>
 <xsl:template match="html:noscript"/>
 <xsl:template match="html:select"/>
+<!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
+<!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
+<xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
+<xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
+<xsl:template match="html:ul[contains(@class,'QuickNav')]"/>
+<xsl:template match="html:div[contains(@id,'AreaTopSiteNav')]"/>
+<xsl:template match="html:div[contains(@id,'AreaTopRight')]"/>
+<xsl:template match="html:div[contains(@id,'AreaLeft')]"/>
+<xsl:template match="html:div[contains(@id,'AreaRight')]"/>
+<xsl:template match="html:div[contains(@id,'ShareArticle')]"/>
+<xsl:template match="html:div[contains(@id,'tipafriend')]"/>
+<xsl:template match="html:p[contains(@class,'breadcrumbs')]"/>
+<xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
+<xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
+<xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/> <!-- page footer in sami parliament pages -->
+
 </xsl:stylesheet>
