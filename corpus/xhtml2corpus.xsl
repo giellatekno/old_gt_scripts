@@ -363,6 +363,12 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
 <xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
 <xsl:template match="html:ul[contains(@class,'QuickNav')]"/>
+<xsl:template match="html:div[contains(@class,'tabbedmenu')]"/>
+<xsl:template match="html:div[contains(@id,'searchBox')]"/>
+<xsl:template match="html:div[contains(@class,'tabbedmenu')]"/>
+<xsl:template match="html:div[contains(@class,'documentPaging')]"/>
+<xsl:template match="html:div[contains(@id,'ctl00_FullRegion_CenterAndRightRegion_Sorting_sortByDiv')]"/>
+<xsl:template match="html:div[contains(@id,'ctl00_FullRegion_CenterAndRightRegion_HitsControl_searchHitSummary')]"/>
 <xsl:template match="html:div[contains(@id,'AreaTopSiteNav')]"/>
 <xsl:template match="html:div[contains(@id,'AreaTopRight')]"/>
 <xsl:template match="html:div[contains(@id,'AreaLeft')]"/>
