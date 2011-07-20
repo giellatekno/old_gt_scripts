@@ -99,6 +99,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/goldstandard/orig/sme/facta/printfriendly.aspx",
 	"$ENV{'GTFREE'}/orig/dan/facta/skuvlahistorja4/stockfleth-n.htm",
 	"$ENV{'GTFREE'}/orig/eng/admin/depts/regjeringen.no/state-secretary-karl-eirik-schjott-peder.html_id=439605",
+	"$ENV{'GTFREE'}/orig/fin/facta/klemetti.blogspot.com/2009/01/saamelaisen-parlamentaarisen-neuvoston.html",
 	"$ENV{'GTFREE'}/orig/nob/admin/depts/other_files/OTP200620070025000SE_12.html",
 	"$ENV{'GTFREE'}/orig/nob/admin/depts/other_files/OTP200620070025000SE_7.html",
 	"$ENV{'GTFREE'}/orig/nob/admin/depts/other_files/stdie-nr-10-2003-2004.html",
