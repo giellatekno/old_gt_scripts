@@ -21,6 +21,7 @@ my $errors = 0;
 
 # error hash
 my %error_hash = (
+	"cant_handle" => 0,
 	"xsl" => 0,
 	"intermediate" => 0,
 	"convert2xml" => 0,
@@ -69,10 +70,16 @@ sub convertdoc {
 
 	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$|\.jpg$|\.docx$|\.odt$|\.js$|\.gif$|\.css$|\.png$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
-		if (! ($shallow && -f $converter->getFinalName()) ) {
+		
+		if (! $converter->{_preconverter}) {
+			$error = 1;
+			$error_hash{"cant_handle"}++;
+			$reason = "cant_handle";
+		} elsif (! ($shallow && -f $converter->getFinalName()) ) {
 			$converter->redirect_stderr_to_log();
 			$counter++;
 			print STDERR "\n\n«$filename»\n";
+			
 			if ($converter->makeXslFile()) {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
@@ -135,23 +142,22 @@ sub convertdoc {
 					$converter->remove_temp_files();
 				}
 			}
-			
-			if ($error) {
-				$feedback = "\nCouldn't convert $filename. Reason is $reason\n";
-				$errors++;
-				if (-f $converter->getFinalName()) {
-					unlink($converter->getFinalName());
-					print STDERR "Removed: " . $converter->getFinalName() . "\n";
-				}
-			} else {
-				$feedback = ".";
+		}
+		if ($error) {
+			$feedback = "\nCouldn't convert $filename. Reason is $reason\n";
+			$errors++;
+			if (-f $converter->getFinalName()) {
+				unlink($converter->getFinalName());
+				print STDERR "Removed: " . $converter->getFinalName() . "\n";
 			}
-			
-			unless ($converter->get_debug()) {
-				print $feedback;
-				unless ( $counter % 50) {
-					print " $counter\n";
-				}
+		} else {
+			$feedback = ".";
+		}
+		
+		unless ($converter->get_debug()) {
+			print $feedback;
+			unless ( $counter % 50) {
+				print " $counter\n";
 			}
 		}
 	}
