@@ -11,8 +11,12 @@ use File::Find;
 # options
 my $shallow = 0;
 my $debug = 0;
+my $printfiles = 0;
 GetOptions ("debug" => \$debug,
-			"shallow" => \$shallow);
+			"shallow" => \$shallow,
+			"printfiles" => \$printfiles,
+);
+
 $langTools::Decode::Test = $debug;
 	
 # global variables
@@ -20,19 +24,7 @@ my $counter = 0;
 my $errors = 0;
 
 # error hash
-my %error_hash = (
-	"cant_handle" => 0,
-	"xsl" => 0,
-	"intermediate" => 0,
-	"convert2xml" => 0,
-	"checklang" => 0,
-	"checkxml_after_checklang" => 0,
-	"checkxml_after_errormarkup" => 0,
-	"character_encoding" => 0,
-	"faulty_chars" => 0,
-	"checkxml_after_faulty" => 0,
-	"text_categorization" => 0,
-	"error_markup" => 0);
+my %error_hash = ();
 
 main(\@ARGV, $debug);
 
@@ -54,6 +46,9 @@ sub main {
 			}
 		}
 		conclusion();
+		if ($printfiles) {
+			print_files();
+		}
 	} else {
 		print_help();
 	}
@@ -66,15 +61,14 @@ sub convertdoc {
 	my $filename = Cwd::abs_path($file);
 	my $error = 0;
 	my $feedback;
-	my $reason;
 
 	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$|\.jpg$|\.docx$|\.odt$|\.js$|\.gif$|\.css$|\.png$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
 		
 		if (! $converter->{_preconverter}) {
+			$counter++;
 			$error = 1;
-			$error_hash{"cant_handle"}++;
-			$reason = "cant_handle";
+			push (@{$error_hash{"cant_handle"}}, $file);
 		} elsif (! ($shallow && -f $converter->getFinalName()) ) {
 			$converter->redirect_stderr_to_log();
 			$counter++;
@@ -83,59 +77,48 @@ sub convertdoc {
 			if ($converter->makeXslFile()) {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
-				$error_hash{"xsl"}++;
-				$reason = "makeXslFile";
+				push (@{$error_hash{"xsl"}}, $file);
 			} elsif ($converter->convert2intermediatexml()) {
 				print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
 				$error = 1;
-				$error_hash{"intermediate"}++;
-				$reason = "convert2intermediatexml";
+				push (@{$error_hash{"intermediate"}}, $file);
 			} elsif ($converter->convert2xml()) {
 				print STDERR "Conversion failed: Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
-				$error_hash{"convert2xml"}++;
-				$reason = "convert2xml";
+				push (@{$error_hash{"convert2xml"}}, $file);
 			} elsif ($converter->checklang()) {
 				print STDERR "Conversion failed: Couldn't verify the lang of " . $converter->getOrig() . " based on dir and metadata\n";
 				$error = 1;
-				$error_hash{"checklang"}++;
-				$reason = "checklang";
+				push (@{$error_hash{"checklang"}}, $file);
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after language verification\n";
 				$error = 1;
-				$error_hash{"checkxml_after_checklang"}++;
-				$reason = "checkxml_after_checklang";
+				push (@{$error_hash{"checkxml_after_checklang"}}, $file);
 			# Error markup conversion must be done before repairing characters, otherwise ¥ will be destrooyed
 			} elsif ($filename =~ m/\.correct\./ and $converter->error_markup()) {
 				print STDERR "Conversion failed: Wasn't able to make valid error markup out of " . $converter->getOrig() . "\n";
 				$error = 1;
-				$error_hash{"error_markup"}++;
-				$reason = "error_markup";
+				push (@{$error_hash{"error_markup"}}, $file);
             } elsif ($filename =~ m/\.correct\./ and $converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after error markup addition\n";
 				$error = 1;
-				$error_hash{"checkxml_after_errormarkup"}++;
-				$reason = "checkxml_after_errormarkup";
+				push (@{$error_hash{"checkxml_after_errormarkup"}}, $file);
 			} elsif ($converter->character_encoding()) {
 				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
 				$error = 1;
-				$error_hash{"character_encoding"}++;
-				$reason = "character_encoding";
+				push (@{$error_hash{"character_encoding"}}, $file);
 			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
 				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
 				$error = 1;
-				$error_hash{"faulty_chars"}++;
-				$reason = "search_for_faulty_characters";
+				push (@{$error_hash{"faulty_chars"}}, $file);
 			} elsif ($converter->text_categorization()) {
 				print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
 				$error = 1;
-				$error_hash{"text_categorization"}++;
-				$reason = "text_categorization";
+				push (@{$error_hash{"text_categorization"}}, $file);
 			} elsif ($converter->checkxml()) {
 				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
 				$error = 1;
-				$error_hash{"checkxml_after_faulty"}++;
-				$reason = "checkxml_after_faulty";
+				push (@{$error_hash{"checkxml_after_faulty"}}, $file);
 			} else {
 				$converter->move_int_to_converted();
 				if (! $debug ) {
@@ -144,7 +127,7 @@ sub convertdoc {
 			}
 		}
 		if ($error) {
-			$feedback = "\nCouldn't convert $filename. Reason is $reason\n";
+			$feedback = "|";
 			$errors++;
 			if (-f $converter->getFinalName()) {
 				unlink($converter->getFinalName());
@@ -155,7 +138,7 @@ sub convertdoc {
 		}
 		
 		unless ($converter->get_debug()) {
-			print $feedback;
+			print "$feedback";
 			unless ( $counter % 50) {
 				print " $counter\n";
 			}
@@ -249,6 +232,14 @@ sub sanity_check {
 	return $invalid_setup;
 }
 
+sub print_files {
+	foreach my $key (sort(keys %error_hash)) {
+		print "$key \n\t";
+		print join('\n\t', @{$error_hash{$key}});
+		print "\n";
+	}
+}
+
 sub conclusion {
 	print " $counter \nProcessing finished\n";
 	print "$counter files processed, "; 
@@ -256,9 +247,9 @@ sub conclusion {
 	if ($errors) {
 		print "$errors errors among them\n";
 		print "The errors were distributed like this:\n";
-		foreach my $key (keys %error_hash) {
-			print "$key $error_hash{$key} ";
-			my $percents = sprintf "%.0f", $error_hash{$key}/$errors*100;
+		foreach my $key (sort(keys %error_hash)) {
+			print "$key ";
+			my $percents = sprintf "%.0f", @{$error_hash{$key}}/$errors*100;
 			print $percents, "% of errors\n";
 		}
 		print "To find which files caused the errors, do the command\n";
