@@ -64,17 +64,15 @@ sub convertdoc {
 
 	if (! ($filename =~ /(\.xsl$|\/\.svn|.DS_Store|.tmp$|~$|\.qxp$|\.indd$|\.psd$|\.writenow$|\.ps$|\.xls$|\.jpg$|\.docx$|\.odt$|\.js$|\.gif$|\.css$|\.png$)/ || -d $filename) ) {
 		my $converter = langTools::Converter->new($filename, $debug);
-		
-		if (! $converter->{_preconverter}) {
-			$counter++;
-			$error = 1;
-			push (@{$error_hash{"cant_handle"}}, $file);
-		} elsif (! ($shallow && -f $converter->getFinalName()) ) {
+		if (! ($shallow && -f $converter->getFinalName()) ) {
 			$converter->redirect_stderr_to_log();
 			$counter++;
 			print STDERR "\n\n«$filename»\n";
 			
-			if ($converter->makeXslFile()) {
+			if (ref($converter->getPreconverter()) eq 'langTools::CantHandle') {
+				$error = 1;
+				push (@{$error_hash{"cant_handle"}}, $file);
+			} elsif ($converter->makeXslFile()) {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 				push (@{$error_hash{"xsl"}}, $file);
@@ -125,22 +123,22 @@ sub convertdoc {
 					$converter->remove_temp_files();
 				}
 			}
-		}
-		if ($error) {
-			$feedback = "|";
-			$errors++;
-			if (-f $converter->getFinalName()) {
-				unlink($converter->getFinalName());
-				print STDERR "Removed: " . $converter->getFinalName() . "\n";
+			if ($error) {
+				$feedback = "|";
+				$errors++;
+				if (-f $converter->getFinalName()) {
+					unlink($converter->getFinalName());
+					print STDERR "Removed: " . $converter->getFinalName() . "\n";
+				}
+			} else {
+				$feedback = ".";
 			}
-		} else {
-			$feedback = ".";
-		}
 		
-		unless ($converter->get_debug()) {
-			print "$feedback";
-			unless ( $counter % 50) {
-				print " $counter\n";
+			unless ($converter->get_debug()) {
+				print "$feedback";
+				unless ( $counter % 50) {
+					print " $counter\n";
+				}
 			}
 		}
 	}
@@ -234,8 +232,10 @@ sub sanity_check {
 
 sub print_files {
 	foreach my $key (sort(keys %error_hash)) {
-		print "$key \n\t";
-		print join('\n\t', @{$error_hash{$key}});
+		print "$key\n";
+		foreach my $name (@{$error_hash{$key}}) {
+			print "\t$name\n";
+		}
 		print "\n";
 	}
 }
