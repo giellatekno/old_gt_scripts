@@ -9,6 +9,7 @@ use langTools::PlaintextConverter;
 use langTools::PDFConverter;
 use langTools::SVGConverter;
 use langTools::CorrectXMLConverter;
+use langTools::CantHandle;
 use langTools::Decode;
 
 use strict;
@@ -69,8 +70,7 @@ sub makePreconverter {
 	} elsif( $abs_path =~ /\.correct.xml$/ ) {
 		$self->{_preconverter} = langTools::CorrectXMLConverter->new($filename, $test);
 	} else {
-		print STDERR "Unable to handle $filename\n";
-		$error = 1;
+		$self->{_preconverter} = langTools::CantHandle->new($filename, $test);
 	}
 	return $error;
 }
