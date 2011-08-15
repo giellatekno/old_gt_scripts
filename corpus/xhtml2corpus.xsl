@@ -38,25 +38,13 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				<xsl:when test="html:title">
 						<xsl:value-of select="html:title"/>
 				</xsl:when>
-				<xsl:otherwise>	
-					<xsl:value-of select="../html:body//html:h1[1]
-											|../html:body//html:h2[1]
-											|../html:body//html:h3[1]"/>
-				</xsl:otherwise>
 			</xsl:choose>
 		</title>
 	</header>
 </xsl:template>
 
-
-<!--     For a title, it selects the first h1 element -->
 <xsl:template match="html:body">
 	<body>
-		<p type="title">
-			<xsl:value-of select=".//html:h1[1]
-									|.//html:h2[1]
-									|.//html:h3[1]"/>
-		</p>
 		<xsl:apply-templates />
 	</body>
 </xsl:template>
