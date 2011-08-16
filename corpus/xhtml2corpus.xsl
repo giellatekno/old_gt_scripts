@@ -104,24 +104,13 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:ul | html:ol">
  	<list>
  		<xsl:apply-templates/>
-		<xsl:apply-templates select="html:li//html:ol"/>
-		<xsl:apply-templates select="html:li//html:ul"/>
-		<xsl:if test="html:li//html:ul or html:li//html:ol">
-			<xsl:apply-templates select="html:li//html:ul | html:li//html:ol"/>
-		</xsl:if>
 	</list>
 </xsl:template>
 
 <xsl:template match="html:li">
-	<xsl:choose>
-		<!-- Block lists as daughters of listitems: -->
-		<xsl:when test="./html:ul or ./html:ol"/>
-		<xsl:when test="string-length(normalize-space(.)) > 1">
-			<p type="listitem">
-				<xsl:apply-templates/>
-			</p>
-		</xsl:when>
-	</xsl:choose>
+		<p type="listitem">
+			<xsl:apply-templates/>
+		</p>
 </xsl:template>
 
 
