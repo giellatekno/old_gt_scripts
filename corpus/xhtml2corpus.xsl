@@ -102,15 +102,16 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- Beware: lists within lists are ok, lists within listitems are NOT ok: -->
 <xsl:template match="html:ul | html:ol">
- 	<list>
- 		<xsl:apply-templates/>
+	<list>
+		<xsl:apply-templates select="node()"/>
 	</list>
 </xsl:template>
 
 <xsl:template match="html:li">
-		<p type="listitem">
-			<xsl:apply-templates/>
-		</p>
+	<p type="listitem">
+		<xsl:value-of select="text()"/>
+	</p>
+	<xsl:apply-templates select="*"/>
 </xsl:template>
 
 
