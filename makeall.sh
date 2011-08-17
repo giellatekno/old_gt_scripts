@@ -179,6 +179,24 @@ echo ""
 echo ""
 
 echo ""
+echo "===>       North Sámi       <===" 
+echo ""
+cd $GTHOME/gt/
+nice time make GTLANG=sme hfst
+
+echo ""
+echo "===>       Lule Sámi       <===" 
+echo ""
+cd $GTHOME/gt/
+nice time make GTLANG=smj hfst
+
+echo ""
+echo "===>       South Sámi       <===" 
+echo ""
+cd $GTHOME/gt/
+nice time make GTLANG=sma hfst
+
+echo ""
 echo "===>       Faroese       <===" 
 cd $GTHOME/st/fao/src
 nice time make -f Makefile.hfst
