@@ -29,18 +29,22 @@ use Getopt::Long;
 my $help;
 my $language;
 my $versionfile;
+my $revisionfile;
 my $plxfile;
 my $phonfile;
 my $langstring = "Davvisámi";
 
-my $date = `date +%Y--%m--%d`;
-chop $date;
+my $date;
 
-GetOptions ("lang=s"    => \$language,
-			"version=s" => \$versionfile,
+GetOptions ("lang=s"     => \$language,
+			"version=s"  => \$versionfile,
+			"date=s"     => \$date,
+			"revision=s" => \$revisionfile,
 			"plxfile=s"  => \$plxfile,
 			"phonfile=s" => \$phonfile,
-			"help"      => \$help);
+			"help"       => \$help);
+
+#chop $date; # needed?
 
 if ($help) {
 	&print_usage;
@@ -57,9 +61,9 @@ elsif ( $language eq 'smj' ) {
 elsif ( $language eq 'sma' ) {
 	$langstring = "Åarjelsaemien, ";
 }
-else
+else {
 	$langstring = "No language, ";
-
+}
 
 # Read the version info from the specified file
 open (FH, "$versionfile") or die "Cannot open $versionfile $!";
@@ -68,21 +72,31 @@ close(FH);
 chop @version;
 my $versionstring = $version[0] . ", ";
 
+# Read the revision info from the specified file
+open (FH, "$revisionfile") or die "Cannot open $revisionfile $!";
+	my @revision = <FH>;
+close(FH);
+chop @revision;
+my $revisionstring = "--" . $revision[0] ;
+
 # Build the final PLX entry:
 my $plxstring =
 	$langstring .
 	$versionstring .
-	$date . "	WI" ;
+	$date .
+	$revisionstring . "	WI" ;
 
 # Escape each of the correction rule strings:
 my $corrdate = &correscape($date);
 my $corrlang = &correscape($langstring);
 my $corrversion = &correscape($versionstring);
+my $corrrevision = &correscape($revisionstring);
 
 # Create the final correction rules:
-my $corrlangstring = "/".$corrlang."<=>nuvv/	twin" ;
-my $corrversionstring = "/".$corrversion."<=>i\$Dspe/	twin" ;
-my $corrdatestring = "/".$corrdate."<=>ller/	twin" ;
+my $corrlangstring     = "/".$corrlang."<=>nuvv/	twin" ;
+my $corrversionstring  = "/".$corrversion."<=>i\$Ds/	twin" ;
+my $corrdatestring     = "/".$corrdate."<=>pel/	twin" ;
+my $corrrevisionstring = "/".$corrrevision."<=>ler/	twin" ;
 
 # Print the PLX entry to a file:
 open (FH, ">$plxfile") or die "Cannot open $plxfile $!";
@@ -91,9 +105,10 @@ close(FH);
 
 # Print the correction rules to another file:
 open (FH, ">$phonfile") or die "Cannot open $phonfile $!";
-	print FH $corrlangstring . "\n" ;
-	print FH $corrversionstring . "\n" ;
-	print FH $corrdatestring . "\n" ;
+	print FH $corrlangstring     . "\n" ;
+	print FH $corrversionstring  . "\n" ;
+	print FH $corrdatestring     . "\n" ;
+	print FH $corrrevisionstring . "\n" ;
 close(FH);
 
 # Escape subroutine:
@@ -109,6 +124,8 @@ sub print_usage {
 	print "Options\n";
 	print "--lang            the language for which to make the version info.\n";
 	print "--version=<file>  the version string file.\n";
+	print "--date=DATE       the date string.\n";
+	print "--revision=<file> the svn revision string file.\n";
     print "--plxfile=<file>  the output file for the plx entry.\n";
     print "--phonfile=<file> the output file for the correction rule.\n";
     print "--help            prints the help text and exit.\n";
