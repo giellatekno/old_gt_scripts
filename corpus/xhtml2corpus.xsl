@@ -274,7 +274,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template> 
 
 <!-- other formatting -->
-<xsl:template match="html:font|html:div|html:idiv|html:note">
+<xsl:template match="html:div|html:idiv|html:note">
 	<xsl:choose>
 		<xsl:when test="text()">
 			<xsl:choose>
@@ -292,6 +292,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:font">
+	<xsl:apply-templates/>
+</xsl:template>
 
 <xsl:template match="*">
 	<xsl:message>No template for <xsl:value-of select="name()"/>
