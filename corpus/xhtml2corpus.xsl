@@ -242,8 +242,16 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <!-- quotations -->
-<xsl:template match="html:blockquote|html:q">
+<xsl:template match="html:q">
 	<xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="html:blockquote//html:p">
+	<p>
+		<span type="quote">
+			<xsl:apply-templates/>
+		</span>
+	</p>
 </xsl:template>
 
 <!-- superscripts and subscripts are dropped to text -->
