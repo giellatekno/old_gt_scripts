@@ -201,10 +201,12 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:td">
 	<xsl:choose>
+		<!-- If td is parent to some of the tags below, let the content pass -->
 		<xsl:when test="html:table//node()|
 						html:div//node()">
 			<xsl:apply-templates/>
 		</xsl:when>
+		<!-- usually place a p around the content of td -->
 		<xsl:otherwise>
 			<p>
 				<xsl:apply-templates/>
@@ -287,8 +289,22 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:apply-templates select="node()"/>
 </xsl:template> 
 
+<xsl:template match="html:div|html:idiv">
+	<xsl:choose>
+		<!-- if this div is a child of div or td, let the content slip by -->
+		<xsl:when test="parent::html:div|parent::html:td">
+			<xsl:apply-templates/>
+		</xsl:when>
+		<xsl:otherwise>
+			<p>
+				<xsl:apply-templates/>
+			</p>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 <!-- other formatting -->
-<xsl:template match="html:div|html:idiv|html:note">
+<xsl:template match="html:note">
 	<xsl:choose>
 		<xsl:when test="text()">
 			<xsl:choose>
