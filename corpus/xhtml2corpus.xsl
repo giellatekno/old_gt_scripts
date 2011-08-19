@@ -199,7 +199,20 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:td|html:caption|html:th|html:thead">
+<xsl:template match="html:td">
+	<xsl:choose>
+		<xsl:when test="html:table//node()">
+			<xsl:apply-templates/>
+		</xsl:when>
+		<xsl:otherwise>
+			<p>
+				<xsl:apply-templates/>
+			</p>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="html:caption|html:th|html:thead">
 	<xsl:choose>
 		<xsl:when test="text()">
 			<xsl:choose>
