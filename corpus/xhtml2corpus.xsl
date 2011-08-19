@@ -201,7 +201,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:td">
 	<xsl:choose>
-		<xsl:when test="html:table//node()">
+		<xsl:when test="html:table//node()|
+						html:div//node()">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
