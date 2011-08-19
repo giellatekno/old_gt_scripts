@@ -100,28 +100,17 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- LIST ELEMENTS -->
 
-<!-- Beware: lists within lists are ok, lists within listitems are NOT ok: -->
-<xsl:template match="html:ul | html:ol">
+<xsl:template match="html:ol|html:ul">
 	<list>
-		<xsl:apply-templates/>
+		<xsl:apply-templates select="*"/>
 	</list>
 </xsl:template>
 
 <xsl:template match="html:li">
-	<xsl:apply-templates/>
+	<p type="listitem">
+		<xsl:apply-templates select="*|text()"/>
+	</p>
 </xsl:template>
-
-<xsl:template match="html:li//text()">
-	<xsl:choose>
-		<xsl:when test="ancestor::html:ol|ancestor::html:ul">
-			<p type="listitem">
-				<xsl:value-of select="."/>
-			</p>
-			<xsl:apply-templates select="*"/>
-		</xsl:when>
-	</xsl:choose>
-</xsl:template>
-
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="html:dl">
