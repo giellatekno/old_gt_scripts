@@ -202,31 +202,23 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:td|html:caption|html:th|html:thead">
 	<xsl:choose>
 		<xsl:when test="text()">
-		<xsl:choose>
-		<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
-				<xsl:apply-templates select="text()"/>
+			<xsl:choose>
+				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+					<xsl:apply-templates select="text()"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<p>
+						<xsl:apply-templates select="text()"/>
+					</p>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:when>
 		<xsl:otherwise>
-				<p><xsl:apply-templates select="text()"/></p>
-		</xsl:otherwise>
-		</xsl:choose>
-		</xsl:when>
-		<xsl:otherwise>
+			<p>
 				<xsl:apply-templates/>
+			</p>
 		</xsl:otherwise>
 	</xsl:choose>
-</xsl:template>
-
-<xsl:template match="html:td//html:span">
-	<p>
-		<xsl:apply-templates/>
-	</p>
-</xsl:template>
-
-<xsl:template match="html:td//html:font//html:span">
-	<p>
-		<xsl:apply-templates/>
-	</p>
 </xsl:template>
 
 <xsl:template match="html:tr">
@@ -283,19 +275,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:span//text()">
-	<xsl:value-of select="."/><xsl:text> </xsl:text>
-</xsl:template>  
-   
 <xsl:template match="html:span">
-	<xsl:choose>
-		<xsl:when test="preceding-sibling::html:p">
-			<p><xsl:apply-templates/></p>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates select="text"/><xsl:text> </xsl:text>
+	<xsl:apply-templates select="node()"/>
 </xsl:template> 
 
 <!-- other formatting -->
