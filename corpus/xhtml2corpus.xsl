@@ -228,14 +228,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<xsl:choose>
-			<xsl:when test="ancestor::html:p|ancestor::html:dt|ancestor::html:dd|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:li">
-				<xsl:apply-templates/>
-			</xsl:when>
-			<xsl:otherwise>
-				<p><xsl:apply-templates/></p>
-			</xsl:otherwise>
-		</xsl:choose>
+		<xsl:apply-templates/>
 	</xsl:if>
 </xsl:template>
 
