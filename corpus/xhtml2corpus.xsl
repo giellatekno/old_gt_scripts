@@ -217,6 +217,12 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:td//html:span">
+	<p>
+		<xsl:apply-templates/>
+	</p>
+</xsl:template>
+
 <xsl:template match="html:td//html:font//html:span">
 	<p>
 		<xsl:apply-templates/>
