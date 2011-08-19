@@ -279,7 +279,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:span//text()">
 	<xsl:choose>
 		<xsl:when test="ancestor::html:b|ancestor::html:em|ancestor::html:strong|ancestor::html:p|parent::html:i|ancestor::html:h3">
-			<xsl:value-of select="."/>
+			<xsl:value-of select="."/><xsl:text> </xsl:text>
 		</xsl:when>
 		<xsl:when test="ancestor::html:td">
 			<p><xsl:value-of select="."/></p>
