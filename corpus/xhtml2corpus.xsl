@@ -292,14 +292,15 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:div|html:idiv">
 	<xsl:choose>
 		<!-- if this div is a child of div or td, let the content slip by -->
-		<xsl:when test="parent::html:div|
-						parent::html:td|
+		<xsl:when test="parent::html:td|
+						html:div|
 						html:h1|
 						html:h2|
 						html:h3|
 						html:h4|
 						html:h5|
-						html:h6">
+						html:h6|
+						html:p">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
