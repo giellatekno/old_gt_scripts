@@ -301,7 +301,9 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:h6|
 						html:p|
 						html:table|
-						parent::html:li">
+						parent::html:li|
+						html:ul|
+						html:ol">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
