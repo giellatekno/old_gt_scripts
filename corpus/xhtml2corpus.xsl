@@ -316,23 +316,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template> 
 
 <xsl:template match="html:div|html:idiv">
-	<xsl:choose>
-		<!-- if this div is a child of div or td, let the content slip by -->
-		<xsl:when test="html:div|
-						html:h1|
-						html:h2|
-						html:h3|
-						html:h4|
-						html:h5|
-						html:h6|
-						html:p|
-						html:table|
-						html:ul|
-						html:ol|
-						html:a">
-			<xsl:apply-templates/>
-		</xsl:when>
-	</xsl:choose>
+	<xsl:apply-templates/>
 </xsl:template>
 
 <!-- other formatting -->
