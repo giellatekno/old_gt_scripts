@@ -243,9 +243,18 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!-- references -->
 <xsl:template match="html:a">
-	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<xsl:apply-templates/>
-	</xsl:if>
+	<xsl:choose>
+		<xsl:when test="parent::html:div">
+			<xsl:if test="string-length(normalize-space(.)) > 1">
+				<p>
+					<xsl:apply-templates/>
+				</p>
+			</xsl:if>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates/>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:form|html:input">
@@ -303,13 +312,17 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:table|
 						parent::html:li|
 						html:ul|
-						html:ol">
+						html:ol|
+						html:a">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:otherwise>
+		<xsl:when test="text()">
 			<p>
 				<xsl:apply-templates/>
 			</p>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates/>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
