@@ -399,26 +399,27 @@ void PrintHelp()
     cout << "The possible options include:\n\n";
 
     cout << "Content options:\n";
-    cout << "\t-l <lang> Print only elements in language <lang>.\n";
-    cout << "\t-a\t  Print all text elements.\n";
-    cout << "\t-p\t  Print plain paragraphs. (default)\n";
-    cout << "\t-T\t  Print paragraphs with title type.\n";
-    cout << "\t-L\t  Print paragraphs with list type.\n";
-    cout << "\t-t\t  Print paragraphs with table type.\n\n";
+    cout << "\t-l <lang> Print only elements in language <lang>\n";
+    cout << "\t-a\t  Print all text elements\n";
+    cout << "\t-p\t  Print plain paragraphs (default)\n";
+    cout << "\t-T\t  Print paragraphs with title type\n";
+    cout << "\t-L\t  Print paragraphs with list type\n";
+    cout << "\t-t\t  Print paragraphs with table type\n";
+    cout << "\t-c\t  Print corrected text instead of the original typos & errors\n\n";
 
     cout << "Error markup filtering and printing options:\n";
-    cout << "\t-C\t  Only print unclassified (§/<error..>) corrections.\n";
-    cout << "\t-ort\t  Only print ortoghraphic ($/<errorort..>) corrections.\n";
-    cout << "\t-morphsyn Only print morphosyntactic (£/<errormorphsyn..>) corrections.\n";
-    cout << "\t-syn\t  Only print syntactic (¥/<errorsyn..>) corrections.\n";
-    cout << "\t-lex\t  Only print lexical (€/<errorlex..>) corrections.\n";
-    cout << "\t-typos\t  Print only the errors/typos in the text, \n\t\t\twith corrections tabs separated.\n";
-    cout << "\t-S\t  Print the whole text one word per line. Typos have \n\t\t\ttab separated corrections.\n";
-    cout << "\t-c\t  Print corrections instead of the original text.\n\n";
+    cout << "\t-C\t  Only print unclassified (§/<error..>) corrections\n";
+    cout << "\t-ort\t  Only print ortoghraphic, non-word ($/<errorort..>) corrections\n";
+    cout << "\t-ortreal  Only print ortoghraphic, real-word (¢/<errorortreal..>)\n\t\t\tcorrections\n";
+    cout << "\t-morphsyn Only print morphosyntactic (£/<errormorphsyn..>) corrections\n";
+    cout << "\t-syn\t  Only print syntactic (¥/<errorsyn..>) corrections\n";
+    cout << "\t-lex\t  Only print lexical (€/<errorlex..>) corrections\n";
+    cout << "\t-typos\t  Print only the errors/typos in the text, \n\t\t\twith corrections tabs separated\n";
+    cout << "\t-S\t  Print the whole text one word per line; typos have \n\t\t\ttab separated corrections\n\n";
 
     cout << "Other options:\n";
-    cout << "\t-r <dir>  Recursively process directory <dir> and subdirs encountered.\n";
-    cout << "\t-h\t  Print this help message.\n";
+    cout << "\t-r <dir>  Recursively process directory <dir> and subdirs encountered\n";
+    cout << "\t-h\t  Print this help message\n";
 
     cout << endl;
 }
