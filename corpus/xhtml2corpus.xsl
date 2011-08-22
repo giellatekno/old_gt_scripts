@@ -270,6 +270,10 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:li//html:div">
+	<xsl:value-of select="text()"/>
+</xsl:template>
+
 <xsl:template match="html:form|html:input">
 	<xsl:apply-templates/>
 </xsl:template>
@@ -323,7 +327,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:h6|
 						html:p|
 						html:table|
-						parent::html:li|
 						html:ul|
 						html:ol|
 						html:a">
