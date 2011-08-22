@@ -257,6 +257,19 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="text()">
+	<xsl:choose>
+		<xsl:when test="parent::html:div">
+			<p>
+				<xsl:value-of select="."/>
+			</p>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="."/>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
 <xsl:template match="html:form|html:input">
 	<xsl:apply-templates/>
 </xsl:template>
@@ -316,14 +329,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:a">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="text()">
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
