@@ -300,7 +300,23 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:div|html:idiv">
 	<xsl:choose>
-		<xsl:when test="text() and not(parent::html:li)">
+		<!-- if this div is a child of div or td, let the content slip by -->
+		<xsl:when test="html:div|
+						html:h1|
+						html:h2|
+						html:h3|
+						html:h4|
+						html:h5|
+						html:h6|
+						html:p|
+						html:table|
+						parent::html:li|
+						html:ul|
+						html:ol|
+						html:a">
+			<xsl:apply-templates/>
+		</xsl:when>
+		<xsl:when test="text()">
 			<p>
 				<xsl:apply-templates/>
 			</p>
