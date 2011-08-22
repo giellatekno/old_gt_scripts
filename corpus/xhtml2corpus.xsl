@@ -203,7 +203,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:choose>
 		<!-- If td is parent to some of the tags below, let the content pass -->
 		<xsl:when test="html:table|
-						html:div">
+						html:div|
+						html:p">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<!-- usually place a p around the content of td -->
