@@ -170,7 +170,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				<xsl:apply-templates/>
 			</em>
 		</xsl:when>
-		<xsl:when test="parent::html:p|parent::html:font">
+		<xsl:when test="parent::html:p|parent::html:font|parent::html:span">
 			<em type="bold">
 				<xsl:apply-templates/>
 			</em>
