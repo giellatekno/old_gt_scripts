@@ -65,7 +65,7 @@ alias xsl2="saxonXSL"
 alias rev="perl -nle 'print scalar reverse \$_'"
 
 # utility command
-alias path="echo $PATH | tr ':' '\n'"
+alias path='echo -e ${PATH//:/\\n}'
 
 # define append_path and prepend_path to add directory paths, e.g. PATH, MANPATH.
 # add to end of path
