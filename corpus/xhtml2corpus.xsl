@@ -158,6 +158,13 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						ancestor::html:h2">
 			<xsl:apply-templates/>
 		</xsl:when>
+		<xsl:when test="following-sibling::*[name()='p']">
+			<p>
+				<em type="bold">
+					<xsl:apply-templates/>
+				</em>
+			</p>
+		</xsl:when>
 		<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
 			<em type="bold">
 				<xsl:apply-templates/>
@@ -327,12 +334,10 @@ if it is a container it has one or more of the these tags:
 
 <xsl:template match="html:span">
 	<xsl:choose>
-		<xsl:when test="parent::html:div">
-			<xsl:if test="string-length(normalize-space(.)) > 1">
-				<p>
-					<xsl:apply-templates/>
-				</p>
-			</xsl:if>
+		<xsl:when test="following-sibling::*[name()='p']">
+			<p>
+				<xsl:apply-templates/>
+			</p>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates/><xsl:text> </xsl:text>
