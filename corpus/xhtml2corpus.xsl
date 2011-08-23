@@ -243,7 +243,11 @@ if it is a container it has one or more of the these tags:
 	</xsl:choose>
 </xsl:template>
 
-<xsl:template match="html:caption|html:th|html:thead">
+<xsl:template match="html:thead">
+	<xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="html:caption|html:th">
 	<xsl:choose>
 		<xsl:when test="html:div|ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
 			<xsl:apply-templates/>
