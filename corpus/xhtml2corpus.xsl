@@ -211,6 +211,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:h3|
 						html:b|
 						html:span|
+						html:a|
 						text()">
 			<xsl:apply-templates/>
 		</xsl:when>
@@ -251,7 +252,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:choose>
-		<xsl:when test="parent::html:div">
+		<xsl:when test="parent::html:div|
+						parent::html:td">
 			<xsl:if test="string-length(normalize-space(.)) > 1">
 				<p>
 					<xsl:apply-templates/>
