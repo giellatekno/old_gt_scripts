@@ -339,6 +339,11 @@ if it is a container it has one or more of the these tags:
 				<xsl:apply-templates/>
 			</p>
 		</xsl:when>
+		<xsl:when test="not(following-sibling::*) and parent::html:div">
+			<p>
+				<xsl:apply-templates/>
+			</p>
+		</xsl:when>
 		<xsl:otherwise>
 			<xsl:apply-templates/><xsl:text> </xsl:text>
 		</xsl:otherwise>
