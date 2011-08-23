@@ -205,15 +205,14 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:td">
 	<xsl:choose>
-		<!-- If td is parent to some of the tags below, let the content pass -->
 		<xsl:when test="html:table|
 						html:div|
 						html:p|
 						html:h3|
-						html:b">
+						html:b|
+						html:span">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<!-- usually place a p around the content of td -->
 		<xsl:otherwise>
 			<p>
 				<xsl:apply-templates/>
@@ -319,7 +318,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:span">
 	<xsl:choose>
-		<xsl:when test="parent::html:div">
+		<xsl:when test="parent::html:div|
+						parent::html:td">
 			<xsl:if test="string-length(normalize-space(.)) > 1">
 				<p>
 					<xsl:apply-templates/>
