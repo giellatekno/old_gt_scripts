@@ -119,7 +119,7 @@ else
 fi
 export PERL5LIB
 
-# If MacPorts is installed, make sure it is also availble in the environment.
+# If MacPorts is installed, make sure it is also available in the environment.
 # This is especially important on the XServe.
 if [ -d /opt/local/bin ]; then
 	export PATH=/opt/local/bin:/opt/local/sbin:${PATH}
