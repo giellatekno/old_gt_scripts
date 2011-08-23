@@ -265,7 +265,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="text()">
 	<xsl:choose>
-		<xsl:when test="parent::html:div">
+		<xsl:when test="parent::html:div|
+						parent::html:td">
 			<p>
 				<xsl:value-of select="."/>
 			</p>
