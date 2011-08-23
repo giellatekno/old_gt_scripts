@@ -159,16 +159,16 @@ xsltproc xhtml2corpus.xsl - > file.xml
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
+			<em type="bold">
+				<xsl:apply-templates/>
+			</em>
+		</xsl:when>
+		<xsl:otherwise>
 			<p>
 				<em type="bold">
 					<xsl:apply-templates/>
 				</em>
 			</p>
-		</xsl:when>
-		<xsl:otherwise>
-			<em type="bold">
-				<xsl:apply-templates/>
-			</em>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -203,17 +203,24 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	<xsl:apply-templates />
 </xsl:template>
 
+<!--  
+A td can either behave as a container or a p like element.
+if it is a container it has one or more of the these tags:
+* p, hX, table, div (just apply-templates)
+* otherwise, add <p> around the content of td
+-->
 <xsl:template match="html:td">
 	<xsl:choose>
 		<xsl:when test="html:table|
-						html:div|
 						html:p|
+						html:h1|
+						html:h2|
 						html:h3|
-						html:b|
-						html:span|
-						html:a|
-						text()">
-			<xsl:apply-templates/>
+						html:h4|
+						html:h5|
+						html:h6|
+						html:div">
+				<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
 			<p>
@@ -252,8 +259,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:choose>
-		<xsl:when test="parent::html:div|
-						parent::html:td">
+		<xsl:when test="parent::html:div">
 			<xsl:if test="string-length(normalize-space(.)) > 1">
 				<p>
 					<xsl:apply-templates/>
@@ -268,8 +274,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="text()">
 	<xsl:choose>
-		<xsl:when test="parent::html:div|
-						parent::html:td">
+		<xsl:when test="parent::html:div">
 			<p>
 				<xsl:value-of select="."/>
 			</p>
@@ -322,8 +327,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:span">
 	<xsl:choose>
-		<xsl:when test="parent::html:div|
-						parent::html:td">
+		<xsl:when test="parent::html:div">
 			<xsl:if test="string-length(normalize-space(.)) > 1">
 				<p>
 					<xsl:apply-templates/>
@@ -331,8 +335,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 			</xsl:if>
 		</xsl:when>
 		<xsl:otherwise>
-			<xsl:apply-templates select="text"/><xsl:text> </xsl:text>
-			<xsl:apply-templates select="node()"/>
+			<xsl:apply-templates/><xsl:text> </xsl:text>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template> 
