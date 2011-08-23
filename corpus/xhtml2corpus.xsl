@@ -313,8 +313,19 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="html:span">
-	<xsl:apply-templates select="text"/><xsl:text> </xsl:text>
-	<xsl:apply-templates select="node()"/>
+	<xsl:choose>
+		<xsl:when test="parent::html:div">
+			<xsl:if test="string-length(normalize-space(.)) > 1">
+				<p>
+					<xsl:apply-templates/>
+				</p>
+			</xsl:if>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates select="text"/><xsl:text> </xsl:text>
+			<xsl:apply-templates select="node()"/>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template> 
 
 <xsl:template match="html:div|html:idiv">
