@@ -210,7 +210,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						html:p|
 						html:h3|
 						html:b|
-						html:span">
+						html:span|
+						text()">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
