@@ -421,6 +421,7 @@ if it is a container it has one or more of the these tags:
 <xsl:template match="html:p[contains(@class,'breadcrumbs')]"/>
 <xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
 <xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
+<xsl:template match="html:div[contains(@id,'blog-pager')]"/>
 <xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/> <!-- page footer in sami parliament pages -->
 <xsl:template match="html:div[contains(@id,'NAVheaderContainer')]"/>
 <xsl:template match="html:div[contains(@id,'NAVbreadcrumbContainer')]"/>
