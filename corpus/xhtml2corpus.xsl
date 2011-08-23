@@ -245,17 +245,8 @@ if it is a container it has one or more of the these tags:
 
 <xsl:template match="html:caption|html:th|html:thead">
 	<xsl:choose>
-		<xsl:when test="text()">
-			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
-					<xsl:apply-templates select="text()"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p>
-						<xsl:apply-templates select="text()"/>
-					</p>
-				</xsl:otherwise>
-			</xsl:choose>
+		<xsl:when test="html:div|ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a">
+			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
 			<p>
