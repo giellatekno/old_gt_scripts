@@ -305,7 +305,10 @@ If it is a container it has one or more of the these tags:
 <!-- references -->
 <xsl:template match="html:a">
 	<xsl:choose>
-		<xsl:when test="parent::html:div">
+		<xsl:when test="following-sibling::*[name()='p']|
+						preceding-sibling::*[name()='p']|
+						following-sibling::*[name()='div']|
+						preceding-sibling::*[name()='div']">
 			<xsl:if test="string-length(normalize-space(.)) > 1">
 				<p>
 					<xsl:apply-templates/>
@@ -320,7 +323,8 @@ If it is a container it has one or more of the these tags:
 
 <xsl:template match="text()">
 	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']">
+		<xsl:when test="following-sibling::*[name()='p']|
+						preceding-sibling::*[name()='p']">
 			<p>
 				<xsl:value-of select="."/>
 			</p>
@@ -373,12 +377,8 @@ If it is a container it has one or more of the these tags:
 
 <xsl:template match="html:span">
 	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']">
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:when>
-		<xsl:when test="not(following-sibling::*) and parent::html:div">
+		<xsl:when test="following-sibling::*[name()='p']|
+						preceding-sibling::*[name()='p']">
 			<p>
 				<xsl:apply-templates/>
 			</p>
