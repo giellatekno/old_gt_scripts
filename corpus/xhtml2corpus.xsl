@@ -227,11 +227,38 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <!--  
 A td can either behave as a container or a p like element.
-if it is a container it has one or more of the these tags:
+If it is a container it has one or more of the these tags:
 * p, hX, table, div (just apply-templates)
 * otherwise, add <p> around the content of td
 -->
 <xsl:template match="html:td">
+	<xsl:choose>
+		<xsl:when test="html:table|
+						html:p|
+						html:h1|
+						html:h2|
+						html:h3|
+						html:h4|
+						html:h5|
+						html:h6|
+						html:div">
+				<xsl:apply-templates/>
+		</xsl:when>
+		<xsl:otherwise>
+			<p>
+				<xsl:apply-templates/>
+			</p>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<!--  
+A div can either behave as a container or a p like element.
+If it is a container it has one or more of the these tags:
+* p, hX, table, div (just apply-templates)
+* otherwise, add <p> around the content of td
+-->
+<xsl:template match="html:div">
 	<xsl:choose>
 		<xsl:when test="html:table|
 						html:p|
@@ -364,10 +391,6 @@ if it is a container it has one or more of the these tags:
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template> 
-
-<xsl:template match="html:div|html:idiv">
-	<xsl:apply-templates/>
-</xsl:template>
 
 <!-- other formatting -->
 <xsl:template match="html:note">
