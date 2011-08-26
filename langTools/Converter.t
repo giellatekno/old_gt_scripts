@@ -123,6 +123,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-3299.html",
 	"$ENV{'GTFREE'}/orig/sme/laws/other_files/hl_19700619_069.html",
  	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/norgga-ruoa-ovttasbargu-nannejuvvo-vel-eambbo.html_id=601912",
+ 	"$ENV{'GTFREE'}/orig/nno/facta/skuvlahistorja4/hansvogt-n.htm",
 	);
 	
 	my @correct_names = (
