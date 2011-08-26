@@ -268,7 +268,9 @@ If it is a container it has one or more of the these tags:
 						html:h4|
 						html:h5|
 						html:h6|
-						html:div">
+						html:div|
+						html:ol|
+						html:ul">
 				<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
