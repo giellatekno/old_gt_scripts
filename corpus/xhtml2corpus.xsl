@@ -282,8 +282,12 @@ if it is a container it has one or more of the these tags:
 
 <xsl:template match="text()">
 	<xsl:choose>
-		<xsl:when test="parent::html:div|
-						parent::html:td">
+		<xsl:when test="parent::html:div">
+			<p>
+				<xsl:value-of select="."/>
+			</p>
+		</xsl:when>
+		<xsl:when test="following-sibling::*[name()='p']">
 			<p>
 				<xsl:value-of select="."/>
 			</p>
