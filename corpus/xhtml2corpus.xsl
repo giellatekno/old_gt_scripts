@@ -324,7 +324,9 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="text()">
 	<xsl:choose>
 		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']">
+						preceding-sibling::*[name()='p']|
+						following-sibling::*[name()='div']|
+						preceding-sibling::*[name()='div']">
 			<p>
 				<xsl:value-of select="."/>
 			</p>
