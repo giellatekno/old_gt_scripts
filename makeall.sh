@@ -137,14 +137,15 @@ echo ""
 echo "===>   Norwegian - Kven   <===" 
 cd $GTHOME/words/dicts/nobfkv/
 nice time make
-echo ""
-echo "===>   Meänkieli - Swedish   <===" 
-cd $GTHOME/words/dicts/fitswe/
-nice time make 
-echo ""
-echo "===>   Swedish - Meänkieli   <===" 
-cd $GTHOME/words/dicts/swefit
-nice time make
+# fitswe is not in the public domain.
+#echo ""
+#echo "===>   Meänkieli - Swedish   <===" 
+#cd $GTHOME/words/dicts/fitswe/
+#nice time make 
+#echo ""
+#echo "===>   Swedish - Meänkieli   <===" 
+#cd $GTHOME/words/dicts/swefit
+#nice time make
 echo "===>                    <===" 
 echo "===> Other FU languages <===" 
 echo "===>                    <===" 
@@ -173,8 +174,8 @@ nice time make
 
 echo ""
 echo ""
-echo "===>   Now, let us try the hfst compiler   <==="
-echo "===> Just ignore this if you don't have it <==="
+echo "===>   Now, let us try the hfst compiler     <==="
+echo "===> Just ignore this if you don't have hfst <==="
 echo ""
 echo ""
 
