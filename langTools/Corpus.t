@@ -1,6 +1,7 @@
 use Test::More 'no_plan';
 use Test::Exception;
 use Test::File;
+use Test::Deep;
 use strict;
 use warnings;
 use Cwd;
@@ -22,26 +23,27 @@ GetOptions ("debug" => \$debug);
 # $samiChar::Decode::Test = $debug;
 
 my %question_answer = (
-	'jne.$(adv,typo|jna.)' => 'errorort jne. adv typo jna.',
-	'(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)' => 'errormorphsyn šaddai ollu áššit verb fin pl3prs sg3prs tense šadde ollu áššit',
-	'daesn\'$daesnie' => 'errorort daesn\'   daesnie',
-	'1]§Ij' => 'error 1] Ij',
-	'væ]keles§(væjkeles)' => 'error væ]keles væjkeles',
-	'smávi-§smávit-' => 'error smávi- smávit-',
-	'CD:t§CD:at' => 'error CD:t CD:at',
-	'DNB-feaskáris§(DnB-feaskáris)' => 'error DNB-feaskáris DnB-feaskáris',
-	'boade§boađe' => 'error boade boađe',
-	'2005’as§2005:s' => 'error 2005’as 2005:s',
-	'NSRii§NSR:ii' => 'error NSRii NSR:ii',
-	'Nordkjosbotn\'ii§Nordkjosbotnii' => 'error Nordkjosbotn\'ii Nordkjosbotnii',
-	'nourra$(a,meta|nuorra)' => 'errorort nourra a meta nuorra',
-	'(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => 'errormorphsyn Nieiddat leat nuorra a spred nompl nomsg agr Nieiddat leat nuorat',
-	'(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)' => 'errorsyn riŋgen nieidda lusa x pph riŋgen niidii',
-	'ovtta¥(num,redun| )' => 'errorsyn ovtta num redun  ',
-	'dábálaš€(adv,adj,der|dábálaččat)' => 'errorlex dábálaš adv adj der dábálaččat',
-	'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => 'errormorphsyn Nieiddat leat nourra adj spred nompl nomsg agr Nieiddat leat nuorat',
-	'(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)' => 'errormorphsyn guokte ganddat n nump gensg nompl case guokte gándda',
-	'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)' => 'errormorphsyn leat okta máná v v sg3prs pl3prs agr lea okta mánná',
+	'jne.$(adv,typo|jna.)' => '<errorort correct="jna." errtype="typo" pos="adv">jne.</errorort>',
+	'(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)' => '<errormorphsyn cat="pl3prs" const="fin" correct="šadde ollu áššit" errtype="tense" orig="sg3prs" pos="verb"><errorort correct="šattai" errtype="conc" pos="verb">šaddai</errorort> ollu áššit</errormorphsyn>',
+	'daesn\'$daesnie' => '<errorort correct="daesnie">daesn\'</errorort>',
+	'1]§Ij' => '<error correct="Ij">1]</error>',
+	'væ]keles§(væjkeles)' => '<error correct="væjkeles">væ]keles</error>',
+	'smávi-§smávit-' => '<error correct="smávit-">smávi-</error>',
+	'CD:t§CD:at' => '<error correct="CD:at">CD:t</error>',
+	'DNB-feaskáris§(DnB-feaskáris)' => '<error correct="DnB-feaskáris">DNB-feaskáris</error>',
+	'boade§boađe' => '<error correct="boađe">boade</error>',
+	'2005’as§2005:s' => '<error correct="2005:s">2005’as</error>',
+	'NSRii§NSR:ii' => '<error correct="NSR:ii">NSRii</error>',
+	'Nordkjosbotn\'ii§Nordkjosbotnii' => '<error correct="Nordkjosbotnii">Nordkjosbotn\'ii</error>',
+	'nourra$(a,meta|nuorra)' => '<errorort correct="nuorra" errtype="meta" pos="a">nourra</errorort>',
+	'(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => '<errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>',
+	'(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)' => '<errorsyn correct="riŋgen niidii" errtype="pph" pos="x">riŋgen nieidda lusa</errorsyn>',
+	'ovtta¥(num,redun| )' => '<errorsyn correct=" " errtype="redun" pos="num">ovtta</errorsyn>',
+	'dábálaš€(adv,adj,der|dábálaččat)' => '<errorlex correct="dábálaččat" errtype="der" origpos="adj" pos="adv">dábálaš</errorlex>',
+	'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => '<errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="adj">Nieiddat leat <errorort correct="nuorra" errtype="meta" pos="adj">nourra</errorort></errormorphsyn>',
+	'(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)' => '<errormorphsyn cat="gensg" const="nump" correct="guokte gándda" errtype="case" orig="nompl" pos="n">guokte <error correct="gánddat">ganddat</error></errormorphsyn>',
+	'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)' => '<errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn>',
+# 	'ráhččamušaid¢(noun,mix|rahčamušaid)' => 'errorortreal ráhččamušaid noun mix rahčamušaid',
 );
 
 # Another kind of error:
@@ -51,21 +53,14 @@ my %question_answer = (
 # gitta <errorort correct="Nordkjosbotnii">Nordkjosbotn'ii</errorort>  mii lea ge <errorort correct="Nordkjosbotn">nordkjosbotn</errorort> gos
 # should have been:
 # gitta <errorort correct="Nordkjosbotnii">Nordkjosbotn'ii</errorort> (mii lea ge <errorort correct="Nordkjosbotn">nordkjosbotn</errorort> sámegillii? Muhtin, veahket mu!) gos
+
 foreach (sort (keys % question_answer)) {
 	my @answer = langTools::Corpus::error_parser($_);
-	my $twig = $answer[1];
-	
-	my @a;
-	if ($twig->name eq 'error') {
-		@a = ($twig->name, $twig->text, $twig->{'att'}->{'correct'});
-	} elsif ($twig->name eq 'errorort') {
-		@a = ($twig->name, $twig->text, $twig->{'att'}->{'pos'}, $twig->{'att'}->{'errtype'}, $twig->{'att'}->{'correct'});
-	} elsif ($twig->name eq 'errormorphsyn') {
-		@a = ($twig->name, $twig->text, $twig->{'att'}->{'pos'}, $twig->{'att'}->{'const'}, $twig->{'att'}->{'cat'}, $twig->{'att'}->{'orig'}, $twig->{'att'}->{'errtype'}, $twig->{'att'}->{'correct'});
-	} elsif ($twig->name eq 'errorsyn') {
-		@a = ($twig->name, $twig->text, $twig->{'att'}->{'pos'}, $twig->{'att'}->{'errtype'}, $twig->{'att'}->{'correct'});
-	} elsif ($twig->name eq 'errorlex') {
-		@a = ($twig->name, $twig->text, $twig->{'att'}->{'pos'}, $twig->{'att'}->{'origpos'}, $twig->{'att'}->{'errtype'}, $twig->{'att'}->{'correct'});
-	}
-	is(join(' ', @a), $question_answer{$_}, "Error markup");
+	my $twig1 = $answer[1];
+	my $twig2 = XML::Twig::Elt->parse($question_answer{$_});
+	delete $twig2->{'twig'};
+	cmp_deeply($twig1, $twig2, "Error markup");
+
+# 	say Dumper($twig1);
+# 	say Dumper($twig2);
 }
