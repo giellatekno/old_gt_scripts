@@ -44,6 +44,13 @@ my %question_answer = (
 	'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)' => 'errormorphsyn leat okta máná v v sg3prs pl3prs agr lea okta mánná',
 );
 
+# Another kind of error:
+# This input:
+# gitta Nordkjosbotn'ii$Nordkjosbotnii (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos
+# gives this output:
+# gitta <errorort correct="Nordkjosbotnii">Nordkjosbotn'ii</errorort>  mii lea ge <errorort correct="Nordkjosbotn">nordkjosbotn</errorort> gos
+# should have been:
+# gitta <errorort correct="Nordkjosbotnii">Nordkjosbotn'ii</errorort> (mii lea ge <errorort correct="Nordkjosbotn">nordkjosbotn</errorort> sámegillii? Muhtin, veahket mu!) gos
 foreach (sort (keys % question_answer)) {
 	my @answer = langTools::Corpus::error_parser($_);
 	my $twig = $answer[1];
