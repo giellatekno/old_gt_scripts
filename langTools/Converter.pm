@@ -235,9 +235,27 @@ sub checklang {
 	return 0;
 }
 
+sub getEncodingFromXsl {
+	my ($self) = @_;
+	print "242\n";
+	my $document = XML::Twig->new;
+	if ($document->safe_parsefile($self->getMetadataXsl())) {
+		my $root = $document->root;
+		my $coding_elt = $root->first_child('xsl:variable[@name="text_encoding"]');
+		if ($coding_elt) { 
+			return $coding_elt->{'att'}{'select'}; 
+		} else {
+			return "";
+		}
+	} else {
+		return "ERROR";
+	}
+}
+
 sub character_encoding {
 	my ($self) = @_;
     #my ($file, $int, $no_decode_this_time) = @_;
+    
 	my $file = $self->getOrig();
 	my $int = $self->getInt();
 	my $test = $self->getPreconverter()->getTest();
@@ -246,30 +264,38 @@ sub character_encoding {
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
 
-	my $encoding = &guess_encoding($int, $language);
-	if ($test) {
-		print "(character_encoding) Encoding is: $encoding\n";
-	}
-	
-	if ($encoding ne $langTools::Decode::NO_ENCODING) {
-		my $d=XML::Twig->new(
-			twig_handlers=>{
-				'p'=> sub{call_decode_para($self, @_, $encoding); },
-				'title'=>sub{call_decode_para($self, @_);},
-				'person'=>sub{call_decode_person($self, @_);},
-			}
-		);
+	my $encoding = $self->getEncodingFromXsl();
+	$encoding =~ s/'//g;
+	if ( $encoding eq "ERROR") {
+		$error = 1;
+	} else {
+		if (!$encoding) {
+			$encoding = &guess_encoding($int, $language);
+		}
+		if ($test) {
+			print "(character_encoding) Encoding is: $encoding\n";
+		}
 		
-		if (! $d->safe_parsefile ("$int") ) {
-			carp "ERROR parsing the XML-file failed.\n";
-			$error = 1;
-		} elsif (! open (FH, ">:encoding(utf8)", $int)) {
-			carp "ERROR cannot open file";
-			$error = 2;
-		} else {
-			$d->set_pretty_print('indented');
-			$d->print( \*FH);
-			close (FH);
+		if ($encoding ne $langTools::Decode::NO_ENCODING) {
+			my $d=XML::Twig->new(
+				twig_handlers=>{
+					'p'=> sub{call_decode_para($self, @_, $encoding); },
+					'title'=>sub{call_decode_para($self, @_);},
+					'person'=>sub{call_decode_person($self, @_);},
+				}
+			);
+			
+			if (! $d->safe_parsefile ("$int") ) {
+				carp "ERROR parsing the XML-file failed.\n";
+				$error = 1;
+			} elsif (! open (FH, ">:encoding(utf8)", $int)) {
+				carp "ERROR cannot open file";
+				$error = 2;
+			} else {
+				$d->set_pretty_print('indented');
+				$d->print( \*FH);
+				close (FH);
+			}
 		}
 	}
 	return $error;
