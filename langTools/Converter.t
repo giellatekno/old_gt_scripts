@@ -199,6 +199,13 @@ if ($#ARGV > -1) {
 # 	foreach my $svg_name (@svg_names) {
 # 		each_file_checks($svg_name);
 # 	}
+	encoding_checks();
+}
+
+sub encoding_checks {
+	ok(my $converter = langTools::Converter->new("$ENV{'GTBOUND'}/orig/sme/news/Avvir_xml-filer/Avvir_2009_xml-filer/s5_sak3_norsk.article.xml", $debug));
+	$converter->makeXslFile();
+	is($converter->getEncodingFromXsl(), '\'UTF-8\'', "Check if we get the correct encoding from the xsl file");
 }
 
 sub one_time_checks {
@@ -208,6 +215,8 @@ sub one_time_checks {
 	is($converter->getCommonXsl(), "$ENV{'GTHOME'}/gt/script/corpus/common.xsl", "Check if common.xsl is set");
 	is($converter->getPreprocXsl(), "$ENV{'GTHOME'}/gt/script/corpus/preprocxsl.xsl", "Check if preprocxsl.xsl is set");
 	is(check_decode_para($converter), '0', "Check if decode para works");
+	$converter->makeXslFile();
+	is($converter->getEncodingFromXsl(), '\'\'', "Check if we get the correct encoding from the xsl file");
 }
 
 sub each_file_checks {
