@@ -1,4 +1,3 @@
-
 package langTools::Corpus;
 
 use utf8;
@@ -166,8 +165,19 @@ sub get_error {
 		$error_elt = $error;
 		$error_elt->set_tag($error_elt_name);
 		$error_elt->set_att(correct => $correct);
+		if(! defined($error_elt->{'first_child'}->{'prev_sibling'})) {
+			delete $error_elt->{'first_child'}->{'prev_sibling'};
+		}
+		if(! defined($error_elt->{'first_child'}->{'next_sibling'})) {
+			delete $error_elt->{'first_child'}->{'next_sibling'};
+		}
+		if(! defined($error_elt->{'first_child'}->{'next_sibling'}->{'next_sibling'})) {
+			delete $error_elt->{'first_child'}->{'next_sibling'}->{'next_sibling'};
+		}
 	} else {
 		$error_elt = XML::Twig::Elt->new($error_elt_name=>{correct=>$correct}, $error);
+		delete $error_elt->{'first_child'}->{'next_sibling'};
+		delete $error_elt->{'first_child'}->{'prev_sibling'};
 	}
 	# Add extra attributes if found:
 	if ( $extatt ) {
@@ -276,7 +286,7 @@ sub get_error {
 		$error_elt->print;
 		print "\n";
 	}
-	
+
 	return $error_elt;
 }
 
