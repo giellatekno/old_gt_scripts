@@ -83,7 +83,7 @@ sub error_parser {
 			$rest = $4;
 			
 			if ($test) {
-				print "error_parser error $error separator $separator correct $correct\n";
+				print "error_parser text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
 			}
 			
 			$error =~ s/\)//;
@@ -111,7 +111,8 @@ sub error_parser {
 			}
 			push(@part1, $e);
 			push(@part1, $error_elt);
-		} elsif ($text =~ s/\(//) {
+		} elsif ($text =~ /\(/ && $rest =~ /\)[$sep]/) {
+			$text =~ s/\(//;
 			$rest =~ s/( [^\)]*\))//;
 			my $e = $1;
 			$e =~ s/\)//;
