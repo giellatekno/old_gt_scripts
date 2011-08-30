@@ -43,7 +43,7 @@ my %question_answer = (
 	'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)' => '<errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="adj">Nieiddat leat <errorort correct="nuorra" errtype="meta" pos="adj">nourra</errorort></errormorphsyn>',
 	'(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)' => '<errormorphsyn cat="gensg" const="nump" correct="guokte gándda" errtype="case" orig="nompl" pos="n">guokte <error correct="gánddat">ganddat</error></errormorphsyn>',
 	'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)' => '<errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn>',
-# 	'ráhččamušaid¢(noun,mix|rahčamušaid)' => 'errorortreal ráhččamušaid noun mix rahčamušaid',
+	'ráhččamušaid¢(noun,mix|rahčamušaid)' => '<errorortreal pos="noun" errtype="mix" correct="rahčamušaid">ráhččamušaid</errorortreal>',
 );
 
 # Another kind of error:
