@@ -237,7 +237,7 @@ sub checklang {
 
 sub getEncodingFromXsl {
 	my ($self) = @_;
-	print "242\n";
+
 	my $document = XML::Twig->new;
 	if ($document->safe_parsefile($self->getMetadataXsl())) {
 		my $root = $document->root;
