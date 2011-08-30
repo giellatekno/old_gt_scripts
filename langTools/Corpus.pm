@@ -21,12 +21,13 @@ our (@ISA, @EXPORT, @EXPORT_OK);
 #our ($fst);
 
 our %types = ("\$" => "errorort",
-			   "€" => "errorlex",
-			   "£" => "errormorphsyn",
-			   "¥" => "errorsyn",
-			   "§" => "error");
+				"¢" => "errorortreal",
+				"€" => "errorlex",
+				"£" => "errormorphsyn",
+				"¥" => "errorsyn",
+				"§" => "error");
 
-our $sep = quotemeta("€§£\$¥");
+our $sep = quotemeta("€§£\$¥¢");
 
 my $test = $main::test;
 
@@ -180,15 +181,15 @@ sub get_error {
 		delete $error_elt->{'first_child'}->{'prev_sibling'};
 	}
 	# Add extra attributes if found:
-	if ( $extatt ) {
+	if ($extatt) {
 		# Add attributes for orthographical errors:
-		if ( $types{$separator} eq 'errorort') {
+		if ($types{$separator} eq 'errorort' || $types{$separator} eq 'errorortreal') {
 #    		print "errorort: $attlist\n";
 			my ($pos, $errtype, $teacher) = split(/,/, $attlist);
-			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+			if ($errtype eq 'yes' || $errtype eq 'no') {
 				$teacher = $errtype;
 				$errtype = "";
-			} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+			} elsif ( $pos eq 'yes' || $pos eq 'no') {
 				$teacher = $pos;
 				$pos = "";
 				$errtype = "";
@@ -201,14 +202,14 @@ sub get_error {
 		if ( $types{$separator} eq 'errorlex') {
 #    		print "errorlex: $attlist\n";
 			my ($pos, $origpos, $errtype, $teacher) = split(/,/, $attlist, 4);
-			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+			if ($errtype eq 'yes' || $errtype eq 'no') {
 				$teacher = $errtype;
 				$errtype = "";
-			} elsif ( $origpos eq 'yes' || $origpos eq 'no' ) {
+			} elsif ($origpos eq 'yes' || $origpos eq 'no') {
 				$teacher = $origpos;
 				$origpos = "";
 				$errtype = "";
-			} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+			} elsif ($pos eq 'yes' || $pos eq 'no') {
 				$teacher = $pos;
 				$pos = "";
 				$origpos = "";
@@ -231,25 +232,25 @@ sub get_error {
 		if ( $types{$separator} eq 'errormorphsyn') {
 #    		print "errormorphsyn: $attlist\n";
 			my ($pos, $const, $cat, $orig, $errtype, $teacher) = split(/,/, $attlist, 6);
-			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+			if ($errtype eq 'yes' || $errtype eq 'no' ) {
 				$teacher = $errtype;
 				$errtype = "";
-			} elsif ( $orig eq 'yes' || $orig eq 'no' ) {
+			} elsif ($orig eq 'yes' || $orig eq 'no') {
 				$teacher = $orig;
 				$orig = "";
 				$errtype = "";
-			} elsif ( $cat eq 'yes' || $cat eq 'no' ) {
+			} elsif ($cat eq 'yes' || $cat eq 'no') {
 				$teacher = $cat;
 				$cat = "";
 				$orig = "";
 				$errtype = "";
-			} elsif ( $const eq 'yes' || $const eq 'no' ) {
+			} elsif ($const eq 'yes' || $const eq 'no') {
 				$teacher = $const;
 				$const = "";
 				$cat = "";
 				$orig = "";
 				$errtype = "";
-			} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+			} elsif ($pos eq 'yes' || $pos eq 'no') {
 				$teacher = $pos;
 				$pos = "";
 				$const = "";
@@ -265,13 +266,13 @@ sub get_error {
 			if ($teacher) { $error_elt->set_att('teacher', $teacher); }
 		}
 		# Add attributes for syntactic errors:
-		if ( $types{$separator} eq 'errorsyn') {
+		if ($types{$separator} eq 'errorsyn') {
 #    		print "errorsyn: $attlist\n";
 			my ($pos, $errtype, $teacher) = split(/,/, $attlist);
-			if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+			if ($errtype eq 'yes' || $errtype eq 'no') {
 				$teacher = $errtype;
 				$errtype = "";
-			} elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+			} elsif ($pos eq 'yes' || $pos eq 'no') {
 				$teacher = $pos;
 				$pos = "";
 				$errtype = "";
