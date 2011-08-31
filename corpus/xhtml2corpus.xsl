@@ -107,9 +107,20 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 <xsl:template match="html:li">
-	<p type="listitem">
-		<xsl:apply-templates select="*|text()"/>
-	</p>
+	<xsl:choose>
+		<xsl:when test="html:div//html:p">
+			<xsl:for-each select="html:div//html:p">
+				<p type="listitem">
+					<xsl:value-of select="."/>
+				</p>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:otherwise>
+			<p type="listitem">
+				<xsl:apply-templates select="*|text()"/>
+			</p>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
