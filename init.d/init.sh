@@ -118,10 +118,11 @@ export PERL5LIB
 
 # If MacPorts is installed, make sure it is also available in the environment.
 # This is especially important on the XServe.
-if [ -d /opt/local/bin ]; then
+if [ -d /opt/local ]; then
 	export PATH=/opt/local/bin:/opt/local/sbin:${PATH}
 	export MANPATH=/opt/local/share/man:${MANPATH}
 	export INFOPATH=/opt/local/share/info:${INFOPATH}
+	export CPATH=/opt/local/include:/usr/local/include:/usr/include:${CPATH}
 fi
 
 # This environment variable will by default exclude the .svn subdirs from being
