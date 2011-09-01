@@ -113,11 +113,12 @@ sub error_parser {
 			push(@part1, $error_elt);
 		} elsif ($text =~ /\(/ && $rest =~ /[$sep]/) {
 			$text =~ s/\(//;
-			$rest =~ /([^\)]*)([$sep])/;
+			$rest =~ /([^\)]*| [^\)]*\))([$sep])/;
 			my $e = $1;
+			$e =~ s/\)//;
 
 			$rest =~ s/$e//;
-			$e =~ s/\)//;
+			$rest =~ s/\)//;
 			if ($test) {
 				print "error_parser 120 text «$text» e «$e» rest «$rest»\n";
 			}
@@ -127,7 +128,9 @@ sub error_parser {
 		
 		# Then pick out the correction(s)
 		if ($rest =~ m/^[$sep]/) {
-			print "error_parser 129 «$rest»\n";
+			if ($test) {
+				print "error_parser 129 «$rest»\n";
+			}
 			$error_elt = XML::Twig::Elt->new('dummy');
 			$error_elt->set_content(@part1);
 			while ($rest =~ s/(^[$sep])(\([^\)]*\))//) {
@@ -136,7 +139,9 @@ sub error_parser {
 				$correct =~ s/\)//;
 				$correct =~ s/\(//;
 				$rest =~ s/^\)//;
-				print "error_parser 138 «$rest»\n";
+				if ($test) {
+					print "error_parser 138 «$rest»\n";
+				}
 				$error_elt = get_error($error_elt, $separator, $correct);
 			}
 		}
