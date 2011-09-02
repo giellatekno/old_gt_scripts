@@ -61,102 +61,69 @@ sub error_parser {
 			print "error_parser 61 $text\n";
 		}
 		
-		# Look for error markups
-		# The first group is an expression that:
-		# * begins with a ( and doesn't contain a ( and ends with a ) or
-		# * is a word containing only letters or
-		# * is a word containg only letters followed by a hyphen followed by a word containing only letters or
-		# * is a digit followed by a ’ followed by a word
-		# The second group is the separator
-		# The third groups is an expression that:
-		# * begins with a ( and doesn't contain a ) that ends with a ) or
-		# * an expression consisting of non-space characters
-		# The fourth group is the rest of the text, 
-		# which might contain a nested expression
-		# After the regexp has been run $text contains everything in front
-		# of the error expression. In some cases this includes the first part
-		# of an nested error expression. This is taken care further down.
-		if ($text =~ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])(\([^\)]*\)|\S+)(.*)//s) {
-			$error = $1;
-			$separator = $2;
-			$correct = $3;
-			$rest = $4;
+		if ($text =~ s/([$sep])(\([^\)]*\)|\S+)(.*)//s) {
+			$text .= $1;
+			$separator = $1;
+			$correct = $2;
+			$rest = $3;
 			
 			if ($test) {
-				print "error_parser 86 text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
+				print "error_parser 70 text «$text» separator «$separator» correct «$correct» rest «$rest»\n";
 			}
 			
-			$error =~ s/\)//;
-			$error =~ s/\(//;
+			$text =~ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])//s;
+			$error = $1;
 			$correct =~ s/\)//;
 			$correct =~ s/\(//;
-			$error_elt = get_error($error, $separator, $correct);
-		}
-		
-		# Check if $rest is a continuation of an error markup
-		my @part1;
-		
-		# Nested errors appear in these forms:
-		# (error1[$sep]correction1)[$sep](correction2) or
-		# (bla bla error1[$sep]correction1)[$sep](correction2) or
-		# (error1[$sep]correction1 bla bla)[$sep](correction2)
-		# The if below parses the two first types
-		# The elsif below parses the last type
-		if ($rest =~ s/^\)//) {
-			$text =~ s/(\([^\)]*$)//;
-			my $e = $1;
-			$e =~ s/\(//;
+
+			
 			if ($test) {
-				print "error_parser e $e\n";
+				print "error_parser 78 text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
 			}
-			push(@part1, $e);
-			push(@part1, $error_elt);
-		} elsif ($text =~ /\(/ && $text !~ /\( / &&  $rest =~ /\)[$sep]/ && $rest !~ /.\w[$sep].+\)[$sep]/) {
-			$text =~ s/\(//;
-			$rest =~ /([^\)]*| [^\)]*\))([$sep])/;
-			my $e = $1;
-			$e =~ s/\)//;
-			$e =~ s/\(//;
-			$rest =~ s/$e//;
-			$rest =~ s/\)//;
-			if ($test) {
-				print "error_parser 120 text «$text» e «$e» rest «$rest»\n";
-			}
-			push(@part1, $error_elt);
-			push(@part1, $e);
-		}
-		
-		# Then pick out the correction(s)
-		if ($rest =~ m/^[$sep]/) {
-			if ($test) {
-				print "error_parser 129 «$rest»\n";
-			}
-			$error_elt = XML::Twig::Elt->new('dummy');
-			$error_elt->set_content(@part1);
-			while ($rest =~ s/(^[$sep])(\([^\)]*\))//) {
-				$separator = $1;
-				$correct = $2;
-				$correct =~ s/\)//;
-				$correct =~ s/\(//;
-				$rest =~ s/^\)//;
-				if ($test) {
-					print "error_parser 138 «$rest»\n";
+			
+			if ($error =~ /[$sep]/) {
+				# we are in a double error
+				$text =~ s/\)[$sep]//;
+				my @part1;
+				if (! $text eq "") {
+					unshift(@part1, $text);
 				}
+				my $found_start = 1;
+				my $next_bit;
+				while ($found_start && ($next_bit = pop(@new_content))) {
+					$counter++;
+					if (ref($next_bit) eq 'XML::Twig::Elt') {
+						unshift(@part1, $next_bit);
+					} else {
+						if (rindex($next_bit, '(') > -1) {
+							my @parts = split(/\(/, $next_bit);
+							if (! $parts[0] eq "") {
+								push(@new_content, $parts[0]);
+							}
+							if (! $parts[1] eq "") {
+								unshift(@part1, $parts[1]);
+							}
+						} else {
+							unshift(@part1, $next_bit);
+						}
+					}
+				}
+				$error_elt = XML::Twig::Elt->new('dummy');
+				$error_elt->set_content(@part1);
 				$error_elt = get_error($error_elt, $separator, $correct);
+			} else {
+				# a simple error
+				$error =~ s/\)//;
+				$error =~ s/\(//;
+				$error_elt = get_error($error, $separator, $correct);
+				push(@new_content, $text);
 			}
-		}
-		# Push everything in front of the error on the stack
-		push(@new_content, $text);
-		# Push the error on the stack
-		push(@new_content, $error_elt);
-		# $rest contains the rest of the text
-		$text = $rest;
-		if ($test) {
-			print "error_parser 155 text «$text»\n";
+			push(@new_content, $error_elt);
+			$text = $rest;
+
 		}
 	}
-	push(@new_content, $text);
-	
+	push (@new_content, $text);
 	return @new_content;
 }
 
