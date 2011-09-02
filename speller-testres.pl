@@ -492,35 +492,43 @@ sub read_hfst {
 	open(FH, $output);
 
 	my $i=0;
-	my @suggestions;
-	my @numbers;
-	my $error;
-#	my $hunspellversion = <FH>; # Only if we know we have a real lex version info string!
-	my @tokens;
+#	my $hfst-ospell-version = <FH>; # Only if we know we have a real lex version info string!
+
 	while(<FH>) {
 		# Typical input:
-		# Unable to correct "OaKpaKeaddji"!
-		# 
-		# "gal" is in the lexicon
-		# 
-		# Corrections for "siega":
-		# šiega    1.03683e+09
-		#
-		my $root;
-		my $suggnr;
-		my $compound;
-		my $orig;
-		my $offset;
-		my $flag;
-		my $rest;
+        # 
+        # Unable to correct "beena"!
+        # 
+        # Corrections for "girja":
+        # girje    1
+        # girju    1
+        # girji    1
+        # girjá    1
+        # 
+        # "girji" is in the lexicon
+        #
+
+		my @suggestions;
+		my @numbers;
+		my @tokens;
+		my $error     = "PARSINGERROR";
+
+		my $root      = "";
+		my $suggnr    = "";
+		my $compound  = "";
+		my $orig      = "";
+		my $offset    = "";
+		my $flag      = "FLAG";
+		my $rest      = "";
 		my ($firstline, $suggs) = split(/\n/, $_, 2);
-		if ($firstline  =~ m/^Unable to correct/ ) {
+
+		if ($firstline  =~ m/Unable to correct/ ) {
 			($flag, $orig, $rest) = split(/"/, $firstline, 3);
 			$error = 'SplErr' ;
 		} elsif ($firstline  =~ m/is in the lexicon/ ) {
 			($rest, $orig, $flag) = split(/"/, $firstline, 3);
 			$error = 'SplCor' ;
-		} elsif ($firstline  =~ m/^Corrections for/ ) {
+		} elsif ($firstline  =~ m/Corrections for/ ) {
 			($flag, $orig, $rest) = split(/"/, $firstline, 3);
 			@suggestions = split(/\n/, $suggs);
 			$error = 'SplErr' ;
