@@ -58,7 +58,7 @@ sub error_parser {
 	while ($text =~ m/\S[$sep]\S/ and $counter < 200) {
 		$counter++;
 		if ($test) {
-			print "error_parser 61 $text\n";
+			print "\n\nerror_parser 61 $text\n";
 		}
 		
 		if ($text =~ s/([$sep])(\([^\)]*\)|\S+)(.*)//s) {
@@ -68,7 +68,7 @@ sub error_parser {
 			$rest = $3;
 			
 			if ($test) {
-				print "error_parser 70 text «$text» separator «$separator» correct «$correct» rest «$rest»\n";
+				print "error_parser 71 text «$text» separator «$separator» correct «$correct» rest «$rest»\n";
 			}
 			
 			$text =~ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])//s;
@@ -78,7 +78,7 @@ sub error_parser {
 
 			
 			if ($test) {
-				print "error_parser 78 text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
+				print "error_parser 81 text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
 			}
 			
 			if ($error =~ /[$sep]/) {
@@ -95,7 +95,11 @@ sub error_parser {
 					if (ref($next_bit) eq 'XML::Twig::Elt') {
 						unshift(@part1, $next_bit);
 					} else {
+						if ($test) {
+							print "error_parser 99 $next_bit\n";
+						}
 						if (rindex($next_bit, '(') > -1) {
+							$found_start = 0;
 							my @parts = split(/\(/, $next_bit);
 							if (! $parts[0] eq "") {
 								push(@new_content, $parts[0]);
@@ -119,6 +123,9 @@ sub error_parser {
 				push(@new_content, $text);
 			}
 			push(@new_content, $error_elt);
+			if ($test) {
+				print "error_parser 127 @new_content\n\n";
+			}
 			$text = $rest;
 
 		}
@@ -264,7 +271,7 @@ sub get_error {
 		}
 	}
 	if ($test) {
-		print "error_parser 160 ";
+		print "error_parser 274 ";
 		$error_elt->print;
 		print "\n";
 	}
