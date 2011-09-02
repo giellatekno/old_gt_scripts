@@ -111,7 +111,7 @@ sub error_parser {
 			}
 			push(@part1, $e);
 			push(@part1, $error_elt);
-		} elsif ($text =~ /\(/ && $text!~ /\( / && $rest =~ /[$sep]/) {
+		} elsif ($text =~ /\(/ && $text !~ /\( / &&  $rest =~ /\)[$sep]/) {
 			$text =~ s/\(//;
 			$rest =~ /([^\)]*| [^\)]*\))([$sep])/;
 			my $e = $1;

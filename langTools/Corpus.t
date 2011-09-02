@@ -1,4 +1,4 @@
-use Test::XML::Twig tests => 28;
+use Test::XML::Twig tests => 29;
 use Test::More;
 use strict;
 use warnings;
@@ -45,6 +45,7 @@ my %question_answer = (
 	'<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)£(noun,attr,gensg,nomsg,case|skuvlla ohppiid) ja VSM.</p>' => '<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal <errormorphsyn cat="gensg" const="attr" correct="skuvlla ohppiid" errtype="case" orig="nomsg" pos="noun">skuvla ohppiid</errormorphsyn> ja VSM.</p>',
 	'<p>- ruksesruonáčalmmehisvuohta lea sullii 8%:as$(acr,suf|8%:s)</p>' => '<p>- ruksesruonáčalmmehisvuohta lea sullii <errorort correct="8%:s" errtype="suf" pos="acr">8%:as</errorort></p>',
 	'<p>( nissonin¢(noun,suf|nissoniin) dušše (0.6 %:s)£(0.6 %) )</p>' => '<p>( <errorortreal correct="nissoniin" errtype="suf" pos="noun">nissonin</errorortreal> dušše <errormorphsyn correct="0.6 %">0.6 %:s</errormorphsyn> )</p>',
+	'<p>(haploida) ja njiŋŋalas$(noun,á|njiŋŋálas) ságahuvvon$(verb,a|sagahuvvon) manneseallas (diploida)</p>' => '<p>(haploida) ja <errorort correct="njiŋŋálas" errtype="á" pos="noun">njiŋŋalas</errorort> <errorort correct="sagahuvvon" errtype="a" pos="verb">ságahuvvon</errorort> manneseallas (diploida)</p>'
 );
 
 
