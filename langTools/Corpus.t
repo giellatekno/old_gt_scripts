@@ -1,4 +1,4 @@
-use Test::XML::Twig tests => 25;
+use Test::XML::Twig tests => 28;
 use Test::More;
 use strict;
 use warnings;
@@ -44,10 +44,11 @@ my %question_answer = (
 	'<p>(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.</p>' => '<p><errormorphsyn cat="pl3prs" const="fin" correct="Bearpmehat sirrejit" errtype="agr" orig="sg3prs" origpos="v" pos="verb"><errorort correct="Bearpmehat" errtype="svow" pos="noun">Bearpmahat</errorort> earuha</errormorphsyn> uskki ja loaiddu.</p>',
 	'<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)£(noun,attr,gensg,nomsg,case|skuvlla ohppiid) ja VSM.</p>' => '<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal <errormorphsyn cat="gensg" const="attr" correct="skuvlla ohppiid" errtype="case" orig="nomsg" pos="noun">skuvla ohppiid</errormorphsyn> ja VSM.</p>',
 	'<p>- ruksesruonáčalmmehisvuohta lea sullii 8%:as$(acr,suf|8%:s)</p>' => '<p>- ruksesruonáčalmmehisvuohta lea sullii <errorort correct="8%:s" errtype="suf" pos="acr">8%:as</errorort></p>',
+	'<p>( nissonin¢(noun,suf|nissoniin) dušše (0.6 %:s)£(0.6 %) )</p>' => '<p>( <errorortreal correct="nissoniin" errtype="suf" pos="noun">nissonin</errorortreal> dušše <errormorphsyn correct="0.6 %">0.6 %:s</errormorphsyn> )</p>',
 );
 
 
-foreach (sort (keys % question_answer)) {
+foreach (keys % question_answer) {
 	test_twig_handler(
 		\&add_error_markup,
 		$_,
