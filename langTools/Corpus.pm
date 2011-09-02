@@ -55,7 +55,7 @@ sub error_parser {
 	
 
 	my $counter = 0;
-	while ($text =~ m/\S[$sep]\S/ and $counter < 200) {
+	while ($text =~ m/[$sep]\S/ and $counter < 200) {
 		$counter++;
 		if ($test) {
 			print "\n\nerror_parser 61 $text\n";
@@ -82,8 +82,11 @@ sub error_parser {
 			}
 			
 			if ($error =~ /[$sep]/) {
-				# we are in a double error
-				$text =~ s/\)[$sep]//;
+				# we are in a nested markup
+				my $parenthesis = 0;
+				if ($text =~ s/\)[$sep]//) {
+					$parenthesis = 1;
+				}
 				my @part1;
 				if (! $text eq "") {
 					unshift(@part1, $text);
@@ -98,17 +101,22 @@ sub error_parser {
 						if ($test) {
 							print "error_parser 99 $next_bit\n";
 						}
-						if (rindex($next_bit, '(') > -1) {
-							$found_start = 0;
-							my @parts = split(/\(/, $next_bit);
-							if (! $parts[0] eq "") {
-								push(@new_content, $parts[0]);
-							}
-							if (! $parts[1] eq "") {
-								unshift(@part1, $parts[1]);
+						if ($parenthesis) {
+							if (rindex($next_bit, '(') > -1) {
+								$found_start = 0;
+								my @parts = split(/\(/, $next_bit);
+								if (! $parts[0] eq "") {
+									push(@new_content, $parts[0]);
+								}
+								if (! $parts[1] eq "") {
+									unshift(@part1, $parts[1]);
+								}
+							} else {
+								unshift(@part1, $next_bit);
 							}
 						} else {
-							unshift(@part1, $next_bit);
+							push(@new_content, $next_bit);
+							$found_start = 0;
 						}
 					}
 				}
@@ -123,11 +131,10 @@ sub error_parser {
 				push(@new_content, $text);
 			}
 			push(@new_content, $error_elt);
-			if ($test) {
-				print "error_parser 127 @new_content\n\n";
-			}
 			$text = $rest;
-
+			if ($test) {
+				print "error_parser 127 «@new_content», text «$text»\n\n";
+			}
 		}
 	}
 	push (@new_content, $text);
