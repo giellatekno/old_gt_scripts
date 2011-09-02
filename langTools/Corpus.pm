@@ -116,7 +116,7 @@ sub error_parser {
 			$rest =~ /([^\)]*| [^\)]*\))([$sep])/;
 			my $e = $1;
 			$e =~ s/\)//;
-
+			$e =~ s/\(//;
 			$rest =~ s/$e//;
 			$rest =~ s/\)//;
 			if ($test) {
@@ -151,6 +151,9 @@ sub error_parser {
 		push(@new_content, $error_elt);
 		# $rest contains the rest of the text
 		$text = $rest;
+		if ($test) {
+			print "error_parser 155 text «$text»\n";
+		}
 	}
 	push(@new_content, $text);
 	
@@ -294,7 +297,7 @@ sub get_error {
 		}
 	}
 	if ($test) {
-		print "160 ";
+		print "error_parser 160 ";
 		$error_elt->print;
 		print "\n";
 	}
