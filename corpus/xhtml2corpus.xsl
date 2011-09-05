@@ -235,6 +235,14 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:div/html:i|html:td/html:i">
+	<p>
+		<em type="italic">
+			<xsl:apply-templates/>
+		</em>
+	</p>
+</xsl:template>
+
 <!-- Table formatting -->
 <xsl:template match="html:tbody">
 	<xsl:apply-templates />
