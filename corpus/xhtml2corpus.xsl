@@ -174,7 +174,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						ancestor::html:h2">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="ancestor::html:p|ancestor::html:li">
+		<xsl:when test="ancestor::html:p|ancestor::html:li|ancestor::html:td">
 			<em type="bold">
 				<xsl:apply-templates/>
 			</em>
