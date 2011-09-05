@@ -115,6 +115,11 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				</p>
 			</xsl:for-each>
 		</xsl:when>
+		<xsl:when test="html:p/html:i">
+			<p type="listitem">
+				<xsl:apply-templates/>
+			</p>
+		</xsl:when>
 		<xsl:otherwise>
 			<p type="listitem">
 				<xsl:apply-templates select="*|text()"/>
@@ -208,14 +213,6 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:i|html:em|html:u|html:strong">
 	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']">
-			<p>
-				<em type="italic">
-					<xsl:apply-templates/>
-				</em>
-			</p>
-		</xsl:when>
 		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:u">
 			<xsl:apply-templates/>
 		</xsl:when>
