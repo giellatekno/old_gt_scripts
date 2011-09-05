@@ -312,10 +312,10 @@ If it is a container it has one or more of the these tags:
 	<xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:blockquote/html:p">
+<xsl:template match="html:blockquote">
 	<p>
 		<span type="quote">
-			<xsl:apply-templates/>
+			<xsl:value-of select="."/>
 		</span>
 	</p>
 </xsl:template>
