@@ -237,7 +237,7 @@ sub each_file_checks {
 	is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
 	is($converter->checklang(), '0', "Check lang. If not set, set it");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
-	if ($doc_name =~ /.\correct\./) {
+	if ($doc_name =~ /\.correct\./) {
 		is($converter->error_markup(), '0', "Add error markup");
 	}
 	is($converter->character_encoding(), '0', "Fix character encoding");
