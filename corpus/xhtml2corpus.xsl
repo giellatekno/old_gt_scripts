@@ -343,7 +343,13 @@ If it is a container it has one or more of the these tags:
 		<xsl:when test="following-sibling::*[name()='p']|
 						preceding-sibling::*[name()='p']|
 						following-sibling::*[name()='div']|
-						preceding-sibling::*[name()='div']">
+						preceding-sibling::*[name()='div']|
+						following-sibling::*[name()='h1']|
+						preceding-sibling::*[name()='h1']|
+						following-sibling::*[name()='h2']|
+						preceding-sibling::*[name()='h2']|
+						following-sibling::*[name()='h3']|
+						preceding-sibling::*[name()='h3']">
 			<p>
 				<xsl:value-of select="."/>
 			</p>
