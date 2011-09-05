@@ -18,6 +18,7 @@ GetOptions ("debug" => \$debug,
 );
 
 $langTools::Decode::Test = $debug;
+$langTools::Corpus::test = $debug;
 	
 # global variables
 my $counter = 0;
