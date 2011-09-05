@@ -127,6 +127,7 @@ if ($#ARGV > -1) {
  	"$ENV{'GTFREE'}/orig/nno/facta/skuvlahistorja3/klemetvik-n.htm",
  	"$ENV{'GTFREE'}/orig/sme/facta/skuvlahistorja2/malin-s.htm",
  	"$ENV{'GTFREE'}/orig/sme/admin/sd/samediggi.no/samediggi-article-1267.html",
+ 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/lover.html_id=293",
 	);
 	
 	my @correct_names = (
@@ -161,17 +162,17 @@ if ($#ARGV > -1) {
 	
 	one_time_checks($doc_names[0]);
 	
-	foreach my $txt_name (@txt_names) {
-		each_file_checks($txt_name);
-	}
-	
-	foreach my $pdf_name (@pdf_names) {
-		each_file_checks($pdf_name);
-	}
-
-	foreach my $doc_name (@doc_names) {
-		each_file_checks($doc_name);
-	}
+# 	foreach my $txt_name (@txt_names) {
+# 		each_file_checks($txt_name);
+# 	}
+# 	
+# 	foreach my $pdf_name (@pdf_names) {
+# 		each_file_checks($pdf_name);
+# 	}
+# 
+# 	foreach my $doc_name (@doc_names) {
+# 		each_file_checks($doc_name);
+# 	}
 
 	foreach my $html_name (@html_names) {
 		each_file_checks($html_name);
@@ -181,25 +182,25 @@ if ($#ARGV > -1) {
 		each_file_checks($correct_name);
 	}
 
-	foreach my $avvir_name (@avvir_names) {
-		each_file_checks($avvir_name);
-	}
+# 	foreach my $avvir_name (@avvir_names) {
+# 		each_file_checks($avvir_name);
+# 	}
 
-	foreach my $biblexml_name (@biblexml_names) {
-		each_file_checks($biblexml_name);
-	}
+# 	foreach my $biblexml_name (@biblexml_names) {
+# 		each_file_checks($biblexml_name);
+# 	}
 
-	foreach my $ptx_name (@ptx_names) {
-		each_file_checks($ptx_name);
-	}
+# 	foreach my $ptx_name (@ptx_names) {
+# 		each_file_checks($ptx_name);
+# 	}
 
 	foreach my $rtf_name (@rtf_names) {
 		each_file_checks($rtf_name);
 	}
 
-	foreach my $svg_name (@svg_names) {
-		each_file_checks($svg_name);
-	}
+# # 	foreach my $svg_name (@svg_names) {
+# # 		each_file_checks($svg_name);
+# # 	}
 	encoding_checks();
 }
 

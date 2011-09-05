@@ -177,7 +177,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 				</em>
 			</p>
 		</xsl:when>
-		<xsl:when test="not(ancestor::html:p|ancestor::html:a)">
+		<xsl:when test="not(ancestor::html:p)">
 			<em type="bold">
 				<xsl:apply-templates/>
 			</em>
