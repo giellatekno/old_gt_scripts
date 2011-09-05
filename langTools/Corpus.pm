@@ -29,7 +29,7 @@ our %types = ("\$" => "errorort",
 
 our $sep = quotemeta("€§£\$¥¢");
 
-my $test = $main::test;
+our $test = 0;
 
 # Change the manual error markup §,$,€,¥,£ to xml-structure.
 sub add_error_markup {
@@ -102,14 +102,22 @@ sub error_parser {
 							print "error_parser 99 $next_bit\n";
 						}
 						if ($parenthesis) {
-							if (rindex($next_bit, '(') > -1) {
+							my $position = rindex($next_bit, '(');
+							if ($position > -1) {
 								$found_start = 0;
-								my @parts = split(/\(/, $next_bit);
-								if (! $parts[0] eq "") {
-									push(@new_content, $parts[0]);
-								}
-								if (! $parts[1] eq "") {
-									unshift(@part1, $parts[1]);
+								if (length($next_bit) > 1) {
+									if ($test) {
+										print "to part1: " . substr($next_bit, $position + 1, length($next_bit)) . "\n";
+										print "back to new_content: " . substr($next_bit, 0, $position) . "\n";
+									}
+									if ($position == 0) {
+										unshift(@part1, substr($next_bit, $position + 1, length($next_bit)));
+									} elsif ($position + 1 == length($next_bit)) {
+										push(@new_content, substr($next_bit, 0, $position));
+									} else {
+										unshift(@part1, substr($next_bit, $position + 1, length($next_bit)));
+										push(@new_content, substr($next_bit, 0, $position));
+									}
 								}
 							} else {
 								unshift(@part1, $next_bit);
