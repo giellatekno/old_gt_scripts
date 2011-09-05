@@ -108,8 +108,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 
 <xsl:template match="html:li">
 	<xsl:choose>
-		<xsl:when test="html:div//html:p">
-			<xsl:for-each select="html:div//html:p">
+		<xsl:when test="html:div/html:p">
+			<xsl:for-each select="html:div/html:p">
 				<p type="listitem">
 					<xsl:value-of select="."/>
 				</p>
@@ -198,6 +198,14 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="html:div/html:b|html:td/html:b">
+	<p>
+		<em type="bold">
+			<xsl:apply-templates/>
+		</em>
+	</p>
+</xsl:template>
+
 <xsl:template match="html:i|html:em|html:u|html:strong">
 	<xsl:choose>
 		<xsl:when test="following-sibling::*[name()='p']|
@@ -243,24 +251,7 @@ If it is a container it has one or more of the these tags:
 * otherwise, add <p> around the content of td
 -->
 <xsl:template match="html:td">
-	<xsl:choose>
-		<xsl:when test="html:table|
-						html:p|
-						html:h1|
-						html:h2|
-						html:h3|
-						html:h4|
-						html:h5|
-						html:h6|
-						html:div">
-				<xsl:apply-templates/>
-		</xsl:when>
-		<xsl:otherwise>
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates/>
 </xsl:template>
 
 <!--  
@@ -270,26 +261,7 @@ If it is a container it has one or more of the these tags:
 * otherwise, add <p> around the content of td
 -->
 <xsl:template match="html:div">
-	<xsl:choose>
-		<xsl:when test="html:table|
-						html:p|
-						html:h1|
-						html:h2|
-						html:h3|
-						html:h4|
-						html:h5|
-						html:h6|
-						html:div|
-						html:ol|
-						html:ul">
-				<xsl:apply-templates/>
-		</xsl:when>
-		<xsl:otherwise>
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:thead">
@@ -315,49 +287,19 @@ If it is a container it has one or more of the these tags:
 
 <!-- references -->
 <xsl:template match="html:a">
-	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']|
-						following-sibling::*[name()='div']|
-						preceding-sibling::*[name()='div']|
-						following-sibling::*[name()='h1']|
-						preceding-sibling::*[name()='h1']|
-						following-sibling::*[name()='h2']|
-						preceding-sibling::*[name()='h2']|
-						following-sibling::*[name()='h3']|
-						preceding-sibling::*[name()='h3']">
-			<xsl:if test="string-length(normalize-space(.)) > 1">
-				<p>
-					<xsl:apply-templates/>
-				</p>
-			</xsl:if>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates/>
 </xsl:template>
 
-<xsl:template match="text()">
-	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']|
-						following-sibling::*[name()='div']|
-						preceding-sibling::*[name()='div']|
-						following-sibling::*[name()='h1']|
-						preceding-sibling::*[name()='h1']|
-						following-sibling::*[name()='h2']|
-						preceding-sibling::*[name()='h2']|
-						following-sibling::*[name()='h3']|
-						preceding-sibling::*[name()='h3']">
-			<p>
-				<xsl:value-of select="."/>
-			</p>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:value-of select="."/>
-		</xsl:otherwise>
-	</xsl:choose>
+<xsl:template match="html:div/html:a|html:td/html:a">
+	<p>
+		<xsl:apply-templates/>
+	</p>
+</xsl:template>
+
+<xsl:template match="html:div/text()|html:td/text()">
+	<p>
+		<xsl:value-of select="."/>
+	</p>
 </xsl:template>
 
 <xsl:template match="html:li//html:div">
@@ -373,7 +315,7 @@ If it is a container it has one or more of the these tags:
 	<xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="html:blockquote//html:p">
+<xsl:template match="html:blockquote/html:p">
 	<p>
 		<span type="quote">
 			<xsl:apply-templates/>
@@ -401,18 +343,14 @@ If it is a container it has one or more of the these tags:
 </xsl:template>
 
 <xsl:template match="html:span">
-	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']">
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/><xsl:text> </xsl:text>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates/><xsl:text> </xsl:text>
 </xsl:template> 
+
+<xsl:template match="html:div/html:span|html:td/html:span">
+	<p>
+		<xsl:apply-templates/>
+	</p>
+</xsl:template>
 
 <!-- other formatting -->
 <xsl:template match="html:note">
@@ -434,27 +372,13 @@ If it is a container it has one or more of the these tags:
 </xsl:template>
 
 <xsl:template match="html:font">
-	<xsl:choose>
-		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']|
-						following-sibling::*[name()='div']|
-						preceding-sibling::*[name()='div']|
-						following-sibling::*[name()='h1']|
-						preceding-sibling::*[name()='h1']|
-						following-sibling::*[name()='h2']|
-						preceding-sibling::*[name()='h2']|
-						following-sibling::*[name()='h3']|
-						preceding-sibling::*[name()='h3']">
-			<xsl:if test="string-length(normalize-space(.)) > 1">
-				<p>
-					<xsl:apply-templates/>
-				</p>
-			</xsl:if>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
-	</xsl:choose>
+	<xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="html:div/html:font|html:td/html:font">
+	<p>
+		<xsl:apply-templates/>
+	</p>
 </xsl:template>
 
 <xsl:template match="*">
