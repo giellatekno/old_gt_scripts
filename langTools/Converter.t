@@ -130,6 +130,7 @@ if ($#ARGV > -1) {
  	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/lover.html_id=293",
  	"$ENV{'GTFREE'}/orig/nob/admin/depts/regjeringen.no/oed.html_id=750",
  	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/ledige-stillingar.html_id=468675",
+ 	"$ENV{'GTFREE'}/orig/nno/admin/depts/regjeringen.no/forskings--og-hogare-utdanningsminister-.html_id=486368",
 	);
 	
 	my @correct_names = (

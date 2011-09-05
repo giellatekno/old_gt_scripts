@@ -434,7 +434,27 @@ If it is a container it has one or more of the these tags:
 </xsl:template>
 
 <xsl:template match="html:font">
-	<xsl:apply-templates/>
+	<xsl:choose>
+		<xsl:when test="following-sibling::*[name()='p']|
+						preceding-sibling::*[name()='p']|
+						following-sibling::*[name()='div']|
+						preceding-sibling::*[name()='div']|
+						following-sibling::*[name()='h1']|
+						preceding-sibling::*[name()='h1']|
+						following-sibling::*[name()='h2']|
+						preceding-sibling::*[name()='h2']|
+						following-sibling::*[name()='h3']|
+						preceding-sibling::*[name()='h3']">
+			<xsl:if test="string-length(normalize-space(.)) > 1">
+				<p>
+					<xsl:apply-templates/>
+				</p>
+			</xsl:if>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:apply-templates/>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 <xsl:template match="*">
