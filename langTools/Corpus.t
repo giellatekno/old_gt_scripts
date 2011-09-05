@@ -1,4 +1,4 @@
-use Test::XML::Twig tests => 32;
+use Test::XML::Twig tests => 33;
 use Test::More;
 use strict;
 use warnings;
@@ -16,7 +16,7 @@ require_ok('langTools::Corpus');
 
 my $debug = 0;
 GetOptions ("debug" => \$debug);
-# $samiChar::Decode::Test = $debug;
+$langTools::Corpus::test = $debug;
 
 my %question_answer = (
 	'<p>jne.$(adv,typo|jna.)</p>' => '<p><errorort correct="jna." errtype="typo" pos="adv">jne.</errorort></p>',
@@ -59,4 +59,3 @@ foreach (keys % question_answer) {
 		$question_answer{$_},
 		"Error markup");
 }
-
