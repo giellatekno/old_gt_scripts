@@ -174,15 +174,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 						ancestor::html:h2">
 			<xsl:apply-templates/>
 		</xsl:when>
-		<xsl:when test="following-sibling::*[name()='p']|
-						preceding-sibling::*[name()='p']">
-			<p>
-				<em type="bold">
-					<xsl:apply-templates/>
-				</em>
-			</p>
-		</xsl:when>
-		<xsl:when test="not(ancestor::html:p)">
+		<xsl:when test="ancestor::html:p|ancestor::html:li">
 			<em type="bold">
 				<xsl:apply-templates/>
 			</em>
