@@ -240,6 +240,14 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</p>
 </xsl:template>
 
+<xsl:template match="html:div/html:u|html:td/html:u">
+	<p>
+		<em type="bold">
+			<xsl:apply-templates/>
+		</em>
+	</p>
+</xsl:template>
+
 <!-- Table formatting -->
 <xsl:template match="html:tbody">
 	<xsl:apply-templates />
