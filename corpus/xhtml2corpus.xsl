@@ -289,7 +289,7 @@ If it is a container it has one or more of the these tags:
 
 <xsl:template match="html:caption|html:th">
 	<xsl:choose>
-		<xsl:when test="html:div|ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|html:p">
+		<xsl:when test="html:div|ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|html:p|html:b">
 			<xsl:apply-templates/>
 		</xsl:when>
 		<xsl:otherwise>
