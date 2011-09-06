@@ -135,6 +135,7 @@ if ($#ARGV > -1) {
  	"$ENV{'GTBOUND'}/orig/nob/admin/depts/hov008-bn.html",
  	"$ENV{'GTFREE'}/orig/sme/facta/skuvlahistorja1/gullich_s.html",
  	"$ENV{'GTFREE'}/orig/nob/admin/sd/samediggi.no/samediggi-article-3210.html",
+ 	"$ENV{'GTFREE'}/orig/sme/admin/depts/regjeringen.no/2.html_id=610032",
 	);
 	
 	my @correct_names = (
