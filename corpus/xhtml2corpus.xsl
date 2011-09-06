@@ -240,7 +240,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 	</p>
 </xsl:template>
 
-<xsl:template match="html:div/html:u|html:td/html:u">
+<xsl:template match="html:div/html:u|html:td/html:u|html:div/html:strong|html:td/html:strong">
 	<p>
 		<em type="bold">
 			<xsl:apply-templates/>
