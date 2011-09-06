@@ -68,7 +68,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 			<xsl:otherwise>
 				<section>
 					<p type="title">
-						<xsl:apply-templates/>
+						<xsl:value-of select="."/>
 					</p>
 				</section>
 			</xsl:otherwise>
