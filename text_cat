@@ -12,9 +12,11 @@ my $non_word_characters='0-9\s';
 # OPTIONS
 getopts('a:d:f:hi:lnst:u:v');
 
+my $gthome = $ENV{"GTHOME"} ;
+
 # defaults: set $opt_X unless already defined (Perl Cookbook p. 6):
 $opt_a ||= 10;
-$opt_d ||= '$GTHOME/tools/lang-guesser/LM/';
+$opt_d ||= $gthome.'/tools/lang-guesser/LM/';
 $opt_f ||= 0;
 $opt_t ||= 400;
 $opt_u ||= 1.05;
