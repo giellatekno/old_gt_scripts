@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 #
 # speller-testres.pl
 # Combines speller input and output to test results.
@@ -22,6 +22,7 @@ use File::stat;
 use Time::localtime;
 use File::Basename;
 use Text::Brew qw(distance);
+use warnings;
 
 my $help;
 my $input;
