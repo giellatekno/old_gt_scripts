@@ -374,28 +374,12 @@ sub read_voikko {
 	open(FH, $output) or die "Could not open file $output. $!";
 
 	my $i=0;
-	my $line = $_;
+	my $line;
 
-	return if (! $line);
 	my $orig = "";
 	# variable to check whether the suggestions are already started.
 	# this is because the line "check returns" may be missing.
 	my $reading=0;
-
-    if ($line =~ /^[WC]:/) {
-		($orig = $line) =~ s/^[WC]: (.*?)\s*$/$1/;
-		$reading=1;
-	}
-	else { confess "could not read $output: $line"; }
-
-	if (!$orig || $orig eq $line) { 
-		confess "Probably wrong format, start again with --mw\n";
-	}
-
-	while($originals[$i] && $originals[$i]{'orig'} ne $orig) {
-		#print STDERR "$0: Input and output mismatch, removing $originals[$i]{'orig'}.\n";
-		splice(@originals,$i,1);
-	}
 
 	my @suggestions;
 	my @numbers;
@@ -404,31 +388,26 @@ sub read_voikko {
 	while(<FH>) {
 
 		$line = $_;
+		chomp($line);
+		
+		if ($line =~ s/^S: //) { 
+			push(@suggestions, $line);
+		};
 
-		if ($line =~ /^S:/) { $originals[$i]{'error'} = "SplErr" };
-
-		if ($line =~ /Check returns/ || $line =~ /Getting suggestions/) {
-			$reading=1;
+		if ($line =~ /^W: / || $line =~ /^C: /) {
 			#Store the suggestions from the last round.
 			if (@suggestions) {
 				$originals[$i]{'sugg'} = [ @suggestions ];
-				$originals[$i]{'num'} = [ @numbers ];
-				$originals[$i]{'error'} = "SplErr";
 				@suggestions = ();
-				pop @suggestions;
-				@numbers = ();
-				pop @numbers;
-				$reading = 0;
 			}
-			elsif (! $originals[$i]{'error'}) { $originals[$i]{'error'} = "SplCor"; }
 			$i++;
-			if ($line =~ /Check returns/) {
-				$reading = 1;
-				($orig = $line) =~ s/^.*?Check returns .* for \'(.*?)\'\s*$/$1/;
+			if ($line =~ s/^W: //) {
+				$originals[$i]{'error'}="SplErr";
+				$orig = $line;
 			}
-			elsif (! $reading && $line =~ /Getting suggestions/) {
-				$reading = 1;
-				($orig = $line) =~ s/^.*?Getting suggestions for (.*?)\.\.\.\s*$/$1/;
+			elsif ($line =~ s/^C: //) {
+				$originals[$i]{'error'}="SplCor";
+				$orig = $line;
 			}
 			# Some simple adjustments to the input and output lists.
 			# First search the output word in the input list.
@@ -458,13 +437,6 @@ sub read_voikko {
 		}
 
 		next if (! $orig);
-		chomp $line;
-		my ($num, $suggestion) = split(/\s+/, $line, 2);
-		#print STDERR "$_ SUGG $suggestion\n";
-		if ($suggestion) {
-			push (@suggestions, $suggestion);
-			push (@numbers, $num);
-		}
 	}
 	close(FH);
 	if ($orig) {
