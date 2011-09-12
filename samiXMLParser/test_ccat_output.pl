@@ -94,6 +94,7 @@ my %files = (
 # 'p-sme-error.xml'
 );
 
+system('make');
 for my $name (keys %files) {
     for my $option (keys % {$files{$name}}) {
         my $command = "./ccat " . $option . " " . $name;
