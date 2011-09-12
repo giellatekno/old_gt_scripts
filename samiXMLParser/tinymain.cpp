@@ -417,7 +417,10 @@ void PrintHelp()
 
     cout << "Error markup printing options:\n";
     cout << "\t-typos\t  Print only the errors/typos in the text, \n\t\t\twith corrections tab-separated\n";
-    cout << "\t-S\t  Print the whole text one word per line; typos have \n\t\t\ttab separated corrections\n\n";
+    cout << "\t-S\t  Print the whole text one word per line; typos have \n\t\t\ttab separated corrections\n";
+//    cout << "\t-f\t  Add the source filename as a comment after each word.\n";
+//    cout << "\t\t\t  Only useful together with the -r option used together\n";
+//    cout << "\t\t\t  with -typos or -S.\n\n";
 
     cout << "Other options:\n";
     cout << "\t-r <dir>  Recursively process directory <dir> and subdirs encountered\n";
