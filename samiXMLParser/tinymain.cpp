@@ -366,7 +366,7 @@ void RecurseTree( TiXmlNode* pParent )
             string corr = GetAttribValue(pParent->ToElement(), "correct");
 
             
-            if((bPrintOrtCorr && tag == "errorort") || (bPrintOrtRealCorr && tag == "errorortreal") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex") || bPrintCorr || bPrintTypos) {
+            if(((bPrintOrtCorr && tag == "errorort") || (bPrintOrtRealCorr && tag == "errorortreal") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex")) || bPrintTypos) {
                 if (corr != "") {
                     cout << "\t" << corr;
                 }
