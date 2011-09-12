@@ -318,7 +318,10 @@ void RecurseTree( TiXmlNode* pParent )
                     }
                 }
             } else {
-                if (!bPrintOnlyCorr) {
+                if (!bPrintOnlyCorr && ((bPrintPara && bInPara)   ||
+                        (bPrintTitle && bInTitle) ||
+                        (bPrintList && bInList)   ||
+                        (bPrintTable && bInTable))) {
                     cout << pText->Value();
                     if (!bPrintTypos || !bPrintSpeller) {
                         cout << " ";
