@@ -318,7 +318,8 @@ void RecurseTree( TiXmlNode* pParent )
                     }
                 }
             } else {
-                if (!bPrintOnlyCorr && ((bPrintPara && bInPara)   ||
+                if ((sLang[0] == '\0' || bElementLang) && 
+                    !bPrintOnlyCorr && ((bPrintPara && bInPara) ||
                         (bPrintTitle && bInTitle) ||
                         (bPrintList && bInList)   ||
                         (bPrintTable && bInTable))) {
