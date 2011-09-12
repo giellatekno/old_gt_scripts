@@ -96,7 +96,7 @@ my %files = (
 
 for my $name (keys %files) {
     for my $option (keys % {$files{$name}}) {
-        my $command = "ccat " . $option . " " . $name;
+        my $command = "./ccat " . $option . " " . $name;
         my $ccat = `$command`;
         is($ccat, $files{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
     }
