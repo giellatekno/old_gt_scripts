@@ -324,7 +324,7 @@ void RecurseTree( TiXmlNode* pParent )
                         (bPrintList && bInList)   ||
                         (bPrintTable && bInTable))) {
                     cout << pText->Value();
-                    if (!bPrintTypos || !bPrintSpeller) {
+                    if (!bPrintTypos) {
                         cout << " ";
                     }
                 }
