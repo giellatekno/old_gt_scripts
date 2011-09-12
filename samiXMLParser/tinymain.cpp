@@ -22,6 +22,7 @@ bool bPrintList = false;
 bool bPrintTable = false;
 bool bPrintCorr = false;
 bool bPrintOrtCorr = false;
+bool bPrintOrtRealCorr = false;
 bool bPrintSynCorr = false;
 bool bPrintLexCorr = false;
 bool bPrintMorphSynCorr = false;
@@ -95,6 +96,10 @@ int main( int argc, char *argv[] )
 
         else if (strcmp(argv[i], "-ort") == 0) {
             bPrintOrtCorr = true;
+        }
+
+        else if (strcmp(argv[i], "-ortreal") == 0) {
+            bPrintOrtRealCorr = true;
         }
 
         else if (strcmp(argv[i], "-syn") == 0) {
@@ -355,7 +360,7 @@ void RecurseTree( TiXmlNode* pParent )
             string corr = GetAttribValue(pParent->ToElement(), "correct");
 
             
-            if((bPrintOrtCorr && tag == "errorort") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex") || bPrintCorr || bPrintTypos) {
+            if((bPrintOrtCorr && tag == "errorort") || (bPrintOrtRealCorr && tag == "errorortreal") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex") || bPrintCorr || bPrintTypos) {
                 if (corr != "") {
                     cout << "\t" << corr;
                 }
