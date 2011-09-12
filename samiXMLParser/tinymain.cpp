@@ -323,9 +323,11 @@ void RecurseTree( TiXmlNode* pParent )
                         (bPrintTitle && bInTitle) ||
                         (bPrintList && bInList)   ||
                         (bPrintTable && bInTable))) {
-                    cout << pText->Value();
-                    if (!bPrintTypos) {
-                        cout << " ";
+                    if (!bPrintLexCorr) {
+                        cout << pText->Value();
+                        if (!bPrintTypos) {
+                            cout << " ";
+                        }
                     }
                 }
             }
@@ -367,7 +369,7 @@ void RecurseTree( TiXmlNode* pParent )
             string corr = GetAttribValue(pParent->ToElement(), "correct");
 
             
-            if(((bPrintOrtCorr && tag == "errorort") || (bPrintOrtRealCorr && tag == "errorortreal") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex")) || bPrintTypos) {
+            if(((bPrintOrtCorr && tag == "errorort") || (bPrintOrtRealCorr && tag == "errorortreal") || (bPrintSynCorr && tag == "errorsyn") || (bPrintMorphSynCorr && tag == "errormorphsyn") || (bPrintLexCorr && tag == "errorlex")) && bPrintTypos) {
                 if (corr != "") {
                     cout << "\t" << corr;
                 }
@@ -390,7 +392,7 @@ void RecurseTree( TiXmlNode* pParent )
                 }
                 cout << endl;
 
-            } else if (bPrintOnlyCorr) {
+            } else if ((bPrintLexCorr && tag == "errorlex") || bPrintOnlyCorr) {
                 if (corr != "") {
                     cout << corr << " ";
                 }
