@@ -62,7 +62,7 @@ my %files = (
         "-syn" => "Dánmárkku olgoáššiidministtar Lene Espersen muitalii čoakkáma álggus Dánmárkku árktalaš ráđi ságadoalli áigodaga ulbmiliin. ¶\n",
         "-lex" => "Dánmárkku olgoriikaministtar Lene Espersen muitalii čoakkáma álggus Dánmárkku árktalaš ráđi ságadoalli áigodaga ulbmiliin. ¶\n",
         "-typos" => "olgoáššiidministtar\tolgoriikaministtar\n",
-        "-S" => "Dánmárkku\nolgoáššiidministtar\tolgoriikaministtar\n\nLene\nEspersen\nmuitalii\nčoakkáma\nálggus\nDánmárkku\nárktalaš\nráđi\nságadoalli\náigodaga\nulbmiliin.\n",
+        "-S" => "Dánmárkku\nolgoáššiidministtar\tolgoriikaministtar\nLene\nEspersen\nmuitalii\nčoakkáma\nálggus\nDánmárkku\nárktalaš\nráđi\nságadoalli\náigodaga\nulbmiliin.\n",
         "-a -S" => "Dánmárkku\nolgoáššiidministtar\tolgoriikaministtar\nLene\nEspersen\nmuitalii\nčoakkáma\nálggus\nDánmárkku\nárktalaš\nráđi\nságadoalli\náigodaga\nulbmiliin.\n",
     },
 # 'p-sme-errorort.xml',
