@@ -277,6 +277,7 @@ if (!system('make')) {
             my $ccat = `$command`;
             is($ccat, $files{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
         }
+        print "\n\n";
     }
 } else {
     print "Can't compile ccat\n";
