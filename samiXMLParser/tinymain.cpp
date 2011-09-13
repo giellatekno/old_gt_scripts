@@ -14,7 +14,6 @@ bool bStartOfLine = true;
 
 bool bBothTagAndOption = false;
 
-bool bDocLang = false;
 bool bElementLang = false;
 bool bPrintEndTag = false;
 
@@ -289,7 +288,6 @@ void RecurseTree( TiXmlNode* pParent )
                 }
             } else if (tag == "document") {
                 docLang = GetAttribValue(pParent->ToElement(), "xml:lang");
-                bDocLang = docLang == sLang ? true : false;
                 if (bAddID) {
                     DumpTag(pParent->ToElement());
                 }
