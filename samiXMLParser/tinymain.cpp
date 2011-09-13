@@ -323,11 +323,15 @@ void RecurseTree( TiXmlNode* pParent )
                         }
                     }
                 } else {
-                    if (!((bBothTagAndOption && !bPrintTypos)|| bPrintOnlyCorr)) {
-                        cout << pText->Value();
-                    
-                        if (!bPrintTypos) {
-                            cout << " ";
+                    if ((bBothTagAndOption && !bPrintTypos) || bPrintOnlyCorr) {
+                    } else {
+                        if (bPrintTypos && !bBothTagAndOption) {
+                        } else {
+                            cout << pText->Value();
+                        
+                            if (!bPrintTypos) {
+                                cout << " ";
+                            }
                         }
                     }
                 }
@@ -371,28 +375,30 @@ void RecurseTree( TiXmlNode* pParent )
 
             
             if(bPrintTypos) {
-                if (corr != "") {
-                    cout << "\t" << corr;
-                }
-                TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
-                bool firstattr = true;
-
-                while (pAttrib) {
-                    string name = pAttrib->Name();
-    //                 cout << endl << name << endl;
-                    if (name != "correct") {
-                        if (firstattr) {
-                            cout << "\t#";
-                            firstattr = false;
-                        } else {
-                            cout << ",";
-                        }
-                        cout << name << "=" << pAttrib->Value();
+                if (bPrintTypos && !bBothTagAndOption) {
+                } else {
+                    if (corr != "") {
+                        cout << "\t" << corr;
                     }
-                    pAttrib = pAttrib->Next();
-                }
-                cout << endl;
+                    TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
+                    bool firstattr = true;
 
+                    while (pAttrib) {
+                        string name = pAttrib->Name();
+        //                 cout << endl << name << endl;
+                        if (name != "correct") {
+                            if (firstattr) {
+                                cout << "\t#";
+                                firstattr = false;
+                            } else {
+                                cout << ",";
+                            }
+                            cout << name << "=" << pAttrib->Value();
+                        }
+                        pAttrib = pAttrib->Next();
+                    }
+                    cout << endl;
+                }
             } else if (bBothTagAndOption || bPrintOnlyCorr) {
                 if (corr != "") {
                     cout << corr << " ";
