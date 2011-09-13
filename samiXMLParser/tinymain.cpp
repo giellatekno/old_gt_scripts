@@ -323,7 +323,7 @@ void RecurseTree( TiXmlNode* pParent )
                         }
                     }
                 } else {
-                    if (!(bBothTagAndOption || bPrintOnlyCorr)) {
+                    if (!((bBothTagAndOption && !bPrintTypos)|| bPrintOnlyCorr)) {
                         cout << pText->Value();
                     
                         if (!bPrintTypos) {
