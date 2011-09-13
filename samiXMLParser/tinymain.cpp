@@ -313,9 +313,12 @@ void RecurseTree( TiXmlNode* pParent )
                         }
                     }
                 } else {
-                    cout << pText->Value();
-                    if (!bPrintTypos) {
-                        cout << " ";
+                    if (!bPrintOnlyCorr) {
+                        cout << pText->Value();
+                    
+                        if (!bPrintTypos) {
+                            cout << " ";
+                        }
                     }
                 }
             }
