@@ -325,7 +325,7 @@ void RecurseTree( TiXmlNode* pParent )
                 } else {
                     if ((bBothTagAndOption && !bPrintTypos) || bPrintOnlyCorr) {
                     } else {
-                        if (bPrintTypos && !bBothTagAndOption) {
+                        if (bPrintTypos && !bBothTagAndOption && !bPrintSpeller) {
                         } else {
                             cout << pText->Value();
                         
@@ -375,7 +375,7 @@ void RecurseTree( TiXmlNode* pParent )
 
             
             if(bPrintTypos) {
-                if (bPrintTypos && !bBothTagAndOption) {
+                if (bPrintTypos && !bBothTagAndOption && !bPrintSpeller) {
                 } else {
                     if (corr != "") {
                         cout << "\t" << corr;
