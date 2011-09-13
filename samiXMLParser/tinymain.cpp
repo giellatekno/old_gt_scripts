@@ -256,11 +256,11 @@ void RecurseTree( TiXmlNode* pParent )
             hitString = false;
             tag = pParent->Value();
             if (tag == "p") {
-                bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
-                if( bDocLang ) {
-                    (bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == "" || GetAttribValue(pParent->ToElement(), "xml:lang") == sLang)  ? true : false;
+                if (sLang == "" || sLang == docLang) {
+                    bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == docLang ? true : false;
+                } else if (sLang != docLang) {
+                    bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
                 }
-
                 bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
                 bInTitle = GetAttribValue(pParent->ToElement(), "type") == "title" ? true : false;
                 bInList = GetAttribValue(pParent->ToElement(), "type") == "listitem" ? true : false;
@@ -268,7 +268,7 @@ void RecurseTree( TiXmlNode* pParent )
 
 
                 if (bAddID &&
-                    ((sLang[0] == '\0' || bElementLang) &&
+                    (bElementLang &&
                     (bPrintPara && bInPara)   ||
                     (bPrintTitle && bInTitle) ||
                     (bPrintList && bInList)   ||
@@ -308,7 +308,7 @@ void RecurseTree( TiXmlNode* pParent )
         case TiXmlNode::TEXT:
             hitString = true;
             pText = pParent->ToText();
-            if ((sLang[0] == '\0' || bElementLang) &&
+            if (bElementLang &&
                         ((bPrintPara && bInPara)   ||
                         (bPrintTitle && bInTitle) ||
                         (bPrintList && bInList)   ||
@@ -349,7 +349,7 @@ void RecurseTree( TiXmlNode* pParent )
             RecurseTree( pChild );
         }
         if ( tag == "p" ) {
-            if ((sLang[0] == '\0' || bElementLang) &&
+            if (bElementLang &&
                 ((bPrintPara && bInPara)   ||
                 (bPrintTitle && bInTitle) ||
                 (bPrintList && bInList)   ||
