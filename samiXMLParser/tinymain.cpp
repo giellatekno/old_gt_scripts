@@ -37,7 +37,8 @@ bool hitString = false;
 
 int iParaNum = 0;
 
-char sLang[4];
+string sLang;
+string docLang;
 static string const version = "$Revision$";
 
 void TraverseDir (DIR* dirp, string path);
@@ -62,7 +63,7 @@ int main( int argc, char *argv[] )
         }
 
         else if (strcmp(argv[i], "-l") == 0) {
-            strcpy(sLang, argv[i+1]);
+            sLang = argv[i+1];
             i++;
         }
 
@@ -287,7 +288,8 @@ void RecurseTree( TiXmlNode* pParent )
                     bBothTagAndOption = true;
                 }
             } else if (tag == "document") {
-                bDocLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
+                docLang = GetAttribValue(pParent->ToElement(), "xml:lang");
+                bDocLang = docLang == sLang ? true : false;
                 if (bAddID) {
                     DumpTag(pParent->ToElement());
                 }
