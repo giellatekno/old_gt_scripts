@@ -296,38 +296,26 @@ void RecurseTree( TiXmlNode* pParent )
         case TiXmlNode::TEXT:
             hitString = true;
             pText = pParent->ToText();
-            if (bOutsideError) {
-                if (!bPrintTypos) {
-                    if ((sLang[0] == '\0' || bElementLang) &&
+            if ((sLang[0] == '\0' || bElementLang) &&
                         ((bPrintPara && bInPara)   ||
                         (bPrintTitle && bInTitle) ||
                         (bPrintList && bInList)   ||
                         (bPrintTable && bInTable))) {
+                if (bOutsideError) {
+                    if (!bPrintTypos) {
                         cout << pText->Value() << " ";
+                    } else {
+                        if (bPrintSpeller) {
+                            istringstream iss(pText->Value());
+                            copy(istream_iterator<string>(iss),
+                                istream_iterator<string>(),
+                                ostream_iterator<string>(cout, "\n"));
+                        }
                     }
                 } else {
-                    if (bPrintSpeller &&
-                        ((bPrintPara && bInPara)   ||
-                        (bPrintTitle && bInTitle) ||
-                        (bPrintList && bInList)   ||
-                        (bPrintTable && bInTable))) {
-                        istringstream iss(pText->Value());
-                        copy(istream_iterator<string>(iss),
-                            istream_iterator<string>(),
-                            ostream_iterator<string>(cout, "\n"));
-                    }
-                }
-            } else {
-                if ((sLang[0] == '\0' || bElementLang) && 
-                    !bPrintOnlyCorr && ((bPrintPara && bInPara) ||
-                        (bPrintTitle && bInTitle) ||
-                        (bPrintList && bInList)   ||
-                        (bPrintTable && bInTable))) {
-                    if (!bPrintLexCorr) {
-                        cout << pText->Value();
-                        if (!bPrintTypos) {
-                            cout << " ";
-                        }
+                    cout << pText->Value();
+                    if (!bPrintTypos) {
+                        cout << " ";
                     }
                 }
             }
