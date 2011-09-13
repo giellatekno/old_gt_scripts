@@ -6,26 +6,6 @@ use strict;
 use Getopt::Long;
 use warnings;
 
-my @ccat_options = (
-	'-a -c',
-	'-a',
-	'-c',
-	'-C',
-	'-lex',
-	'-L',
-	'-morphsyn',
-	'-ort',
-	'-p',
-	'-typos',
-	'-typos -C',
-	'-typos -ort',
-	'-S',
-	'-S -ort -C',
-	'-syn',
-	'-t',
-	'-T',
-);
-
 my %files = (
     'list-sme.xml' => {
         "" => "",
