@@ -12,6 +12,8 @@ bool bInList = false;
 bool bInTable = false;
 bool bStartOfLine = true;
 
+bool bBothTagAndOption = false;
+
 bool bDocLang = false;
 bool bElementLang = false;
 bool bPrintEndTag = false;
@@ -276,6 +278,14 @@ void RecurseTree( TiXmlNode* pParent )
                 }
             } else if (tag.substr(0,5) == "error") {
                 bOutsideError = false;
+                if ((bPrintLexCorr && tag == "errorlex") ||
+                    (bPrintCorr && tag == "error") ||
+                    (bPrintMorphSynCorr && tag == "errormorphsyn") ||
+                    (bPrintOrtCorr && tag =="errorort") ||
+                    (bPrintOrtRealCorr && tag == "errorortreal") ||
+                    (bPrintSynCorr && tag == "errorsyn")) {
+                    bBothTagAndOption = true;
+                }
             } else if (tag == "document") {
                 bDocLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
                 if (bAddID) {
@@ -313,7 +323,7 @@ void RecurseTree( TiXmlNode* pParent )
                         }
                     }
                 } else {
-                    if (!bPrintOnlyCorr) {
+                    if (!(bBothTagAndOption || bPrintOnlyCorr)) {
                         cout << pText->Value();
                     
                         if (!bPrintTypos) {
@@ -383,10 +393,19 @@ void RecurseTree( TiXmlNode* pParent )
                 }
                 cout << endl;
 
-            } else if ((bPrintLexCorr && tag == "errorlex") || bPrintOnlyCorr) {
+            } else if (bBothTagAndOption || bPrintOnlyCorr) {
                 if (corr != "") {
                     cout << corr << " ";
                 }
+                if ((bPrintLexCorr && tag == "errorlex") ||
+                    (bPrintCorr && tag == "error") ||
+                    (bPrintMorphSynCorr && tag == "errormorphsyn") ||
+                    (bPrintOrtCorr && tag =="errorort") ||
+                    (bPrintOrtRealCorr && tag == "errorortreal") ||
+                    (bPrintSynCorr && tag == "errorsyn")) {
+                    bBothTagAndOption = false;
+                }
+
             }
         } else if ( tag == "document" ) {
             if (bAddID) {
