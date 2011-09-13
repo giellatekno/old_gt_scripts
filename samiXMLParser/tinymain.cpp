@@ -255,10 +255,11 @@ void RecurseTree( TiXmlNode* pParent )
             hitString = false;
             tag = pParent->Value();
             if (tag == "p") {
+                string pLang = GetAttribValue(pParent->ToElement(), "xml:lang");
                 if (sLang == "" || sLang == docLang) {
-                    bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == docLang ? true : false;
+                    bElementLang = (pLang == "" || pLang == docLang)? true : false;
                 } else if (sLang != docLang) {
-                    bElementLang = GetAttribValue(pParent->ToElement(), "xml:lang") == sLang ? true : false;
+                    bElementLang = pLang == sLang ? true : false;
                 }
                 bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
                 bInTitle = GetAttribValue(pParent->ToElement(), "type") == "title" ? true : false;
