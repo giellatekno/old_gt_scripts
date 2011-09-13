@@ -184,11 +184,14 @@ my %files = (
     },
 );
 
-system('make');
-for my $name (keys %files) {
-    for my $option (keys % {$files{$name}}) {
-        my $command = "./ccat " . $option . " " . $name;
-        my $ccat = `$command`;
-        is($ccat, $files{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+if (!system('make')) {
+    for my $name (keys %files) {
+        for my $option (keys % {$files{$name}}) {
+            my $command = "./ccat " . $option . " " . $name;
+            my $ccat = `$command`;
+            is($ccat, $files{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+        }
     }
+} else {
+    print "Can't compile ccat\n";
 }
