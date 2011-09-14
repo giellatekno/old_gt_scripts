@@ -383,50 +383,51 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
             bOutsideError = true;
             string corr = GetAttribValue(pParent->ToElement(), "correct");
 
-            
-            if(bPrintTypos) {
-                if (!bBothTagAndOption && 
-                    (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
-                    if (bPrintSpeller) {
-                        cout << "\n";
-                    }
-                } else {
-                    if (corr != "") {
-                        cout << "\t" << corr;
-                    }
-                    TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
-                    bool firstattr = true;
-
-                    while (pAttrib) {
-                        string name = pAttrib->Name();
-        //                 cout << endl << name << endl;
-                        if (name != "correct") {
-                            if (firstattr) {
-                                cout << "\t#";
-                                firstattr = false;
-                            } else {
-                                cout << ",";
-                            }
-                            cout << name << "=" << pAttrib->Value();
+            if(bElementLang) {
+                if(bPrintTypos) {
+                    if (!bBothTagAndOption && 
+                        (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
+                        if (bPrintSpeller) {
+                            cout << "\n";
                         }
-                        pAttrib = pAttrib->Next();
-                    }
-                    if (firstattr && bPrintFilename) {
-                        cout << "\t#";
-                    }
-                    if (!firstattr && bPrintFilename) {
-                        cout << ", ";
-                    }
-                    if (bPrintFilename) {
-                        cout << "file: " << fileName;
-                    }
-                    cout << endl;
-                }
-            } else if (bBothTagAndOption || bPrintOnlyCorr) {
-                if (corr != "") {
-                    cout << corr << " ";
-                }
+                    } else {
+                        if (corr != "") {
+                            cout << "\t" << corr;
+                        }
+                        TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
+                        bool firstattr = true;
 
+                        while (pAttrib) {
+                            string name = pAttrib->Name();
+            //                 cout << endl << name << endl;
+                            if (name != "correct") {
+                                if (firstattr) {
+                                    cout << "\t#";
+                                    firstattr = false;
+                                } else {
+                                    cout << ",";
+                                }
+                                cout << name << "=" << pAttrib->Value();
+                            }
+                            pAttrib = pAttrib->Next();
+                        }
+                        if (firstattr && bPrintFilename) {
+                            cout << "\t#";
+                        }
+                        if (!firstattr && bPrintFilename) {
+                            cout << ", ";
+                        }
+                        if (bPrintFilename) {
+                            cout << "file: " << fileName;
+                        }
+                        cout << endl;
+                    }
+                } else if (bBothTagAndOption || bPrintOnlyCorr) {
+                    if (corr != "") {
+                        cout << corr << " ";
+                    }
+
+                }
             }
             if ((bPrintLexCorr && tag == "errorlex") ||
                 (bPrintCorr && tag == "error") ||
