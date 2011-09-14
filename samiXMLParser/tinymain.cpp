@@ -188,7 +188,7 @@ void TraverseDir(DIR* dirp, string path) {
         }
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             string filename(direntp->d_name);
-            if (filename.find("svn-base") == UINT_MAX) {
+            if (filename.find("svn-base") == string::npos) {
                 string pFile = fullpath + filename;
                 ProcessFile (pFile);
             }
