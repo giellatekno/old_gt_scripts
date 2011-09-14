@@ -41,8 +41,8 @@ string sLang;
 string docLang;
 static string const version = "$Revision$";
 
-void TraverseDir (DIR* dirp, string path);
-void ProcessFile (const char *pFile);
+void TraverseDir(DIR* dirp, string path);
+void ProcessFile(string pFile);
 void DumpTag(TiXmlElement* pElement);
 string GetAttribValue(TiXmlElement *pElement, string attrName);
 void RecurseTree(TiXmlNode* pParent, string fileName);
@@ -186,13 +186,9 @@ void TraverseDir(DIR* dirp, string path) {
             fullpath.erase(fullpath.find_last_of("/") +1, fullpath.length());
         }
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
-            char *pFile;
             string filename(direntp->d_name);
-            int res = filename.find("svn-base");
-            if (res < 0) {
-                pFile = (char*)malloc(2*PATH_MAX); // to be safe
-                strcpy(pFile, fullpath.c_str());
-                strcat(pFile, direntp->d_name);
+            if (filename.find("svn-base") < 0) {
+                string pFile = fullpath + filename;
                 ProcessFile (pFile);
             }
         }
@@ -201,16 +197,14 @@ void TraverseDir(DIR* dirp, string path) {
     closedir(dirp);
 }
 
-void ProcessFile(const char *pFile)
+void ProcessFile(string pFile)
 {
-    TiXmlDocument doc( pFile );
+    TiXmlDocument doc(pFile.c_str());
     doc.LoadFile();
 
-    string fileName(pFile);
-    fileName = fileName.substr(fileName.rfind("/") + 1);
     TiXmlHandle docHandle( &doc );
 
-    RecurseTree( docHandle.FirstChild( "document" ).ToNode(), fileName );
+    RecurseTree( docHandle.FirstChild( "document" ).ToNode(), pFile.substr(pFile.rfind("/") + 1) );
     
 }
 
