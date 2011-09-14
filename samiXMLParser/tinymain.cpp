@@ -45,7 +45,7 @@ void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
 void DumpTag(TiXmlElement* pElement);
 string GetAttribValue(TiXmlElement *pElement, string attrName);
-void RecurseTree( TiXmlNode* pParent, string fileName);
+void RecurseTree(TiXmlNode* pParent, string fileName);
 void PrintVersion();
 void PrintHelp();
 
@@ -187,10 +187,14 @@ void TraverseDir(DIR* dirp, string path) {
         }
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             char *pFile;
-            pFile = (char*)malloc(2*PATH_MAX); // to be safe
-            strcpy(pFile, fullpath.c_str());
-            strcat(pFile, direntp->d_name);
-            ProcessFile (pFile);
+            string filename(direntp->d_name);
+            int res = filename.find("svn-base");
+            if (res < 0) {
+                pFile = (char*)malloc(2*PATH_MAX); // to be safe
+                strcpy(pFile, fullpath.c_str());
+                strcat(pFile, direntp->d_name);
+                ProcessFile (pFile);
+            }
         }
     }
 
