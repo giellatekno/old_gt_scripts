@@ -22,6 +22,9 @@
 	</header>
 	<body>
         <!-- errorsyn -->
+        <p>
+            begynner <errorort correct="å bore" errtype="onec" pos="verb">å borre</errorort> noen
+        </p>
         <p xml:lang="sme">
             Jus dat leačča duohta de eat leat beare <errorortreal correct="guhkas" errtype="á" pos="adv">guhkás</errorortreal> joavdan. 
         </p>
