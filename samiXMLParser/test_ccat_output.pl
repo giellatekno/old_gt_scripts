@@ -417,6 +417,8 @@ if (!system('make')) {
     }
     my $result = `./ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | grep .svn-base | head -1`;
     is($result, '', "Check that svn internal files aren't among the files ccat tries to open");
+    $result = `./ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | egrep \.xml\$ | head -1`;
+    isnt($result, '', "Check that we find some files");
 } else {
     print "Can't compile ccat\n";
 }
