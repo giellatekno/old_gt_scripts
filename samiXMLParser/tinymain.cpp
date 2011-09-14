@@ -30,6 +30,7 @@ bool bPrintMorphSynCorr = false;
 bool bPrintOnlyCorr = false;
 bool bPrintTypos = false;
 bool bPrintSpeller = false;
+bool bPrintFilename = false;
 bool bAddID = false;
 bool bOutsideError = true;
 bool hitString = false;
@@ -44,7 +45,7 @@ void TraverseDir (DIR* dirp, string path);
 void ProcessFile (const char *pFile);
 void DumpTag(TiXmlElement* pElement);
 string GetAttribValue(TiXmlElement *pElement, string attrName);
-void RecurseTree( TiXmlNode* pParent );
+void RecurseTree( TiXmlNode* pParent, string fileName);
 void PrintVersion();
 void PrintHelp();
 
@@ -129,6 +130,10 @@ int main( int argc, char *argv[] )
             bPrintSpeller = true;
         }
 
+        else if (strcmp(argv[i], "-f") == 0) {
+            bPrintFilename = true;
+        }
+        
         else if (strstr(argv[i], ".xml\0") != NULL) ProcessFile (argv[i]);
 
         else if (bRecursive && ((dirp = opendir(argv[i])) != NULL)) {
@@ -172,13 +177,14 @@ void TraverseDir(DIR* dirp, string path) {
             strcmp(direntp->d_name, "..") == 0)
                 continue;
 
+        
+
         if (direntp->d_type == DT_DIR) {
             fullpath += direntp->d_name;
             TraverseDir(opendir(fullpath.c_str()),
                         fullpath + "/");
             fullpath.erase(fullpath.find_last_of("/") +1, fullpath.length());
         }
-
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             char *pFile;
             pFile = (char*)malloc(2*PATH_MAX); // to be safe
@@ -196,9 +202,11 @@ void ProcessFile(const char *pFile)
     TiXmlDocument doc( pFile );
     doc.LoadFile();
 
+    string fileName(pFile);
+    fileName = fileName.substr(fileName.rfind("/") + 1);
     TiXmlHandle docHandle( &doc );
 
-    RecurseTree( docHandle.FirstChild( "document" ).ToNode() );
+    RecurseTree( docHandle.FirstChild( "document" ).ToNode(), fileName );
     
 }
 
@@ -235,7 +243,7 @@ string GetAttribValue(TiXmlElement *pElement, string attrName)
     return result;
 }
 
-void RecurseTree( TiXmlNode* pParent )
+void RecurseTree(TiXmlNode* pParent, string fileName)
 {
     if( pParent ) {
         TiXmlText* pText;
@@ -350,7 +358,7 @@ void RecurseTree( TiXmlNode* pParent )
 
         for (pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
         {
-            RecurseTree( pChild );
+            RecurseTree(pChild, fileName);
         }
         if ( tag == "p" ) {
             if (bElementLang &&
@@ -402,6 +410,15 @@ void RecurseTree( TiXmlNode* pParent )
                             cout << name << "=" << pAttrib->Value();
                         }
                         pAttrib = pAttrib->Next();
+                    }
+                    if (firstattr && bPrintFilename) {
+                        cout << "\t#";
+                    }
+                    if (!firstattr && bPrintFilename) {
+                        cout << ", ";
+                    }
+                    if (bPrintFilename) {
+                        cout << "file: " << fileName;
                     }
                     cout << endl;
                 }
@@ -455,9 +472,9 @@ void PrintHelp()
     cout << "Error markup printing options:\n";
     cout << "\t-typos\t  Print only the errors/typos in the text, \n\t\t\twith corrections tab-separated\n";
     cout << "\t-S\t  Print the whole text one word per line; typos have \n\t\t\ttab separated corrections\n";
-//    cout << "\t-f\t  Add the source filename as a comment after each word.\n";
-//    cout << "\t\t\t  Only useful together with the -r option used together\n";
-//    cout << "\t\t\t  with -typos or -S.\n\n";
+   cout << "\t-f\t  Add the source filename as a comment after each word.\n";
+   cout << "\t\t\t  Only useful together with the -r option used together\n";
+   cout << "\t\t\t  with -typos or -S.\n\n";
 
     cout << "Other options:\n";
     cout << "\t-r <dir>  Recursively process directory <dir> and subdirs encountered\n";
