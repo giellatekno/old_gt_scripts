@@ -377,11 +377,11 @@ void RecurseTree( TiXmlNode* pParent )
 
             
             if(bPrintTypos) {
-                if (bPrintTypos && !bBothTagAndOption && !bPrintSpeller && 
+                if (!bBothTagAndOption && 
                     (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
-                    cerr << "bPrintTypos " << bPrintTypos << endl;
-                    cerr << "bBothTagAndOption " << bBothTagAndOption << endl;
-                    cerr << "bPrintSpeller " << bPrintSpeller << endl;
+                    if (bPrintSpeller) {
+                        cout << "\n";
+                    }
                 } else {
                     if (corr != "") {
                         cout << "\t" << corr;
