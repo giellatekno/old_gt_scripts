@@ -409,16 +409,17 @@ void RecurseTree( TiXmlNode* pParent )
                 if (corr != "") {
                     cout << corr << " ";
                 }
-                if ((bPrintLexCorr && tag == "errorlex") ||
-                    (bPrintCorr && tag == "error") ||
-                    (bPrintMorphSynCorr && tag == "errormorphsyn") ||
-                    (bPrintOrtCorr && tag =="errorort") ||
-                    (bPrintOrtRealCorr && tag == "errorortreal") ||
-                    (bPrintSynCorr && tag == "errorsyn")) {
-                    bBothTagAndOption = false;
-                }
 
             }
+            if ((bPrintLexCorr && tag == "errorlex") ||
+                (bPrintCorr && tag == "error") ||
+                (bPrintMorphSynCorr && tag == "errormorphsyn") ||
+                (bPrintOrtCorr && tag =="errorort") ||
+                (bPrintOrtRealCorr && tag == "errorortreal") ||
+                (bPrintSynCorr && tag == "errorsyn")) {
+                bBothTagAndOption = false;
+            }
+
         } else if ( tag == "document" ) {
             if (bAddID) {
                 cout << "</" << tag << ">" << endl;
