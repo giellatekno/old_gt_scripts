@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <iterator>
 #include <sstream>
+#include <limits.h>
 
 using namespace std;
 
@@ -187,7 +188,7 @@ void TraverseDir(DIR* dirp, string path) {
         }
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             string filename(direntp->d_name);
-            if (filename.find("svn-base") < 0) {
+            if (filename.find("svn-base") == UINT_MAX) {
                 string pFile = fullpath + filename;
                 ProcessFile (pFile);
             }
