@@ -374,6 +374,11 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
                     cout << endl;
                 }
             }
+            // Set these variables as we leave p
+            bInPara =  false;
+            bInTitle = false;
+            bInList = false;
+            bInTable = false;
         } else if ( tag.substr(0,5) == "error" ) {
             /*cout << endl;
             DumpTag(pParent->ToElement());
