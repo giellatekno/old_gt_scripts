@@ -178,13 +178,13 @@ my %files = (
         "-typos -lex" => "",
         "-S" => "nu\nahte\nvarrásat leat x0-tiippa\tvarrásat leat x0-tiippat\t#cat=nomsg,const=spred,errtype=num,orig=nompl,pos=noun\n.\n",
         "-f -S" => "nu\nahte\nvarrásat leat x0-tiippa\tvarrásat leat x0-tiippat\t#cat=nomsg,const=spred,errtype=num,orig=nompl,pos=noun, file: p-sme-errormorphsyn.xml\n.\n",
-        "-S -C" => "nu\nahte\nvarrásat leat x0-tiippa\n.\n",
-        "-S -ort" => "nu\nahte\nvarrásat leat x0-tiippa\n.\n",
-        "-S -ort -C" => "nu\nahte\nvarrásat leat x0-tiippa\n.\n",
-        "-S -ortreal" => "nu\nahte\nvarrásat leat x0-tiippa\n.\n",
+        "-S -C" => "nu\nahte\nvarrásat\nleat\nx0-tiippa\n.\n",
+        "-S -ort" => "nu\nahte\nvarrásat\nleat\nx0-tiippa\n.\n",
+        "-S -ort -C" => "nu\nahte\nvarrásat\nleat\nx0-tiippa\n.\n",
+        "-S -ortreal" => "nu\nahte\nvarrásat\nleat\nx0-tiippa\n.\n",
         "-S -morphsyn" => "nu\nahte\nvarrásat leat x0-tiippa\tvarrásat leat x0-tiippat\t#cat=nomsg,const=spred,errtype=num,orig=nompl,pos=noun\n.\n",
-        "-S -syn" => "nu\nahte\nvarrásat leat x0-tiippa\n.\n",
-        "-S -lex" => "nu\nahte\nvarrásat leat x0-tiippa\n.\n",
+        "-S -syn" => "nu\nahte\nvarrásat\nleat\nx0-tiippa\n.\n",
+        "-S -lex" => "nu\nahte\nvarrásat\nleat\nx0-tiippa\n.\n",
         "-a -S" => "nu\nahte\nvarrásat leat x0-tiippa\tvarrásat leat x0-tiippat\t#cat=nomsg,const=spred,errtype=num,orig=nompl,pos=noun\n.\n",
     },
     'p-sme-errorsyn.xml' => {
@@ -251,13 +251,13 @@ my %files = (
         "-typos -lex" => "",
         "-S" => "begynner\nå borre\tå bore\t#errtype=onec,pos=verb\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\tguhkas\t#errtype=á,pos=adv\njoavdan.\n",
         "-f -S" => "begynner\nå borre\tå bore\t#errtype=onec,pos=verb, file: p-sme-errorortreal.xml\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\tguhkas\t#errtype=á,pos=adv, file: p-sme-errorortreal.xml\njoavdan.\n",
-        "-S -C" => "begynner\nå borre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
+        "-S -C" => "begynner\nå\nborre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
         "-S -ort" => "begynner\nå borre\tå bore\t#errtype=onec,pos=verb\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
         "-S -ort -C" => "begynner\nå borre\tå bore\t#errtype=onec,pos=verb\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
-        "-S -ortreal" => "begynner\nå borre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\tguhkas\t#errtype=á,pos=adv\njoavdan.\n",
-        "-S -morphsyn" => "begynner\nå borre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
-        "-S -syn" => "begynner\nå borre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
-        "-S -lex" => "begynner\nå borre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
+        "-S -ortreal" => "begynner\nå\nborre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\tguhkas\t#errtype=á,pos=adv\njoavdan.\n",
+        "-S -morphsyn" => "begynner\nå\nborre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
+        "-S -syn" => "begynner\nå\nborre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
+        "-S -lex" => "begynner\nå\nborre\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\njoavdan.\n",
         "-a -S" => "begynner\nå borre\tå bore\t#errtype=onec,pos=verb\nnoen\nJus\ndat\nleačča\nduohta\nde\neat\nleat\nbeare\nguhkás\tguhkas\t#errtype=á,pos=adv\njoavdan.\n",
     },
     'p-sme-error.xml' => {
@@ -488,7 +488,7 @@ if (!system('make')) {
     $result = `./ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | egrep \.xml\$ | head -1`;
     isnt($result, '', "Check that we find some files");
     $result = `./ccat -l nob -S -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob | grep XSLtemplate | head -1`;
-    is($result, '', "Check metadata info");
+    is($result, '', "Check metadata info isn't included in");
 } else {
     print "Can't compile ccat\n";
 }
