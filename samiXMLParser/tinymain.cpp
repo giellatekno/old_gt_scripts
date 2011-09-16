@@ -40,6 +40,7 @@ int iParaNum = 0;
 
 string sLang;
 string docLang;
+string output;
 static string const version = "$Revision$";
 
 void TraverseDir(DIR* dirp, string path);
@@ -262,10 +263,11 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
             hitString = false;
             tag = pParent->Value();
             if (tag == "p") {
+                output = "";
                 string pLang = GetAttribValue(pParent->ToElement(), "xml:lang");
                 if (sLang == "" || sLang == docLang) {
                     bElementLang = (pLang == "" || pLang == docLang)? true : false;
-                } else if (sLang != docLang) {
+                } else {
                     bElementLang = pLang == sLang ? true : false;
                 }
                 bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
@@ -314,6 +316,7 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
         case TiXmlNode::TEXT:
             hitString = true;
             pText = pParent->ToText();
+//             cerr << endl << "testing p: " << pParent->Parent()->Parent()->Value() << endl;
             if (bElementLang &&
                         ((bPrintPara && bInPara)   ||
                         (bPrintTitle && bInTitle) ||
@@ -321,13 +324,16 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
                         (bPrintTable && bInTable))) {
                 if (bOutsideError) {
                     if (!bPrintTypos) {
-                        cout << pText->Value() << " ";
+                        output.append(pText->Value());
+                        output.append(" ");
                     } else {
                         if (bPrintSpeller) {
-                            istringstream iss(pText->Value());
-                            copy(istream_iterator<string>(iss),
-                                istream_iterator<string>(),
-                                ostream_iterator<string>(cout, "\n"));
+                            string ptext = pText->Value();
+                            while (ptext.find(" ") != string::npos) {
+                                ptext = ptext.replace(ptext.find(" "), 1, "\n");
+                            }
+                            output.append(ptext);
+                            output.append("\n");
                         }
                     }
                 } else {
@@ -336,10 +342,10 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
                         if (bPrintTypos && !bBothTagAndOption && !bPrintSpeller &&
                             (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
                         } else {
-                            cout << pText->Value();
+                            output.append(pText->Value());
                         
                             if (!bPrintTypos) {
-                                cout << " ";
+                                output.append(" ");
                             }
                         }
                     }
@@ -367,11 +373,11 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
                 (bPrintTable && bInTable))) {
                 if (hitString && !bPrintTypos) {
                     if (bAddID) {
-                        cout << "</p>";
+                        output.append("</p>");
                     } else {
-                        cout << "¶";
+                        output.append("¶");
                     }
-                    cout << endl;
+                    output.append("\n");
                 }
             }
             // Set these variables as we leave p
@@ -379,6 +385,7 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
             bInTitle = false;
             bInList = false;
             bInTable = false;
+            cout << output;
         } else if ( tag.substr(0,5) == "error" ) {
             /*cout << endl;
             DumpTag(pParent->ToElement());
@@ -392,11 +399,12 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
                     if (!bBothTagAndOption && 
                         (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
                         if (bPrintSpeller) {
-                            cout << "\n";
+                            output.append("\n");
                         }
                     } else {
                         if (corr != "") {
-                            cout << "\t" << corr;
+                            output.append("\t");
+                            output.append(corr);
                         }
                         TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
                         bool firstattr = true;
@@ -406,29 +414,33 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
             //                 cout << endl << name << endl;
                             if (name != "correct") {
                                 if (firstattr) {
-                                    cout << "\t#";
+                                    output.append("\t#");
                                     firstattr = false;
                                 } else {
-                                    cout << ",";
+                                    output.append(",");
                                 }
-                                cout << name << "=" << pAttrib->Value();
+                                output.append(name);
+                                output.append("=");
+                                output.append(pAttrib->Value());
                             }
                             pAttrib = pAttrib->Next();
                         }
                         if (firstattr && bPrintFilename) {
-                            cout << "\t#";
+                            output.append("\t#");
                         }
                         if (!firstattr && bPrintFilename) {
-                            cout << ", ";
+                            output.append(", ");
                         }
                         if (bPrintFilename) {
-                            cout << "file: " << fileName;
+                            output.append("file: ");
+                            output.append(fileName);
                         }
-                        cout << endl;
+                        output.append("\n");
                     }
                 } else if (bBothTagAndOption || bPrintOnlyCorr) {
                     if (corr != "") {
-                        cout << corr << " ";
+                        output.append(corr);
+                        output.append(" ");
                     }
 
                 }
@@ -444,7 +456,10 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
 
         } else if ( tag == "document" ) {
             if (bAddID) {
-                cout << "</" << tag << ">" << endl;
+                output.append("</");
+                output.append(tag);
+                output.append(">\n");
+                cout << output;
             }
         }
     }
