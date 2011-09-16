@@ -342,10 +342,19 @@ void RecurseTree(TiXmlNode* pParent, string fileName)
                         if (bPrintTypos && !bBothTagAndOption && !bPrintSpeller &&
                             (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
                         } else {
-                            output.append(pText->Value());
+                            if (bPrintSpeller  && !bBothTagAndOption && 
+                                (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
+                                string ptext = pText->Value();
+                                while (ptext.find(" ") != string::npos) {
+                                    ptext = ptext.replace(ptext.find(" "), 1, "\n");
+                                }
+                                output.append(ptext);
+                            } else { 
+                                output.append(pText->Value());
                         
-                            if (!bPrintTypos) {
-                                output.append(" ");
+                                if (!bPrintTypos) {
+                                    output.append(" ");
+                                }
                             }
                         }
                     }
