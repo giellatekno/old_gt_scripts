@@ -41,7 +41,7 @@ int iParaNum = 0;
 string sLang;
 string docLang;
 string output;
-static string const version = "$Revision$";
+static string const version = "$Rev$";
 
 void TraverseDir(DIR* dirp, string path);
 void ProcessFile(string pFile);
@@ -506,6 +506,7 @@ void PrintHelp()
 
     cout << "Other options:\n";
     cout << "\t-r <dir>  Recursively process directory <dir> and subdirs encountered\n";
+    cout << "\t-v\t  Print version info\n";
     cout << "\t-h\t  Print this help message\n";
 
     cout << endl;
