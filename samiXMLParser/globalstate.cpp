@@ -7,21 +7,23 @@ GlobalState::GlobalState()
     bInList = false;
     bInTable = false;
 
+    bErrorFiltering = false;
     bPrintPara = true;
     bPrintTitle = false;
     bPrintList = false;
     bPrintTable = false;
-    bPrintCorr = false;
-    bPrintOrtCorr = false;
-    bPrintOrtRealCorr = false;
-    bPrintSynCorr = false;
-    bPrintLexCorr = false;
-    bPrintMorphSynCorr = false;
     bPrintOnlyCorr = false;
     bPrintTypos = false;
     bPrintSpeller = false;
     bPrintFilename = false;
     bAddID = false;
+
+    errorFilters["error"] = false;
+    errorFilters["errorlex"] = false;
+    errorFilters["errormorphsyn"] = false;
+    errorFilters["errorort"] = false;
+    errorFilters["errorortreal"] = false;
+    errorFilters["errorsyn"] = false;
     
     sLang = "";
 }

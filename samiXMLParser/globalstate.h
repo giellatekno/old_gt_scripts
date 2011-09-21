@@ -2,6 +2,7 @@
 #define GLOBALSTATE_H
 
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -14,22 +15,18 @@ public:
     bool bInList;
     bool bInTable;
 
+    bool bErrorFiltering;
     bool bPrintPara;
     bool bPrintTitle;
     bool bPrintList;
     bool bPrintTable;
-    bool bPrintCorr;
-    bool bPrintOrtCorr;
-    bool bPrintOrtRealCorr;
-    bool bPrintSynCorr;
-    bool bPrintLexCorr;
-    bool bPrintMorphSynCorr;
     bool bPrintOnlyCorr;
     bool bPrintTypos;
     bool bPrintSpeller;
     bool bPrintFilename;
     bool bAddID;
-  
+    
+    map<string, bool> errorFilters;
     string sLang;
 };
 

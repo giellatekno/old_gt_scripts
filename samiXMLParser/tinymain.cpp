@@ -60,27 +60,33 @@ int main( int argc, char *argv[] )
         }
 
         else if (strcmp(argv[i], "-C") == 0) {
-            gs.bPrintCorr = true;
+            gs.bErrorFiltering = true;
+            gs.errorFilters["error"] = true;
         }
 
         else if (strcmp(argv[i], "-ort") == 0) {
-            gs.bPrintOrtCorr = true;
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errorort"] = true;
         }
 
         else if (strcmp(argv[i], "-ortreal") == 0) {
-            gs.bPrintOrtRealCorr = true;
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errorortreal"] = true;
         }
 
         else if (strcmp(argv[i], "-syn") == 0) {
-            gs.bPrintSynCorr = true;
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errorsyn"] = true;
         }
 
         else if (strcmp(argv[i], "-lex") == 0) {
-            gs.bPrintLexCorr = true;
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errorlex"] = true;
         }
 
         else if (strcmp(argv[i], "-morphsyn") == 0) {
-            gs.bPrintMorphSynCorr = true;
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errormorphsyn"] = true;
         }
 
         else if (strcmp(argv[i], "-c") == 0) {
@@ -92,7 +98,6 @@ int main( int argc, char *argv[] )
         }
 
         else if (strcmp(argv[i], "-S") == 0) {
-            gs.bPrintTypos = true;
             gs.bPrintSpeller = true;
         }
 
