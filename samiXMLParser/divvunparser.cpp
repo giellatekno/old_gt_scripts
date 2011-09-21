@@ -88,20 +88,18 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                 (gs.bPrintList && gs.bInList)   ||
                 (gs.bPrintTable && gs.bInTable))) {
                     string errortext = GetErrorString(pParent);
-                    
                     paraContent.append(FormatErrorString(errortext));
                     paraContent.append(FormatCorrectString(pParent));
-
-                    
                 }
+
                 if ((gs.bPrintLexCorr && tag == "errorlex") ||
-                (gs.bPrintCorr && tag == "error") ||
-                (gs.bPrintMorphSynCorr && tag == "errormorphsyn") ||
-                (gs.bPrintOrtCorr && tag =="errorort") ||
-                (gs.bPrintOrtRealCorr && tag == "errorortreal") ||
-                (gs.bPrintSynCorr && tag == "errorsyn")) {
-                bBothTagAndOption = false;
-            }
+                    (gs.bPrintCorr && tag == "error") ||
+                    (gs.bPrintMorphSynCorr && tag == "errormorphsyn") ||
+                    (gs.bPrintOrtCorr && tag =="errorort") ||
+                    (gs.bPrintOrtRealCorr && tag == "errorortreal") ||
+                    (gs.bPrintSynCorr && tag == "errorsyn")) {
+                    bBothTagAndOption = false;
+                }
 
             
             } else if (tag == "document") {
