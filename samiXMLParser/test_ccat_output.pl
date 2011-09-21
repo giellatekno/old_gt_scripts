@@ -454,29 +454,27 @@ my %nested_errors = (
 #     å komme igjennom,
 # </p>
     'p-with-errorort-inside-errormorphsyn.xml' => {
-        "" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",         # p11 e11 e21 p21
+        "" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-l sme" => "",
-        "-l nob" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",   # p11 e11 e21 p21
-        "-a" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",       # p11 e11 e21 p21
+        "-l nob" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
+        "-a" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-T" => "",
         "-T -l sma" => "",
         "-L" => "",
         "-t" => "",
-        "-c" => "men skoledagene er så vanskelige å komme igjennom, ¶\n",       # p11 c11 p21
-        "-C" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",       # p11 e11 e21 p21
-        "-ort" => "men skoledagene er så vanskelig å komme igjennom, ¶\n",      # p11 e11 c21 p21
-        "-ortreal" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n", # p11 e11 e21 p21
-        "-morphsyn" => "men skoledagene er så vanskelige vanskerlig å komme igjennom, ¶\n",# p11 c11 p21
-        "-syn" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",     # p11 e11 e21 p21
-        "-lex" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",     # p11 e11 e21 p21
+        "-c" => "men skoledagene er så vanskelige å komme igjennom, ¶\n",
+        "-C" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
+        "-ort" => "men skoledagene er så vanskelig å komme igjennom, ¶\n",
+        "-ortreal" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
+        "-morphsyn" => "men skoledagene er så vanskelige å komme igjennom, ¶\n",
+        "-syn" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
+        "-lex" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-f -typos" => "skoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj, file: p-with-errorort-inside-errormorphsyn.xml\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj, file: p-with-errorort-inside-errormorphsyn.xml\n",
-                                                                                # e11 c21\tc11
-                                                                                # e21\tc21
         "-typos -C" => "",
-        "-typos -ort" => "vanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\n",  # e21\tc21
-        "-typos -ort -C" => "vanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\n",# e21\tc21
+        "-typos -ort" => "vanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\n",
+        "-typos -ort -C" => "vanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\n",
         "-typos -ortreal" => "",
-        "-typos -morphsyn" => "skoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\n", # e21 c21\tc11
+        "-typos -morphsyn" => "skoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\n",
         "-typos -syn" => "",
         "-typos -lex" => "",
         "-S" => "men\nskoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\nå\nkomme\nigjennom,\n",
@@ -485,7 +483,7 @@ my %nested_errors = (
         "-S -ort" =>    "men\nskoledagene\ner\nså\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\nå\nkomme\nigjennom,\n",
         "-S -ort -C" => "men\nskoledagene\ner\nså\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\nå\nkomme\nigjennom,\n",
         "-S -ortreal" => "men\nskoledagene\ner\nså\nvanskerlig\nå\nkomme\nigjennom,\n",
-        "-S -morphsyn" => "men\nskoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\nvanskerlig\nå\nkomme\nigjennom,\n",
+        "-S -morphsyn" => "men\nskoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\nå\nkomme\nigjennom,\n",
         "-S -syn" => "men\nskoledagene\ner\nså\nvanskerlig\nå\nkomme\nigjennom,\n",
         "-S -lex" => "men\nskoledagene\ner\nså\nvanskerlig\nå\nkomme\nigjennom,\n",
         "-a -S" => "men\nskoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\nå\nkomme\nigjennom,\n",
@@ -552,20 +550,20 @@ my %nested_errors = (
         "-T -l sma" => "",
         "-L" => "",
         "-t" => "",
-        "-c" => "guokte gándda ¶\n",
+        "-c" => "guokte ganddat ¶\n",
         "-C" => "guokte gánddat ¶\n",
         "-ort" => "guokte ganddat ¶\n",
         "-ortreal" => "guokte ganddat ¶\n",
-        "-morphsyn" => "guokte gándda ganddat ¶\n",
+        "-morphsyn" => "guokte ganddat ¶\n",
         "-syn" => "guokte ganddat ¶\n",
         "-lex" => "guokte ganddat ¶\n",
         "-typos" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\tgánddat\n",
         "-f -typos" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n, file: p-with-error-inside-errormorphsyn.xml\nganddat\tgánddat\t#file: p-with-error-inside-errormorphsyn.xml\n",
-        "-typos -C" => "ganddat\tgánddat\n",
+        "-typos -C" => 
         "-typos -ort" => "",
-        "-typos -ort -C" => "ganddat\tgánddat\n",
+        "-typos -ort -C" => "šaddai\tšattai\t#errtype=conc,pos=verb\n",
         "-typos -ortreal" => "",
-        "-typos -morphsyn" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\n",
+        "-typos -morphsyn" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\n",
         "-typos -syn" => "",
         "-typos -lex" => "",
         "-S" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\tgánddat\n",
@@ -574,10 +572,54 @@ my %nested_errors = (
         "-S -ort" => "guokte\nganddat\n",
         "-S -ort -C" => "guokte\nganddat\tgánddat\n",
         "-S -ortreal" => "guokte\nganddat\n",
-        "-S -morphsyn" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\n",
+        "-S -morphsyn" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\n",
         "-S -syn" => "guokte\nganddat\n",
         "-S -lex" => "guokte\nganddat\n",
         "-a -S" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\tgánddat\n",
+    },
+# <p>
+#     <errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="adj">
+#         Nieiddat leat 
+#         <errorort correct="nuorra" errtype="meta" pos="adj">
+#             nourra
+#         </errorort>
+#     </errormorphsyn>
+# </p>
+    'p-with-errorort-inside-errormorphsyn-3.xml' => {
+        "" => "Nieiddat leat nourra ¶\n",
+        "-l sme" => "Nieiddat leat nourra ¶\n",
+        "-l nob" => "",
+        "-a" => "Nieiddat leat nourra ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "Nieiddat leat nuorat ¶\n",
+        "-C" => "Nieiddat leat nourra ¶\n",
+        "-ort" => "Nieiddat leat nourra ¶\n",
+        "-ortreal" => "Nieiddat leat nourra ¶\n",
+        "-morphsyn" => "Nieiddat leat nuorat ¶\n",
+        "-syn" => "Nieiddat leat nourra ¶\n",
+        "-lex" => "Nieiddat leat nourra ¶\n",
+        "-typos" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-f -typos" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\nnuorra\tnuorra\t#errtype=meta,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\n",
+        "-typos -C" => "",
+        "-typos -ort" => "nuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-typos -ort -C" => "nuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => 
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-f -S" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\nnuorra\tnuorra\t#errtype=meta,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\n",
+        "-S -C" => "Nieiddat\nleat\nnourra\n",
+        "-S -ort" => "Nieiddat\nleat\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-S -ort -C" => "Nieiddat\nleat\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-S -ortreal" => "Nieiddat\nleat\nnourra\n",
+        "-S -morphsyn" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj\n",
+        "-S -syn" => "Nieiddat\nleat\nnourra\n",
+        "-S -lex" => "Nieiddat\nleat\nnourra\n",
+        "-a -S" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\nšaddai\tšattai\t#errtype=conc,pos=verb\n",
     },
 # <p>
 #     <errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">
@@ -600,7 +642,7 @@ my %nested_errors = (
         "-C" => "leat okta máná ¶\n",
         "-ort" => "leat okta máná ¶\n",
         "-ortreal" => "leat okta máná ¶\n",
-        "-morphsyn" => "lea okta mánná okta mánná ¶\n",
+        "-morphsyn" => "lea okta mánná okta mánná¶\n",
         "-syn" => "leat okta máná ¶\n",
         "-lex" => "leat okta máná ¶\n",
         "-typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
@@ -614,13 +656,13 @@ my %nested_errors = (
         "-typos -lex" => "",
         "-S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
         "-f -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n",
-        "-S -C" => "leat\nokta\nmáná\n",
-        "-S -ort" => "leat\nokta\nmáná\n",
-        "-S -ort -C" => "leat\nokta\nmáná\n",
-        "-S -ortreal" => "leat\nokta\nmáná\n",
+        "-S -C" => "leat\nokta\máná\n",
+        "-S -ort" => "leat\nokta\máná\n",
+        "-S -ort -C" => "leat\nokta\máná\n",
+        "-S -ortreal" => "leat\nokta\máná\n",
         "-S -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
-        "-S -syn" => "leat\nokta\nmáná\n",
-        "-S -lex" => "leat\nokta\nmáná\n",
+        "-S -syn" => "leat\nokta\máná\n",
+        "-S -lex" => "leat\nokta\máná\n",
         "-a -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
     },
 # <p>
@@ -695,9 +737,9 @@ my %nested_errors = (
         "-ortreal" => "gulahallanolbmožat ¶\n",
         "-morphsyn" => "gulahallan olbmožat ¶\n",
         "-syn" => "gulahallan olbmožat ¶\n",
-        "-lex" => "gulahallanolbmot gulahallan olbmožat ¶\n",
+        "-lex" => "gulahallanolbmot ¶\n",
         "-typos" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
-        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot# file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
         "-typos -C" => "",
         "-typos -ort" => "",
         "-typos -ort -C" => "",
@@ -706,14 +748,14 @@ my %nested_errors = (
         "-typos -syn" => "",
         "-typos -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
         "-S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
-        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot# file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
         "-S -C" => "gulahallan\nolbmožat\n",
         "-S -ort" => "gulahallan\nolbmožat\n",
         "-S -ort -C" => "gulahallan\nolbmožat\n",
-        "-S -ortreal" => "gulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
+        "-S -ortreal" => "gulahallanolbmožat\n",
         "-S -morphsyn" => "gulahallan\nolbmožat\n",
         "-S -syn" => "gulahallan\nolbmožat\n",
-        "-S -lex" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan\nolbmožat\n",
+        "-S -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
         "-a -S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
     },
 # <p>
@@ -787,7 +829,7 @@ my %nested_errors = (
         "-C" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
         "-ort" => "Bearpmehat earuha uskki ja loaiddu. ¶\n",
         "-ortreal" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
-        "-morphsyn" => "Bearpmehat sirrejit Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-morphsyn" => "Bearpmehat sirrejit uskki ja loaiddu. ¶\n",
         "-syn" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
         "-lex" => "Bearpmahat sirre uskki ja loaiddu. ¶\n",
         "-typos" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\n",
@@ -805,7 +847,7 @@ my %nested_errors = (
         "-S -ort" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -ort -C" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -ortreal" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
-        "-S -morphsyn" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
+        "-S -morphsyn" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nuskki\nja\nloaiddu.\n",
         "-S -syn" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -lex" => "Bearpmahat\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
         "-a -S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
@@ -813,7 +855,7 @@ my %nested_errors = (
 );
 
 if (!system('make')) {
-    print "###\n###\n###\tSimple errors to plain text\n###\n###\n###\n";
+    print "###\n###\n###\tSimple errors to plain text\n###\n###";
     for my $name (keys %simple_errors) {
         for my $option (keys % {$simple_errors{$name}}) {
             my $command = "./ccat " . $option . " " . $name;
@@ -823,7 +865,7 @@ if (!system('make')) {
         print "\n\n";
     }
     
-    print "###\n###\n###\tNested errors to plain text\n###\n###\n###\n";
+    print "###\n###\n###\tNested errors to plain text\n###\n###";
     for my $name (keys %nested_errors) {
         for my $option (keys % {$nested_errors{$name}}) {
             my $command = "./ccat " . $option . " " . $name;
