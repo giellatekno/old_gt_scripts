@@ -1,59 +1,23 @@
-#include "tinyxml.h"
 #include <iostream>
+#include <sstream>
 #include <dirent.h>
 #include <iterator>
-#include <sstream>
-#include <limits.h>
+#include "divvunparser.h"
+#include "globalstate.h"
 
 using namespace std;
 
-bool bInPara = false;
-bool bInTitle = false;
-bool bInList = false;
-bool bInTable = false;
-bool bStartOfLine = true;
 
-bool bBothTagAndOption = false;
-
-bool bElementLang = false;
-bool bPrintEndTag = false;
-
-bool bPrintPara = true;
-bool bPrintTitle = false;
-bool bPrintList = false;
-bool bPrintTable = false;
-bool bPrintCorr = false;
-bool bPrintOrtCorr = false;
-bool bPrintOrtRealCorr = false;
-bool bPrintSynCorr = false;
-bool bPrintLexCorr = false;
-bool bPrintMorphSynCorr = false;
-bool bPrintOnlyCorr = false;
-bool bPrintTypos = false;
-bool bPrintSpeller = false;
-bool bPrintFilename = false;
-bool bAddID = false;
-bool bOutsideError = true;
-bool hitString = false;
-
-int iParaNum = 0;
-
-string sLang;
-string docLang;
-string output;
 static string const version = "$Rev$";
 
-void TraverseDir(DIR* dirp, string path);
-void ProcessFile(string pFile);
-void DumpTag(TiXmlElement* pElement);
-string GetAttribValue(TiXmlElement *pElement, string attrName);
-void RecurseTree(TiXmlNode* pParent, string fileName);
+void TraverseDir(DIR* dirp, string path, GlobalState gs);
 void PrintVersion();
 void PrintHelp();
 
 int main( int argc, char *argv[] )
 {
-   bool bRecursive = false;
+    GlobalState gs;
+    bool bRecursive = false;
     DIR* dirp;
     string path;
 
@@ -65,87 +29,90 @@ int main( int argc, char *argv[] )
         }
 
         else if (strcmp(argv[i], "-l") == 0) {
-            sLang = argv[i+1];
+            gs.sLang = argv[i+1];
             i++;
         }
 
         else if (strcmp(argv[i], "-a") == 0) {
-            bPrintPara = true;
-            bPrintTitle = true;
-            bPrintList = true;
-            bPrintTable = true;
+            gs.bPrintPara = true;
+            gs.bPrintTitle = true;
+            gs.bPrintList = true;
+            gs.bPrintTable = true;
         }
 
         else if (strcmp(argv[i], "-p") == 0) {
-            bPrintPara = true;
+            gs.bPrintPara = true;
         }
 
         else if (strcmp(argv[i], "-T") == 0) {
-            bPrintTitle = true;
-            bPrintPara = false;
+            gs.bPrintTitle = true;
+            gs.bPrintPara = false;
         }
 
         else if (strcmp(argv[i], "-L") == 0) {
-            bPrintList = true;
-            bPrintPara = false;
+            gs.bPrintList = true;
+            gs.bPrintPara = false;
         }
 
         else if (strcmp(argv[i], "-t") == 0) {
-            bPrintTable = true;
-            bPrintPara = false;
+            gs.bPrintTable = true;
+            gs.bPrintPara = false;
         }
 
         else if (strcmp(argv[i], "-C") == 0) {
-            bPrintCorr = true;
+            gs.bPrintCorr = true;
         }
 
         else if (strcmp(argv[i], "-ort") == 0) {
-            bPrintOrtCorr = true;
+            gs.bPrintOrtCorr = true;
         }
 
         else if (strcmp(argv[i], "-ortreal") == 0) {
-            bPrintOrtRealCorr = true;
+            gs.bPrintOrtRealCorr = true;
         }
 
         else if (strcmp(argv[i], "-syn") == 0) {
-            bPrintSynCorr = true;
+            gs.bPrintSynCorr = true;
         }
 
         else if (strcmp(argv[i], "-lex") == 0) {
-            bPrintLexCorr = true;
+            gs.bPrintLexCorr = true;
         }
 
         else if (strcmp(argv[i], "-morphsyn") == 0) {
-            bPrintMorphSynCorr = true;
+            gs.bPrintMorphSynCorr = true;
         }
 
         else if (strcmp(argv[i], "-c") == 0) {
-            bPrintOnlyCorr = true;
+            gs.bPrintOnlyCorr = true;
         }
         
         else if (strcmp(argv[i], "-typos") == 0) {
-            bPrintTypos = true;
+            gs.bPrintTypos = true;
         }
 
         else if (strcmp(argv[i], "-S") == 0) {
-            bPrintTypos = true;
-            bPrintSpeller = true;
+            gs.bPrintTypos = true;
+            gs.bPrintSpeller = true;
         }
 
         else if (strcmp(argv[i], "-f") == 0) {
-            bPrintFilename = true;
+            gs.bPrintFilename = true;
         }
         
-        else if (strstr(argv[i], ".xml\0") != NULL) ProcessFile (argv[i]);
+        else if (strcmp(argv[i], "--add-id") == 0) {
+            gs.bAddID = true;
+        }
+
+        else if (strstr(argv[i], ".xml\0") != NULL) {
+            DivvunParser dp(string(argv[i]), gs);
+            dp.ProcessFile();
+        }
 
         else if (bRecursive && ((dirp = opendir(argv[i])) != NULL)) {
             path = argv[i];
             path += "/";
-            TraverseDir(dirp, path);
-        }
-
-        else if (strcmp(argv[i], "--add-id") == 0) {
-            bAddID = true;
+            TraverseDir(dirp, path, gs);
         }
 
         else if (strcmp(argv[i], "-h") == 0) {
@@ -168,7 +135,7 @@ int main( int argc, char *argv[] )
  
 }
 
-void TraverseDir(DIR* dirp, string path) {
+void TraverseDir(DIR* dirp, string path, GlobalState gs) {
     struct dirent* direntp;
     string fullpath;
 
@@ -183,15 +150,15 @@ void TraverseDir(DIR* dirp, string path) {
 
         if (direntp->d_type == DT_DIR) {
             fullpath += direntp->d_name;
-            TraverseDir(opendir(fullpath.c_str()),
-                        fullpath + "/");
+            TraverseDir(opendir(fullpath.c_str()), fullpath + "/", gs);
             fullpath.erase(fullpath.find_last_of("/") +1, fullpath.length());
         }
         else if (strstr(direntp->d_name, ".xml\0") != NULL) {
             string filename(direntp->d_name);
             if (filename.find("svn-base") == string::npos) {
                 string pFile = fullpath + filename;
-                ProcessFile (pFile);
+                DivvunParser dp(pFile, gs);
+                dp.ProcessFile();
             }
         }
     }
@@ -199,280 +166,6 @@ void TraverseDir(DIR* dirp, string path) {
     closedir(dirp);
 }
 
-void ProcessFile(string pFile)
-{
-    TiXmlDocument doc(pFile.c_str());
-    doc.LoadFile();
-
-    TiXmlHandle docHandle( &doc );
-
-    RecurseTree( docHandle.FirstChild( "document" ).ToNode(), pFile.substr(pFile.rfind("/") + 1) );
-    
-}
-
-void DumpTag(TiXmlElement* pElement)
-{
-    if (pElement) {
-
-        cout << "<" << pElement->Value();
-
-        TiXmlAttribute* pAttrib=pElement->FirstAttribute();
-        while (pAttrib)
-        {
-            cout << " " << pAttrib->Name() << "=\"" << pAttrib->Value() << "\"";
-            pAttrib=pAttrib->Next();
-        }
-        cout << ">" << endl;
-    }
-}
-
-string GetAttribValue(TiXmlElement *pElement, string attrName)
-{
-    string result = "";
-    if (pElement) {
-        TiXmlAttribute* pAttrib=pElement->FirstAttribute();
-        while (pAttrib)
-        {
-            if (pAttrib->Name() == attrName) {
-                result = pAttrib->Value();
-            }
-            pAttrib=pAttrib->Next();
-        }
-        
-    }
-    return result;
-}
-
-void RecurseTree(TiXmlNode* pParent, string fileName)
-{
-    if( pParent ) {
-        TiXmlText* pText;
-        TiXmlNode* pChild;
-        int t = pParent->Type();
-        string tag;
-        
-        
-        switch ( t )
-        {
-        case TiXmlNode::DOCUMENT:
-            cerr << "Document" << endl;
-            exit(2);
-            break;
-
-        case TiXmlNode::ELEMENT:
-            hitString = false;
-            tag = pParent->Value();
-            if (tag == "p") {
-                output = "";
-                string pLang = GetAttribValue(pParent->ToElement(), "xml:lang");
-                if (sLang == "" || sLang == docLang) {
-                    bElementLang = (pLang == "" || pLang == docLang)? true : false;
-                } else {
-                    bElementLang = pLang == sLang ? true : false;
-                }
-                bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
-                bInTitle = GetAttribValue(pParent->ToElement(), "type") == "title" ? true : false;
-                bInList = GetAttribValue(pParent->ToElement(), "type") == "listitem" ? true : false;
-                bInTable = GetAttribValue(pParent->ToElement(), "type") == "tablecell" ? true : false;
-
-
-                if (bAddID &&
-                    (bElementLang &&
-                    (bPrintPara && bInPara)   ||
-                    (bPrintTitle && bInTitle) ||
-                    (bPrintList && bInList)   ||
-                    (bPrintTable && bInTable)
-                    )
-                ) {
-                    DumpTag(pParent->ToElement());
-                }
-            } else if (tag.substr(0,5) == "error") {
-                bOutsideError = false;
-                if ((bPrintLexCorr && tag == "errorlex") ||
-                    (bPrintCorr && tag == "error") ||
-                    (bPrintMorphSynCorr && tag == "errormorphsyn") ||
-                    (bPrintOrtCorr && tag =="errorort") ||
-                    (bPrintOrtRealCorr && tag == "errorortreal") ||
-                    (bPrintSynCorr && tag == "errorsyn")) {
-                    bBothTagAndOption = true;
-                }
-            } else if (tag == "document") {
-                docLang = GetAttribValue(pParent->ToElement(), "xml:lang");
-                if (bAddID) {
-                    DumpTag(pParent->ToElement());
-                }
-            }
-            break;
-
-        case TiXmlNode::COMMENT:
-//             cerr << "Comment: " << pParent->Value() << endl;
-            break;
-
-        case TiXmlNode::UNKNOWN:
-            cerr << "Unknown" << endl;
-            exit (2);
-            break;
-
-        case TiXmlNode::TEXT:
-            hitString = true;
-            pText = pParent->ToText();
-//             cerr << endl << "testing p: " << pParent->Parent()->Parent()->Value() << endl;
-            if (bElementLang &&
-                        ((bPrintPara && bInPara)   ||
-                        (bPrintTitle && bInTitle) ||
-                        (bPrintList && bInList)   ||
-                        (bPrintTable && bInTable))) {
-                if (bOutsideError) {
-                    if (!bPrintTypos) {
-                        output.append(pText->Value());
-                        output.append(" ");
-                    } else {
-                        if (bPrintSpeller) {
-                            string ptext = pText->Value();
-                            while (ptext.find(" ") != string::npos) {
-                                ptext = ptext.replace(ptext.find(" "), 1, "\n");
-                            }
-                            output.append(ptext);
-                            output.append("\n");
-                        }
-                    }
-                } else {
-                    if ((bBothTagAndOption && !bPrintTypos) || bPrintOnlyCorr) {
-                    } else {
-                        if (bPrintTypos && !bBothTagAndOption && !bPrintSpeller &&
-                            (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
-                        } else {
-                            if (bPrintSpeller  && !bBothTagAndOption && 
-                                (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
-                                string ptext = pText->Value();
-                                while (ptext.find(" ") != string::npos) {
-                                    ptext = ptext.replace(ptext.find(" "), 1, "\n");
-                                }
-                                output.append(ptext);
-                            } else { 
-                                output.append(pText->Value());
-                        
-                                if (!bPrintTypos) {
-                                    output.append(" ");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-
-        case TiXmlNode::DECLARATION:
-            cerr << "Declaration" << endl;
-            exit (2);
-            break;
-        default:
-            break;
-        }
-
-        for (pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
-        {
-            RecurseTree(pChild, fileName);
-        }
-        if ( tag == "p" ) {
-            if (bElementLang &&
-                ((bPrintPara && bInPara)   ||
-                (bPrintTitle && bInTitle) ||
-                (bPrintList && bInList)   ||
-                (bPrintTable && bInTable))) {
-                if (hitString && !bPrintTypos) {
-                    if (bAddID) {
-                        output.append("</p>");
-                    } else {
-                        output.append("¶");
-                    }
-                    output.append("\n");
-                }
-            }
-            // Set these variables as we leave p
-            bInPara =  false;
-            bInTitle = false;
-            bInList = false;
-            bInTable = false;
-            cout << output;
-        } else if ( tag.substr(0,5) == "error" ) {
-            /*cout << endl;
-            DumpTag(pParent->ToElement());
-            cout << endl;
-            */
-            bOutsideError = true;
-            string corr = GetAttribValue(pParent->ToElement(), "correct");
-
-            if(bElementLang) {
-                if(bPrintTypos) {
-                    if (!bBothTagAndOption && 
-                        (bPrintCorr || bPrintLexCorr || bPrintMorphSynCorr || bPrintOrtCorr || bPrintOrtRealCorr || bPrintSynCorr)) {
-                        if (bPrintSpeller) {
-                            output.append("\n");
-                        }
-                    } else {
-                        if (corr != "") {
-                            output.append("\t");
-                            output.append(corr);
-                        }
-                        TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
-                        bool firstattr = true;
-
-                        while (pAttrib) {
-                            string name = pAttrib->Name();
-            //                 cout << endl << name << endl;
-                            if (name != "correct") {
-                                if (firstattr) {
-                                    output.append("\t#");
-                                    firstattr = false;
-                                } else {
-                                    output.append(",");
-                                }
-                                output.append(name);
-                                output.append("=");
-                                output.append(pAttrib->Value());
-                            }
-                            pAttrib = pAttrib->Next();
-                        }
-                        if (firstattr && bPrintFilename) {
-                            output.append("\t#");
-                        }
-                        if (!firstattr && bPrintFilename) {
-                            output.append(", ");
-                        }
-                        if (bPrintFilename) {
-                            output.append("file: ");
-                            output.append(fileName);
-                        }
-                        output.append("\n");
-                    }
-                } else if (bBothTagAndOption || bPrintOnlyCorr) {
-                    if (corr != "") {
-                        output.append(corr);
-                        output.append(" ");
-                    }
-
-                }
-            }
-            if ((bPrintLexCorr && tag == "errorlex") ||
-                (bPrintCorr && tag == "error") ||
-                (bPrintMorphSynCorr && tag == "errormorphsyn") ||
-                (bPrintOrtCorr && tag =="errorort") ||
-                (bPrintOrtRealCorr && tag == "errorortreal") ||
-                (bPrintSynCorr && tag == "errorsyn")) {
-                bBothTagAndOption = false;
-            }
-
-        } else if ( tag == "document" ) {
-            if (bAddID) {
-                output.append("</");
-                output.append(tag);
-                output.append(">\n");
-                cout << output;
-            }
-        }
-    }
-}
 
 void PrintHelp()
 {

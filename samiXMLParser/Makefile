@@ -1,5 +1,5 @@
 CXX=g++
-CXXSOURCES = tinymain.cpp tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp
+CXXSOURCES = tinymain.cpp tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp divvunparser.cpp globalstate.cpp
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)
 PREFIX = /usr/local
 
