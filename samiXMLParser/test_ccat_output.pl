@@ -6,7 +6,7 @@ use strict;
 use Getopt::Long;
 use warnings;
 
-my %files = (
+my %simple_errors = (
     'list-sme.xml' => {
         "" => "",
         "-l sme" => "",
@@ -440,6 +440,9 @@ my %files = (
         "-S -lex" => "fiske\nleting\n",
         "-a -S" => "fiske leting\tfiskeleting\t#errtype=nosplit,pos=noun\n",
     },
+);
+
+my %nested_errors = (
     'p-with-errorort-inside-errormorphsyn.xml' => {
         "" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-l sme" => "",
@@ -453,6 +456,9 @@ my %files = (
         "-C" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-ort" => "men skoledagene er så vanskelig å komme igjennom, ¶\n",
         "-ortreal" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
+        "-morphsyn" => "men skoledagene er så vanskelige å komme igjennom, ¶\n",
+        "-syn" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
+        "-lex" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-f -typos" => "skoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj, file: p-with-errorort-inside-errormorphsyn.xml\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj, file: p-with-errorort-inside-errormorphsyn.xml\n",
         "-typos -C" => "",
         "-typos -ort" => "vanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\n",
@@ -472,17 +478,393 @@ my %files = (
         "-S -lex" => "men\nskoledagene\ner\nså\nvanskerlig\nå\nkomme\nigjennom,\n",
         "-a -S" => "men\nskoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\nå\nkomme\nigjennom,\n",
     },
+    
+# <p>
+#     <errormorphsyn cat="pl3prs" const="fin" correct="šadde ollu áššit" errtype="tense" orig="sg3prs" pos="verb">
+#         <errorort correct="šattai" errtype="conc" pos="verb">
+#             šaddai
+#         </errorort> 
+#         ollu áššit
+#     </errormorphsyn>
+# </p>
+    'p-with-errorort-inside-errormorphsyn-2.xml' => {
+        "" => "šaddai ollu áššit ¶\n",
+        "-l sme" => "šaddai ollu áššit ¶\n",
+        "-l nob" => "",
+        "-a" => "šaddai ollu áššit ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "šadde ollu áššit ¶\n",
+        "-C" => "šaddai ollu áššit ¶\n",
+        "-ort" => "men skoledagene er så vanskelig å komme igjennom, ¶\n",
+        "-ortreal" => "šaddai ollu áššit ¶\n",
+        "-morphsyn" => "men skoledagene er så vanskelige å komme igjennom, ¶\n",
+        "-syn" => "šaddai ollu áššit ¶\n",
+        "-lex" => "šaddai ollu áššit ¶\n",
+        "-typos" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\nšaddai\tšattai\t#errtype=conc,pos=verb\n",
+        "-f -typos" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb, file: p-with-errorort-inside-errormorphsyn-2.xml\nšaddai\tšattai\t#errtype=conc,pos=verb, file: p-with-errorort-inside-errormorphsyn-2.xml\n",
+        "-typos -C" => "",
+        "-typos -ort" => "šaddai\tšattai\t#errtype=conc,pos=verb\n",
+        "-typos -ort -C" => "šaddai\tšattai\t#errtype=conc,pos=verb\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\n",
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\nšaddai\tšattai\t#errtype=conc,pos=verb\n",
+        "-f -S" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb, file: p-with-errorort-inside-errormorphsyn-2.xml\nšaddai\tšattai\t#errtype=conc,pos=verb, file: p-with-errorort-inside-errormorphsyn-2.xml\n",
+        "-S -C" => "šaddai\nollu\náššit\n",
+        "-S -ort" => "šaddai\tšattai\t#errtype=conc,pos=verb\nollu\náššit\n",
+        "-S -ort -C" => "šaddai\tšattai\t#errtype=conc,pos=verb\nollu\náššit\n",
+        "-S -ortreal" => "šaddai\nollu\náššit\n",
+        "-S -morphsyn" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\n",
+        "-S -syn" => "šaddai\nollu\náššit\n",
+        "-S -lex" => "šaddai\nollu\náššit\n",
+        "-a -S" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\nšaddai\tšattai\t#errtype=conc,pos=verb\n",
+    },
+# <p>
+#     <errormorphsyn cat="gensg" const="nump" correct="guokte gándda" errtype="case" orig="nompl" pos="n">
+#         guokte 
+#         <error correct="gánddat">
+#             ganddat
+#         </error>
+#     </errormorphsyn>
+# </p>
+    'p-with-error-inside-errormorphsyn.xml' => {
+        "" => "guokte ganddat ¶\n",
+        "-l sme" => "guokte ganddat ¶\n",
+        "-l nob" => "",
+        "-a" => "guokte ganddat ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "guokte ganddat ¶\n",
+        "-C" => "guokte gánddat ¶\n",
+        "-ort" => "guokte ganddat ¶\n",
+        "-ortreal" => "guokte ganddat ¶\n",
+        "-morphsyn" => "guokte ganddat ¶\n",
+        "-syn" => "guokte ganddat ¶\n",
+        "-lex" => "guokte ganddat ¶\n",
+        "-typos" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\tgánddat\n",
+        "-f -typos" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n, file: p-with-error-inside-errormorphsyn.xml\nganddat\tgánddat\t#file: p-with-error-inside-errormorphsyn.xml\n",
+        "-typos -C" => 
+        "-typos -ort" => "",
+        "-typos -ort -C" => "šaddai\tšattai\t#errtype=conc,pos=verb\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\n",
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\tgánddat\n",
+        "-f -S" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n, file: p-with-error-inside-errormorphsyn.xml\nganddat\tgánddat\t#file: p-with-error-inside-errormorphsyn.xml\n",
+        "-S -C" => "guokte\nganddat\tgánddat\n",
+        "-S -ort" => "guokte\nganddat\n",
+        "-S -ort -C" => "guokte\nganddat\tgánddat\n",
+        "-S -ortreal" => "guokte\nganddat\n",
+        "-S -morphsyn" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\n",
+        "-S -syn" => "guokte\nganddat\n",
+        "-S -lex" => "guokte\nganddat\n",
+        "-a -S" => "guokte gánddat\tguokte gándda\t#cat=gensg,const=nump,errtype=case,orig=nompl,pos=n\nganddat\tgánddat\n",
+    },
+# <p>
+#     <errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="adj">
+#         Nieiddat leat 
+#         <errorort correct="nuorra" errtype="meta" pos="adj">
+#             nourra
+#         </errorort>
+#     </errormorphsyn>
+# </p>
+    'p-with-errorort-inside-errormorphsyn-3.xml' => {
+        "" => "Nieiddat leat nourra ¶\n",
+        "-l sme" => "Nieiddat leat nourra ¶\n",
+        "-l nob" => "",
+        "-a" => "Nieiddat leat nourra ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "Nieiddat leat nuorat ¶\n",
+        "-C" => "Nieiddat leat nourra ¶\n",
+        "-ort" => "Nieiddat leat nourra ¶\n",
+        "-ortreal" => "Nieiddat leat nourra ¶\n",
+        "-morphsyn" => "Nieiddat leat nuorat ¶\n",
+        "-syn" => "Nieiddat leat nourra ¶\n",
+        "-lex" => "Nieiddat leat nourra ¶\n",
+        "-typos" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-f -typos" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\nnuorra\tnuorra\t#errtype=meta,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\n",
+        "-typos -C" => "",
+        "-typos -ort" => "nuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-typos -ort -C" => "nuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => 
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-f -S" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\nnuorra\tnuorra\t#errtype=meta,pos=adj, file: p-with-errorort-inside-errormorphsyn-3.xml\n",
+        "-S -C" => "Nieiddat\nleat\nnourra\n",
+        "-S -ort" => "Nieiddat\nleat\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-S -ort -C" => "Nieiddat\nleat\nnuorra\tnuorra\t#errtype=meta,pos=adj\n",
+        "-S -ortreal" => "Nieiddat\nleat\nnourra\n",
+        "-S -morphsyn" => "Nieiddat leat nourra\tNieiddat leat nuorat\#cat=nompl,const=spred,errtype=agr,orig=nomsg,pos=adj\n",
+        "-S -syn" => "Nieiddat\nleat\nnourra\n",
+        "-S -lex" => "Nieiddat\nleat\nnourra\n",
+        "-a -S" => "šattai ollu áššit\tšadde ollu áššit\t#cat=pl3prs,const=fin,errtype=tense,orig=sg3prs,pos=verb\nšaddai\tšattai\t#errtype=conc,pos=verb\n",
+    },
+# <p>
+#     <errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">
+#         leat 
+#         <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">
+#             okta máná
+#         </errormorphsyn>
+#     </errormorphsyn>
+# </p>
+    'p-with-errormorphsyn-inside-errormorphsyn.xml' => {
+        "" => "leat okta máná ¶\n",
+        "-l sme" => "leat okta máná ¶\n",
+        "-l nob" => "",
+        "-a" => "leat okta máná ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "lea okta mánná ¶\n",
+        "-C" => "leat okta máná ¶\n",
+        "-ort" => "leat okta máná ¶\n",
+        "-ortreal" => "leat okta máná ¶\n",
+        "-morphsyn" => "lea okta mánná okta mánná¶\n",
+        "-syn" => "leat okta máná ¶\n",
+        "-lex" => "leat okta máná ¶\n",
+        "-typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-f -typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n"
+        "-typos -C" => "",
+        "-typos -ort" => "",
+        "-typos -ort -C" => "",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-f -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n"
+        "-S -C" => "leat\nokta\máná\n",
+        "-S -ort" => "leat\nokta\máná\n",
+        "-S -ort -C" => "leat\nokta\máná\n",
+        "-S -ortreal" => "leat\nokta\máná\n",
+        "-S -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-S -syn" => "leat\nokta\máná\n",
+        "-S -lex" => "leat\nokta\máná\n",
+        "-a -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+    },
+# <p>
+#     livččii 
+#     <errorort correct="makkárge" errtype="á" pos="adv">
+#         makkarge
+#     </errorort> 
+#     politihkka, muhto rahpasit baicca muitalivčče 
+#     <errorlex correct="man soga">
+#         <errorort correct="makkár" errtype="á" pos="interr">
+#             makkar
+#         </errorort>
+#         soga
+#     </errorlex>
+#     sii
+# </p>
+    'p-with-errorort-inside-errorlex.xml' => {
+        "" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-l sme" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-l nob" => "",
+        "-a" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "livččii makkárge politihkka, muhto rahpasit baicca muitalivčče man soga sii ¶\n",
+        "-C" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-ort" => "livččii makkárge politihkka, muhto rahpasit baicca muitalivčče makkár soga sii ¶\n",
+        "-ortreal" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-morphsyn" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-syn" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
+        "-lex" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče man soga sii ¶\n",
+        "-typos" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\n", 
+        "-f -typos" => "makkarge\tmakkárge\t#errtype=á,pos=adv, file: p-with-errorort-inside-errorlex.xml\nmakkár soga\tman soga, file: p-with-errorort-inside-errorlex.xml\nmakkar\tmakkár\t#errtype=á,pos=interr, file: p-with-errorort-inside-errorlex.xml\n", 
+        "-typos -C" => "",
+        "-typos -ort" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n",
+        "-typos -ort -C" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-typos -syn" => "",
+        "-typos -lex" => "makkár soga\tman soga\n",
+        "-S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsii\n", 
+        "-f -S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv, file: p-with-errorort-inside-errorlex.xml\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga, file: p-with-errorort-inside-errorlex.xml\nmakkar\tmakkár\t#errtype=á,pos=interr, file: p-with-errorort-inside-errorlex.xml\nsii\n", 
+        "-S -C" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
+        "-S -ort" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n",
+        "-S -ort -C" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n",
+        "-S -ortreal" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
+        "-S -morphsyn" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
+        "-S -syn" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
+        "-S -lex" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nsii\n",
+        "-a -S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsii\n", 
+    },
+# <p>
+#     <errorlex correct="gulahallanolbmot">
+#         <errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">
+#             gulahallan olbmožat
+#         </errorortreal>
+#     </errorlex>
+# </p>
+    'p-with-errorortreal-inside-errorlex.xml' => {
+        "" => "gulahallan olbmožat ¶\n",
+        "-l sme" => "gulahallan olbmožat ¶\n",
+        "-l nob" => "",
+        "-a" => "gulahallan olbmožat ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "gulahallanolbmot ¶\n",
+        "-C" => "gulahallan olbmožat ¶\n",
+        "-ort" => "gulahallan olbmožat ¶\n",
+        "-ortreal" => "gulahallanolbmožat ¶\n",
+        "-morphsyn" => "gulahallan olbmožat ¶\n",
+        "-syn" => "gulahallan olbmožat ¶\n",
+        "-lex" => "gulahallanolbmot ¶\n",
+        "-typos" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
+        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot# file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-typos -C" => "",
+        "-typos -ort" => "",
+        "-typos -ort -C" => "",
+        "-typos -ortreal" => "gulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
+        "-typos -morphsyn" => ""
+        "-typos -syn" => "",
+        "-typos -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
+        "-S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
+        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot# file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-S -C" => "gulahallan\nolbmožat\n",
+        "-S -ort" => "gulahallan\nolbmožat\n",
+        "-S -ort -C" => "gulahallan\nolbmožat\n",
+        "-S -ortreal" => "gulahallanolbmožat\n",
+        "-S -morphsyn" => "gulahallan\nolbmožat\n",
+        "-S -syn" => "gulahallan\nolbmožat\n",
+        "-S -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
+        "-a -S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
+    },
+# <p>
+#     <errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid ja sarridiid" errtype="case" orig="nompl" pos="noun">
+#         <errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun">
+#             <errorort correct="čoggen" errtype="mono" pos="verb">
+#                 čoaggen
+#             </errorort> 
+#             ollu jokŋat
+#         </errormorphsyn>
+#         ja sarridat
+#     </errormorphsyn>
+# </p>
+    'p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml' => {
+        "" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-l sme" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-l nob" => "",
+        "-a" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "čoggen ollu joŋaid ja sarridiid ¶\n",
+        "-C" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-ort" => "čoggen ollu jokŋat ja sarridat ¶\n",
+        "-ortreal" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-morphsyn" => "čoggen ollu joŋaid ja sarridiid čoggen ollu joŋaid ¶\n",
+        "-syn" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-lex" => "čoaggen ollu jokŋat ja sarridat ¶\n",
+        "-typos" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n",
+        "-f -typos" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun, file: p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun, file: p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoaggen\tčoggen\t#errtype=mono,pos=verb, file: p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml\n",
+        "-typos -C" => "",
+        "-typos -ort" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\n",
+        "-typos -ort -C" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\n"
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n",
+        "-f -S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun, file: p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun, file: p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoaggen\tčoggen\t#errtype=mono,pos=verb, file: p-with-errorortort-inside-errormorphsyn-inside-errormorphsyn.xml\n",
+        "-S -C" => "čoaggen\tollu\tjokŋat\nja\nsarridat\n",
+        "-S -ort" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\nollu\njokŋat\nja\nsarridat\n",
+        "-S -ort -C" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\nollu\njokŋat\nja\nsarridat\n",
+        "-S -ortreal" => "čoaggen\tollu\tjokŋat\nja\nsarridat\n",
+        "-S -morphsyn" => "gulahallan\nolbmožat\n",
+        "-S -syn" => "čoaggen\tollu\tjokŋat\nja\nsarridat\n",
+        "-S -lex" => "čoaggen\tollu\tjokŋat\nja\nsarridat\n",
+        "-a -S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n",
+    },
+# <p>
+#     <errormorphsyn cat="pl3prs" const="fin" correct="Bearpmehat sirrejit" errtype="agr" orig="sg3prs" pos="verb">
+#         <errorort correct="Bearpmehat" errtype="svow" pos="noun">
+#             Bearpmahat
+#         </errorort> 
+#         <errorlex correct="sirre" errtype="w" origpos="v" pos="verb">
+#             earuha
+#         </errorlex>
+#     </errormorphsyn>
+#     uskki ja loaiddu.
+# </p>
+    'p-with-errorort-and-errorlex-inside-errormorphsyn.xml' => {
+        "" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-l nob" => "",
+        "-l sme" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-a" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "",
+        "-c" => "Bearpmehat sirrejit uskki ja loaiddu. ¶\n",
+        "-C" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-ort" => "Bearpmehat earuha uskki ja loaiddu. ¶\n",
+        "-ortreal" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-morphsyn" => "Bearpmehat sirrejit uskki ja loaiddu. ¶\n",
+        "-syn" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
+        "-lex" => "Bearpmahat sirre uskki ja loaiddu. ¶\n",
+        "-typos" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\n",
+        "-f -typos" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\n",
+        "-typos -C" => "",
+        "-typos -ort" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\n",
+        "-typos -ort -C" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\n",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\n",
+        "-typos -syn" => "",
+        "-typos -lex" => "earuha\tsirre\t#errtype=w,origpos=v,pos=verb\n",
+        "-S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
+        "-f -S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nuskki\nja\nloaiddu\n",
+        "-S -C" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
+        "-S -ort" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\nuskki\nja\nloaiddu.\n",
+        "-S -ort -C" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\nuskki\nja\nloaiddu.\n",
+        "-S -ortreal" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
+        "-S -morphsyn" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nuskki\nja\nloaiddu.\n",
+        "-S -syn" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
+        "-S -lex" => "Bearpmahat\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
+        "-a -S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
+    },
 );
 
 if (!system('make')) {
-    for my $name (keys %files) {
-        for my $option (keys % {$files{$name}}) {
+    print "###\n###\n###\tSimple errors to plain text\n###\n###";
+    for my $name (keys %simple_errors) {
+        for my $option (keys % {$simple_errors{$name}}) {
             my $command = "./ccat " . $option . " " . $name;
             my $ccat = `$command`;
-            is($ccat, $files{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+            is($ccat, $simple_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
         }
         print "\n\n";
     }
+    
+    print "###\n###\n###\tNested errors to plain text\n###\n###";
+    for my $name (keys %nested_errors) {
+        for my $option (keys % {$nested_errors{$name}}) {
+            my $command = "./ccat " . $option . " " . $name;
+            my $ccat = `$command`;
+            is($ccat, $nested_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+        }
+        print "\n\n";
+    }
+
     my $result = `./ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | grep .svn-base | head -1`;
     is($result, '', "Check that svn internal files aren't among the files ccat tries to open");
     $result = `./ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | egrep \.xml\$ | head -1`;
