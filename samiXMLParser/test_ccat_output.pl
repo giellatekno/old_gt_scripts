@@ -443,6 +443,16 @@ my %simple_errors = (
 );
 
 my %nested_errors = (
+# <p type="text">
+#     men 
+#     <errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">
+#         skoledagene er så
+#         <errorort correct="vanskelig" errtype="nosilent" pos="adj">
+#             vanskerlig
+#         </errorort>
+#     </errormorphsyn>
+#     å komme igjennom,
+# </p>
     'p-with-errorort-inside-errormorphsyn.xml' => {
         "" => "men skoledagene er så vanskerlig å komme igjennom, ¶\n",
         "-l sme" => "",
@@ -635,25 +645,25 @@ my %nested_errors = (
         "-morphsyn" => "lea okta mánná okta mánná¶\n",
         "-syn" => "leat okta máná ¶\n",
         "-lex" => "leat okta máná ¶\n",
-        "-typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
-        "-f -typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n"
+        "-typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
+        "-f -typos" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n",
         "-typos -C" => "",
         "-typos -ort" => "",
         "-typos -ort -C" => "",
         "-typos -ortreal" => "",
-        "-typos -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-typos -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
         "-typos -syn" => "",
         "-typos -lex" => "",
-        "-S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
-        "-f -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n"
+        "-S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
+        "-f -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v, file: p-with-errormorphsyn-inside-errormorphsyn.xml\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n, file: p-with-errormorphsyn-inside-errormorphsyn.xml\n",
         "-S -C" => "leat\nokta\máná\n",
         "-S -ort" => "leat\nokta\máná\n",
         "-S -ort -C" => "leat\nokta\máná\n",
         "-S -ortreal" => "leat\nokta\máná\n",
-        "-S -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-S -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
         "-S -syn" => "leat\nokta\máná\n",
         "-S -lex" => "leat\nokta\máná\n",
-        "-a -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-a -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
     },
 # <p>
 #     livččii 
@@ -691,7 +701,7 @@ my %nested_errors = (
         "-typos -ort" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n",
         "-typos -ort -C" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n",
         "-typos -ortreal" => "",
-        "-typos -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n"
+        "-typos -morphsyn" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
         "-typos -syn" => "",
         "-typos -lex" => "makkár soga\tman soga\n",
         "-S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsii\n", 
@@ -734,7 +744,7 @@ my %nested_errors = (
         "-typos -ort" => "",
         "-typos -ort -C" => "",
         "-typos -ortreal" => "gulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
-        "-typos -morphsyn" => ""
+        "-typos -morphsyn" => "",
         "-typos -syn" => "",
         "-typos -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
         "-S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
@@ -781,7 +791,7 @@ my %nested_errors = (
         "-typos -ort" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\n",
         "-typos -ort -C" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\n",
         "-typos -ortreal" => "",
-        "-typos -morphsyn" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\n"
+        "-typos -morphsyn" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\n",
         "-typos -syn" => "",
         "-typos -lex" => "",
         "-S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,orig=nompl,pos=noun\nčoggen ollu jokŋat\t# cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n",
