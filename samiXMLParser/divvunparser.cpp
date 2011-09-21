@@ -73,42 +73,6 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                 errorDepth++;
                 bOutsideError = false;
     
-                if (bElementLang &&
-                ((gs.bPrintPara && gs.bInPara)   ||
-                (gs.bPrintTitle && gs.bInTitle) ||
-                (gs.bPrintList && gs.bInList)   ||
-                (gs.bPrintTable && gs.bInTable))) {
-                    if (gs.bPrintTypos) {
-                        if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[tag])) {
-                            string errortext = GetExtErrorString(pParent);
-                            string corrtext = GetCorrString(pParent);
-                            string attribstext = GetAttrString(pParent);
-                            paraContent.append(FormatTypos(errortext, corrtext, attribstext));
-                        }
-                    } else if (gs.bPrintSpeller) {
-                        if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[tag])) {
-                            string errortext = GetExtErrorString(pParent);
-                            string corrtext = GetCorrString(pParent);
-                            string attribstext = GetAttrString(pParent);
-                            paraContent.append(FormatTypos(errortext, corrtext, attribstext));
-                        } else {
-                            string etext = GetErrorString(pParent);
-                            while (etext.find(" ") != string::npos) {
-                                etext = etext.replace(etext.find(" "), 1, "\n");
-                            }
-                            paraContent.append(etext);
-                        }
-                    } else if (gs.bPrintOnlyCorr) {
-                        if (errorDepth == 0) {
-                            paraContent.append(GetCorrString(pParent));
-                        }
-                    } else if (gs.bErrorFiltering && gs.errorFilters[tag]) {
-                        paraContent.append(GetCorrString(pParent));
-                    } else {
-                        paraContent.append(GetErrorString(pParent));
-                    }
-                }
-            
             } else if (tag == "document") {
                 docLang = GetAttribValue(pParent->ToElement(), "xml:lang");
                 if (gs.bAddID) {
@@ -143,6 +107,38 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                         paraContent.append(ptext);
                         paraContent.append("\n");
                     } else if (!gs.bPrintTypos) {
+                        paraContent.append(pText->Value());
+                        paraContent.append(" ");
+                    }
+                } else {
+                    if (gs.bPrintTypos) {
+                        if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[pParent->Parent()->Value()])) {
+                            string errortext = GetExtErrorString(pParent->Parent());
+                            string corrtext = GetCorrString(pParent->Parent());
+                            string attribstext = GetAttrString(pParent->Parent());
+                            paraContent.append(FormatTypos(errortext, corrtext, attribstext));
+                        }
+                    } else if (gs.bPrintSpeller) {
+                        if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[pParent->Parent()->Value()])) {
+                            string errortext = GetExtErrorString(pParent->Parent());
+                            string corrtext = GetCorrString(pParent->Parent());
+                            string attribstext = GetAttrString(pParent->Parent());
+                            paraContent.append(FormatTypos(errortext, corrtext, attribstext));
+                        } else {
+                            string etext = pText->Value();
+                            etext.append(" ");
+                            while (etext.find(" ") != string::npos) {
+                                etext = etext.replace(etext.find(" "), 1, "\n");
+                            }
+                            paraContent.append(etext);
+                        }
+                    } else if (gs.bPrintOnlyCorr) {
+                        if (errorDepth == 0) {
+                            paraContent.append(GetCorrString(pParent->Parent()));
+                        }
+                    } else if (gs.bErrorFiltering && gs.errorFilters[pParent->Parent()->Value()]) {
+                        paraContent.append(GetCorrString(pParent->Parent()));
+                    } else {
                         paraContent.append(pText->Value());
                         paraContent.append(" ");
                     }
