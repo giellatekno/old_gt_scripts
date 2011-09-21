@@ -21,8 +21,15 @@
 		<version>XSLtemplate  1.19 ; file-specific xsl  $Revision: 1.5 $; common.xsl  $Revision$; </version>
 	</header>
 	<body>
-        <p type="text">
-            men <errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">skoledagene er så <errorort correct="vanskelig" errtype="nosilent" pos="adj">vanskerlig</errorort></errormorphsyn> å komme igjennom,
-        </p>
+            <p type="text">
+                men 
+                <errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">
+                    skoledagene er så
+                    <errorort correct="vanskelig" errtype="nosilent" pos="adj">
+                        vanskerlig
+                    </errorort>
+                </errormorphsyn>
+                å komme igjennom,
+            </p>
 	</body>
 </document>
