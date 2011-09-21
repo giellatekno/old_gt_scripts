@@ -15,6 +15,10 @@ public:
     string GetAttribValue(TiXmlElement *pElement, string attrName);
     void DumpTag(TiXmlElement *pElement);
     
+private:
+    string GetErrorString(TiXmlNode *pChild);
+    string FormatErrorString(string errortext);
+    
     GlobalState gs;
     string pFile;
     string docLang;
@@ -23,6 +27,7 @@ public:
     bool bElementLang;
     bool bOutsideError;
     bool hitString;
+    int errorDepth;
 };
 
 #endif
