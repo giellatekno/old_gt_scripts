@@ -15,7 +15,10 @@ public:
     
 private:
     string GetErrorString(TiXmlNode *pParent);
-    string FormatErrorString(string errortext);
+    string GetExtErrorString(TiXmlNode *pParent);
+    string GetCorrString(TiXmlNode *pParent);
+    string GetAttrString(TiXmlNode *pParent);
+    string FormatTypos(string errortext, string corrtext, string attrtext);
     string FormatCorrectString(TiXmlNode *pParent);
     string GetAttribValue(TiXmlElement *pElement, string attrName);
     void DumpTag(TiXmlElement *pElement);
