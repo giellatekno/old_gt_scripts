@@ -72,6 +72,38 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             } else if (tag.substr(0,5) == "error") {
                 errorDepth++;
                 bOutsideError = false;
+                
+                bool hasText = false;
+                
+                for (pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
+                {
+                    if (pChild->Type() == TiXmlNode::TEXT) {
+                        hasText = true;
+                    }
+                }
+                if (!hasText) {
+                    if (gs.bPrintTypos) {
+                        if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[tag])) {
+                            string errortext = GetExtErrorString(pParent);
+                            string corrtext = GetCorrString(pParent);
+                            string attribstext = GetAttrString(pParent);
+                            paraContent.append(FormatTypos(errortext, corrtext, attribstext));
+                        }
+                    } else if (gs.bPrintSpeller) {
+                        if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[tag])) {
+                            string errortext = GetExtErrorString(pParent);
+                            string corrtext = GetCorrString(pParent);
+                            string attribstext = GetAttrString(pParent);
+                            paraContent.append(FormatTypos(errortext, corrtext, attribstext));
+                        }
+                    } else if (gs.bPrintOnlyCorr) {
+                        if (errorDepth == 0) {
+                            paraContent.append(GetCorrString(pParent));
+                        }
+                    } else if (gs.bErrorFiltering && gs.errorFilters[tag]) {
+                        paraContent.append(GetCorrString(pParent));
+                    }
+                }
     
             } else if (tag == "document") {
                 docLang = GetAttribValue(pParent->ToElement(), "xml:lang");

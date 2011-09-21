@@ -693,9 +693,9 @@ my %nested_errors = (
         "-ortreal" => "gulahallanolbmožat ¶\n",
         "-morphsyn" => "gulahallan olbmožat ¶\n",
         "-syn" => "gulahallan olbmožat ¶\n",
-        "-lex" => "gulahallanolbmot ¶\n",
+        "-lex" => "gulahallanolbmot gulahallan olbmožat ¶\n",
         "-typos" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
-        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot# file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
         "-typos -C" => "",
         "-typos -ort" => "",
         "-typos -ort -C" => "",
@@ -704,14 +704,14 @@ my %nested_errors = (
         "-typos -syn" => "",
         "-typos -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
         "-S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
-        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot# file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
         "-S -C" => "gulahallan\nolbmožat\n",
         "-S -ort" => "gulahallan\nolbmožat\n",
         "-S -ort -C" => "gulahallan\nolbmožat\n",
-        "-S -ortreal" => "gulahallanolbmožat\n",
+        "-S -ortreal" => "gulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
         "-S -morphsyn" => "gulahallan\nolbmožat\n",
         "-S -syn" => "gulahallan\nolbmožat\n",
-        "-S -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
+        "-S -lex" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan\nolbmožat\n",
         "-a -S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
     },
 # <p>
@@ -785,7 +785,7 @@ my %nested_errors = (
         "-C" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
         "-ort" => "Bearpmehat earuha uskki ja loaiddu. ¶\n",
         "-ortreal" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
-        "-morphsyn" => "Bearpmehat sirrejit uskki ja loaiddu. ¶\n",
+        "-morphsyn" => "Bearpmehat sirrejit Bearpmahat earuha uskki ja loaiddu. ¶\n",
         "-syn" => "Bearpmahat earuha uskki ja loaiddu. ¶\n",
         "-lex" => "Bearpmahat sirre uskki ja loaiddu. ¶\n",
         "-typos" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\n",
@@ -798,12 +798,12 @@ my %nested_errors = (
         "-typos -syn" => "",
         "-typos -lex" => "earuha\tsirre\t#errtype=w,origpos=v,pos=verb\n",
         "-S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
-        "-f -S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nuskki\nja\nloaiddu\n",
+        "-f -S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb, file: p-with-errorort-and-errorlex-inside-errormorphsyn.xml\nuskki\nja\nloaiddu.\n",
         "-S -C" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -ort" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -ort -C" => "Bearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -ortreal" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
-        "-S -morphsyn" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nuskki\nja\nloaiddu.\n",
+        "-S -morphsyn" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -syn" => "Bearpmahat\nearuha\nuskki\nja\nloaiddu.\n",
         "-S -lex" => "Bearpmahat\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
         "-a -S" => "Bearpmehat sirre\tBearpmehat sirrejit\t#cat=pl3prs,const=fin,errtype=agr,orig=sg3prs,pos=verb\nBearpmahat\tBearpmehat\t#errtype=svow,pos=noun\nearuha\tsirre\t#errtype=w,origpos=v,pos=verb\nuskki\nja\nloaiddu.\n",
@@ -811,7 +811,7 @@ my %nested_errors = (
 );
 
 if (!system('make')) {
-    print "###\n###\n###\tSimple errors to plain text\n###\n###";
+    print "###\n###\n###\tSimple errors to plain text\n###\n###\n";
     for my $name (keys %simple_errors) {
         for my $option (keys % {$simple_errors{$name}}) {
             my $command = "./ccat " . $option . " " . $name;
@@ -821,7 +821,7 @@ if (!system('make')) {
         print "\n\n";
     }
     
-    print "###\n###\n###\tNested errors to plain text\n###\n###";
+    print "###\n###\n###\tNested errors to plain text\n###\n###\n";
     for my $name (keys %nested_errors) {
         for my $option (keys % {$nested_errors{$name}}) {
             my $command = "./ccat " . $option . " " . $name;
