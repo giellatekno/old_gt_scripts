@@ -11,13 +11,14 @@ class DivvunParser {
 public:
     DivvunParser(string inFile, GlobalState inGs);
     void ProcessFile();
-    void RecurseTree(TiXmlNode *pParent, string fileName);
-    string GetAttribValue(TiXmlElement *pElement, string attrName);
-    void DumpTag(TiXmlElement *pElement);
+    void RecurseTree(TiXmlNode *pParent);
     
 private:
-    string GetErrorString(TiXmlNode *pChild);
+    string GetErrorString(TiXmlNode *pParent);
     string FormatErrorString(string errortext);
+    string FormatCorrectString(TiXmlNode *pParent);
+    string GetAttribValue(TiXmlElement *pElement, string attrName);
+    void DumpTag(TiXmlElement *pElement);
     
     GlobalState gs;
     string pFile;
@@ -28,6 +29,7 @@ private:
     bool bOutsideError;
     bool hitString;
     int errorDepth;
+    string fileName;
 };
 
 #endif
