@@ -77,6 +77,107 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent, string fileName)
                     (gs.bPrintSynCorr && tag == "errorsyn")) {
                     bBothTagAndOption = true;
                 }
+                
+                if (bElementLang &&
+                ((gs.bPrintPara && gs.bInPara)   ||
+                (gs.bPrintTitle && gs.bInTitle) ||
+                (gs.bPrintList && gs.bInList)   ||
+                (gs.bPrintTable && gs.bInTable))) {
+                    string errortext;
+                    cerr << "79\n";
+                    for (pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
+                    {
+                        cerr << "82\n";
+                        if (pChild->Type() == TiXmlNode::TEXT) {
+                            cerr << "errortext: " << pChild->ToText()->Value() << endl;
+                            errortext.append(pChild->ToText()->Value());
+                            errortext.append(" ");
+                        } else if (pChild->Type() == TiXmlNode::ELEMENT) {
+                            cerr << "corr of pChild: " << GetAttribValue(pChild->ToElement(), "correct") << endl;
+                            errortext.append(GetAttribValue(pChild->ToElement(), "correct"));
+                            errortext.append(" ");
+                        }
+                        cerr << "88\n";
+                    }
+                    
+                    cerr << "90 «" << errortext << "»\n";
+                    if ((bBothTagAndOption && !gs.bPrintTypos) || gs.bPrintOnlyCorr) {
+                    } else {
+                        if (gs.bPrintTypos && !bBothTagAndOption && !gs.bPrintSpeller &&
+                            (gs.bPrintCorr || gs.bPrintLexCorr || gs.bPrintMorphSynCorr || gs.bPrintOrtCorr || gs.bPrintOrtRealCorr || gs.bPrintSynCorr)) {
+                        } else {
+                            if (gs.bPrintSpeller  && !bBothTagAndOption && 
+                                (gs.bPrintCorr || gs.bPrintLexCorr || gs.bPrintMorphSynCorr || gs.bPrintOrtCorr || gs.bPrintOrtRealCorr || gs.bPrintSynCorr)) {
+                                while (errortext.find(" ") != string::npos) {
+                                    errortext = errortext.replace(errortext.find(" "), 1, "\n");
+                                }
+                                paraContent.append(errortext);
+                            } else { 
+                                cerr << "111: «" << errortext.substr(0, errortext.length() - 1) << "»" << endl;
+                                if (gs.bPrintTypos) {
+                                    paraContent.append(errortext.substr(0, errortext.length() - 1));
+                                } else {
+                                    paraContent.append(errortext);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(bElementLang &&
+                ((gs.bPrintPara && gs.bInPara)   ||
+                (gs.bPrintTitle && gs.bInTitle) ||
+                (gs.bPrintList && gs.bInList)   ||
+                (gs.bPrintTable && gs.bInTable))) {
+                    string corr = GetAttribValue(pParent->ToElement(), "correct");
+                    if(gs.bPrintTypos) {
+                        if (!bBothTagAndOption && 
+                            (gs.bPrintCorr || gs.bPrintLexCorr || gs.bPrintMorphSynCorr || gs.bPrintOrtCorr || gs.bPrintOrtRealCorr || gs.bPrintSynCorr)) {
+                        } else {
+                            if (corr != "") {
+                                paraContent.append("\t");
+                                paraContent.append(corr);
+                            }
+                            TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
+                            bool firstattr = true;
+
+                            while (pAttrib) {
+                                string name = pAttrib->Name();
+                //                 cout << endl << name << endl;
+                                if (name != "correct") {
+                                    if (firstattr) {
+                                        paraContent.append("\t#");
+                                        firstattr = false;
+                                    } else {
+                                        paraContent.append(",");
+                                    }
+                                    paraContent.append(name);
+                                    paraContent.append("=");
+                                    paraContent.append(pAttrib->Value());
+                                }
+                                pAttrib = pAttrib->Next();
+                            }
+                            if (firstattr && gs.bPrintFilename) {
+                                paraContent.append("\t#");
+                            }
+                            if (!firstattr && gs.bPrintFilename) {
+                                paraContent.append(", ");
+                            }
+                            if (gs.bPrintFilename) {
+                                paraContent.append("file: ");
+                                paraContent.append(fileName);
+                            }
+                            paraContent.append("\n");
+                        }
+                    } else if (bBothTagAndOption || gs.bPrintOnlyCorr) {
+                        if (corr != "") {
+                            paraContent.append(corr);
+                            paraContent.append(" ");
+                        }
+
+                    }
+                }
+            
             } else if (tag == "document") {
                 docLang = GetAttribValue(pParent->ToElement(), "xml:lang");
                 if (gs.bAddID) {
@@ -97,13 +198,12 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent, string fileName)
         case TiXmlNode::TEXT:
             hitString = true;
             pText = pParent->ToText();
-//             cerr << endl << "testing p: " << pParent->Parent()->Parent()->Value() << endl;
             if (bElementLang &&
-                        ((gs.bPrintPara && gs.bInPara)   ||
-                        (gs.bPrintTitle && gs.bInTitle) ||
-                        (gs.bPrintList && gs.bInList)   ||
-                        (gs.bPrintTable && gs.bInTable))) {
-                if (bOutsideError) {
+                ((gs.bPrintPara && gs.bInPara)   ||
+                (gs.bPrintTitle && gs.bInTitle) ||
+                (gs.bPrintList && gs.bInList)   ||
+                (gs.bPrintTable && gs.bInTable))) {
+                if (string(pParent->Parent()->Value()).substr(0,5) != "error") {
                     if (!gs.bPrintTypos) {
                         paraContent.append(pText->Value());
                         paraContent.append(" ");
@@ -118,27 +218,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent, string fileName)
                         }
                     }
                 } else {
-                    if ((bBothTagAndOption && !gs.bPrintTypos) || gs.bPrintOnlyCorr) {
-                    } else {
-                        if (gs.bPrintTypos && !bBothTagAndOption && !gs.bPrintSpeller &&
-                            (gs.bPrintCorr || gs.bPrintLexCorr || gs.bPrintMorphSynCorr || gs.bPrintOrtCorr || gs.bPrintOrtRealCorr || gs.bPrintSynCorr)) {
-                        } else {
-                            if (gs.bPrintSpeller  && !bBothTagAndOption && 
-                                (gs.bPrintCorr || gs.bPrintLexCorr || gs.bPrintMorphSynCorr || gs.bPrintOrtCorr || gs.bPrintOrtRealCorr || gs.bPrintSynCorr)) {
-                                string ptext = pText->Value();
-                                while (ptext.find(" ") != string::npos) {
-                                    ptext = ptext.replace(ptext.find(" "), 1, "\n");
-                                }
-                                paraContent.append(ptext);
-                            } else { 
-                                paraContent.append(pText->Value());
-                        
-                                if (!gs.bPrintTypos) {
-                                    paraContent.append(" ");
-                                }
-                            }
-                        }
-                    }
+                    
                 }
             }
             break;
@@ -182,59 +262,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent, string fileName)
             cout << endl;
             */
             bOutsideError = true;
-            string corr = GetAttribValue(pParent->ToElement(), "correct");
 
-            if(bElementLang) {
-                if(gs.bPrintTypos) {
-                    if (!bBothTagAndOption && 
-                        (gs.bPrintCorr || gs.bPrintLexCorr || gs.bPrintMorphSynCorr || gs.bPrintOrtCorr || gs.bPrintOrtRealCorr || gs.bPrintSynCorr)) {
-                        if (gs.bPrintSpeller) {
-                            paraContent.append("\n");
-                        }
-                    } else {
-                        if (corr != "") {
-                            paraContent.append("\t");
-                            paraContent.append(corr);
-                        }
-                        TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
-                        bool firstattr = true;
-
-                        while (pAttrib) {
-                            string name = pAttrib->Name();
-            //                 cout << endl << name << endl;
-                            if (name != "correct") {
-                                if (firstattr) {
-                                    paraContent.append("\t#");
-                                    firstattr = false;
-                                } else {
-                                    paraContent.append(",");
-                                }
-                                paraContent.append(name);
-                                paraContent.append("=");
-                                paraContent.append(pAttrib->Value());
-                            }
-                            pAttrib = pAttrib->Next();
-                        }
-                        if (firstattr && gs.bPrintFilename) {
-                            paraContent.append("\t#");
-                        }
-                        if (!firstattr && gs.bPrintFilename) {
-                            paraContent.append(", ");
-                        }
-                        if (gs.bPrintFilename) {
-                            paraContent.append("file: ");
-                            paraContent.append(fileName);
-                        }
-                        paraContent.append("\n");
-                    }
-                } else if (bBothTagAndOption || gs.bPrintOnlyCorr) {
-                    if (corr != "") {
-                        paraContent.append(corr);
-                        paraContent.append(" ");
-                    }
-
-                }
-            }
             if ((gs.bPrintLexCorr && tag == "errorlex") ||
                 (gs.bPrintCorr && tag == "error") ||
                 (gs.bPrintMorphSynCorr && tag == "errormorphsyn") ||
