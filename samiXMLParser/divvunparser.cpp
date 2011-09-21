@@ -80,7 +80,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                     (gs.bPrintSynCorr && tag == "errorsyn")) {
                     bBothTagAndOption = true;
                 }
-                cerr << "BTAO: " << bBothTagAndOption << " tag: " << tag << "\n";
+//                 cerr << "BTAO: " << bBothTagAndOption << " tag: " << tag << "\n";
     
                 if (bElementLang &&
                 ((gs.bPrintPara && gs.bInPara)   ||
@@ -241,7 +241,10 @@ string DivvunParser::GetErrorString(TiXmlNode* pParent)
         if (pChild->Type() == TiXmlNode::TEXT) {
             errortext.append(pChild->ToText()->Value());
             errortext.append(" ");
-        } else if (pChild->Type() == TiXmlNode::ELEMENT && (gs.bPrintTypos || gs.bPrintOnlyCorr)) {
+        } else if (pChild->Type() == TiXmlNode::ELEMENT && (gs.bPrintOnlyCorr || gs.bPrintTypos) && !gs.bPrintSpeller) {
+            errortext.append(GetAttribValue(pChild->ToElement(), "correct"));
+            errortext.append(" ");
+        } if (pChild->Type() == TiXmlNode::ELEMENT && gs.bPrintSpeller && bBothTagAndOption) {
             errortext.append(GetAttribValue(pChild->ToElement(), "correct"));
             errortext.append(" ");
         }
