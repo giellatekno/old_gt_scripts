@@ -130,3 +130,11 @@ fi
 # It requires at least GNU grep 2.5.3. Default on Snow Leopard is 2.5.0, via
 # MacPorts GNU grep 2.7.0 or newer is available
 #export GREP_OPTIONS="--exclude-dir=\.svn"
+
+# If we are on the XServe or victorio, then set GTBOUND:
+HOSTN=$(hostname)
+if [ "$HOSTN" = "divvun.no" ] ; then
+    export GTBOUND=/Network/Servers/divvun.no/Users/hoavda/Public/corp/boundcorpus
+elif [ "$HOSTN" = "victorio.uit.no" ] ; then
+    export GTBOUND=/home/apache_corpus/boundcorpus
+fi
