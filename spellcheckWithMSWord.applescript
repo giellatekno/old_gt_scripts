@@ -6,7 +6,7 @@ INPUT:
 - ARGV #2: input file
 - ARGV #3: output file
 - ARGV #4: filename for file containing speller engine version
-- ARGV #5: 2004 or 2008 - which version of Word to launch; default is 2004; this argument is optional
+- ARGV #5: 2004, 2008 or 2011 - which version of Word to launch; default is 2004; this argument is optional
 
 The input file is expected to be one long paragraph, with each word separated by a space. Also, due to limitations in Word and in the speller, certain input strings are removed before being sent to Word (this is done in the Makefile). This includes strings containing spaces, full stops and hyphens.
 
@@ -28,8 +28,6 @@ SpellerCategory = either one of:
 Suggestions = list of suggestions given by the speller, potentially empty. The list is tab separated
 
 Input and Output files are UTF-16-encoded.
-
-This AppleScript will call whichever MS Word version it finds first, and probably prefer newer over older. This means that until we have proofing tools for MS Office 2008 available, make sure MS Word 2004 is running *before* you start the spell test. Otherwise MS Word 2008 is likely to be run, which will return nonsense or nothing.
 
 This AppleScript file is best edited using Script Editor - it will give great help with syntax colouring & checking etc.
 *)
@@ -67,10 +65,13 @@ on run argv
 	end try
 	
 	set savedTextItemDelimiters to AppleScript's text item delimiters
+	--set AppleScript's text item delimiters to space
 	set AppleScript's text item delimiters to {"	"}
 	
 	-- do the actual processing of the test document:
-	if WordVersion is "2008" then
+	if WordVersion is "2011" then
+		set MSWordVersion to checkdocument2011(infile, ufile, testLang)
+	else if WordVersion is "2008" then
 		set MSWordVersion to checkdocument2008(infile, ufile, testLang)
 	else
 		set MSWordVersion to checkdocument2004(infile, ufile, testLang)
@@ -156,7 +157,10 @@ end checkdocument2004
 on checkdocument2008(infile, ufile, testLang)
 	tell application "Macintosh HD:Applications:Microsoft Office 2008:Microsoft Word.app"
 		set MSWordVersion to application version
-		open infile file converter open format encoded text without confirm conversions and add to recent files
+		make new document
+		-- open infile file converter open format encoded text without confirm conversions and add to recent files
+		set theDocument to active document
+		paste special (text object of selection) data type paste text
 		set theDocument to active document
 		set myRange to set range text object of active document start 0 end (end of content of text object of theDocument)
 		if testLang is "sme" then
@@ -217,8 +221,10 @@ end checkdocument2008
 on checkdocument2011(infile, ufile, testLang)
 	tell application "Macintosh HD:Applications:Microsoft Office 2011:Microsoft Word.app"
 		set MSWordVersion to application version
-		open infile file converter open format encoded text without confirm conversions and add to recent files
+		make new document
+		-- open infile file converter open format encoded text without confirm conversions and add to recent files
 		set theDocument to active document
+		paste special (text object of selection) data type paste text
 		set myRange to set range text object of active document start 0 end (end of content of text object of theDocument)
 		if testLang is "sme" then
 			set language ID of myRange to catalan -- due to bug in MS Office 2011
