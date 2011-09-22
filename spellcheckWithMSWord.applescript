@@ -82,6 +82,8 @@ on run argv
 		set MSWordVersionHuman to " (= 2004)"
 	else if MSWordVersion contains "12" then
 		set MSWordVersionHuman to " (= 2008)"
+	else if MSWordVersion contains "14" then
+		set MSWordVersionHuman to " (= 2011)"
 	else
 		set MSWordVersionHuman to "(= Unknown)"
 	end if
@@ -100,6 +102,8 @@ on checkdocument2004(infile, ufile, testLang)
 			set language ID of myRange to catalan -- due to bug in MS Office 2004
 		else if testLang is "smj" then
 			set language ID of myRange to basque -- due to bug in MS Office 2004
+		else if testLang is "sma" then
+			set language ID of myRange to slovak -- due to bug in MS Office 2004
 		else if testLang is "nob" then
 			set language ID of myRange to norwegian bokmol
 		else if testLang is "nno" then
@@ -156,9 +160,11 @@ on checkdocument2008(infile, ufile, testLang)
 		set theDocument to active document
 		set myRange to set range text object of active document start 0 end (end of content of text object of theDocument)
 		if testLang is "sme" then
-			set language ID of myRange to catalan -- due to bug in MS Office 2004
+			set language ID of myRange to catalan -- due to bug in MS Office 2008
 		else if testLang is "smj" then
-			set language ID of myRange to basque -- due to bug in MS Office 2004
+			set language ID of myRange to basque -- due to bug in MS Office 2008
+		else if testLang is "sma" then
+			set language ID of myRange to slovak -- due to bug in MS Office 2008
 		else if testLang is "nob" then
 			set language ID of myRange to norwegian bokmol
 		else if testLang is "nno" then
@@ -207,3 +213,64 @@ on checkdocument2008(infile, ufile, testLang)
 	end tell
 	return MSWordVersion
 end checkdocument2008
+
+on checkdocument2011(infile, ufile, testLang)
+	tell application "Macintosh HD:Applications:Microsoft Office 2011:Microsoft Word.app"
+		set MSWordVersion to application version
+		open infile file converter open format encoded text without confirm conversions and add to recent files
+		set theDocument to active document
+		set myRange to set range text object of active document start 0 end (end of content of text object of theDocument)
+		if testLang is "sme" then
+			set language ID of myRange to catalan -- due to bug in MS Office 2011
+		else if testLang is "smj" then
+			set language ID of myRange to basque -- due to bug in MS Office 2011
+		else if testLang is "sma" then
+			set language ID of myRange to slovak -- due to bug in MS Office 2011
+		else if testLang is "nob" then
+			set language ID of myRange to norwegian bokmol
+		else if testLang is "nno" then
+			set language ID of myRange to norwegian nynorsk
+		else if testLang is "swe" then
+			set language ID of myRange to swedish
+		else if testLang is "fin" then
+			set language ID of myRange to finnish
+		else if testLang is "isl" then
+			set language ID of myRange to icelandic
+		else if testLang is "dan" then
+			set language ID of myRange to danish
+		else if testLang is "eng" then
+			set language ID of myRange to english uk
+		else if testLang is "ger" then
+			set language ID of myRange to german
+		else if testLang is "deu" then
+			set language ID of myRange to german
+		end if
+		-- The final EOF char is counted as a "word", thus the word count is actually one less
+		set wc to (count of words of myRange) - 1
+		
+		repeat with i from 1 to wc
+			set SugRec to text range spelling suggestions of word i of myRange
+			set checkedWord to content of word i of myRange
+			if type class of SugRec = spelling correct then
+				set spellType to "SplCor"
+			else if type class of SugRec = spelling not in dictionary then
+				set spellType to "SplErr"
+			else
+				set spellType to "CapErr"
+			end if
+			set suggestions to list of SugRec
+			tell me -- necessary to put the file-out commands in the domain of the script, and not of MS Word
+				if (count of suggestions) = 0 then
+					write checkedWord & "	" & spellType & "	" & "
+" to ufile as Unicode text
+				else
+					set suggText to (suggestions as string)
+					write checkedWord & "	" & spellType & "	" & suggText & "
+" to ufile as Unicode text
+				end if
+			end tell
+		end repeat
+		close active document saving no
+	end tell
+	return MSWordVersion
+end checkdocument2011
