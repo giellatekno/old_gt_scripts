@@ -38,7 +38,7 @@ sub add_error_markup {
 	my @new_content;
 	for my $c ($para->children) {
 		my $text = $c->text;
-		@new_content = error_parser($text);
+		push(@new_content, error_parser($text));
 	}
 	$para->set_content(@new_content);
 }
