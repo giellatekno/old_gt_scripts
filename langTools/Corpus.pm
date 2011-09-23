@@ -35,12 +35,26 @@ our $test = 0;
 sub add_error_markup {
 	my ($twig, $para) = @_;
 
-	my @new_content;
-	for my $c ($para->children) {
-		my $text = $c->text;
-		push(@new_content, error_parser($text));
-	}
-	$para->set_content(@new_content);
+	$para = resursive_search_for_error_expression($para);
+}
+
+sub resursive_search_for_error_expression {
+    my ($element) = @_;
+
+    my @new_content;
+
+    for my $child ($element->children) {
+        if ($child->tag eq "#PCDATA") {
+            my $text = $child->text;
+            push(@new_content, error_parser($text));
+        } else {
+            push(@new_content, resursive_search_for_error_expression($child));
+        }
+    }
+
+    $element->set_content(@new_content);
+    
+    return $element;
 }
 
 sub error_parser {
