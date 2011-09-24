@@ -43,6 +43,8 @@ chop (@codes  = <TAGFILE>);
 
 foreach $code (@codes) {
 	print "$baseform$code\n";
+	print "$baseform\+v1$code\n";
+	print "$baseform\+v2$code\n";
 }
 
 close TAGFILE;
