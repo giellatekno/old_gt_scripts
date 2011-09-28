@@ -5,14 +5,22 @@
 
 import sys
 import struct
+import codecs
 from optparse import OptionParser
 
 usage_string = "usage: %prog [options] alphabet"
 
 info_string = """
-There are two ways to produce an edit distance transducer: a default one, by
-giving the alphabet as a command line argument, or in a file with specialized
-syntax.
+Produce an edit distance transducer in ATT format.
+
+There are three ways to produce an edit distance transducer:
+
+* giving the alphabet as a command line argument
+* giving a file with specialized configuration syntax
+* giving a transducer in optimized-lookup format to induce an alphabet
+    (in this case only symbols with length 1 are considered)
+
+These ways may be combined freely.
 
 For the default case, all the desired transitions are generated with weight 1.0.
 The alphabet is read from a string which contains all the (utf-8) characters
@@ -20,22 +28,27 @@ you want to use. Alternatively, an existing optimized-lookup transducer
 can be supplied for reading the alphabet.
 
 The specification file should be in the following format:
-* first, an (optional) list of tokens separated by newlines
-  all transitions involving these tokens that are otherwise unspecified
-  are generated with weight 1.0. Empty lines are ignored
-* if you want to specify transitions, insert a line with the content "@@"
+* First, an (optional) list of tokens separated by newlines
+  All transitions involving these tokens that are otherwise unspecified
+  are generated with weight 1.0. Symbol weights can be specified by appending
+  a tab and a weight to the symbol. Transitions involving such a symbol
+  will have the user-specified weight added to it.
+* If you want to exclude symbols that may be induced from a transducer,
+  add a leading ~ character to that line.
+* If you want to specify transitions, insert a line with the content "@@"
   (without the quotes)
-* on the following lines, specified transitions with the form
+* In the following lines, specified transitions with the form
   FROM <TAB> TO <TAB> WEIGHT
   where FROM is the source token, TO is the destination token and WEIGHT is
   a nonnegative floating point number specifying the weight. By default,
   if only one transition involving FROM and TO is specified, the same WEIGHT
   will be used to specify the transition TO -> FROM (assuming that both are
   listed in the list of tokens).
-* if the command line option to generate swaps is set, you can also specify swap
+* If the command line option to generate swaps is set, you can also specify swap
   weights with
   FROM,TO <TAB> TO,FROM <TAB> WEIGHT
   Again, unspecified swaps will be generated automatically with weight 1.0.
+* Lines starting with ## are comments.
 
 with d for distance and S for size of alphabet plus one
 (for epsilon), expected output is a transducer in ATT format with
@@ -128,6 +141,9 @@ parser.set_defaults(swap = False)
 parser.set_defaults(verbose = False)
 (options, args) = parser.parse_args()
 
+alphabet = {}
+exclusions = set()
+
 if options.inputfile == None and options.alphabetfile == None \
         and len(args) == 0:
     print "Specify at least one of INPUT, ALPHABET or alphabet string"
@@ -136,16 +152,6 @@ if len(args) > 1:
     print "Too many options!"
     sys.exit()
 
-if len(args) == 1:
-    alphabet = [c for c in unicode(args[0], 'utf-8')]
-elif options.alphabetfile != None:
-    afile = open(options.alphabetfile, "rb")
-    ol_header = Header(afile)
-    ol_alphabet = Alphabet(afile, ol_header.number_of_symbols)
-    alphabet = filter(lambda x: x.strip() != '', ol_alphabet.keyTable[:])
-else:
-    alphabet = []
-
 if options.inputfile != None:
     try:
         inputfile = open(options.inputfile)
@@ -153,12 +159,34 @@ if options.inputfile != None:
         print "Couldn't open " + options.inputfile
         sys.exit()
     while True:
-        line = inputfile.readline()
-        if line in ["@@\n", ""]:
+        line = unicode(inputfile.readline(), 'utf-8')
+        if line in ("@@\n", ""):
             break
         if line.strip() != "":
-            alphabet.append(unicode(line.strip("\n"), 'utf-8'))
+            if line.startswith(u'##'):
+                continue
+            if len(line) > 1 and line.startswith(u'~'):
+                exclusions.add(line[1:].strip())
+                continue
+            if '\t' in line:
+                weight = float(line.split('\t')[1])
+                symbol = linesplit('\t')[0]
+            else:
+                weight = 0.0
+                symbol = line.strip("\n")
+            alphabet[symbol] = weight
 
+if len(args) == 1:
+    for c in unicode(args[0], 'utf-8'):
+        if c not in alphabet.keys() and c not in exclusions:
+            alphabet[c] = 0.0
+if options.alphabetfile != None:
+    afile = open(options.alphabetfile, "rb")
+    ol_header = Header(afile)
+    ol_alphabet = Alphabet(afile, ol_header.number_of_symbols)
+    for c in filter(lambda x: x.strip() != '', ol_alphabet.keyTable[:]):
+        if c not in alphabet.keys() and c not in exclusions:
+            alphabet[c] = 0.0
 epsilon = unicode(options.epsilon, 'utf-8')
 OTHER = u'@?@'
 
@@ -201,30 +229,30 @@ class Transducer:
         # generate standard subs and swaps
         if (self.other, self.epsilon) not in self.substitutions:
             self.substitutions[(self.other, self.epsilon)] = 1.0
-        for symbol in self.alphabet:
+        for symbol in self.alphabet.keys():
             if (self.other, symbol) not in self.substitutions:
-                self.substitutions[(self.other, symbol)] = 1.0
+                self.substitutions[(self.other, symbol)] = 1.0 + alphabet[symbol]
             if (self.epsilon, symbol) not in self.substitutions:
-                self.substitutions[(self.epsilon, symbol)] = 1.0
+                self.substitutions[(self.epsilon, symbol)] = 1.0 + alphabet[symbol]
             if (symbol, self.epsilon) not in self.substitutions:
-                self.substitutions[(symbol, self.epsilon)] = 1.0
-            for symbol2 in self.alphabet:
+                self.substitutions[(symbol, self.epsilon)] = 1.0 + alphabet[symbol]
+            for symbol2 in self.alphabet.keys():
                 if symbol == symbol2: continue
                 if ((symbol, symbol2), (symbol2, symbol)) not in self.swaps:
                     if ((symbol2, symbol), (symbol, symbol2)) in self.swaps:
                         self.swaps[((symbol, symbol2), (symbol2, symbol))] = self.swaps[((symbol2, symbol), (symbol, symbol2))]
                     else:
-                        self.swaps[((symbol, symbol2), (symbol2, symbol))] = 1.0
+                        self.swaps[((symbol, symbol2), (symbol2, symbol))] = 1.0 + alphabet[symbol] + alphabet[symbol2]
                 if (symbol, symbol2) not in self.substitutions:
                     if (symbol2, symbol) in self.substitutions:
                         self.substitutions[(symbol, symbol2)] = self.substitutions[(symbol2, symbol)]
                     else:
-                        self.substitutions[(symbol, symbol2)] = 1.0
+                        self.substitutions[(symbol, symbol2)] = 1.0 + alphabet[symbol] + alphabet[symbol2]
 
     def make_transitions(self):
         for state in range(options.distance):
             self.transitions.append(str(state + 1) + "\t0.0") # final states
-            for symbol in self.alphabet: # identity transitions
+            for symbol in self.alphabet.keys(): # identity transitions
                 if symbol not in (self.epsilon, self.other):
                     self.transitions.append(maketrans(state, state, symbol, symbol, 0.0))
             for sub in self.substitutions:
@@ -240,6 +268,8 @@ transducer = Transducer(alphabet)
 if options.inputfile != None:
     while True:
         line = inputfile.readline()
+        if line.startswith('##'):
+            continue
         if line == "\n":
             continue
         if line == "":
@@ -251,6 +281,15 @@ transducer.make_transitions()
 for transition in transducer.transitions:
     print transition
 
+stderr_u8 = codecs.getwriter('utf-8')(sys.stderr)
+
 if options.verbose:
-    sys.stderr.write("\n" + str(transducer.swapstate) + " states and " + str(len(transducer.transitions)) + " transitions written for\n"+
-                     "distance " + str(options.distance) + " and base alphabet size " + str(len(transducer.alphabet) + 1) +"\n")
+    stderr_u8.write("\n" + str(transducer.swapstate) + " states and " + str(len(transducer.transitions)) + " transitions written for\n"+
+                     "distance " + str(options.distance) + " and base alphabet size " + str(len(transducer.alphabet)) +"\n\n")
+    stderr_u8.write("The alphabet was:\n")
+    for symbol, weight in alphabet.iteritems():
+        stderr_u8.write(symbol + "\t" + str(weight) + "\n")
+    if len(exclusions) != 0:
+        stderr_u8.write("The exclusions were:\n")
+        for symbol in exclusions:
+            stderr_u8.write(symbol + "\n")
