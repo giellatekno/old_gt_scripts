@@ -360,7 +360,7 @@ class HfstTester(object):
 				if not form in expected_results:
 					missing.add(form.encode('utf-8'))
 		
-			for form in expected_results:
+			for form in actual_results:
 				if not form in (invalid | missing):
 					passed = True
 					success.add(form.encode('utf-8'))
