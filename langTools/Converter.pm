@@ -195,7 +195,7 @@ sub convert2intermediatexml {
 sub convert2xml {
 	my( $self ) = @_;
 
-	my $command = "xsltproc \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
+	my $command = "xsltproc --novalid \"" . $self->getMetadataXsl() . "\" \"" . $self->getIntermediateXml() . "\" > \"" . $self->getInt() . "\"";
 
 	return $self->exec_com($command);
 }
@@ -203,7 +203,7 @@ sub convert2xml {
 sub checkxml {
 	my( $self ) = @_;
 	
-	my $command = "xmllint --noout --valid --encode UTF-8 " . $self->getInt();
+	my $command = "xmllint --noout --dtdvalid file:///$ENV{'GTHOME'}/gt/dtd/corpus.dtd --postvalid --encode UTF-8 " . $self->getInt();
 	return $self->exec_com($command);
 }
 
