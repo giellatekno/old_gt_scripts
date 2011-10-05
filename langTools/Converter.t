@@ -252,6 +252,7 @@ sub each_file_checks {
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	is($converter->search_for_faulty_characters($converter->getInt()), '0', "Content of " . $converter->getInt() . " is correctly encoded");
 	is($converter->text_categorization(), '0', "Check if text categorization goes well");
+    ok($converter->analyze_content() < 5, "Check that less than 5% of the words are unknown");
 	is($converter->checkxml(), '0', "Check if the final xml is valid");
 	file_exists_ok($converter->move_int_to_converted(), "Check if xml has been moved to final destination");
 	$converter->remove_temp_files();
