@@ -9,13 +9,13 @@ use warnings;
 my %simple_errors = (
     'span-dan.xml' => {
         "" => "I 1864 ga han ut boka . ¶\n",
-        "-l dan" => "\"Fornuftigt Madstel\" ¶\n",
+        "-l dan" => "\"Fornuftigt Madstel\" ",
         "-l nob" => "I 1864 ga han ut boka . ¶\n",
         "-a" => "I 1864 ga han ut boka . ¶\n",
         "-T" => "",
         "-T -l sma" => "",
         "-L" => "",
-        "-t" => "I 1864 ga han ut boka . ¶\n",
+        "-t" => "",
         "-c" => "I 1864 ga han ut boka . ¶\n",
         "-C" => "I 1864 ga han ut boka . ¶\n",
         "-ort" => "I 1864 ga han ut boka . ¶\n",
