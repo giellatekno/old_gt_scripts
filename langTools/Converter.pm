@@ -452,10 +452,10 @@ sub find_unknown_words {
         $preprocess = "preprocess";
     }
     
-    my $ukw = `ccat -l $mainlang -a $int | $preprocess | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | lookup2cg | vislcg3 -g $gthome/gt/$mainlang/src/$mainlang-dis.rle 2> /dev/null | grep -e "  .*" | grep "? \@X" | wc -l`;
+    my $ukw = `ccat -l $mainlang -a $int | $preprocess | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | grep +? | wc -l`;
     
     if ($self->{_test}) {
-        print "this is ukw: " . $ukw . "\n";
+        print "this is unknown words: " . $ukw . "\n";
     }
     
     return $ukw;
@@ -469,7 +469,7 @@ sub get_word_count {
     my $wc = `ccat -l $mainlang -a $int | wc -w`;
     
     if ($self->{_test}) {
-        print "this is wc: " . $wc . "\n";
+        print "this is word count: " . $wc . "\n";
     }
 
     return $wc;
