@@ -33,6 +33,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
         TiXmlNode* pChild;
         int t = pParent->Type();
         string tag;
+        bool parabElementLang;
         
         
         switch ( t )
@@ -54,6 +55,10 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                     (bElementLang && IsInSomePara())) {
                     DumpTag(pParent->ToElement());
                 }
+            } else if (tag == "span") {
+                // record the value of bElementLang of parent p
+                parabElementLang = bElementLang;
+                SetbElementLang(pParent);
             } else if (tag.substr(0,5) == "error") {
                 errorDepth++;
                 bOutsideError = false;
@@ -189,6 +194,9 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             gs.bInList = false;
             gs.bInTable = false;
             cout << paraContent;
+        } else if (tag == "span") {
+            // set bElementLang to the value of the p
+            bElementLang = parabElementLang;
         } else if ( tag.substr(0,5) == "error" ) {
             /*cout << endl;
             DumpTag(pParent->ToElement());
@@ -196,9 +204,6 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             */
             errorDepth--;
             bOutsideError = true;
-
-            
-
         } else if ( tag == "document" ) {
             if (gs.bAddID) {
                 paraContent.append("</");
