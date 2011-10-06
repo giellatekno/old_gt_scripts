@@ -427,9 +427,13 @@ sub analyze_content {
     if ($self->getPreconverter()->getDoclang() =~ m/sm[aej]/) {
         my $word_count = $self->get_word_count();
         my $unknown_word_count = $self->find_unknown_words();
-        my $share_of_unknown_words = $unknown_word_count/$word_count*100;
         
-        return $share_of_unknown_words; 
+        # Avoid division by zero ...
+        if ($word_count > 0) {
+            return $unknown_word_count/$word_count*100;
+        } else {
+            return 0;
+        }
     } else {
         return 0;
     }
