@@ -7,6 +7,42 @@ use Getopt::Long;
 use warnings;
 
 my %simple_errors = (
+    'span-dan.xml' => {
+        "" => "I 1864 ga han ut boka . ¶\n",
+        "-l dan" => "\"Fornuftigt Madstel\" ¶\n",
+        "-l nob" => "I 1864 ga han ut boka . ¶\n",
+        "-a" => "I 1864 ga han ut boka . ¶\n",
+        "-T" => "",
+        "-T -l sma" => "",
+        "-L" => "",
+        "-t" => "I 1864 ga han ut boka . ¶\n",
+        "-c" => "I 1864 ga han ut boka . ¶\n",
+        "-C" => "I 1864 ga han ut boka . ¶\n",
+        "-ort" => "I 1864 ga han ut boka . ¶\n",
+        "-ortreal" => "I 1864 ga han ut boka . ¶\n",
+        "-morphsyn" => "I 1864 ga han ut boka . ¶\n",
+        "-syn" => "I 1864 ga han ut boka . ¶\n",
+        "-lex" => "I 1864 ga han ut boka . ¶\n",
+        "-typos" => "",
+        "-f -typos" => "",
+        "-typos -C" => "",
+        "-typos -ort" => "",
+        "-typos -ort -C" => "",
+        "-typos -ortreal" => "",
+        "-typos -morphsyn" => "",
+        "-typos -syn" => "",
+        "-typos -lex" => "",
+        "-S" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-f -S" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -C" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -ort" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -ort -C" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -ortreal" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -morphsyn" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -syn" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-S -lex" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+        "-a -S" => "I\n1864\nga\nhan\nut\nboka\n.\n",
+    },
     'list-sme.xml' => {
         "" => "",
         "-l sme" => "",
@@ -813,22 +849,30 @@ my %nested_errors = (
 if (!system('make')) {
     print "###\n###\n###\tSimple errors to plain text\n###\n###\n";
     for my $name (keys %simple_errors) {
-        for my $option (keys % {$simple_errors{$name}}) {
-            my $command = "./ccat " . $option . " " . $name;
-            my $ccat = `$command`;
-            is($ccat, $simple_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+        if (-e $name) {
+            for my $option (keys % {$simple_errors{$name}}) {
+                my $command = "./ccat " . $option . " " . $name;
+                my $ccat = `$command`;
+                is($ccat, $simple_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+            }
+            print "\n\n"; 
+        } else {
+            die "Testing file «$name» doesn't exist.\nPlease create it to be able to complete this test.";
         }
-        print "\n\n";
     }
     
     print "###\n###\n###\tNested errors to plain text\n###\n###\n";
     for my $name (keys %nested_errors) {
-        for my $option (keys % {$nested_errors{$name}}) {
-            my $command = "./ccat " . $option . " " . $name;
-            my $ccat = `$command`;
-            is($ccat, $nested_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
-        }
+        if (-e $name) {
+            for my $option (keys % {$nested_errors{$name}}) {
+                my $command = "./ccat " . $option . " " . $name;
+                my $ccat = `$command`;
+                is($ccat, $nested_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
+            }
         print "\n\n";
+        } else {
+            die "Test file «$name» doesn't exist.\nPlease create it to be able to complete this test.";
+        }
     }
 
     my $result = `./ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | grep .svn-base | head -1`;
