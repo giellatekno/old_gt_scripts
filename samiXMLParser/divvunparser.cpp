@@ -48,12 +48,8 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             if (tag == "p") {
                 paraContent = "";
                 SetbElementLang(pParent);
-                gs.bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
-                gs.bInTitle = GetAttribValue(pParent->ToElement(), "type") == "title" ? true : false;
-                gs.bInList = GetAttribValue(pParent->ToElement(), "type") == "listitem" ? true : false;
-                gs.bInTable = GetAttribValue(pParent->ToElement(), "type") == "tablecell" ? true : false;
-
-
+                SetParaAttributes(pParent->ToElement());
+                
                 if (gs.bAddID &&
                     (bElementLang &&
                     (gs.bPrintPara && gs.bInPara)   ||
@@ -364,4 +360,12 @@ void DivvunParser::SetbElementLang(TiXmlNode* pParent)
     } else {
         bElementLang = pLang == gs.sLang ? true : false;
     }
+}
+
+void DivvunParser::SetParaAttributes(TiXmlElement* element)
+{
+    gs.bInPara = (GetAttribValue(element, "type") == "" ||  GetAttribValue(element, "type") == "text") ? true : false;
+    gs.bInTitle = GetAttribValue(element, "type") == "title" ? true : false;
+    gs.bInList = GetAttribValue(element, "type") == "listitem" ? true : false;
+    gs.bInTable = GetAttribValue(element, "type") == "tablecell" ? true : false;
 }

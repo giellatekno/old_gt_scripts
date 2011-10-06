@@ -23,6 +23,7 @@ private:
     string GetAttribValue(TiXmlElement *pElement, string attrName);
     void DumpTag(TiXmlElement *pElement);
     void SetbElementLang(TiXmlNode *pParent);
+    void SetParaAttributes(TiXmlElement *element);
     
     GlobalState gs;
     string pFile;
