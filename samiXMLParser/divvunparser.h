@@ -24,6 +24,7 @@ private:
     void DumpTag(TiXmlElement *pElement);
     void SetbElementLang(TiXmlNode *pParent);
     void SetParaAttributes(TiXmlElement *element);
+    bool IsInSomePara();
     
     GlobalState gs;
     string pFile;

@@ -51,13 +51,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                 SetParaAttributes(pParent->ToElement());
                 
                 if (gs.bAddID &&
-                    (bElementLang &&
-                    (gs.bPrintPara && gs.bInPara)   ||
-                    (gs.bPrintTitle && gs.bInTitle) ||
-                    (gs.bPrintList && gs.bInList)   ||
-                    (gs.bPrintTable && gs.bInTable)
-                    )
-                ) {
+                    (bElementLang && IsInSomePara())) {
                     DumpTag(pParent->ToElement());
                 }
             } else if (tag.substr(0,5) == "error") {
@@ -116,11 +110,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
         case TiXmlNode::TEXT:
             hitString = true;
             pText = pParent->ToText();
-            if (bElementLang &&
-                ((gs.bPrintPara && gs.bInPara)   ||
-                (gs.bPrintTitle && gs.bInTitle) ||
-                (gs.bPrintList && gs.bInList)   ||
-                (gs.bPrintTable && gs.bInTable))) {
+            if (bElementLang && IsInSomePara()) {
                 if (string(pParent->Parent()->Value()).substr(0,5) != "error") {
                     if (gs.bPrintSpeller) {
                         string ptext = pText->Value();
@@ -182,11 +172,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             RecurseTree(pChild);
         }
         if ( tag == "p" ) {
-            if (bElementLang &&
-                ((gs.bPrintPara && gs.bInPara)   ||
-                (gs.bPrintTitle && gs.bInTitle) ||
-                (gs.bPrintList && gs.bInList)   ||
-                (gs.bPrintTable && gs.bInTable))) {
+            if (bElementLang && IsInSomePara()) {
                 if (hitString) {
                     if (gs.bAddID) {
                         paraContent.append("</p>\n");
@@ -368,4 +354,12 @@ void DivvunParser::SetParaAttributes(TiXmlElement* element)
     gs.bInTitle = GetAttribValue(element, "type") == "title" ? true : false;
     gs.bInList = GetAttribValue(element, "type") == "listitem" ? true : false;
     gs.bInTable = GetAttribValue(element, "type") == "tablecell" ? true : false;
+}
+
+bool DivvunParser::IsInSomePara()
+{
+    return ((gs.bPrintPara && gs.bInPara) ||
+            (gs.bPrintTitle && gs.bInTitle) ||
+            (gs.bPrintList && gs.bInList) ||
+            (gs.bPrintTable && gs.bInTable));
 }
