@@ -47,12 +47,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             tag = pParent->Value();
             if (tag == "p") {
                 paraContent = "";
-                string pLang = GetAttribValue(pParent->ToElement(), "xml:lang");
-                if (gs.sLang == "" || gs.sLang == docLang) {
-                    bElementLang = (pLang == "" || pLang == docLang)? true : false;
-                } else {
-                    bElementLang = pLang == gs.sLang ? true : false;
-                }
+                SetbElementLang(pParent);
                 gs.bInPara = (GetAttribValue(pParent->ToElement(), "type") == "" ||  GetAttribValue(pParent->ToElement(), "type") == "text") ? true : false;
                 gs.bInTitle = GetAttribValue(pParent->ToElement(), "type") == "title" ? true : false;
                 gs.bInList = GetAttribValue(pParent->ToElement(), "type") == "listitem" ? true : false;
@@ -359,4 +354,14 @@ string DivvunParser::GetAttrString(TiXmlNode* pParent)
     }
     
     return result;
+}
+
+void DivvunParser::SetbElementLang(TiXmlNode* pParent)
+{
+    string pLang = GetAttribValue(pParent->ToElement(), "xml:lang");
+    if (gs.sLang == "" || gs.sLang == docLang) {
+        bElementLang = (pLang == "" || pLang == docLang)? true : false;
+    } else {
+        bElementLang = pLang == gs.sLang ? true : false;
+    }
 }
