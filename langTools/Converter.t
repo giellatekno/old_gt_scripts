@@ -26,6 +26,19 @@ if ($#ARGV > -1) {
 		each_file_checks($ARGV[$argnum]);
 	}
 } else {
+    my @south_sami_with_edsj_or_esj_docs = (
+        "$ENV{'GTBOUND'}/orig/sma/facta/other_files/MAAHKE~1_Kap_9.1_FERDIG.DOC",
+        "$ENV{'GTBOUND'}/orig/sma/facta/other_files/800602_sydsamOK.pdf",
+        "$ENV{'GTBOUND'}/orig/sma/facta/other_files/Peehpere_8.3_ferdig.doc",
+        "$ENV{'GTBOUND'}/orig/sma/facta/other_files/SaS___Arktiska_Sverige_sammanfattning_1.doc",
+        "$ENV{'GTBOUND'}/orig/sma/bible/other_files/bibeltekster_medio_mars_2009.doc",
+        "$ENV{'GTBOUND'}/orig/sma/admin/sd/Översättning_Sametinget_jan08.doc",
+        "$ENV{'GTBOUND'}/orig/sma/admin/depts/Från_Sveriges_Riksdag.doc",
+        "$ENV{'GTFREE'}/orig/sma/facta/other_files/moerh.pdf",
+        "$ENV{'GTFREE'}/orig/sma/facta/other_files/Orre_politihke_vaarome_roopses_kruana_reeremassen.sma.doc",
+        "$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/vaarjelimmiesuerkie-tjarke-byjreskeoffensivine.html_id=611114",
+    );
+    
 	my @txt_names = (
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.47/03-47-NB2.txt",
 	"$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.85/07-85-sak-neseplaster.txt",
@@ -173,6 +186,11 @@ if ($#ARGV > -1) {
 	
 	one_time_checks($doc_names[0]);
 	
+    foreach my $south_sami_with_edsj_or_esj_doc (@south_sami_with_edsj_or_esj_docs) {
+        each_file_checks($south_sami_with_edsj_or_esj_doc);
+        look_for_edsj_or_esj($south_sami_with_edsj_or_esj_doc);
+    }
+    
 # 	foreach my $txt_name (@txt_names) {
 # 		each_file_checks($txt_name);
 # 	}
@@ -185,13 +203,13 @@ if ($#ARGV > -1) {
 # 		each_file_checks($doc_name);
 # 	}
 
-	foreach my $html_name (@html_names) {
-		each_file_checks($html_name);
-	}
-
-	foreach my $correct_name (@correct_names) {
-		each_file_checks($correct_name);
-	}
+# 	foreach my $html_name (@html_names) {
+# 		each_file_checks($html_name);
+# 	}
+# 
+# 	foreach my $correct_name (@correct_names) {
+# 		each_file_checks($correct_name);
+# 	}
 
 # 	foreach my $avvir_name (@avvir_names) {
 # 		each_file_checks($avvir_name);
@@ -205,14 +223,14 @@ if ($#ARGV > -1) {
 # 		each_file_checks($ptx_name);
 # 	}
 
-	foreach my $rtf_name (@rtf_names) {
-		each_file_checks($rtf_name);
-	}
+# 	foreach my $rtf_name (@rtf_names) {
+# 		each_file_checks($rtf_name);
+# 	}
 
 # # 	foreach my $svg_name (@svg_names) {
 # # 		each_file_checks($svg_name);
 # # 	}
-	encoding_checks();
+# 	encoding_checks();
 }
 
 sub encoding_checks {
@@ -278,4 +296,15 @@ sub check_decode_para {
 	}
 	
 	return $error;
+}
+
+sub look_for_edsj_or_esj {
+    my ($doc_name) = @_;
+    
+    my $converted_name  = $doc_name;
+    $converted_name =~ s/orig/converted/;
+    $converted_name = $converted_name . ".xml";
+    
+    my $result = system("grep -i '[šž]' $converted_name");
+    isnt($result, '0', "look for šŠžŽ");
 }
