@@ -35,10 +35,10 @@ our $test = 0;
 sub add_error_markup {
 	my ($twig, $para) = @_;
 
-	$para = resursive_search_for_error_expression($para);
+	$para = recursive_search_for_error_expression($para);
 }
 
-sub resursive_search_for_error_expression {
+sub recursive_search_for_error_expression {
     my ($element) = @_;
 
     my @new_content;
@@ -48,7 +48,7 @@ sub resursive_search_for_error_expression {
             my $text = $child->text;
             push(@new_content, error_parser($text));
         } else {
-            push(@new_content, resursive_search_for_error_expression($child));
+            push(@new_content, recursive_search_for_error_expression($child));
         }
     }
 
