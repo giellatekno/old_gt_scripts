@@ -309,14 +309,29 @@ sub call_decode_para {
 # 	print "(call_decode_para) encoding $coding\n";
 	my $language = $self->getPreconverter()->getDoclang();
     my $error = 0;
-	my @new_content;
-	for my $c ($para->children) {
-		my $text = $c->text;
-		$error = &decode_para($language, \$text, $coding);
-		$c->set_text($text);
-	}
+    $para = recursively_decode_text($para, $language, $coding);
 
-	return $error;
+    return $error;
+}
+
+sub recursively_decode_text {
+    my ($element, $language, $coding) = @_;
+    
+    my @new_content;
+
+    for my $child ($element->children) {
+        if ($child->tag eq "#PCDATA") {
+            my $text = $child->text;
+            &decode_para($language, \$text, $coding);
+            push(@new_content, $text);
+        } else {
+            push(@new_content, recursively_decode_text($child));
+        }
+    }
+
+    $element->set_content(@new_content);
+    
+    return $element;
 }
 
 sub call_decode_person {
