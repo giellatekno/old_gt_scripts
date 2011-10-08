@@ -45,8 +45,8 @@ foreach $code (@codes) {
 	print "$baseform$code\n";
 # The following two lines are to add automatically v1, v2 tags to
 # all codes in a code file. This is needed for lemmata such as tunealla in sme.
-	print "$baseform\+v1$code\n";
-	print "$baseform\+v2$code\n";
+	#print "$baseform\+v1$code\n";
+	#print "$baseform\+v2$code\n";
 }
 
 close TAGFILE;
