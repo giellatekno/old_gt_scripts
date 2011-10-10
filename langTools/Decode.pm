@@ -280,7 +280,7 @@ sub guess_encoding () {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
-					} elsif ($type eq "type03" && "[öäøæâ]" !~ $key) {
+					} elsif ($type eq "type03" && "[öäøæâ·]" !~ $key) {
 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
