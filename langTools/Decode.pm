@@ -170,12 +170,14 @@ our %Error_Types = (
 	"type08" => {
 		"Œ" => "å",
 		"¿" => "ø",
+        "Š" => "ä",
 		"¥" => "•",
 		"ç" => "á",
 		"Đ" => "–",
 		"Ç" => "«",
 		"È" => "»",
         "š" => "ö",
+        "¾" => "æ",
 	},
 	
 	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
