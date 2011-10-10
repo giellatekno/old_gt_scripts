@@ -325,7 +325,7 @@ sub recursively_decode_text {
             &decode_para($language, \$text, $coding);
             push(@new_content, $text);
         } else {
-            push(@new_content, recursively_decode_text($child));
+            push(@new_content, recursively_decode_text($child, $language, $coding));
         }
     }
 
