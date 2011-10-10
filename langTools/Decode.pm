@@ -175,6 +175,7 @@ our %Error_Types = (
 		"Đ" => "–",
 		"Ç" => "«",
 		"È" => "»",
+        "š" => "ö",
 	},
 	
 	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
@@ -198,6 +199,7 @@ our %Error_Types = (
 	# found in titles in Min Áigi docs
 	# double utf'ed letters
 	"type11" => {
+        "Ã¯" => "ï",
 		"Ã¡" => "á",
 		"Ã\\?" => "Á",
 		"Å¡" => "š",
@@ -277,14 +279,14 @@ sub guess_encoding () {
 						$hit = 1;
 						$count++;
 					} elsif ($type eq "type03" && "[öäøæâ]" !~ $key) {
-# 						print "type $type, hit $key\n";
+						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
 					} elsif ($type eq "type04" && ! /¾/) {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
-					} elsif ($type eq "type06" && "Ã½»" !~ $key and $lang eq "sme") {
+                    } elsif ($type eq "type06" && "Ã½»" !~ $key and $lang eq "sme") {
 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
@@ -303,11 +305,11 @@ sub guess_encoding () {
 # 				print "special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type08" or $type eq "type09" or $type eq "type10" or $type eq "type11") and !$hit) {
+			} elsif (($type eq "type01" or $type eq "type08" or $type eq "type09" or $type eq "type10" or $type eq "type11") and !$hit) {
 # 				print "not special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			} elsif ($type eq "type07" and $lang eq "sme" and !$hit) {
+			} elsif (($type eq "type05" or $type eq "type07" )and $lang eq "sme" and !$hit) {
                 $encoding = $type;
                 $last_count = $count;
             }
