@@ -194,46 +194,46 @@ if ($#ARGV > -1) {
         look_for_edsj_or_esj($south_sami_with_edsj_or_esj_doc);
     }
     
-# 	foreach my $txt_name (@txt_names) {
-# 		each_file_checks($txt_name);
-# 	}
-# 	
-# 	foreach my $pdf_name (@pdf_names) {
-# 		each_file_checks($pdf_name);
-# 	}
-# 
-# 	foreach my $doc_name (@doc_names) {
-# 		each_file_checks($doc_name);
-# 	}
+	foreach my $txt_name (@txt_names) {
+		each_file_checks($txt_name);
+	}
+	
+	foreach my $pdf_name (@pdf_names) {
+		each_file_checks($pdf_name);
+	}
 
-# 	foreach my $html_name (@html_names) {
-# 		each_file_checks($html_name);
-# 	}
-# 
-# 	foreach my $correct_name (@correct_names) {
-# 		each_file_checks($correct_name);
-# 	}
+	foreach my $doc_name (@doc_names) {
+		each_file_checks($doc_name);
+	}
 
-# 	foreach my $avvir_name (@avvir_names) {
-# 		each_file_checks($avvir_name);
-# 	}
+	foreach my $html_name (@html_names) {
+		each_file_checks($html_name);
+	}
 
-# 	foreach my $biblexml_name (@biblexml_names) {
-# 		each_file_checks($biblexml_name);
-# 	}
+	foreach my $correct_name (@correct_names) {
+		each_file_checks($correct_name);
+	}
 
-# 	foreach my $ptx_name (@ptx_names) {
-# 		each_file_checks($ptx_name);
-# 	}
+	foreach my $avvir_name (@avvir_names) {
+		each_file_checks($avvir_name);
+	}
 
-# 	foreach my $rtf_name (@rtf_names) {
-# 		each_file_checks($rtf_name);
-# 	}
+	foreach my $biblexml_name (@biblexml_names) {
+		each_file_checks($biblexml_name);
+	}
 
-# # 	foreach my $svg_name (@svg_names) {
-# # 		each_file_checks($svg_name);
-# # 	}
-# 	encoding_checks();
+	foreach my $ptx_name (@ptx_names) {
+		each_file_checks($ptx_name);
+	}
+
+	foreach my $rtf_name (@rtf_names) {
+		each_file_checks($rtf_name);
+	}
+
+# 	foreach my $svg_name (@svg_names) {
+# 		each_file_checks($svg_name);
+# 	}
+	encoding_checks();
 }
 
 sub encoding_checks {
