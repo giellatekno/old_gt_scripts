@@ -33,7 +33,7 @@ if ($#ARGV > -1) {
         "$ENV{'GTBOUND'}/orig/sma/facta/other_files/SaS___Arktiska_Sverige_sammanfattning_1.doc",
         "$ENV{'GTBOUND'}/orig/sma/bible/other_files/bibeltekster_medio_mars_2009.doc",
         "$ENV{'GTBOUND'}/orig/sma/admin/sd/Översättning_Sametinget_jan08.doc",
-        "$ENV{'GTBOUND'}/orig/sma/admin/depts/Från_Sveriges_Riksdag.doc",
+        "$ENV{'GTBOUND'}/orig/sma/admin/depts/Från_Sveriges_Riksdag.doc",
         "$ENV{'GTFREE'}/orig/sma/facta/other_files/moerh.pdf",
         "$ENV{'GTFREE'}/orig/sma/facta/other_files/Orre_politihke_vaarome_roopses_kruana_reeremassen.sma.doc",
         "$ENV{'GTFREE'}/orig/sma/admin/depts/regjeringen.no/vaarjelimmiesuerkie-tjarke-byjreskeoffensivine.html_id=611114",
