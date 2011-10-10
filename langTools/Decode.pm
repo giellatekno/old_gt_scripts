@@ -284,11 +284,11 @@ sub guess_encoding () {
 # 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
-					} elsif ($type eq "type06" && "Ã½»" !~ $key) {
-#						print "type $type, hit $key\n";
+					} elsif ($type eq "type06" && "Ã½»" !~ $key and $lang eq "sme") {
+						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
-					} elsif ($type eq "type09" && "," !~ $key) {
+                    } elsif ($type eq "type09" && "," !~ $key) {
 						$count++;
 					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type08" || $type eq "type10" || $type eq "type11") {
 # 						print "default type $type, hit $key\n";
@@ -303,14 +303,17 @@ sub guess_encoding () {
 # 				print "special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type07" or $type eq "type08" or $type eq "type09" or $type eq "type10" or $type eq "type11") and !$hit) {
+			} elsif (($type eq "type01" or $type eq "type05" or $type eq "type08" or $type eq "type09" or $type eq "type10" or $type eq "type11") and !$hit) {
 # 				print "not special case\n";
 				$encoding = $type;
 				$last_count = $count;
-			}
+			} elsif ($type eq "type07" and $lang eq "sme" and !$hit) {
+                $encoding = $type;
+                $last_count = $count;
+            }
 		}
 		if ($Test) {
-			print "type is $type, encoding is $encoding, count is $count, hit is $hit\n";
+			print "type is $type, encoding is $encoding, count is $count, hit is $hit, lang is $lang\n";
 		}
 	}
 	return $encoding;
@@ -322,15 +325,15 @@ sub decode_para (){
 	if (! $encoding) { $encoding = &guess_encoding(undef, $lang, $para_ref); }
 	if (!$encoding eq $NO_ENCODING) { return; }
 
-	if ($Test) {
-		print "\n\npara_ref before $$para_ref\n\n";
-	}
+# 	if ($Test) {
+# 		print "\n\npara_ref before $$para_ref\n\n";
+# 	}
 	foreach (sort( keys % {$Error_Types{$encoding}})) {
 		$$para_ref =~ s/$_/${$Error_Types{$encoding}}{$_}/g;
 	}
-	if ($Test) {
-		print "\n\npara_ref after $encoding\n $$para_ref\n\n";
-	}
+# 	if ($Test) {
+# 		print "\n\npara_ref after $encoding\n $$para_ref\n\n";
+# 	}
 
 	return 0;
 }
