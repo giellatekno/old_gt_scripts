@@ -281,7 +281,7 @@ sub guess_encoding () {
 						$hit = 1;
 						$count++;
 					} elsif ($type eq "type03" && "[öäøæâ·]" !~ $key) {
-						print "type $type, hit $key\n";
+# 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
 					} elsif ($type eq "type04" && ! /¾/) {
@@ -289,7 +289,7 @@ sub guess_encoding () {
 						$hit = 1;
 						$count++;
                     } elsif ($type eq "type06" && "Ã½»" !~ $key and $lang eq "sme") {
-						print "type $type, hit $key\n";
+# 						print "type $type, hit $key\n";
 						$hit = 1;
 						$count++;
                     } elsif ($type eq "type09" && "," !~ $key) {
