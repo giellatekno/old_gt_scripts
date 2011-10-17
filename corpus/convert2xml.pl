@@ -77,53 +77,58 @@ sub convertdoc {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 				push (@{$error_hash{"xsl"}}, $file);
-			} elsif ($converter->convert2intermediatexml()) {
-				print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
-				$error = 1;
-				push (@{$error_hash{"intermediate"}}, $file);
-			} elsif ($converter->convert2xml()) {
-				print STDERR "Conversion failed: Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
-				$error = 1;
-				push (@{$error_hash{"convert2xml"}}, $file);
-			} elsif ($converter->checklang()) {
-				print STDERR "Conversion failed: Couldn't verify the lang of " . $converter->getOrig() . " based on dir and metadata\n";
-				$error = 1;
-				push (@{$error_hash{"checklang"}}, $file);
-			} elsif ($converter->checkxml()) {
-				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after language verification\n";
-				$error = 1;
-				push (@{$error_hash{"checkxml_after_checklang"}}, $file);
-			# Error markup conversion must be done before repairing characters, otherwise ¥ will be destrooyed
-			} elsif ($filename =~ m/\.correct\./ and $converter->error_markup()) {
-				print STDERR "Conversion failed: Wasn't able to make valid error markup out of " . $converter->getOrig() . "\n";
-				$error = 1;
-				push (@{$error_hash{"error_markup"}}, $file);
-            } elsif ($filename =~ m/\.correct\./ and $converter->checkxml()) {
-				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after error markup addition\n";
-				$error = 1;
-				push (@{$error_hash{"checkxml_after_errormarkup"}}, $file);
-			} elsif ($converter->character_encoding()) {
-				print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
-				$error = 1;
-				push (@{$error_hash{"character_encoding"}}, $file);
-			} elsif ($converter->search_for_faulty_characters($converter->getInt())) {
-				print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
-				$error = 1;
-				push (@{$error_hash{"faulty_chars"}}, $file);
-			} elsif ($converter->text_categorization()) {
-				print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
-				$error = 1;
-				push (@{$error_hash{"text_categorization"}}, $file);
-			} elsif ($converter->checkxml()) {
-				print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
-				$error = 1;
-				push (@{$error_hash{"checkxml_after_faulty"}}, $file);
-			} else {
-				$converter->move_int_to_converted();
-				if (! $debug ) {
-					$converter->remove_temp_files();
-				}
-			}
+                print "OCR: " . $converter->getOCRFromXsl() . "\n";
+			} elsif (!$converter->getOCRFromXsl()) {
+                print "OCR: " . $converter->getOCRFromXsl() . "\n";
+			
+                if ($converter->convert2intermediatexml()) {
+                    print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
+                    $error = 1;
+                    push (@{$error_hash{"intermediate"}}, $file);
+                } elsif ($converter->convert2xml()) {
+                    print STDERR "Conversion failed: Couldn't combine " . $converter->getOrig() . " and " . $converter->getOrig() . ".xsl\n";
+                    $error = 1;
+                    push (@{$error_hash{"convert2xml"}}, $file);
+                } elsif ($converter->checklang()) {
+                    print STDERR "Conversion failed: Couldn't verify the lang of " . $converter->getOrig() . " based on dir and metadata\n";
+                    $error = 1;
+                    push (@{$error_hash{"checklang"}}, $file);
+                } elsif ($converter->checkxml()) {
+                    print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after language verification\n";
+                    $error = 1;
+                    push (@{$error_hash{"checkxml_after_checklang"}}, $file);
+                # Error markup conversion must be done before repairing characters, otherwise ¥ will be destrooyed
+                } elsif ($filename =~ m/\.correct\./ and $converter->error_markup()) {
+                    print STDERR "Conversion failed: Wasn't able to make valid error markup out of " . $converter->getOrig() . "\n";
+                    $error = 1;
+                    push (@{$error_hash{"error_markup"}}, $file);
+                } elsif ($filename =~ m/\.correct\./ and $converter->checkxml()) {
+                    print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . " after error markup addition\n";
+                    $error = 1;
+                    push (@{$error_hash{"checkxml_after_errormarkup"}}, $file);
+                } elsif ($converter->character_encoding()) {
+                    print STDERR "Conversion failed: Wasn't able to set correct encoding of " . $converter->getOrig() . "\n";
+                    $error = 1;
+                    push (@{$error_hash{"character_encoding"}}, $file);
+                } elsif ($converter->search_for_faulty_characters($converter->getInt())) {
+                    print STDERR "Conversion failed: Found faulty chars in " . $converter->getInt() . "(derived from " . $converter->getOrig() . ")\n";
+                    $error = 1;
+                    push (@{$error_hash{"faulty_chars"}}, $file);
+                } elsif ($converter->text_categorization()) {
+                    print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
+                    $error = 1;
+                    push (@{$error_hash{"text_categorization"}}, $file);
+                } elsif ($converter->checkxml()) {
+                    print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
+                    $error = 1;
+                    push (@{$error_hash{"checkxml_after_faulty"}}, $file);
+                } else {
+                    $converter->move_int_to_converted();
+                    if (! $debug ) {
+                        $converter->remove_temp_files();
+                    }
+                }
+            }
 			if ($error) {
 				$feedback = "|";
 				$errors++;

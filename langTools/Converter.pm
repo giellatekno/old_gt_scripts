@@ -235,6 +235,23 @@ sub checklang {
 	return 0;
 }
 
+sub getOCRFromXsl {
+    my ($self) = @_;
+
+    my $document = XML::Twig->new;
+    if ($document->safe_parsefile($self->getMetadataXsl())) {
+        my $root = $document->root;
+        my $ocr_elt = $root->first_child('xsl:variable[@name="ocr"]');
+        if ($ocr_elt) { 
+            return $ocr_elt->{'att'}{'select'}; 
+        } else {
+            return "";
+        }
+    } else {
+        return "ERROR";
+    }
+}
+
 sub getEncodingFromXsl {
 	my ($self) = @_;
 

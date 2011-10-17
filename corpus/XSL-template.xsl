@@ -58,6 +58,9 @@
 <xsl:variable name="sub_name" select="''"/>
 <xsl:variable name="sub_email" select="''"/>
 <xsl:variable name="wordcount" select="''"/>
+<!-- Set this variable to 1 if the source for this doc is OCR -->
+<!-- Those docs typically contain lots of orthographic errors and need special treatment -->
+<xsl:variable name="ocr" select="''"/>
 <xsl:variable name="metadata" select="'uncomplete'"/>
 <xsl:variable name="template_version" select="'$Revision$'"/>
 <xsl:variable name="current_version" select="'Revision'"/>

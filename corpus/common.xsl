@@ -28,6 +28,8 @@
 <!-- template. They are added here, and kept in sync with   -->
 <!-- the DTD to avoid error messages for old templates not  -->
 <!-- containing all languages. -->
+<xsl:variable name="ocr" select="''"/>
+
 <xsl:variable name="mlang_dan" select="''"/>
 <xsl:variable name="mlang_eng" select="''"/>
 <xsl:variable name="mlang_fin" select="''"/>
@@ -399,7 +401,16 @@
 			</xsl:otherwise>
 			</xsl:choose>
 
-		    <xsl:choose>
+            <xsl:choose>
+            <xsl:when test="$ocr">
+                <xsl:element name="ocr"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:apply-templates select="header/ocr"/>
+            </xsl:otherwise>
+            </xsl:choose>
+
+            <xsl:choose>
 			<xsl:when test="$license_type">
 				<xsl:element name="availability">
 				<xsl:choose>
