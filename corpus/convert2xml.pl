@@ -77,9 +77,7 @@ sub convertdoc {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 				push (@{$error_hash{"xsl"}}, $file);
-                print "OCR: " . $converter->getOCRFromXsl() . "\n";
 			} elsif (!$converter->getOCRFromXsl()) {
-                print "OCR: " . $converter->getOCRFromXsl() . "\n";
 			
                 if ($converter->convert2intermediatexml()) {
                     print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
