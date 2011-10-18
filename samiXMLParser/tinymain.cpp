@@ -180,7 +180,7 @@ void PrintHelp()
     cout << "The possible options include:\n\n";
 
     cout << "Content options:\n";
-    cout << "\t-l <lang> Print only elements in language <lang>\n";
+    cout << "\t-l <lang> Print only elements in language <lang>. Default is all langs.\n";
     cout << "\t-a\t  Print all text elements\n";
     cout << "\t-p\t  Print plain paragraphs (default)\n";
     cout << "\t-T\t  Print paragraphs with title type\n";
@@ -204,6 +204,7 @@ void PrintHelp()
 
     cout << "Other options:\n";
     cout << "\t-r <dir>  Recursively process directory <dir> and subdirs encountered\n";
+    cout << "\t\t\tPresently this must be the last option given.\n";
     cout << "\t-v\t  Print version info\n";
     cout << "\t-h\t  Print this help message\n";
 
