@@ -479,7 +479,14 @@ sub find_unknown_words {
     my $gthome = $ENV{'GTHOME'};
     my $int = $self->getInt();
     
-    my $ukw = `ccat -l $mainlang -a -S $int | cut -f1 | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?' | wc -l`;
+    if ($mainlang eq "sme" || $mainlang eq "smj") {
+        $preprocess = "preprocess --abbr=$gthome/gt/$mainlang/bin/abbr.txt";
+    } else {
+        $preprocess = "preprocess";
+    }
+     
+
+    my $ukw = `ccat -l $mainlang -a $int | $preprocess | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?' | wc -l`;
     
     if ($self->{_test}) {
         print "this is unknown words: " . $ukw . "\n";
