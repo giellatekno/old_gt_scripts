@@ -116,6 +116,10 @@ sub convertdoc {
                     print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
                     $error = 1;
                     push (@{$error_hash{"text_categorization"}}, $file);
+                } elsif ($converter->analyze_content() > 5) {
+                    print STDERR "Conversion failed: More than 5% of the content isn't analyzable " . $converter->getOrig() . "\n";
+                    $error = 1;
+                    push (@{$error_hash{"rubbish_content"}}, $file);
                 } elsif ($converter->checkxml()) {
                     print STDERR "Conversion failed: Wasn't able to make valid xml out of " . $converter->getOrig() . "\n";
                     $error = 1;
