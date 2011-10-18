@@ -346,7 +346,9 @@ string DivvunParser::GetAttrString(TiXmlNode* pParent)
 void DivvunParser::SetbElementLang(TiXmlNode* pParent)
 {
     string pLang = GetAttribValue(pParent->ToElement(), "xml:lang");
-    if (gs.sLang == "" || gs.sLang == docLang) {
+    if (gs.sLang == "") {
+        bElementLang = true;
+    } else if (gs.sLang == docLang) {
         bElementLang = (pLang == "" || pLang == docLang)? true : false;
     } else {
         bElementLang = pLang == gs.sLang ? true : false;
