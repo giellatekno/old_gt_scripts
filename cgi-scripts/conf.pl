@@ -25,6 +25,7 @@ sub init_variables {
 	$unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
 
 	my %page_languages = (sme => 1,
+			      sma => 1,
 			      eng => 1,
 			      nno => 1,
 			      rus => 1);
@@ -46,8 +47,8 @@ sub init_variables {
 	# The directory for vislcg and lookup2cg
 	my $bindir = "/opt/sami/cg/bin/";
 	# The directory for hfst tools
-        my $hfstutilitydir = "/opt/local/bin";
-        my $hfstoptimizedlookup = "hfst-optimized-lookup";
+        my $hfstutilitydir = "/usr/local/bin";
+        my $hfstlookup = "hfst-lookup";
 	
 	# The fst's and other tools
 	my $optdir = "/opt/smi";
