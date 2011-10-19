@@ -457,15 +457,29 @@ sub analyze_content {
     my ($self) = @_;
     
     if ($self->getPreconverter()->getDoclang() =~ m/sm[aej]/) {
-        my $word_count = $self->get_word_count();
-        my $unknown_word_count = $self->find_unknown_words();
+        my $wordcount = $self->get_mainlang_wordcount();
+        my $unknown_wordcount = $self->find_unknown_words();
         
         # Avoid division by zero ...
-        if ($word_count > 0) {
-            return $unknown_word_count/$word_count*100;
+        if ($wordcount > 0) {
+            return $unknown_wordcount/$wordcount*100;
         } else {
             return 0;
         }
+    } else {
+        return 0;
+    }
+}
+
+sub get_mainlang_ratio {
+    my ($self) = @_;
+    
+    my $total_wordcount = $self->get_total_wordcount();
+    my $mainlang_wordcount = $self->get_mainlang_wordcount();
+    
+    if ($total_wordcount > 0) {
+        my $ratio = $mainlang_wordcount/$total_wordcount*100;
+        return $ratio;
     } else {
         return 0;
     }
@@ -495,18 +509,32 @@ sub find_unknown_words {
     return $ukw;
 }
 
-sub get_word_count {
+sub get_mainlang_wordcount {
     my ($self) = @_;
     
     my $mainlang = $self->getPreconverter()->getDoclang();
     my $int = $self->getInt();
-    my $wc = `ccat -l $mainlang -a -S $int | cut -f1 | wc -w`;
+    my $wc = `ccat -l $mainlang -a -S $int | cut -f1 | wc -l`;
     
     if ($self->{_test}) {
-        print "this is word count: " . $wc . "\n";
+        print "this is mainlang word count: " . $wc . "\n";
     }
 
     return $wc;
 }
+
+sub get_total_wordcount {
+    my ($self) = @_;
+    
+    my $int = $self->getInt();
+    my $wc = `ccat -a -S $int | cut -f1 | wc -l`;
+    
+    if ($self->{_test}) {
+        print "this is total word count: " . $wc . "\n";
+    }
+
+    return $wc;
+}
+
 
 1;

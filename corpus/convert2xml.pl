@@ -116,6 +116,10 @@ sub convertdoc {
                     print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
                     $error = 1;
                     push (@{$error_hash{"text_categorization"}}, $file);
+                } elsif ($converter->get_mainlang_ratio() < 85) {
+                    print STDERR "Conversion failed: More than 15% of the content is not in the mainlang " . $converter->getOrig() . "\n";
+                    $error = 1;
+                    push (@{$error_hash{"too_low_mainlang"}}, $file);
                 } elsif ($converter->analyze_content() > 5) {
                     print STDERR "Conversion failed: More than 5% of the content isn't analyzable " . $converter->getOrig() . "\n";
                     $error = 1;
