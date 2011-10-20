@@ -69,7 +69,6 @@ sub convertdoc {
 			$converter->redirect_stderr_to_log();
 			$counter++;
 			print STDERR "\n\n«$filename»\n";
-			
 			if (ref($converter->getPreconverter()) eq 'langTools::CantHandle') {
 				$error = 1;
 				push (@{$error_hash{"cant_handle"}}, $file);
@@ -78,8 +77,11 @@ sub convertdoc {
 				$error = 1;
 				push (@{$error_hash{"xsl"}}, $file);
 			} elsif (!$converter->getOCRFromXsl()) {
-			
-                if ($converter->convert2intermediatexml()) {
+                if ($converter->do_parallels_exist()) {
+                    print STDERR "Conversion failed: Some parallel file doesn't exist\n";
+                    $error = 1;
+                    push (@{$error_hash{"parallel_file_lacks"}}, $file);
+                } elsif ($converter->convert2intermediatexml()) {
                     print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
                     $error = 1;
                     push (@{$error_hash{"intermediate"}}, $file);
