@@ -536,5 +536,43 @@ sub get_total_wordcount {
     return $wc;
 }
 
+sub do_parallels_exist {
+    my ($self) = @_;
+    
+    my $document = XML::Twig->new;
+    if ($document->safe_parsefile($self->getMetadataXsl())) {
+        my $root = $document->root;
+        my $parallel_texts_elt = $root->first_child('xsl:variable[@name="parallel_texts"]');
+        if ($parallel_texts_elt && $parallel_texts_elt->{'att'}{'select'} == "'1'") { 
+            return $self->which_parallels_do_exist($root);
+        }
+    }
+    return 0;
+}
+
+sub which_parallels_do_exist {
+    my ($self, $root) = @_;
+    
+    my @langs = ("dan", "eng", "fin", "fkv", "ger", "isl", "kal", "nno", "nob", "sma", "sme", "smj", "swe");
+
+    for my $lang (@langs) {
+        my $key = 'xsl:variable[@name="para_' . $lang . '"]';
+        my $para_elt = $root->first_child($key);
+        my $para_doc = $para_elt->{'att'}{'select'};
+        $para_doc =~ s/'//g;
+        if ($para_doc ne "") {
+            my $para = $self->getOrig();
+            my $mainlang = $self->getPreconverter()->getDoclang();
+            $para =~ s/\/$mainlang\//\/$lang\//;
+            my $x = rindex($para, "/");
+            my $para_file = substr($para, 0, rindex($para, "/") + 1) . $para_doc;
+            unless (-e $para_file) {
+                print STDERR "Parallel file $para_file doesn't exist\n";
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 1;
