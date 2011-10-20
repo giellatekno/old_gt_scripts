@@ -4,6 +4,7 @@ use strict;
 
 use Cwd;
 use File::Copy;
+use File::Path;
 use XML::XPath;
 use XML::XPath::XMLParser;
 
@@ -72,7 +73,12 @@ sub copy_file_to_prestable {
     my ($file_to_copy) = @_;
     my $to_file = $file_to_copy;
     $to_file =~ s/\/converted\//\/prestable\//;
-    File::Copy::copy($file_to_copy, $to_file);
+    my $parallel_path = $to_file;
+    $parallel_path =~ substr($parallel_path, 0, rindex($parallel_path, "/"));
+    if (! -e $parallel_path) {
+        File::Path::mkpath($parallel_path);
+    }
+    File::Copy::copy($file_to_copy, $to_file) or die "Copy failed: $!";
 }
 
 sub check_and_copy_files {
@@ -85,7 +91,7 @@ sub check_and_copy_files {
             my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
         
             if ($ratio > 90 and $ratio < 110) {
-                print "Copying files\n";
+                print "Copying files $abs_path, $pdoc_path\n";
                 copy_file_to_prestable($abs_path);
                 copy_file_to_prestable($pdoc_path);
             }
