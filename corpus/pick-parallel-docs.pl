@@ -80,13 +80,15 @@ sub check_and_copy_files {
     
     if ($pdoc_path ne $abs_path and -e $pdoc_path) {
         my $abs_path_wordcount = get_wordcount($abs_path);
-        my $pdoc_path_wordcount = get_wordcount($pdoc_path);
-        my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
+        if ($abs_path_wordcount > 30) {
+            my $pdoc_path_wordcount = get_wordcount($pdoc_path);
+            my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
         
-        if ($abs_path_wordcount > 30 and $ratio > 90 and $ratio < 110) {
-            print "Copying files\n";
-            copy_file_to_prestable($abs_path);
-            copy_file_to_prestable($pdoc_path);
+            if ($ratio > 90 and $ratio < 110) {
+                print "Copying files\n";
+                copy_file_to_prestable($abs_path);
+                copy_file_to_prestable($pdoc_path);
+            }
         }
     }
 }
