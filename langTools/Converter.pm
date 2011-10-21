@@ -514,7 +514,7 @@ sub get_mainlang_wordcount {
     
     my $mainlang = $self->getPreconverter()->getDoclang();
     my $int = $self->getInt();
-    my $wc = `ccat -l $mainlang -a -S $int | cut -f1 | wc -l`;
+    my $wc = `ccat -l $mainlang -a -S $int | wc -l`;
     
     if ($self->{_test}) {
         print "this is mainlang word count: " . $wc . "\n";
@@ -527,7 +527,7 @@ sub get_total_wordcount {
     my ($self) = @_;
     
     my $int = $self->getInt();
-    my $wc = `ccat -a -S $int | cut -f1 | wc -l`;
+    my $wc = `ccat -a -S $int | wc -l`;
     
     if ($self->{_test}) {
         print "this is total word count: " . $wc . "\n";
