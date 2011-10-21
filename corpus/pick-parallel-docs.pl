@@ -71,13 +71,12 @@ sub get_wordcount {
 
 sub copy_file_to_prestable {
     my ($file_to_copy) = @_;
-    my $to_file = $file_to_copy;
-    $to_file =~ s/\/converted\//\/prestable\//;
-    my $parallel_path = $to_file;
-    $parallel_path =~ substr($parallel_path, 0, rindex($parallel_path, "/"));
+    (my $to_file = $file_to_copy) =~ s/\/converted\//\/prestable\/converted\//;
+    my $parallel_path = substr($to_file, 0, rindex($to_file, "/"));
     if (! -e $parallel_path) {
         File::Path::mkpath($parallel_path);
     }
+    print " $to_file ";
     File::Copy::copy($file_to_copy, $to_file) or die "Copy failed: $!";
 }
 
@@ -91,9 +90,10 @@ sub check_and_copy_files {
             my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
         
             if ($ratio > 90 and $ratio < 110) {
-                print "Copying files $abs_path, $pdoc_path\n";
+                print "\nCopying files";
                 copy_file_to_prestable($abs_path);
                 copy_file_to_prestable($pdoc_path);
+                print "\n\n";
             }
         }
     }
