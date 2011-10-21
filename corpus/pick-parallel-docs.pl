@@ -15,7 +15,11 @@ use XML::XPath::XMLParser;
 # (1) quit unless we have the correct number of command-line args
 my $num_args = $#ARGV + 1;
 if ($num_args != 1) {
-  print "\nUsage: pick-parallel_docs.pl filename\n";
+  print "\nUsage: pick-parallel-docs.pl filename\n";
+  print "Typical usacase is:\n";
+  print "find \$GTFREE/converted/sme -name \*.xml -exec \$GTHOME/gt/script/corpus/pick-parallel-docs.pl {} \;";
+  print "This command finds all .xml files in \$GTFREE/converted/sme and checks if the file has a parallel file\n";
+  print "If it finds a parallel file and the mainfile and the parallel file fills the criteria, the file are copied to \$GTFREE/prestable/converted\n";
   exit;
 }
 
