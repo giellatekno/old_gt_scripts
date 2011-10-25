@@ -76,7 +76,7 @@ sub convertdoc {
 				print STDERR "Conversion failed: Couldn't use " . $converter->getOrig() . ".xsl\n";
 				$error = 1;
 				push (@{$error_hash{"xsl"}}, $file);
-			} elsif (!$converter->getOCRFromXsl()) {
+			} elsif ($converter->getOCRFromXsl() eq "''") {
                 if ($converter->do_parallels_exist()) {
                     print STDERR "Conversion failed: Some parallel file doesn't exist\n";
                     $error = 1;
