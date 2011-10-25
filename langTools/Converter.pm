@@ -238,18 +238,19 @@ sub checklang {
 sub getOCRFromXsl {
     my ($self) = @_;
 
+    my $retval = "ERROR";
     my $document = XML::Twig->new;
     if ($document->safe_parsefile($self->getMetadataXsl())) {
         my $root = $document->root;
         my $ocr_elt = $root->first_child('xsl:variable[@name="ocr"]');
         if ($ocr_elt) { 
-            return $ocr_elt->{'att'}{'select'}; 
+            $retval = $ocr_elt->{'att'}{'select'}; 
         } else {
-            return "";
+            $retval = "''";
         }
-    } else {
-        return "ERROR";
     }
+    
+    return $retval;
 }
 
 sub getEncodingFromXsl {
@@ -543,7 +544,7 @@ sub do_parallels_exist {
     if ($document->safe_parsefile($self->getMetadataXsl())) {
         my $root = $document->root;
         my $parallel_texts_elt = $root->first_child('xsl:variable[@name="parallel_texts"]');
-        if ($parallel_texts_elt && $parallel_texts_elt->{'att'}{'select'} == "'1'") { 
+        if ($parallel_texts_elt && $parallel_texts_elt->{'att'}{'select'} eq "'1'") { 
             return $self->which_parallels_do_exist($root);
         }
     }
