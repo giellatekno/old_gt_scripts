@@ -495,13 +495,13 @@ sub find_unknown_words {
     my $int = $self->getInt();
     
     if ($mainlang eq "sme" || $mainlang eq "smj") {
-        $preprocess = "preprocess --abbr=$gthome/gt/$mainlang/bin/abbr.txt";
+        $preprocess = "preprocess --corr=$gthome/gt/$mainlang/bin/corr.txt --abbr=$gthome/gt/$mainlang/bin/abbr.txt";
     } else {
-        $preprocess = "preprocess";
+        $preprocess = "preprocess --corr=$gthome/gt/$mainlang/bin/corr.txt";
     }
      
 
-    my $ukw = `ccat -l $mainlang -a $int | $preprocess | sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?' | wc -l`;
+    my $ukw = `ccat -l $mainlang -a $int | $preprocess | sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | sort -u | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?' | wc -l`;
     
     if ($self->{_test}) {
         print "this is unknown words: " . $ukw . "\n";
