@@ -103,7 +103,7 @@ $text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}'"]/ /g;
 
 # make space before question marks
 $text =~ s/\?/ \?/g ;
-$text =~ s/\./ \./g ;
+#$text =~ s/\./ \./g ;
 $text =~ s/\,/ \,/g ;
 
 $text =~ s/^\s+// ;         # chop any whitespace off the front

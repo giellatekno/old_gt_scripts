@@ -103,7 +103,7 @@ $text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}'"]/ /g;
 
 # make space before punctuation
 $text =~ s/\?/ \?/g ;
-$text =~ s/\./ \./g ;
+#$text =~ s/\./ \./g ;
 $text =~ s/\,/ \,/g ;
 
 $text =~ s/^\s+// ;         # chop any whitespace off the front
