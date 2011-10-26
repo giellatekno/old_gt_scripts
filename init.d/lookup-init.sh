@@ -101,7 +101,7 @@ alias   xdfin='$LOOKUP $GTHOME/kt/fin/bin/ifin.fst'
 # Bilingual transducers:
 alias fitswe='$LOOKUP $GTHOME/kvensk/fitswe/bin/fitswe.fst'
 alias fkvnob='$LOOKUP $GTHOME/kvensk/bin/fkvnob.fst'
-alias kaldan='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
+alias kaldan='$LOOKUP -flags mbTT -utf8 $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
 alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 alias kaleng='$LOOKUP $GTHOME/words/dicts/kaleng/bin/kaleng.fst'
 alias nobfkv='$LOOKUP $GTHOME/kvensk/bin/nobfkv.fst'
