@@ -88,16 +88,19 @@ sub check_and_copy_files {
     my ($abs_path, $pdoc_path) = @_;
     
     if ($pdoc_path ne $abs_path and -e $pdoc_path) {
-        my $abs_path_wordcount = get_wordcount($abs_path);
-        if ($abs_path_wordcount > 30) {
-            my $pdoc_path_wordcount = get_wordcount($pdoc_path);
-            my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
-        
-            if ($ratio > 90 and $ratio < 110) {
-                print "\nCopying files";
-                copy_file_to_prestable($abs_path);
-                copy_file_to_prestable($pdoc_path);
-                print "\n\n";
+        my $pabs_path = get_paralleldoc($pdoc_path, "sme");
+        if ($pabs_path eq $abs_path) {
+            my $abs_path_wordcount = get_wordcount($abs_path);
+            if ($abs_path_wordcount > 30) {
+                my $pdoc_path_wordcount = get_wordcount($pdoc_path);
+                my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
+            
+                if ($ratio > 90 and $ratio < 110) {
+                    print "\nCopying files";
+                    copy_file_to_prestable($abs_path);
+                    copy_file_to_prestable($pdoc_path);
+                    print "\n\n";
+                }
             }
         }
     }
