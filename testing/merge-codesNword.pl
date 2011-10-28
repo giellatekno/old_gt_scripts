@@ -45,8 +45,13 @@ foreach $code (@codes) {
 	print "$baseform$code\n";
 # The following two lines are to add automatically v1, v2 tags to
 # all codes in a code file. This is needed for lemmata such as tunealla in sme.
-	#print "$baseform\+v1$code\n";
-	#print "$baseform\+v2$code\n";
+# This is not enough: there was not explicit requirement of v_n tag of different length,
+# yet this is apparently the case. This should be solved in a different way, the more
+# it strongly resembles the hid attribute used for smanob.
+	print "$baseform\+v1$code\n";
+	print "$baseform\+v2$code\n";
+	print "$baseform\+v3$code\n";
+	print "$baseform\+v4$code\n";
 }
 
 close TAGFILE;
