@@ -5,12 +5,17 @@ use strict;
 use Cwd;
 use File::Copy;
 use File::Path;
+use Getopt::Long;
+
 use XML::XPath;
 use XML::XPath::XMLParser;
 
 #
 # main prog
 #
+
+my $quiet = 0;
+GetOptions ("quiet" => \$quiet, );
 
 # (1) quit unless we have the correct number of command-line args
 my $num_args = $#ARGV + 1;
@@ -70,7 +75,7 @@ sub get_wordcount {
     
     my $xp = XML::XPath->new(filename => $doc_path);
     my $mainlang = get_mainlang($xp);
-    return `ccat -l $mainlang -a $doc_path | wc -l`;
+    return `ccat -S -a $doc_path | wc -l`;
 }
 
 sub copy_file_to_prestable {
@@ -80,7 +85,9 @@ sub copy_file_to_prestable {
     if (! -e $parallel_path) {
         File::Path::mkpath($parallel_path);
     }
-    print " $to_file ";
+    if (! $quiet) {
+        print " $to_file ";
+    }
     File::Copy::copy($file_to_copy, $to_file) or die "Copy failed: $!";
 }
 
@@ -95,11 +102,30 @@ sub check_and_copy_files {
                 my $pdoc_path_wordcount = get_wordcount($pdoc_path);
                 my $ratio = $abs_path_wordcount/$pdoc_path_wordcount*100;
             
-                if ($ratio > 90 and $ratio < 110) {
-                    print "\nCopying files";
+                if ($ratio > 73 and $ratio < 110) {
+                    if ($quiet) {
+                        print ".";
+                    } else {
+                        print "\nRatio is $ratio ";
+                        print "Copying files";
+                    }
                     copy_file_to_prestable($abs_path);
                     copy_file_to_prestable($pdoc_path);
-                    print "\n\n";
+                    if (!$quiet) {
+                        print "\n";
+                    }
+                } else {
+                    if ($quiet) {
+                        print "|";
+                    } else {
+                        print STDERR "\nWrong ratio $ratio, $abs_path\n";
+                    }
+                }
+            } else {
+                if ($quiet) {
+                    print "/";
+                } else {
+                    print STDERR "\nToo low wordcount $abs_path_wordcount, $abs_path\n";
                 }
             }
         }
