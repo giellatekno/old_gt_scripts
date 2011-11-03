@@ -13,7 +13,7 @@ use Carp qw(cluck);
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 
-$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+# $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
 @EXPORT = qw(&init_lookup &call_lookup &read_tags &generate_taglist &win_digr &digr_utf8 &format_compound);

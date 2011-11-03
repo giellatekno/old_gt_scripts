@@ -11,7 +11,7 @@ use Carp qw(cluck);
 use Exporter;
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
 
-$VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
+# $VERSION = sprintf "%d.%03d", q$Revision$ =~ /(\d+)/g;
 @ISA         = qw(Exporter);
 
 @EXPORT = qw(&dis2html &hyph2html &gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &paradigm2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
