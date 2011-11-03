@@ -34,15 +34,10 @@ if (xsl_filename.rfind('.xsl') > 0):
 				element.set('select', value)
 
 	try:
-		f = open(xsl_filename, 'w')
+		tree.write(xsl_filename, encoding="utf-8")
 	except IOError:
 		print 'cannot open', xsl_filename
 		sys.exit(255)
-	else:
-		f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-		f.write(etree.tostring(root))
-		f.write('\n')
-		f.close()
 
 else:
 	print "This is not an xsl file: " + xsl_filename
