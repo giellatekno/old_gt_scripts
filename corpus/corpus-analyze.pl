@@ -533,11 +533,11 @@ sub test_config {
     print "and run this script anew.\n";
     $config_error = 1;
   }
-  if (!-f $rle) {
-    print "No grammar rules file for vislcg3 found\n";
-    print "Fix the problem and run this script anew.\n";
-    $config_error = 1;
-  }
+#   if (!-f $rle) {
+#     print "No grammar rules file for vislcg3 found\n";
+#     print "Fix the problem and run this script anew.\n";
+#     $config_error = 1;
+#   }
   
   if ($lang =~ /(sme|smj|sma)/) {
     $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos";
