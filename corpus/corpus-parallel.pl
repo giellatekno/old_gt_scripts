@@ -11,17 +11,17 @@ use File::Find;
 use Carp qw(cluck croak);
 use File::Copy;
 
-my $corpus_analyze="$GT_HOME/gt/script/corpus-analyze.pl";
-my $tca2 = "$GT_HOME/gt/script/tca2.sh";
+my $corpus_analyze="$ENV{'GTHOME'}/gt/script/corpus/corpus-analyze.pl";
+my $tca2 = "$ENV{'GTHOME'}/gt/script/tca2.sh";
 
-my $corpdir = "/usr/local/share/corp";
+my $corpdir = "$ENV{'GTFREE'}";
 
 my $host=`hostname`;
 # If we are in G5
-if ($host !~ /victorio.uit.no/) {
-    $corpdir = "/Users/hoavda/Public/corp";
-    $corpus_analyze = "/Users/saara/gt/script/corpus-analyze.pl";
-}
+# if ($host !~ /victorio.uit.no/) {
+#     $corpdir = "/Users/hoavda/Public/corp";
+#     $corpus_analyze = "/Users/saara/gt/script/corpus-analyze.pl";
+# }
 
 my $tmpdir = $corpdir . "/tmp";
 my $lang = "sme";
@@ -51,7 +51,7 @@ if ($help) {
 
 if(! $outdir) { $outdir=$tmpdir; }
 
-my $anchor_file = "/Users/saara/opt/smi/common/bin/anchor-" . $lang . $para_lang . ".txt";
+my $anchor_file = "$ENV{'GTFREE'}/anchor-" . $lang . $para_lang . ".txt";
 #my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
 #my $anchor_file = "/Users/saara/anchor-smenno.txt";
 
@@ -199,7 +199,7 @@ sub process_file {
 	my $newfile = $outdir . "/" . $base . ".xml";
 	if (! -f $newfile) { copy($file,$newfile); }
 	$file=$newfile;
-	my $outfile = $outdir . "/" . $base . ".sent.xml";
+	my $outfile = $outdir . "/" . $base . $lang . ".sent.xml";
 
 	my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
 	print STDERR "$0: $command\n";
@@ -213,12 +213,12 @@ sub process_file {
 	if (! -f $newpfile) { copy($pfile,$newpfile); }
 	$pfile = $newpfile;
 	
-	my $poutfile=$outdir . "/" . $pbase . ".sent.xml";
+	my $poutfile=$outdir . "/" . $pbase . $para_lang . ".sent.xml";
 	$command="$corpus_analyze --all --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
 	print STDERR "$0: $command\n";	
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 
-	$command="$tca2 -a $anchor_file $outfile $poutfile";
+	$command="$tca2 $anchor_file $outfile $poutfile";
 	print STDERR "$0: $command\n";
 	system($command);
 
