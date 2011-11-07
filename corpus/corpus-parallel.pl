@@ -10,6 +10,7 @@ use XML::Twig;
 use File::Find;
 use Carp qw(cluck croak);
 use File::Copy;
+use List::Util qw(min);
 
 my $corpus_analyze="$ENV{'GTHOME'}/gt/script/corpus/corpus-analyze.pl";
 my $tca2 = "$ENV{'GTHOME'}/gt/script/tca2.sh";
@@ -196,22 +197,22 @@ sub process_file {
 
     # Take only the file name without path.
 	(my $base = $file) =~ s/.*[\/\\](.*).xml/$1/;
-	my $newfile = $outdir . "/" . $base . ".xml";
-	if (! -f $newfile) { copy($file,$newfile); }
-	$file=$newfile;
+# 	my $newfile = $outdir . "/" . $base . ".xml";
+# 	if (! -f $newfile) { copy($file,$newfile); }
+# 	$file=$newfile;
 	my $outfile = $outdir . "/" . $base . $lang . ".sent.xml";
 
 	my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
 	print STDERR "$0: $command\n";
 	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 
-    # If there are more than one parallel file, these files are combined to one.
+#     # If there are more than one parallel file, these files are combined to one.
 	if ($#full_paths > 0) { return "Cannot process more than one parallel file\n"; }
 	my $pfile=$full_paths[0];
 	(my $pbase = $pfile) =~ s/.*[\/\\](.*).xml/$1/;
-	my $newpfile = $outdir . "/" . $pbase . ".xml";
-	if (! -f $newpfile) { copy($pfile,$newpfile); }
-	$pfile = $newpfile;
+# 	my $newpfile = $outdir . "/" . $pbase . ".xml";
+# 	if (! -f $newpfile) { copy($pfile,$newpfile); }
+# 	$pfile = $newpfile;
 	
 	my $poutfile=$outdir . "/" . $pbase . $para_lang . ".sent.xml";
 	$command="$corpus_analyze --all --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
@@ -221,7 +222,70 @@ sub process_file {
 	$command="$tca2 $anchor_file $outfile $poutfile";
 	print STDERR "$0: $command\n";
 	system($command);
+    
+    make_tmx($base, $pbase, $lang, $para_lang);
 
+}
+
+sub make_tmx {
+    my ($base, $pbase, $lang, $plang) = @_;
+
+    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang . ".sent_new.txt")  || die("Could not open file!");
+    my @f1_data = <F1>;
+    close(F1);
+    open(F2, "<:encoding(utf8)", $outdir . "/" . $pbase . $para_lang . ".sent_new.txt")  || die("Could not open file!");
+    my @f2_data = <F2>;
+    close(F2);
+    
+    my $f1_length = @f1_data;
+    my $f2_length = @f2_data;
+    my $mmin = min($f1_length, $f2_length);
+    
+    my $body = XML::Twig::Elt->new("body");
+    $body->set_pretty_print('indented');
+    
+    for (my $i = 0; $i < $mmin; $i++) {
+        my $tu_elt = XML::Twig::Elt->new("tu");
+        
+        make_tuv($f1_data[$i], $lang)->paste('last_child', $tu_elt);
+        make_tuv($f2_data[$i], $plang)->paste('last_child', $tu_elt);
+        
+        $tu_elt->paste('last_child', $body);
+    }
+
+    my $FH1;
+    open($FH1, " >:encoding(utf8)", $ENV{'GTFREE'} . "/prestable/tmx/" . $lang . $plang . "/" . $base . "-" . $pbase . ".tmx.xml");
+    print_tmx_header($FH1, $lang);
+    $body->print($FH1);
+    print $FH1 qq|</tmx>|, "\n";
+}
+
+sub make_tuv {
+    my ($sentence, $lang) = @_;
+    
+    my $tuv_elt = XML::Twig::Elt->new("tuv");
+    $tuv_elt->set_att('xml:lang', $lang);
+    $sentence =~ s/<s id="[^ ]*">//g;
+    $sentence =~ s/<\/s>//g;
+    my $seg_elt = XML::Twig::Elt->new("seg", $sentence);
+    $seg_elt->paste('last_child', $tuv_elt);
+    
+    return $tuv_elt;
+}
+
+sub print_tmx_header {
+    my ($FH1, $lang) = @_;
+    
+    print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|, "\n";
+    print $FH1 qq|<tmx>|, "\n";
+    print $FH1 qq|<header|, "\n";
+    print $FH1 qq|    segtype="sentence"|, "\n";
+    print $FH1 qq|    o-tmf="OmegaT TMX"|, "\n";
+    print $FH1 qq|    adminlang="EN-US"|, "\n";
+    print $FH1 qq|    srclang="$lang-NO"|, "\n";
+    print $FH1 qq|    datatype="plaintext"|, "\n";
+    print $FH1 qq|    >|, "\n";
+    print $FH1 qq|</header>|, "\n";
 }
 
 sub print_help {
