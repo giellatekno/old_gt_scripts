@@ -466,7 +466,7 @@ sub analyze_sent {
     waitpid $pid, 0 ;
     
     #print $disambiguated;
-#     my $token = dis2corpus_xml($disambiguated, \%tags, \$w_num, $id);
+    my $token = dis2corpus_xml($disambiguated, \%tags, \$w_num, $id);
     
     my @children = $token->cut_children;
     $sent->set_content(@children); 
