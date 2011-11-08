@@ -7,9 +7,10 @@ use IO::File;
 use File::Basename;
 use Getopt::Long;
 use XML::Twig;
-use File::Find;
 use Carp qw(cluck croak);
 use File::Copy;
+use File::Path;
+use File::Find;
 use List::Util qw(min);
 
 my $corpus_analyze="$ENV{'GTHOME'}/gt/script/corpus/corpus-analyze.pl";
@@ -25,8 +26,8 @@ my $host=`hostname`;
 # }
 
 my $tmpdir = $corpdir . "/tmp";
-my $lang = "sme";
-my $para_lang = "nob";
+my $lang1 = "sme";
+my $lang2 = "nob";
 my $list;
 my $dir;
 my %file_list;
@@ -39,8 +40,8 @@ my $outdir;
 GetOptions ("help" => \$help,
 			"files=s" => \$files,
 			"dir=s" => \$dir,
-			"lang=s" => \$lang,
-			"para_lang=s" => \$para_lang,
+			"lang1=s" => \$lang1,
+			"lang2=s" => \$lang2,
 			"list" => \$list,
 			"outdir=s" => \$outdir,
 			);
@@ -52,7 +53,7 @@ if ($help) {
 
 if(! $outdir) { $outdir=$tmpdir; }
 
-my $anchor_file = "$ENV{'GTFREE'}/anchor-" . $lang . $para_lang . ".txt";
+my $anchor_file = "$ENV{'GTFREE'}/anchor-" . $lang1 . $lang2 . ".txt";
 #my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
 #my $anchor_file = "/Users/saara/anchor-smenno.txt";
 
@@ -66,10 +67,10 @@ if ($dir) {
 		else { print "$dir ERROR: Directory did not exit.\n"; }		
 
 		for my $file (sort keys %file_list) {
-			if ($para_lang){
-				if($file_list{$file}{$para_lang}) {
+			if ($lang2){
+				if($file_list{$file}{$lang2}) {
 					print "$file";
-					print ",$file_list{$file}{$para_lang}.xml";
+					print ",$file_list{$file}{$lang2}.xml";
 					print "\n";
 				}
 			} else {
@@ -128,11 +129,11 @@ sub list_files {
 		my $plang = $p->{'att'}->{'xml:lang'};
 		my $para_file = $p->{'att'}->{'location'};
 		if($para_file) {
-			(my $para_path = $path) =~ s/$lang/$plang/o;
+			(my $para_path = $path) =~ s/$lang1/$plang/o;
 			$para_file = $para_path . "/" . $para_file;
 			my $para_xml = $para_file . ".xml";
 			if (! -f $para_xml) {
-				if (!$para_lang || $para_lang eq $plang) {
+				if (!$lang2 || $lang2 eq $plang) {
 					print STDERR "$file: Parallel file $para_xml does not exsist.\n";
 					next;
 				}
@@ -164,13 +165,13 @@ sub process_file {
 	my @parallel_texts = $header->children('parallel_text');
 	for my $p (@parallel_texts) {
 		my $plang = $p->{'att'}->{'xml:lang'};
-		next if ($plang ne $para_lang);
+		next if ($plang ne $lang2);
 		$location = $p->{'att'}->{'location'};
 		last;
 	}
 	
 	if(! $location) {
-		print "No parallel texts found for language $para_lang.\n";
+		print "No parallel texts found for language $lang2.\n";
 		return;
 	}
 	
@@ -178,7 +179,7 @@ sub process_file {
     # And path to parallel files.
 	$file = File::Spec->rel2abs($file);
 	(my $path = $file) =~ s/(.*)[\/\\].*/$1/;
-	(my $para_path = $path) =~ s/$lang/$para_lang/o;
+	(my $para_path = $path) =~ s/$lang1/$lang2/o;
 	
 	my 	@para_files = split(",", $location);
 	my @full_paths;
@@ -200,9 +201,9 @@ sub process_file {
 # 	my $newfile = $outdir . "/" . $base . ".xml";
 # 	if (! -f $newfile) { copy($file,$newfile); }
 # 	$file=$newfile;
-	my $outfile = $outdir . "/" . $base . $lang . ".sent.xml";
+	my $outfile = $outdir . "/" . $base . $lang1 . ".sent.xml";
 
-	my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
+	my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang1 \"$file\"";
 	print STDERR "$0: $command\n";
 	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
 
@@ -214,8 +215,8 @@ sub process_file {
 # 	if (! -f $newpfile) { copy($pfile,$newpfile); }
 # 	$pfile = $newpfile;
 	
-	my $poutfile=$outdir . "/" . $pbase . $para_lang . ".sent.xml";
-	$command="$corpus_analyze --all --output=\"$poutfile\" --only_add_sentences --lang=$para_lang \"$pfile\"";
+	my $poutfile=$outdir . "/" . $pbase . $lang2 . ".sent.xml";
+	$command="$corpus_analyze --all --output=\"$poutfile\" --only_add_sentences --lang=$lang2 \"$pfile\"";
 	print STDERR "$0: $command\n";	
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 
@@ -223,17 +224,17 @@ sub process_file {
 	print STDERR "$0: $command\n";
 	system($command);
     
-    make_tmx($base, $pbase, $lang, $para_lang);
+    make_tmx($base, $pbase, $lang1, $lang2);
 
 }
 
 sub make_tmx {
-    my ($base, $pbase, $lang, $plang) = @_;
+    my ($base, $pbase, $lang1, $lang2) = @_;
 
-    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang . ".sent_new.txt")  || die("Could not open file!");
+    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang1 . ".sent_new.txt")  || die("Could not open file!");
     my @f1_data = <F1>;
     close(F1);
-    open(F2, "<:encoding(utf8)", $outdir . "/" . $pbase . $para_lang . ".sent_new.txt")  || die("Could not open file!");
+    open(F2, "<:encoding(utf8)", $outdir . "/" . $pbase . $lang2 . ".sent_new.txt")  || die("Could not open file!");
     my @f2_data = <F2>;
     close(F2);
     
@@ -247,15 +248,18 @@ sub make_tmx {
     for (my $i = 0; $i < $mmin; $i++) {
         my $tu_elt = XML::Twig::Elt->new("tu");
         
-        make_tuv($f1_data[$i], $lang)->paste('last_child', $tu_elt);
-        make_tuv($f2_data[$i], $plang)->paste('last_child', $tu_elt);
+        make_tuv($f1_data[$i], $lang1)->paste('last_child', $tu_elt);
+        make_tuv($f2_data[$i], $lang2)->paste('last_child', $tu_elt);
         
         $tu_elt->paste('last_child', $body);
     }
 
     my $FH1;
-    open($FH1, " >:encoding(utf8)", $ENV{'GTFREE'} . "/prestable/tmx/" . $lang . $plang . "/" . $base . "-" . $pbase . ".tmx.xml");
-    print_tmx_header($FH1, $lang);
+    if ( ! -e $ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2 ) {
+        File::Path::mkpath($ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2);
+    }
+    open($FH1, " >:encoding(utf8)", $ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2 . "/" . $base . "-" . $pbase . ".tmx.xml");
+    print_tmx_header($FH1, $lang1);
     $body->print($FH1);
     print $FH1 qq|</tmx>|, "\n";
 }
@@ -295,8 +299,8 @@ Usage: corpus-parallel.pl [OPTIONS] [FILE]
 --help                Print this help text and exit.
 --files=<f1,f2,..>    List of input files separated by comma.
 --dir=<dir>           The directory where the files are searched.        
---lang=<lang>         The main language.
---para_lang=<lang>    The language of the parallel document(s).
+--lang1=<lang>         The main language.
+--lang2=<lang>    The language of the parallel document(s).
 --list                List the parallel files, use with option --dir.
 --outdir=<dir>        The directory where the output files are stored.
 END
