@@ -46,6 +46,12 @@ sub clean_doc {
 		"Ã¶" => "ö",
 		"ð" => "đ",
 		"¶" => "<\/p><p>",
+        "ﬁ" => "fi",
+        "ﬂ" => "fl",
+        "ﬀ" => "ff",
+        "ﬃ" => "ffi",
+        "ﬄ" => "ffl",
+        "ﬅ" => "ft",
 	);
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp1()) or die "Cannot open " . $self->gettmp1() . "$!";

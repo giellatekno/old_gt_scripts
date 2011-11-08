@@ -58,6 +58,12 @@ sub clean_doc {
 		"\x1C" => "",
 		"\x1D" => "",
 		"\x1E" => "",
+        "ﬁ" => "fi",
+        "ﬂ" => "fl",
+        "ﬀ" => "ff",
+        "ﬃ" => "ffi",
+        "ﬄ" => "ffl",
+        "ﬅ" => "ft",
 		);
 	
 	open(FH, "<:encoding(utf8)", $self->gettmp2()) or die "Cannot open " . $self->gettmp1() . "$!";
