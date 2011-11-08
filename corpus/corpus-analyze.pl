@@ -465,7 +465,7 @@ sub analyze_sent {
 
     waitpid $pid, 0 ;
     
-    #print $disambiguated;
+    print "disambiguated: $disambiguated\n";
     my $token = dis2corpus_xml($disambiguated, \%tags, \$w_num, $id);
     
     my @children = $token->cut_children;
@@ -613,21 +613,21 @@ sub test_config {
     if ($lang =~ /(sme|smj|sma)/) {
         $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos";
     } elsif ($lang =~ /nob/) {
-        $preprocess = "$preproc --abbr=$abbr | $lookup -q -flags mbTT -utf8 $fst 2>/dev/null | $lookup2cg | $vislcg3";
+        $preprocess = "$preproc";
     } else { 
-        $preprocess = "$preproc | $lookup -q -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3"; 
+        $preprocess = "$preproc"; 
     }
         
     $preprocess_break = "$preprocess --break='<<<'";
 
     $vislcg3 .= " -g $rle 2>/dev/null";
     #unused variable
-    $disamb = "$lookup2cg | $vislcg3";
+#     $disamb = "$lookup2cg | $vislcg3";
     if (!-f $cap) {
         print "No cap file found, preprocessing without it\n\n\n";
-        $analyze = "$preprocess";
+        $analyze = "$preprocess --abbr=$abbr | $lookup -q -flags mbTT -utf8 $fst 2>/dev/null | $lookup2cg | $vislcg3";
     } else {
-        $analyze = "$preprocess";
+        $analyze = "$preprocess | $lookup -q -flags mbTT -utf8 -f $cap 2>/dev/null | $lookup2cg | $vislcg3";
     }
     
     if ($config_error) {
