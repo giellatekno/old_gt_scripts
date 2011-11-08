@@ -42,7 +42,7 @@ my $outfile=$outdir . "anchor-" . $lang1 . $lang2 . ".txt";
 
 print "Generating anchor word list to $outfile..\n";
 
-my @languages=("eng", "nno", "sme", "fin", "smj" );
+my @languages=("eng", "nob", "sme", "fin", "smj", "sma" );
 my %langs;
 
 open (FH, "<$infile") or die "Could not open $infile";
