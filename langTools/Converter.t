@@ -65,7 +65,7 @@ if ($#ARGV > -1) {
 	"$ENV{'GTBOUND'}/orig/sme/bible/other_files/vitkan.pdf",
 	"$ENV{'GTFREE'}/orig/sma/admin/depts/other_files/Handlingsplan_2009_samisk_sprak_sorsamisk.pdf",
 	"$ENV{'GTFREE'}/orig/sma/facta/other_files/moerh.pdf",
-	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/132469-sa-sve.pdf",
+	"$ENV{'GTFREE'}/orig/mixed/admin/depts/other_files/132469-sa-sve.pdf",
 	"$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_samiskversjon.pdf",
 	"$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/Strategalaš_plána_sámi_mánáidgárddiide_2001–2005.pdf", "$ENV{'GTFREE'}/orig/sme/laws/other_files/Lovom037.pdf",
 	"$ENV{'GTFREE'}/orig/sme/facta/other_files/callinravvagat.pdf",
