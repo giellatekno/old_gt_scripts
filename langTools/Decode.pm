@@ -60,32 +60,13 @@ our %Error_Types = (
 		"÷" => "Ö",
 	},
 
-	# winsami2 converted as iconv -f mac -t utf8
 	"type03" => {
-		"·" => "á",
-		"¡" => "Á",
-		"ö" => "š",
-		"ä" => "Š",
-		"º" => "ŧ",
-		"∫" => "Ŧ",
-		"π" => "ŋ",
-		"∏" => "Ŋ",
-		"ò" => "đ",
-		"â" => "Đ",
-		"ø" => "ž",
-		"æ" => "Ž",
-		"Ñ" => "č",
-		"Ç" => "Č",
-		"Ê" => "æ",
-		"Δ" => "Æ",
-		"¯" => "ø",
-		"ÿ" => "Ø",
-		"Â" => "å",
-		"≈" => "Å",
-		"‰" => "ä",
-		"ƒ" => "Ä",
-		"ˆ" => "ö",
-		"÷" => "Ö",
+		"ƒ" => "š",#
+		"√" => "ŋ",#
+		"∂" => "đ",#
+		"π" => "ž",#
+		"ª" => "č",#
+		"º" => "Č",#
 	},
 
 	# winsami2 converted as iconv -f latin1 -t utf8
@@ -284,8 +265,10 @@ sub guess_encoding () {
 		my $num = (keys %freq);
 		if (%freq and (
             ($type eq "type11") or
-            ($type eq "type03" and $num > 4) or 
-            ($type ne "type03" and $num > 3))) {
+            ($type eq "type07") or
+            ($type eq "type10" and $num > 1) or
+            ($type eq "type03" and $num > 3) or 
+            $type ne "type03" and $num > 3)) {
             my $hits = 0;
             for my $key (keys %freq) {
                 $hits += $freq{$key};
