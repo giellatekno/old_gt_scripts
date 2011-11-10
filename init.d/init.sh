@@ -86,6 +86,7 @@ if [ -z "$PATH" ]; then
   PATH=$GTHOME/gt/script:/bin:/sbin:/usr/bin:/usr/sbin
 else
   prepend_path PATH $GTHOME/gt/script
+  prepend_path PATH $GTHOME/gt/script/corpus
 fi
 export PATH
 
