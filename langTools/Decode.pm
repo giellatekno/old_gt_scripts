@@ -253,6 +253,8 @@ our $Test=0;
 sub guess_encoding () {
     my ($file, $lang, $para_ref) = @_;
 
+    my $max_hits = 0;
+    
 	my @text_array;
 	my $error=0;
 	my $encoding = $NO_ENCODING;
@@ -267,60 +269,32 @@ sub guess_encoding () {
 		@text_array = split("\n", $$para_ref); 
 	}
     
-	my $last_count = 0;
 	for my $type (sort( keys %Error_Types )) {
-		my $count = 0;
-
-		my $hit = 0;
+        my %freq;
+        
 		for my $line (@text_array) {
 			foreach( keys % {$Error_Types{$type}}) {
 				my $key = $_;
+#                 print "278", $key, "\n";
 				while ($line =~ /$key/g) {
-					if ($type eq "type02" && "Ø§" !~ $key) {
-# 						print "type $type, hit $key\n";
-						$hit = 1;
-						$count++;
-					} elsif ($type eq "type03" && "[öäøæâ·]" !~ $key) {
-# 						print "type $type, hit $key\n";
-						$hit = 1;
-						$count++;
-					} elsif ($type eq "type04" && ! /¾/) {
-# 						print "type $type, hit $key\n";
-						$hit = 1;
-						$count++;
-                    } elsif ($type eq "type06" && "Ã½»" !~ $key and $lang eq "sme") {
-# 						print "type $type, hit $key\n";
-						$hit = 1;
-						$count++;
-                    } elsif ($type eq "type09" && "," !~ $key) {
-						$count++;
-                    } elsif ($type eq "type08" && "[ĐŠš]" !~ $key) {
-#                         print "default type $type, hit $key\n";
-                        $count++;
-					} elsif ($type eq "type01" || $type eq "type05" || $type eq "type07" || $type eq "type10" || $type eq "type11") {
-# 						print "default type $type, hit $key\n";
-						$count++;
-					}
+                    $freq{$key}++;
 				}
 			}
 		}
 
-		if ($count > 0 && $count >= $last_count) {
-			if (($type eq "type02" or $type eq "type03" or $type eq "type04" or $type eq "type06") and $hit) {
-# 				print "special case\n";
-				$encoding = $type;
-				$last_count = $count;
-			} elsif (($type eq "type01" or $type eq "type08" or $type eq "type09" or $type eq "type10" or $type eq "type11") and !$hit) {
-# 				print "not special case\n";
-				$encoding = $type;
-				$last_count = $count;
-			} elsif (($type eq "type05" or $type eq "type07" )and $lang eq "sme" and !$hit) {
-                $encoding = $type;
-                $last_count = $count;
+		my $num = (keys %freq);
+		if (%freq and $num > 3) {
+            my $hits = 0;
+            for my $key (keys %freq) {
+                $hits += $freq{$key};
             }
-		}
-		if ($Test) {
-			print "type is $type, encoding is $encoding, count is $count, hit is $hit, lang is $lang\n";
+            if ($hits >= $max_hits) {
+                $max_hits = $hits;
+                $encoding = $type;
+            }
+            if ($Test) {
+                print "type is $type, encoding is $encoding, lang is $lang freq is ",  %freq, " num is ", $num, " hits is ", $hits, "\n";
+            }   
 		}
 	}
 	return $encoding;
