@@ -14,7 +14,6 @@ use File::Find;
 use List::Util qw(min);
 
 my $corpus_analyze="$ENV{'GTHOME'}/gt/script/corpus/corpus-analyze.pl";
-my $tca2 = "$ENV{'GTHOME'}/gt/script/tca2.sh";
 
 my $corpdir = "$ENV{'GTFREE'}";
 
@@ -220,7 +219,7 @@ sub process_file {
 	print STDERR "$0: $command\n";	
 	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
 
-	$command="$tca2 $anchor_file $outfile $poutfile";
+	$command="tca2.sh $anchor_file $outfile $poutfile";
 	print STDERR "$0: $command\n";
 	system($command);
     
