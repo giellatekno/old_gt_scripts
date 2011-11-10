@@ -266,7 +266,7 @@ sub guess_encoding () {
 		carp "non-utf8 bytes.\n";
 		return $ERROR; 
 	} elsif (! @text_array) { 
-		@text_array = split("\n", $$para_ref); 
+		@text_array = split("\n", $$para_ref);
 	}
     
 	for my $type (sort( keys %Error_Types )) {
@@ -275,7 +275,6 @@ sub guess_encoding () {
 		for my $line (@text_array) {
 			foreach( keys % {$Error_Types{$type}}) {
 				my $key = $_;
-#                 print "278", $key, "\n";
 				while ($line =~ /$key/g) {
                     $freq{$key}++;
 				}
@@ -283,7 +282,10 @@ sub guess_encoding () {
 		}
 
 		my $num = (keys %freq);
-		if (%freq and $num > 3) {
+		if (%freq and (
+            ($type eq "type11") or
+            ($type eq "type03" and $num > 4) or 
+            ($type ne "type03" and $num > 3))) {
             my $hits = 0;
             for my $key (keys %freq) {
                 $hits += $freq{$key};
