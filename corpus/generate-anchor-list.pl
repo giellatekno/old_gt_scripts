@@ -40,7 +40,7 @@ if(!($lang1 && $lang2)) {
 if ($outdir) { $outdir .= "/"; }
 my $outfile=$outdir . "anchor-" . $lang1 . $lang2 . ".txt";
 
-print "Generating anchor word list to $outfile..\n";
+print "Generating anchor word list to $outfile ...\n";
 
 my @languages=("eng", "nob", "sme", "fin", "smj", "sma" );
 my %langs;
