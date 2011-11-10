@@ -257,7 +257,7 @@ sub make_tmx {
     if ( ! -e $ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2 ) {
         File::Path::mkpath($ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2);
     }
-    open($FH1, " >:encoding(utf8)", $ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2 . "/" . $base . "-" . $pbase . ".tmx.xml");
+    open($FH1, " >:encoding(utf8)", $ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2 . "/" . $base . ".tmx");
     print_tmx_header($FH1, $lang1);
     $body->print($FH1);
     print $FH1 qq|</tmx>|, "\n";
