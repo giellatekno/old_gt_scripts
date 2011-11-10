@@ -270,6 +270,22 @@ sub getEncodingFromXsl {
 	}
 }
 
+sub get_doc_text {
+    my ($self) = @_;
+    
+    my $int = $self->getInt();
+    
+    my $twig = XML::Twig->new();
+    if ($twig->safe_parsefile($int)) {
+        my $root = $twig->root;
+        my $body = $root->first_child('body');
+        my $text = $body->text();
+        return $text;
+    } else {
+        return 0;
+    }
+}
+
 sub character_encoding {
 	my ($self) = @_;
     #my ($file, $int, $no_decode_this_time) = @_;
@@ -282,39 +298,48 @@ sub character_encoding {
 	# Check if the file contains characters that are wrongly
 	# utf-8 encoded and decode them.
 
+    my $text = $self->get_doc_text();
 	my $encoding = $self->getEncodingFromXsl();
 	$encoding =~ s/'//g;
 	if ( $encoding eq "ERROR") {
 		$error = 1;
 	} else {
 		if (!$encoding) {
-			$encoding = &guess_encoding($int, $language);
+			$encoding = &guess_encoding(undef, $language, \$text);
 		}
 		if ($test) {
 			print "(character_encoding) Encoding is: $encoding\n";
 		}
 		
+		my $d;
 		if ($encoding ne $langTools::Decode::NO_ENCODING) {
-			my $d=XML::Twig->new(
+			$d=XML::Twig->new(
 				twig_handlers=>{
 					'p'=> sub{call_decode_para($self, @_, $encoding); },
 					'title'=>sub{call_decode_para($self, @_);},
 					'person'=>sub{call_decode_person($self, @_);},
 				}
 			);
+        } else {
+            $d=XML::Twig->new(
+                twig_handlers=>{
+                    'title'=>sub{call_decode_para($self, @_);},
+                    'person'=>sub{call_decode_person($self, @_);},
+                }
+            );
+        }
 			
-			if (! $d->safe_parsefile ("$int") ) {
-				carp "ERROR parsing the XML-file failed.\n";
-				$error = 1;
-			} elsif (! open (FH, ">:encoding(utf8)", $int)) {
-				carp "ERROR cannot open file";
-				$error = 2;
-			} else {
-				$d->set_pretty_print('indented');
-				$d->print( \*FH);
-				close (FH);
-			}
-		}
+        if (! $d->safe_parsefile ("$int") ) {
+            carp "ERROR parsing the XML-file failed.\n";
+            $error = 1;
+        } elsif (! open (FH, ">:encoding(utf8)", $int)) {
+            carp "ERROR cannot open file";
+            $error = 2;
+        } else {
+            $d->set_pretty_print('indented');
+            $d->print( \*FH);
+            close (FH);
+        }
 	}
 	return $error;
 				
@@ -327,6 +352,7 @@ sub call_decode_para {
 # 	print "(call_decode_para) encoding $coding\n";
 	my $language = $self->getPreconverter()->getDoclang();
     my $error = 0;
+
     $para = recursively_decode_text($para, $language, $coding);
 
     return $error;
