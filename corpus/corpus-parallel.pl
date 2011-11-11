@@ -230,21 +230,14 @@ sub process_file {
 sub make_tmx {
     my ($base, $pbase, $lang1, $lang2) = @_;
 
-    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang1 . ".sent_new.txt")  || die("Could not open file!");
-    my @f1_data = <F1>;
-    close(F1);
-    open(F2, "<:encoding(utf8)", $outdir . "/" . $pbase . $lang2 . ".sent_new.txt")  || die("Could not open file!");
-    my @f2_data = <F2>;
-    close(F2);
-    
-    my $f1_length = @f1_data;
-    my $f2_length = @f2_data;
-    my $mmin = min($f1_length, $f2_length);
+    my @f1_data = open_tca2_output($base, $lang1);
+    my @f2_data = open_tca2_output($pbase, $lang2);
     
     my $body = XML::Twig::Elt->new("body");
     $body->set_pretty_print('indented');
     
-    for (my $i = 0; $i < $mmin; $i++) {
+    my $f1_length = @f1_data;
+    for (my $i = 0; $i < $f1_length; $i++) {
         my $tu_elt = XML::Twig::Elt->new("tu");
         
         make_tuv($f1_data[$i], $lang1)->paste('last_child', $tu_elt);
@@ -253,6 +246,22 @@ sub make_tmx {
         $tu_elt->paste('last_child', $body);
     }
 
+    print_tmx_file($body, $base, $lang1, $lang2);
+}
+
+sub open_tca2_output {
+    my ($base, $lang) = @_;
+    
+    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang1 . ".sent_new.txt")  || die("Could not open file!");
+    my @data = <F1>;
+    close(F1);
+
+    return @data;
+}
+
+sub print_tmx_file {
+    my ($body, $base, $lang1, $lang2) = @_;
+    
     my $FH1;
     if ( ! -e $ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2 ) {
         File::Path::mkpath($ENV{'GTFREE'} . "/prestable/tmx/" . $lang1 . $lang2);
