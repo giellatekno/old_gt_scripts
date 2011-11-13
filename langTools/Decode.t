@@ -1,97 +1,59 @@
+#!/usr/bin/env perl
+
 use Test::More 'no_plan';
 use Test::Exception;
 use Test::File;
 use utf8;
 use strict;
-use Getopt::Long;
 use warnings;
 
+#
+# Get options
+#
+use Getopt::Long;
+# options
+my $debug = 0;
+GetOptions ("debug" => \$debug,
+);
+
+$langTools::Decode::Test = $debug;
 
 #
 # Load the modules we are testing
 #
 BEGIN {
-# 1
 use_ok('langTools::Decode');
 }
-# 2
 require_ok('langTools::Decode');
 
-my $debug = 1;
-$langTools::Decode::Test = $debug;
-my $file;
-my $outfile;
-my $encoding;
-my $command;
-my $language = "sme";
+# test encoding of the following files   
+use langTools::Converter;
 
-my $text = "Dutket ain »»i";
-$encoding = &guess_encoding(undef, $language, \$text);
-# 3
-is($encoding, "type06", "check for type06");
-&decode_para($language, \$text, $encoding);
-# 4
-is($text, "Dutket ain ášši", "Testing decoding");
+# filename with expected result
+my %test_cases = (
+    "$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/273777-raportti_saami.pdf" => "0",
+    "$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/1999_1s.doc" => "type10",
+);
 
-$text = "Maid oÃ°Ã°a guolleÂ¹lájaid buktin sáhttá váikkuhit Ã¨ázádahkii";
-$encoding = &guess_encoding(undef, $language, \$text);
-# 5
-is($encoding, "type07", "check for type07");
-&decode_para($language, \$text, $encoding);
-# 6
-is($text, "Maid ođđa guollešlájaid buktin sáhttá váikkuhit čázádahkii", "Testing decoding");
+foreach (keys %test_cases) {
+    test_decode($_, $test_cases{$_});
+}
 
-$text = "Lasáhus Ä?áhce- ja kloahkkadivatnjuolggadusaide";
-$encoding = &guess_encoding(undef, $language, \$text);
-# 7
-is($encoding, "type07", "check for type07");
-&decode_para($language, \$text, $encoding);
-# 8
-is($text, "Lasáhus čáhce- ja kloahkkadivatnjuolggadusaide", "Testing decoding");
+#
+# Subroutines
+#
 
-system("iconv -f latin1 -t utf8 $ENV{'GTFREE'}/orig/sme/laws/other_files/jus.txt > jus.txt");
-# 9 
-is($encoding = &guess_encoding("jus.txt", $language), "0", "Check for 0");
-
-$language = "swe";
-system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/swe/bible/bibeln-2.1/56.txt > 56.txt");
-# 10
-is($encoding = &guess_encoding("jus.txt", $language), "0", "Check for 0");
-
-$language = "nob";
-system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/Eldre_rekrutt1.txt > Eldre_rekrutt1.txt");
-# 11
-is($encoding = &guess_encoding("Eldre_rekrutt1.txt", $language), "type06", "Check type06");
-
-$language = "nob";
-system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/nob/news/MinAigi/2003/alm_hagelaget.txt > alm_hagelaget.txt");
-# 12
-is($encoding = &guess_encoding("alm_hagelaget.txt", $language), "type06", "Check type06");
-
-$language = "sme";
-system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/Assu/1997/A47-97/BESKJEDTEO-21.7.txt > BESKJEDTEO-21.7.txt");
-# 13
-is($encoding = &guess_encoding("BESKJEDTEO-21.7.txt", $language), "type06", "Check type06");
-
-$language = "sme";
-system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/094-04_Urfolk/__ordfører-_engelsk_tekst.txt > __ordfører-_engelsk_tekst.txt");
-# 14
-is($encoding = &guess_encoding("__ordfører-_engelsk_tekst.txt", $language), "type06", "Check type06");
-
-$language = "sme";
-system("iconv -f latin1 -t utf8 $ENV{'GTBOUND'}/orig/sme/news/MinAigi/2004/007_04/_VM_Kroa_MLA.txt > _VM_Kroa_MLA.txt");
-# 15
-is($encoding = &guess_encoding("_VM_Kroa_MLA.txt", $language), "type06", "Check type06");
-
-$language = "sme";
-# 16
-is($encoding = &guess_encoding("dc_00_1.txt", $language), "type09", "Check type09");
-
-$text = "Vidar Zahl Arntzen lei duhtava»";
-$encoding = &guess_encoding(undef, $language, \$text);
-# 17
-is($encoding, "0", "testing for 0");
-
-$language = "sma";
-# 18
-is($encoding = &guess_encoding("$ENV{'GTBOUND'}/converted/sma/facta/other_files/lohkeme_4_til_trykk.doc.xml"), "type07", "Check for type07");
+# Test the encoding of one file
+sub test_decode {
+    my ($filename, $expected_result) = @_;
+    
+    my $converter = langTools::Converter->new($filename, $debug);
+    $converter->getPreconverter();
+    is($converter->makeXslFile(), '0', "Check if we are able to make the tmp-metadata file");
+    is($converter->convert2intermediatexml(), '0', "pdf to int xml");
+    is($converter->convert2xml(), '0', "Check if combination of internal xml and metadata goes well");
+    my $text = $converter->get_doc_text();
+    isnt($text, '0', "extract text from xml");
+    my $language = $converter->getPreconverter()->getDoclang();
+    is(&guess_encoding(undef, $language, \$text), $expected_result, "the encoding");
+}
