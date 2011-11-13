@@ -22,7 +22,7 @@ sbuffer = s.read()
 s.close()
 
 try:
-	soup = BeautifulSoup.BeautifulSoup(sbuffer, convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+	soup = BeautifulSoup.BeautifulSoup(sbuffer, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
 except HTMLParseError, e:
 	print 'Cannot parse', sys.argv[1]
 	print 'Reason', e
@@ -47,7 +47,6 @@ except AttributeError:
 	pass
 	#print 'soup.html', soup.html
 	#soup.html['xmlns'] = "http://www.w3.org/1999/xhtml"
-
 s = open(sys.argv[2], 'w')
 s.write(str(soup.prettify()))
 s.close()
