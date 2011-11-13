@@ -148,19 +148,6 @@ our %Error_Types = (
 		"þ" => "ž",
 	},
 	
-	"type08" => {
-		"Œ" => "å",
-		"¿" => "ø",
-        "Š" => "ä",
-		"¥" => "•",
-		"ç" => "á",
-		"Đ" => "–",
-		"Ç" => "«",
-		"È" => "»",
-        "š" => "ö",
-        "¾" => "æ",
-	},
-	
 	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
 	# and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc 
 	# found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
@@ -256,6 +243,7 @@ sub guess_encoding () {
 		for my $line (@text_array) {
 			foreach( keys % {$Error_Types{$type}}) {
 				my $key = $_;
+                
 				while ($line =~ /$key/g) {
                     $freq{$key}++;
 				}
@@ -263,9 +251,10 @@ sub guess_encoding () {
 		}
 
 		my $num = (keys %freq);
+
 		if (%freq and (
             ($type eq "type11") or
-            ($type eq "type07") or
+            ($type eq "type07" and $num > 1) or
             ($type eq "type10" and $num > 1) or
             ($type eq "type03" and $num > 3) or 
             $type ne "type03" and $num > 3)) {
@@ -296,7 +285,7 @@ sub decode_para (){
 # 	}
 	foreach (sort( keys % {$Error_Types{$encoding}})) {
 		$$para_ref =~ s/$_/${$Error_Types{$encoding}}{$_}/g;
-	}
+ 	}
 # 	if ($Test) {
 # 		print "\n\npara_ref after $encoding\n $$para_ref\n\n";
 # 	}
