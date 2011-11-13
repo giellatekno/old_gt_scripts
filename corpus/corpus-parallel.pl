@@ -252,7 +252,7 @@ sub make_tmx {
 sub open_tca2_output {
     my ($base, $lang) = @_;
     
-    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang1 . ".sent_new.txt")  || die("Could not open file!");
+    open(F1, "<:encoding(utf8)", $outdir . "/" . $base . $lang . ".sent_new.txt")  || die("Could not open file!");
     my @data = <F1>;
     close(F1);
 
