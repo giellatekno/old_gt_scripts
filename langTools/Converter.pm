@@ -489,6 +489,12 @@ sub analyze_content {
         
         # Avoid division by zero ...
         if ($wordcount > 0) {
+            # if wordcount is less than 100 words, improve the ratio ...
+            if ($wordcount < 100) {
+                $wordcount *= 2;
+            }
+            my $ratio = $unknown_wordcount/$wordcount*100;
+            print "ratio $ratio\n";
             return $unknown_wordcount/$wordcount*100;
         } else {
             return 0;
@@ -531,6 +537,7 @@ sub find_unknown_words {
     
     if ($self->{_test}) {
         print "this is unknown words: " . $ukw . "\n";
+        print `ccat -l $mainlang -a $int | $preprocess | sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | sort -u | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?'`;
     }
     
     return $ukw;
