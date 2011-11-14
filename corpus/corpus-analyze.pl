@@ -613,7 +613,7 @@ sub test_config {
     if ($lang =~ /(sme|smj|sma)/) {
         $preprocess = "$preproc --abbr=$abbr --corr=$corrtypos";
     } elsif ($lang =~ /nob/) {
-        $preprocess = "$preproc";
+        $preprocess = "$preproc --abbr=$abbr";
     } else { 
         $preprocess = "$preproc"; 
     }
