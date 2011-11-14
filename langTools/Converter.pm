@@ -494,7 +494,6 @@ sub analyze_content {
                 $wordcount *= 2;
             }
             my $ratio = $unknown_wordcount/$wordcount*100;
-            print "ratio $ratio\n";
             return $unknown_wordcount/$wordcount*100;
         } else {
             return 0;
