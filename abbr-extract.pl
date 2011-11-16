@@ -84,8 +84,11 @@ while (<LEX>) {
 	# nr
 	# j.d.s
 	# earret% eará
+	# but we unfortunately also have
+	# čuj:čuj9
+	# A+Use/-Spell:A 
 	
-	if ((my $abbr = $_)	=~ s/^([\w\.]+(% [\w\.]+)*)\s.*/$1/) {
+	if ((my $abbr = $_)	=~ s/^([\w\.]+(% [\w\.]+)*)[\s+:].*/$1/) {
 		$abbr =~ s/%//g;
 		print ABB "$abbr\n";
 	}
