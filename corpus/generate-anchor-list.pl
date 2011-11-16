@@ -19,10 +19,6 @@ my $lang1;
 my $lang2;
 my $outdir = "";
 
-if ( -f $ARGV[$#ARGV] ) {
-	 $infile = $ARGV[$#ARGV]; 
- }
-
 GetOptions ("lang1=s" => \$lang1,
 			"lang2=s" => \$lang2,
 			"outdir=s" => \$outdir,
@@ -37,38 +33,54 @@ if(!($lang1 && $lang2)) {
 	print "Specify options --lang1=language and --lang2=language.\n";
 	exit;
 }
+
 if ($outdir) { $outdir .= "/"; }
-my $outfile=$outdir . "anchor-" . $lang1 . $lang2 . ".txt";
 
-print "Generating anchor word list to $outfile ...\n";
+# @ARGV now contains input files
+my $num_args = $#ARGV + 1;
 
-my @languages=("eng", "nob", "sme", "fin", "smj", "sma" );
-my %langs;
+if ($num_args < 1) {
+    print "Specify one or more input files\n";
+    exit;
+} else {
+    my $outfile=$outdir . "anchor-" . $lang1 . $lang2 . ".txt";
 
-open (FH, "<$infile") or die "Could not open $infile";
-open (FH2, ">$outfile") or die "Could not open $outfile";
+    my @languages=("eng", "nob", "sme", "fin", "smj", "sma" );
+    my %langs;
 
-while(<FH>) {
+    open (FH2, ">$outfile") or die "Could not open $outfile";
+    print "Generating anchor word list to $outfile ...\n";
 
-	chomp;
-	next if (/^\#/);
-	next if (/^\&/);
-	my @words = split("/");
-	for my $lang (@languages) {
-		if (@words) { 
-			my $word = shift @words;
-			$word =~ s/^\s+//;
-			$word =~ s/\s+$//;
-			$langs{$lang} = $word;
-		}
-	}
-	if ($langs{$lang1} && $langs{$lang2}) {
-		print FH2 $langs{$lang1}, " / ", $langs{$lang2}, "\n";
-	}	
+    foreach my $infile (@ARGV) {
+        print "infile $infile\n";
+        open (FH, "<$infile") or die "ERROR: Could not open $infile";
+
+        while(<FH>) {
+
+            chomp;
+            next if (/^\#/);
+            next if (/^\&/);
+            my @words = split("/");
+            for my $lang (@languages) {
+                if (@words) { 
+                    my $word = shift @words;
+                    $word =~ s/^\s+//;
+                    $word =~ s/\s+$//;
+                    $langs{$lang} = $word;
+                }
+            }
+            if ($langs{$lang1} && $langs{$lang2}) {
+                print FH2 $langs{$lang1}, " / ", $langs{$lang2}, "\n";
+            }	
+            
+        }
+    
+        close FH;        
+        
+    }
+
+    close FH2;
 }
-	
-close FH;
-close FH2;
 
 sub print_usage {
 	
