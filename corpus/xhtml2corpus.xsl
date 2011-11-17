@@ -450,6 +450,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:div[contains(@id,'NAVsubmenuContainer')]"/>
 <xsl:template match="html:span[contains(@id,'skiplinks')]"/>
 <xsl:template match="html:div[contains(@class,'post-footer')]"/>
+<xsl:template match="html:div[contains(@class,'documentInfoEm')]"/>
 <xsl:template match="html:div[contains(@id,'sidebar-wrapper')]"/>
 <xsl:template match="html:div[contains(@id,'footer-wrapper')]"/>
 </xsl:stylesheet>
