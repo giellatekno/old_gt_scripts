@@ -9,306 +9,317 @@ use Carp qw(cluck carp);
 use utf8;
 
 use Exporter;
-our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
+our ( $VERSION, @ISA, @EXPORT, @EXPORT_OK );
 
-@ISA         = qw(Exporter);
+@ISA = qw(Exporter);
 
 @EXPORT = qw(&guess_encoding &decode_para);
 
 our %Error_Types = (
-	# mac-sami converted as iconv -f mac -t utf8
-	"type01" => {
-		"ª" => "š",
-		"¥" => "Š",
-		"º" => "ŧ",
-		"µ" => "Ŧ",
-		"∫" => "ŋ",
-		"±" => "Ŋ",
-		"π" => "đ",
-		"∞" => "Đ",
-		"Ω" => "ž",
-		"∑" => "Ž",
-		"∏" => "č",
-		"¢" => "Č",
-	},
-	
-	# iso-ir-197 converted as iconv -f mac -t utf8
-	"type02" => {
-		"·" => "á",
-		"¡" => "Á",
-		"≥" => "š",
-		"≤" => "Š",
-		"∏" => "ŧ",
-		"µ" => "Ŧ",
-		"±" => "ŋ",
-		"Ø" => "Ŋ",
-		"§" => "đ",
-		"£" => "Đ",
-		"∫" => "ž",
-		"π" => "Ž",
-		"¢" => "č",
-		"°" => "Č",
-		"Ê" => "æ",
-		"Δ" => "Æ",
-		"¯" => "ø",
-		"ÿ" => "Ø",
-		"Â" => "å",
-		"≈" => "Å",
-		"‰" => "ä",
-		"ƒ" => "Ä",
-		"ˆ" => "ö",
-		"÷" => "Ö",
-	},
 
-	"type03" => {
-		"ƒ" => "š",#
-		"√" => "ŋ",#
-		"∂" => "đ",#
-		"π" => "ž",#
-		"ª" => "č",#
-		"º" => "Č",#
-	},
+    # mac-sami converted as iconv -f mac -t utf8
+    "type01" => {
+        "ª"  => "š",
+        "¥"  => "Š",
+        "º"  => "ŧ",
+        "µ"  => "Ŧ",
+        "∫" => "ŋ",
+        "±"  => "Ŋ",
+        "π"  => "đ",
+        "∞" => "Đ",
+        "Ω" => "ž",
+        "∑" => "Ž",
+        "∏" => "č",
+        "¢"  => "Č",
+    },
 
-	# winsami2 converted as iconv -f latin1 -t utf8
-	"type04" => {
-		"\xc2\x9a" => "š",
-		"\xc2\x8a" => "Š",
-		"¼" => "ŧ",
-		"º" => "Ŧ",
-		"¹" => "ŋ",
-		"¸" => "Ŋ",
-		"" => "đ",
-		"" => "Đ",
-		"¿" => "ž",
-		"¾" => "Ž",
-		"\xc3\xb6" => "č",
-		"\xc3\x96" => "Č",
-	},
-	
-	# iso-ir-197 converted as iconv -f latin1 -t utf8
-	"type05" => {
-		"³" => "š",
-		"²" => "Š",
-		"¸" => "ŧ",
-		"µ" => "Ŧ",
-		"±" => "ŋ",
-		"¯" => "Ŋ",
-		"¤" => "đ",
-		"£" => "Đ",
-		"º" => "ž",
-		"¹" => "Ž",
-		"¢" => "č",
-		"¡" => "Č",
-	},
-	
-	# mac-sami to latin1
-	"type06" => {
-		"" => "á",
-		"‡" => "á",
-		"ç" => "Á", 
-		"»" => "š",
-		"´" => "Š",
-		"¼" => "ŧ",
-		"µ" => "Ŧ",
-		"º" => "ŋ",
-		"±" => "Ŋ",
-		"¹" => "đ",
-		"°" => "Đ",
-		"½" => "ž",
-		"·" => "Ž",
-		"¸" => "č",
-		"¢" => "Č",
-		"¾" => "æ",
-		"®" => "Æ",
-		"¿" => "ø",
-		"¯" => "Ø",
-		"" => "å",
-#		"Œ" => "å",
-		"" => "Å",
-		"" => "ä",
-		"" => "Ä",
-		"" => "ö",
-		"" => "Ö",
-		"Ê" => " ",
-		"¤" => "§",
-		"Ò" => "“",
-		"ª" => "™",
-		"Ã" => "√",
-		"Ð" => "–",
-	},
-	
-	# found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
-	# and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
-	"type07" => {
-		"ð" => "đ",
-		"Ç" => "Č",
-		"ç" => "č",
-		"ó" => "š",
-		"ý" => "ŧ",
-		"þ" => "ž",
-	},
-	
-	# found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
-	# and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc 
-	# found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
-	"type10" => {
-		"ð" => "đ",
-		"È" => "Č",
-		"è" => "č",
-		"¹" => "š",
-		"¿" => "ŋ",
-		"¾" => "ž",
-		"¼" => "ŧ",
-		"‚" => "Č",
-		"„" => "č",
-		"¹" => "ŋ",
-		"˜" => "đ",
-		"¿" => "ž",
-	},
-	
-	# found in titles in Min Áigi docs
-	# double utf'ed letters
-	"type11" => {
-        "Ã¯" => "ï",
-		"Ã¡" => "á",
-		"Ã\\?" => "Á",
-		"Å¡" => "š",
-		"Â¹" => "š",
-		"Å¾" => "ž",
-		"Â«" => "«",
-		"â‰¤" => "«",
-		"Â»" => "»",
-		"â‰¥" => "»",
-		"Ã…" => "Å",
-		"Ã¥" => "å",
-		"Ã…" => "Å",
-		"Ä\\?" => "č",
-		"Ã¨" => "č",
-		"ÄŒ" => "Č",
-		"Ä‘" => "đ",
-		"Ã°" => "đ",
-		"Ä\\?" => "Đ",
-		"Ã¸" => "ø",
-		"Ã˜" => "Ø",
-		"Ã¤" => "ö",
-		"Ã¤" => "ä",
-		"Ã„" => "Ä",
-		"Å§" => "ŧ",
-		"Ã©" => "é",
-		"â€\\?" => "”",
-		"Ã¦" => "æ",
-		"Å‹" => "ŋ",
-		"â€¢" => "•",
-	},
+    # iso-ir-197 converted as iconv -f mac -t utf8
+    "type02" => {
+        "·"  => "á",
+        "¡"  => "Á",
+        "≥" => "š",
+        "≤" => "Š",
+        "∏" => "ŧ",
+        "µ"  => "Ŧ",
+        "±"  => "ŋ",
+        "Ø"  => "Ŋ",
+        "§"  => "đ",
+        "£"  => "Đ",
+        "∫" => "ž",
+        "π"  => "Ž",
+        "¢"  => "č",
+        "°"  => "Č",
+        "Ê"  => "æ",
+        "Δ"  => "Æ",
+        "¯"  => "ø",
+        "ÿ"  => "Ø",
+        "Â"  => "å",
+        "≈" => "Å",
+        "‰" => "ä",
+        "ƒ"  => "Ä",
+        "ˆ"  => "ö",
+        "÷"  => "Ö",
+    },
+
+    "type03" => {
+        "ƒ"  => "š",    #
+        "√" => "ŋ",    #
+        "∂" => "đ",    #
+        "π"  => "ž",    #
+        "ª"  => "č",    #
+        "º"  => "Č",    #
+    },
+
+    # winsami2 converted as iconv -f latin1 -t utf8
+    "type04" => {
+        "\xc2\x9a" => "š",
+        "\xc2\x8a" => "Š",
+        "¼"       => "ŧ",
+        "º"       => "Ŧ",
+        "¹"       => "ŋ",
+        "¸"       => "Ŋ",
+        ""       => "đ",
+        ""       => "Đ",
+        "¿"       => "ž",
+        "¾"       => "Ž",
+        "\xc3\xb6" => "č",
+        "\xc3\x96" => "Č",
+    },
+
+    # iso-ir-197 converted as iconv -f latin1 -t utf8
+    "type05" => {
+        "³" => "š",
+        "²" => "Š",
+        "¸" => "ŧ",
+        "µ" => "Ŧ",
+        "±" => "ŋ",
+        "¯" => "Ŋ",
+        "¤" => "đ",
+        "£" => "Đ",
+        "º" => "ž",
+        "¹" => "Ž",
+        "¢" => "č",
+        "¡" => "Č",
+    },
+
+    # mac-sami to latin1
+    "type06" => {
+        ""  => "á",
+        "‡" => "á",
+        "ç"  => "Á",
+        "»"  => "š",
+        "´"  => "Š",
+        "¼"  => "ŧ",
+        "µ"  => "Ŧ",
+        "º"  => "ŋ",
+        "±"  => "Ŋ",
+        "¹"  => "đ",
+        "°"  => "Đ",
+        "½"  => "ž",
+        "·"  => "Ž",
+        "¸"  => "č",
+        "¢"  => "Č",
+        "¾"  => "æ",
+        "®"  => "Æ",
+        "¿"  => "ø",
+        "¯"  => "Ø",
+        ""  => "å",
+
+        #		"Œ" => "å",
+        "" => "Å",
+        "" => "ä",
+        "" => "Ä",
+        "" => "ö",
+        "" => "Ö",
+        "Ê" => " ",
+        "¤" => "§",
+        "Ò" => "“",
+        "ª" => "™",
+        "Ã" => "√",
+        "Ð" => "–",
+    },
+
+ # found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
+ # and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
+    "type07" => {
+        "ð" => "đ",
+        "Ç" => "Č",
+        "ç" => "č",
+        "ó" => "š",
+        "ý" => "ŧ",
+        "þ" => "ž",
+    },
+
+    # found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
+    # and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc
+    # found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
+    "type10" => {
+        "ð"  => "đ",
+        "È"  => "Č",
+        "è"  => "č",
+        "¹"  => "š",
+        "¿"  => "ŋ",
+        "¾"  => "ž",
+        "¼"  => "ŧ",
+        "‚" => "Č",
+        "„" => "č",
+        "¹"  => "ŋ",
+        "˜"  => "đ",
+        "¿"  => "ž",
+    },
+
+    # found in titles in Min Áigi docs
+    # double utf'ed letters
+    "type11" => {
+        "Ã¯"     => "ï",
+        "Ã¡"     => "á",
+        "Ã\\?"    => "Á",
+        "Å¡"     => "š",
+        "Â¹"     => "š",
+        "Å¾"     => "ž",
+        "Â«"     => "«",
+        "â‰¤"  => "«",
+        "Â»"     => "»",
+        "â‰¥"  => "»",
+        "Ã…"    => "Å",
+        "Ã¥"     => "å",
+        "Ã…"    => "Å",
+        "Ä\\?"    => "č",
+        "Ã¨"     => "č",
+        "ÄŒ"     => "Č",
+        "Ä‘"    => "đ",
+        "Ã°"     => "đ",
+        "Ä\\?"    => "Đ",
+        "Ã¸"     => "ø",
+        "Ã˜"     => "Ø",
+        "Ã¤"     => "ö",
+        "Ã¤"     => "ä",
+        "Ã„"    => "Ä",
+        "Å§"     => "ŧ",
+        "Ã©"     => "é",
+        "â€\\?" => "”",
+        "Ã¦"     => "æ",
+        "Å‹"    => "ŋ",
+        "â€¢"  => "•",
+    },
 
 );
 
 our $UNCONVERTED = 0;
-our $CORRECT = 1;
+our $CORRECT     = 1;
 our $NO_ENCODING = 0;
-our $ERROR = -1;
+our $ERROR       = -1;
 
 # The minimal percentage of selected (unconverted) sámi characters in a file that
 # decides whether the file needs to be decoded at all.
 our $MIN_AMOUNT = 0.0;
 
 # Printing some test data, chars and their amounts
-our $Test=0;
-
+our $Test = 0;
 
 # Guess text encoding from a file $file if it's given.
 # Else use the reference to a pargraph $para_ref.
 sub guess_encoding () {
-    my ($file, $lang, $para_ref) = @_;
+    my ( $file, $lang, $para_ref ) = @_;
 
     my $max_hits = 0;
-    
-	my @text_array;
-	my $error=0;
-	my $encoding = $NO_ENCODING;
-	# Read the corpus file
-	if ($file) { 
-		$error = &read_file($file, \@text_array); 
-	} 
-	if ($error) { 
-		carp "non-utf8 bytes.\n";
-		return $ERROR; 
-	} elsif (! @text_array) { 
-		@text_array = split("\n", $$para_ref);
-	}
-    
-	for my $type (sort( keys %Error_Types )) {
+
+    my @text_array;
+    my $error    = 0;
+    my $encoding = $NO_ENCODING;
+
+    # Read the corpus file
+    if ($file) {
+        $error = &read_file( $file, \@text_array );
+    }
+    if ($error) {
+        carp "non-utf8 bytes.\n";
+        return $ERROR;
+    }
+    elsif ( !@text_array ) {
+        @text_array = split( "\n", $$para_ref );
+    }
+
+    for my $type ( sort( keys %Error_Types ) ) {
         my %freq;
-        
-		for my $line (@text_array) {
-			foreach( keys % {$Error_Types{$type}}) {
-				my $key = $_;
-                
-				while ($line =~ /$key/g) {
+
+        for my $line (@text_array) {
+            foreach ( keys %{ $Error_Types{$type} } ) {
+                my $key = $_;
+
+                while ( $line =~ /$key/g ) {
                     $freq{$key}++;
-				}
-			}
-		}
+                }
+            }
+        }
 
-		my $num = (keys %freq);
+        my $num = ( keys %freq );
 
-		if (%freq and (
-            ($type eq "type11") or
-            ($type eq "type07" and $num > 1) or
-            ($type eq "type10" and $num > 1) or
-            ($type eq "type03" and $num > 3) or 
-            $type ne "type03" and $num > 3)) {
+        if (
+            %freq
+            and (  ( $type eq "type11" )
+                or ( $type eq "type07" and $num > 1 )
+                or ( $type eq "type10" and $num > 1 )
+                or ( $type eq "type03" and $num > 3 )
+                or $type ne "type03" and $num > 3 )
+          )
+        {
             my $hits = 0;
-            for my $key (keys %freq) {
+            for my $key ( keys %freq ) {
                 $hits += $freq{$key};
             }
-            if ($hits >= $max_hits) {
+            if ( $hits >= $max_hits ) {
                 $max_hits = $hits;
                 $encoding = $type;
             }
             if ($Test) {
-                print "type is $type, encoding is $encoding, lang is $lang freq is ",  %freq, " num is ", $num, " hits is ", $hits, "\n";
-            }   
-		}
-	}
-	return $encoding;
+                print
+"type is $type, encoding is $encoding, lang is $lang freq is ",
+                  %freq, " num is ", $num, " hits is ", $hits, "\n";
+            }
+        }
+    }
+    return $encoding;
 }
 
-sub decode_para (){
-	my ($lang, $para_ref, $encoding) = @_;
-	
-	if (! $encoding) { $encoding = &guess_encoding(undef, $lang, $para_ref); }
-	if (!$encoding eq $NO_ENCODING) { return; }
+sub decode_para () {
+    my ( $lang, $para_ref, $encoding ) = @_;
 
-# 	if ($Test) {
-# 		print "\n\npara_ref before $$para_ref\n\n";
-# 	}
-	foreach (sort( keys % {$Error_Types{$encoding}})) {
-		$$para_ref =~ s/$_/${$Error_Types{$encoding}}{$_}/g;
- 	}
-# 	if ($Test) {
-# 		print "\n\npara_ref after $encoding\n $$para_ref\n\n";
-# 	}
+    if ( !$encoding ) {
+        $encoding = &guess_encoding( undef, $lang, $para_ref );
+    }
+    if ( !$encoding eq $NO_ENCODING ) { return; }
 
-	return 0;
+    # 	if ($Test) {
+    # 		print "\n\npara_ref before $$para_ref\n\n";
+    # 	}
+    foreach ( sort( keys %{ $Error_Types{$encoding} } ) ) {
+        $$para_ref =~ s/$_/${$Error_Types{$encoding}}{$_}/g;
+    }
+
+    # 	if ($Test) {
+    # 		print "\n\npara_ref after $encoding\n $$para_ref\n\n";
+    # 	}
+
+    return 0;
 }
 
 sub read_file {
-    my ($file, $text_aref, $allow_nonutf) =  @_;
+    my ( $file, $text_aref, $allow_nonutf ) = @_;
 
-	if (! open (FH, "<utf8", "$file")) { 
-		carp "Cannot open file $file";
-		return $ERROR;
-	} else {
-		while (<FH>) {
-			if (! utf8::is_utf8($_)) { return "ERROR"; }
-			push (@$text_aref, $_);
-		}
-		close (FH);
-		return 0;
-	}
+    if ( !open( FH, "<utf8", "$file" ) ) {
+        carp "Cannot open file $file";
+        return $ERROR;
+    }
+    else {
+        while (<FH>) {
+            if ( !utf8::is_utf8($_) ) { return "ERROR"; }
+            push( @$text_aref, $_ );
+        }
+        close(FH);
+        return 0;
+    }
 }
-
 
 1;
 

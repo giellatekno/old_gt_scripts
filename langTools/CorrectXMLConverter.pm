@@ -7,17 +7,18 @@ use langTools::Corpus;
 use File::Copy;
 
 sub convert2intermediate {
-	my( $self ) = @_;
+    my ($self) = @_;
 
-	my $error = 0;
+    my $error = 0;
 
-	if (-f $self->getOrig()) {
-		File::Copy::copy($self->getOrig(), $self->gettmp1());
-	} else {
-		$error = 1;
-	}
-	
-	return $error;
+    if ( -f $self->getOrig() ) {
+        File::Copy::copy( $self->getOrig(), $self->gettmp1() );
+    }
+    else {
+        $error = 1;
+    }
+
+    return $error;
 }
 
 1;
