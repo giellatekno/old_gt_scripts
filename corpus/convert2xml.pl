@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use Cwd;
 use Encode;
 use utf8;
@@ -53,6 +54,8 @@ sub main {
 	} else {
 		print_help();
 	}
+	
+	return;
 }
 
 sub convertdoc {
@@ -156,6 +159,8 @@ sub convertdoc {
 			}
 		}
 	}
+	
+	return;
 }
 
 sub sanity_check {
@@ -241,6 +246,7 @@ sub sanity_check {
 			}
 		}
 	}
+	
 	return $invalid_setup;
 }
 
@@ -252,6 +258,8 @@ sub print_files {
 		}
 		print "\n";
 	}
+	
+	return;
 }
 
 sub conclusion {
@@ -271,6 +279,8 @@ sub conclusion {
 	} else {
 		print "no errors encountered\n";
 	}
+	
+	return;
 }
 
 sub print_help {
@@ -278,4 +288,6 @@ sub print_help {
 	print "The available options:\n";
 	print "    --debug    Print all the operations that are done when converting files to stderr\n";
 	print "    --shallow  Convert only files that haven't been converted before\n";
+    
+    return;
 }
