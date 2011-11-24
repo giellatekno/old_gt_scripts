@@ -107,7 +107,7 @@ sub getTmpDir {
 	return $self->{_tmpdir};
 }
 
-sub getMetadataXsl() {
+sub getMetadataXsl {
 	my( $self ) = @_;
 	return $self->{_metadata_xsl};
 }
@@ -168,6 +168,8 @@ sub makeFinalDir {
 	if( ! -e File::Basename::dirname($self->getFinalName())) {
 		File::Path::mkpath(File::Basename::dirname($self->getFinalName()));
 	}
+	
+	return;
 }
 
 sub exec_com {
@@ -227,10 +229,11 @@ sub checklang {
 		# Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
 		$root->set_att('xml:lang', $self->getPreconverter()->getDoclang());
 	}
-	open(FH, ">:encoding(utf8)", $tmp) or die "Cannot open $tmp $!";
+	my $fh;
+	open($fh, ">:encoding(utf8)", $tmp) or die "Cannot open $tmp $!";
 	$document->set_pretty_print('indented');
-	$document->print(\*FH);
-
+	$document->print($fh);
+    close $fh;
 
 	return 0;
 }
@@ -301,6 +304,7 @@ sub character_encoding {
     my $text = $self->get_doc_text();
 	my $encoding = $self->getEncodingFromXsl();
 	$encoding =~ s/'//g;
+	my $fh;
 	if ( $encoding eq "ERROR") {
 		$error = 1;
 	} else {
@@ -332,13 +336,13 @@ sub character_encoding {
         if (! $d->safe_parsefile ("$int") ) {
             carp "ERROR parsing the XML-file failed.\n";
             $error = 1;
-        } elsif (! open (FH, ">:encoding(utf8)", $int)) {
+        } elsif (! open ($fh, ">:encoding(utf8)", $int)) {
             carp "ERROR cannot open file";
             $error = 2;
         } else {
             $d->set_pretty_print('indented');
-            $d->print( \*FH);
-            close (FH);
+            $d->print($fh);
+            close ($fh);
         }
 	}
 	return $error;
@@ -407,13 +411,15 @@ sub error_markup {
 		carp "ERROR parsing the XML-file failed. STOP\n";
 		return 1;
 	}
-	if (! open (FH, ">:encoding(utf8)", $int)) {
+	
+	my $fh;
+	if (! open ($fh, ">:encoding(utf8)", $int)) {
 		carp "ERROR cannot open file STOP";
 		return 1;
 	}
 	$document->set_pretty_print('indented');
-	$document->print( \*FH);
-	close (FH);
+	$document->print($fh);
+	close ($fh);
 
 	return $error;
 }
@@ -426,7 +432,7 @@ sub move_int_to_converted {
 		File::Copy::copy($self->getInt(), $self->getFinalName());
 		return $self->getFinalName();
 	} else {
-		return undef;
+		return;
 	}
 }
 
@@ -437,11 +443,12 @@ sub search_for_faulty_characters {
 	my $lineno = 0;
 	# The theory is that only the sami languages can be erroneously encoded ...
 	if ($self->getPreconverter->getDoclang() =~ /(sma|sme|smj)/) {
-		if( !open (FH, "<:encoding(utf8)", $filename )) {
+        my $fh;
+		if( !open ($fh, "<:encoding(utf8)", $filename )) {
 			print "(Search for faulty) Cannot open: " . $filename . "\n";
 			$error = 1;
 		} else {
-			while (<FH>) {
+			while (<$fh>) {
 				$lineno++;
 				if ( $_ =~ /(¤|Ä\?|Ď|ª|Ω|π|∏|Ã|Œ|α|ρ|λ|ν|χ|υ|τ|Δ|Λ|þ|±|¢|¹|¿|˜)/) { 
 					print STDERR "In file " . $filename . " (base is " . $self->getOrig() . " )\n";
@@ -450,7 +457,7 @@ sub search_for_faulty_characters {
 				}
 			}
 		}
-		close(FH);
+		close $fh;
 	}
 	return $error;
 }
@@ -462,6 +469,8 @@ sub remove_temp_files {
 	unlink( $self->getIntermediateXml() );
 	unlink( $self->getPreconverter()->gettmp2() );
 	unlink( $self->getMetadataXsl() );
+    
+    return;
 }
 
 # Redirect STDERR to log files.
@@ -471,6 +480,8 @@ sub redirect_stderr_to_log {
 		$self->{_log_file} = $self->getPreconverter()->getTmpDir() . "/" . File::Basename::basename( $self->getOrig() ) . ".log";
 		open STDERR, '>', $self->{_log_file} or die "Can't redirect STDERR: $!";
 	}
+	
+	return;
 }
 
 sub text_categorization {
