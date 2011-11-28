@@ -20,12 +20,6 @@ my $corpdir = "$ENV{'GTFREE'}";
 
 my $host = `hostname`;
 
-# If we are in G5
-# if ($host !~ /victorio.uit.no/) {
-#     $corpdir = "/Users/hoavda/Public/corp";
-#     $corpus_analyze = "/Users/saara/gt/script/corpus-analyze.pl";
-# }
-
 my $tmpdir = $corpdir . "/tmp";
 my $lang1  = "sme";
 my $lang2  = "nob";
@@ -56,9 +50,6 @@ if ($help) {
 if ( !$outdir ) { $outdir = $tmpdir; }
 
 my $anchor_file = "$ENV{'GTFREE'}/anchor-" . $lang1 . $lang2 . ".txt";
-
-#my $anchor_file = "/opt/smi/common/bin/anchor-smenno.txt";
-#my $anchor_file = "/Users/saara/anchor-smenno.txt";
 
 # Search the files in the directory $dir and list the files
 # that have parallel file.
