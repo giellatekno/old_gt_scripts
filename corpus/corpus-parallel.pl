@@ -87,7 +87,7 @@ if ($dir) {
         }
     }
     else {
-        if ( -d $dir ) { find( \&process_file, $dir ) }
+        if ( -d $dir ) { find( \&parallelize_text, $dir ) }
         else           { print "$dir ERROR: Directory did not exit.\n"; }
     }
 }
@@ -95,13 +95,13 @@ if ($dir) {
 elsif ($files) {
     my @input_files = split( ",", $files );
     for my $f (@input_files) {
-        if ( -f $f ) { process_file($f); }
+        if ( -f $f ) { parallelize_text($f); }
     }
 }
-elsif ($file) { process_file($file); }
+elsif ($file) { parallelize_text($file); }
 
 # Process the file given in command line.
-else { process_file( Encode::decode_utf8( $ARGV[-1] ) ) if -f $ARGV[-1]; }
+else { parallelize_text( Encode::decode_utf8( $ARGV[-1] ) ) if -f $ARGV[-1]; }
 
 # Subroutine to take the parallel files for a file
 # Routine examines xml-header of the file.
@@ -154,7 +154,7 @@ sub list_files {
 
 # The file and it's parallel counterpart are split to sentences,
 # aligned and analyzed.
-sub process_file {
+sub parallelize_text {
     my $file = $_;
     $file = shift(@_) if ( !$file );
 
@@ -165,8 +165,61 @@ sub process_file {
     }
 
     # Find the parallel files for the document.
+    my $location = find_parallel_location($document);
+    if ( !$location ) {
+        print "No parallel texts found for language $lang2.\n";
+    } else {
+        $file = File::Spec->rel2abs($file);
+        my @full_paths = find_parallel_paths($file, $lang1, $lang2, $location);
+        
+
+        # Prepare files for further processing by
+        # adding <s> tags and sentence ids.
+        # The output goes to tmp.
+
+        # Take only the file name without path.
+        if ( $#full_paths > 0 ) {
+            die "Cannot process more than one parallel file\n";
+        }
+        else {
+            my $pfile = $full_paths[0];
+
+            my $lang1_infile = divide_p_into_sentences($file);
+            my $lang2_infile = divide_p_into_sentences($pfile);
+
+            parallelize_files( $anchor_file, $lang1_infile, $lang2_infile );
+            make_tmx( $file, $pfile, $lang1, $lang2 );
+        }
+    }
+    return;
+}
+
+sub find_parallel_paths {
+    my ( $file, $lang1, $lang2, $location ) = @_;
+    
+    my @full_paths;
+    # The path to the original.
+    # And path to parallel files.
+    ( my $path      = $file ) =~ s/(.*)[\/\\].*/$1/;
+    ( my $para_path = $path ) =~ s/$lang1/$lang2/o;
+
+    my @para_files = split( ",", $location );
+    for my $p (@para_files) {
+        $p = $para_path . "/" . $p;
+        if ( $p !~ /\.xml/ ) {
+            $p = $p . ".xml";
+        }
+        push( @full_paths, $p );
+    }
+    
+    return @full_paths;
+}
+
+sub find_parallel_location {
+    my ( $twig ) = @_;
+    
     my $location;
-    my $root           = $document->root;
+    my $root           = $twig->root;
     my $header         = $root->first_child('header');
     my @parallel_texts = $header->children('parallel_text');
     for my $p (@parallel_texts) {
@@ -176,50 +229,12 @@ sub process_file {
         last;
     }
 
-    if ( !$location ) {
-        print "No parallel texts found for language $lang2.\n";
-        return;
-    }
-
-    # The path to the original.
-    # And path to parallel files.
-    $file = File::Spec->rel2abs($file);
-    ( my $path      = $file ) =~ s/(.*)[\/\\].*/$1/;
-    ( my $para_path = $path ) =~ s/$lang1/$lang2/o;
-
-    my @para_files = split( ",", $location );
-    my @full_paths;
-    for my $p (@para_files) {
-        $p = $para_path . "/" . $p;
-        if ( $p !~ /\.xml/ ) {
-            $p = $p . ".xml";
-        }
-        push( @full_paths, $p );
-    }
-
-    # Prepare files for further processing by
-    # adding <s> tags and sentence ids.
-    # The output goes to tmp.
-
-    # Take only the file name without path.
-    if ( $#full_paths > 0 ) {
-        die "Cannot process more than one parallel file\n";
-    }
-    else {
-        my $pfile = $full_paths[0];
-
-        my $lang1_infile = divide_p_into_sentences($file);
-        my $lang2_infile = divide_p_into_sentences($pfile);
-
-        parallelize_files( $anchor_file, $lang1_infile, $lang2_infile );
-        make_tmx( $file, $pfile, $lang1, $lang2 );
-    }
-
-    return;
+    
+    return $location;
 }
 
 sub calculate_base {
-    my ($file) = @_;
+    my ( $file ) = @_;
 
     ( my $base = $file ) =~ s/.*[\/\\](.*).xml/$1/;
     return $base;
