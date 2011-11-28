@@ -199,43 +199,60 @@ sub process_file {
     # The output goes to tmp.
 
     # Take only the file name without path.
-	(my $base = $file) =~ s/.*[\/\\](.*).xml/$1/;
-# 	my $newfile = $outdir . "/" . $base . ".xml";
-# 	if (! -f $newfile) { copy($file,$newfile); }
-# 	$file=$newfile;
-	my $outfile = $outdir . "/" . $base . $lang1 . ".sent.xml";
+	if ($#full_paths > 0) { 
+        die "Cannot process more than one parallel file\n"; 
+    } else {
+        my $pfile=$full_paths[0];
 
-	my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang1 \"$file\"";
-	print STDERR "$0: $command\n";
-	if ( system( $command) != 0 ) {  return "errors in $command: $!\n"; }
-
-#     # If there are more than one parallel file, these files are combined to one.
-	if ($#full_paths > 0) { return "Cannot process more than one parallel file\n"; }
-	my $pfile=$full_paths[0];
-	(my $pbase = $pfile) =~ s/.*[\/\\](.*).xml/$1/;
-# 	my $newpfile = $outdir . "/" . $pbase . ".xml";
-# 	if (! -f $newpfile) { copy($pfile,$newpfile); }
-# 	$pfile = $newpfile;
-	
-	my $poutfile=$outdir . "/" . $pbase . $lang2 . ".sent.xml";
-	$command="$corpus_analyze --all --output=\"$poutfile\" --only_add_sentences --lang=$lang2 \"$pfile\"";
-	print STDERR "$0: $command\n";	
-	if ( system($command) != 0 ) {  return "errors in $command: $!\n"; }
-
-	$command="tca2.sh $anchor_file $outfile $poutfile";
-	print STDERR "$0: $command\n";
-	system($command);
-    
-    make_tmx($base, $pbase, $lang1, $lang2);
+        my $lang1_infile = divide_p_into_sentences($file);
+        my $lang2_infile = divide_p_into_sentences($pfile);
+        
+        parallelize_files( $anchor_file, $lang1_infile, $lang2_infile);
+        make_tmx($file, $pfile, $lang1, $lang2);
+    }
     
     return;
 }
 
-sub make_tmx {
-    my ($base, $pbase, $lang1, $lang2) = @_;
+sub calculate_base {
+    my ($file) = @_;
 
-    my @f1_data = open_tca2_output($base, $lang1);
-    my @f2_data = open_tca2_output($pbase, $lang2);
+    (my $base = $file) =~ s/.*[\/\\](.*).xml/$1/;
+    return $base;
+}
+
+sub divide_p_into_sentences {
+    my ($file, $lang) = @_;
+    
+    my $outfile=$outdir . "/" . calculate_base($file) . $lang . ".sent.xml";
+    
+    my $command="$corpus_analyze --all --output=\"$outfile\" --only_add_sentences --lang=$lang \"$file\"";
+    print STDERR "$0: $command\n";  
+    if ( system($command) != 0 ) {  
+        die "errors in $command: $!\n"; 
+    } else {
+        return $outfile;
+    }
+}
+
+sub parallelize_files {
+    my ($anchor_file, $infile1, $infile2) = @_;
+    
+    my $command="tca2.sh $anchor_file $infile1 $infile2";
+    
+    print STDERR "$0: $command\n";
+    if ( system($command) != 0 ) {  
+        die "errors in $command: $!\n"; 
+    } else {
+        return;
+    }
+}
+
+sub make_tmx {
+    my ($file, $pfile, $lang1, $lang2) = @_;
+
+    my @f1_data = open_tca2_output(calculate_base($file), $lang1);
+    my @f2_data = open_tca2_output(calculate_base($pfile), $lang2);
     
     my $body = XML::Twig::Elt->new("body");
     $body->set_pretty_print('indented');
@@ -250,7 +267,7 @@ sub make_tmx {
         $tu_elt->paste('last_child', $body);
     }
 
-    print_tmx_file($body, $base, $lang1, $lang2);
+    print_tmx_file($body, calculate_base($file), $lang1, $lang2);
     
     return;
 }
@@ -262,7 +279,7 @@ sub open_tca2_output {
     
     open($fh1, "<:encoding(utf8)", $outdir . "/" . $base . $lang . ".sent_new.txt")  || die("Could not open file!");
     my @data = <$fh1>;
-    close($f1);
+    close($fh1);
 
     return @data;
 }
