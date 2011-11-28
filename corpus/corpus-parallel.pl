@@ -1,7 +1,8 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use utf8;
 use strict;
+use warnings;
 
 use IO::File;
 use File::Basename;
@@ -97,7 +98,7 @@ elsif ($files) {
 elsif ($file) { process_file($file); }
 
 # Process the file given in command line.
-else { process_file (Encode::decode_utf8($ARGV[$#ARGV])) if -f $ARGV[$#ARGV]; }
+else { process_file (Encode::decode_utf8($ARGV[-1])) if -f $ARGV[-1]; }
 
 # Subroutine to take the parallel files for a file
 # Routine examines xml-header of the file.
@@ -143,9 +144,11 @@ sub list_files {
 	return if (! %para_files);
 
 	$file_list{$full} = { %para_files };
+    
+    return;
 }
 
-# The file and it's parallel counterpart are splitted to sentences,
+# The file and it's parallel counterpart are split to sentences,
 # aligned and analyzed.
 sub process_file {
 	my $file = $_;
@@ -224,7 +227,8 @@ sub process_file {
 	system($command);
     
     make_tmx($base, $pbase, $lang1, $lang2);
-
+    
+    return;
 }
 
 sub make_tmx {
@@ -247,6 +251,8 @@ sub make_tmx {
     }
 
     print_tmx_file($body, $base, $lang1, $lang2);
+    
+    return;
 }
 
 sub open_tca2_output {
@@ -272,6 +278,9 @@ sub print_tmx_file {
     print_tmx_header($FH1, $lang1);
     $body->print($FH1);
     print $FH1 qq|</tmx>|, "\n";
+    close($FH1);
+    
+    return;
 }
 
 sub make_tuv {
@@ -300,6 +309,8 @@ sub print_tmx_header {
     print $FH1 qq|    datatype="plaintext"|, "\n";
     print $FH1 qq|    >|, "\n";
     print $FH1 qq|</header>|, "\n";
+    
+    return;
 }
 
 sub print_help {
@@ -315,5 +326,6 @@ Usage: corpus-parallel.pl [OPTIONS] [FILE]
 --outdir=<dir>        The directory where the output files are stored.
 END
 
+    return;
 }
 
