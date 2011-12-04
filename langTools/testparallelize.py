@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
 import parallelize
@@ -5,6 +6,7 @@ import lxml.doctestcompare
 import lxml.etree
 import doctest
 import os
+import argparse
 
 class TestParallelFile(unittest.TestCase):
     """
@@ -98,7 +100,21 @@ class TestParallelize(unittest.TestCase):
         got = lxml.etree.tostring(lxml.etree.parse("aarseth2-s.htm.tmx"))
         want = lxml.etree.tostring(lxml.etree.parse(self.parallelize.printTmxFile(self.parallelize.makeTmx())))
         self.assertXmlEqual(got, want)
+
+    def testGoldstandard(self):
+        goldstandard = {}
+        goldstandard['/prestable/tmx/goldstandard/nob2sme/samisk_strategiplan_samisk.doc.tmx'] = '/prestable/converted/sme/admin/others/samisk_strategiplan_samisk.doc.xml'
+        goldstandard['/prestable/tmx/goldstandard/nob2sme/dc_05_1.doc.tmx'] = 'prestable/converted/sme/admin/sd/other_files/dc_05_1.doc.xml'
+        goldstandard['/prestable/tmx/goldstandard/nob2sme/finnmarkkulahka_web_lettere.pdf.tmx'] = 'prestable/converted/sme/laws/other_files/finnmarkkulahka_web_lettere.pdf.xml'
         
+        for tmxFile, xmlFile in goldstandard.items():
+            self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + xmlFile, 'nob')
+            self.parallelize.dividePIntoSentences()
+            self.parallelize.parallelizeFiles()
+            got = lxml.etree.tostring(lxml.etree.parse(self.parallelize.printTmxFile(self.parallelize.makeTmx())))
+            want = lxml.etree.tostring(lxml.etree.parse(os.environ['GTFREE'] + tmxFile))
+            
+            self.assertXmlEqual(got, want)
 
 def lightTests():
     independentSuite = unittest.TestSuite()
@@ -123,12 +139,21 @@ def defaultChainTest():
     
     return chainTestSuite
     
-def customChainTest(pfile, lang, wantFile):
-    test = TestParallelize()
-    test.self.parallelize = parallelize.Parallelize(pfile, lang)
+def customChainTest():
+    customSuite = unittest.TestSuite()
+    customSuite.addTest(TestParallelize("testGoldstandard"))
+
+    return customSuite
+
     
-
-
+    
 if __name__ == '__main__':
-    unittest.TextTestRunner().run(lightTests())
-    unittest.TextTestRunner().run(defaultChainTest())
+    parser = argparse.ArgumentParser(description = 'Test various parts of the alignment process')
+    parser.add_argument('-g', '--goldstandard', dest = 'goldstandard', help = 'Check if the current aligner pipeline agrees with the goldstandard docs', action = 'store_true')
+    args = parser.parse_args()
+    
+    if args.goldstandard:
+        unittest.TextTestRunner().run(customChainTest())
+    else:
+        unittest.TextTestRunner().run(lightTests())
+        unittest.TextTestRunner().run(defaultChainTest())
