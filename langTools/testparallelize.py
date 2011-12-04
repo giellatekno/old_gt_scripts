@@ -4,6 +4,7 @@ import parallelize
 import lxml.doctestcompare
 import lxml.etree
 import doctest
+import os
 
 class TestParallelFile(unittest.TestCase):
     """
@@ -25,7 +26,7 @@ class TestParallelize(unittest.TestCase):
     A test class for the Parallelize module
     """
     def setUp(self):
-        self.parallelize = parallelize.Parallelize("/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+        self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
         
     def assertXmlEqual(self, got, want):
         """
@@ -40,10 +41,10 @@ class TestParallelize(unittest.TestCase):
         self.assertEqual(self.parallelize.findParallelFilename(), 'aarseth2-n.htm')
         
     def testOrigPath(self):
-        self.assertEqual(self.parallelize.getorigfile1(), "/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
+        self.assertEqual(self.parallelize.getorigfile1(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
         
     def testParallelPath(self):
-        self.assertEqual(self.parallelize.getorigfile2(), "/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
+        self.assertEqual(self.parallelize.getorigfile2(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
         
     def testLang1(self):
         self.assertEqual(self.parallelize.getlang1(), "sme")
@@ -52,7 +53,7 @@ class TestParallelize(unittest.TestCase):
         self.assertEqual(self.parallelize.getlang2(), "nob")
         
     def testGetSentFilename(self):
-        self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getorigfile1()), "/home/boerre/Dokumenter/corpus/freecorpus/tmp/aarseth2-s.htm_sent.xml")
+        self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getorigfile1()), os.environ['GTFREE'] + "/tmp/aarseth2-s.htm_sent.xml")
         
     def testMakeTu(self):
         line1 = '<s id="1">ubba gubba.</s> <s id="2">ibba gibba.</s>'

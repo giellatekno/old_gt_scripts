@@ -107,14 +107,14 @@ class Parallelize:
         Compute a name for the corpus-analyze output and tca2 input file
         """
         origfilename = os.path.basename(file).replace('.xml', '')
-        return '/home/boerre/Dokumenter/corpus/freecorpus' + '/tmp/' + origfilename + '_sent.xml'
+        return os.environ['GTFREE'] + '/tmp/' + origfilename + '_sent.xml'
         
     def parallelizeFiles(self):
         """
         Parallelize two files using tca2
         """
         print "parallelizing ..."
-        anchorName = '/home/boerre/Dokumenter/corpus/freecorpus/' + 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
+        anchorName = os.environ['GTFREE'] + '/anchor-' + self.getlang1() + self.getlang2() + '.txt'
         subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getorigfile1()), self.getSentFilename(self.getorigfile2())], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
             
