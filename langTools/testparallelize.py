@@ -108,11 +108,11 @@ class TestParallelize(unittest.TestCase):
         goldstandard['/prestable/tmx/goldstandard/nob2sme/finnmarkkulahka_web_lettere.pdf.tmx'] = 'prestable/converted/sme/laws/other_files/finnmarkkulahka_web_lettere.pdf.xml'
         
         for tmxFile, xmlFile in goldstandard.items():
-            self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + xmlFile, 'nob')
+            self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/" + xmlFile, 'nob')
             self.parallelize.dividePIntoSentences()
             self.parallelize.parallelizeFiles()
             got = lxml.etree.tostring(lxml.etree.parse(self.parallelize.printTmxFile(self.parallelize.makeTmx())))
-            want = lxml.etree.tostring(lxml.etree.parse(os.environ['GTFREE'] + tmxFile))
+            want = lxml.etree.tostring(lxml.etree.parse(os.environ['GTFREE'] + "/" + tmxFile))
             
             self.assertXmlEqual(got, want)
 
