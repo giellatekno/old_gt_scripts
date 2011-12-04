@@ -18,8 +18,6 @@ my $corpus_analyze = "$ENV{'GTHOME'}/gt/script/corpus/corpus-analyze.pl";
 
 my $corpdir = "$ENV{'GTFREE'}";
 
-my $host = `hostname`;
-
 my $tmpdir = $corpdir . "/tmp";
 my $lang1  = "sme";
 my $lang2  = "nob";
@@ -241,8 +239,7 @@ sub divide_p_into_sentences {
     print STDERR "$0: $command\n";
     if ( system($command) != 0 ) {
         die "errors in $command: $!\n";
-    }
-    else {
+    } else {
         return $outfile;
     }
 }
@@ -255,8 +252,7 @@ sub parallelize_files {
     print STDERR "$0: $command\n";
     if ( system($command) != 0 ) {
         die "errors in $command: $!\n";
-    }
-    else {
+    } else {
         return;
     }
 }
@@ -264,8 +260,8 @@ sub parallelize_files {
 sub make_tmx {
     my ( $file, $pfile, $lang1, $lang2 ) = @_;
 
-    my @f1_data = open_tca2_output( calculate_base($file),  $lang1 );
-    my @f2_data = open_tca2_output( calculate_base($pfile), $lang2 );
+    my @f1_data = read_tca2_output( calculate_base($file),  $lang1 );
+    my @f2_data = read_tca2_output( calculate_base($pfile), $lang2 );
 
     my $body = XML::Twig::Elt->new("body");
     $body->set_pretty_print('indented');
@@ -285,7 +281,7 @@ sub make_tmx {
     return;
 }
 
-sub open_tca2_output {
+sub read_tca2_output {
     my ( $base, $lang ) = @_;
 
     my $fh1;
