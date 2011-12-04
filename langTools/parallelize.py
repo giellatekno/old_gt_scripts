@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
+import re
 import sys
 import subprocess
 from lxml import etree
@@ -78,10 +79,6 @@ class Parallelize:
             if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
                 return p.attrib['location']
         
-    def parallelizeText(self):
-        parseOrigFile()
-        pass
-
     def setOrigfile2Name(self):
         """
         Infer the path of the second file
@@ -93,6 +90,7 @@ class Parallelize:
         Call corpus-analyse.pl which reads an xml file and makes it palatable for tca2
         """
         for pfile in self.origfiles:
+            print "adding sentences ..."
             subp = subprocess.Popen(['corpus-analyze.pl', '--all', '--only_add_sentences', '--output=' + self.getSentFilename(pfile.getName()), '--lang=' + pfile.getLang(), pfile.getName()], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
             (output, error) = subp.communicate()
             
@@ -115,12 +113,13 @@ class Parallelize:
         """
         Parallelize two files using tca2
         """
+        print "parallelizing ..."
         anchorName = '/home/boerre/Dokumenter/corpus/freecorpus/' + 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
-        subp = subprocess.Popen(['tca2.sh', anchorName, self.getorigfile1(), self.getorigfile2()], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getorigfile1()), self.getSentFilename(self.getorigfile2())], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
             
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not parallelize', self.getorigfile1(), 'and', self.getorigfile2(), ' into sentences'
+            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getorigfile1()), 'and', self.getSentFilename(self.getorigfile2()), ' into sentences'
             print >>sys.stderr, output
             print >>sys.stderr, error
             return subp.returncode
@@ -130,29 +129,104 @@ class Parallelize:
         pass
     
     def makeTmx(self):
-        pass
-    
-    def calculateBase(self):
-        pass
-    
-    def readTca2Output(self):
-        pass
-    
-    def makeTuv(self):
-        pass
-    
-    def printTmxFile(self):
-        pass
-    
-    def printTmxHeader(self):
-        pass
+        """
+        Make tmx file based on the two output files of tca2
+        """
+        print "making tmx file ..."
+        tmx = etree.Element("tmx")
+        header = self.makeTmxHeader(self.getlang1())
+        tmx.append(header)
+        
+        pfile1_data = self.readTca2Output(self.getorigfile1())
+        pfile2_data = self.readTca2Output(self.getorigfile2())
 
-def main():
-    p = Parallelize("/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "sme", "nob")
-    p.findParallelFilename()
+        body = etree.SubElement(tmx, "body")
+        for line1, line2 in map(None, pfile1_data, pfile2_data):
+            tu = self.makeTu(line1, line2)
+            body.append(tu)
+            
+        return tmx
+        
+    def readTca2Output(self, pfile):
+        """
+        Read the output of tca2
+        """
+        pfileName = self.getSentFilename(pfile).replace('.xml', '_new.txt')
+        f = open(pfileName, "r")
+        text = f.readlines()
+        f.close()
+        
+        return text
     
-    u = Urga("hirra")
-    print u.getName()
+    def makeTu(self, line1, line2):
+        """
+        Make a tmx tu elemenent based on line1 and line2 as input
+        """
+        tu = etree.Element("tu")
+        
+        tu.append(self.makeTuv(line1, self.getlang1()))
+        tu.append(self.makeTuv(line2, self.getlang2()))
+        
+        return tu
+    
+
+    def makeTuv(self, line, lang):
+        """
+        Make a tuv element given an input line and a lang variable
+        """
+        tuv = etree.Element("tuv")
+        tuv.attrib["{http://www.w3.org/XML/1998/namespace}lang"] = lang
+        seg = etree.Element("seg")
+        seg.text = self.removeSTag(line).strip().decode("utf-8")
+        tuv.append(seg)
+        
+        return tuv
+        
+    def printTmxFile(self, tmx):
+        """
+        Write a tmx file given a tmx etree element
+        """
+        print "printing tmx file..."
+        outFilename = "/home/boerre/Dokumenter/corpus/freecorpus" + "/prestable/tmx/" + self.getlang1() + self.getlang2() + "/" + os.path.basename(self.getorigfile1()).replace('.xml', '.tmx')
+        
+        f = open(outFilename, "w")
+        
+        et = etree.ElementTree(tmx)
+        et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+        f.close()
+        
+        return outFilename
+    
+    def makeTmxHeader(self, lang):
+        """
+        Make a tmx header based on the lang variable
+        """
+        header = etree.Element("header")
+        
+        # Set various attributes
+        header.attrib["segtype"] = "sentence"
+        header.attrib["o-tmf"] = "OmegaT TMX"
+        header.attrib["adminlang"] = "en-US"
+        header.attrib["srclang"] = lang
+        header.attrib["datatype"] = "plaintext"
+        
+        return header
+
+    def removeSTag(self, line):
+        """
+        Remove the s tags that tca2 has added
+        """
+        line = line.replace('</s>','')
+        sregex = re.compile('<s id="[^ ]*">')
+        line = sregex.sub('', line)
+        
+        return line
+        
+def main():
+    p = Parallelize("/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+    p.dividePIntoSentences()
+    if p.parallelizeFiles() == 0:
+        p.makeTmx()
     
 if __name__ == '__main__':
     main()
