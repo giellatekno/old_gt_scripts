@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 # show the frequency of characters in a string
-# Python24 and higher   by HAB
+# Python24 and higher by HAB
 # Fetched from http://www.daniweb.com/code/snippet506.html
 # Modified by boerre@skolelinux.no to read utf8 input, and 
 # to read data from either stdin or a file
