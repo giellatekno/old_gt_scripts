@@ -84,4 +84,8 @@ build_and_copy_site \
 	$HOME/gtsvn/xtdoc/gtuit \
 	gtuit@giellatekno.uit.no:Sites
 
+build_and_copy_site \
+    $HOME/gtsvn/xtdoc/dicts \
+    gtuit@giellatekno.uit.no:Sites/dicts
+    
 echo "Done updating giellatekno:-)!"
