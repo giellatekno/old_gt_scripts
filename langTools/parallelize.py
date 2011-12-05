@@ -186,7 +186,7 @@ class Parallelize:
         Write a tmx file given a tmx etree element
         """
         print "printing tmx file..."
-        outFilename = "/home/boerre/Dokumenter/corpus/freecorpus" + "/prestable/tmx/" + self.getlang1() + self.getlang2() + "/" + os.path.basename(self.getorigfile1()).replace('.xml', '.tmx')
+        outFilename = os.environ['GTFREE'] + "/prestable/tmx/" + self.getlang1() + self.getlang2() + "/" + os.path.basename(self.getorigfile1()).replace('.xml', '.tmx')
         
         f = open(outFilename, "w")
         
@@ -222,7 +222,7 @@ class Parallelize:
         return line
         
 def main():
-    p = Parallelize("/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+    p = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
     p.dividePIntoSentences()
     if p.parallelizeFiles() == 0:
         p.makeTmx()
