@@ -12,7 +12,8 @@ def generate_nums(lang, max_limit):
 
 #	if (lang == "sme"):
 	for x in range(1,max_limit + 1):
-		plxfile.write(`x` + '--\t' + 'NL\n')
+		plxfile.write(`x` + '\t' + 'JIBO,NePE\n')
+		plxfile.write(`x` + '--\t' + 'JtB,JO\n')
 #			plxfile.write(`x` + ':i' + '\t' + 'UI\n')
 #			plxfile.write(`x` + ':s' + '\t' + 'UI\n')
 #			plxfile.write(`x` + ':in' + '\t' + 'UI\n')
