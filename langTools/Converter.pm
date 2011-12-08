@@ -605,7 +605,7 @@ sub find_unknown_words {
     
     # Macs need ssed for the -r flag below
     my $sed;
-    if ( `uname` eq "Darwin" ) {
+    if ( `uname` eq "Darwin\n" ) {
         $sed = "ssed";
     } else {
         $sed = "sed";
