@@ -602,6 +602,14 @@ sub find_unknown_words {
     my $preprocess;
     my $gthome = $ENV{'GTHOME'};
     my $int    = $self->getInt();
+    
+    # Macs need ssed for the -r flag below
+    my $sed;
+    if ( `uname` eq "Darwin" ) {
+        $sed = "ssed";
+    } else {
+        $sed = "sed";
+    }
 
     if ( $mainlang eq "sme" || $mainlang eq "smj" ) {
         $preprocess =
@@ -612,12 +620,12 @@ sub find_unknown_words {
     }
 
     my $ukw =
-`ccat -l $mainlang -a $int | $preprocess | sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | sort -u | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?' | wc -l`;
+`ccat -l $mainlang -a $int | $preprocess | $sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | sort -u | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?' | wc -l`;
 
     if ( $self->{_test} ) {
         print "this is unknown words: " . $ukw . "\n";
         print
-`ccat -l $mainlang -a $int | $preprocess | sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | sort -u | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?'`;
+`ccat -l $mainlang -a $int | $preprocess | $sed -r -e 's_http:.*__' -e 's_\\w+\\.\\w+__' | sort -u | lookup -flags mbTT $gthome/gt/$mainlang/bin/$mainlang.fst | fgrep '+?'`;
     }
 
     return $ukw;

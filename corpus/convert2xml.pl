@@ -175,6 +175,14 @@ sub sanity_check {
 		print "directory as this script.";
 		$invalid_setup = 1;
 	} else {
+        if ( `uname` eq "Darwin" ) {
+            if (qx{which ssed} eq "") {
+                print "Didn't find ssed\n";
+                print "Install it on Mac by issuing the command\n\n";
+                print "sudo port install ssed\n\n";
+                $invalid_setup = 1;
+            }
+        }
 		if (qx{which antiword} eq "") {
 			print "Didn't find antiword\n";
 			print "Install it on Mac by issuing the command\n\n";
