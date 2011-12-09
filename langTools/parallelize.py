@@ -259,7 +259,8 @@ class TmxTestDataWriter():
         self.filename = filename
         
         try:
-            etree.parse(filename)
+            tree = etree.parse(filename)
+            self.setParagsTestingElement(tree.getroot())
         except IOError:
             self.setParagsTestingElement(self.makeParagstestingElement())
         except etree.XMLSyntaxError:
@@ -340,6 +341,14 @@ class Parallelize:
         self.origfiles.append(tmpfile)
         self.origfiles[1].setName(self.setOrigfile2Name())
         
+        if self.isTranslatedFromLang2():
+            self.reshuffleFiles()
+            
+    def reshuffleFiles(self):
+        tmp = self.origfiles[0]
+        self.origfiles[0] = self.origfiles[1]
+        self.origfiles[1] = tmp
+        
     def getFilelist(self):
         return self.origfiles
 
@@ -355,6 +364,18 @@ class Parallelize:
     def getorigfile2(self):
         return os.path.join(self.origfiles[1].getDirname(), self.origfiles[1].getName())
     
+    def isTranslatedFromLang2(self):
+        """
+        Find out if the given doc is translated from lang2
+        """
+        root = self.origfile1Tree.getroot()
+        translated_from = root.find(".//translated_from")
+        if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
+            return True
+        else:
+            return False
+    
+        
     def findParallelFilename(self):
         """
         Find the name of the parallel file to the original input file

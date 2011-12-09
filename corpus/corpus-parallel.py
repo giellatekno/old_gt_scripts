@@ -22,7 +22,8 @@ def main():
     parallelizer = parallelize.Parallelize(args.input_file, args.parallel_language)
     if parallelizer.dividePIntoSentences() == 0:
         if parallelizer.parallelizeFiles() == 0:
-            parallelizer.printTmxFile(parallelizer.makeTmx())
+            tmx = parallelize.TmxFromTca2(parallelizer.getFilelist())
+            tmx.printTmxFile()
 
 if __name__ == "__main__":
     main()
