@@ -135,7 +135,7 @@ class TestTmxComparator(unittest.TestCase):
         self.assertEqual(comp.getNumberOfDifferingLines(), 7)
         self.assertEqual(comp.getLinesInWantedfile(), 632)
         self.assertEqual(len(comp.getDiffAsText()), 28)
-        
+
 class TestParallelize(unittest.TestCase):
     """
     A test class for the Parallelize class
@@ -187,7 +187,19 @@ class TestTmxTestDataWriter(unittest.TestCase):
     A class to test TmxTestDataWriter
     """
     def setUp(self):
-        self.writer = parallelize.TmxTestDataWriter()
+        self.writer = parallelize.TmxTestDataWriter("testfilename")
+        
+    def assertXmlEqual(self, got, want):
+        """
+        Check if two xml snippets are equal
+        """
+        string_got = lxml.etree.tostring(got, pretty_print = True)
+        string_want = lxml.etree.tostring(want, pretty_print = True)
+        
+        checker = lxml.doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(string_got, string_want, 0):
+            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+            raise AssertionError(message)
         
     def testMakeFileElement(self):
         wantElement = lxml.etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
@@ -198,15 +210,55 @@ class TestTmxTestDataWriter(unittest.TestCase):
     def testMakeTestrunElement(self):
         wantElement = lxml.etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
         gotElement = self.writer.makeTestrunElement("20111208-1234")
+        fileElement = self.writer.makeFileElement("abc", "634", "84")
+        gotElement.append(fileElement)
         
         self.assertXmlEqual(wantElement, gotElement)
     
     def testMakeParagstestingElement(self):
         wantElement = lxml.etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
-        gotElement = self.writer.makeParagstestingElement("abc", "634", "84")
+        gotElement = self.writer.makeParagstestingElement()
+        testrunElement = self.writer.makeTestrunElement("20111208-1234")
+        fileElement = self.writer.makeFileElement("abc", "634", "84")
+        testrunElement.append(fileElement)
+        gotElement.append(testrunElement)
         
         self.assertXmlEqual(wantElement, gotElement)
     
+    def testInsertTestrunElement(self):
+        wantElement = lxml.etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        
+        gotElement = self.writer.makeParagstestingElement()
+        self.writer.setParagsTestingElement(gotElement)
+        testrunElement = self.writer.makeTestrunElement("20111208-1234")
+        fileElement = self.writer.makeFileElement("abc", "634", "84")
+        testrunElement.append(fileElement)
+        gotElement.append(testrunElement)
+
+        testrunElement = self.writer.makeTestrunElement("20111208-2345")
+        fileElement = self.writer.makeFileElement("abc", "634", "84")
+        testrunElement.append(fileElement)
+        
+        self.writer.insertTestrunElement(testrunElement)
+        
+        self.assertXmlEqual(wantElement, gotElement)
+        
+    def testWriteParagstestingData(self):
+        want = lxml.etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        
+        gotElement = self.writer.makeParagstestingElement()
+        self.writer.setParagsTestingElement(gotElement)
+        testrunElement = self.writer.makeTestrunElement("20111208-1234")
+        fileElement = self.writer.makeFileElement("abc", "634", "84")
+        testrunElement.append(fileElement)
+        gotElement.append(testrunElement)
+
+        
+        self.writer.writeParagstestingData()
+        got = lxml.etree.parse(self.writer.filename)
+        
+        self.assertXmlEqual(got, want)
+        
 if __name__ == '__main__':
     for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()

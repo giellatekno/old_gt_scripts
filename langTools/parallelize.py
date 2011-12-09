@@ -167,7 +167,7 @@ class TmxFromTca2(Tmx):
             et = etree.ElementTree(self.getTmx())
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
-        except:
+        except IOError:
             print "ouch, printTmxFile"
         
         return outFilename
@@ -256,19 +256,62 @@ class TmxTestDataWriter():
     A class that writes tmx test data to a file
     """
     def __init__(self, filename):
-        #test if file exists
-        #test if file is parsable
-        pass
+        self.filename = filename
+        
+        try:
+            etree.parse(filename)
+        except IOError:
+            self.setParagsTestingElement(self.makeParagstestingElement())
+        except etree.XMLSyntaxError:
+            self.setParagsTestingElement(self.makeParagstestingElement())
         
     def makeFileElement(self, name, gspairs, diffpairs):
-        pass
-    
+        """
+        Make the element file, set the attributes
+        """
+        fileElement = etree.Element("file")
+        fileElement.attrib["name"] = name
+        fileElement.attrib["gspairs"] = gspairs
+        fileElement.attrib["diffpairs"] = diffpairs
+        
+        return fileElement
+        
+    def setParagsTestingElement(self, paragstesting):
+        self.paragstesting = paragstesting
+        
     def makeTestrunElement(self, datetime):
-        pass
+        """
+        Make the testrun element, set the attribute
+        """
+        testrunElement = etree.Element("testrun")
+        testrunElement.attrib["datetime"] = datetime
+        
+        return testrunElement
     
     def makeParagstestingElement(self):
-        pass
+        """
+        Make the paragstesting element
+        """
+        paragstestingElement = etree.Element("paragstesting")
+        
+        return paragstestingElement
     
+    def insertTestrunElement(self, testrun):
+        self.paragstesting.insert(0, testrun)
+        
+    def writeParagstestingData(self):
+        """
+        Write the paragstesting data to a file
+        """
+        try:
+            f = open(self.filename, "w")
+            
+            et = etree.ElementTree(self.paragstesting)
+            et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+            f.close()
+        except IOError:
+            print "ouch, Paragstestingresults"
+        
 class Parallelize:
     """
     A class to parallelize two files
