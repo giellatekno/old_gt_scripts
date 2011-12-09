@@ -29,10 +29,28 @@ class TestParallelFile(unittest.TestCase):
         self.pfile.setLang("sme")
         self.assertEqual(self.pfile.getLang(), "sme")
 
-        
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
+    """
+    def setUp(self):
+        self.tmx = parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx'))
+        
+    def testTuToString(self):
+        tu = lxml.etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
+        
+        self.assertEqual(self.tmx.tuToString(tu), "Sámegiella\tSamisk\n")
+        
+    def testTmxToStringlist(self):
+        f = open('aarseth2-s.htm.tmx.as.txt', 'r')
+        wantList = f.readlines()
+        f.close()
+        self.maxDiff = None
+        self.assertEqual(self.tmx   .tmxToStringlist(), wantList)
+
+class TestTmxFromTca2(unittest.TestCase):
+    """
+    A test class for the TmxFromTca2 class
     """
     def setUp(self):
         """
@@ -40,7 +58,7 @@ class TestTmx(unittest.TestCase):
         """
         para = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
 
-        self.tmx = parallelize.Tmx(para.getFilelist())
+        self.tmx = parallelize.TmxFromTca2(para.getFilelist())
     
     def assertXmlEqual(self, got, want):
         """
@@ -95,24 +113,15 @@ class TestTmx(unittest.TestCase):
         self.tmx.printTmxFile()
         got = lxml.etree.parse(self.tmx.getOutfileName())
         
-        self.assertXmlEqual(want, got)
-
-    def testTuToString(self):
-        tu = lxml.etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
-        
-        self.assertEqual(self.tmx.tuToString(tu), "Sámegiella\tSamisk\n")
-        
-    def testTmxToStringlist(self):
-        f = open('aarseth2-s.htm.tmx.as.txt', 'r')
-        wantList = f.readlines()
-        f.close()
-        #self.maxDiff = None
-        self.assertEqual(self.tmx.tmxToStringlist(), wantList)
+        self.assertXmlEqual(got, want)
 
 class TestTmxComparator(unittest.TestCase):
     """
     A test class for the TmxComparator class
     """
+    def setUp(self):
+        self.comp = parallelize.TmxComparator()
+        
     
     
 class TestParallelize(unittest.TestCase):
@@ -162,7 +171,7 @@ class TestParallelize(unittest.TestCase):
             #self.assertXmlEqual(got, want)
 
 if __name__ == '__main__':
-    for test in [TestParallelFile, TestParallelize, TestTmx]:
+    for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)

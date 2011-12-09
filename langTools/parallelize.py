@@ -36,15 +36,60 @@ class ParallelFile:
 
 class Tmx:
     """
+    A class that reads a tmx file, and implements a bare minimum of functionality
+    to be able to compare two tmx'es
+    """
+    def __init__(self, tmx):
+        self.tmx = tmx
+        
+    def getTmx(self):
+        """
+        Get the tmx xml element
+        """
+        return self.tmx
+        
+    def tuToString(self, tu):
+        """
+        Extract the two strings of a tu element
+        """
+        string = ""
+        try:
+            string = string + tu[0][0].text.strip()
+        except(AttributeError):
+            pass
+            
+        string += '\t'
+        
+        try:
+            string = string + tu[1][0].text.strip()
+        except(AttributeError):
+            pass
+        
+        string += '\n'
+        return string.encode('utf-8')
+        
+    def tmxToStringlist(self):
+        """
+        Extract all string pairs in a tmx to a list of strings
+        """
+        all_tu = self.getTmx().findall('.//tu')
+        strings = []
+        for tu in all_tu:
+            strings.append(self.tuToString(tu))
+        
+        return strings
+        
+
+class TmxFromTca2(Tmx):
+    """
     A class to make tmx files based on the output from tca2
-    and to compare two tmx files
     """
     def __init__(self, filelist):
         """
         Input is a list of ParallelFile objects
         """
         self.filelist = filelist
-        self.tmx = self.setTmx()
+        Tmx.__init__(self, self.setTmx())
     
     def makeTu(self, line1, line2):
         """
@@ -144,12 +189,6 @@ class Tmx:
             
         return tmx
         
-    def getTmx(self):
-        """
-        Get the tmx xml element
-        """
-        return self.tmx
-        
     def readTca2Output(self, pfile):
         """
         Read the output of tca2
@@ -166,36 +205,6 @@ class Tmx:
         return text
     
 
-    def tuToString(self, tu):
-        """
-        Extract the two strings of a tu element
-        """
-        string = ""
-        try:
-            string = string + tu[0][0].text.strip()
-        except(AttributeError):
-            pass
-            
-        string = string + '\t'
-        
-        try:
-            string = string + tu[1][0].text.strip() + '\n'
-        except(AttributeError):
-            pass
-        
-        return string.encode('utf-8')
-        
-    def tmxToStringlist(self):
-        """
-        Extract all string pairs in a tmx to a list of strings
-        """
-        all_tu = self.getTmx().findall('.//tu')
-        strings = []
-        for tu in all_tu:
-            strings.append(self.tuToString(tu))
-        
-        return strings
-        
     def getSentFilename(self, file):
         """
         Compute a name for the corpus-analyze output and tca2 input file
