@@ -119,11 +119,23 @@ class TestTmxComparator(unittest.TestCase):
     """
     A test class for the TmxComparator class
     """
-    def setUp(self):
-        self.comp = parallelize.TmxComparator()
+    def testEqualTmxes(self):
+        comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx')), parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx')))
         
-    
-    
+        self.assertEqual(comp.getNumberOfDifferingLines(), -1)
+        self.assertEqual(comp.getLinesInWantedfile(), 272)
+        self.assertEqual(len(comp.getDiffAsText()), 0)
+        
+    def testUnEqualTmxes(self):
+        gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/sme2nob/laws/other_files/finnmarkkulahka_web_lettere.pdf.tmx')
+        wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/finnmarkkulahka_web_lettere.pdf.tmx')
+        comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse(wantFile)), parallelize.Tmx(lxml.etree.parse(gotFile)))
+
+        #comp.printDiff()
+        self.assertEqual(comp.getNumberOfDifferingLines(), 7)
+        self.assertEqual(comp.getLinesInWantedfile(), 632)
+        self.assertEqual(len(comp.getDiffAsText()), 28)
+        
 class TestParallelize(unittest.TestCase):
     """
     A test class for the Parallelize class

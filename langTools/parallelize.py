@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import subprocess
+import difflib
 from lxml import etree
 
 class ParallelFile:
@@ -217,37 +218,39 @@ class TmxComparator:
     """
     A class to compare two tmx-files
     """
-    def diffOfTmxes(self, gotTmx, wantTmx):
-        """
-        Find the diff of two tmx elements
-        """
-        gotStrings = self.tmxToStringlist(gotTmx)
-        wantStrings = self.tmxToStringlist(wantTmx)
+    def __init__(self, wantTmx, gotTmx):
+        self.wantStrings = wantTmx.tmxToStringlist()
+        self.gotStrings = gotTmx.tmxToStringlist()
         
-        return difflib.context_diff(gotStrings, wantStrings, n = 0)
+        
+    def getLinesInWantedfile(self):
+        """
+        Return the number of lines in the reference doc
+        """
+        return len(self.wantStrings)
+        
             
-    def writeDiffFile(self, contextDiff):
+    def getNumberOfDifferingLines(self):
         """
-        Given a context_diff, write it and some info to a file
+        Given a unified_diff, find out how many lines in the reference doc
+        differs from the doc to be tested. A return value of -1 means that
+        the docs are equal
         """
-        diff = []
-        numDiffs = -1
-        numDiffLines = 0
-        for line in contextDiff:
-            if line[:3] == '---':
-                numDiffs += 1
-            if line[:1] == '!':
+        # Start at -1 because a unified diff always starts with a --- line
+        numDiffLines = -1
+        for line in difflib.unified_diff(self.wantStrings, self.gotStrings, n = 0):
+            if line[:1] == '-':
                 numDiffLines += 1
-            diff.append(line + '\n')
-            
-        f = open('diff.txt', 'w')
         
-        f.write('Number of diffs ' + str(numDiffs) + '\n')
-        f.write('Number of lines in the diff ' + str(numDiffLines) + '\n\n')
-        f.writelines(diff)
-        f.close()
+        return numDiffLines
         
-    
+    def getDiffAsText(self):
+        diff = []
+        for line in difflib.unified_diff(self.wantStrings, self.gotStrings, n = 0):
+            diff.append(line)
+          
+        return diff
+        
 class Parallelize:
     """
     A class to parallelize two files
