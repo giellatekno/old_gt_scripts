@@ -80,7 +80,25 @@ class Tmx:
         
         return strings
         
-
+    def reverseLangs(self):
+        """
+        Reverse the langs in a tmx
+        """
+        all_tu = self.getTmx().findall('.//tu')
+        body = etree.Element('body')
+        for tu in all_tu:
+            tmp = etree.Element('tu')
+            tmp.append(tu[1])
+            tmp.append(tu[0])
+            body.append(tmp)
+        
+        tmx = etree.Element('tmx')
+        tmx.append(body)
+        
+        self.tmx = tmx
+        et = etree.ElementTree(self.tmx)
+        et.write(sys.stdout, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+        
 class TmxFromTca2(Tmx):
     """
     A class to make tmx files based on the output from tca2

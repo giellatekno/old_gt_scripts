@@ -135,6 +135,18 @@ class TestTmxComparator(unittest.TestCase):
         self.assertEqual(comp.getLinesInWantedfile(), 632)
         self.assertEqual(len(comp.getDiffAsText()), 28)
 
+    def testReversedlang(self):
+        wantFile = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
+        gotFile = parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx'))
+        gotFile.reverseLangs()
+        
+        comp = parallelize.TmxComparator(wantFile, gotFile)
+        
+        print comp.getDiffAsText()
+        self.assertEqual(comp.getNumberOfDifferingLines(), -1)
+        self.assertEqual(comp.getLinesInWantedfile(), 274)
+        self.assertEqual(len(comp.getDiffAsText()), 0)
+        
 class TestParallelize(unittest.TestCase):
     """
     A test class for the Parallelize class
@@ -143,7 +155,6 @@ class TestParallelize(unittest.TestCase):
         self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
     
     def testFindParallelFilename(self):
-        print "ugga"
         self.assertEqual(self.parallelize.findParallelFilename(), 'aarseth2-n.htm')
         
     def testOrigPath(self):
