@@ -7,7 +7,6 @@ import doctest
 import os
 import sys
 import argparse
-import difflib
 
 import parallelize
 
@@ -93,19 +92,28 @@ class TestTmx(unittest.TestCase):
     
     def testPrintTmxFile(self):
         want = lxml.etree.parse("aarseth2-s.htm.tmx")
-        got = lxml.etree.parse(self.tmx.printTmxFile(self.tmx.makeTmx()))
+        self.tmx.printTmxFile()
+        got = lxml.etree.parse(self.tmx.getOutfileName())
         
         self.assertXmlEqual(want, got)
 
     def testTuToString(self):
         tu = lxml.etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
         
-        self.assertEqual(self.tmx.tuToString(tu), 'Sámegiella\tSamisk')
+        self.assertEqual(self.tmx.tuToString(tu), "Sámegiella\tSamisk\n")
         
     def testTmxToStringlist(self):
-        tmx = lxml.etree.XML('<tmx><body><tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu><tu><tuv xml:lang="sme"><seg>Dárogiella</seg></tuv><tuv xml:lang="nob"><seg>Norsk</seg></tuv></tu></body></tmx>')
-        
-        self.assertEqual(self.tmx.tmxToStringlist(tmx), ['Sámegiella\tSamisk', 'Dárogiella\tNorsk'])
+        f = open('aarseth2-s.htm.tmx.as.txt', 'r')
+        wantList = f.readlines()
+        f.close()
+        #self.maxDiff = None
+        self.assertEqual(self.tmx.tmxToStringlist(), wantList)
+
+class TestTmxComparator(unittest.TestCase):
+    """
+    A test class for the TmxComparator class
+    """
+    
     
 class TestParallelize(unittest.TestCase):
     """

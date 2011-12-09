@@ -44,6 +44,7 @@ class Tmx:
         Input is a list of ParallelFile objects
         """
         self.filelist = filelist
+        self.tmx = self.setTmx()
     
     def makeTu(self, line1, line2):
         """
@@ -108,7 +109,7 @@ class Tmx:
 
         return os.path.join(outDirname, outFilename)
         
-    def printTmxFile(self, tmx):
+    def printTmxFile(self):
         """
         Write a tmx file given a tmx etree element
         """
@@ -117,7 +118,7 @@ class Tmx:
         try:
             f = open(outFilename, "w")
             
-            et = etree.ElementTree(tmx)
+            et = etree.ElementTree(self.getTmx())
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
         except:
@@ -125,7 +126,7 @@ class Tmx:
         
         return outFilename
     
-    def makeTmx(self):
+    def setTmx(self):
         """
         Make tmx file based on the two output files of tca2
         """
@@ -142,6 +143,12 @@ class Tmx:
             body.append(tu)
             
         return tmx
+        
+    def getTmx(self):
+        """
+        Get the tmx xml element
+        """
+        return self.tmx
         
     def readTca2Output(self, pfile):
         """
@@ -169,20 +176,20 @@ class Tmx:
         except(AttributeError):
             pass
             
-        string = string + "\t"
+        string = string + '\t'
         
         try:
-            string = string + tu[1][0].text.strip()
+            string = string + tu[1][0].text.strip() + '\n'
         except(AttributeError):
             pass
         
         return string.encode('utf-8')
         
-    def tmxToStringlist(self, tmx):
+    def tmxToStringlist(self):
         """
         Extract all string pairs in a tmx to a list of strings
         """
-        all_tu = tmx.findall('.//tu')
+        all_tu = self.getTmx().findall('.//tu')
         strings = []
         for tu in all_tu:
             strings.append(self.tuToString(tu))
