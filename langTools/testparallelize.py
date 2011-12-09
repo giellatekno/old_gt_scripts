@@ -182,7 +182,7 @@ class TestParallelize(unittest.TestCase):
             
             #self.assertXmlEqual(got, want)
 
-class TestTmxTestDataWriter:
+class TestTmxTestDataWriter(unittest.TestCase):
     """
     A class to test TmxTestDataWriter
     """
@@ -195,7 +195,7 @@ class TestTmxTestDataWriter:
         
         self.assertXmlEqual(wantElement, gotElement)
     
-    def testMakeTestRunElement(self):
+    def testMakeTestrunElement(self):
         wantElement = lxml.etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
         gotElement = self.writer.makeTestrunElement("20111208-1234")
         
@@ -208,7 +208,7 @@ class TestTmxTestDataWriter:
         self.assertXmlEqual(wantElement, gotElement)
     
 if __name__ == '__main__':
-    for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator]:
+    for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)

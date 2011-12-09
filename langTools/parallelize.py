@@ -250,7 +250,25 @@ class TmxComparator:
             diff.append(line)
           
         return diff
+
+class TmxTestDataWriter():
+    """
+    A class that writes tmx test data to a file
+    """
+    def __init__(self, filename):
+        #test if file exists
+        #test if file is parsable
+        pass
         
+    def makeFileElement(self, name, gspairs, diffpairs):
+        pass
+    
+    def makeTestrunElement(self, datetime):
+        pass
+    
+    def makeParagstestingElement(self):
+        pass
+    
 class Parallelize:
     """
     A class to parallelize two files
