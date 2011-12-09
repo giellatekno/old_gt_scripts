@@ -182,6 +182,31 @@ class TestParallelize(unittest.TestCase):
             
             #self.assertXmlEqual(got, want)
 
+class TestTmxTestDataWriter:
+    """
+    A class to test TmxTestDataWriter
+    """
+    def setUp(self):
+        self.writer = parallelize.TmxTestDataWriter()
+        
+    def testMakeFileElement(self):
+        wantElement = lxml.etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
+        gotElement = self.writer.makeFileElement("abc", "634", "84")
+        
+        self.assertXmlEqual(wantElement, gotElement)
+    
+    def testMakeTestRunElement(self):
+        wantElement = lxml.etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
+        gotElement = self.writer.makeTestrunElement("20111208-1234")
+        
+        self.assertXmlEqual(wantElement, gotElement)
+    
+    def testMakeParagstestingElement(self):
+        wantElement = lxml.etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        gotElement = self.writer.makeParagstestingElement("abc", "634", "84")
+        
+        self.assertXmlEqual(wantElement, gotElement)
+    
 if __name__ == '__main__':
     for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator]:
         testSuite = unittest.TestSuite()
