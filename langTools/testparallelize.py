@@ -127,25 +127,25 @@ class TestTmxComparator(unittest.TestCase):
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
     def testUnEqualTmxes(self):
-        gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/sme2nob/laws/other_files/finnmarkkulahka_web_lettere.pdf.tmx')
-        wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/finnmarkkulahka_web_lettere.pdf.tmx')
+        gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
+        wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
         comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse(wantFile)), parallelize.Tmx(lxml.etree.parse(gotFile)))
 
         self.assertEqual(comp.getNumberOfDifferingLines(), 7)
         self.assertEqual(comp.getLinesInWantedfile(), 632)
         self.assertEqual(len(comp.getDiffAsText()), 28)
 
-    def testReversedlang(self):
-        wantFile = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
-        gotFile = parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx'))
-        gotFile.reverseLangs()
+    #def testReversedlang(self):
+        #wantFile = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
+        #gotFile = parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx'))
+        #gotFile.reverseLangs()
         
-        comp = parallelize.TmxComparator(wantFile, gotFile)
+        #comp = parallelize.TmxComparator(wantFile, gotFile)
         
-        print comp.getDiffAsText()
-        self.assertEqual(comp.getNumberOfDifferingLines(), -1)
-        self.assertEqual(comp.getLinesInWantedfile(), 274)
-        self.assertEqual(len(comp.getDiffAsText()), 0)
+        #print comp.getDiffAsText()
+        #self.assertEqual(comp.getNumberOfDifferingLines(), -1)
+        #self.assertEqual(comp.getLinesInWantedfile(), 274)
+        #self.assertEqual(len(comp.getDiffAsText()), 0)
         
 class TestParallelize(unittest.TestCase):
     """
@@ -182,7 +182,7 @@ class TestParallelize(unittest.TestCase):
         #goldstandard = {}
         #goldstandard['/prestable/tmx/goldstandard/nob2sme/samisk_strategiplan_samisk.doc.tmx'] = '/prestable/converted/sme/admin/others/samisk_strategiplan_samisk.doc.xml'
         #goldstandard['/prestable/tmx/goldstandard/nob2sme/dc_05_1.doc.tmx'] = 'prestable/converted/sme/admin/sd/other_files/dc_05_1.doc.xml'
-        #goldstandard['/prestable/tmx/goldstandard/nob2sme/finnmarkkulahka_web_lettere.pdf.tmx'] = 'prestable/converted/sme/laws/other_files/finnmarkkulahka_web_lettere.pdf.xml'
+        #goldstandard['/prestable/tmx/goldstandard/nob2sme/finnmarksloven.pdf.tmx'] = 'prestable/converted/sme/laws/other_files/finnmarksloven.pdf.xml'
         
         #for tmxFile, xmlFile in goldstandard.items():
             #self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/" + xmlFile, 'nob')
