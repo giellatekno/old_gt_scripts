@@ -386,12 +386,14 @@ class Parallelize:
         """
         Find out if the given doc is translated from lang2
         """
+        result = False
         root = self.origfile1Tree.getroot()
         translated_from = root.find(".//translated_from")
-        if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
-            return True
-        else:
-            return False
+        if translated_from is not None:
+            if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
+                result = True
+
+        return result
     
         
     def findParallelFilename(self):
