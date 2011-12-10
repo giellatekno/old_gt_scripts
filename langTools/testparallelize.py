@@ -178,21 +178,6 @@ class TestParallelize(unittest.TestCase):
     def testParallizeFiles(self):
         self.assertEqual(self.parallelize.parallelizeFiles(), 0)
         
-    #def testGoldstandard(self):
-        #goldstandard = {}
-        #goldstandard['/prestable/tmx/goldstandard/nob2sme/samisk_strategiplan_samisk.doc.tmx'] = '/prestable/converted/sme/admin/others/samisk_strategiplan_samisk.doc.xml'
-        #goldstandard['/prestable/tmx/goldstandard/nob2sme/dc_05_1.doc.tmx'] = 'prestable/converted/sme/admin/sd/other_files/dc_05_1.doc.xml'
-        #goldstandard['/prestable/tmx/goldstandard/nob2sme/finnmarksloven.pdf.tmx'] = 'prestable/converted/sme/laws/other_files/finnmarksloven.pdf.xml'
-        
-        #for tmxFile, xmlFile in goldstandard.items():
-            #self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/" + xmlFile, 'nob')
-            #self.parallelize.dividePIntoSentences()
-            #self.parallelize.parallelizeFiles()
-            #got = lxml.etree.parse(self.parallelize.printTmxFile(self.parallelize.makeTmx()))
-            #want = lxml.etree.parse(os.environ['GTFREE'] + "/" + tmxFile)
-            
-            #self.assertXmlEqual(got, want)
-
 class TestTmxTestDataWriter(unittest.TestCase):
     """
     A class to test TmxTestDataWriter
@@ -275,13 +260,3 @@ if __name__ == '__main__':
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
-        
-    #parser = argparse.ArgumentParser(description = 'Test various parts of the alignment process')
-    #parser.add_argument('-g', '--goldstandard', dest = 'goldstandard', help = 'Check if the current aligner pipeline agrees with the goldstandard docs', action = 'store_true')
-    #args = parser.parse_args()
-    
-    #if args.goldstandard:
-        #unittest.TextTestRunner().run(customChainTest())
-    #else:
-        #unittest.TextTestRunner().run(lightTests())
-        #unittest.TextTestRunner().run(defaultChainTest())
