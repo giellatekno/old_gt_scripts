@@ -17,13 +17,17 @@ class TestParallelFile(unittest.TestCase):
     def setUp(self):
         self.pfile = parallelize.ParallelFile()
         
-    def testName(self):
+    def testBasename(self):
         self.pfile.setName("/home/test/filename.html")
-        self.assertEqual(self.pfile.getName(), "filename.html")
+        self.assertEqual(self.pfile.getBasename(), "filename.html")
         
     def testDirname(self):
         self.pfile.setName("/home/test/filename.html")
         self.assertEqual(self.pfile.getDirname(), "/home/test")
+        
+    def testName(self):
+        self.pfile.setName("/home/test/filename.html")
+        self.assertEqual(self.pfile.getName(), "/home/test/filename.html")
         
     def testLang(self):
         self.pfile.setLang("sme")
@@ -126,14 +130,14 @@ class TestTmxComparator(unittest.TestCase):
         self.assertEqual(comp.getLinesInWantedfile(), 274)
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
-    def testUnEqualTmxes(self):
-        gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
-        wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
-        comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse(wantFile)), parallelize.Tmx(lxml.etree.parse(gotFile)))
+    #def testUnEqualTmxes(self):
+        #gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
+        #wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
+        #comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse(wantFile)), parallelize.Tmx(lxml.etree.parse(gotFile)))
 
-        self.assertEqual(comp.getNumberOfDifferingLines(), 7)
-        self.assertEqual(comp.getLinesInWantedfile(), 632)
-        self.assertEqual(len(comp.getDiffAsText()), 28)
+        #self.assertEqual(comp.getNumberOfDifferingLines(), 7)
+        #self.assertEqual(comp.getLinesInWantedfile(), 632)
+        #self.assertEqual(len(comp.getDiffAsText()), 28)
 
     #def testReversedlang(self):
         #wantFile = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
@@ -170,13 +174,16 @@ class TestParallelize(unittest.TestCase):
         self.assertEqual(self.parallelize.getlang2(), "sme")
         
     def testGetSentFilename(self):
-        self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getorigfile1()), os.environ['GTFREE'] + "/tmp/aarseth2-n.htm_sent.xml")
+        self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getFilelist()[0]), os.environ['GTFREE'] + "/tmp/aarseth2-n.htmnob_sent.xml")
         
     def testDividePIntoSentences(self):
         self.assertEqual(self.parallelize.dividePIntoSentences(), 0)
 
     def testParallizeFiles(self):
         self.assertEqual(self.parallelize.parallelizeFiles(), 0)
+        
+    def testGenerateAnchorFile(self):
+        self.assertEqual(self.parallelize.generateAnchorFile(), os.path.join(os.environ['GTFREE'], 'anchor-nobsme.txt'))
         
 class TestTmxTestDataWriter(unittest.TestCase):
     """
@@ -256,6 +263,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         self.assertXmlEqual(got, want)
         
 if __name__ == '__main__':
+    #
     for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
