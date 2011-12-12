@@ -10,7 +10,7 @@ sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import parallelize
 
 def parse_options():
-    parser = argparse.ArgumentParser(description = 'Sentence align two files. Input is the document containing the main language, and language to parallelize it with.')
+    parser = argparse.ArgumentParser(description = 'Reverse the order of the langs in a tmx file.')
     parser.add_argument('input_file', help = "The input file")
     
     args = parser.parse_args()
