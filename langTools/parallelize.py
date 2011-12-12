@@ -363,11 +363,17 @@ class Parallelize:
             self.reshuffleFiles()
             
     def reshuffleFiles(self):
+        """
+        Change the order of the files (so that the translated text is last)
+        """
         tmp = self.origfiles[0]
         self.origfiles[0] = self.origfiles[1]
         self.origfiles[1] = tmp
         
     def getFilelist(self):
+        """
+        Return the list of (the two) files that are aligned
+        """
         return self.origfiles
 
     def getlang1(self):
@@ -412,6 +418,26 @@ class Parallelize:
         """
         return os.path.dirname(self.getorigfile1()).replace('/' + self.getlang1() + '/', '/' + self.getlang2() + '/') + '/' + self.findParallelFilename() + '.xml'
     
+    def generateAnchorFile(self):
+        """
+        Generate an anchor file with lang1 and lang2. Return the path to the anchor file
+        """
+        infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt'))
+        infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt'))
+        
+        subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getlang1(), '--lang2' + self.getlang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+                (output, error) = subp.communicate()
+                
+                if subp.returncode != 0:
+                    print >>sys.stderr, 'Could not generate ', pfile.getName(), ' into sentences'
+                    print >>sys.stderr, output
+                    print >>sys.stderr, error
+                    return subp.returncode
+    
+        # Return the absolute path of the resulting file
+        outFilename = 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
+        return os.join.path(os.environ['GTFREE'], outFilename)
+        
     def dividePIntoSentences(self):
         """
         Call corpus-analyse.pl which reads an xml file and makes it palatable for tca2
@@ -445,7 +471,7 @@ class Parallelize:
         """
         Parallelize two files using tca2
         """
-        anchorName = os.environ['GTFREE'] + '/anchor-' + self.getlang1() + self.getlang2() + '.txt'
+        anchorName = self.generateAnchorFile()
         subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getorigfile1()), self.getSentFilename(self.getorigfile2())], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
             
@@ -456,14 +482,3 @@ class Parallelize:
             return subp.returncode
                 
         return 0
-        
-        pass
-    
-def main():
-    p = Parallelize("/home/boerre/Dokumenter/corpus/freecorpus/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
-    p.dividePIntoSentences()
-    if p.parallelizeFiles() == 0:
-        p.makeTmx()
-    
-if __name__ == '__main__':
-    main()
