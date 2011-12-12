@@ -422,21 +422,21 @@ class Parallelize:
         """
         Generate an anchor file with lang1 and lang2. Return the path to the anchor file
         """
-        infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt'))
-        infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt'))
+        infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt')
+        infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt')
         
         subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getlang1(), '--lang2' + self.getlang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-                (output, error) = subp.communicate()
-                
-                if subp.returncode != 0:
-                    print >>sys.stderr, 'Could not generate ', pfile.getName(), ' into sentences'
-                    print >>sys.stderr, output
-                    print >>sys.stderr, error
-                    return subp.returncode
-    
+        (output, error) = subp.communicate()
+        
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not generate ', pfile.getName(), ' into sentences'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+
         # Return the absolute path of the resulting file
         outFilename = 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
-        return os.join.path(os.environ['GTFREE'], outFilename)
+        return os.path.join(os.environ['GTFREE'], outFilename)
         
     def dividePIntoSentences(self):
         """
