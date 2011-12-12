@@ -14,13 +14,15 @@ class ParallelFile:
     def __init__(self):
         self.name = None
         self.dirname = None
+        self.base = None
         self.lang = None
         
     def setName(self, name):
         """
         Expects a absolute path to a files
         """
-        self.name = os.path.basename(name)
+        self.name = name
+        self.base = os.path.basename(name)
         self.dirname = os.path.dirname(name)
         
     def getName(self):
@@ -28,6 +30,9 @@ class ParallelFile:
         
     def getDirname(self):
         return self.dirname
+        
+    def getBasename(self):
+        return self.base
         
     def setLang(self, lang):
         self.lang = lang
@@ -169,7 +174,7 @@ class TmxFromTca2(Tmx):
         # Then set the outdir
         outDirname = self.filelist[0].getDirname().replace(origPathPart, replacePathPart)
         # Replace xml with tmx in the filename
-        outFilename = self.filelist[0].getName().replace('.xml', '.tmx')
+        outFilename = self.filelist[0].getBasename().replace('.xml', '.tmx')
 
         return os.path.join(outDirname, outFilename)
         
@@ -198,8 +203,8 @@ class TmxFromTca2(Tmx):
         header = self.makeTmxHeader(self.filelist[0].getLang())
         tmx.append(header)
         
-        pfile1_data = self.readTca2Output(os.path.join(self.filelist[0].getDirname(), self.filelist[0].getName()))
-        pfile2_data = self.readTca2Output(os.path.join(self.filelist[1].getDirname(), self.filelist[1].getName()))
+        pfile1_data = self.readTca2Output(self.filelist[0])
+        pfile2_data = self.readTca2Output(self.filelist[1])
 
         body = etree.SubElement(tmx, "body")
         for line1, line2 in map(None, pfile1_data, pfile2_data):
@@ -211,6 +216,7 @@ class TmxFromTca2(Tmx):
     def readTca2Output(self, pfile):
         """
         Read the output of tca2
+        Input is a ParallelFile
         """
         text = ""
         pfileName = self.getSentFilename(pfile).replace('.xml', '_new.txt')
@@ -224,12 +230,14 @@ class TmxFromTca2(Tmx):
         return text
     
 
-    def getSentFilename(self, file):
+    def getSentFilename(self, pfile):
         """
         Compute a name for the corpus-analyze output and tca2 input file
+        Input is a ParallelFile
         """
-        origfilename = os.path.basename(file).replace('.xml', '')
-        return os.environ['GTFREE'] + '/tmp/' + origfilename + '_sent.xml'
+        origfilename = pfile.getBasename().replace('.xml', '')
+        return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
+        
         
         
 class TmxComparator:
@@ -443,9 +451,9 @@ class Parallelize:
         Call corpus-analyse.pl which reads an xml file and makes it palatable for tca2
         """
         for pfile in self.origfiles:
-            infile = os.path.join(pfile.getDirname(), pfile.getName())
+            infile = os.path.join(pfile.getName())
             if os.path.exists(infile):
-                outfile = self.getSentFilename(infile)
+                outfile = self.getSentFilename(pfile)
                 subp = subprocess.Popen(['corpus-analyze.pl', '--all', '--only_add_sentences', '--output=' + outfile, '--lang=' + pfile.getLang(), infile], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
                 (output, error) = subp.communicate()
                 
@@ -460,19 +468,20 @@ class Parallelize:
                     
         return 0
 
-    def getSentFilename(self, file):
+    def getSentFilename(self, pfile):
         """
         Compute a name for the corpus-analyze output and tca2 input file
+        Input is a ParallelFile
         """
-        origfilename = os.path.basename(file).replace('.xml', '')
-        return os.environ['GTFREE'] + '/tmp/' + origfilename + '_sent.xml'
+        origfilename = pfile.getBasename().replace('.xml', '')
+        return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
         
     def parallelizeFiles(self):
         """
         Parallelize two files using tca2
         """
         anchorName = self.generateAnchorFile()
-        subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getorigfile1()), self.getSentFilename(self.getorigfile2())], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getFilelist()[0]), self.getSentFilename(self.getFilelist()[1])], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
             
         if subp.returncode != 0:
