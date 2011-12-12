@@ -20,7 +20,10 @@ def parse_options():
 def main():
     args = parse_options()
     parallelizer = parallelize.Parallelize(args.input_file, args.parallel_language)
+    
+    print "Adding sentence structure that tca2 needs ..."
     if parallelizer.dividePIntoSentences() == 0:
+        print "Aligning files ..."
         if parallelizer.parallelizeFiles() == 0:
             tmx = parallelize.TmxFromTca2(parallelizer.getFilelist())
             print "Generating the tmx file", tmx.getOutfileName()
