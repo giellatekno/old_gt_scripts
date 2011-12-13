@@ -56,7 +56,26 @@ class TestTmx(unittest.TestCase):
         tu = lxml.etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
         
         self.assertEqual(self.tmx.tuToString(tu), "Sámegiella\tSamisk\n")
+
+    def testTuvToString(self):
+        tuv = lxml.etree.XML('<tuv xml:lang="sme"><seg>Sámegiella</seg></tuv>')
         
+        self.assertEqual(self.tmx.tuvToString(tuv), "Sámegiella")
+        
+    def testLangToStringList(self):
+        f = open('aarseth2-n.htm.tmx.as.txt', 'r')
+        stringList = f.readlines()
+        
+        nobList = []
+        smeList = []
+        for string in stringList:
+            pairList = string.split()
+            nobList.append(pairList[0])
+            smeList.append(pairList[1])
+            
+        self.assertEqual(self.tmx.langToStringlist('nob'), nobList)
+        self.assertEqual(self.tmx.langToStringlist('nob'), smeList)
+    
     def testTmxToStringlist(self):
         f = open('aarseth2-n.htm.tmx.as.txt', 'r')
         wantList = f.readlines()
@@ -67,7 +86,7 @@ class TestTmx(unittest.TestCase):
     def testPrettifySegs(self):
         wantXml = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
         gotXml = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
-        self.assertXmlEqual(self.parallelize.prettifySegs(gotXml), wantXml)
+        self.assertXmlEqual(self.tmx.prettifySegs(gotXml), wantXml)
         
 class TestTmxFromTca2(unittest.TestCase):
     """

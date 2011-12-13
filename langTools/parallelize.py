@@ -73,7 +73,29 @@ class Tmx:
         
         string += '\n'
         return string.encode('utf-8')
+    
+    def tuvToString(self, tuv):
+        """
+        Extract the string from the tuv element
+        """
+        string = ""
+        try:
+            string = tuv[0].text.strip()
+        except(AttributeError):
+            pass
         
+        return string.encode('utf-8')
+        
+    def langToStringlist(self, lang):
+        """
+        """
+        all_tuv = self.getTmx().findall('.//tuv[@' + lang + ']')
+        strings = []
+        for tuv in all_tuv:
+            strings.append(self.tuvToString(tuv))
+        
+        return strings
+    
     def tmxToStringlist(self):
         """
         Extract all string pairs in a tmx to a list of strings
@@ -103,9 +125,6 @@ class Tmx:
         
         return tu
         
-        
-        pass
-    
     def reverseLangs(self):
         """
         Reverse the langs in a tmx
