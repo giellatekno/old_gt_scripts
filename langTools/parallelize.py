@@ -442,15 +442,15 @@ class TmxComparator:
     A class to compare two tmx-files
     """
     def __init__(self, wantTmx, gotTmx):
-        self.wantStrings = wantTmx.tmxToStringlist()
-        self.gotStrings = gotTmx.tmxToStringlist()
+        self.wantTmx = wantTmx
+        self.gotTmx = gotTmx
         
         
     def getLinesInWantedfile(self):
         """
         Return the number of lines in the reference doc
         """
-        return len(self.wantStrings)
+        return len(self.wantTmx.tmxToStringlist())
         
             
     def getNumberOfDifferingLines(self):
@@ -461,18 +461,33 @@ class TmxComparator:
         """
         # Start at -1 because a unified diff always starts with a --- line
         numDiffLines = -1
-        for line in difflib.unified_diff(self.wantStrings, self.gotStrings, n = 0):
+        for line in difflib.unified_diff(self.wantTmx.tmxToStringlist(), self.gotTmx.tmxToStringlist(), n = 0):
             if line[:1] == '-':
                 numDiffLines += 1
         
         return numDiffLines
         
     def getDiffAsText(self):
+        """
+        Return a stringlist containing the diff lines
+        """
         diff = []
-        for line in difflib.unified_diff(self.wantStrings, self.gotStrings, n = 0):
+        for line in difflib.unified_diff(self.wantTmx.tmxToStringlist(), self.gotTmx.tmxToStringlist(), n = 0):
             diff.append(line)
           
         return diff
+        
+    def getLangDiffAsText(self, lang):
+        """
+        Return a stringlist containing the diff lines
+        """
+        diff = []
+        for line in difflib.unified_diff(self.wantTmx.langToStringlist(lang), self.gotTmx.langToStringlist(lang), n = 0):
+            diff.append(line)
+          
+        return diff
+        
+        
 
 class TmxTestDataWriter():
     """

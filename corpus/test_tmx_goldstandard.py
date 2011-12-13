@@ -76,10 +76,18 @@ def main():
                 # Make a fileElement for our results file
                 fileElement = writer.makeFileElement(wantTmxFile, str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
                 
-                print "The diff is"
+                print "The tmx diff is"
                 for line in comparator.getDiffAsText():
                     print line
         
+                print "The diff for", parallelizer.getlang1(), "is"
+                for line in comparator.getLangDiffAsText(parallelizer.getlang1()):
+                    print line
+                
+                print "The diff for", parallelizer.getlang2(), "is"
+                for line in comparator.getLangDiffAsText(parallelizer.getlang2()):
+                    print line
+                
                 # Append the result for this file to the testrun element
                 testrun.append(fileElement)
     
