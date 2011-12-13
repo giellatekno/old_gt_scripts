@@ -89,7 +89,9 @@ class Tmx:
     def langToStringlist(self, lang):
         """
         """
-        all_tuv = self.getTmx().findall('.//tuv[@' + lang + ']')
+        all_tuv = self.getTmx().xpath('.//tuv[@xml:lang="' + lang + '"]',
+            namespaces={'xml':'http://www.w3.org/XML/1998/namespace'})
+
         strings = []
         for tuv in all_tuv:
             strings.append(self.tuvToString(tuv))

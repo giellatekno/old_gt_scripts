@@ -69,12 +69,12 @@ class TestTmx(unittest.TestCase):
         nobList = []
         smeList = []
         for string in stringList:
-            pairList = string.split()
+            pairList = string.split('\t')
             nobList.append(pairList[0])
-            smeList.append(pairList[1])
+            smeList.append(pairList[1].strip())
             
         self.assertEqual(self.tmx.langToStringlist('nob'), nobList)
-        self.assertEqual(self.tmx.langToStringlist('nob'), smeList)
+        self.assertEqual(self.tmx.langToStringlist('sme'), smeList)
     
     def testTmxToStringlist(self):
         f = open('aarseth2-n.htm.tmx.as.txt', 'r')
@@ -299,7 +299,6 @@ class TestTmxTestDataWriter(unittest.TestCase):
         self.assertXmlEqual(got, want)
         
 if __name__ == '__main__':
-    #
     for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
