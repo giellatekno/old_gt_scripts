@@ -85,6 +85,27 @@ class Tmx:
         
         return strings
         
+    def prettifySegs(self, tu):
+        """
+        Input is a tu-element
+        """
+        try:
+            string = tu[0][0].text.strip()
+            tu[0][0].text = string
+        except(AttributeError):
+            pass
+            
+        try:
+            string = tu[1][0].text.strip()
+            tu[1][0].text = string
+        except(AttributeError):
+            pass
+        
+        return tu
+        
+        
+        pass
+    
     def reverseLangs(self):
         """
         Reverse the langs in a tmx
@@ -95,6 +116,7 @@ class Tmx:
             tmp = etree.Element('tu')
             tmp.append(tu[1])
             tmp.append(tu[0])
+            tmp = self.prettifySegs(tmp)
             body.append(tmp)
         
         tmx = etree.Element('tmx')

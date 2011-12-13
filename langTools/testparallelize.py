@@ -40,6 +40,18 @@ class TestTmx(unittest.TestCase):
     def setUp(self):
         self.tmx = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
         
+    def assertXmlEqual(self, got, want):
+        """
+        Check if two xml snippets are equal
+        """
+        string_got = lxml.etree.tostring(got, pretty_print = True)
+        string_want = lxml.etree.tostring(want, pretty_print = True)
+        
+        checker = lxml.doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(string_got, string_want, 0):
+            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+            raise AssertionError(message)
+        
     def testTuToString(self):
         tu = lxml.etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
         
@@ -51,7 +63,12 @@ class TestTmx(unittest.TestCase):
         f.close()
         #self.maxDiff = None
         self.assertEqual(self.tmx.tmxToStringlist(), wantList)
-
+    
+    def testPrettifySegs(self):
+        wantXml = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
+        gotXml = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
+        self.assertXmlEqual(self.parallelize.prettifySegs(gotXml), wantXml)
+        
 class TestTmxFromTca2(unittest.TestCase):
     """
     A test class for the TmxFromTca2 class
