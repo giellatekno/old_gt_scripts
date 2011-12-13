@@ -33,6 +33,40 @@ class TestParallelFile(unittest.TestCase):
         self.pfile.setLang("sme")
         self.assertEqual(self.pfile.getLang(), "sme")
 
+class TestParallelize(unittest.TestCase):
+    """
+    A test class for the Parallelize class
+    """
+    def setUp(self):
+        self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+    
+    def testFindParallelFilename(self):
+        self.assertEqual(self.parallelize.findParallelFilename(), 'aarseth2-n.htm')
+        
+    def testOrigPath(self):
+        self.assertEqual(self.parallelize.getorigfile1(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
+        
+    def testParallelPath(self):
+        self.assertEqual(self.parallelize.getorigfile2(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
+        
+    def testLang1(self):
+        self.assertEqual(self.parallelize.getlang1(), "nob")
+        
+    def testLang2(self):
+        self.assertEqual(self.parallelize.getlang2(), "sme")
+        
+    def testGetSentFilename(self):
+        self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getFilelist()[0]), os.environ['GTFREE'] + "/tmp/aarseth2-n.htmnob_sent.xml")
+        
+    def testDividePIntoSentences(self):
+        self.assertEqual(self.parallelize.dividePIntoSentences(), 0)
+
+    def testParallizeFiles(self):
+        self.assertEqual(self.parallelize.parallelizeFiles(), 0)
+        
+    def testGenerateAnchorFile(self):
+        self.assertEqual(self.parallelize.generateAnchorFile(), os.path.join(os.environ['GTFREE'], 'anchor-nobsme.txt'))
+        
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
@@ -186,40 +220,6 @@ class TestTmxComparator(unittest.TestCase):
         #self.assertEqual(comp.getNumberOfDifferingLines(), -1)
         #self.assertEqual(comp.getLinesInWantedfile(), 274)
         #self.assertEqual(len(comp.getDiffAsText()), 0)
-        
-class TestParallelize(unittest.TestCase):
-    """
-    A test class for the Parallelize class
-    """
-    def setUp(self):
-        self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
-    
-    def testFindParallelFilename(self):
-        self.assertEqual(self.parallelize.findParallelFilename(), 'aarseth2-n.htm')
-        
-    def testOrigPath(self):
-        self.assertEqual(self.parallelize.getorigfile1(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
-        
-    def testParallelPath(self):
-        self.assertEqual(self.parallelize.getorigfile2(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
-        
-    def testLang1(self):
-        self.assertEqual(self.parallelize.getlang1(), "nob")
-        
-    def testLang2(self):
-        self.assertEqual(self.parallelize.getlang2(), "sme")
-        
-    def testGetSentFilename(self):
-        self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getFilelist()[0]), os.environ['GTFREE'] + "/tmp/aarseth2-n.htmnob_sent.xml")
-        
-    def testDividePIntoSentences(self):
-        self.assertEqual(self.parallelize.dividePIntoSentences(), 0)
-
-    def testParallizeFiles(self):
-        self.assertEqual(self.parallelize.parallelizeFiles(), 0)
-        
-    def testGenerateAnchorFile(self):
-        self.assertEqual(self.parallelize.generateAnchorFile(), os.path.join(os.environ['GTFREE'], 'anchor-nobsme.txt'))
         
 class TestTmxTestDataWriter(unittest.TestCase):
     """

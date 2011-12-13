@@ -40,11 +40,165 @@ class ParallelFile:
     def getLang(self):
         return self.lang
 
+class Parallelize:
+    """
+    A class to parallelize two files
+    Input is the xml file that should be parallellized and the language that it
+    should be parallellized with.
+    The language of the input file is found in the metadata of the input file.
+    The other file is found via the metadata in the input file
+    """
+    
+    def __init__(self, origfile1, lang2):
+        """
+        Set the original file name, the lang of the original file and the 
+        language that it should parallellized with.
+        Parse the original file to get the access to metadata
+        """
+        self.origfiles = []
+        self.origfile1Tree = etree.parse(origfile1)
+        
+        tmpfile = ParallelFile()
+        tmpfile.setName(os.path.abspath(origfile1))
+        tmpfile.setLang(self.origfile1Tree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'])
+        self.origfiles.append(tmpfile)
+        
+        tmpfile = ParallelFile()
+        tmpfile.setLang(lang2)
+        self.origfiles.append(tmpfile)
+        self.origfiles[1].setName(self.setOrigfile2Name())
+        
+        if self.isTranslatedFromLang2():
+            self.reshuffleFiles()
+            
+    def reshuffleFiles(self):
+        """
+        Change the order of the files (so that the translated text is last)
+        """
+        tmp = self.origfiles[0]
+        self.origfiles[0] = self.origfiles[1]
+        self.origfiles[1] = tmp
+        
+    def getFilelist(self):
+        """
+        Return the list of (the two) files that are aligned
+        """
+        return self.origfiles
+
+    def getlang1(self):
+        return self.origfiles[0].getLang()
+        
+    def getlang2(self):
+        return self.origfiles[1].getLang()
+        
+    def getorigfile1(self):
+        return os.path.join(self.origfiles[0].getDirname(), self.origfiles[0].getName())
+        
+    def getorigfile2(self):
+        return os.path.join(self.origfiles[1].getDirname(), self.origfiles[1].getName())
+    
+    def isTranslatedFromLang2(self):
+        """
+        Find out if the given doc is translated from lang2
+        """
+        result = False
+        root = self.origfile1Tree.getroot()
+        translated_from = root.find(".//translated_from")
+        if translated_from is not None:
+            if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
+                result = True
+
+        return result
+    
+        
+    def findParallelFilename(self):
+        """
+        Find the name of the parallel file to the original input file
+        """
+        root = self.origfile1Tree.getroot()
+        parallelFiles = root.findall(".//parallel_text")
+        for p in parallelFiles:
+            if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
+                return p.attrib['location']
+        
+    def setOrigfile2Name(self):
+        """
+        Infer the path of the second file
+        """
+        return os.path.dirname(self.getorigfile1()).replace('/' + self.getlang1() + '/', '/' + self.getlang2() + '/') + '/' + self.findParallelFilename() + '.xml'
+    
+    def generateAnchorFile(self):
+        """
+        Generate an anchor file with lang1 and lang2. Return the path to the anchor file
+        """
+        infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt')
+        infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt')
+        
+        subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getlang1(), '--lang2' + self.getlang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+        
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not generate ', pfile.getName(), ' into sentences'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+
+        # Return the absolute path of the resulting file
+        outFilename = 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
+        return os.path.join(os.environ['GTFREE'], outFilename)
+        
+    def dividePIntoSentences(self):
+        """
+        Call corpus-analyse.pl which reads an xml file and makes it palatable for tca2
+        """
+        for pfile in self.origfiles:
+            infile = os.path.join(pfile.getName())
+            if os.path.exists(infile):
+                outfile = self.getSentFilename(pfile)
+                subp = subprocess.Popen(['corpus-analyze.pl', '--all', '--only_add_sentences', '--output=' + outfile, '--lang=' + pfile.getLang(), infile], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+                (output, error) = subp.communicate()
+                
+                if subp.returncode != 0:
+                    print >>sys.stderr, 'Could not divide ', pfile.getName(), ' into sentences'
+                    print >>sys.stderr, output
+                    print >>sys.stderr, error
+                    return subp.returncode
+            else:
+                print >>sys.stderr, infile, "doesn't exist"
+                return 2
+                    
+        return 0
+
+    def getSentFilename(self, pfile):
+        """
+        Compute a name for the corpus-analyze output and tca2 input file
+        Input is a ParallelFile
+        """
+        origfilename = pfile.getBasename().replace('.xml', '')
+        return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
+        
+    def parallelizeFiles(self):
+        """
+        Parallelize two files using tca2
+        """
+        anchorName = self.generateAnchorFile()
+        subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getFilelist()[0]), self.getSentFilename(self.getFilelist()[1])], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+            
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getorigfile1()), 'and', self.getSentFilename(self.getorigfile2()), ' into sentences'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+                
+        return 0
+
 class Tmx:
     """
     A class that reads a tmx file, and implements a bare minimum of functionality
     to be able to compare two tmx'es
     """
+    
     def __init__(self, tmx):
         self.tmx = tmx
         
@@ -382,155 +536,3 @@ class TmxTestDataWriter():
         except IOError:
             print "ouch, Paragstestingresults"
         
-class Parallelize:
-    """
-    A class to parallelize two files
-    Input is the xml file that should be parallellized and the language that it
-    should be parallellized with.
-    The language of the input file is found in the metadata of the input file.
-    The other file is found via the metadata in the input file
-    """
-    
-    def __init__(self, origfile1, lang2):
-        """
-        Set the original file name, the lang of the original file and the 
-        language that it should parallellized with.
-        Parse the original file to get the access to metadata
-        """
-        self.origfiles = []
-        self.origfile1Tree = etree.parse(origfile1)
-        
-        tmpfile = ParallelFile()
-        tmpfile.setName(os.path.abspath(origfile1))
-        tmpfile.setLang(self.origfile1Tree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'])
-        self.origfiles.append(tmpfile)
-        
-        tmpfile = ParallelFile()
-        tmpfile.setLang(lang2)
-        self.origfiles.append(tmpfile)
-        self.origfiles[1].setName(self.setOrigfile2Name())
-        
-        if self.isTranslatedFromLang2():
-            self.reshuffleFiles()
-            
-    def reshuffleFiles(self):
-        """
-        Change the order of the files (so that the translated text is last)
-        """
-        tmp = self.origfiles[0]
-        self.origfiles[0] = self.origfiles[1]
-        self.origfiles[1] = tmp
-        
-    def getFilelist(self):
-        """
-        Return the list of (the two) files that are aligned
-        """
-        return self.origfiles
-
-    def getlang1(self):
-        return self.origfiles[0].getLang()
-        
-    def getlang2(self):
-        return self.origfiles[1].getLang()
-        
-    def getorigfile1(self):
-        return os.path.join(self.origfiles[0].getDirname(), self.origfiles[0].getName())
-        
-    def getorigfile2(self):
-        return os.path.join(self.origfiles[1].getDirname(), self.origfiles[1].getName())
-    
-    def isTranslatedFromLang2(self):
-        """
-        Find out if the given doc is translated from lang2
-        """
-        result = False
-        root = self.origfile1Tree.getroot()
-        translated_from = root.find(".//translated_from")
-        if translated_from is not None:
-            if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
-                result = True
-
-        return result
-    
-        
-    def findParallelFilename(self):
-        """
-        Find the name of the parallel file to the original input file
-        """
-        root = self.origfile1Tree.getroot()
-        parallelFiles = root.findall(".//parallel_text")
-        for p in parallelFiles:
-            if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
-                return p.attrib['location']
-        
-    def setOrigfile2Name(self):
-        """
-        Infer the path of the second file
-        """
-        return os.path.dirname(self.getorigfile1()).replace('/' + self.getlang1() + '/', '/' + self.getlang2() + '/') + '/' + self.findParallelFilename() + '.xml'
-    
-    def generateAnchorFile(self):
-        """
-        Generate an anchor file with lang1 and lang2. Return the path to the anchor file
-        """
-        infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt')
-        infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt')
-        
-        subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getlang1(), '--lang2' + self.getlang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate()
-        
-        if subp.returncode != 0:
-            print >>sys.stderr, 'Could not generate ', pfile.getName(), ' into sentences'
-            print >>sys.stderr, output
-            print >>sys.stderr, error
-            return subp.returncode
-
-        # Return the absolute path of the resulting file
-        outFilename = 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
-        return os.path.join(os.environ['GTFREE'], outFilename)
-        
-    def dividePIntoSentences(self):
-        """
-        Call corpus-analyse.pl which reads an xml file and makes it palatable for tca2
-        """
-        for pfile in self.origfiles:
-            infile = os.path.join(pfile.getName())
-            if os.path.exists(infile):
-                outfile = self.getSentFilename(pfile)
-                subp = subprocess.Popen(['corpus-analyze.pl', '--all', '--only_add_sentences', '--output=' + outfile, '--lang=' + pfile.getLang(), infile], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-                (output, error) = subp.communicate()
-                
-                if subp.returncode != 0:
-                    print >>sys.stderr, 'Could not divide ', pfile.getName(), ' into sentences'
-                    print >>sys.stderr, output
-                    print >>sys.stderr, error
-                    return subp.returncode
-            else:
-                print >>sys.stderr, infile, "doesn't exist"
-                return 2
-                    
-        return 0
-
-    def getSentFilename(self, pfile):
-        """
-        Compute a name for the corpus-analyze output and tca2 input file
-        Input is a ParallelFile
-        """
-        origfilename = pfile.getBasename().replace('.xml', '')
-        return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
-        
-    def parallelizeFiles(self):
-        """
-        Parallelize two files using tca2
-        """
-        anchorName = self.generateAnchorFile()
-        subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getFilelist()[0]), self.getSentFilename(self.getFilelist()[1])], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate()
-            
-        if subp.returncode != 0:
-            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getorigfile1()), 'and', self.getSentFilename(self.getorigfile2()), ' into sentences'
-            print >>sys.stderr, output
-            print >>sys.stderr, error
-            return subp.returncode
-                
-        return 0
