@@ -170,7 +170,7 @@ class StaticSiteBuilder:
 		Close the logfile
 		"""
 		os.chdir(self.builddir)
-		revert_files(self.vcs, ["../sd/forrest.properties", "../src/documentation/resources/schema/symbols-project-v10.ent"])
+		revert_files(self.vcs, ["../sd/forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
 		self.logfile.close()
 
 	def set_font_path(self):
