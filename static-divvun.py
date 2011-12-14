@@ -39,7 +39,7 @@ class Translate_XML:
 		self.vcs = vcs
 		
 		os.chdir(self.sitehome)
-		revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "src/documentation/skins/common/xslt/html/document-to-html.xsl", "src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
+		revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "../sd/src/documentation/skins/common/xslt/html/document-to-html.xsl", "../sd/src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
 		self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
 		try:
@@ -55,7 +55,7 @@ class Translate_XML:
 		self.dth = etree.parse(os.path.join(self.sitehome, "src/documentation/skins/common/xslt/html/document-to-html.xsl"))
 
 	def __del__(self):
-		revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "src/documentation/skins/common/xslt/html/document-to-html.xsl", "src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
+		revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "../sd/src/documentation/skins/common/xslt/html/document-to-html.xsl", "../sd/src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
 	def parse_translations(self):
 		tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
@@ -145,7 +145,7 @@ class StaticSiteBuilder:
 		
 
 		os.chdir(self.builddir)
-		revert_files(self.vcs, ["forrest.properties", "src/documentation/resources/schema/symbols-project-v10.ent"])
+		revert_files(self.vcs, ["../sd/forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
 
 		subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(output, error) = subp.communicate()
@@ -170,7 +170,7 @@ class StaticSiteBuilder:
 		Close the logfile
 		"""
 		os.chdir(self.builddir)
-		revert_files(self.vcs, ["forrest.properties", "src/documentation/resources/schema/symbols-project-v10.ent"])
+		revert_files(self.vcs, ["../sd/forrest.properties", "../src/documentation/resources/schema/symbols-project-v10.ent"])
 		self.logfile.close()
 
 	def set_font_path(self):
