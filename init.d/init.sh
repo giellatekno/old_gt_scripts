@@ -38,13 +38,13 @@
 . $GTHOME/gt/script/init.d/lookup-init.sh
 
 # Alias for svn update
-alias svnup="pushd $GTHOME && svn up && popd ; \
-    test -n \"$GTBIG\"  && test -x $GTBIG  && pushd $GTBIG  && svn up && popd ; \
-    test -n \"$GTFREE\" && test -x $GTFREE && pushd $GTFREE && svn up && popd ; \
-    test -n \"$GTPRIV\" && test -x $GTPRIV && pushd $GTPRIV && svn up && popd ; \
-	 pushd /Users/lan000/pedversions && svn up && popd"
+alias svnup="svn up $GTHOME $GTBIG $GTFREE $GTPRIV"
 
 # Standardised aliases for Giellatekno work:
+alias victorio='ssh victorio.uit.no'
+alias vic='ssh victorio.uit.no'
+alias g5='ssh divvun.no'
+alias xs='ssh divvun.no'
 
 # forrest run port 8 og 9
 alias fo="forrest     -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true\""
