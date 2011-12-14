@@ -3,6 +3,7 @@
 # sent-disamb.sh
 # This is a shell script for analysing sentences with the vislcg3 parser.
 # It gives the analysis, and optionally the number of the disambiguation rules.
+export GTHOME=~/gtsvn
 
 # usage:
 # <script_name> (-t) -l=<lang_code> <sentence_to_analyze>
@@ -55,7 +56,7 @@ else
 fi
 
 # lang group
-if [[ "$l" == "sme" ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]]
+if [[ "$l" == "sme" ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "pedsme" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]]
 then
     lg="gt"
 elif [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "fkv" ]] || [[ "$l" == "mhr" ]]

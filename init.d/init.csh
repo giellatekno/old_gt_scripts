@@ -44,8 +44,6 @@ alias svnup "pushd $GTHOME && svn up && popd ; \
     test -n \"$GTPRIV\" && test -x $GTPRIV && pushd $GTPRIV && svn up && popd"
 
 # Standardised aliases for Giellatekno work:
-alias victorio 'ssh victorio.uit.no'
-alias vic 'ssh victorio.uit.no'
 alias g5 'ssh divvun.no'
 alias xs 'ssh divvun.no'
 
