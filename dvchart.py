@@ -131,7 +131,7 @@ def generate_goldstandard_suggestions(name, root, typos=False, percentage=False)
 	
 	config = {
 		"legend": {
-			"position": "nw"
+			"position": "sw"
 		},
 		"xaxis": {
 			"mode": "time"
@@ -207,7 +207,7 @@ def generate_goldstandard_general(name, root):
 
 	config = {
 		"legend": {
-			"position": "nw"
+			"position": "sw"
 		},
 		"xaxis": {
 			"mode": "time"
@@ -277,7 +277,7 @@ def generate_regression_bugs_stacked(name, root, percentage=False):
 
 	config = {
 		"legend": {
-			"position": "nw"
+			"position": "sw"
 		},
 		"xaxis": {
 			"mode": "time"
