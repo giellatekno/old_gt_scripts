@@ -29,7 +29,9 @@ def main():
     
     # for each constant
     for constant, values in default.iteritems():
+        print "testing", constant
         for value in values:
+            print value
             # setvalue
             set_value(constant, value)
             compile_tca()
@@ -39,7 +41,7 @@ def main():
             tester.runTest()
             # reset to the orig file
             shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'))
-    save_test_in_unique_filename()
+            
     return 0
 
 def set_value(constant, value):
