@@ -626,8 +626,12 @@ class TmxGoldstandardTester:
         Write diffs to a jspwiki file
         """
         filename = parallelizer.getorigfile1() + '_' + self.date + '.jspwiki'
-        dirname = os.path.join(os.environ['GTFREE'], 'techdoc/ling')
-        f = open(os.path.join(dirname, filename), "w")
+        dirname = os.path.join(os.environ['GTHOME'], 'techdoc/ling')
+        try:
+            f = open(os.path.join(dirname, filename), "w")
+        except IOError:
+            print "couldn't write file", os.path.join(dirname, filename)
+            sys.exit(4)
         
         f.write('!!!' + parallelizer.getorigfile1() + '\n')
         
