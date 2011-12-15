@@ -600,7 +600,8 @@ class TmxGoldstandardTester:
                 if parallelizer.parallelizeFiles() == 0:
                     
                     # The result of the alignment is a tmx element
-                    gotTmx = TmxFromTca2(parallelizer.getFilelist())
+                    filelist = parallelizer.getFilelist()
+                    gotTmx = TmxFromTca2(filelist)
             
                     # This is the tmx element fetched from the goldstandard file
                     wantTmx = Tmx(etree.parse(wantTmxFile))
@@ -609,41 +610,40 @@ class TmxGoldstandardTester:
                     comparator = TmxComparator(wantTmx, gotTmx)
             
                     # Make a fileElement for our results file
-                    fileElement = self.testresultWriter.makeFileElement(parallelizer.getorigfile1(), str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
+                    fileElement = self.testresultWriter.makeFileElement(filelist[0].getBasename(), str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
                     
                     # Append the result for this file to the testrun element
                     testrun.append(fileElement)
                     
-                    self.writeDiffFiles(comparator, parallelizer)
+                    self.writeDiffFiles(comparator, parallelizer, filelist[0].getBasename())
         
         # All files have been tested, insert this run at the top of the paragstest element
         self.testresultWriter.insertTestrunElement(testrun)
         # Write data to file
         self.testresultWriter.writeParagstestingData()
 
-    def writeDiffFiles(self, comparator, parallelizer):
+    def writeDiffFiles(self, comparator, parallelizer, filename):
         """
         Write diffs to a jspwiki file
         """
-        filename = parallelizer.getorigfile1() + '_' + self.date + '.jspwiki'
+        print "writeDiffFiles", filename
+        filename = filename + '_' + self.date + '.jspwiki'
         dirname = os.path.join(os.environ['GTHOME'], 'techdoc/ling')
+        
         try:
             f = open(os.path.join(dirname, filename), "w")
         except IOError:
             print "couldn't write file", os.path.join(dirname, filename)
             sys.exit(4)
         
-        f.write('!!!' + parallelizer.getorigfile1() + '\n')
-        
-        f.write("!!TMX diff\n")
+        f.write('!!!' + filename + '\n')
+        f.write("!!TMX diff\n{{{\n")
         f.writelines(comparator.getDiffAsText())
-
-        f.write(parallelizer.getlang1() + " diff\n")
+        f.write("\n}}}\n!!" + parallelizer.getlang1() + " diff\n{{{\n")
         f.writelines(comparator.getLangDiffAsText(parallelizer.getlang1()))
-        
-        f.write(parallelizer.getlang2() + " diff\n")
+        f.write("\n}}}\n!!" + parallelizer.getlang2() + " diff\n{{{\n")
         f.writelines(comparator.getLangDiffAsText(parallelizer.getlang2()))
-
+        f.write("\n}}}\n")
         f.close()
         
     def findGoldstandardTmxFiles(self):
