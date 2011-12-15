@@ -551,3 +551,108 @@ class TmxTestDataWriter():
         except IOError:
             print "ouch, Paragstestingresults"
         
+class TmxGoldstandardTester:
+    """
+    A class to test the alignment pipeline againt the tmx goldstandard
+    """
+    def __init__(self, testresult_filename):
+        """
+        Set the name where the testresults should be written
+        Find all goldstandard tmx files
+        """
+        self.testresultWriter = TmxTestDataWriter(testresult_filename)
+        self.date = self.dateformat()
+        
+    def dateformat(self):
+        """
+        Get the date and time, 20111209-1234. Used in a testrun element
+        """
+        import datetime
+        import time
+        d = datetime.datetime.fromtimestamp(time.time())
+        
+        return d.strftime("%Y%m%d-%H%M")
+
+    def runTest(self):
+        # Make a testrun element, which will contain the result of the test
+        testrun = self.testresultWriter.makeTestrunElement(self.date)
+        
+        paralang = ""
+        # Go through each tmx goldstandard file
+        for wantTmxFile in self.findGoldstandardTmxFiles():
+            print "testing", wantTmxFile, "..."
+            
+            # Calculate the parallel lang, to be used in parallelization
+            if wantTmxFile.find('nob2sme') > -1:
+                paralang = 'sme'
+            else:
+                paralang = 'nob'
+                
+            # Compute the name of the main file to parallelize
+            xmlFile = wantTmxFile.replace('tmx/goldstandard/', 'converted/')
+            xmlFile = xmlFile.replace('nob2sme', 'nob')
+            xmlFile = xmlFile.replace('sme2nob', 'sme')
+            xmlFile = xmlFile.replace('.tmx', '.xml')
+            
+            # Align files
+            parallelizer = Parallelize(xmlFile, paralang)
+            if parallelizer.dividePIntoSentences() == 0:
+                if parallelizer.parallelizeFiles() == 0:
+                    
+                    # The result of the alignment is a tmx element
+                    gotTmx = TmxFromTca2(parallelizer.getFilelist())
+            
+                    # This is the tmx element fetched from the goldstandard file
+                    wantTmx = Tmx(etree.parse(wantTmxFile))
+                    
+                    # Instantiate a comparator with the two tmxes
+                    comparator = TmxComparator(wantTmx, gotTmx)
+            
+                    # Make a fileElement for our results file
+                    fileElement = self.testresultWriter.makeFileElement(parallelizer.getorigfile1(), str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
+                    
+                    # Append the result for this file to the testrun element
+                    testrun.append(fileElement)
+                    
+                    self.writeDiffFiles(comparator, parallelizer)
+        
+        # All files have been tested, insert this run at the top of the paragstest element
+        self.testresultWriter.insertTestrunElement(testrun)
+        # Write data to file
+        self.testresultWriter.writeParagstestingData()
+
+    def writeDiffFiles(self, comparator, parallelizer):
+        """
+        Write diffs to a jspwiki file
+        """
+        filename = parallelizer.getorigfile1() + '_' + self.date + '.jspwiki'
+        dirname = os.path.join(os.environ['GTFREE'], 'techdoc/ling')
+        f = open(os.path.join(dirname, filename), "w")
+        
+        f.write('!!!' + parallelizer.getorigfile1() + '\n')
+        
+        f.write("!!TMX diff\n")
+        f.writelines(comparator.getDiffAsText())
+
+        f.write(parallelizer.getlang1() + " diff\n")
+        f.writelines(comparator.getLangDiffAsText(parallelizer.getlang1()))
+        
+        f.write(parallelizer.getlang2() + " diff\n")
+        f.writelines(comparator.getLangDiffAsText(parallelizer.getlang2()))
+
+        f.close()
+        
+    def findGoldstandardTmxFiles(self):
+        """
+        Find the goldstandard tmx files, return them as a list
+        """
+        subp = subprocess.Popen(['find', os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard'), '-name', '*.tmx', '-print' ], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not compile tca2'
+            print >>sys.stderr, error
+            sys.exit(1)
+        else:
+            files = output.split('\n')
+            return files[:-1]
