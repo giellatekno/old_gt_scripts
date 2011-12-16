@@ -51,6 +51,7 @@ sub cleanSpaceText {
 	$string =~ s/ //g;                # Remove all remaining spaces
 	$string =~ s/%#/#/g;              # Un-escape word boundaries
 	$string =~ s/"XXX"/ /g;           # Restore literal spaces
+	$string =~ s/\%/ /g;           # Restore literal spaces
 	$string =~ s/"0"/0/g;             # Restore literal zeroes
 	return $string;
 }
