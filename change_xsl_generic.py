@@ -31,10 +31,10 @@ if (xsl_filename.rfind('.xsl') > 0):
 	for element in root.iter():
 		for key, value in change_variables.iteritems():
 			if element.attrib.get('name') == key:
-				element.set('select', value)
+				element.set('select', "'" + value + "'")
 
 	try:
-		tree.write(xsl_filename, encoding="utf-8")
+		tree.write(xsl_filename, encoding="utf-8", xml_declaration = True)
 	except IOError:
 		print 'cannot open', xsl_filename
 		sys.exit(255)
