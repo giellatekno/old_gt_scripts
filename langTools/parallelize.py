@@ -1,4 +1,24 @@
 # -*- coding: utf-8 -*-
+
+#
+#   This file contains routines to sentence align two files 
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with NickelsWebTranslator.  If not, see <http://www.gnu.org/licenses/>.
+#
+#   Copyright 2011 Børre Gaup <borre.gaup@uit.no>
+#
+
 import os
 import re
 import sys
@@ -284,6 +304,7 @@ class Tmx:
     def reverseLangs(self):
         """
         Reverse the langs in a tmx
+        Return the reverted tmx
         """
         all_tu = self.getTmx().findall('.//tu')
         body = etree.Element('body')
@@ -298,8 +319,8 @@ class Tmx:
         tmx.append(body)
         
         self.tmx = tmx
-        et = etree.ElementTree(self.tmx)
-        et.write(sys.stdout, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+        #et = etree.ElementTree(self.tmx)
+        #et.write(sys.stdout, pretty_print = True, encoding = "utf-8", xml_declaration = True)
         
 class TmxFromTca2(Tmx):
     """
