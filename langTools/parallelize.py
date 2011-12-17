@@ -681,3 +681,18 @@ class TmxGoldstandardTester:
         else:
             files = output.split('\n')
             return files[:-1]
+
+class TmxFixer(self):
+    """
+    A class to reverse the langs and change the name of a tmx file if needed
+    Possible errors of a tmx file:
+    * the languages can be in the wrong order
+    * the name is wrong
+    * the file is placed in the wrong lang directory
+    """
+    
+    def __init__(self, filetofix):
+        """
+        Input is the file we should consider to fix
+        """
+        
