@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -25,6 +26,9 @@ import sys
 import subprocess
 import difflib
 from lxml import etree
+from lxml import doctestcompare
+
+import unittest
 
 class ParallelFile:
     """
@@ -79,7 +83,7 @@ class TestParallelFile(unittest.TestCase):
     A test class for the ParallelFile class
     """
     def setUp(self):
-        self.pfile = parallelize.ParallelFile()
+        self.pfile = ParallelFile()
         
     def testBasename(self):
         self.pfile.setName("/home/test/filename.html")
@@ -255,7 +259,7 @@ class TestParallelize(unittest.TestCase):
     A test class for the Parallelize class
     """
     def setUp(self):
-        self.parallelize = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+        self.parallelize = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
     
     def testFindParallelFilename(self):
         self.assertEqual(self.parallelize.findParallelFilename(), 'aarseth2-n.htm')
@@ -398,27 +402,27 @@ class TestTmx(unittest.TestCase):
     A test class for the Tmx class
     """
     def setUp(self):
-        self.tmx = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
+        self.tmx = Tmx(etree.parse('aarseth2-n.htm.tmx'))
         
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
-        string_got = lxml.etree.tostring(got, pretty_print = True)
-        string_want = lxml.etree.tostring(want, pretty_print = True)
+        string_got = etree.tostring(got, pretty_print = True)
+        string_want = etree.tostring(want, pretty_print = True)
         
-        checker = lxml.doctestcompare.LXMLOutputChecker()
+        checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_got, string_want, 0):
             message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
             raise AssertionError(message)
         
     def testTuToString(self):
-        tu = lxml.etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
+        tu = etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
         
         self.assertEqual(self.tmx.tuToString(tu), "Sámegiella\tSamisk\n")
 
     def testTuvToString(self):
-        tuv = lxml.etree.XML('<tuv xml:lang="sme"><seg>Sámegiella</seg></tuv>')
+        tuv = etree.XML('<tuv xml:lang="sme"><seg>Sámegiella</seg></tuv>')
         
         self.assertEqual(self.tmx.tuvToString(tuv), "Sámegiella")
         
@@ -444,8 +448,8 @@ class TestTmx(unittest.TestCase):
         self.assertEqual(self.tmx.tmxToStringlist(), wantList)
     
     def testPrettifySegs(self):
-        wantXml = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
-        gotXml = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
+        wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
+        gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
         self.assertXmlEqual(self.tmx.prettifySegs(gotXml), wantXml)
         
 class TmxFromTca2(Tmx):
@@ -590,18 +594,18 @@ class TestTmxFromTca2(unittest.TestCase):
         """
         Hand the data from the Parallelize class to the tmx class
         """
-        para = parallelize.Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+        para = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
 
-        self.tmx = parallelize.TmxFromTca2(para.getFilelist())
+        self.tmx = TmxFromTca2(para.getFilelist())
     
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
-        string_got = lxml.etree.tostring(got, pretty_print = True)
-        string_want = lxml.etree.tostring(want, pretty_print = True)
+        string_got = etree.tostring(got, pretty_print = True)
+        string_want = etree.tostring(want, pretty_print = True)
         
-        checker = lxml.doctestcompare.LXMLOutputChecker()
+        checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_got, string_want, 0):
             message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
             raise AssertionError(message)
@@ -612,7 +616,7 @@ class TestTmxFromTca2(unittest.TestCase):
         
         gotTu = self.tmx.makeTu(line1, line2)
 
-        wantTu = lxml.etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
+        wantTu = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
         
         self.assertXmlEqual(gotTu, wantTu)
 
@@ -621,7 +625,7 @@ class TestTmxFromTca2(unittest.TestCase):
         lang = 'smi'
         gotTuv = self.tmx.makeTuv(line, lang)
         
-        wantTuv = lxml.etree.XML('<tuv xml:lang="smi"><seg>ubba gubba. ibba gibba.</seg></tuv>')
+        wantTuv = etree.XML('<tuv xml:lang="smi"><seg>ubba gubba. ibba gibba.</seg></tuv>')
         
         self.assertXmlEqual(gotTuv, wantTuv)
         
@@ -629,7 +633,7 @@ class TestTmxFromTca2(unittest.TestCase):
         lang = 'smi'
         gotTuv = self.tmx.makeTmxHeader(lang)
         
-        wantTuv = lxml.etree.XML('<header segtype="sentence" o-tmf="OmegaT TMX" adminlang="en-US" srclang="smi" datatype="plaintext"/>')
+        wantTuv = etree.XML('<header segtype="sentence" o-tmf="OmegaT TMX" adminlang="en-US" srclang="smi" datatype="plaintext"/>')
         
         self.assertXmlEqual(gotTuv, wantTuv)
         
@@ -643,9 +647,9 @@ class TestTmxFromTca2(unittest.TestCase):
         self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.tmx'))
     
     def testPrintTmxFile(self):
-        want = lxml.etree.parse("aarseth2-n.htm.tmx")
+        want = etree.parse("aarseth2-n.htm.tmx")
         self.tmx.printTmxFile()
-        got = lxml.etree.parse(self.tmx.getOutfileName())
+        got = etree.parse(self.tmx.getOutfileName())
         
         self.assertXmlEqual(got, want)
 
@@ -704,7 +708,7 @@ class TestTmxComparator(unittest.TestCase):
     A test class for the TmxComparator class
     """
     def testEqualTmxes(self):
-        comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx')), parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx')))
+        comp = TmxComparator(Tmx(etree.parse('aarseth2-n.htm.tmx')), Tmx(etree.parse('aarseth2-n.htm.tmx')))
         
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
         self.assertEqual(comp.getLinesInWantedfile(), 274)
@@ -713,18 +717,18 @@ class TestTmxComparator(unittest.TestCase):
     #def testUnEqualTmxes(self):
         #gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
         #wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
-        #comp = parallelize.TmxComparator(parallelize.Tmx(lxml.etree.parse(wantFile)), parallelize.Tmx(lxml.etree.parse(gotFile)))
+        #comp = TmxComparator(Tmx(etree.parse(wantFile)), Tmx(etree.parse(gotFile)))
 
         #self.assertEqual(comp.getNumberOfDifferingLines(), 7)
         #self.assertEqual(comp.getLinesInWantedfile(), 632)
         #self.assertEqual(len(comp.getDiffAsText()), 28)
 
     #def testReversedlang(self):
-        #wantFile = parallelize.Tmx(lxml.etree.parse('aarseth2-n.htm.tmx'))
-        #gotFile = parallelize.Tmx(lxml.etree.parse('aarseth2-s.htm.tmx'))
+        #wantFile = Tmx(etree.parse('aarseth2-n.htm.tmx'))
+        #gotFile = Tmx(etree.parse('aarseth2-s.htm.tmx'))
         #gotFile.reverseLangs()
         
-        #comp = parallelize.TmxComparator(wantFile, gotFile)
+        #comp = TmxComparator(wantFile, gotFile)
         
         #print comp.getDiffAsText()
         #self.assertEqual(comp.getNumberOfDifferingLines(), -1)
@@ -744,8 +748,8 @@ class TmxTestDataWriter():
             self.setParagsTestingElement(tree.getroot())
         except IOError:
             self.setParagsTestingElement(self.makeParagstestingElement())
-        except etree.XMLSyntaxError:
-            self.setParagsTestingElement(self.makeParagstestingElement())
+        #except etree.XMLSyntaxError:
+            #self.setParagsTestingElement(self.makeParagstestingElement())
         
     def makeFileElement(self, name, gspairs, diffpairs):
         """
@@ -799,28 +803,28 @@ class TestTmxTestDataWriter(unittest.TestCase):
     A class to test TmxTestDataWriter
     """
     def setUp(self):
-        self.writer = parallelize.TmxTestDataWriter("testfilename")
+        self.writer = TmxTestDataWriter("testfilename")
         
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
-        string_got = lxml.etree.tostring(got, pretty_print = True)
-        string_want = lxml.etree.tostring(want, pretty_print = True)
+        string_got = etree.tostring(got, pretty_print = True)
+        string_want = etree.tostring(want, pretty_print = True)
         
-        checker = lxml.doctestcompare.LXMLOutputChecker()
+        checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_got, string_want, 0):
             message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
             raise AssertionError(message)
         
     def testMakeFileElement(self):
-        wantElement = lxml.etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
+        wantElement = etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
         gotElement = self.writer.makeFileElement("abc", "634", "84")
         
         self.assertXmlEqual(wantElement, gotElement)
     
     def testMakeTestrunElement(self):
-        wantElement = lxml.etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
+        wantElement = etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
         gotElement = self.writer.makeTestrunElement("20111208-1234")
         fileElement = self.writer.makeFileElement("abc", "634", "84")
         gotElement.append(fileElement)
@@ -828,7 +832,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         self.assertXmlEqual(wantElement, gotElement)
     
     def testMakeParagstestingElement(self):
-        wantElement = lxml.etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        wantElement = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
         gotElement = self.writer.makeParagstestingElement()
         testrunElement = self.writer.makeTestrunElement("20111208-1234")
         fileElement = self.writer.makeFileElement("abc", "634", "84")
@@ -838,7 +842,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         self.assertXmlEqual(wantElement, gotElement)
     
     def testInsertTestrunElement(self):
-        wantElement = lxml.etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        wantElement = etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
         
         gotElement = self.writer.makeParagstestingElement()
         self.writer.setParagsTestingElement(gotElement)
@@ -856,7 +860,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         self.assertXmlEqual(wantElement, gotElement)
         
     def testWriteParagstestingData(self):
-        want = lxml.etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        want = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
         
         gotElement = self.writer.makeParagstestingElement()
         self.writer.setParagsTestingElement(gotElement)
@@ -867,7 +871,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
 
         
         self.writer.writeParagstestingData()
-        got = lxml.etree.parse(self.writer.filename)
+        got = etree.parse(self.writer.filename)
         
         self.assertXmlEqual(got, want)
         
@@ -981,7 +985,7 @@ class TmxGoldstandardTester:
             files = output.split('\n')
             return files[:-1]
 
-class TmxFixer(self):
+class TmxFixer:
     """
     A class to reverse the langs and change the name of a tmx file if needed
     Possible errors of a tmx file:
@@ -996,6 +1000,7 @@ class TmxFixer(self):
         """
         
 if __name__ == '__main__':
+    #
     for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
