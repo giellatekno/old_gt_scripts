@@ -35,18 +35,10 @@ class ParallelFile:
     A class that contains the info on a file to be parallellized, name and language
     """
     
-    def __init__(self):
-        self.name = None
-        self.dirname = None
-        self.base = None
-        self.lang = None
-        
-    def setName(self, name):
-        """
-        Set name (absolute path) of the file.
-        Expects a absolute path to a file as input.
-        """
+    def __init__(self, name, paralang):
         self.name = name
+        self.paralang = paralang
+        self.setLang()
         
     def getName(self):
         """
@@ -66,40 +58,64 @@ class ParallelFile:
         """
         return os.path.basename(self.name)
         
-    def setLang(self, lang):
+    def setLang(self):
         """
         Set the lang of the file
         """
-        self.lang = lang
+        origfile1Tree = etree.parse(self.getName())
+        self.lang = origfile1Tree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
         
     def getLang(self):
         """
         Get the lang of the file
         """
         return self.lang
+        
+    def getParallelBasename(self):
+        """
+        Get the basename of the parallel file
+        Input is the lang of the parallel file
+        """
+        origfile1Tree = etree.parse(self.getName())
+        root = origfile1Tree.getroot()
+        parallelFiles = root.findall(".//parallel_text")
+        for p in parallelFiles:
+            if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.paralang:
+                return p.attrib['location']
+        
+    def getParallelFilename(self):
+        """
+        Infer the absolute path of the parallel file
+        """
+        parallelDirname = self.getDirname().replace(self.getLang(), self.paralang)
+        parallelBasename = self.getParallelBasename() + '.xml'
+        
+        return os.path.join(parallelDirname, parallelBasename)
 
 class TestParallelFile(unittest.TestCase):
     """
     A test class for the ParallelFile class
     """
     def setUp(self):
-        self.pfile = ParallelFile()
+        self.pfile = ParallelFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
         
     def testBasename(self):
-        self.pfile.setName("/home/test/filename.html")
-        self.assertEqual(self.pfile.getBasename(), "filename.html")
+        self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
         
     def testDirname(self):
-        self.pfile.setName("/home/test/filename.html")
-        self.assertEqual(self.pfile.getDirname(), "/home/test")
+        self.assertEqual(self.pfile.getDirname(), os.path.join(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2"))
         
     def testName(self):
-        self.pfile.setName("/home/test/filename.html")
-        self.assertEqual(self.pfile.getName(), "/home/test/filename.html")
+        self.assertEqual(self.pfile.getName(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
         
     def testLang(self):
-        self.pfile.setLang("sme")
         self.assertEqual(self.pfile.getLang(), "sme")
+        
+    def testGetParallelBasename(self):
+        self.assertEqual(self.pfile.getParallelBasename(), "aarseth2-n.htm")
+        
+    def testGetParallelFilename(self):
+        self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
 
 class Parallelize:
     """
@@ -117,17 +133,12 @@ class Parallelize:
         Parse the original file to get the access to metadata
         """
         self.origfiles = []
-        self.origfile1Tree = etree.parse(origfile1)
         
-        tmpfile = ParallelFile()
-        tmpfile.setName(os.path.abspath(origfile1))
-        tmpfile.setLang(self.origfile1Tree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'])
+        tmpfile = ParallelFile(os.path.abspath(origfile1), lang2)
         self.origfiles.append(tmpfile)
         
-        tmpfile = ParallelFile()
-        tmpfile.setLang(lang2)
+        tmpfile = ParallelFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
         self.origfiles.append(tmpfile)
-        self.origfiles[1].setName(self.setOrigfile2Name())
         
         if self.isTranslatedFromLang2():
             self.reshuffleFiles()
@@ -146,47 +157,31 @@ class Parallelize:
         """
         return self.origfiles
 
-    def getlang1(self):
+    def getLang1(self):
         return self.origfiles[0].getLang()
         
-    def getlang2(self):
+    def getLang2(self):
         return self.origfiles[1].getLang()
         
-    def getorigfile1(self):
-        return os.path.join(self.origfiles[0].getDirname(), self.origfiles[0].getName())
+    def getOrigfile1(self):
+        return self.origfiles[0].getName()
         
-    def getorigfile2(self):
-        return os.path.join(self.origfiles[1].getDirname(), self.origfiles[1].getName())
+    def getOrigfile2(self):
+        return self.origfiles[1].getName()
     
     def isTranslatedFromLang2(self):
         """
         Find out if the given doc is translated from lang2
         """
         result = False
-        root = self.origfile1Tree.getroot()
+        origfile1Tree = etree.parse(self.getOrigfile1())
+        root = origfile1Tree.getroot()
         translated_from = root.find(".//translated_from")
         if translated_from is not None:
-            if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
+            if translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getLang2():
                 result = True
 
         return result
-    
-        
-    def findParallelFilename(self):
-        """
-        Find the name of the parallel file to the original input file
-        """
-        root = self.origfile1Tree.getroot()
-        parallelFiles = root.findall(".//parallel_text")
-        for p in parallelFiles:
-            if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.getlang2():
-                return p.attrib['location']
-        
-    def setOrigfile2Name(self):
-        """
-        Infer the path of the second file
-        """
-        return os.path.dirname(self.getorigfile1()).replace('/' + self.getlang1() + '/', '/' + self.getlang2() + '/') + '/' + self.findParallelFilename() + '.xml'
     
     def generateAnchorFile(self):
         """
@@ -195,7 +190,7 @@ class Parallelize:
         infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt')
         infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt')
         
-        subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getlang1(), '--lang2' + self.getlang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getLang1(), '--lang2' + self.getLang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
         
         if subp.returncode != 0:
@@ -205,7 +200,7 @@ class Parallelize:
             return subp.returncode
 
         # Return the absolute path of the resulting file
-        outFilename = 'anchor-' + self.getlang1() + self.getlang2() + '.txt'
+        outFilename = 'anchor-' + self.getLang1() + self.getLang2() + '.txt'
         return os.path.join(os.environ['GTFREE'], outFilename)
         
     def dividePIntoSentences(self):
@@ -247,7 +242,7 @@ class Parallelize:
         (output, error) = subp.communicate()
             
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getorigfile1()), 'and', self.getSentFilename(self.getorigfile2()), ' into sentences'
+            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getOrigfile1()), 'and', self.getSentFilename(self.getOrigfile2()), ' into sentences'
             print >>sys.stderr, output
             print >>sys.stderr, error
             return subp.returncode
@@ -261,20 +256,17 @@ class TestParallelize(unittest.TestCase):
     def setUp(self):
         self.parallelize = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
     
-    def testFindParallelFilename(self):
-        self.assertEqual(self.parallelize.findParallelFilename(), 'aarseth2-n.htm')
-        
     def testOrigPath(self):
-        self.assertEqual(self.parallelize.getorigfile1(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
+        self.assertEqual(self.parallelize.getOrigfile1(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
         
     def testParallelPath(self):
-        self.assertEqual(self.parallelize.getorigfile2(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
+        self.assertEqual(self.parallelize.getOrigfile2(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
         
     def testLang1(self):
-        self.assertEqual(self.parallelize.getlang1(), "nob")
+        self.assertEqual(self.parallelize.getLang1(), "nob")
         
     def testLang2(self):
-        self.assertEqual(self.parallelize.getlang2(), "sme")
+        self.assertEqual(self.parallelize.getLang2(), "sme")
         
     def testGetSentFilename(self):
         self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getFilelist()[0]), os.environ['GTFREE'] + "/tmp/aarseth2-n.htmnob_sent.xml")
@@ -963,10 +955,10 @@ class TmxGoldstandardTester:
         f.write('!!!' + filename + '\n')
         f.write("!!TMX diff\n{{{\n")
         f.writelines(comparator.getDiffAsText())
-        f.write("\n}}}\n!!" + parallelizer.getlang1() + " diff\n{{{\n")
-        f.writelines(comparator.getLangDiffAsText(parallelizer.getlang1()))
-        f.write("\n}}}\n!!" + parallelizer.getlang2() + " diff\n{{{\n")
-        f.writelines(comparator.getLangDiffAsText(parallelizer.getlang2()))
+        f.write("\n}}}\n!!" + parallelizer.getLang1() + " diff\n{{{\n")
+        f.writelines(comparator.getLangDiffAsText(parallelizer.getLang1()))
+        f.write("\n}}}\n!!" + parallelizer.getLang2() + " diff\n{{{\n")
+        f.writelines(comparator.getLangDiffAsText(parallelizer.getLang2()))
         f.write("\n}}}\n")
         f.close()
         
