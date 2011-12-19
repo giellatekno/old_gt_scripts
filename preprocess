@@ -460,6 +460,7 @@ sub test_abbr {
 
 	my $abbr = $word;
 	if (! ($abbr =~ s/\.$//)) {
+        verbose("test_abbr", $abbr, __LINE__);
 		return 0;
 	}
 
@@ -467,6 +468,7 @@ sub test_abbr {
 	# by sentence boundary.
 	if ($abbrs{$abbr} eq $TRAB || $abbrs{lc($abbr)} eq $TRAB ) {
 		add_token($tokens_aref, $w_token, $word);
+        verbose("test_abbr", $abbr, __LINE__);
 		return 1;
 	}
 
@@ -479,6 +481,7 @@ sub test_abbr {
 		if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
 			add_new_token ($tokens_aref, $sentence_break);
 		}
+		verbose("test_abbr", $abbr, __LINE__);
 		return 1;
 	}
 	# There is a sentence boundary if intransitive abbreviation 
@@ -488,6 +491,7 @@ sub test_abbr {
 		if ($next_word !~ /^[\p{Ll}\pP]/o) {
 			add_new_token ($tokens_aref, $sentence_break);
 		}
+		verbose("test_abbr", $abbr, __LINE__);
 		return 1;
 	}
 
@@ -496,6 +500,7 @@ sub test_abbr {
 		if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
 			add_new_token ($tokens_aref, $sentence_break);
 		}
+		verbose("test_abbr", $abbr, __LINE__);
 		return 1;
 	}
 	# 
@@ -505,8 +510,10 @@ sub test_abbr {
 			$word =~ s/\.$//;
 			add_token($tokens_aref, $w_token, $word);
 			add_new_token ($tokens_aref, $sentence_break);
+            verbose("test_abbr", $abbr, __LINE__);
 		}
 		else { add_token($tokens_aref, $w_token, $word); }
+		verbose("test_abbr", $abbr, __LINE__);
 		return 1;
 	}
 	return 0;
