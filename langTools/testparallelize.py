@@ -15,7 +15,7 @@
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with NickelsWebTranslator.  If not, see <http://www.gnu.org/licenses/>.
+#   along with file. If not, see <http://www.gnu.org/licenses/>.
 #
 #   Copyright 2011 Børre Gaup <borre.gaup@uit.no>
 #

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#   This file tests the max and min values of tca2 applied to the tmx goldstandard files
+#   This program tests the max and min values of tca2 applied to the tmx goldstandard files
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with NickelsWebTranslator.  If not, see <http://www.gnu.org/licenses/>.
+#   along with program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #   Copyright 2011 Børre Gaup <borre.gaup@uit.no>
 #
