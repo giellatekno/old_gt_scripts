@@ -690,7 +690,7 @@ class TmxComparator:
         """
         diff = []
         for line in difflib.unified_diff(self.wantTmx.langToStringlist(lang), self.gotTmx.langToStringlist(lang), n = 0):
-            diff.append(line)
+            diff.append(line + '\n')
           
         return diff
         
@@ -969,7 +969,7 @@ class TmxGoldstandardTester:
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not compile tca2'
+            print >>sys.stderr, 'Error when searching for goldstandard docs'
             print >>sys.stderr, error
             sys.exit(1)
         else:
