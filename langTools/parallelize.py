@@ -245,9 +245,8 @@ class Parallelize:
             print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getOrigfile1()), 'and', self.getSentFilename(self.getOrigfile2()), ' into sentences'
             print >>sys.stderr, output
             print >>sys.stderr, error
-            return subp.returncode
                 
-        return 0
+        return subp.returncode
 
 class TestParallelize(unittest.TestCase):
     """
