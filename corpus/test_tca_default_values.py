@@ -40,13 +40,20 @@ def main():
     default['DEFAULT__NUMBER_MATCH_WEIGHT'] = ['0.5', '3.0']
     default['DEFAULT__SCORINGCHARACTER_MATCH_WEIGHT'] = ['0.5', '3.0']
 
-    # copy the original file to a backup file
-    shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'))
-    
     # Set the name of the file to write the test to
     paragstestfile = os.path.join(os.environ['GTHOME'], 'techdoc/ling/tca2_testruns.paragstesting.xml')
     
-    # for each constant
+    # First a run with the default values
+    compile_tca()
+    # Initialize an instance of a tmx test data writer
+    tester = parallelize.TmxGoldstandardTester(paragstestfile)
+    # run the test
+    tester.runTest()
+
+    # copy the original file to a backup file
+    shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'))
+    
+    # Then for each constant, change them
     for constant, values in default.iteritems():
         print "testing", constant
         for value in values:
@@ -58,7 +65,7 @@ def main():
             tester = parallelize.TmxGoldstandardTester(paragstestfile)
             # run the test
             tester.runTest()
-            # reset to the orig file
+            # reset to the orig file after each run
             shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'))
             
     return 0
