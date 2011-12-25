@@ -46,7 +46,7 @@ def main():
     # First a run with the default values
     compile_tca()
     # Initialize an instance of a tmx test data writer
-    tester = parallelize.TmxGoldstandardTester(paragstestfile)
+    tester = parallelize.TmxGoldstandardTester(paragstestfile, '_Default_values')
     # run the test
     tester.runTest()
 
@@ -62,7 +62,7 @@ def main():
             set_value(constant, value)
             compile_tca()
             # Initialize an instance of a tmx test data writer
-            tester = parallelize.TmxGoldstandardTester(paragstestfile)
+            tester = parallelize.TmxGoldstandardTester(paragstestfile, '_' + constant + '_' + value)
             # run the test
             tester.runTest()
             # reset to the orig file after each run

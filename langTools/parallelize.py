@@ -876,13 +876,16 @@ class TmxGoldstandardTester:
     """
     A class to test the alignment pipeline againt the tmx goldstandard
     """
-    def __init__(self, testresult_filename):
+    def __init__(self, testresult_filename, dateformat_addition = None):
         """
         Set the name where the testresults should be written
         Find all goldstandard tmx files
         """
         self.testresultWriter = TmxTestDataWriter(testresult_filename)
-        self.date = self.dateformat()
+        if dateformat_addition is None:
+            self.date = self.dateformat()
+        else:
+            self.date = self.dateformat + dateformat_addition
         
     def dateformat(self):
         """
