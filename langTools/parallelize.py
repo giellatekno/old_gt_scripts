@@ -742,6 +742,9 @@ class TmxTestDataWriter():
         #except etree.XMLSyntaxError:
             #self.setParagsTestingElement(self.makeParagstestingElement())
         
+    def getFilename(self):
+        return self.filename
+        
     def makeFileElement(self, name, gspairs, diffpairs):
         """
         Make the element file, set the attributes
@@ -807,6 +810,9 @@ class TestTmxTestDataWriter(unittest.TestCase):
         if not checker.check_output(string_got, string_want, 0):
             message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
             raise AssertionError(message)
+        
+    def testGetFilename(self):
+        self.assertEqual(self.writer.getFilename(), "testfilename")
         
     def testMakeFileElement(self):
         wantElement = etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
@@ -943,7 +949,7 @@ class TmxGoldstandardTester:
         """
         print "writeDiffFiles", filename
         filename = filename + '_' + self.date + '.jspwiki'
-        dirname = os.path.join(os.environ['GTHOME'], 'techdoc/ling')
+        dirname = os.path.join(os.path.dirname(self.testresultWriter.getFilename()), 'tca2testing')
         
         try:
             f = open(os.path.join(dirname, filename), "w")
