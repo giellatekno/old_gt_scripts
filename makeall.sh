@@ -169,6 +169,10 @@ cd $GTHOME/kt/kom/src
 echo "===>              <==="
 echo "===>     Komi     <===" 
 echo "===>              <==="
+echo "===> lexfiles...  <==="
+nice time make lexfiles
+echo "===>              <==="
+echo "===> ... and fst  <==="
 nice time make
 
 echo ""
