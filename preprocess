@@ -26,7 +26,6 @@ use open 'utf8';
 # permit named arguments
 use Getopt::Long;
 
-my @words;
 my %abbrs;
 my %corrections;
 my %corr_short;
