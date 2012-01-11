@@ -23,6 +23,7 @@
 import os
 from lxml import etree
 from lxml import doctestcompare
+import doctest
 
 import unittest
 
@@ -33,6 +34,18 @@ class TestPdf2Xml(unittest.TestCase):
     def setup():
         pass
     
+    def assertXmlEqual(self, got, want):
+        """
+        Check if two xml snippets are equal
+        """
+        string_got = etree.tostring(got, pretty_print = True)
+        string_want = etree.tostring(want, pretty_print = True)
+        
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(string_got, string_want, 0):
+            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+            raise AssertionError(message)
+        
     def testConstruction(self):
         """
         Test the constructor
@@ -46,6 +59,17 @@ class TestPdf2Xml(unittest.TestCase):
         
     def testRemoveTableOfContent(self):
         pass
+    
+    def testHandlePdf2xml(self):
+        
+        # First make "our" xml
+        pdf2xml = Pdf2Xml("pdf2xml_data/simple.pdf.xml")
+        gotXml = pdf2xml.handlePdf2xml()
+
+        # Then parse what we want
+        wantXml = etree.parse("pdf2xml_data/simple.xml")
+        
+        self.assertXmlEqual(gotXml, wantXml)
         
 class Pdf2Xml:
     """
@@ -65,19 +89,29 @@ class Pdf2Xml:
         if root.tag != "pdf2xml":
             raise ValueError(root.tag)
         
+    def handlePdf2xml(self):
+        """
+        Handle the root element of the input doc, convert it to "our" format
+        """
+        document = etree.Element("document")
+        body = etree.Element("body")
+        document.append(body)
+        
+        return document
+    
     def removeTableOfContent(self):
         """
         Remove lines containing four or more consecutive . marks
         """
         pass
     
-    def removeTopText(self):
+    def removeHeader(self):
         """
         Remove page numbers and other repeated content at the top of the page
         """
         pass
     
-    def removeBottomText(self):
+    def removeFooter(self):
         """
         Remove page numbers and other repeated content at the top of the page
         """
@@ -87,6 +121,25 @@ class Pdf2Xml:
         """
         Find the font that is used mostly in the doc
         """
+        pass
+    
+    def makeParagraphs(self):
+        """
+        Make the paragraphs out the content on the page
+        Insert the paragraphs as they are made. Indicate whether 
+        """
+        pass
+    
+    def handlePage(self):
+        """
+        Parse a page.
+        Strip away unwanted elements.
+        Indicate whether the content continues to the next page or not
+        """
+        self.removeHeader()
+        self.removeFooter()
+        self.removeTableOfContent()
+        self.makeParagraphs()
         pass
     
 if __name__ == '__main__':
