@@ -91,7 +91,7 @@ my $quotations = quotemeta("«»‹›“”„‘’‚´`'\"");
 my $other = quotemeta("…•¶½¾¼"); # dash to be added
 my $parentheses = quotemeta("|{}[]()<>");
 if ($xml) { $parentheses = quotemeta("|{}[]()"); }
-my $general_punct = quotemeta("$.*?!,;:.%");
+my $general_punct = quotemeta("\$.*?!,;:.%");
 
 # Punctuation marks that are always their own tokens,
 # whether word or numeral expression.
