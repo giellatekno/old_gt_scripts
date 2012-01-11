@@ -30,6 +30,53 @@ sys.path.append(os.environ['GTHOME'] + '/gt/script/langTools')
 import parallelize
 
 def main():
+    # Set the name of the file to write the test to
+    paragstestfile = os.path.join(os.environ['GTHOME'], 'techdoc/tools/tca2_testruns.paragstesting.xml')
+    
+    # First a run with the default values
+    compile_tca()
+    # Initialize an instance of a tmx test data writer
+    tester = parallelize.TmxGoldstandardTester(paragstestfile, '_Default_values')
+    # run the test
+    tester.runTest()
+    minDiffLines = tester.getNumberOfDiffLines()
+
+    # copy the original file to a backup file
+    shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'))
+
+    winners = findWinners(paragstestfile, minDiffLines)
+    
+    testWinners(winners)
+    
+    return 0
+
+def testWinners(winners):
+    """
+    Do a test run with the winners
+    """
+    
+    # Set the constants found in winners
+    for constant, value in winners.iteritems():
+        set_value(constant, value)
+        
+    compile_tca()
+    # Initialize an instance of a tmx test data writer
+    tester = parallelize.TmxGoldstandardTester(paragstestfile, '_Winner_values')
+    # run the test
+    tester.runTest()
+    
+    # reset to the orig file after each run
+    shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'))
+    
+    
+def findWinners(paragstestfile, defaultWinner):
+    """
+    Find those combinations of constant, value that gives better results
+    than the default setup.
+    Collect them in a winners dictionary, and return that
+    """
+    winners = {}
+
     # A dictionary of constants
     default = {}
     default['DEFAULT__ANCHORWORD_MATCH_WEIGHT'] = ['0.5', '3.0']
@@ -40,21 +87,9 @@ def main():
     default['DEFAULT__NUMBER_MATCH_WEIGHT'] = ['0.5', '3.0']
     default['DEFAULT__SCORINGCHARACTER_MATCH_WEIGHT'] = ['0.5', '3.0']
 
-    # Set the name of the file to write the test to
-    paragstestfile = os.path.join(os.environ['GTHOME'], 'techdoc/ling/tca2_testruns.paragstesting.xml')
-    
-    # First a run with the default values
-    compile_tca()
-    # Initialize an instance of a tmx test data writer
-    tester = parallelize.TmxGoldstandardTester(paragstestfile, '_Default_values')
-    # run the test
-    tester.runTest()
-
-    # copy the original file to a backup file
-    shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'))
-    
     # Then for each constant, change them
     for constant, values in default.iteritems():
+        winner = defaultWinner
         print "testing", constant
         for value in values:
             print value
@@ -65,11 +100,19 @@ def main():
             tester = parallelize.TmxGoldstandardTester(paragstestfile, '_' + constant + '_' + value)
             # run the test
             tester.runTest()
+            
+            # Find out if this combination of constant and value gives a better 
+            # result than the default setting. If it is, add it to the winners
+            # dictionary
+            if winner > tester.getNumberOfDiffLines():
+                winner = tester.getNumberOfDiffLines()
+                winners[constant] = value
+                
             # reset to the orig file after each run
             shutil.copy(os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java.tcatest'), os.path.join(os.environ['GTHOME'], 'tools/alignment-tools/tca2/aksis/alignment/Alignment.java'))
             
-    return 0
-
+    return winners
+    
 def set_value(constant, value):
     """
     Replace the line containing constant with value

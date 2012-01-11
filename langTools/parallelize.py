@@ -881,12 +881,22 @@ class TmxGoldstandardTester:
         Set the name where the testresults should be written
         Find all goldstandard tmx files
         """
+        self.numberOfDiffLines = 0
         self.testresultWriter = TmxTestDataWriter(testresult_filename)
         if dateformat_addition is None:
             self.date = self.dateformat()
         else:
-            self.date = self.dateformat + dateformat_addition
+            self.date = self.dateformat() + dateformat_addition
         
+    def setNumberOfDiffLines(self, diffLines):
+        """
+        Increase the total number of difflines in this test run
+        """
+        self.numberOfDiffLines += diffLines
+
+    def getNumberOfDiffLines(self):
+        return self.numberOfDiffLines
+
     def dateformat(self):
         """
         Get the date and time, 20111209-1234. Used in a testrun element
@@ -912,40 +922,60 @@ class TmxGoldstandardTester:
             else:
                 paralang = 'nob'
                 
-            # Compute the name of the main file to parallelize
-            xmlFile = wantTmxFile.replace('tmx/goldstandard/', 'converted/')
-            xmlFile = xmlFile.replace('nob2sme', 'nob')
-            xmlFile = xmlFile.replace('sme2nob', 'sme')
-            xmlFile = xmlFile.replace('.tmx', '.xml')
-            
             # Align files
-            parallelizer = Parallelize(xmlFile, paralang)
-            if parallelizer.dividePIntoSentences() == 0:
-                if parallelizer.parallelizeFiles() == 0:
-                    
-                    # The result of the alignment is a tmx element
-                    filelist = parallelizer.getFilelist()
-                    gotTmx = TmxFromTca2(filelist)
-            
-                    # This is the tmx element fetched from the goldstandard file
-                    wantTmx = Tmx(etree.parse(wantTmxFile))
-                    
-                    # Instantiate a comparator with the two tmxes
-                    comparator = TmxComparator(wantTmx, gotTmx)
-            
-                    # Make a fileElement for our results file
-                    fileElement = self.testresultWriter.makeFileElement(filelist[0].getBasename(), str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
-                    
-                    # Append the result for this file to the testrun element
-                    testrun.append(fileElement)
-                    
-                    self.writeDiffFiles(comparator, parallelizer, filelist[0].getBasename())
+            self.alignFiles(testrun, wantTmxFile, paralang)
         
         # All files have been tested, insert this run at the top of the paragstest element
         self.testresultWriter.insertTestrunElement(testrun)
         # Write data to file
         self.testresultWriter.writeParagstestingData()
 
+    def alignFiles(self, testrun, wantTmxFile, paralang):
+        """
+        Align files
+        Compare the tmx's of the result of this parallellization and the tmx of the goldstandard file
+        Write the result to a file
+        Write the diffs of these to tmx's to a separate file
+        """
+        
+        # Compute the name of the main file to parallelize
+        xmlFile = self.computeXmlfilename(wantTmxFile)
+
+        parallelizer = Parallelize(xmlFile, paralang)
+        if parallelizer.dividePIntoSentences() == 0:
+            if parallelizer.parallelizeFiles() == 0:
+                
+                # The result of the alignment is a tmx element
+                filelist = parallelizer.getFilelist()
+                gotTmx = TmxFromTca2(filelist)
+        
+                # This is the tmx element fetched from the goldstandard file
+                wantTmx = Tmx(etree.parse(wantTmxFile))
+                
+                # Instantiate a comparator with the two tmxes
+                comparator = TmxComparator(wantTmx, gotTmx)
+        
+                # Make a fileElement for our results file
+                fileElement = self.testresultWriter.makeFileElement(filelist[0].getBasename(), str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
+                
+                self.setNumberOfDiffLines(comparator.getNumberOfDifferingLines())
+                
+                # Append the result for this file to the testrun element
+                testrun.append(fileElement)
+                
+                self.writeDiffFiles(comparator, parallelizer, filelist[0].getBasename())
+
+    def computeXmlfilename(self, wantTmxFile):
+        """
+        Compute the name of the xmlfile which should be aligned
+        """
+        xmlFile = wantTmxFile.replace('tmx/goldstandard/', 'converted/')
+        xmlFile = xmlFile.replace('nob2sme', 'nob')
+        xmlFile = xmlFile.replace('sme2nob', 'sme')
+        xmlFile = xmlFile.replace('.tmx', '.xml')
+            
+        return xmlFile
+        
     def writeDiffFiles(self, comparator, parallelizer, filename):
         """
         Write diffs to a jspwiki file
