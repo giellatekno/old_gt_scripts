@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use warnings;
 use strict;
 use utf8;
 
@@ -75,12 +76,17 @@ GetOptions ("abbr=s" => \$abbr_file,
             "use-hyph-tag" => \$use_hyph_tag) ;
 
 if ($help) {
-    &print_usage;
-    exit;}
+    print_usage();
+    exit;
+}
 
 
 my %connecting;
-if ($connect) { for my $w ( split(",", $connect)){ $connecting{$w} = 1; } }
+if ($connect) { 
+    for my $w ( split(",", $connect)) { 
+        $connecting{$w} = 1; 
+    } 
+}
 
 my $quotations = quotemeta("«»‹›“”„‘’‚´`'\"");
 my $other = quotemeta("…•¶½¾¼"); # dash to be added
@@ -116,10 +122,14 @@ my %regex;
 
 # If the abbreviation file is given,
 # read the abbreviations from the file to a hash.
-if ($abbr_file) { &read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num, \%regex); 
+if ($abbr_file) { 
+    read_abbr(\%abbrs, \%idioms, \%idioms_short, \%num, \%regex); 
 }
+
 # Read the corrections file (corr.txt)
-if ($corr) { &read_corr (\%corrections, \%corr_short); }
+if ($corr) { 
+    read_corr (\%corrections, \%corr_short); 
+}
 
 # Read one line at a time but keep track on the next line.
 
@@ -129,31 +139,45 @@ my @words;
 while (<>) {
     chomp;
 
-    if (/^\s*$/ && !eof) { next; }
+    if (/^\s*$/ && !eof) { 
+        next; 
+    }
+
     s/^\s*//;
     
     # Process the <hyph> tag.
     if (! $use_hyph_tag) {
-        if ($hyph) { s/\<hyph\>/-/g; }
-        else { s/\<hyph\>//g; }
+        if ($hyph) { 
+            s/\<hyph\>/-/g; 
+        } else { 
+            s/\<hyph\>//g; 
+        }
     }
 
     # Process always the previous line, unless first line.
     if(!$line && ! @words) { 
         $line = $_;
-        if (!eof) { next; }
-        else { $next_line = undef; }
+        if (!eof) { 
+            next; 
+        } else { 
+            $next_line = undef; 
+        }
+    } elsif(eof && ! $_) { 
+        $next_line = undef; 
+    } else { 
+        $next_line = $_; 
     }
-    elsif(eof && ! $_) { $next_line = undef; }
-    else { $next_line = $_; }
 
     # If no XML-processing, split line to tokens.
     if(! $xml) {
         if (! @words) { 
             while($line =~ s/^(\s*)([^\s]+)//) {
                 my %w;
-                if ($space) { %w = ('word' => $2, 'space' => $1); }
-                else { %w = ('word' => $2, 'space' => " "); }
+                if ($space) { 
+                    %w = ('word' => $2, 'space' => $1); 
+                } else { 
+                    %w = ('word' => $2, 'space' => " "); 
+                }
                 push (@words, \%w);
             }
             $line = undef;
@@ -165,18 +189,21 @@ while (<>) {
         }
 
         $next_line = undef;
-    }
-    else {
+    } else {
         # If the xml-tags are included in the preprocessor output they are 
         # left untouched and just added to the tokens array.
         # The xml-markup without space, like in <italics>word</italics>
         # is taken into account.
         
-        if (!@words) { xml_tags($line, \@words); }
-        xml_tags($next_line, \@next_words)
+        if (!@words) { 
+            xml_tags($line, \@words); 
         }
+        xml_tags($next_line, \@next_words)
+    }
 
-    if ($preserve_newline) { $words[-1]{space} .= "\n";    }
+    if ($preserve_newline) { 
+        $words[-1]{space} .= "\n";    
+    }
     process_words();
 
     @words = @next_words;
@@ -193,13 +220,17 @@ sub xml_tags {
 
     while ($line) {
         verbose("processing xml-tag", $line , __LINE__);
-        if ($line =~ /^\s*$/) { last; }
+        if ($line =~ /^\s*$/) { 
+            last; 
+        }
+        
         if ($line =~ s/^(\s*)([^<\s]+?)(?=(?:\s|$))//) { 
             verbose("read", $2 , __LINE__);
             my %w = ('word' => $2, 'space' => $1);
             push (@$aref, \%w); 
             next;
         }
+        
         if ($line =~ s/^(\s*)(<[^<]*?>)//) { 
             if ($2) {
                 verbose("read", $2 , __LINE__);
@@ -208,6 +239,7 @@ sub xml_tags {
             }
             next; 
         }
+        
         while($line =~ s/^(\s*)([^<\s]+)//) {
             verbose("read", $2 , __LINE__);
             my %w = ('word' => $2, 'space' => $1);
@@ -223,8 +255,13 @@ sub process_words {
         my $w_token = shift @words;
         # Leave xml-tags untouched.
         if($xml && $w_token->{xml}) { 
-            if ($space && $w_token->{space}) { print $ltag, $w_token->{space}, $rtag, "\n"; }
-            if (! $no_xml_out) { print $w_token->{xml}, "\n"; }
+            if ($space && $w_token->{space}) { 
+                print $ltag, $w_token->{space}, $rtag, "\n"; 
+            }
+            
+            if (! $no_xml_out) { 
+                print $w_token->{xml}, "\n"; 
+            }
             next;
         }
         
@@ -240,12 +277,16 @@ sub process_words {
             if((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word}) {
                 verbose("no correction, no idiom", $word , __LINE__);
                 add_token(\@tokens, $w_token, $word);
-                if ($sentences) { print_sentence(\@tokens); }
-                else { print_tokens(\@tokens); }
+                if ($sentences) { 
+                    print_sentence(\@tokens); 
+                } else { 
+                    print_tokens(\@tokens); 
+                }
 
                 next;
             }
         }
+        
         # Process "word1- og word2" strings.
         if ($word =~ /\w+\p{Pd}$/) {
             if (@words) {
@@ -275,6 +316,7 @@ sub process_words {
                 }
             }
         }
+        
         verbose("process_word", $word , __LINE__);
         PROCESS_WORD: {
             # Fix some punctuation, like ...voxende and ----whatelse
@@ -292,6 +334,7 @@ sub process_words {
                         process_numeral ($first_word, $w_token, \@words, \@next_words, \@tokens);
                     }
                 }
+                
                 my $subpunct = substr($middle_punct, 0, 3);
                 add_new_token (\@tokens, $subpunct);
                 if ($second_word) {
@@ -321,15 +364,17 @@ sub process_words {
             if ($word =~ /^[\W]?\pL+/) {
                 verbose("if word", $word , __LINE__);
                 process_word ($word, $w_token, \@words, \@next_words, \@tokens);
-            }
-            # Otherwise it is processed like numeral.
-            else {
+            } else {
+                # Otherwise it is processed like numeral.
                 process_numeral ($word, $w_token, \@words, \@next_words, \@tokens);
             }
         } # end of PROCESS_WORD
 
-        if ($sentences) { print_sentence(\@tokens); }
-        else { print_tokens(\@tokens); }
+        if ($sentences) { 
+            print_sentence(\@tokens); 
+        } else { 
+            print_tokens(\@tokens); 
+        }
     }
 }
 
@@ -344,10 +389,16 @@ sub process_word {
     my $rest_punct;
 
     # Correct the word, if corrections is defined
-    if ($corr ) { if ($corr_short{$word}) { test_corr(\$word, $words_aref, $tokens_aref); }}
+    if ($corr ) { 
+        if ($corr_short{$word}) { 
+            test_corr(\$word, $words_aref, $tokens_aref); 
+        }
+    }
 
     # Test for multiword expression.
-    if ( $idioms_short{$word}) { test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE); }
+    if ( $idioms_short{$word}) { 
+        test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE); 
+    }
 
     my $end_num;
     if ($split_strings) {
@@ -399,12 +450,12 @@ sub process_word {
                   my @tmp = ($abbr, ".");
                   add_array($tokens_aref, \@tmp);
                   last TEST;
-              }
-              else {
+              } else {
                   add_token($tokens_aref, $w_token, $word);
                   last TEST;
               }
           }
+          
           # If an abbreviation like b.
           elsif ($abbr =~ /^\p{Ll}$/){
               add_token($tokens_aref, $w_token, $word);
@@ -416,6 +467,7 @@ sub process_word {
               last TEST;
           }
       }
+      
       # Cut the word into tokens if there is punctuation in the middle.
       # e.g. gielddat/guovllut
       # Check for expressions in $CONTAIN_PUNCT -variable.
@@ -437,7 +489,11 @@ sub process_word {
       if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
           $rest_punct =  $1;
           verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
-          if($corr) { if ($corrections{$word}) {test_corr(\$word, $words_aref, $tokens_aref); } }
+          if($corr) { 
+              if ($corrections{$word}) {
+                  test_corr(\$word, $words_aref, $tokens_aref); 
+              } 
+          }
           add_token($tokens_aref, $w_token, $word);
 
           my @rest = split ("", $rest_punct);
@@ -551,13 +607,13 @@ sub test_corr {
     if( $words_aref->[0]{word} ) { 
         $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
         $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word}); 
-    }
-    elsif ($next_aref->[0]{word}) { 
+    } elsif ($next_aref->[0]{word}) { 
         $idiom = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word}; 
         $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word}); 
         $next=1;
+    } else { 
+        return 0; 
     }
-    else { return 0; }
     while ($i <= $size) {
 
         # Remove the punctuation at the end of the expression.
@@ -581,7 +637,7 @@ sub test_corr {
                     $$word_ref .= $end_punct;
                     verbose ("test_corr/idiom", "$correct", __LINE__);
                     last CHECK_IDIOM
-                    }
+                }
                 my @parts = split (/ /o, $correct);
                 if (scalar @parts > 1) {
                     $$word_ref = pop @parts;
@@ -592,20 +648,24 @@ sub test_corr {
             }
             # Remove the parts of the multiword expression from
             # the word array.
-            if($next) { splice (@{$next_aref}, 0, $i+1); }
-            else { splice (@{$words_aref}, 0, $i+1); }
+            if($next) { 
+                splice (@{$next_aref}, 0, $i+1); 
+            } else { 
+                splice (@{$words_aref}, 0, $i+1); 
+            }
 
             return 1;
         }
+        
         $i++;
         if($words_aref->[$i]) { 
             $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
-        }
-        elsif(! $next && $next_aref->[0]) { 
+        } elsif(! $next && $next_aref->[0]) { 
             $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
             $next=1;
+        } else { 
+            return 0; 
         }
-        else { return 0; }
     }
 }
 
@@ -627,13 +687,14 @@ sub test_idiom {
     if( $words_aref->[0]{word} ) { 
         $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
         $ucidiom = ucfirst($$word_ref) . $words_aref->[0]{space} . ucfirst($words_aref->[0]{word}); 
-    }
-    elsif ($next_aref->[0]{word}) { 
+    } elsif ($next_aref->[0]{word}) { 
         $idiom = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word}; 
         $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word}); 
         $next=1;
+    } else { 
+        return 0; 
     }
-    else { return 0; }
+    
     while ($i <= $size) {
 
         # Remove the punctuation at the end of the expression.
@@ -668,13 +729,13 @@ sub test_idiom {
         if($words_aref->[$i]) { 
             $idiom = $idiom . $words_aref->[$i]{space} . $words_aref->[$i]{word};
             $ucidiom = $ucidiom . $words_aref->[$i]{space} . ucfirst($words_aref->[$i]{word});
-        }
-        elsif(! $next && $next_aref->[0]) { 
+        } elsif(! $next && $next_aref->[0]) { 
             $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
             $ucidiom = $ucidiom . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
             $next=1;
+        } else { 
+            return 0; 
         }
-        else { return 0; }
     }
 }
 
@@ -683,7 +744,11 @@ sub process_numeral {
 
     verbose ("process_numeral", $word, __LINE__);
 
-    if ($corr ) { if ($corr_short{$word}) { test_corr(\$word, $words_aref, $next_aref, $tokens_aref); } }
+    if ($corr ) { 
+        if ($corr_short{$word}) { 
+            test_corr(\$word, $words_aref, $next_aref, $tokens_aref); 
+        } 
+    }
 
     # Search for numeral expressions with spaces.
 
@@ -1074,6 +1139,3 @@ Options:
 
 END
 }
-
-
-
