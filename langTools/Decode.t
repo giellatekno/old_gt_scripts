@@ -31,8 +31,7 @@ use langTools::Converter;
 
 # filename with expected result
 my %test_cases = (
-    "$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/273777-raportti_saami.pdf"
-      => "0",
+    "$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/273777-raportti_saami.pdf" => "0",
     "$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/1999_1s.doc" => "type10",
 );
 
