@@ -46,11 +46,11 @@ def main():
 
     winners = findWinners(paragstestfile, minDiffLines)
     
-    testWinners(winners)
+    testWinners(paragstestfile, winners)
     
     return 0
 
-def testWinners(winners):
+def testWinners(paragstestfile, winners):
     """
     Do a test run with the winners
     """
