@@ -60,7 +60,7 @@ alias xsl2="saxonXSL"
 
 # Unicode/UTF-8 aware rev:
 alias rev="perl -nle 'print scalar reverse \$_'"
-alias sortcyr='perl -nle '\''print scalar $_'\'''
+alias sortcyr="perl -nle 'print scalar \$_'"
 
 # utility command
 alias path='echo -e ${PATH//:/\\n}'
