@@ -1006,8 +1006,12 @@ sub print_tokens{
     my ($tokens_aref) = @_;
 
     for my $t (@$tokens_aref) {
-        if ($space && $t->{space}) { print $ltag, $t->{space}, $rtag, "\n"; }
-        if ($t->{word} !~ /^$/) { print $t->{word}, "\n"; }
+        if ($space && $t->{space}) { 
+            print $ltag, $t->{space}, $rtag, "\n"; 
+        }
+        if ($t->{word} !~ /^$/) { 
+            print $t->{word}, "\n"; 
+        }
     }
 }
 
