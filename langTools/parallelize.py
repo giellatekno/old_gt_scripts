@@ -456,7 +456,7 @@ class TmxFromTca2(Tmx):
     
     def makeTu(self, line1, line2):
         """
-        Make a tmx tu elemenent based on line1 and line2 as input
+        Make a tmx tu element based on line1 and line2 as input
         """
         tu = etree.Element("tu")
         
