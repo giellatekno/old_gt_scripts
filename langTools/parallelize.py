@@ -25,6 +25,7 @@ import re
 import sys
 import subprocess
 import difflib
+import doctest
 from lxml import etree
 from lxml import doctestcompare
 
@@ -92,6 +93,127 @@ class ParallelFile:
         
         return os.path.join(parallelDirname, parallelBasename)
 
+class TestSentenceDivider(unittest.TestCase):
+    """A test class for the SentenceDivider class
+    """
+    def setUp(self):
+        self.sentenceDivider = SentenceDivider("parallelize_data/finnmarkkulahka_web_lettere.pdf.xml", "sme")
+        
+    def assertXmlEqual(self, got, want):
+        """
+        Check if two xml snippets are equal
+        """
+        string_got = etree.tostring(got, pretty_print = True)
+        string_want = etree.tostring(want, pretty_print = True)
+        
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(string_got, string_want, 0):
+            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testConstructor(self):
+        """Check that the constructor makes what it is suppposed to
+        """
+        self.assertEqual(self.sentenceDivider.sentenceCounter, 0)
+        self.assertEqual(self.sentenceDivider.docLang, 'sme')
+        self.assertEqual(self.sentenceDivider.inputEtree.__class__.__name__, '_ElementTree')
+    
+    def testProcessAllParagraphs(self):
+        got = self.sentenceDivider.processAllParagraphs()
+        
+        want = etree.parse('parallelize_data/finnmarkkulahka_web_lettere.pdfsme_sent.xml.test')
+        
+        self.assertXmlEqual(want, got)
+        
+    def testProcessOneParagraph(self):
+        """Check the output of processOneParagraph
+        """
+        p = etree.XML('<p>máksá Finnmárkkuopmodat. § 10 Áššit meahcceeatnamiid</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        
+        want = etree.XML('<p><s id="0">máksá Finnmárkkuopmodat .</s><s id="1">§ 10 Áššit meahcceeatnamiid </s></p>')
+        
+        self.assertXmlEqual(got, want)
+        
+    def testMakeSentence(self):
+        s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
+        
+        self.assertEqual(s.attrib["id"], '0')
+        self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
+        
+class SentenceDivider:
+    """A class that takes a giellatekno xml document as input.
+    It spits out an xml document that has divided the text inside the p tags
+    into sentences, but otherwise is unchanged.
+    Each sentence is encases in an s tag, and has an id consisting of the 
+    outputfilename and a numberic
+    """
+    def __init__(self, inputXmlfile, lang):
+        self.sentenceCounter = 0
+        self.docLang = lang
+        self.inputEtree = etree.parse(inputXmlfile)
+    
+    def processAllParagraphs(self):
+        """Go through all paragraphs in the etree and process them one by one.
+        """
+        document = etree.Element('document')
+        body = etree.Element('body')
+        document.append(body)
+        
+        for paragraph in self.inputEtree.findall('//p'):
+            body.append(self.processOneParagraph(paragraph))
+            
+        return document
+    
+    def processOneParagraph(self, origParagraph):
+        """Run the content of the origParagraph through preprocess, make sentences
+        Return a new paragraph containing the marked up sentences
+        """
+        preprocessInput = origParagraph.text
+        
+        origParagraph = etree.Element("p")
+        
+        abbrFile = ""
+        if (self.docLang == 'nob'):
+            abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
+        else:
+            abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
+            
+        subp = subprocess.Popen(['preprocess', '--abbr=' + abbrFile], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
+        
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not divide into sentences'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+        else:
+            sentence = []
+            for word in output.split('\n'):
+                if word == '.':
+                    sentence.append(word.decode('utf-8'))
+                    #print "«" + ' '.join(sentence) + "»"
+                    origParagraph.append(self.makeSentence(sentence))
+                    sentence = []
+                else:
+                    sentence.append(word.decode('utf-8'))
+            #print "«" + ' '.join(sentence) + "»"
+            origParagraph.append(self.makeSentence(sentence))
+    
+        return origParagraph
+        
+    def makeSentence(self, sentence):
+        """Make an s element, set the id and set the text to be the content of 
+        the list sentence
+        """
+        s = etree.Element("s")
+        s.attrib["id"] = str(self.sentenceCounter)
+        s.text = ' '.join(sentence)
+        
+        self.sentenceCounter += 1
+        
+        return s
+        
 class TestParallelFile(unittest.TestCase):
     """
     A test class for the ParallelFile class
@@ -1031,7 +1153,7 @@ class TmxFixer:
         
 if __name__ == '__main__':
     #
-    for test in [TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
+    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
