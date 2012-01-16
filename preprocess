@@ -745,7 +745,11 @@ sub process_numeral {
 					add_token($tokens_aref, $w_token, $1);
 					my %w = ('word' => $3);
 					process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
-					if ($4) { $end_punct = $4 . $end_punct; }
+                    if ($end_punct) {
+                        if ($4) { $end_punct = $4 . $end_punct; }
+                    } else {
+                        $end_punct = $4;
+                    }
 					if ($end_punct) {
 						my @ep = split(//, $end_punct); 
 						verbose ("add_array", "@ep", __LINE__);
@@ -764,7 +768,12 @@ sub process_numeral {
 			$word =~ s/([^\W\d]+\.?)$//;
 			verbose ("process_numeral/end_word", $1, __LINE__);
 			process_numeral($word, $w_token, $words_aref, $next_aref, $tokens_aref);
-			my $new_word = $1 . $end_punct;
+			my $new_word = "";
+            if ($end_punct) {
+                $new_word = $1 . $end_punct;
+            } else {
+                $new_word = $1;
+            }
 			my %w = ('word' => $new_word);
 			unshift (@$words_aref, \%w);
 			return;
@@ -822,8 +831,10 @@ sub process_numeral {
 		 # }
 
 		  # If the number contains other than digits or is a year,
-		  # and the next word does not start uppercase Then the ending dot is removed.
-		  if($nopunct =~ /[§\d\pP\pL]/ && ($words_aref->[0]{word} !~ /^[\p{Ll}\d]/o)){
+		  # and the next word does not exist or does not start uppercase, then
+          # the ending dot is removed.
+          if($nopunct =~ /[§\d\pP\pL]/ && 
+              ((!($words_aref->[0]{word}) || $words_aref->[0]{word} !~ /^[\p{Ll}\d]/o))){
 			  $word = $nopunct;
 		  }
 		  # Otherwise dot is considered to be an ordinal.
@@ -940,7 +951,9 @@ sub print_tokens{
 
 	for my $t (@$tokens_aref) {
 		if ($space && $t->{space}) { print $ltag, $t->{space}, $rtag, "\n"; }
-		if ($t->{word} !~ /^$/) { print $t->{word}, "\n"; }
+		if ($t->{word}) {
+            if ($t->{word} !~ /^$/) { print $t->{word}, "\n"; }
+        }
 	}
 }
 
