@@ -93,6 +93,31 @@ class ParallelFile:
         
         return os.path.join(parallelDirname, parallelBasename)
 
+class TestParallelFile(unittest.TestCase):
+    """
+    A test class for the ParallelFile class
+    """
+    def setUp(self):
+        self.pfile = ParallelFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+        
+    def testBasename(self):
+        self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
+        
+    def testDirname(self):
+        self.assertEqual(self.pfile.getDirname(), os.path.join(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2"))
+        
+    def testName(self):
+        self.assertEqual(self.pfile.getName(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
+        
+    def testLang(self):
+        self.assertEqual(self.pfile.getLang(), "sme")
+        
+    def testGetParallelBasename(self):
+        self.assertEqual(self.pfile.getParallelBasename(), "aarseth2-n.htm")
+        
+    def testGetParallelFilename(self):
+        self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
+
 class TestSentenceDivider(unittest.TestCase):
     """A test class for the SentenceDivider class
     """
@@ -214,31 +239,6 @@ class SentenceDivider:
         
         return s
         
-class TestParallelFile(unittest.TestCase):
-    """
-    A test class for the ParallelFile class
-    """
-    def setUp(self):
-        self.pfile = ParallelFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
-        
-    def testBasename(self):
-        self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
-        
-    def testDirname(self):
-        self.assertEqual(self.pfile.getDirname(), os.path.join(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2"))
-        
-    def testName(self):
-        self.assertEqual(self.pfile.getName(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
-        
-    def testLang(self):
-        self.assertEqual(self.pfile.getLang(), "sme")
-        
-    def testGetParallelBasename(self):
-        self.assertEqual(self.pfile.getParallelBasename(), "aarseth2-n.htm")
-        
-    def testGetParallelFilename(self):
-        self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
-
 class Parallelize:
     """
     A class to parallelize two files
@@ -450,6 +450,8 @@ class Tmx:
         
     def langToStringlist(self, lang):
         """
+        Get all the strings in the tmx in language lang, insert them 
+        into the list strings
         """
         all_tuv = self.getTmx().xpath('.//tuv[@xml:lang="' + lang + '"]',
             namespaces={'xml':'http://www.w3.org/XML/1998/namespace'})
@@ -1150,7 +1152,9 @@ class TmxFixer:
         """
         Input is the file we should consider to fix
         """
-        
+        pass
+    
+    
 if __name__ == '__main__':
     #
     for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
