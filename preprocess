@@ -35,6 +35,7 @@ my $ITRAB="ITRAB";
 my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
 my $NOAB="NOAB";
+my $NUMNOAB="NUMNOAB";
 my $TRNUMAB_RE="TRNUMAB_RE";
 
 # Max size of a multi-word expression.
@@ -489,7 +490,13 @@ sub test_abbr {
 			add_new_token ($tokens_aref, $sentence_break);
 		}
 		return 1;
-	}
+	} elsif ($abbrs{$abbr} eq $NUMNOAB || $abbrs{lc($abbr)} eq $NUMNOAB) {
+        add_token ($tokens_aref, $w_token, $word);
+        if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
+            add_new_token ($tokens_aref, $sentence_break);
+        }
+        return 1;
+    }
 
 	if ($regex{$TRNUMAB_RE} && $abbr =~ /$regex{$TRNUMAB_RE}/) { 
 		add_token ($tokens_aref, $w_token, $word);
@@ -767,6 +774,7 @@ sub process_numeral {
 		if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) { 
 			$word =~ s/([^\W\d]+\.?)$//;
 			verbose ("process_numeral/end_word", $1, __LINE__);
+            
 			process_numeral($word, $w_token, $words_aref, $next_aref, $tokens_aref);
 			my $new_word = "";
             if ($end_punct) {
