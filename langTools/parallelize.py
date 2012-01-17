@@ -410,6 +410,12 @@ class Tmx:
     def __init__(self, tmx):
         self.tmx = tmx
         
+    def getSrcLang(self):
+        """
+        Get the srclang from the header element
+        """
+        return self.tmx.find(".//header").attrib['srclang'][:3]
+        
     def getTmx(self):
         """
         Get the tmx xml element
@@ -530,6 +536,11 @@ class TestTmx(unittest.TestCase):
         if not checker.check_output(string_got, string_want, 0):
             message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
             raise AssertionError(message)
+        
+    def testGetSrcLang(self):
+        """Test the getSrcLang routine
+        """
+        self.assertEqual(self.tmx.getSrcLang(), "nob")
         
     def testTuToString(self):
         tu = etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
@@ -826,7 +837,7 @@ class TestTmxComparator(unittest.TestCase):
         comp = TmxComparator(Tmx(etree.parse('aarseth2-n.htm.tmx')), Tmx(etree.parse('aarseth2-n.htm.tmx')))
         
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
-        self.assertEqual(comp.getLinesInWantedfile(), 274)
+        self.assertEqual(comp.getLinesInWantedfile(), 272)
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
     #def testUnEqualTmxes(self):
@@ -1150,7 +1161,7 @@ class TmxFixer:
     
     def __init__(self, filetofix):
         """
-        Input is the file we should consider to fix
+        Input is the tmx file we should consider to fix
         """
         pass
     
