@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use warnings;
 use strict;
 use Getopt::Long;
 
@@ -20,16 +21,29 @@ use utf8;
 #        "dat" Pron Dem Sg Gen
 
 $/ = "";
+my $nomWord = "";
+my $prevNomWord = "";
 
 # Read while not eol
-while(<>) {	
-	my $word;
-	my $word1;
-	my $word2;
-	my @Analyses;
+while(<>) {
 
-	($word, @analysis) = split(/\t/, $_, 2);
-	if ( /\+Nom/ ) {
-		$word1 = $word
-	}
+    $prevNomWord = $nomWord;
+    $nomWord = "";
+
+    my $input = $_;
+    my @lines = split(/\n/, $input);
+
+    foreach my $line (@lines)  {
+
+        my ($word, $analysis) = split(/\t/, $line);
+
+        if ($analysis =~ /\+Nom/) {
+            $nomWord = $word;
+        }
+        
+        if (($analysis =~ /\+A\+/ || $analysis =~ /\+N\+/) && $prevNomWord ne "") {
+            print "$prevNomWord $word\n";
+            $prevNomWord = "";
+        }
+    }
 }
