@@ -48,10 +48,15 @@ foreach $code (@codes) {
 # This is not enough: there was not explicit requirement of v_n tag of different length,
 # yet this is apparently the case. This should be solved in a different way, the more
 # it strongly resembles the hid attribute used for smanob.
-	print "$baseform\+v1$code\n";
-	print "$baseform\+v2$code\n";
-	print "$baseform\+v3$code\n";
-	print "$baseform\+v4$code\n";
+
+# These +v1 etc. tags shall be parametrized for use by dict only (separate folder)
+# or eventually via the …not-dict fst.
+# Todo: Flags in testing/Makefile for using different fst-s.
+
+###	print "$baseform\+v1$code\n";
+###	print "$baseform\+v2$code\n";
+###	print "$baseform\+v3$code\n";
+###	print "$baseform\+v4$code\n";
 }
 
 close TAGFILE;
