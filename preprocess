@@ -1092,16 +1092,6 @@ sub read_corr {
 sub read_abbr {
     my ($abbr_href, $idiom_href, $idiom_short_href, $num_href, $regex_href) = @_;
     
-    local $/="\n";
-    # The filename may contain a tilde ~
-    # Expand the filename manually
-    $abbr_file =~ s{^~([^/])*} {
-        $1
-            ? (getpwnam($1))[7]
-            : ($ENV{HOME} || (getpwuid($>))[7]
-               )
-        }ex;
-
     open LEX, "< $abbr_file" or die "preprocess: Can't open the file: $!\n";
 
     my $current;
@@ -1141,11 +1131,7 @@ sub read_abbr {
         $$num_href{$_} = 1;
     }
 
-    close LEX;    
-
-#    for my $key (keys %$idiom_short_href) {
-#        print "$key $$idiom_short_href{$key}\n";
-#    }
+    close LEX;
 }
 
 sub print_usage {
