@@ -552,8 +552,10 @@ sub test_abbr {
         return 1;
     } elsif ($abbrs{$abbr} eq $NUMNOAB || $abbrs{lc($abbr)} eq $NUMNOAB) {
         add_token ($tokens_aref, $w_token, $word);
-        if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
-            add_new_token ($tokens_aref, $sentence_break);
+        if ($next_word) {
+            if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
+                add_new_token ($tokens_aref, $sentence_break);
+            }
         }
         return 1;
     }
