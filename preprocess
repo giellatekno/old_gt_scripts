@@ -1053,7 +1053,7 @@ sub read_corr {
 
     local $/="\n";
 
-    open CORR, "< $corr" or die "Cant open the file $corr: $!\n";
+    open CORR, "< $corr" or die "preprocess: Can't open the file $corr: $!\n";
 
     while (<CORR>) {
         chomp;
@@ -1092,7 +1092,7 @@ sub read_abbr {
                )
         }ex;
 
-    open LEX, "< $abbr_file" or die "Cant open the file: $!\n";
+    open LEX, "< $abbr_file" or die "preprocess: Can't open the file: $!\n";
 
     my $current;
     while (<LEX>) {
