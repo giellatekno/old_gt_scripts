@@ -975,8 +975,9 @@ sub process_numeral {
 sub verbose {
     my ($from, $word, $linenumber) = @_;
     
-    if (!$verbose) { return; }    
-    print STDERR "[$from:$linenumber] $word\n";
+    if ($verbose) { 
+        print STDERR "[$from:$linenumber] $word\n";
+    }
 }
 
 # Add text to an existing token.
