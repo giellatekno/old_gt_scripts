@@ -36,7 +36,6 @@ my $TRNUMAB="TRNUMAB";
 my $IDIOM="IDIOM";
 my $NOAB="NOAB";
 my $NUMNOAB="NUMNOAB";
-my $TRNUMAB_RE="TRNUMAB_RE";
 
 # Max size of a multi-word expression.
 my $MULTIWORD_SIZE = 3;
@@ -439,7 +438,7 @@ sub process_word {
         # The word is checked for abbreviation and sentence boundary.
         my $abbr = $word;
         if ($abbr =~ s/\.$//) {
-            if ($abbrs{$abbr} || $abbrs{lc($abbr)} || ($regex{$TRNUMAB_RE} && $abbr =~ /^$regex{$TRNUMAB_RE}$/)) {
+            if ($abbrs{$abbr} || $abbrs{lc($abbr)}) {
                 verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
                 test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
                 last TEST;
@@ -560,13 +559,7 @@ sub test_abbr {
         return 1;
     }
 
-    if ($regex{$TRNUMAB_RE} && $abbr =~ /$regex{$TRNUMAB_RE}/) { 
-        add_token ($tokens_aref, $w_token, $word);
-        if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
-            add_new_token ($tokens_aref, $sentence_break);
-        }
-        return 1;
-    } elsif ($abbrs{$abbr} eq $NOAB || $abbrs{lc($abbr)} eq $NOAB) {
+    if ($abbrs{$abbr} eq $NOAB || $abbrs{lc($abbr)} eq $NOAB) {
         if ($next_word !~ /^[\p{Ll}\pP]/o) {
             $word =~ s/\.$//;
             add_token($tokens_aref, $w_token, $word);
@@ -1100,17 +1093,6 @@ sub read_abbr {
         last if (/^LEXICON IDIOM/);
         if (/^LEXICON\s+(.*?)\s*$/) {
             $current = $1;
-            if ($current =~ /_RE/) {
-                while (<LEX>) {
-                    next if (/^\s*$/);
-                    chomp;
-                    if (/^LEXICON\s+(.*?)\s*$/) { 
-                        $current = $1; 
-                        last; 
-                    }
-                    $regex{$current} = $_;
-                }
-            }
             next;
         }
         $$abbr_href{$_} = $current;
