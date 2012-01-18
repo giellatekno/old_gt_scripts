@@ -117,7 +117,7 @@ if ($abbr_file) { &read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num, \%regex)
 # Read the corrections file (typos.txt)
 if ($corr) { &read_corr (\%corrections, \%corr_short); }
 
-# Read one line at a time but keep track on the next line.
+# Read one line at a time but keep track of the next line.
 
 my @next_words;
 my @words;
