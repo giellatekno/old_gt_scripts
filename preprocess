@@ -1011,7 +1011,9 @@ sub add_array{
 sub print_token{
     my ($w_token) = @_;
 
-    if ($space && $w_token->{space}) { print $ltag, $w_token->{space}, $rtag, "\n"; }
+    if ($space && $w_token->{space}) { 
+        print $ltag, $w_token->{space}, $rtag, "\n"; 
+    }
     print $w_token->{word}, "\n";
 }
 
@@ -1023,7 +1025,9 @@ sub print_sentence {
     my $break = quotemeta($sentence_break);
 
     for my $t (@$tokens_aref) {
-        if (! $sentend && $t->{space}) { print $t->{space}; }
+        if (! $sentend && $t->{space}) { 
+            print $t->{space}; 
+        }
         next if ($t->{word} =~ /^$/);
         if ($t->{word} =~ /^$break$/) {
             my $n_word = $t->{word};
@@ -1042,9 +1046,13 @@ sub print_tokens{
     my ($tokens_aref) = @_;
 
     for my $t (@$tokens_aref) {
-        if ($space && $t->{space}) { print $ltag, $t->{space}, $rtag, "\n"; }
+        if ($space && $t->{space}) { 
+            print $ltag, $t->{space}, $rtag, "\n"; 
+        }
         if ($t->{word}) {
-            if ($t->{word} !~ /^$/) { print $t->{word}, "\n"; }
+            if ($t->{word} !~ /^$/) { 
+                print $t->{word}, "\n"; 
+            }
         }
     }
 }
