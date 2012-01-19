@@ -201,10 +201,13 @@ class SentenceDivider:
         abbrFile = ""
         if (self.docLang == 'nob'):
             abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
+            preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
         else:
             abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
+            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
+            preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
             
-        subp = subprocess.Popen(['preprocess', '--abbr=' + abbrFile], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
         
         if subp.returncode != 0:
