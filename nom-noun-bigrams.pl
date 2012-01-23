@@ -37,9 +37,10 @@ while(<>) {
 
         my ($word, $analysis) = split(/\t/, $line);
 
-        if ($analysis =~ /\+Nom/    &&
+        if ( ($analysis =~ /\+N\+Sg\+Nom/ || $analysis =~ /\+N\+Actor\+Sg\+Nom/) &&
         	$analysis !~ /\+Prop\+/ &&
-        	$analysis !~ /\+ACR\+/
+        	$analysis !~ /\+ACR\+/  &&
+        	$analysis !~ /\+ABBR\+/ 
         	) {
             $nomWord = $word;
         }
@@ -48,7 +49,8 @@ while(<>) {
         	($analysis =~ /\+A\+/ || $analysis =~ /\+N\+/) && 
         	 $prevNomWord ne ""      &&
         	 $analysis !~ /\+Prop\+/ &&
-        	 $analysis !~ /\+ACR\+/
+        	 $analysis !~ /\+ACR\+/  &&
+        	 $analysis !~ /§/
         	) {
             print "$prevNomWord $word\n";
             $prevNomWord = "";
