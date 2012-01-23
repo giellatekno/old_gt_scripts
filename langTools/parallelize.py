@@ -144,7 +144,8 @@ class TestSentenceDivider(unittest.TestCase):
         self.assertEqual(self.sentenceDivider.inputEtree.__class__.__name__, '_ElementTree')
     
     def testProcessAllParagraphs(self):
-        got = self.sentenceDivider.processAllParagraphs()
+        self.sentenceDivider.processAllParagraphs()
+        got = self.sentenceDivider.document
         
         want = etree.parse('parallelize_data/finnmarkkulahka_web_lettere.pdfsme_sent.xml.test')
         
@@ -160,12 +161,19 @@ class TestSentenceDivider(unittest.TestCase):
         
         self.assertXmlEqual(got, want)
         
+        p = etree.XML('<p>Artikkel i boka Samisk skolehistorie 2 . Davvi Girji 2007.</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        
+        want = etree.XML('<p><s id="3">Artikkel i boka Samisk skolehistorie 2 .</s><s id="4"> Davvi Girji 2007 .</s></p>')
+        
+        self.assertXmlEqual(got, want)
+
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
         self.assertEqual(s.attrib["id"], '0')
         self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
-        
+
 class SentenceDivider:
     """A class that takes a giellatekno xml document as input.
     It spits out an xml document that has divided the text inside the p tags
@@ -174,6 +182,7 @@ class SentenceDivider:
     outputfilename and a numberic
     """
     def __init__(self, inputXmlfile, lang):
+        
         self.sentenceCounter = 0
         self.docLang = lang
         self.inputEtree = etree.parse(inputXmlfile)
@@ -181,54 +190,64 @@ class SentenceDivider:
     def processAllParagraphs(self):
         """Go through all paragraphs in the etree and process them one by one.
         """
-        document = etree.Element('document')
+        self.document = etree.Element('document')
         body = etree.Element('body')
-        document.append(body)
+        self.document.append(body)
         
         for paragraph in self.inputEtree.findall('//p'):
             body.append(self.processOneParagraph(paragraph))
-            
-        return document
     
+    def writeResult(self, outfile):
+        """Write the given tmx to the outfile name
+        """
+        f = open(outfile, 'w')
+        et = etree.ElementTree(self.document)
+        et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+        f.close()
+        
     def processOneParagraph(self, origParagraph):
         """Run the content of the origParagraph through preprocess, make sentences
         Return a new paragraph containing the marked up sentences
         """
-        preprocessInput = origParagraph.text
-        
-        origParagraph = etree.Element("p")
+        newParagraph = etree.Element("p")
 
-        print "201", self.docLang
-        if (self.docLang == 'nob'):
-            abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
-            preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
-        else:
-            abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
-            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
-            preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
+        preprocessInput = origParagraph.text
+
+        if (preprocessInput):
+            preprocessCommand = []
+            if (self.docLang == 'nob'):
+                abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
+                preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
+            else:
+                abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
+                corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
+                preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
+                
+            subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
             
-        subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
-        
-        if subp.returncode != 0:
-            print >>sys.stderr, 'Could not divide into sentences'
-            print >>sys.stderr, output
-            print >>sys.stderr, error
-            return sys.exit()
-        else:
-            sentence = []
-            for word in output.split('\n'):
-                if word == '.' or word == '?':
-                    sentence.append(word.decode('utf-8'))
-                    #print "«" + ' '.join(sentence) + "»"
-                    origParagraph.append(self.makeSentence(sentence))
-                    sentence = []
-                else:
-                    sentence.append(word.decode('utf-8'))
-            #print "«" + ' '.join(sentence) + "»"
-            origParagraph.append(self.makeSentence(sentence))
+            if subp.returncode != 0:
+                print >>sys.stderr, 'Could not divide into sentences'
+                print >>sys.stderr, output
+                print >>sys.stderr, error
+                return sys.exit()
+            else:
+                sentence = []
+                for word in output.split('\n'):
+                    if word == '.' or word == '?':
+                        sentence.append(word.decode('utf-8'))
+                        #print "ab, ab ", "«" + ' '.join(sentence).encode('utf-8') + "»"
+                        if sentence != ['']:
+                            newParagraph.append(self.makeSentence(sentence))
+                        sentence = []
+                    else:
+                        sentence.append(word.decode('utf-8'))
+                
+                if sentence != ['']:
+                    #print "ba, ba", "«" + ' '.join(sentence).encode('utf-8') + "»"
+                    newParagraph.append(self.makeSentence(sentence))
     
-        return origParagraph
+        return newParagraph
         
     def makeSentence(self, sentence):
         """Make an s element, set the id and set the text to be the content of 
@@ -336,14 +355,9 @@ class Parallelize:
             infile = os.path.join(pfile.getName())
             if os.path.exists(infile):
                 outfile = self.getSentFilename(pfile)
-                subp = subprocess.Popen(['corpus-analyze.pl', '--all', '--only_add_sentences', '--output=' + outfile, '--lang=' + pfile.getLang(), infile], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-                (output, error) = subp.communicate()
-                
-                if subp.returncode != 0:
-                    print >>sys.stderr, 'Could not divide ', pfile.getName(), ' into sentences'
-                    print >>sys.stderr, output
-                    print >>sys.stderr, error
-                    return subp.returncode
+                divider = SentenceDivider(infile, pfile.getLang())
+                divider.processAllParagraphs()
+                divider.writeResult(outfile)
             else:
                 print >>sys.stderr, infile, "doesn't exist"
                 return 2
@@ -363,11 +377,12 @@ class Parallelize:
         Parallelize two files using tca2
         """
         anchorName = self.generateAnchorFile()
+        
         subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getFilelist()[0]), self.getSentFilename(self.getFilelist()[1])], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
             
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getOrigfile1()), 'and', self.getSentFilename(self.getOrigfile2()), ' into sentences'
+            print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getFilelist()[0]), 'and', self.getSentFilename(self.getFilelist()[1]), ' into sentences'
             print >>sys.stderr, output
             print >>sys.stderr, error
                 
