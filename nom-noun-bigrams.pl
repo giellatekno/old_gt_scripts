@@ -50,7 +50,7 @@ while(<>) {
         	 $prevNomWord ne ""      &&
         	 $analysis !~ /\+Prop\+/ &&
         	 $analysis !~ /\+ACR\+/  &&
-        	 $analysis !~ /§/
+        	 $analysis !~ /\+ABBR\+/
         	) {
             print "$prevNomWord $word\n";
             $prevNomWord = "";
