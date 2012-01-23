@@ -545,7 +545,7 @@ sub test_abbr {
         # is NOT followed by a small alphabetic char or punctuation.
         
         add_token ($tokens_aref, $w_token, $word);
-        if ($next_word !~ /^[\p{Ll}\pP]/o) {
+        if ($next_word && $next_word !~ /^[\p{Ll}\pP]/o) {
             add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
