@@ -132,8 +132,8 @@ class TestSentenceDivider(unittest.TestCase):
         string_want = etree.tostring(want, pretty_print = True)
         
         checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(string_got, string_want, 0):
-            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+        if not checker.check_output(string_want, string_got, 0):
+            message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
         
     def testConstructor(self):
@@ -148,15 +148,15 @@ class TestSentenceDivider(unittest.TestCase):
         
         want = etree.parse('parallelize_data/finnmarkkulahka_web_lettere.pdfsme_sent.xml.test')
         
-        self.assertXmlEqual(want, got)
+        self.assertXmlEqual(got, want)
         
     def testProcessOneParagraph(self):
         """Check the output of processOneParagraph
         """
-        p = etree.XML('<p>máksá Finnmárkkuopmodat. § 10 Áššit meahcceeatnamiid</p>')
+        p = etree.XML('<p>Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áilluhačča? máksá Finnmárkkuopmodat. § 10 Áššit meahcceeatnamiid</p>')
         got = self.sentenceDivider.processOneParagraph(p)
         
-        want = etree.XML('<p><s id="0">máksá Finnmárkkuopmodat .</s><s id="1">§ 10 Áššit meahcceeatnamiid </s></p>')
+        want = etree.XML('<p><s id="0">Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áillohačča ?</s><s id="1">máksá Finnmárkkuopmodat .</s><s id="2">§ 10 Áššit meahcceeatnamiid </s></p>')
         
         self.assertXmlEqual(got, want)
         
@@ -197,8 +197,8 @@ class SentenceDivider:
         preprocessInput = origParagraph.text
         
         origParagraph = etree.Element("p")
-        
-        abbrFile = ""
+
+        print "201", self.docLang
         if (self.docLang == 'nob'):
             abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
             preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
@@ -214,11 +214,11 @@ class SentenceDivider:
             print >>sys.stderr, 'Could not divide into sentences'
             print >>sys.stderr, output
             print >>sys.stderr, error
-            return subp.returncode
+            return sys.exit()
         else:
             sentence = []
             for word in output.split('\n'):
-                if word == '.':
+                if word == '.' or word == '?':
                     sentence.append(word.decode('utf-8'))
                     #print "«" + ' '.join(sentence) + "»"
                     origParagraph.append(self.makeSentence(sentence))
