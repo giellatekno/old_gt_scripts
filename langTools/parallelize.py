@@ -551,9 +551,10 @@ class TestTmx(unittest.TestCase):
         string_want = etree.tostring(want, pretty_print = True)
         
         checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(string_got, string_want, 0):
-            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+        if not checker.check_output(string_want, string_got, 0):
+            message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
+        
         
     def testGetSrcLang(self):
         """Test the getSrcLang routine
@@ -750,9 +751,10 @@ class TestTmxFromTca2(unittest.TestCase):
         string_want = etree.tostring(want, pretty_print = True)
         
         checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(string_got, string_want, 0):
-            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+        if not checker.check_output(string_want, string_got, 0):
+            message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
+        
         
     def testMakeTu(self):
         line1 = '<s id="1">ubba gubba.</s> <s id="2">ibba gibba.</s>'
@@ -960,8 +962,8 @@ class TestTmxTestDataWriter(unittest.TestCase):
         string_want = etree.tostring(want, pretty_print = True)
         
         checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(string_got, string_want, 0):
-            message = checker.output_difference(doctest.Example("", string_got), string_want, 0).encode('utf-8')
+        if not checker.check_output(string_want, string_got, 0):
+            message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
         
     def testGetFilename(self):
@@ -971,7 +973,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         wantElement = etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
         gotElement = self.writer.makeFileElement("abc", "634", "84")
         
-        self.assertXmlEqual(wantElement, gotElement)
+        self.assertXmlEqual(gotElement, wantElement)
     
     def testMakeTestrunElement(self):
         wantElement = etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
@@ -979,7 +981,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         fileElement = self.writer.makeFileElement("abc", "634", "84")
         gotElement.append(fileElement)
         
-        self.assertXmlEqual(wantElement, gotElement)
+        self.assertXmlEqual(gotElement, wantElement)
     
     def testMakeParagstestingElement(self):
         wantElement = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
@@ -989,7 +991,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         testrunElement.append(fileElement)
         gotElement.append(testrunElement)
         
-        self.assertXmlEqual(wantElement, gotElement)
+        self.assertXmlEqual(gotElement, wantElement)
     
     def testInsertTestrunElement(self):
         wantElement = etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
@@ -1007,7 +1009,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
         
         self.writer.insertTestrunElement(testrunElement)
         
-        self.assertXmlEqual(wantElement, gotElement)
+        self.assertXmlEqual(gotElement, wantElement)
         
     def testWriteParagstestingData(self):
         want = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
