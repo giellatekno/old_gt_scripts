@@ -252,7 +252,7 @@ sub process_words {
 
         my $w_token = shift @words;
         # Leave xml-tags untouched.
-        if($xml && $w_token->{xml}) { 
+        if ($xml && $w_token->{xml}) { 
             if ($space && $w_token->{space}) { 
                 print $ltag, $w_token->{space}, $rtag, "\n"; 
             }
@@ -268,6 +268,8 @@ sub process_words {
             $word = "";
         }
 
+        # HACK. preprocess doesn't understand that etc.). actually is etc. ). Insert a space to fix this ..
+        $word =~ s/(.*)(\).*)/$1 $2/;
         verbose("NEW", $word , __LINE__);
         # An array for storing the tokens, each token in its own slot.
         my @tokens;
@@ -1044,7 +1046,9 @@ sub print_tokens{
         }
         if ($t->{word}) {
             if ($t->{word} !~ /^$/) { 
-                print $t->{word}, "\n"; 
+                my $w = $t->{word};
+                $w =~ s/ $//;
+                print "$w\n"; 
             }
         }
     }
