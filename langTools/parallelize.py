@@ -154,18 +154,31 @@ class TestSentenceDivider(unittest.TestCase):
     def testProcessOneParagraph(self):
         """Check the output of processOneParagraph
         """
+        self.sentenceDivider.docLang = 'sme'
         p = etree.XML('<p>Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áilluhačča? máksá Finnmárkkuopmodat. § 10 Áššit meahcceeatnamiid</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        
         want = etree.XML('<p><s id="0">Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áillohačča ?</s><s id="1">máksá Finnmárkkuopmodat .</s><s id="2">§ 10 Áššit meahcceeatnamiid </s></p>')
-        
         self.assertXmlEqual(got, want)
         
+        self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>Artikkel i boka Samisk skolehistorie 2 . Davvi Girji 2007.</p>')
         got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="3">Artikkel i boka Samisk skolehistorie 2 .</s><s id="4">Davvi Girji 2007 .</s></p>')
+        self.assertXmlEqual(got, want)
+
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p><em type="bold">Bjørn Aarseth med elever på skitur - på 1950-tallet.</em> (Foto: Trygve Madsen)</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="5">Bjørn Aarseth med elever på skitur - på 1950-tallet .</s><s id="6">( Foto : Trygve Madsen )</s></p>')
+        self.assertXmlEqual(got, want)
         
-        want = etree.XML('<p><s id="3">Artikkel i boka Samisk skolehistorie 2 .</s><s id="4"> Davvi Girji 2007 .</s></p>')
-        
+    def testQuotemarks(self):
+        """Test how SentenceDivider handles quotemarks
+        """
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a.: «Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid. Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget.»</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="0">Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a. : « Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid . Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget . »</s></p>')
         self.assertXmlEqual(got, want)
 
     def testMakeSentence(self):
@@ -204,48 +217,67 @@ class SentenceDivider:
         et = etree.ElementTree(self.document)
         et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
         f.close()
+       
+    def getPreprocessOutput(self, preprocessInput):
+        """Send the text in preprocessInput into preprocess, return the result. 
+        If the process fails, exit the program
+        """
+        preprocessCommand = []
+        if (self.docLang == 'nob'):
+            abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
+            preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
+        else:
+            abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
+            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
+            preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
+            
+        subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
         
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not divide into sentences'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            sys.exit()
+        else:
+            return output
+            
     def processOneParagraph(self, origParagraph):
         """Run the content of the origParagraph through preprocess, make sentences
         Return a new paragraph containing the marked up sentences
         """
         newParagraph = etree.Element("p")
 
-        preprocessInput = origParagraph.text
+        allText = origParagraph.xpath('.//text()')
+        preprocessInput = "".join(allText)
 
+        # Check if there is any text from preprocess
         if (preprocessInput):
-            preprocessCommand = []
-            if (self.docLang == 'nob'):
-                abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
-                preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
-            else:
-                abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
-                corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
-                preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
+            output = self.getPreprocessOutput(preprocessInput)
+            sentence = []
+            insideQuote = False
+            previousWord = ''
+            for word in output.split('\n'):
+                sentence.append(word.decode('utf-8'))
                 
-            subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-            (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
-            
-            if subp.returncode != 0:
-                print >>sys.stderr, 'Could not divide into sentences'
-                print >>sys.stderr, output
-                print >>sys.stderr, error
-                return sys.exit()
-            else:
-                sentence = []
-                for word in output.split('\n'):
-                    if word == '.' or word == '?':
-                        sentence.append(word.decode('utf-8'))
-                        #print "ab, ab ", "«" + ' '.join(sentence).encode('utf-8') + "»"
-                        if sentence != ['']:
-                            newParagraph.append(self.makeSentence(sentence))
-                        sentence = []
+                if word in '«»"':
+                    if insideQuote == False:
+                        insideQuote = True
                     else:
-                        sentence.append(word.decode('utf-8'))
-                
-                if sentence != ['']:
-                    #print "ba, ba", "«" + ' '.join(sentence).encode('utf-8') + "»"
+                        insideQuote = False
+                        if previousWord == '.' or previousWord == '?':
+                            newParagraph.append(self.makeSentence(sentence))
+                            sentence = []
+                            
+                    
+                if (word == '.' or word == '?') and insideQuote != True:
                     newParagraph.append(self.makeSentence(sentence))
+                    sentence = []
+
+                previousWord = word
+            
+            if sentence != ['']:
+                newParagraph.append(self.makeSentence(sentence))
     
         return newParagraph
         
@@ -541,7 +573,7 @@ class TestTmx(unittest.TestCase):
     A test class for the Tmx class
     """
     def setUp(self):
-        self.tmx = Tmx(etree.parse('aarseth2-n.htm.tmx'))
+        self.tmx = Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx'))
         
     def assertXmlEqual(self, got, want):
         """
@@ -572,7 +604,7 @@ class TestTmx(unittest.TestCase):
         self.assertEqual(self.tmx.tuvToString(tuv), "Sámegiella")
         
     def testLangToStringList(self):
-        f = open('aarseth2-n.htm.tmx.as.txt', 'r')
+        f = open('parallelize_data/aarseth2-n.htm.tmx.as.txt', 'r')
         stringList = f.readlines()
         
         nobList = []
@@ -586,7 +618,7 @@ class TestTmx(unittest.TestCase):
         self.assertEqual(self.tmx.langToStringlist('sme'), smeList)
     
     def testTmxToStringlist(self):
-        f = open('aarseth2-n.htm.tmx.as.txt', 'r')
+        f = open('parallelize_data/aarseth2-n.htm.tmx.as.txt', 'r')
         wantList = f.readlines()
         f.close()
         #self.maxDiff = None
@@ -793,7 +825,7 @@ class TestTmxFromTca2(unittest.TestCase):
         self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.tmx'))
     
     def testPrintTmxFile(self):
-        want = etree.parse("aarseth2-n.htm.tmx")
+        want = etree.parse('parallelize_data/aarseth2-n.htm.tmx')
         self.tmx.printTmxFile()
         got = etree.parse(self.tmx.getOutfileName())
         
@@ -854,10 +886,10 @@ class TestTmxComparator(unittest.TestCase):
     A test class for the TmxComparator class
     """
     def testEqualTmxes(self):
-        comp = TmxComparator(Tmx(etree.parse('aarseth2-n.htm.tmx')), Tmx(etree.parse('aarseth2-n.htm.tmx')))
+        comp = TmxComparator(Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')), Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')))
         
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
-        self.assertEqual(comp.getLinesInWantedfile(), 272)
+        self.assertEqual(comp.getLinesInWantedfile(), 269)
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
     #def testUnEqualTmxes(self):
