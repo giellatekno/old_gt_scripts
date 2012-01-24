@@ -181,6 +181,11 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p><s id="8">finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra .</s></p>')
         self.assertXmlEqual(got, want)
         
+        p = etree.XML('<p>elevene skal få!  Sametingsrådet mener målet</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="9">elevene skal få !</s><s id="10">Sametingsrådet mener målet</s></p>')
+        self.assertXmlEqual(got, want)
+        
     def testQuotemarks(self):
         """Test how SentenceDivider handles quotemarks
         """
@@ -279,14 +284,14 @@ class SentenceDivider:
                             sentence = []
                             
                     
-                if (word == '.' or word == '?') and insideQuote != True:
-                    if sentence != ['.']:
+                if (word == '.' or word == '?' or word == '!') and insideQuote != True:
+                    if sentence != ['.'] and sentence != ['?'] and sentence != ['!']:
                         newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
                 previousWord = word
             
-            if sentence != ['']:
+            if len(sentence) > 1:
                 newParagraph.append(self.makeSentence(sentence))
     
         return newParagraph
