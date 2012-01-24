@@ -160,16 +160,25 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p><s id="0">Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áillohačča ?</s><s id="1">máksá Finnmárkkuopmodat .</s><s id="2">§ 10 Áššit meahcceeatnamiid </s></p>')
         self.assertXmlEqual(got, want)
         
-        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>Stuora oassi Romssa universitehta doaimmain lea juohkit dieđuid sámi, norgga ja riikkaidgaskasaš dutkanbirrasiidda, sámi ja norgga eiseválddiide, ja sámi servodagaide (geahča mielddus A <em type="italic"><span type="quote">“Romssa universitehta ja guoskevaš institušuvnnaid sámi dutkan ja oahpahus”</span></em>  álggahusa ).</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="3">Stuora oassi Romssa universitehta doaimmain lea juohkit dieđuid sámi , norgga ja riikkaidgaskasaš dutkanbirrasiidda , sámi ja norgga eiseválddiide , ja sámi servodagaide ( geahča mielddus A “ Romssa universitehta ja guoskevaš institušuvnnaid sámi dutkan ja oahpahus ” álggahusa ) .</s></p>')
+        self.assertXmlEqual(got, want)
+
         p = etree.XML('<p>Artikkel i boka Samisk skolehistorie 2 . Davvi Girji 2007.</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="3">Artikkel i boka Samisk skolehistorie 2 .</s><s id="4">Davvi Girji 2007 .</s></p>')
+        want = etree.XML('<p><s id="4">Artikkel i boka Samisk skolehistorie 2 .</s><s id="5">Davvi Girji 2007 .</s></p>')
         self.assertXmlEqual(got, want)
 
         self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p><em type="bold">Bjørn Aarseth med elever på skitur - på 1950-tallet.</em> (Foto: Trygve Madsen)</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="5">Bjørn Aarseth med elever på skitur - på 1950-tallet .</s><s id="6">( Foto : Trygve Madsen )</s></p>')
+        want = etree.XML('<p><s id="6">Bjørn Aarseth med elever på skitur - på 1950-tallet .</s><s id="7">( Foto : Trygve Madsen )</s></p>')
+        self.assertXmlEqual(got, want)
+        
+        p = etree.XML('<p>finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra..</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="8">finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra .</s></p>')
         self.assertXmlEqual(got, want)
         
     def testQuotemarks(self):
@@ -271,7 +280,8 @@ class SentenceDivider:
                             
                     
                 if (word == '.' or word == '?') and insideQuote != True:
-                    newParagraph.append(self.makeSentence(sentence))
+                    if sentence != ['.']:
+                        newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
                 previousWord = word
@@ -288,7 +298,6 @@ class SentenceDivider:
         s = etree.Element("s")
         s.attrib["id"] = str(self.sentenceCounter)
         s.text = ' '.join(sentence)
-        
         self.sentenceCounter += 1
         
         return s
