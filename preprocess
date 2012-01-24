@@ -181,6 +181,11 @@ while (<>) {
         if ($next_line) {
             while($next_line =~ s/^(\s*)([^\s]+)//) {
                 my %w = ('word' => $2, 'space' => $1);
+                if ($space) { 
+                    %w = ('word' => $2, 'space' => $1); 
+                } else { 
+                    %w = ('word' => $2, 'space' => " "); 
+                }
                 push (@words, \%w);
             }
         }
