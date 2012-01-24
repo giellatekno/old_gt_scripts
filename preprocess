@@ -775,6 +775,22 @@ sub process_numeral {
             last COMBINE;
         }
 
+        # Look for date ranges, e.g. 2. - 3. mars
+        # First check that all variables that are accessed are initialized
+        if ($word && $words_aref->[0]{word} && $words_aref->[1]{word}) {
+            # Then do the real work
+            if ($word =~ /^\d{1,2}\.$/ && # Test if $word is a number with at most two digits ending with a dot
+                $words_aref->[0]{word} =~ /-/ && # Test if the first word following $word is a hyphen
+                $words_aref->[1]{word} =~ /^\d+\.$/ # Test if the second word following $word is a number with at most two digits ending with a dot
+            ) {
+                $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
+                shift @{$words_aref};
+                $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
+                shift @{$words_aref};
+                verbose ("process_numeral/combine", $word, __LINE__);
+                last COMBINE;
+            }
+        }
         # Combine punctuation with numeral if followed by other numeral.
         # cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
         # 10 000,- and math expressions like 2 * 4 = 8
