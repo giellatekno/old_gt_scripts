@@ -781,7 +781,8 @@ sub process_numeral {
             # Then do the real work
             if ($word =~ /^\d{1,2}\.$/ && # Test if $word is a number with at most two digits ending with a dot
                 $words_aref->[0]{word} =~ /-/ && # Test if the first word following $word is a hyphen
-                $words_aref->[1]{word} =~ /^\d+\.$/ # Test if the second word following $word is a number with at most two digits ending with a dot
+                ($words_aref->[1]{word} =~ /^\d{1,2}\.$/ || # Test if the second word following $word is a number with at most two digits ending with a dot
+                $words_aref->[1]{word} =~ /^\d{1,2}\.\d{1,2}\.\d{1,2}/) # or has the dd.dd.dd
             ) {
                 $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
                 shift @{$words_aref};
