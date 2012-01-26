@@ -97,6 +97,9 @@ alias   dfins='$HLOOKUP $GTHOME/kt/fin/omorfi/src/morphology.generate.cg.hfst'
 alias   xufin='$LOOKUP $GTHOME/kt/fin/bin/fin.fst'
 alias   xdfin='$LOOKUP $GTHOME/kt/fin/bin/ifin.fst'
 
+alias   глщь='$LOOKUP $GTHOME/kt/kom/bin/kom.fst'
+
+
 
 # Bilingual transducers:
 alias fitswe='$LOOKUP $GTHOME/kvensk/fitswe/bin/fitswe.fst'
