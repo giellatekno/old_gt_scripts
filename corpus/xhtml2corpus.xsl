@@ -11,44 +11,44 @@
 
 <!-- 
 Usage: ~/Desktop/bin/tidy - -quote-nbsp no - -add-xml-decl yes 
-						- -enclose-block-text yes -asxml -utf8 -language sme 
-						file.html | 
+                        - -enclose-block-text yes -asxml -utf8 -language sme 
+                        file.html | 
 xsltproc xhtml2corpus.xsl - > file.xml
 -->
 
 <xsl:strip-space elements="*"/>
 
 <xsl:output method="xml"
-		   version="1.0"
-		   encoding="UTF-8"
-		   indent="yes"
-		   doctype-public="-//UIT//DTD Corpus V1.0//EN"
-		   doctype-system="http://www.giellatekno.uit.no/dtd/corpus.dtd"/>
+           version="1.0"
+           encoding="UTF-8"
+           indent="yes"
+           doctype-public="-//UIT//DTD Corpus V1.0//EN"
+           doctype-system="http://www.giellatekno.uit.no/dtd/corpus.dtd"/>
 
 <!-- Main block-level conversions -->
 <xsl:template match="html:html">
-	<document>
-		<xsl:apply-templates select="html:head"/>
-		<xsl:apply-templates select="html:body"/>
-	</document>
+    <document>
+        <xsl:apply-templates select="html:head"/>
+        <xsl:apply-templates select="html:body"/>
+    </document>
 </xsl:template>
 
 <xsl:template match="html:head">
-	<header>
-		<title>
-			<xsl:choose>
-				<xsl:when test="html:title">
-						<xsl:value-of select="html:title"/>
-				</xsl:when>
-			</xsl:choose>
-		</title>
-	</header>
+    <header>
+        <title>
+            <xsl:choose>
+                <xsl:when test="html:title">
+                        <xsl:value-of select="html:title"/>
+                </xsl:when>
+            </xsl:choose>
+        </title>
+    </header>
 </xsl:template>
 
 <xsl:template match="html:body">
-	<body>
-		<xsl:apply-templates />
-	</body>
+    <body>
+        <xsl:apply-templates />
+    </body>
 </xsl:template>
 
 
@@ -62,29 +62,29 @@ xsltproc xhtml2corpus.xsl - > file.xml
               |html:h4
               |html:h5
               |html:h6">
-	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<xsl:choose>
-			<xsl:when test="ancestor::html:li">
-				<span><xsl:apply-templates/></span>
-			</xsl:when>
-			<xsl:otherwise>
-				<section>
-					<p type="title">
-						<xsl:value-of select="."/>
-					</p>
-				</section>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:if>
+    <xsl:if test="string-length(normalize-space(.)) > 1">
+        <xsl:choose>
+            <xsl:when test="ancestor::html:li">
+                <span><xsl:apply-templates/></span>
+            </xsl:when>
+            <xsl:otherwise>
+                <section>
+                    <p type="title">
+                        <xsl:value-of select="."/>
+                    </p>
+                </section>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:if>
 </xsl:template>
 
 
 <xsl:template match="html:p|html:label">
-	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<xsl:choose>
-			<xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p|ancestor::html:li">
-				<xsl:apply-templates />
-			</xsl:when>
+    <xsl:if test="string-length(normalize-space(.)) > 1">
+        <xsl:choose>
+            <xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p|ancestor::html:li">
+                <xsl:apply-templates />
+            </xsl:when>
             <xsl:when test="contains(., '•')">
                 <xsl:for-each select="str:tokenize(., '•')">
                     <p type="listitem"> 
@@ -92,184 +92,184 @@ xsltproc xhtml2corpus.xsl - > file.xml
                     </p>
                 </xsl:for-each>
             </xsl:when>
-			<xsl:otherwise>
+            <xsl:otherwise>
                     <p> 
                         <xsl:apply-templates /> 
                     </p>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:if>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:if>
 </xsl:template>
 
 <xsl:template match="html:pre">
-	<pre>
-		<xsl:apply-templates/>
-	</pre>
+    <pre>
+        <xsl:apply-templates/>
+    </pre>
 </xsl:template>
 
 <!-- LIST ELEMENTS -->
 
 <xsl:template match="html:ol|html:ul">
-	<list>
-		<xsl:apply-templates select="*"/>
-	</list>
+    <list>
+        <xsl:apply-templates select="*"/>
+    </list>
 </xsl:template>
 
 <xsl:template match="html:li">
-	<xsl:choose>
-		<xsl:when test="html:div/html:p">
-			<xsl:for-each select="html:div/html:p">
-				<p type="listitem">
-					<xsl:value-of select="."/>
-				</p>
-			</xsl:for-each>
-		</xsl:when>
-		<xsl:when test="html:p/html:i">
-			<p type="listitem">
-				<xsl:apply-templates/>
-			</p>
-		</xsl:when>
-		<xsl:otherwise>
-			<p type="listitem">
-				<xsl:apply-templates select="*|text()"/>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="html:div/html:p">
+            <xsl:for-each select="html:div/html:p">
+                <p type="listitem">
+                    <xsl:value-of select="."/>
+                </p>
+            </xsl:for-each>
+        </xsl:when>
+        <xsl:when test="html:p/html:i">
+            <p type="listitem">
+                <xsl:apply-templates/>
+            </p>
+        </xsl:when>
+        <xsl:otherwise>
+            <p type="listitem">
+                <xsl:apply-templates select="*|text()"/>
+            </p>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="html:dl">
-	<xsl:for-each select="html:dt">
-		<p type="listitem">
-			<xsl:apply-templates/>
-		</p>
-		<xsl:apply-templates select="following-sibling::html:dd"/>
-	</xsl:for-each>
+    <xsl:for-each select="html:dt">
+        <p type="listitem">
+            <xsl:apply-templates/>
+        </p>
+        <xsl:apply-templates select="following-sibling::html:dd"/>
+    </xsl:for-each>
 </xsl:template>
 
 <xsl:template match="html:dd">
-	<xsl:choose>
-		<xsl:when test="html:p">
-			<xsl:apply-templates/>
-		</xsl:when>
-		<xsl:otherwise>
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="html:p">
+            <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:otherwise>
+            <p>
+                <xsl:apply-templates/>
+            </p>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:center">
-	<xsl:if test="string-length(normalize-space(.)) > 1">
-		<p >
-			<xsl:value-of select="text()"/>
-		</p>
-	</xsl:if>
+    <xsl:if test="string-length(normalize-space(.)) > 1">
+        <p >
+            <xsl:value-of select="text()"/>
+        </p>
+    </xsl:if>
 </xsl:template>
 
 <xsl:template match="html:dato">
-	<xsl:value-of select="text()"/>
+    <xsl:value-of select="text()"/>
 </xsl:template>
 
 
 <!-- inline formatting -->
 <xsl:template match="html:b">
-	<xsl:choose>
-		<xsl:when test="ancestor::html:b|
-						ancestor::html:i|
-						ancestor::html:em|
-						html:u|
-						ancestor::html:h2">
-			<xsl:apply-templates/>
-		</xsl:when>
-		<xsl:when test="ancestor::html:p|ancestor::html:li|ancestor::html:td">
-			<em type="bold">
-				<xsl:apply-templates/>
-			</em>
-		</xsl:when>
-		<xsl:when test="parent::html:p|parent::html:font|parent::html:span">
-			<em type="bold">
-				<xsl:apply-templates/>
-			</em>
-		</xsl:when>
-		
-		<xsl:otherwise>
-			<p>
-				<em type="bold">
-					<xsl:apply-templates/>
-				</em>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="ancestor::html:b|
+                        ancestor::html:i|
+                        ancestor::html:em|
+                        html:u|
+                        ancestor::html:h2">
+            <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:when test="ancestor::html:p|ancestor::html:li|ancestor::html:td">
+            <em type="bold">
+                <xsl:apply-templates/>
+            </em>
+        </xsl:when>
+        <xsl:when test="parent::html:p|parent::html:font|parent::html:span">
+            <em type="bold">
+                <xsl:apply-templates/>
+            </em>
+        </xsl:when>
+        
+        <xsl:otherwise>
+            <p>
+                <em type="bold">
+                    <xsl:apply-templates/>
+                </em>
+            </p>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:div/html:b|html:td/html:b">
-	<p>
-		<em type="bold">
-			<xsl:apply-templates/>
-		</em>
-	</p>
+    <p>
+        <em type="bold">
+            <xsl:apply-templates/>
+        </em>
+    </p>
 </xsl:template>
 
 <xsl:template match="html:i|html:em|html:u|html:strong">
-	<xsl:choose>
-		<xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:u">
-			<xsl:apply-templates/>
-		</xsl:when>
-		<xsl:when test="ancestor::html:li">
-			<em><xsl:apply-templates/></em>
-		</xsl:when>
-		<xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:li)">
-			<em type="bold">
-				<xsl:apply-templates/>
-			</em>
-		</xsl:when>
-		<xsl:otherwise>
-			<em type="italic">
-				<xsl:apply-templates/>
-			</em>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="ancestor::html:strong|ancestor::html:b|ancestor::html:i|ancestor::html:em|ancestor::html:u">
+            <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:when test="ancestor::html:li">
+            <em><xsl:apply-templates/></em>
+        </xsl:when>
+        <xsl:when test="not(ancestor::html:p|ancestor::html:a|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:li)">
+            <em type="bold">
+                <xsl:apply-templates/>
+            </em>
+        </xsl:when>
+        <xsl:otherwise>
+            <em type="italic">
+                <xsl:apply-templates/>
+            </em>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:div/html:i|html:td/html:i">
-	<p>
-		<em type="italic">
-			<xsl:apply-templates/>
-		</em>
-	</p>
+    <p>
+        <em type="italic">
+            <xsl:apply-templates/>
+        </em>
+    </p>
 </xsl:template>
 
 <xsl:template match="html:div/html:em|html:td/html:em">
-	<p>
-		<em>
-			<xsl:apply-templates/>
-		</em>
-	</p>
+    <p>
+        <em>
+            <xsl:apply-templates/>
+        </em>
+    </p>
 </xsl:template>
 
 <xsl:template match="html:div/html:u|html:td/html:u|html:div/html:strong|html:td/html:strong">
-	<p>
-		<em type="bold">
-			<xsl:apply-templates/>
-		</em>
-	</p>
+    <p>
+        <em type="bold">
+            <xsl:apply-templates/>
+        </em>
+    </p>
 </xsl:template>
 
 <xsl:template match="html:address">
-	<p>
-		<xsl:apply-templates/>
-	</p>
+    <p>
+        <xsl:apply-templates/>
+    </p>
 </xsl:template>
 
 <!-- Table formatting -->
 <xsl:template match="html:tbody">
-	<xsl:apply-templates />
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="html:table">
-	<xsl:apply-templates />
+    <xsl:apply-templates />
 </xsl:template>
 
 <!--  
@@ -279,7 +279,7 @@ If it is a container it has one or more of the these tags:
 * otherwise, add <p> around the content of td
 -->
 <xsl:template match="html:td">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <!--  
@@ -289,124 +289,124 @@ If it is a container it has one or more of the these tags:
 * otherwise, add <p> around the content of td
 -->
 <xsl:template match="html:div">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:thead">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:caption|html:th">
-	<xsl:choose>
-		<xsl:when test="html:div|ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|html:p|html:b">
-			<xsl:apply-templates/>
-		</xsl:when>
-		<xsl:otherwise>
-			<p>
-				<xsl:apply-templates/>
-			</p>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="html:div|ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|html:p|html:b">
+            <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:otherwise>
+            <p>
+                <xsl:apply-templates/>
+            </p>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:tr">
-	<xsl:apply-templates />
+    <xsl:apply-templates />
 </xsl:template>
 
 <!-- references -->
 <xsl:template match="html:a">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:div/html:a|html:td/html:a">
-	<p>
-		<xsl:apply-templates/>
-	</p>
+    <p>
+        <xsl:apply-templates/>
+    </p>
 </xsl:template>
 
 <xsl:template match="html:div/text()|html:td/text()">
-	<p>
-		<xsl:value-of select="."/>
-	</p>
+    <p>
+        <xsl:value-of select="."/>
+    </p>
 </xsl:template>
 
 <xsl:template match="html:li//html:div">
-	<xsl:value-of select="text()"/>
+    <xsl:value-of select="text()"/>
 </xsl:template>
 
 <xsl:template match="html:form|html:input">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <!-- quotations -->
 <xsl:template match="html:q">
-	<xsl:apply-templates />
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="html:blockquote">
-	<p>
-		<span type="quote">
-			<xsl:value-of select="."/>
-		</span>
-	</p>
+    <p>
+        <span type="quote">
+            <xsl:value-of select="."/>
+        </span>
+    </p>
 </xsl:template>
 
 <!-- superscripts and subscripts are dropped to text -->
 <xsl:template match="html:big|html:small|html:sub|html:sup">
-	<xsl:choose>
-		<xsl:when test="text()">
-			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:font">
-					<xsl:apply-templates select="text()"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p><xsl:apply-templates select="text()"/></p>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="text()">
+            <xsl:choose>
+                <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:font">
+                    <xsl:apply-templates select="text()"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <p><xsl:apply-templates select="text()"/></p>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:apply-templates/>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:span">
-	<xsl:apply-templates/><xsl:text> </xsl:text>
+    <xsl:apply-templates/><xsl:text> </xsl:text>
 </xsl:template> 
 
 <xsl:template match="html:div/html:span|html:td/html:span">
-	<p>
-		<xsl:apply-templates/>
-	</p>
+    <p>
+        <xsl:apply-templates/>
+    </p>
 </xsl:template>
 
 <!-- other formatting -->
 <xsl:template match="html:note">
-	<xsl:choose>
-		<xsl:when test="text()">
-			<xsl:choose>
-				<xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong|ancestor::html:span|ancestor::html:li">
-					<xsl:apply-templates select="text()"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<p><xsl:apply-templates select="text()"/></p>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:apply-templates/>
-		</xsl:otherwise>
-	</xsl:choose>
+    <xsl:choose>
+        <xsl:when test="text()">
+            <xsl:choose>
+                <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong|ancestor::html:span|ancestor::html:li">
+                    <xsl:apply-templates select="text()"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <p><xsl:apply-templates select="text()"/></p>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:apply-templates/>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="html:font">
-	<xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="html:div/html:font|html:td/html:font">
-	<p>
-		<xsl:apply-templates/>
-	</p>
+    <p>
+        <xsl:apply-templates/>
+    </p>
 </xsl:template>
 
 <xsl:template match="pb">
@@ -414,17 +414,17 @@ If it is a container it has one or more of the these tags:
 </xsl:template>
 
 <xsl:template match="*">
-	<xsl:message>No template for <xsl:value-of select="name()"/>
-		<xsl:text>: </xsl:text><xsl:value-of select="text()"/>
-	</xsl:message>
-	<xsl:apply-templates/>
+    <xsl:message>No template for <xsl:value-of select="name()"/>
+        <xsl:text>: </xsl:text><xsl:value-of select="text()"/>
+    </xsl:message>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="@*">
-	<xsl:message>No template for attribute <xsl:value-of select="name()"/>
-		<xsl:text>: </xsl:text><xsl:value-of select="text()"/>
-	</xsl:message>
-	<xsl:apply-templates/>
+    <xsl:message>No template for attribute <xsl:value-of select="name()"/>
+        <xsl:text>: </xsl:text><xsl:value-of select="text()"/>
+    </xsl:message>
+    <xsl:apply-templates/>
 </xsl:template>
 
 <!-- Ignored elements -->
