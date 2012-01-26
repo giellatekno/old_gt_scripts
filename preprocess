@@ -779,7 +779,9 @@ sub process_numeral {
         # First check that all variables that are accessed are initialized
         if ($word && $words_aref->[0]{word} && $words_aref->[1]{word}) {
             # Then do the real work
-            if ($word =~ /^\d{1,2}\.$/ && # Test if $word is a number with at most two digits ending with a dot
+            if (
+                ($word =~ /^\d{1,2}\.$/ || # Test if $word is a number with at most two digits ending with a dot
+                $word =~ /^\d{1,2}\.\d{1,2}\.$/ ) && # Or a number of the format dd.dd.
                 $words_aref->[0]{word} =~ /-/ && # Test if the first word following $word is a hyphen
                 ($words_aref->[1]{word} =~ /^\d{1,2}\.$/ || # Test if the second word following $word is a number with at most two digits ending with a dot
                 $words_aref->[1]{word} =~ /^\d{1,2}\.\d{1,2}\.\d{1,2}/) # or has the dd.dd.dd
