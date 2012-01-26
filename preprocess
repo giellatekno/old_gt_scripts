@@ -425,9 +425,15 @@ sub process_word {
     # Store the punctuation at the end of the string to a variable
     if ($word =~ s/([+=%:$SINGLE_PUNCT\§]+)$//o) {
         $end_punct = $1;
+        if($corr) { 
+            if ($corr_short{$word}) { 
+                test_corr(\$word, $words_aref, $tokens_aref); 
+            } 
+        }
         verbose ("process_word/end_punct", $end_punct, __LINE__);
+        verbose ("process_word/end_punct/word", $word, __LINE__);
     }
-
+    
     TEST: {
         # If the punctuation at the end contains a sentence delimiter
         # ? or !, the word ends the sentence in any case, so the word can
