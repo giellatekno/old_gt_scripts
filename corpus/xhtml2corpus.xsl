@@ -4,6 +4,8 @@
                 xmlns:fo="http://www.w3.org/1999/XSL/Format" 
                 xmlns:html="http://www.w3.org/1999/xhtml" 
                 xmlns:saxon="http://icl.com/saxon"
+                xmlns:str="http://exslt.org/strings"
+                extension-element-prefixes="str"
                 exclude-result-prefixes="xsl fo html saxon">
 <!--$Revision: 38657 $ -->
 
@@ -83,10 +85,17 @@ xsltproc xhtml2corpus.xsl - > file.xml
 			<xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p|ancestor::html:li">
 				<xsl:apply-templates />
 			</xsl:when>
+            <xsl:when test="contains(., '•')">
+                <xsl:for-each select="str:tokenize(., '•')">
+                    <p type="listitem"> 
+                        <xsl:value-of select="."/>
+                    </p>
+                </xsl:for-each>
+            </xsl:when>
 			<xsl:otherwise>
-				<p> 
-					<xsl:apply-templates /> 
-				</p>
+                    <p> 
+                        <xsl:apply-templates /> 
+                    </p>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:if>
