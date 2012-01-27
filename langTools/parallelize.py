@@ -185,6 +185,17 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="9">elevene skal få !</s><s id="10">Sametingsrådet mener målet</s></p>')
         self.assertXmlEqual(got, want)
+    
+    def testDotFollowedByDot(self):
+        """Test of how processOneParagraph handles a paragraph 
+        with . and ... in the end.
+        tca2 doesn't accept sentences without real letters, so we have to make
+        sure the ... doesn't end up alone inside a s tag"""
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>Alt det som har med norsk å gjøre, har jeg gruet meg for og hatet hele mitt liv - og kommer kanskje til å fortsette med det. ...</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="0">Alt det som har med norsk å gjøre, har jeg gruet meg for og hatet hele mitt liv - og kommer kanskje til å fortsette med det . ...</s></p>')
+        self.assertXmlEqual(got, want)
         
     def testQuotemarks(self):
         """Test how SentenceDivider handles quotemarks
@@ -225,7 +236,7 @@ class SentenceDivider:
             body.append(self.processOneParagraph(paragraph))
     
     def writeResult(self, outfile):
-        """Write the given tmx to the outfile name
+        """Write self.document to the given outfile name
         """
         f = open(outfile, 'w')
         et = etree.ElementTree(self.document)
