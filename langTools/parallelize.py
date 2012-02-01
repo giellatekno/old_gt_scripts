@@ -178,7 +178,7 @@ class TestSentenceDivider(unittest.TestCase):
         
         p = etree.XML('<p>finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra..</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="8">finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra .</s></p>')
+        want = etree.XML('<p><s id="8">finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra . .</s></p>')
         self.assertXmlEqual(got, want)
         
         p = etree.XML('<p>elevene skal få!  Sametingsrådet mener målet</p>')
@@ -194,16 +194,16 @@ class TestSentenceDivider(unittest.TestCase):
         self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>Alt det som har med norsk å gjøre, har jeg gruet meg for og hatet hele mitt liv - og kommer kanskje til å fortsette med det. ...</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="0">Alt det som har med norsk å gjøre, har jeg gruet meg for og hatet hele mitt liv - og kommer kanskje til å fortsette med det . ...</s></p>')
+        want = etree.XML('<p><s id="0">Alt det som har med norsk å gjøre , har jeg gruet meg for og hatet hele mitt liv - og kommer kanskje til å fortsette med det . ...</s></p>')
         self.assertXmlEqual(got, want)
         
     def testQuotemarks(self):
         """Test how SentenceDivider handles quotemarks
         """
         self.sentenceDivider.docLang = 'nob'
-        p = etree.XML('<p>Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a.: «Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid. Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget.»</p>')
+        p = etree.XML('<p>Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a.: «Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid. Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget.» Med denne tillitserklæring i ryggen har vi så fra år til år søkt å forbedre kursoppleggene til vi foran 1963-kursene står med planer som vi anser tilfredsstillende , men ikke endelige .)</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="0">Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a. : « Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid . Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget . »</s></p>')
+        want = etree.XML('<p><s id="0">Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a. : « Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid .</s><s id="1"> Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget . »</s><s id="2">Med denne tillitserklæring i ryggen har vi så fra år til år søkt å forbedre kursoppleggene til vi foran 1963-kursene står med planer som vi anser tilfredsstillende , men ikke endelige . )</s></p>')
         self.assertXmlEqual(got, want)
 
     def testMakeSentence(self):
@@ -282,29 +282,21 @@ class SentenceDivider:
             sentence = []
             insideQuote = False
             previousWord = ''
+            incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '']
             words = output.split('\n')
             i = 0
             while i < len(words):
                 word = words[i].strip()
                 sentence.append(word.decode('utf-8'))
                 
-                if word in '«»"':
-                    if insideQuote == False:
-                        insideQuote = True
-                    else:
-                        insideQuote = False
-                        if previousWord == '.' or previousWord == '?':
-                            newParagraph.append(self.makeSentence(sentence))
-                            sentence = []
-                            
-                    
-                if (word == '.' or word == '?' or word == '!') and insideQuote != True:
-                    if sentence != ['.'] and sentence != ['?'] and sentence != ['!']:
-                        newParagraph.append(self.makeSentence(sentence))
+                if (word == '.' or word == '?' or word == '!'):
+                    while i + 1 < len(words) and words[i + 1].strip() in incompleteSentences:
+                        if words[i + 1] != '':
+                            sentence.append(words[i + 1].decode('utf-8').strip())
+                        i = i + 1
+                    newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
-                previousWord = word
-            
                 i = i + 1
                 
             if len(sentence) > 1:
