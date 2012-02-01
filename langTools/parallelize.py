@@ -206,6 +206,19 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p><s id="0">Forsøksrådet for skoleverket godkjente det praktiske opplegget for kurset i brev av 18/8 1959 og uttalte da bl. a. : « Selve innholdet i kurset virker gjennomtenkt og underbygd og ser ut til å konsentrere seg om vesentlige emner som vil få stor betydning for elevene i deres yrkesarbeid .</s><s id="1"> Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget . »</s><s id="2">Med denne tillitserklæring i ryggen har vi så fra år til år søkt å forbedre kursoppleggene til vi foran 1963-kursene står med planer som vi anser tilfredsstillende , men ikke endelige . )</s></p>')
         self.assertXmlEqual(got, want)
 
+    def testSpuriousComma(self):
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>Etter Sametingets oppfatning vil forslagene til ny § 1 Lovens formål og § 2 Kulturminner og kulturmiljØer - definisjoner; gjøre at det blir en større grad av overensstemmelse mellom lovens begreper og det begrepsapparatet som er nyttet innenfor samisk kulturminnevern. , </p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="0">Etter Sametingets oppfatning vil forslagene til ny § 1 Lovens formål og § 2 Kulturminner og kulturmiljØer - definisjoner ; gjøre at det blir en større grad av overensstemmelse mellom lovens begreper og det begrepsapparatet som er nyttet innenfor samisk kulturminnevern .</s></p>')
+        self.assertXmlEqual(got, want)
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>, </p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p/>')
+        self.assertXmlEqual(got, want)
+        
+        
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
@@ -299,7 +312,8 @@ class SentenceDivider:
                 i = i + 1
                 
             if len(sentence) > 1:
-                newParagraph.append(self.makeSentence(sentence))
+                if sentence != [',', '']:
+                    newParagraph.append(self.makeSentence(sentence))
     
         return newParagraph
         
