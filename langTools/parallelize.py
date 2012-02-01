@@ -281,7 +281,6 @@ class SentenceDivider:
             output = self.getPreprocessOutput(preprocessInput)
             sentence = []
             insideQuote = False
-            previousWord = ''
             incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '']
             words = output.split('\n')
             i = 0
@@ -911,7 +910,7 @@ class TestTmxComparator(unittest.TestCase):
         comp = TmxComparator(Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')), Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')))
         
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
-        self.assertEqual(comp.getLinesInWantedfile(), 269)
+        self.assertEqual(comp.getLinesInWantedfile(), 273)
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
     #def testUnEqualTmxes(self):
