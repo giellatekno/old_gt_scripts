@@ -697,9 +697,14 @@ sub test_idiom {
     my $last_part;
     my $idiom;
     my $ucidiom;
-    if( $words_aref->[0]{word} ) { 
-        $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
-        $ucidiom = ucfirst($$word_ref) . $words_aref->[0]{space} . ucfirst($words_aref->[0]{word}); 
+    if( $words_aref->[0]{word} ) {
+        if ($words_aref->[0]{space}) {
+            $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
+            $ucidiom = ucfirst($$word_ref) . $words_aref->[0]{space} . ucfirst($words_aref->[0]{word});
+        } else {
+            $idiom = $$word_ref . $words_aref->[0]{word};
+            $ucidiom = ucfirst($$word_ref) . ucfirst($words_aref->[0]{word});
+        }
     } elsif ($next_aref->[0]{word}) { 
         $idiom = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word}; 
         $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word}); 
