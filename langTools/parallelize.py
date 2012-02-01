@@ -282,7 +282,10 @@ class SentenceDivider:
             sentence = []
             insideQuote = False
             previousWord = ''
-            for word in output.split('\n'):
+            words = output.split('\n')
+            i = 0
+            while i < len(words):
+                word = words[i].strip()
                 sentence.append(word.decode('utf-8'))
                 
                 if word in '«»"':
@@ -302,6 +305,8 @@ class SentenceDivider:
 
                 previousWord = word
             
+                i = i + 1
+                
             if len(sentence) > 1:
                 newParagraph.append(self.makeSentence(sentence))
     
