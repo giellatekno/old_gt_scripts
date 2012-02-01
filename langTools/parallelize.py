@@ -226,6 +226,13 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p/>')
         self.assertXmlEqual(got, want)
 
+    def testLoneQuestionmark(self):
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>?</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p/>')
+        self.assertXmlEqual(got, want)
+
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
@@ -312,14 +319,14 @@ class SentenceDivider:
                         if words[i + 1] != '':
                             sentence.append(words[i + 1].decode('utf-8').strip())
                         i = i + 1
-                    if sentence != ['.', '.']:
+                    if sentence != ['.', '.'] and sentence != ['?']:
                         newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
                 i = i + 1
                 
             if len(sentence) > 1:
-                if sentence != [',', ''] and sentence != ['.', '.']:
+                if sentence != [',', '']:
                     newParagraph.append(self.makeSentence(sentence))
     
         return newParagraph
