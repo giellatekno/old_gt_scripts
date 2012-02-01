@@ -386,10 +386,10 @@ If it is a container it has one or more of the these tags:
         <xsl:when test="text()">
             <xsl:choose>
                 <xsl:when test="ancestor::html:p|ancestor::html:b|ancestor::html:i|ancestor::html:u|ancestor::html:a|ancestor::html:dt|ancestor::html:h1|ancestor::html:h2|ancestor::html:h3|ancestor::html:h4|ancestor::html:strong|ancestor::html:span|ancestor::html:li">
-                    <xsl:apply-templates select="text()"/><xsl:text> </xsl:text>
+                    <xsl:apply-templates/><xsl:text> </xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
-                    <p><xsl:apply-templates select="text()"/></p>
+                    <p><xsl:apply-templates/></p>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:when>
