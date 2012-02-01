@@ -573,7 +573,7 @@ sub test_abbr {
     }
 
     if ($abbrs{$abbr} eq $NOAB || $abbrs{lc($abbr)} eq $NOAB) {
-        if ($next_word !~ /^[\p{Ll}\pP]/o) {
+        if ($next_word && $next_word !~ /^[\p{Ll}\pP]/o) {
             $word =~ s/\.$//;
             add_token($tokens_aref, $w_token, $word);
             add_new_token ($tokens_aref, $sentence_break);
