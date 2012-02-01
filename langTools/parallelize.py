@@ -212,13 +212,20 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="0">Etter Sametingets oppfatning vil forslagene til ny § 1 Lovens formål og § 2 Kulturminner og kulturmiljØer - definisjoner ; gjøre at det blir en større grad av overensstemmelse mellom lovens begreper og det begrepsapparatet som er nyttet innenfor samisk kulturminnevern .</s></p>')
         self.assertXmlEqual(got, want)
+        
         self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>, </p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p/>')
         self.assertXmlEqual(got, want)
         
-        
+    def testSpuriousDot(self):
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>..</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p/>')
+        self.assertXmlEqual(got, want)
+
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
@@ -300,19 +307,19 @@ class SentenceDivider:
             while i < len(words):
                 word = words[i].strip()
                 sentence.append(word.decode('utf-8'))
-                
                 if (word == '.' or word == '?' or word == '!'):
                     while i + 1 < len(words) and words[i + 1].strip() in incompleteSentences:
                         if words[i + 1] != '':
                             sentence.append(words[i + 1].decode('utf-8').strip())
                         i = i + 1
-                    newParagraph.append(self.makeSentence(sentence))
+                    if sentence != ['.', '.']:
+                        newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
                 i = i + 1
                 
             if len(sentence) > 1:
-                if sentence != [',', '']:
+                if sentence != [',', ''] and sentence != ['.', '.']:
                     newParagraph.append(self.makeSentence(sentence))
     
         return newParagraph
@@ -1255,7 +1262,7 @@ class TmxFixer:
     
 if __name__ == '__main__':
     #
-    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
+    for test in [TestSentenceDivider]: #, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
