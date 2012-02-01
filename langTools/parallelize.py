@@ -233,12 +233,20 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p/>')
         self.assertXmlEqual(got, want)
 
+    def testDotInSentenceStart(self):
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p> . Cálliidlágádus 1999)</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="0">Cálliidlágádus 1999 )</s></p>')
+        self.assertXmlEqual(got, want)
+
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
         self.assertEqual(s.attrib["id"], '0')
         self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
-
+        
+        
 class SentenceDivider:
     """A class that takes a giellatekno xml document as input.
     It spits out an xml document that has divided the text inside the p tags
@@ -319,7 +327,7 @@ class SentenceDivider:
                         if words[i + 1] != '':
                             sentence.append(words[i + 1].decode('utf-8').strip())
                         i = i + 1
-                    if sentence != ['.', '.'] and sentence != ['?']:
+                    if sentence != ['.', '.'] and sentence != ['?'] and sentence != ['.']:
                         newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
