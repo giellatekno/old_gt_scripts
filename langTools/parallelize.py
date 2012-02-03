@@ -316,7 +316,7 @@ class SentenceDivider:
             output = self.getPreprocessOutput(preprocessInput)
             sentence = []
             insideQuote = False
-            incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '']
+            incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '”', '']
             words = output.split('\n')
             i = 0
             while i < len(words):
