@@ -292,7 +292,7 @@ class SentenceDivider:
             preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
             
         subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(preprocessInput.encode('utf-8'))
+        (output, error) = subp.communicate(preprocessInput.encode('utf-8').replace('\n', ' '))
         
         if subp.returncode != 0:
             print >>sys.stderr, 'Could not divide into sentences'
@@ -946,7 +946,7 @@ class TestTmxComparator(unittest.TestCase):
         comp = TmxComparator(Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')), Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')))
         
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
-        self.assertEqual(comp.getLinesInWantedfile(), 273)
+        self.assertEqual(comp.getLinesInWantedfile(), 272)
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
     #def testUnEqualTmxes(self):
@@ -1277,7 +1277,7 @@ class TmxFixer:
     
 if __name__ == '__main__':
     #
-    for test in [TestSentenceDivider]: #, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
+    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
