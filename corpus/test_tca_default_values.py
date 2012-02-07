@@ -79,13 +79,7 @@ def findWinners(paragstestfile, defaultWinner):
 
     # A dictionary of constants
     default = {}
-    default['DEFAULT__ANCHORWORD_MATCH_WEIGHT'] = ['0.5', '3.0']
-    default['DEFAULT__ANCHORPHRASE_MATCH_WEIGHT'] = ['0.5', '3.0']
-    default['DEFAULT__PROPERNAME_MATCH_WEIGHT'] = ['0.5', '3.0']
-    default['DEFAULT__DICE_MATCH_WEIGHT'] = ['0.5', '3.0']
-    default['DEFAULT__DICEPHRASE_MATCH_WEIGHT'] = ['0.5', '3.0']
-    default['DEFAULT__NUMBER_MATCH_WEIGHT'] = ['0.5', '3.0']
-    default['DEFAULT__SCORINGCHARACTER_MATCH_WEIGHT'] = ['0.5', '3.0']
+    default['DEFAULT__LENGTH_RATIO'] = ['1.0', '1.05', '1.15', '1.20', '1.25', '1.30']
 
     # Then for each constant, change them
     for constant, values in default.iteritems():
