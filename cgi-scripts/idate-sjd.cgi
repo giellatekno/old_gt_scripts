@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d $sjdfstdir/idate-sjd.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $sjdfstdir/idate-sjd.fst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
