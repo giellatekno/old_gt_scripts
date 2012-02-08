@@ -227,7 +227,7 @@ sub printinitialhtmlcodes
 {
 #               Print out a standard HTML header
 
-    print "Content-TYPE: text/html; charset=ISO-8859-1\n\n" ;
+    print "Content-TYPE: text/html; charset=UTF-8\n\n" ;
     print "<HEAD>\n<TITLE>Lullis&aacute;megiel lohkos&aacute;nit </TITLE>\n</HEAD>\n\n" ;
 
 #    print "<BODY BGCOLOR=\"#D0FFD0\">\n<P>\n\n" ;
