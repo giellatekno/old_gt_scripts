@@ -240,11 +240,20 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p><s id="0">Cálliidlágádus 1999 )</s></p>')
         self.assertXmlEqual(got, want)
 
+    def testSpanInP(self):
+        self.sentenceDivider.docLang = 'nob'
+        p = etree.XML('<p>( Styrke institusjonssamarbeidet (Urfolksnettverket og <span type="quote">“Forum for urfolksspørsmål i bistanden”</span>)</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="0">( Styrke institusjonssamarbeidet (Urfolksnettverket og “ Forum for urfolksspørsmål i bistanden ” )</s></p>')
+        self.assertXmlEqual(got, want)
+        
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
         self.assertEqual(s.attrib["id"], '0')
         self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
+        
+        
         
         
 class SentenceDivider:
@@ -316,7 +325,7 @@ class SentenceDivider:
             output = self.getPreprocessOutput(preprocessInput)
             sentence = []
             insideQuote = False
-            incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '”', '']
+            incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '”', '°', '']
             words = output.split('\n')
             i = 0
             while i < len(words):
