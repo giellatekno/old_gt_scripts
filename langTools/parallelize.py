@@ -352,9 +352,17 @@ class SentenceDivider:
         """Make an s element, set the id and set the text to be the content of 
         the list sentence
         """
+        
+        # make regex for two or more space characters
+        import re
+        spaces = re.compile(' +')
+        
         s = etree.Element("s")
         s.attrib["id"] = str(self.sentenceCounter)
-        s.text = ' '.join(sentence)
+        
+        # substitute two or more spaces with one space
+        s.text = spaces.sub(' ', ' '.join(sentence))
+        
         self.sentenceCounter += 1
         
         return s
