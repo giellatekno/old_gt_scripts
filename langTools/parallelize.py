@@ -248,7 +248,7 @@ class TestSentenceDivider(unittest.TestCase):
         self.assertXmlEqual(got, want)
         
     def testMakeSentence(self):
-        s = self.sentenceDivider.makeSentence([u'Sámerievtti', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
+        s = self.sentenceDivider.makeSentence([u'Sámerievtti ', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
         
         self.assertEqual(s.attrib["id"], '0')
         self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
