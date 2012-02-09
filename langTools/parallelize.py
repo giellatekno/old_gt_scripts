@@ -244,7 +244,7 @@ class TestSentenceDivider(unittest.TestCase):
         self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>( Styrke institusjonssamarbeidet (Urfolksnettverket og <span type="quote">“Forum for urfolksspørsmål i bistanden”</span>)</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="0">( Styrke institusjonssamarbeidet (Urfolksnettverket og “ Forum for urfolksspørsmål i bistanden ” )</s></p>')
+        want = etree.XML('<p><s id="0">( Styrke institusjonssamarbeidet ( Urfolksnettverket og “ Forum for urfolksspørsmål i bistanden ” )</s></p>')
         self.assertXmlEqual(got, want)
         
     def testMakeSentence(self):
