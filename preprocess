@@ -967,10 +967,11 @@ sub process_numeral {
                 $word = $nopunct;
             } elsif ($word =~ /^\d{1,3}\.$/ ) {
                 # Otherwise dot is considered to be an ordinal.
-                
                 if ($words_aref->[0]{word} !~ /^[\p{Lu}]/o) {
                     last DOT_TEST;
                 }
+            } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses]/o) {
+                $word = $nopunct;
             } else {
                 last DOT_TEST; 
             }
