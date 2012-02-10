@@ -755,7 +755,12 @@ sub test_idiom {
                     $$word_ref = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word};
                     shift @{$next_aref};
                 } else {
-                    $$word_ref = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word}; 
+                    if ($words_aref->[0]{space}) {
+                        $$word_ref = $$word_ref . $words_aref->[0]{space};
+                    }
+                    if ($words_aref->[0]{word}) {
+                        $$word_ref = $$word_ref . $words_aref->[0]{word};
+                    }
                     shift @{$words_aref}; 
                 }
             }
