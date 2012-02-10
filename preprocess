@@ -169,12 +169,12 @@ while (<>) {
             while($line =~ s/^(\s*)([^\s]+)//) {
                 my $word = $2;
                 my $spacechar = $1;
-                # Assume that a word containing a dot followed by a hyphen is 
+                # Assume that a word containing a dot followed by a hyphen or parenthesis is 
                 # an abbreviation followed by another word. Split this word 
                 # into two words, inserting a space after each of them
-                if ($word =~ /(.*\D)\.-(.*)/) {
+                if ($word =~ /(.*\D)\.([-\)])(.*)/) {
                     push_word($1 . '.', " ");
-                    push_word('-' .$2, " ");
+                    push_word($2 .$3, " ");
                 } else {
                     push_word($word, $spacechar);
                 }
@@ -284,8 +284,6 @@ sub process_words {
             $word = "";
         }
 
-        # HACK. preprocess doesn't understand that etc.). actually is etc. ). Insert a space to fix this ..
-        $word =~ s/\.\)/\. \)/;
         verbose("NEW", $word , __LINE__);
         # An array for storing the tokens, each token in its own slot.
         my @tokens;
