@@ -286,7 +286,6 @@ sub process_words {
 
         # HACK. preprocess doesn't understand that etc.). actually is etc. ). Insert a space to fix this ..
         $word =~ s/\.\)/\. \)/;
-        $word =~ s/\.-/\. -/;
         verbose("NEW", $word , __LINE__);
         # An array for storing the tokens, each token in its own slot.
         my @tokens;
