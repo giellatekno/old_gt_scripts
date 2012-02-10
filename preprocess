@@ -574,11 +574,21 @@ sub test_abbr {
         }
         return 1;
     } elsif ($abbrs{$abbr} eq $NUMNOAB || $abbrs{lc($abbr)} eq $NUMNOAB) {
-        add_token ($tokens_aref, $w_token, $word);
+        # The expected behaviour of $NUMNOAB is shown in $GTHOME/tools/abbrtester/abbrtester.py
         if ($next_word) {
-            if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
+            if ($next_word =~ /^\p{Lu}/) {
+                $word =~ s/\.$//;
+                add_token ($tokens_aref, $w_token, $word);
                 add_new_token ($tokens_aref, $sentence_break);
+            } elsif ($next_word =~ /^\d/) {
+                add_token ($tokens_aref, $w_token, $word);
+            } elsif ($next_word =~ /^\p{Ll}/) {
+                add_token ($tokens_aref, $w_token, $word);
             }
+        } else {
+            $word =~ s/\.//;
+            add_token ($tokens_aref, $w_token, $word);
+            add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
     }
@@ -820,7 +830,7 @@ sub process_numeral {
         # cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
         # 10 000,- and math expressions like 2 * 4 = 8
         # many times connects long sequences of numbers into one token.
-        while (($word =~ /^[\d$NUM_PUNCT\- ]+$/o) && ($words_aref->[0] && $words_aref->[0]{word} =~ /^[\d$NUM_PUNCT\- ]+(\,\-)?\.?$/o)) {
+        while (($word =~ /^[\d$NUM_PUNCT\- ]+$/o) && ($words_aref->[0]{word} && $words_aref->[0]{word} =~ /^[\d$NUM_PUNCT\- ]+(\,\-)?\.?$/o)) {
             $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
             verbose ("process_numeral/combine", $word, __LINE__);
             shift @{$words_aref};
@@ -831,7 +841,7 @@ sub process_numeral {
     
     # Combine percent sign to the numeral when separate.
     # covers cases like: 50 %
-    if (($word =~ /\d$/) && ($words_aref->[0] && $words_aref->[0]{word} =~ /^\%/)) {
+    if (($word =~ /\d$/) && ($words_aref->[0]{word} && $words_aref->[0]{word} =~ /^\%/)) {
         $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
         verbose ("process_numeral/combine", $word, __LINE__);
         shift @{$words_aref};
