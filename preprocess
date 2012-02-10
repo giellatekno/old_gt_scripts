@@ -977,7 +977,7 @@ sub process_numeral {
                 if ($words_aref->[0]{word} !~ /^[\p{Lu}]/o) {
                     last DOT_TEST;
                 }
-            } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses]/o) {
+            } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses°]/o) {
                 $word = $nopunct;
             } else {
                 last DOT_TEST; 
