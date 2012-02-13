@@ -896,7 +896,7 @@ class TestTmxFromTca2(unittest.TestCase):
         self.assertEqual(got, want)
         
     def testGetOutfileName(self):
-        self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.tmx'))
+        self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/toktmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.tmx'))
     
     def testPrintTmxFile(self):
         want = etree.parse('parallelize_data/aarseth2-n.htm.tmx')
@@ -967,8 +967,8 @@ class TestTmxComparator(unittest.TestCase):
         self.assertEqual(len(comp.getDiffAsText()), 0)
         
     #def testUnEqualTmxes(self):
-        #gotFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
-        #wantFile = os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
+        #gotFile = os.path.join(os.environ['GTFREE'], 'prestable/toktmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
+        #wantFile = os.path.join(os.environ['GTFREE'], 'prestable/toktmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
         #comp = TmxComparator(Tmx(etree.parse(wantFile)), Tmx(etree.parse(gotFile)))
 
         #self.assertEqual(comp.getNumberOfDifferingLines(), 7)
@@ -1265,7 +1265,7 @@ class TmxGoldstandardTester:
         """
         Find the goldstandard tmx files, return them as a list
         """
-        subp = subprocess.Popen(['find', os.path.join(os.environ['GTFREE'], 'prestable/tmx/goldstandard'), '-name', '*.tmx', '-print' ], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['find', os.path.join(os.environ['GTFREE'], 'prestable/toktmx/goldstandard'), '-name', '*.tmx', '-print' ], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
