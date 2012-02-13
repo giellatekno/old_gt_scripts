@@ -470,7 +470,7 @@ sub process_word {
                 # There is a sentence boundary. todo: Remove this as irrelevant!!
                 
                 verbose ("process_word/test_two_three_cap_letters", $abbr, __LINE__);
-                if ($words_aref->[0] && $words_aref->[0]{word} !~ /^[\p{Ll}]/o ) {
+                if ($words_aref->[0]{word} && $words_aref->[0]{word} !~ /^[\p{Ll}]/o ) {
                     if($corr) { 
                         if ($corrections{$word}) { 
                             test_corr(\$word, $words_aref, $tokens_aref); 
@@ -488,7 +488,7 @@ sub process_word {
                 
                 add_token($tokens_aref, $w_token, $word);
 
-                if ($words_aref->[0] && $words_aref->[0]{word}!~ /^[\p{Ll}]/o ) {
+                if ($words_aref->[0]{word} && $words_aref->[0]{word}!~ /^[\p{Ll}]/o ) {
                     my @tmp = (".");
                     add_array($tokens_aref, \@tmp);
                 }
