@@ -603,8 +603,10 @@ class Tmx:
         return strings
         
     def prettifySegs(self, tu):
-        """
-        Input is a tu-element
+        """Strip white space from start and end of the strings in the 
+        seg elements
+        Input is a tu element
+        Output is a tu element with white space stripped strings
         """
         try:
             string = tu[0][0].text.strip()
@@ -638,8 +640,68 @@ class Tmx:
         tmx.append(body)
         
         self.tmx = tmx
-        #et = etree.ElementTree(self.tmx)
-        #et.write(sys.stdout, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+
+    def removeUnwantedSpace(self):
+        """The SentenceDivider adds spaces before and after punctuation, 
+        quotemarks, parentheses and so on.
+        Remove those spaces so that the tmxes are more appropriate for real
+        world™ use cases.
+        """
+        all_tu = self.getTmx().findall('.//tu')
+        body = etree.Element('body')
+        for tu in all_tu:
+            tu = self.removeUnwantedSpaceFromSegs(tu)
+            body.append(tu)
+        
+        tmx = etree.Element('tmx')
+        tmx.append(body)
+        
+        self.tmx = tmx
+        
+    def removeUnwantedSpaceFromSegs(self, tu):
+        """Remove spaces before and after punctuation, 
+        quotemarks, parentheses and so on as appropriate in the seg elements
+        in the tu elements.
+        Input is a tu element
+        Output is a tu element with modified seg elements
+        """
+        try:
+            string = tu[0][0].text.strip()
+            string = self.removeUnwantedSpaceFromString(string)
+            tu[0][0].text = string
+        except(AttributeError):
+            pass
+            
+        try:
+            string = tu[1][0].text.strip()
+            string = self.removeUnwantedSpaceFromString(string)
+            tu[1][0].text = string
+        except(AttributeError):
+            pass
+        
+        return tu
+        
+    def removeUnwantedSpaceFromString(self, inputString):
+        """Remove spaces before and after punctuation, 
+        quotemarks, parentheses and so on as appropriate
+        """
+        result = inputString
+
+        # regex to find space followed by punctuation
+        spacePunctuation = re.compile("(?P<space>\s)(?P<punctuation>[\)\]\.»])")
+        # for every match in the result string, replace the match 
+        # (space+punctuation) with the punctuation part
+        result = spacePunctuation.sub(lambda match: match.group('punctuation'), result)
+        
+        # regex to find punctuation followed by space
+        punctuationSpace = re.compile("(?P<punctuation>[\[\(«])(?P<space>\s)+")
+        result = punctuationSpace.sub(lambda match: match.group('punctuation'), result)
+        
+        # regex which matches multiple spaces
+        multipleSpace = re.compile("\s+")
+        result = multipleSpace.sub(lambda match: ' ', result)
+        
+        return result
         
 class TestTmx(unittest.TestCase):
     """
@@ -701,7 +763,17 @@ class TestTmx(unittest.TestCase):
         wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
         gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
         self.assertXmlEqual(self.tmx.prettifySegs(gotXml), wantXml)
-        
+
+    def testRemoveUnwantedSpaceFromSegs(self):
+        wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[30] (juli) «skoleturer».</seg></tuv><tuv xml:lang="sme"><seg>[30] (suoidnemánnu) «skuvlatuvrrat».</seg></tuv></tu>')
+        gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[ 30 ] ( juli ) « skoleturer » .\n</seg></tuv><tuv xml:lang="sme"><seg>[ 30 ] ( suoidnemánnu ) « skuvlatuvrrat » .\n</seg></tuv></tu>')
+        self.assertXmlEqual(self.tmx.removeUnwantedSpaceFromSegs(gotXml), wantXml)
+    
+    def testRemoveUnwantedSpaceFromString(self):
+        want = u'[31] (suoidnemánnu) «skuvlatuvrrat».'
+        got = self.tmx.removeUnwantedSpaceFromString(u'[ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » .')
+        self.assertEqual(got, want)
+    
 class TmxFromTca2(Tmx):
     """
     A class to make tmx files based on the output from tca2
@@ -768,7 +840,7 @@ class TmxFromTca2(Tmx):
         
         origPathPart = '/converted/' + self.filelist[0].getLang() + '/'
         # First compute the part that shall replace /orig/ in the path
-        replacePathPart = '/tmx/' + self.filelist[0].getLang() + '2' + self.filelist[1].getLang() + '/'
+        replacePathPart = '/toktmx/' + self.filelist[0].getLang() + '2' + self.filelist[1].getLang() + '/'
         # Then set the outdir
         outDirname = self.filelist[0].getDirname().replace(origPathPart, replacePathPart)
         # Replace xml with tmx in the filename
