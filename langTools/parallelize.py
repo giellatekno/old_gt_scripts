@@ -260,8 +260,7 @@ class SentenceDivider:
     """A class that takes a giellatekno xml document as input.
     It spits out an xml document that has divided the text inside the p tags
     into sentences, but otherwise is unchanged.
-    Each sentence is encases in an s tag, and has an id consisting of the 
-    outputfilename and a numberic
+    Each sentence is encased in an s tag, and has an id number
     """
     def __init__(self, inputXmlfile, lang):
         
@@ -455,7 +454,7 @@ class Parallelize:
         
     def dividePIntoSentences(self):
         """
-        Call corpus-analyse.pl which reads an xml file and makes it palatable for tca2
+        Tokenize the text in the given file and reassemble it again
         """
         for pfile in self.origfiles:
             infile = os.path.join(pfile.getName())
