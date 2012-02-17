@@ -413,6 +413,10 @@ If it is a container it has one or more of the these tags:
     <xsl:apply-templates/>
 </xsl:template>
 
+<xsl:template match="text()">
+        <xsl:value-of select="normalize-space(.)"/><xsl:text> </xsl:text>
+</xsl:template>
+
 <xsl:template match="*">
     <xsl:message>No template for <xsl:value-of select="name()"/>
         <xsl:text>: </xsl:text><xsl:value-of select="text()"/>
