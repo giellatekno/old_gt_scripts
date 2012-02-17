@@ -691,7 +691,7 @@ class Tmx:
         result = inputString
 
         # regex to find space followed by punctuation
-        spacePunctuation = re.compile("(?P<space>\s)(?P<punctuation>[\)\]\.»:,])")
+        spacePunctuation = re.compile("(?P<space>\s)(?P<punctuation>[\)\]\.»:;,])")
         # for every match in the result string, replace the match 
         # (space+punctuation) with the punctuation part
         result = spacePunctuation.sub(lambda match: match.group('punctuation'), result)
@@ -787,8 +787,8 @@ class TestTmx(unittest.TestCase):
         self.assertXmlEqual(self.tmx.removeUnwantedSpaceFromSegs(gotXml), wantXml)
 
     def testRemoveUnwantedSpaceFromString(self):
-        got = self.tmx.removeUnwantedSpaceFromString(u'[ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea :  okta , guokte .')
-        want = u'[31] (suoidnemánnu) «skuvlatuvrrat» bargu lea: okta, guokte.'
+        got = self.tmx.removeUnwantedSpaceFromString(u'sámesearvvi ; [ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea :  okta , guokte .')
+        want = u'sámesearvvi; [31] (suoidnemánnu) «skuvlatuvrrat» bargu lea: okta, guokte.'
         self.assertEqual(got, want)
 
 class Tca2ToTmx(Tmx):
