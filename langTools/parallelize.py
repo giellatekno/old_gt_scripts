@@ -1035,7 +1035,7 @@ class TestTmxComparator(unittest.TestCase):
         comp = TmxComparator(Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx')), Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx')))
 
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
-        self.assertEqual(comp.getLinesInWantedfile(), 271)
+        self.assertEqual(comp.getLinesInWantedfile(), 274)
         self.assertEqual(len(comp.getDiffAsText()), 0)
 
     #def testUnEqualTmxes(self):

@@ -148,7 +148,7 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Landbruksdepartementet er i prinsippet enig med komiteen og antar at spørsmålet best kan løses i forbindelse med innføringen av 9-årig skole .</seg>
+        <seg>Landbruksdepartementet er i prinsippet enig med komiteen og antar at spørsmålet best kan løses i forbindelse med innføringen av 9-årig skole . ( St.meld. nr. 21 , 1962/63 . )</seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Eanandoallodepartemeanta lea prinsihpalaččat ovttaoaivilis lávdegottiin ja jáhkká ahte lea buoremus dan čoavdit 9-jagi vuođđoskuvlla álggaheami oktavuođas ( Stuoradiggedieđáhus nr. 21,1962/63 ) .</seg>
@@ -156,7 +156,7 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>( St.meld. nr. 21 , 1962/63. ) Det kan kanskje i denne anledning være av interesse å se litt på hvordan de første spede forsøk med yrkesforberedende undervisning i reindriftsfag har løpet av ved den 9-årige skolen i Karasjok .</seg>
+        <seg>Det kan kanskje i denne anledning være av interesse å se litt på hvordan de første spede forsøk med yrkesforberedende undervisning i reindriftsfag har løpet av ved den 9-årige skolen i Karasjok .</seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Soaitá dán oktavuođas leat somá geahčadit movt vuosttaš smávva geahččaleamit ledje boazodoallofága fidnoráhkkanahttin oahpahusas 9-jagi skuvllas Kárášjogas .</seg>
@@ -556,7 +556,7 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Foreldrene er gjerne interessert i å ha elever på dette alderstrinn ( 13 –16 år ) hjemme i høstflyttetiden , fordi det er størst behov for arbeidskraft nettopp da.</seg>
+        <seg>Foreldrene er gjerne interessert i å ha elever på dette alderstrinn ( 13 –16 år ) hjemme i høstflyttetiden , fordi det er størst behov for arbeidskraft nettopp da .</seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Váhnemat háliidit ahte mánát mat leat gaskal 13 ja 16 jagi leat ruovttus čakčajohttináiggi go juste dalle dárbbahuvvojit bargonávccat boazodoalus .</seg>
@@ -604,10 +604,18 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Alminnelig zoologi , reinens plass i det zoologiske system , slektninger .  Reinen – landskapet – mennesket .</seg>
+        <seg>Alminnelig zoologi , reinens plass i det zoologiske system , slektninger .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Dábálaš zoologiija , bohcco sadji zoologalaš vuogádagas , sogalaččat Boazu – eanadat– olmmoš .</seg>
+        <seg>Dábálaš zoologiija , bohcco sadji zoologalaš vuogádagas , sogalaččat .</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="nob">
+        <seg>Reinen – landskapet – mennesket .</seg>
+      </tuv>
+      <tuv xml:lang="sme">
+        <seg>Boazu – eanadat– olmmoš .</seg>
       </tuv>
     </tu>
     <tu>
@@ -623,7 +631,7 @@
         <seg>Reinens anatomi og fysiologi ( bred behandling ) .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg></seg>
+        <seg>Bohcco anatomiija ja fysiologiija ( viiddis meannudeapmi ) .</seg>
       </tuv>
     </tu>
     <tu>
@@ -631,7 +639,7 @@
         <seg>Reinens mat ( elementært om reinbeite ) .  Reinens sykdommer , særlig om parasittsykdommer og forebygging av sykdommer .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Bohcco anatomiija ja fysiologiija ( viiddis meannudeapmi ) Bohcco biebmu ( álggolaččat ealáhaga birra ) Boazodávddat , earenoamážit luhtehasdávddaid ja dávddaid eastadeami birra .</seg>
+        <seg>Bohcco biebmu ( álggolaččat ealáhaga birra ) Boazodávddat , earenoamážit luhtehasdávddaid ja dávddaid eastadeami birra .</seg>
       </tuv>
     </tu>
     <tu>
@@ -1340,7 +1348,7 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Utnytting av fjellets nyttevekster .</seg>
+        <seg></seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Meahci šattuid ávkkástallat .</seg>
@@ -1348,7 +1356,7 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Oppsetting og flytting av sametelt , forrådsstilaser etc. .</seg>
+        <seg>Utnytting av fjellets nyttevekster .</seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Ee. lávu ja luovi ceggen ja sirdin .</seg>
@@ -1356,10 +1364,26 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Litt fiskeribiologi , bruk av forskjellige fiskeredskaper .  Geologi – plantelære – plantesamfunn , synfaring av beiter og utregning av beiteverdi , synfaring av overbeitede steder .</seg>
+        <seg>Oppsetting og flytting av sametelt , forrådsstilaser etc. .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Veahá guolástanbiologiija , iešguđetlágán guolástanrusttegiid geavaheapmi , Geologiija – šaddodieđa – šaddoservodat , guohtumiid geahčadeapmi ja guohtunárvvu rehkenastin , geahčadanmátki báikkiide maid leat badjelmeari guhton .</seg>
+        <seg></seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="nob">
+        <seg>Litt fiskeribiologi , bruk av forskjellige fiskeredskaper .</seg>
+      </tuv>
+      <tuv xml:lang="sme">
+        <seg>Veahá guolástanbiologiija , iešguđetlágán guolástanrusttegiid geavaheapmi .</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="nob">
+        <seg>Geologi – plantelære – plantesamfunn , synfaring av beiter og utregning av beiteverdi , synfaring av overbeitede steder .</seg>
+      </tuv>
+      <tuv xml:lang="sme">
+        <seg>Geologiija – šaddodieđa – šaddoservodat , guohtumiid geahčadeapmi ja guohtunárvvu rehkenastin , geahčadanmátki báikkiide maid leat badjelmeari guhton .</seg>
       </tuv>
     </tu>
     <tu>
@@ -1436,7 +1460,7 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg>Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget . »</seg>
+        <seg></seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Go lea johttisámemáhttu duogážin , de gal sáhttá ollu vuordit dákkár kurssas . »</seg>
@@ -1452,18 +1476,10 @@
     </tu>
     <tu>
       <tuv xml:lang="nob">
-        <seg></seg>
+        <seg>Med flyttsame-kunnskapen som bakgrunn er det grunn til å vente seg mye av dette kursopplegget . »</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Gorbovuona lahka , Porsáŋggus , 1959 .</seg>
-      </tuv>
-    </tu>
-    <tu>
-      <tuv xml:lang="nob">
-        <seg></seg>
-      </tuv>
-      <tuv xml:lang="sme">
-        <seg>( Govva : Virginia Davidson / Norsk folkemuseum )</seg>
+        <seg>Gorbovuona lahka , Porsáŋggus , 1959 . ( Govva : Virginia Davidson / Norsk folkemuseum )</seg>
       </tuv>
     </tu>
     <tu>
@@ -1543,7 +1559,7 @@
         <seg>Vi har delt undervisningen i flyttsamekunnskap mellom oss og har ledet hvert vårt fjellkurs , hun med 9. klasse på Østfjellet og undertegnede med 8. klasse på Vestfjellet .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Moai letne juogadan oahpahusa johttisámemáhtus ja letne goabbat meahccekurssaid lágidan , son 9. luohká nuorttabealde ja mun 8. luohká oarjjabealde .</seg>
+        <seg>Moai letne juogadan oahpahusa johttisámemáhtus ja letne goabbat meahccekurssaid lágidan , son 9. luohká nuorttabealde ja mun 8. luohká oarjjabealde . Muđui letne váldán vehkkeoahpaheddjiid oahpahussii maid sii máhtte bures .</seg>
       </tuv>
     </tu>
     <tu>
@@ -1551,7 +1567,7 @@
         <seg>Ellers har vi trukket inn i undervisningen hjelpelærere som var flinke til å undervise på sine områder .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Muđui letne váldán vehkkeoahpaheddjiid oahpahussii maid sii máhtte bures .</seg>
+        <seg></seg>
       </tuv>
     </tu>
     <tu>
@@ -1687,7 +1703,7 @@
         <seg>Heimeyrkeskolen for samer i Kautokeino utpeker seg her som det naturlige sted , forutsatt at lærerkrefter for denne undervisning kan skaffes .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Ruovttufidnoskuvla sámiide Guovdageainnus lea lunddolaš báiki dasa , jus fal oahpahannávccaid sáhttá oažžut .</seg>
+        <seg></seg>
       </tuv>
     </tu>
     <tu>
@@ -1695,12 +1711,20 @@
         <seg>Selv om reindriftsfaget nå er etablert i den linjedelte ungdomsskolen , er dermed ikke problemene løst .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Vaikko boazodoallosuorgi leage sajáiduvvan suorgejuhkkojuvvon nuoraidskuvlii , de ii leat čoavdán buot váttisvuođaid .</seg>
+        <seg>Ruovttufidnoskuvla sámiide Guovdageainnus lea lunddolaš báiki dasa , jus fal oahpahannávccaid sáhttá oažžut .</seg>
       </tuv>
     </tu>
     <tu>
       <tuv xml:lang="nob">
         <seg>Det må stadig foregå en vekst fram mot mer hensiktsmessige og dagsaktuelle former for undervisning .</seg>
+      </tuv>
+      <tuv xml:lang="sme">
+        <seg>Vaikko boazodoallosuorgi leage sajáiduvvan suorgejuhkkojuvvon nuoraidskuvlii , de ii leat čoavdán buot váttisvuođaid .</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="nob">
+        <seg></seg>
       </tuv>
       <tuv xml:lang="sme">
         <seg>Ferte čađat leat ovdáneapmi ávkkálaš ja áigeguovdilis oahpahanmálliin .</seg>
@@ -1887,7 +1911,7 @@
         <seg>For orienteringsfagene i 4.–6. klasse ( geografi , historie , samfunnskunnskap og naturfag ) bør det også være adgang til mindre avvik i lærestoffet , slik at det kan bli utvidet heimstadlære eller « nomadkunnskap » som det kalles i Sverige .</seg>
       </tuv>
       <tuv xml:lang="sme">
-        <seg>Servodat- ja birasoahpu 4. -6. luohkáide ( geografiija , historjá , servodatoahppu ja luonddufága ) berre sáhttit rievdadit veahá , nu ahte sáhttá šaddat viidát ruovttudoallooahppu , dehe « nomádaoahppu » , manin Ruoŧas dat gohčoduvvo .</seg>
+        <seg>Servodat- ja birasoahpu 4.-6. luohkáide ( geografiija , historjá , servodatoahppu ja luonddufága ) berre sáhttit rievdadit veahá , nu ahte sáhttá šaddat viidát ruovttudoallooahppu , dehe « nomádaoahppu » , manin Ruoŧas dat gohčoduvvo .</seg>
       </tuv>
     </tu>
     <tu>
