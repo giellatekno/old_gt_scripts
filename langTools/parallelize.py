@@ -532,6 +532,8 @@ class Tmx:
     """
 
     def __init__(self, tmx):
+        """Input is a tmx element
+        """
         self.tmx = tmx
 
     def getSrcLang(self):
@@ -1209,7 +1211,7 @@ class TestTmxTestDataWriter(unittest.TestCase):
 
 class TmxGoldstandardTester:
     """
-    A class to test the alignment pipeline againt the tmx goldstandard
+    A class to test the alignment pipeline against the tmx goldstandard
     """
     def __init__(self, testresult_filename, dateformat_addition = None):
         """
@@ -1365,7 +1367,25 @@ class TmxFixer:
         """
         pass
 
-
+class Toktmx2Tmx:
+    """A class to make a tidied up version of toktmx files.
+    Removes unwanted spaces around punctuation, parentheses and so on.
+    """
+    def readToktmxFile(self, toktmxFile):
+        """Reads a toktmx file
+        """
+        pass
+    
+    def writeCleanedupTmx(self):
+        """Write the cleanup tmx
+        """
+        pass
+    
+    def cleanToktmx(self):
+        """Do the cleanup of the toktmx file
+        """
+        pass
+    
 if __name__ == '__main__':
     #
     for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
