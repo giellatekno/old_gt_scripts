@@ -26,9 +26,9 @@ def main():
     if parallelizer.dividePIntoSentences() == 0:
         print "Aligning files ..."
         if parallelizer.parallelizeFiles() == 0:
-            tmx = parallelize.TmxFromTca2(parallelizer.getFilelist())
+            tmx = parallelize.Tca2ToTmx(parallelizer.getFilelist())
             print "Generating the tmx file", tmx.getOutfileName()
-            tmx.printTmxFile()
+            tmx.writeTmxFile(tmx.getOutfileName())
 
 if __name__ == "__main__":
     main()
