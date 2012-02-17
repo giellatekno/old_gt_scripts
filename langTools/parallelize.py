@@ -706,7 +706,7 @@ class Tmx:
 
         return result
 
-    def printTmxFile(self, outFilename):
+    def writeTmxFile(self, outFilename):
         """
         Write a tmx file given a tmx etree element and a filename
         """
@@ -970,9 +970,9 @@ class TestTca2ToTmx(unittest.TestCase):
     def testGetOutfileName(self):
         self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/toktmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.toktmx'))
 
-    def testPrintTmxFile(self):
+    def testWriteTmxFile(self):
         want = etree.parse('parallelize_data/aarseth2-n.htm.toktmx')
-        self.tmx.printTmxFile(self.tmx.getOutfileName())
+        self.tmx.writeTmxFile(self.tmx.getOutfileName())
         got = etree.parse(self.tmx.getOutfileName())
 
         self.assertXmlEqual(got, want)
