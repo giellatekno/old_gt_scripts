@@ -35,43 +35,43 @@ class ParallelFile:
     """
     A class that contains the info on a file to be parallellized, name and language
     """
-    
+
     def __init__(self, name, paralang):
         self.name = name
         self.paralang = paralang
         self.setLang()
-        
+
     def getName(self):
         """
         Return the absolute path of the file
         """
         return self.name
-        
+
     def getDirname(self):
         """
         Return the dirname of the file
         """
         return os.path.dirname(self.name)
-        
+
     def getBasename(self):
         """
         Return the basename of the file
         """
         return os.path.basename(self.name)
-        
+
     def setLang(self):
         """
         Set the lang of the file
         """
         origfile1Tree = etree.parse(self.getName())
         self.lang = origfile1Tree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
-        
+
     def getLang(self):
         """
         Get the lang of the file
         """
         return self.lang
-        
+
     def getParallelBasename(self):
         """
         Get the basename of the parallel file
@@ -83,14 +83,14 @@ class ParallelFile:
         for p in parallelFiles:
             if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.paralang:
                 return p.attrib['location']
-        
+
     def getParallelFilename(self):
         """
         Infer the absolute path of the parallel file
         """
         parallelDirname = self.getDirname().replace(self.getLang(), self.paralang)
         parallelBasename = self.getParallelBasename() + '.xml'
-        
+
         return os.path.join(parallelDirname, parallelBasename)
 
 class TestParallelFile(unittest.TestCase):
@@ -99,22 +99,22 @@ class TestParallelFile(unittest.TestCase):
     """
     def setUp(self):
         self.pfile = ParallelFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
-        
+
     def testBasename(self):
         self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
-        
+
     def testDirname(self):
         self.assertEqual(self.pfile.getDirname(), os.path.join(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2"))
-        
+
     def testName(self):
         self.assertEqual(self.pfile.getName(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
-        
+
     def testLang(self):
         self.assertEqual(self.pfile.getLang(), "sme")
-        
+
     def testGetParallelBasename(self):
         self.assertEqual(self.pfile.getParallelBasename(), "aarseth2-n.htm")
-        
+
     def testGetParallelFilename(self):
         self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
 
@@ -123,34 +123,34 @@ class TestSentenceDivider(unittest.TestCase):
     """
     def setUp(self):
         self.sentenceDivider = SentenceDivider("parallelize_data/finnmarkkulahka_web_lettere.pdf.xml", "sme")
-        
+
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
         string_got = etree.tostring(got, pretty_print = True)
         string_want = etree.tostring(want, pretty_print = True)
-        
+
         checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_want, string_got, 0):
             message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
-        
+
     def testConstructor(self):
         """Check that the constructor makes what it is suppposed to
         """
         self.assertEqual(self.sentenceDivider.sentenceCounter, 0)
         self.assertEqual(self.sentenceDivider.docLang, 'sme')
         self.assertEqual(self.sentenceDivider.inputEtree.__class__.__name__, '_ElementTree')
-    
+
     def testProcessAllParagraphs(self):
         self.sentenceDivider.processAllParagraphs()
         got = self.sentenceDivider.document
-        
+
         want = etree.parse('parallelize_data/finnmarkkulahka_web_lettere.pdfsme_sent.xml.test')
-        
+
         self.assertXmlEqual(got, want)
-        
+
     def testProcessOneParagraph(self):
         """Check the output of processOneParagraph
         """
@@ -159,7 +159,7 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="0">Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áillohačča ?</s><s id="1">máksá Finnmárkkuopmodat .</s><s id="2">§ 10 Áššit meahcceeatnamiid </s></p>')
         self.assertXmlEqual(got, want)
-        
+
         p = etree.XML('<p>Stuora oassi Romssa universitehta doaimmain lea juohkit dieđuid sámi, norgga ja riikkaidgaskasaš dutkanbirrasiidda, sámi ja norgga eiseválddiide, ja sámi servodagaide (geahča mielddus A <em type="italic"><span type="quote">“Romssa universitehta ja guoskevaš institušuvnnaid sámi dutkan ja oahpahus”</span></em>  álggahusa ).</p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="3">Stuora oassi Romssa universitehta doaimmain lea juohkit dieđuid sámi , norgga ja riikkaidgaskasaš dutkanbirrasiidda , sámi ja norgga eiseválddiide , ja sámi servodagaide ( geahča mielddus A “ Romssa universitehta ja guoskevaš institušuvnnaid sámi dutkan ja oahpahus ” álggahusa ) .</s></p>')
@@ -175,17 +175,17 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="6">Bjørn Aarseth med elever på skitur - på 1950-tallet .</s><s id="7">( Foto : Trygve Madsen )</s></p>')
         self.assertXmlEqual(got, want)
-        
+
         p = etree.XML('<p>finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra..</p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="8">finne rom for etablering av en fast tilskuddsordning til allerede etablerte språksentra . .</s></p>')
         self.assertXmlEqual(got, want)
-        
+
         p = etree.XML('<p>elevene skal få!  Sametingsrådet mener målet</p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="9">elevene skal få !</s><s id="10">Sametingsrådet mener målet</s></p>')
         self.assertXmlEqual(got, want)
-    
+
     def testDotFollowedByDot(self):
         """Test of how processOneParagraph handles a paragraph 
         with . and ... in the end.
@@ -196,7 +196,7 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="0">Alt det som har med norsk å gjøre , har jeg gruet meg for og hatet hele mitt liv - og kommer kanskje til å fortsette med det . ...</s></p>')
         self.assertXmlEqual(got, want)
-        
+
     def testQuotemarks(self):
         """Test how SentenceDivider handles quotemarks
         """
@@ -212,13 +212,13 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="0">Etter Sametingets oppfatning vil forslagene til ny § 1 Lovens formål og § 2 Kulturminner og kulturmiljØer - definisjoner ; gjøre at det blir en større grad av overensstemmelse mellom lovens begreper og det begrepsapparatet som er nyttet innenfor samisk kulturminnevern .</s></p>')
         self.assertXmlEqual(got, want)
-        
+
         self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>, </p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p/>')
         self.assertXmlEqual(got, want)
-        
+
     def testSpuriousDot(self):
         self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>..</p>')
@@ -246,16 +246,16 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="0">( Styrke institusjonssamarbeidet ( Urfolksnettverket og “ Forum for urfolksspørsmål i bistanden ” )</s></p>')
         self.assertXmlEqual(got, want)
-        
+
     def testMakeSentence(self):
         s = self.sentenceDivider.makeSentence([u'Sámerievtti ', u'ovdáneapmi', u'lea', u'dahkan', u'vuđđosa', u'Finnmárkkuláhkii'])
-        
+
         self.assertEqual(s.attrib["id"], '0')
         self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
-        
-        
-        
-        
+
+
+
+
 class SentenceDivider:
     """A class that takes a giellatekno xml document as input.
     It spits out an xml document that has divided the text inside the p tags
@@ -263,21 +263,21 @@ class SentenceDivider:
     Each sentence is encased in an s tag, and has an id number
     """
     def __init__(self, inputXmlfile, lang):
-        
+
         self.sentenceCounter = 0
         self.docLang = lang
         self.inputEtree = etree.parse(inputXmlfile)
-    
+
     def processAllParagraphs(self):
         """Go through all paragraphs in the etree and process them one by one.
         """
         self.document = etree.Element('document')
         body = etree.Element('body')
         self.document.append(body)
-        
+
         for paragraph in self.inputEtree.findall('//p'):
             body.append(self.processOneParagraph(paragraph))
-    
+
     def writeResult(self, outfile):
         """Write self.document to the given outfile name
         """
@@ -285,7 +285,7 @@ class SentenceDivider:
         et = etree.ElementTree(self.document)
         et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
         f.close()
-       
+
     def getPreprocessOutput(self, preprocessInput):
         """Send the text in preprocessInput into preprocess, return the result. 
         If the process fails, exit the program
@@ -298,10 +298,10 @@ class SentenceDivider:
             abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
             corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
             preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
-            
+
         subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate(preprocessInput.encode('utf-8').replace('\n', ' '))
-        
+
         if subp.returncode != 0:
             print >>sys.stderr, 'Could not divide into sentences'
             print >>sys.stderr, output
@@ -309,7 +309,7 @@ class SentenceDivider:
             sys.exit()
         else:
             return output
-            
+
     def processOneParagraph(self, origParagraph):
         """Run the content of the origParagraph through preprocess, make sentences
         Return a new paragraph containing the marked up sentences
@@ -340,32 +340,32 @@ class SentenceDivider:
                     sentence = []
 
                 i = i + 1
-                
+
             if len(sentence) > 1:
                 if sentence != [',', '']:
                     newParagraph.append(self.makeSentence(sentence))
-    
+
         return newParagraph
-        
+
     def makeSentence(self, sentence):
         """Make an s element, set the id and set the text to be the content of 
         the list sentence
         """
-        
+
         # make regex for two or more space characters
         import re
         spaces = re.compile(' +')
-        
+
         s = etree.Element("s")
         s.attrib["id"] = str(self.sentenceCounter)
-        
+
         # substitute two or more spaces with one space
         s.text = spaces.sub(' ', ' '.join(sentence))
-        
+
         self.sentenceCounter += 1
-        
+
         return s
-        
+
 class Parallelize:
     """
     A class to parallelize two files
@@ -374,7 +374,7 @@ class Parallelize:
     The language of the input file is found in the metadata of the input file.
     The other file is found via the metadata in the input file
     """
-    
+
     def __init__(self, origfile1, lang2):
         """
         Set the original file name, the lang of the original file and the 
@@ -382,16 +382,16 @@ class Parallelize:
         Parse the original file to get the access to metadata
         """
         self.origfiles = []
-        
+
         tmpfile = ParallelFile(os.path.abspath(origfile1), lang2)
         self.origfiles.append(tmpfile)
-        
+
         tmpfile = ParallelFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
         self.origfiles.append(tmpfile)
-        
+
         if self.isTranslatedFromLang2():
             self.reshuffleFiles()
-            
+
     def reshuffleFiles(self):
         """
         Change the order of the files (so that the translated text is last)
@@ -399,7 +399,7 @@ class Parallelize:
         tmp = self.origfiles[0]
         self.origfiles[0] = self.origfiles[1]
         self.origfiles[1] = tmp
-        
+
     def getFilelist(self):
         """
         Return the list of (the two) files that are aligned
@@ -408,16 +408,16 @@ class Parallelize:
 
     def getLang1(self):
         return self.origfiles[0].getLang()
-        
+
     def getLang2(self):
         return self.origfiles[1].getLang()
-        
+
     def getOrigfile1(self):
         return self.origfiles[0].getName()
-        
+
     def getOrigfile2(self):
         return self.origfiles[1].getName()
-    
+
     def isTranslatedFromLang2(self):
         """
         Find out if the given doc is translated from lang2
@@ -431,17 +431,17 @@ class Parallelize:
                 result = True
 
         return result
-    
+
     def generateAnchorFile(self):
         """
         Generate an anchor file with lang1 and lang2. Return the path to the anchor file
         """
         infile1 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor.txt')
         infile2 = os.path.join(os.environ['GTHOME'], 'gt/common/src/anchor-admin.txt')
-        
+
         subp = subprocess.Popen(['generate-anchor-list.pl', '--lang1=' + self.getLang1(), '--lang2' + self.getLang2(), '--outdir=' + os.environ['GTFREE'], infile1, infile2], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
-        
+
         if subp.returncode != 0:
             print >>sys.stderr, 'Could not generate ', pfile.getName(), ' into sentences'
             print >>sys.stderr, output
@@ -451,7 +451,7 @@ class Parallelize:
         # Return the absolute path of the resulting file
         outFilename = 'anchor-' + self.getLang1() + self.getLang2() + '.txt'
         return os.path.join(os.environ['GTFREE'], outFilename)
-        
+
     def dividePIntoSentences(self):
         """
         Tokenize the text in the given file and reassemble it again
@@ -466,7 +466,7 @@ class Parallelize:
             else:
                 print >>sys.stderr, infile, "doesn't exist"
                 return 2
-                    
+
         return 0
 
     def getSentFilename(self, pfile):
@@ -476,21 +476,21 @@ class Parallelize:
         """
         origfilename = pfile.getBasename().replace('.xml', '')
         return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
-        
+
     def parallelizeFiles(self):
         """
         Parallelize two files using tca2
         """
         anchorName = self.generateAnchorFile()
-        
+
         subp = subprocess.Popen(['tca2.sh', anchorName, self.getSentFilename(self.getFilelist()[0]), self.getSentFilename(self.getFilelist()[1])], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
-            
+
         if subp.returncode != 0:
             print >>sys.stderr, 'Could not parallelize', self.getSentFilename(self.getFilelist()[0]), 'and', self.getSentFilename(self.getFilelist()[1]), ' into sentences'
             print >>sys.stderr, output
             print >>sys.stderr, error
-                
+
         return subp.returncode
 
 class TestParallelize(unittest.TestCase):
@@ -499,52 +499,52 @@ class TestParallelize(unittest.TestCase):
     """
     def setUp(self):
         self.parallelize = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
-    
+
     def testOrigPath(self):
         self.assertEqual(self.parallelize.getOrigfile1(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
-        
+
     def testParallelPath(self):
         self.assertEqual(self.parallelize.getOrigfile2(), os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml")
-        
+
     def testLang1(self):
         self.assertEqual(self.parallelize.getLang1(), "nob")
-        
+
     def testLang2(self):
         self.assertEqual(self.parallelize.getLang2(), "sme")
-        
+
     def testGetSentFilename(self):
         self.assertEqual(self.parallelize.getSentFilename(self.parallelize.getFilelist()[0]), os.environ['GTFREE'] + "/tmp/aarseth2-n.htmnob_sent.xml")
-        
+
     def testDividePIntoSentences(self):
         self.assertEqual(self.parallelize.dividePIntoSentences(), 0)
 
     def testParallizeFiles(self):
         self.assertEqual(self.parallelize.parallelizeFiles(), 0)
-        
+
     def testGenerateAnchorFile(self):
         self.assertEqual(self.parallelize.generateAnchorFile(), os.path.join(os.environ['GTFREE'], 'anchor-nobsme.txt'))
-        
+
 class Tmx:
     """
     A class that reads a tmx file, and implements a bare minimum of functionality
     to be able to compare two tmx'es
     """
-    
+
     def __init__(self, tmx):
         self.tmx = tmx
-        
+
     def getSrcLang(self):
         """
         Get the srclang from the header element
         """
         return self.tmx.find(".//header").attrib['srclang'][:3]
-        
+
     def getTmx(self):
         """
         Get the tmx xml element
         """
         return self.tmx
-        
+
     def tuToString(self, tu):
         """
         Extract the two strings of a tu element
@@ -554,17 +554,17 @@ class Tmx:
             string = string + tu[0][0].text.strip()
         except(AttributeError):
             pass
-            
+
         string += '\t'
-        
+
         try:
             string = string + tu[1][0].text.strip()
         except(AttributeError):
             pass
-        
+
         string += '\n'
         return string.encode('utf-8')
-    
+
     def tuvToString(self, tuv):
         """
         Extract the string from the tuv element
@@ -574,9 +574,9 @@ class Tmx:
             string = tuv[0].text.strip()
         except(AttributeError):
             pass
-        
+
         return string.encode('utf-8')
-        
+
     def langToStringlist(self, lang):
         """
         Get all the strings in the tmx in language lang, insert them 
@@ -588,9 +588,9 @@ class Tmx:
         strings = []
         for tuv in all_tuv:
             strings.append(self.tuvToString(tuv))
-        
+
         return strings
-    
+
     def tmxToStringlist(self):
         """
         Extract all string pairs in a tmx to a list of strings
@@ -599,9 +599,9 @@ class Tmx:
         strings = []
         for tu in all_tu:
             strings.append(self.tuToString(tu))
-        
+
         return strings
-        
+
     def prettifySegs(self, tu):
         """Strip white space from start and end of the strings in the 
         seg elements
@@ -613,15 +613,15 @@ class Tmx:
             tu[0][0].text = string
         except(AttributeError):
             pass
-            
+
         try:
             string = tu[1][0].text.strip()
             tu[1][0].text = string
         except(AttributeError):
             pass
-        
+
         return tu
-        
+
     def reverseLangs(self):
         """
         Reverse the langs in a tmx
@@ -635,10 +635,10 @@ class Tmx:
             tmp.append(tu[0])
             tmp = self.prettifySegs(tmp)
             body.append(tmp)
-        
+
         tmx = etree.Element('tmx')
         tmx.append(body)
-        
+
         self.tmx = tmx
 
     def removeUnwantedSpace(self):
@@ -652,12 +652,12 @@ class Tmx:
         for tu in all_tu:
             tu = self.removeUnwantedSpaceFromSegs(tu)
             body.append(tu)
-        
+
         tmx = etree.Element('tmx')
         tmx.append(body)
-        
+
         self.tmx = tmx
-        
+
     def removeUnwantedSpaceFromSegs(self, tu):
         """Remove spaces before and after punctuation, 
         quotemarks, parentheses and so on as appropriate in the seg elements
@@ -671,16 +671,16 @@ class Tmx:
             tu[0][0].text = string
         except(AttributeError):
             pass
-            
+
         try:
             string = tu[1][0].text.strip()
             string = self.removeUnwantedSpaceFromString(string)
             tu[1][0].text = string
         except(AttributeError):
             pass
-        
+
         return tu
-        
+
     def removeUnwantedSpaceFromString(self, inputString):
         """Remove spaces before and after punctuation, 
         quotemarks, parentheses and so on as appropriate
@@ -692,73 +692,73 @@ class Tmx:
         # for every match in the result string, replace the match 
         # (space+punctuation) with the punctuation part
         result = spacePunctuation.sub(lambda match: match.group('punctuation'), result)
-        
+
         # regex to find punctuation followed by space
         punctuationSpace = re.compile("(?P<punctuation>[\[\(«])(?P<space>\s)+")
         result = punctuationSpace.sub(lambda match: match.group('punctuation'), result)
-        
+
         # regex which matches multiple spaces
         multipleSpace = re.compile("\s+")
         result = multipleSpace.sub(lambda match: ' ', result)
-        
+
         return result
-        
+
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
     """
     def setUp(self):
-        self.tmx = Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx'))
-        
+        self.tmx = Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx'))
+
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
         string_got = etree.tostring(got, pretty_print = True)
         string_want = etree.tostring(want, pretty_print = True)
-        
+
         checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_want, string_got, 0):
             message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
-        
-        
+
+
     def testGetSrcLang(self):
         """Test the getSrcLang routine
         """
         self.assertEqual(self.tmx.getSrcLang(), "nob")
-        
+
     def testTuToString(self):
         tu = etree.XML('<tu><tuv xml:lang="sme"><seg>Sámegiella</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
-        
+
         self.assertEqual(self.tmx.tuToString(tu), "Sámegiella\tSamisk\n")
 
     def testTuvToString(self):
         tuv = etree.XML('<tuv xml:lang="sme"><seg>Sámegiella</seg></tuv>')
-        
+
         self.assertEqual(self.tmx.tuvToString(tuv), "Sámegiella")
-        
+
     def testLangToStringList(self):
-        f = open('parallelize_data/aarseth2-n.htm.tmx.as.txt', 'r')
+        f = open('parallelize_data/aarseth2-n.htm.toktmx.as.txt', 'r')
         stringList = f.readlines()
-        
+
         nobList = []
         smeList = []
         for string in stringList:
             pairList = string.split('\t')
             nobList.append(pairList[0])
             smeList.append(pairList[1].strip())
-            
+
         self.assertEqual(self.tmx.langToStringlist('nob'), nobList)
         self.assertEqual(self.tmx.langToStringlist('sme'), smeList)
-    
+
     def testTmxToStringlist(self):
-        f = open('parallelize_data/aarseth2-n.htm.tmx.as.txt', 'r')
+        f = open('parallelize_data/aarseth2-n.htm.toktmx.as.txt', 'r')
         wantList = f.readlines()
         f.close()
         #self.maxDiff = None
         self.assertEqual(self.tmx.tmxToStringlist(), wantList)
-    
+
     def testPrettifySegs(self):
         wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
         gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
@@ -768,12 +768,12 @@ class TestTmx(unittest.TestCase):
         wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[30] (juli) «skoleturer».</seg></tuv><tuv xml:lang="sme"><seg>[30] (suoidnemánnu) «skuvlatuvrrat».</seg></tuv></tu>')
         gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[ 30 ] ( juli ) « skoleturer » .\n</seg></tuv><tuv xml:lang="sme"><seg>[ 30 ] ( suoidnemánnu ) « skuvlatuvrrat » .\n</seg></tuv></tu>')
         self.assertXmlEqual(self.tmx.removeUnwantedSpaceFromSegs(gotXml), wantXml)
-    
+
     def testRemoveUnwantedSpaceFromString(self):
         got = self.tmx.removeUnwantedSpaceFromString(u'[ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea : .')
         want = u'[31] (suoidnemánnu) «skuvlatuvrrat» bargu lea:.'
         self.assertEqual(got, want)
-    
+
 class TmxFromTca2(Tmx):
     """
     A class to make tmx files based on the output from tca2
@@ -784,18 +784,18 @@ class TmxFromTca2(Tmx):
         """
         self.filelist = filelist
         Tmx.__init__(self, self.setTmx())
-    
+
     def makeTu(self, line1, line2):
         """
         Make a tmx tu element based on line1 and line2 as input
         """
         tu = etree.Element("tu")
-        
+
         tu.append(self.makeTuv(line1, self.filelist[0].getLang()))
         tu.append(self.makeTuv(line2, self.filelist[1].getLang()))
-        
+
         return tu
-    
+
     def makeTuv(self, line, lang):
         """
         Make a tuv element given an input line and a lang variable
@@ -805,22 +805,22 @@ class TmxFromTca2(Tmx):
         seg = etree.Element("seg")
         seg.text = self.removeSTag(line).strip().decode("utf-8")
         tuv.append(seg)
-        
+
         return tuv
-        
+
     def makeTmxHeader(self, lang):
         """
         Make a tmx header based on the lang variable
         """
         header = etree.Element("header")
-        
+
         # Set various attributes
         header.attrib["segtype"] = "sentence"
         header.attrib["o-tmf"] = "OmegaT TMX"
         header.attrib["adminlang"] = "en-US"
         header.attrib["srclang"] = lang
         header.attrib["datatype"] = "plaintext"
-        
+
         return header
 
     def removeSTag(self, line):
@@ -830,41 +830,41 @@ class TmxFromTca2(Tmx):
         line = line.replace('</s>','')
         sregex = re.compile('<s id="[^ ]*">')
         line = sregex.sub('', line)
-        
+
         return line
 
     def getOutfileName(self):
         """
         Compute the name of the tmx file
         """
-        
+
         origPathPart = '/converted/' + self.filelist[0].getLang() + '/'
         # First compute the part that shall replace /orig/ in the path
         replacePathPart = '/toktmx/' + self.filelist[0].getLang() + '2' + self.filelist[1].getLang() + '/'
         # Then set the outdir
         outDirname = self.filelist[0].getDirname().replace(origPathPart, replacePathPart)
         # Replace xml with tmx in the filename
-        outFilename = self.filelist[0].getBasename().replace('.xml', '.tmx')
+        outFilename = self.filelist[0].getBasename().replace('.xml', '.toktmx')
 
         return os.path.join(outDirname, outFilename)
-        
+
     def printTmxFile(self):
         """
         Write a tmx file given a tmx etree element
         """
         outFilename = self.getOutfileName()
-        
+
         try:
             f = open(outFilename, "w")
-            
+
             et = etree.ElementTree(self.getTmx())
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
         except IOError:
             print "ouch, printTmxFile"
-        
+
         return outFilename
-    
+
     def setTmx(self):
         """
         Make tmx file based on the two output files of tca2
@@ -872,7 +872,7 @@ class TmxFromTca2(Tmx):
         tmx = etree.Element("tmx")
         header = self.makeTmxHeader(self.filelist[0].getLang())
         tmx.append(header)
-        
+
         pfile1_data = self.readTca2Output(self.filelist[0])
         pfile2_data = self.readTca2Output(self.filelist[1])
 
@@ -880,9 +880,9 @@ class TmxFromTca2(Tmx):
         for line1, line2 in map(None, pfile1_data, pfile2_data):
             tu = self.makeTu(line1, line2)
             body.append(tu)
-            
+
         return tmx
-        
+
     def readTca2Output(self, pfile):
         """
         Read the output of tca2
@@ -896,9 +896,9 @@ class TmxFromTca2(Tmx):
             f.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
-            
+
         return text
-    
+
 
     def getSentFilename(self, pfile):
         """
@@ -907,7 +907,7 @@ class TmxFromTca2(Tmx):
         """
         origfilename = pfile.getBasename().replace('.xml', '')
         return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
-        
+
 class TestTmxFromTca2(unittest.TestCase):
     """
     A test class for the TmxFromTca2 class
@@ -919,62 +919,62 @@ class TestTmxFromTca2(unittest.TestCase):
         para = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
 
         self.tmx = TmxFromTca2(para.getFilelist())
-    
+
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
         string_got = etree.tostring(got, pretty_print = True)
         string_want = etree.tostring(want, pretty_print = True)
-        
+
         checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_want, string_got, 0):
             message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
-        
-        
+
+
     def testMakeTu(self):
         line1 = '<s id="1">ubba gubba.</s> <s id="2">ibba gibba.</s>'
         line2 = '<s id="1">abba gabba.</s> <s id="2">ebba gebba.</s>'
-        
+
         gotTu = self.tmx.makeTu(line1, line2)
 
         wantTu = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
-        
+
         self.assertXmlEqual(gotTu, wantTu)
 
     def testMakeTuv(self):
         line =  '<s id="1">ubba gubba.</s> <s id="2">ibba gibba.</s>'
         lang = 'smi'
         gotTuv = self.tmx.makeTuv(line, lang)
-        
+
         wantTuv = etree.XML('<tuv xml:lang="smi"><seg>ubba gubba. ibba gibba.</seg></tuv>')
-        
+
         self.assertXmlEqual(gotTuv, wantTuv)
-        
+
     def testMakeTmxHeader(self):
         lang = 'smi'
         gotTuv = self.tmx.makeTmxHeader(lang)
-        
+
         wantTuv = etree.XML('<header segtype="sentence" o-tmf="OmegaT TMX" adminlang="en-US" srclang="smi" datatype="plaintext"/>')
-        
+
         self.assertXmlEqual(gotTuv, wantTuv)
-        
+
     def testRemoveSTag(self):
         got = self.tmx.removeSTag('<s id="1">ubba gubba.</s> <s id="2">ibba gibba.</s>')
         want =  'ubba gubba. ibba gibba.'
-        
+
         self.assertEqual(got, want)
-        
+
     def testGetOutfileName(self):
-        self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/toktmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.tmx'))
-    
-    #def testPrintTmxFile(self):
-        #want = etree.parse('parallelize_data/aarseth2-n.htm.tmx')
-        #self.tmx.printTmxFile()
-        #got = etree.parse(self.tmx.getOutfileName())
-        
-        #self.assertXmlEqual(got, want)
+        self.assertEqual(self.tmx.getOutfileName(), os.path.join(os.environ['GTFREE'], 'prestable/toktmx/nob2sme/facta/skuvlahistorja2/aarseth2-n.htm.toktmx'))
+
+    def testPrintTmxFile(self):
+        want = etree.parse('parallelize_data/aarseth2-n.htm.toktmx')
+        self.tmx.printTmxFile()
+        got = etree.parse(self.tmx.getOutfileName())
+
+        self.assertXmlEqual(got, want)
 
 class TmxComparator:
     """
@@ -983,15 +983,15 @@ class TmxComparator:
     def __init__(self, wantTmx, gotTmx):
         self.wantTmx = wantTmx
         self.gotTmx = gotTmx
-        
-        
+
+
     def getLinesInWantedfile(self):
         """
         Return the number of lines in the reference doc
         """
         return len(self.wantTmx.tmxToStringlist())
-        
-            
+
+
     def getNumberOfDifferingLines(self):
         """
         Given a unified_diff, find out how many lines in the reference doc
@@ -1003,9 +1003,9 @@ class TmxComparator:
         for line in difflib.unified_diff(self.wantTmx.tmxToStringlist(), self.gotTmx.tmxToStringlist(), n = 0):
             if line[:1] == '-':
                 numDiffLines += 1
-        
+
         return numDiffLines
-        
+
     def getDiffAsText(self):
         """
         Return a stringlist containing the diff lines
@@ -1013,9 +1013,9 @@ class TmxComparator:
         diff = []
         for line in difflib.unified_diff(self.wantTmx.tmxToStringlist(), self.gotTmx.tmxToStringlist(), n = 0):
             diff.append(line)
-          
+
         return diff
-        
+
     def getLangDiffAsText(self, lang):
         """
         Return a stringlist containing the diff lines
@@ -1023,20 +1023,20 @@ class TmxComparator:
         diff = []
         for line in difflib.unified_diff(self.wantTmx.langToStringlist(lang), self.gotTmx.langToStringlist(lang), n = 0):
             diff.append(line + '\n')
-          
+
         return diff
-        
+
 class TestTmxComparator(unittest.TestCase):
     """
     A test class for the TmxComparator class
     """
     def testEqualTmxes(self):
-        comp = TmxComparator(Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')), Tmx(etree.parse('parallelize_data/aarseth2-n.htm.tmx')))
-        
+        comp = TmxComparator(Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx')), Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx')))
+
         self.assertEqual(comp.getNumberOfDifferingLines(), -1)
         self.assertEqual(comp.getLinesInWantedfile(), 271)
         self.assertEqual(len(comp.getDiffAsText()), 0)
-        
+
     #def testUnEqualTmxes(self):
         #gotFile = os.path.join(os.environ['GTFREE'], 'prestable/toktmx/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
         #wantFile = os.path.join(os.environ['GTFREE'], 'prestable/toktmx/goldstandard/nob2sme/laws/other_files/finnmarksloven.pdf.tmx')
@@ -1050,14 +1050,14 @@ class TestTmxComparator(unittest.TestCase):
         #wantFile = Tmx(etree.parse('aarseth2-n.htm.tmx'))
         #gotFile = Tmx(etree.parse('aarseth2-s.htm.tmx'))
         #gotFile.reverseLangs()
-        
+
         #comp = TmxComparator(wantFile, gotFile)
-        
+
         #print comp.getDiffAsText()
         #self.assertEqual(comp.getNumberOfDifferingLines(), -1)
         #self.assertEqual(comp.getLinesInWantedfile(), 274)
         #self.assertEqual(len(comp.getDiffAsText()), 0)
-        
+
 
 class TmxTestDataWriter():
     """
@@ -1065,7 +1065,7 @@ class TmxTestDataWriter():
     """
     def __init__(self, filename):
         self.filename = filename
-        
+
         try:
             tree = etree.parse(filename)
             self.setParagsTestingElement(tree.getroot())
@@ -1073,10 +1073,10 @@ class TmxTestDataWriter():
             self.setParagsTestingElement(self.makeParagstestingElement())
         #except etree.XMLSyntaxError:
             #self.setParagsTestingElement(self.makeParagstestingElement())
-        
+
     def getFilename(self):
         return self.filename
-        
+
     def makeFileElement(self, name, gspairs, diffpairs):
         """
         Make the element file, set the attributes
@@ -1085,81 +1085,81 @@ class TmxTestDataWriter():
         fileElement.attrib["name"] = name
         fileElement.attrib["gspairs"] = gspairs
         fileElement.attrib["diffpairs"] = diffpairs
-        
+
         return fileElement
-        
+
     def setParagsTestingElement(self, paragstesting):
         self.paragstesting = paragstesting
-        
+
     def makeTestrunElement(self, datetime):
         """
         Make the testrun element, set the attribute
         """
         testrunElement = etree.Element("testrun")
         testrunElement.attrib["datetime"] = datetime
-        
+
         return testrunElement
-    
+
     def makeParagstestingElement(self):
         """
         Make the paragstesting element
         """
         paragstestingElement = etree.Element("paragstesting")
-        
+
         return paragstestingElement
-    
+
     def insertTestrunElement(self, testrun):
         self.paragstesting.insert(0, testrun)
-        
+
     def writeParagstestingData(self):
         """
         Write the paragstesting data to a file
         """
         try:
             f = open(self.filename, "w")
-            
+
             et = etree.ElementTree(self.paragstesting)
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
         except IOError:
             print "ouch, Paragstestingresults"
-        
+
 class TestTmxTestDataWriter(unittest.TestCase):
     """
     A class to test TmxTestDataWriter
     """
     def setUp(self):
         self.writer = TmxTestDataWriter("testfilename")
-        
+
     def assertXmlEqual(self, got, want):
         """
         Check if two xml snippets are equal
         """
         string_got = etree.tostring(got, pretty_print = True)
         string_want = etree.tostring(want, pretty_print = True)
-        
+
         checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(string_want, string_got, 0):
             message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
             raise AssertionError(message)
-        
+
     def testGetFilename(self):
         self.assertEqual(self.writer.getFilename(), "testfilename")
-        
+
     def testMakeFileElement(self):
         wantElement = etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
         gotElement = self.writer.makeFileElement("abc", "634", "84")
-        
+
         self.assertXmlEqual(gotElement, wantElement)
-    
+
     def testMakeTestrunElement(self):
         wantElement = etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
         gotElement = self.writer.makeTestrunElement("20111208-1234")
         fileElement = self.writer.makeFileElement("abc", "634", "84")
         gotElement.append(fileElement)
-        
+
         self.assertXmlEqual(gotElement, wantElement)
-    
+
     def testMakeParagstestingElement(self):
         wantElement = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
         gotElement = self.writer.makeParagstestingElement()
@@ -1167,12 +1167,12 @@ class TestTmxTestDataWriter(unittest.TestCase):
         fileElement = self.writer.makeFileElement("abc", "634", "84")
         testrunElement.append(fileElement)
         gotElement.append(testrunElement)
-        
+
         self.assertXmlEqual(gotElement, wantElement)
-    
+
     def testInsertTestrunElement(self):
         wantElement = etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
-        
+
         gotElement = self.writer.makeParagstestingElement()
         self.writer.setParagsTestingElement(gotElement)
         testrunElement = self.writer.makeTestrunElement("20111208-1234")
@@ -1183,14 +1183,14 @@ class TestTmxTestDataWriter(unittest.TestCase):
         testrunElement = self.writer.makeTestrunElement("20111208-2345")
         fileElement = self.writer.makeFileElement("abc", "634", "84")
         testrunElement.append(fileElement)
-        
+
         self.writer.insertTestrunElement(testrunElement)
-        
+
         self.assertXmlEqual(gotElement, wantElement)
-        
+
     def testWriteParagstestingData(self):
         want = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
-        
+
         gotElement = self.writer.makeParagstestingElement()
         self.writer.setParagsTestingElement(gotElement)
         testrunElement = self.writer.makeTestrunElement("20111208-1234")
@@ -1198,12 +1198,12 @@ class TestTmxTestDataWriter(unittest.TestCase):
         testrunElement.append(fileElement)
         gotElement.append(testrunElement)
 
-        
+
         self.writer.writeParagstestingData()
         got = etree.parse(self.writer.filename)
-        
+
         self.assertXmlEqual(got, want)
-        
+
 class TmxGoldstandardTester:
     """
     A class to test the alignment pipeline againt the tmx goldstandard
@@ -1219,7 +1219,7 @@ class TmxGoldstandardTester:
             self.date = self.dateformat()
         else:
             self.date = self.dateformat() + dateformat_addition
-        
+
     def setNumberOfDiffLines(self, diffLines):
         """
         Increase the total number of difflines in this test run
@@ -1236,27 +1236,27 @@ class TmxGoldstandardTester:
         import datetime
         import time
         d = datetime.datetime.fromtimestamp(time.time())
-        
+
         return d.strftime("%Y%m%d-%H%M")
 
     def runTest(self):
         # Make a testrun element, which will contain the result of the test
         testrun = self.testresultWriter.makeTestrunElement(self.date)
-        
+
         paralang = ""
         # Go through each tmx goldstandard file
         for wantTmxFile in self.findGoldstandardTmxFiles():
             print "testing", wantTmxFile, "..."
-            
+
             # Calculate the parallel lang, to be used in parallelization
             if wantTmxFile.find('nob2sme') > -1:
                 paralang = 'sme'
             else:
                 paralang = 'nob'
-                
+
             # Align files
             self.alignFiles(testrun, wantTmxFile, paralang)
-        
+
         # All files have been tested, insert this run at the top of the paragstest element
         self.testresultWriter.insertTestrunElement(testrun)
         # Write data to file
@@ -1269,32 +1269,32 @@ class TmxGoldstandardTester:
         Write the result to a file
         Write the diffs of these to tmx's to a separate file
         """
-        
+
         # Compute the name of the main file to parallelize
         xmlFile = self.computeXmlfilename(wantTmxFile)
 
         parallelizer = Parallelize(xmlFile, paralang)
         if parallelizer.dividePIntoSentences() == 0:
             if parallelizer.parallelizeFiles() == 0:
-                
+
                 # The result of the alignment is a tmx element
                 filelist = parallelizer.getFilelist()
                 gotTmx = TmxFromTca2(filelist)
-        
+
                 # This is the tmx element fetched from the goldstandard file
                 wantTmx = Tmx(etree.parse(wantTmxFile))
-                
+
                 # Instantiate a comparator with the two tmxes
                 comparator = TmxComparator(wantTmx, gotTmx)
-        
+
                 # Make a fileElement for our results file
                 fileElement = self.testresultWriter.makeFileElement(filelist[0].getBasename(), str(comparator.getLinesInWantedfile()), str(comparator.getNumberOfDifferingLines()))
-                
+
                 self.setNumberOfDiffLines(comparator.getNumberOfDifferingLines())
-                
+
                 # Append the result for this file to the testrun element
                 testrun.append(fileElement)
-                
+
                 self.writeDiffFiles(comparator, parallelizer, filelist[0].getBasename())
 
     def computeXmlfilename(self, wantTmxFile):
@@ -1304,10 +1304,10 @@ class TmxGoldstandardTester:
         xmlFile = wantTmxFile.replace('tmx/goldstandard/', 'converted/')
         xmlFile = xmlFile.replace('nob2sme', 'nob')
         xmlFile = xmlFile.replace('sme2nob', 'sme')
-        xmlFile = xmlFile.replace('.tmx', '.xml')
-            
+        xmlFile = xmlFile.replace('.toktmx', '.xml')
+
         return xmlFile
-        
+
     def writeDiffFiles(self, comparator, parallelizer, filename):
         """
         Write diffs to a jspwiki file
@@ -1315,13 +1315,13 @@ class TmxGoldstandardTester:
         print "writeDiffFiles", filename
         filename = filename + '_' + self.date + '.jspwiki'
         dirname = os.path.join(os.path.dirname(self.testresultWriter.getFilename()), 'tca2testing')
-        
+
         try:
             f = open(os.path.join(dirname, filename), "w")
         except IOError:
             print "couldn't write file", os.path.join(dirname, filename)
             sys.exit(4)
-        
+
         f.write('!!!' + filename + '\n')
         f.write("!!TMX diff\n{{{\n")
         f.writelines(comparator.getDiffAsText())
@@ -1331,12 +1331,12 @@ class TmxGoldstandardTester:
         f.writelines(comparator.getLangDiffAsText(parallelizer.getLang2()))
         f.write("\n}}}\n")
         f.close()
-        
+
     def findGoldstandardTmxFiles(self):
         """
         Find the goldstandard tmx files, return them as a list
         """
-        subp = subprocess.Popen(['find', os.path.join(os.environ['GTFREE'], 'prestable/toktmx/goldstandard'), '-name', '*.tmx', '-print' ], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['find', os.path.join(os.environ['GTFREE'], 'prestable/toktmx/goldstandard'), '-name', '*.toktmx', '-print' ], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
@@ -1355,14 +1355,14 @@ class TmxFixer:
     * the name is wrong
     * the file is placed in the wrong lang directory
     """
-    
+
     def __init__(self, filetofix):
         """
         Input is the tmx file we should consider to fix
         """
         pass
-    
-    
+
+
 if __name__ == '__main__':
     #
     for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
