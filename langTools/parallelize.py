@@ -691,7 +691,7 @@ class Tmx:
         result = inputString
 
         # regex to find space followed by punctuation
-        spacePunctuation = re.compile("(?P<space>\s)(?P<punctuation>[\)\]\.»:])")
+        spacePunctuation = re.compile("(?P<space>\s)(?P<punctuation>[\)\]\.»:,])")
         # for every match in the result string, replace the match 
         # (space+punctuation) with the punctuation part
         result = spacePunctuation.sub(lambda match: match.group('punctuation'), result)
@@ -717,7 +717,7 @@ class Tmx:
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
         except IOError as (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
+            print "I/O error({0}): {1}".format(errno, strerror), ":", outFilename
             sys.exit(1)
 
 class TestTmx(unittest.TestCase):
@@ -787,8 +787,8 @@ class TestTmx(unittest.TestCase):
         self.assertXmlEqual(self.tmx.removeUnwantedSpaceFromSegs(gotXml), wantXml)
 
     def testRemoveUnwantedSpaceFromString(self):
-        got = self.tmx.removeUnwantedSpaceFromString(u'[ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea : .')
-        want = u'[31] (suoidnemánnu) «skuvlatuvrrat» bargu lea:.'
+        got = self.tmx.removeUnwantedSpaceFromString(u'[ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea :  okta , guokte .')
+        want = u'[31] (suoidnemánnu) «skuvlatuvrrat» bargu lea: okta, guokte.'
         self.assertEqual(got, want)
 
 class Tca2ToTmx(Tmx):
@@ -1372,15 +1372,18 @@ class Toktmx2Tmx:
         """
         self.tmxfileName = toktmxFile.replace('toktmx', 'tmx')
         self.tmx = Tmx(etree.parse(toktmxFile))
+        print "Reading", toktmxFile
     
     def writeCleanedupTmx(self):
         """Write the cleanup tmx
         """
+        print "Writing", self.tmxfileName
         self.tmx.writeTmxFile(self.tmxfileName)
     
     def cleanToktmx(self):
         """Do the cleanup of the toktmx file
         """
+        print "Cleaning"
         self.tmx.removeUnwantedSpace()
 
     def findToktmxFiles(self, dirname):
