@@ -774,7 +774,7 @@ class TestTmx(unittest.TestCase):
         want = u'[31] (suoidnemánnu) «skuvlatuvrrat» bargu lea:.'
         self.assertEqual(got, want)
 
-class TmxFromTca2(Tmx):
+class Tca2ToTmx(Tmx):
     """
     A class to make tmx files based on the output from tca2
     """
@@ -908,9 +908,9 @@ class TmxFromTca2(Tmx):
         origfilename = pfile.getBasename().replace('.xml', '')
         return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
 
-class TestTmxFromTca2(unittest.TestCase):
+class TestTca2ToTmx(unittest.TestCase):
     """
-    A test class for the TmxFromTca2 class
+    A test class for the Tca2ToTmx class
     """
     def setUp(self):
         """
@@ -918,7 +918,7 @@ class TestTmxFromTca2(unittest.TestCase):
         """
         para = Parallelize(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
 
-        self.tmx = TmxFromTca2(para.getFilelist())
+        self.tmx = Tca2ToTmx(para.getFilelist())
 
     def assertXmlEqual(self, got, want):
         """
@@ -1279,7 +1279,7 @@ class TmxGoldstandardTester:
 
                 # The result of the alignment is a tmx element
                 filelist = parallelizer.getFilelist()
-                gotTmx = TmxFromTca2(filelist)
+                gotTmx = Tca2ToTmx(filelist)
 
                 # This is the tmx element fetched from the goldstandard file
                 wantTmx = Tmx(etree.parse(wantTmxFile))
@@ -1365,7 +1365,7 @@ class TmxFixer:
 
 if __name__ == '__main__':
     #
-    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTmxFromTca2, TestTmxComparator, TestTmxTestDataWriter]:
+    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
