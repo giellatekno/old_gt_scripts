@@ -527,7 +527,8 @@ class TestParallelize(unittest.TestCase):
 class Tmx:
     """
     A class that reads a tmx file, and implements a bare minimum of functionality
-    to be able to compare two tmx'es
+    to be able to compare two tmx'es.
+    It also contains functions to manipulate the tmx in several ways.
     """
 
     def __init__(self, tmx):
@@ -860,8 +861,9 @@ class Tca2ToTmx(Tmx):
             et = etree.ElementTree(self.getTmx())
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
-        except IOError:
-            print "ouch, printTmxFile"
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+            system.exit(1)
 
         return outFilename
 
@@ -896,6 +898,7 @@ class Tca2ToTmx(Tmx):
             f.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
+            system.exit(1)
 
         return text
 
@@ -1069,10 +1072,9 @@ class TmxTestDataWriter():
         try:
             tree = etree.parse(filename)
             self.setParagsTestingElement(tree.getroot())
-        except IOError:
-            self.setParagsTestingElement(self.makeParagstestingElement())
-        #except etree.XMLSyntaxError:
-            #self.setParagsTestingElement(self.makeParagstestingElement())
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+            system.exit(1)
 
     def getFilename(self):
         return self.filename
@@ -1121,8 +1123,9 @@ class TmxTestDataWriter():
             et = etree.ElementTree(self.paragstesting)
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
-        except IOError:
-            print "ouch, Paragstestingresults"
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+            system.exit(1)
 
 class TestTmxTestDataWriter(unittest.TestCase):
     """
@@ -1318,9 +1321,9 @@ class TmxGoldstandardTester:
 
         try:
             f = open(os.path.join(dirname, filename), "w")
-        except IOError:
-            print "couldn't write file", os.path.join(dirname, filename)
-            sys.exit(4)
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+            system.exit(1)
 
         f.write('!!!' + filename + '\n')
         f.write("!!TMX diff\n{{{\n")
