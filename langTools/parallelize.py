@@ -718,7 +718,7 @@ class Tmx:
             f.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
-            system.exit(1)
+            sys.exit(1)
 
 class TestTmx(unittest.TestCase):
     """
@@ -896,7 +896,7 @@ class Tca2ToTmx(Tmx):
             f.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
-            system.exit(1)
+            sys.exit(1)
 
         return text
 
@@ -1072,7 +1072,7 @@ class TmxTestDataWriter():
             self.setParagsTestingElement(tree.getroot())
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
-            system.exit(1)
+            sys.exit(1)
 
     def getFilename(self):
         return self.filename
@@ -1123,7 +1123,7 @@ class TmxTestDataWriter():
             f.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
-            system.exit(1)
+            sys.exit(1)
 
 class TestTmxTestDataWriter(unittest.TestCase):
     """
@@ -1321,7 +1321,7 @@ class TmxGoldstandardTester:
             f = open(os.path.join(dirname, filename), "w")
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
-            system.exit(1)
+            sys.exit(1)
 
         f.write('!!!' + filename + '\n')
         f.write("!!TMX diff\n{{{\n")
@@ -1376,7 +1376,7 @@ class Toktmx2Tmx:
     def writeCleanedupTmx(self):
         """Write the cleanup tmx
         """
-        self.tmx.writeTmx(self.tmxfileName)
+        self.tmx.writeTmxFile(self.tmxfileName)
     
     def cleanToktmx(self):
         """Do the cleanup of the toktmx file
