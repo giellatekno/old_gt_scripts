@@ -706,6 +706,20 @@ class Tmx:
 
         return result
 
+    def printTmxFile(self, outFilename):
+        """
+        Write a tmx file given a tmx etree element and a filename
+        """
+        try:
+            f = open(outFilename, "w")
+
+            et = etree.ElementTree(self.getTmx())
+            et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+            f.close()
+        except IOError as (errno, strerror):
+            print "I/O error({0}): {1}".format(errno, strerror)
+            system.exit(1)
+
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
@@ -851,24 +865,6 @@ class Tca2ToTmx(Tmx):
 
         return os.path.join(outDirname, outFilename)
 
-    def printTmxFile(self):
-        """
-        Write a tmx file given a tmx etree element
-        """
-        outFilename = self.getOutfileName()
-
-        try:
-            f = open(outFilename, "w")
-
-            et = etree.ElementTree(self.getTmx())
-            et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
-            f.close()
-        except IOError as (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
-            system.exit(1)
-
-        return outFilename
-
     def setTmx(self):
         """
         Make tmx file based on the two output files of tca2
@@ -976,7 +972,7 @@ class TestTca2ToTmx(unittest.TestCase):
 
     def testPrintTmxFile(self):
         want = etree.parse('parallelize_data/aarseth2-n.htm.toktmx')
-        self.tmx.printTmxFile()
+        self.tmx.printTmxFile(self.tmx.getOutfileName())
         got = etree.parse(self.tmx.getOutfileName())
 
         self.assertXmlEqual(got, want)
