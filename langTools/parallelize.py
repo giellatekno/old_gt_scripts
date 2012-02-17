@@ -1368,20 +1368,36 @@ class Toktmx2Tmx:
     Removes unwanted spaces around punctuation, parentheses and so on.
     """
     def readToktmxFile(self, toktmxFile):
-        """Reads a toktmx file
+        """Reads a toktmx file, parses it, sets the tmx file name
         """
-        pass
+        self.tmxfileName = toktmxFile.replace('toktmx', 'tmx')
+        self.tmx = Tmx(etree.parse(toktmxFile))
     
     def writeCleanedupTmx(self):
         """Write the cleanup tmx
         """
-        pass
+        self.tmx.writeTmx(self.tmxfileName)
     
     def cleanToktmx(self):
         """Do the cleanup of the toktmx file
         """
-        pass
-    
+        self.tmx.removeUnwantedSpace()
+
+    def findToktmxFiles(self, dirname):
+        """
+        Find the toktmx files in dirname, return them as a list
+        """
+        subp = subprocess.Popen(['find', os.path.join(os.environ['GTFREE'], 'prestable/toktmx/' + dirname), '-name', '*.toktmx', '-print' ], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Error when searching for toktmx docs'
+            print >>sys.stderr, error
+            sys.exit(1)
+        else:
+            files = output.split('\n')
+            return files[:-1]
+
 if __name__ == '__main__':
     #
     for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
