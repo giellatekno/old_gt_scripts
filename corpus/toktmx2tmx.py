@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #
-#   This program compares goldstandard tmx files to files produced by the parallelizer pipeline 
+#   This program converts toktmx files to tmx files useful for e.g. 
+#   Autshumato ITE
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -30,9 +31,9 @@ import parallelize
 
 def parse_options():
     """
-    Parse the command line. Expected input is one or more tmx goldstandard files.
+    Parse the command line. No arguments expected.
     """
-    parser = argparse.ArgumentParser(description = 'Compare goldstandard tmx files to files produced by the parallelizer pipeline.')
+    parser = argparse.ArgumentParser(description = 'Run this script to generate tmx files for use in e.g. Autshumato ITE. It depends on toktmx files to exist in $GTFREE/prestable/toktmx.')
     
     args = parser.parse_args()
     return args
