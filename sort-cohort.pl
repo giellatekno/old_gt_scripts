@@ -3,11 +3,11 @@ use strict;
 
 use utf8;
 
-# sort_cohort.pl
-# Perl script for sorting the analyses in a cohort. The main purpose is to
-# guarantee a consistent ordering across invocations, versions and tools,
-# so that it is possible to make meaningful diffs of the output of
-# morphological analysis.
+# sort-cohort.pl
+# Perl script for sorting the analyses in a cohort. The main purpose is
+# to guarantee a consistent ordering of the analyses across invocations,
+# versions and tools, so that it is possible to make meaningful diffs of
+# the output of morphological analysis.
 #
 # Input: 
 #   jahkedieđáhusáššiid     jahki+N#dieđáhus+N#ášši+N+Pl+Gen
