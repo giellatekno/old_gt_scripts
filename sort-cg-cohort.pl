@@ -36,8 +36,8 @@ use utf8;
 # Set the record separator to newline + "
 $/ = "\n\"";
 
-# variable to identify the first cohort:
-my $counter = 0;
+# Boolean variable to identify the first cohort:
+my $nonfirst = 0;
 
 # Read while not eol
 while(<>) {
@@ -47,7 +47,7 @@ while(<>) {
 	# one has the initial " that is otherwise part of the separator, and
 	# gets removed; without this conditiona, the first cohort will get
 	# an initial double " - not nice:
-	if ($counter)
+	if ($nonfirst)
 		{ $cohort = "\"" . $_ ; }
 	else
 		{ $cohort = $_ ; }
@@ -56,5 +56,5 @@ while(<>) {
 	my @newlines = sort @lines;
 	my $sortlines = join("\n", @newlines);
 	print "$lemma\n$sortlines\n";
-	++$counter ;
+	$nonfirst = 1;
 }
