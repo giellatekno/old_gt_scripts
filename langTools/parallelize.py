@@ -650,16 +650,10 @@ class Tmx:
         Remove those spaces so that the tmxes are more appropriate for real
         world™ use cases.
         """
-        all_tu = self.getTmx().findall('.//tu')
-        body = etree.Element('body')
-        for tu in all_tu:
+        
+        root = self.getTmx().getroot()
+        for tu in root.iter("tu"):
             tu = self.removeUnwantedSpaceFromSegs(tu)
-            body.append(tu)
-
-        tmx = etree.Element('tmx')
-        tmx.append(body)
-
-        self.tmx = tmx
 
     def removeUnwantedSpaceFromSegs(self, tu):
         """Remove spaces before and after punctuation, 
@@ -713,7 +707,7 @@ class Tmx:
         try:
             f = open(outFilename, "w")
 
-            et = etree.ElementTree(self.getTmx())
+            et = self.getTmx()
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
         except IOError as (errno, strerror):
@@ -1370,10 +1364,25 @@ class Toktmx2Tmx:
     def readToktmxFile(self, toktmxFile):
         """Reads a toktmx file, parses it, sets the tmx file name
         """
+        print "Reading", toktmxFile
+
         self.tmxfileName = toktmxFile.replace('toktmx', 'tmx')
         self.tmx = Tmx(etree.parse(toktmxFile))
-        print "Reading", toktmxFile
+        self.addFilenameID()
+
     
+    def addFilenameID(self):
+        """Add the tmx filename as an prop element in the header
+        """
+        prop =  etree.Element('prop')
+        prop.attrib['type'] = 'x-filename'
+        prop.text = os.path.basename(self.tmxfileName).decode('utf-8')
+
+        root = self.tmx.getTmx().getroot()
+        
+        for header in root.iter('header'):
+            header.append(prop)
+            
     def writeCleanedupTmx(self):
         """Write the cleanup tmx
         """
