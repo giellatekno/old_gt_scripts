@@ -53,6 +53,7 @@ do
     echo " "
     echo "compiling the transducer $SMILANG.fst, and $SMILANG/bin/abbr.txt"
     make GTLANG=$SMILANG
+    make GTLANG=$SMILANG abbr
     if [ $SMILANG == "sma" ]
     then
         PREPROCESS="preprocess"
