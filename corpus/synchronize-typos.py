@@ -20,11 +20,13 @@
 #   Copyright 2012 Børre Gaup <borre.gaup@uit.no>
 #
 
-import unittest
-import re
 import subprocess
 import os
 import fileinput
+import sys
+
+sys.path.append(os.environ['GTHOME'] + '/gt/script/langTools')
+import typosfile
 
 def findTyposFiles():
     """
@@ -47,7 +49,7 @@ def main():
     
     for typoname in files:
         # Read typos from a .typos file
-        typosInstance = Typos(typoname)
+        typosInstance = typosfile.Typos(typoname)
         # Add the typos found to a the typos dict
         typos.update(typosInstance.getTypos())
         
@@ -55,7 +57,7 @@ def main():
         for line in fileinput.FileInput(typoname, inplace = 1):
             line = line.rstrip()
             if line:
-                tl = Typoline(line)
+                tl = typosfile.Typoline(line)
                 if tl.getCorrection() == None and tl.getTypo() in typos:
                     tl.setCorrection(typos[tl.getTypo()])
                     line = tl.makeTypoline()
@@ -64,7 +66,3 @@ def main():
     
 if __name__ == '__main__':
     main()
-    #for test in [TestTypoline]:
-        #testSuite = unittest.TestSuite()
-        #testSuite.addTest(unittest.makeSuite(test))
-        #unittest.TextTestRunner().run(testSuite)
