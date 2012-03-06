@@ -253,9 +253,6 @@ class TestSentenceDivider(unittest.TestCase):
         self.assertEqual(s.attrib["id"], '0')
         self.assertEqual(s.text, u'Sámerievtti ovdáneapmi lea dahkan vuđđosa Finnmárkkuláhkii')
 
-
-
-
 class SentenceDivider:
     """A class that takes a giellatekno xml document as input.
     It spits out an xml document that has divided the text inside the p tags
@@ -1052,7 +1049,6 @@ class TestTmxComparator(unittest.TestCase):
         #self.assertEqual(comp.getNumberOfDifferingLines(), -1)
         #self.assertEqual(comp.getLinesInWantedfile(), 274)
         #self.assertEqual(len(comp.getDiffAsText()), 0)
-
 
 class TmxTestDataWriter():
     """
