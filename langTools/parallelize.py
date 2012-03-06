@@ -28,6 +28,7 @@ import difflib
 import doctest
 from lxml import etree
 from lxml import doctestcompare
+import typosfile
 
 import unittest
 
@@ -260,10 +261,18 @@ class SentenceDivider:
     Each sentence is encased in an s tag, and has an id number
     """
     def __init__(self, inputXmlfile, lang):
-
+        """Parse the inputXmlfile, set docLang to lang and read typos from the
+        corresponding .typos file if it exists
+        """
         self.sentenceCounter = 0
         self.docLang = lang
         self.inputEtree = etree.parse(inputXmlfile)
+        self.typos = {}
+        
+        typosname = inputXmlfile.replace('.xml', '.typos')
+        if os.path.isfile(typosname):
+            t = typosfile.Typos(inputXmlfile.replace('.xml', '.typos'))
+            self.typos.update(t.getTypos())
 
     def processAllParagraphs(self):
         """Go through all paragraphs in the etree and process them one by one.
@@ -326,6 +335,11 @@ class SentenceDivider:
             i = 0
             while i < len(words):
                 word = words[i].strip()
+                
+                # If word exists in typos, replace it with the correction
+                if word in self.typos:
+                    word = self.typos[word]
+                    
                 sentence.append(word.decode('utf-8'))
                 if (word == '.' or word == '?' or word == '!'):
                     while i + 1 < len(words) and words[i + 1].strip() in incompleteSentences:
@@ -704,8 +718,8 @@ class Tmx:
         try:
             f = open(outFilename, "w")
 
-            et = self.getTmx()
-            et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
+            string = etree.tostring(self.getTmx(), pretty_print = True, encoding = "utf-8", xml_declaration = True)
+            f.write(string)
             f.close()
         except IOError as (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror), ":", outFilename
