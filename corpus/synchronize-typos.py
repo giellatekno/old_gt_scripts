@@ -107,19 +107,37 @@ class Typoline:
 
         return result
         
-def main():
-    files = findTyposFiles()
-    typos = {}
-    for typoname in files:
-        typofile = open(typoname)
+class Typos:
+    """A class that reads typos from a .typos files and stores them in a dict
+    """
+    def __init__(self, typosfile):
+        """Read typos from typosfile. Insert the typos into self.typos
+        """
+        self.typos = {}
+        typofile = open(typosfile)
         
         for line in typofile:
             if line.strip():
                 tl = Typoline(line.rstrip())
                 if tl.getCorrection():
-                    typos[tl.getTypo()] = tl.getCorrection()
+                    self.typos[tl.getTypo()] = tl.getCorrection()
         typofile.close()
-                
+        
+    def getTypos(self):
+        """Return the typos dict
+        """
+        return self.typos
+        
+def main():
+    files = findTyposFiles()
+    typos = {}
+    
+    for typoname in files:
+        # Read typos from a .typos file
+        typosInstance = Typos(typoname)
+        # Add the typos found to a the typos dict
+        typos.update(typosInstance.getTypos())
+        
     for typoname in files:
         for line in fileinput.FileInput(typoname, inplace = 1):
             line = line.rstrip()
