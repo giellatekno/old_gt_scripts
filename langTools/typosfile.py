@@ -30,29 +30,32 @@ class TestTypoline(unittest.TestCase):
         pass
     
     def testGetCount(self):
-        tl = Typoline('    196 deatalaš	deaŧalaš')
+        tl = Typoline('    196 deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getCount(), 196)
     
     def testGetTypo(self):
-        tl = Typoline('    196 deatalaš	deaŧalaš')
+        tl = Typoline('    196 deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getTypo(), 'deatalaš')
     
-        tl = Typoline('      6 deatalaš	deaŧalaš')
+        tl = Typoline('      6 deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getTypo(), 'deatalaš')
     
     def testGetCorrection(self):
-        tl = Typoline('    196 deatalaš	deaŧalaš')
+        tl = Typoline('    196 deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getCorrection(), 'deaŧalaš')
     
         tl = Typoline('    196 deatalaš')
         self.assertEqual(tl.getCorrection(), None)
 
     def testMakeTypoline(self):
-        tl = Typoline('    196 deatalaš	deaŧalaš')
-        self.assertEqual(tl.makeTypoline(), '    196 deatalaš	deaŧalaš')
+        tl = Typoline('    196 deatalaš\tdeaŧalaš')
+        self.assertEqual(tl.makeTypoline(), '    196 deatalaš\tdeaŧalaš')
+        
+        tl = Typoline('    196 deatalaš\tdeatalaš')
+        self.assertEqual(tl.makeTypoline(), '    196 deatalaš')
        
     def testSetCorrection(self):
-        tl = Typoline('    196 deatalaš	deaŧalaš')
+        tl = Typoline('    196 deatalaš\tdeaŧalaš')
         tl.setCorrection('ditalaš')
         self.assertEqual(tl.getCorrection(), 'ditalaš')
         
@@ -92,7 +95,7 @@ class Typoline:
         """Make a typoline from the three data parts in this class
         """
         result = '{0:7d} '.format(self.count) + self.typo
-        if (self.correction):
+        if self.correction and self.correction != self.typo:
             result = result + '\t' + self.correction
 
         return result
@@ -109,8 +112,8 @@ class Typos:
         
         for line in typofile:
             if line.strip():
-                tl = Typoline(line.rstrip())
-                if tl.getCorrection():
+                tl = Typoline(line.rstrip())    
+                if tl.getCorrection() and tl.getTypo() != tl.getCorrection():
                     self.typos[tl.getTypo()] = tl.getCorrection()
         typofile.close()
         
