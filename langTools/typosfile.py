@@ -29,33 +29,29 @@ class TestTypoline(unittest.TestCase):
     def setUp(self):
         pass
     
-    def testGetCount(self):
-        tl = Typoline('    196 deatalaš\tdeaŧalaš')
-        self.assertEqual(tl.getCount(), 196)
-    
     def testGetTypo(self):
-        tl = Typoline('    196 deatalaš\tdeaŧalaš')
+        tl = Typoline('deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getTypo(), 'deatalaš')
     
-        tl = Typoline('      6 deatalaš\tdeaŧalaš')
+        tl = Typoline('deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getTypo(), 'deatalaš')
     
     def testGetCorrection(self):
-        tl = Typoline('    196 deatalaš\tdeaŧalaš')
+        tl = Typoline('deatalaš\tdeaŧalaš')
         self.assertEqual(tl.getCorrection(), 'deaŧalaš')
     
-        tl = Typoline('    196 deatalaš')
+        tl = Typoline('deatalaš')
         self.assertEqual(tl.getCorrection(), None)
 
     def testMakeTypoline(self):
-        tl = Typoline('    196 deatalaš\tdeaŧalaš')
-        self.assertEqual(tl.makeTypoline(), '    196 deatalaš\tdeaŧalaš')
+        tl = Typoline('deatalaš\tdeaŧalaš')
+        self.assertEqual(tl.makeTypoline(), 'deatalaš\tdeaŧalaš')
         
-        tl = Typoline('    196 deatalaš\tdeatalaš')
-        self.assertEqual(tl.makeTypoline(), '    196 deatalaš')
+        tl = Typoline('deatalaš\tdeatalaš')
+        self.assertEqual(tl.makeTypoline(), 'deatalaš')
        
     def testSetCorrection(self):
-        tl = Typoline('    196 deatalaš\tdeaŧalaš')
+        tl = Typoline('deatalaš\tdeaŧalaš')
         tl.setCorrection('ditalaš')
         self.assertEqual(tl.getCorrection(), 'ditalaš')
         
@@ -69,18 +65,12 @@ class Typoline:
         """
         parts = typoline.split('\t')
         
-        firstPart = re.compile("(?P<numpart> +\d+) (?P<typopart>.*)")
-        m = re.match(firstPart, parts[0])
-        self.count = int(m.group('numpart').strip())
-        self.typo = m.group('typopart')
+        self.typo = parts[0]
         
         if len(parts) == 2:
             self.correction = parts[1]
         else:
             self.correction = None
-        
-    def getCount(self):
-        return self.count
         
     def getTypo(self):
         return self.typo
@@ -94,7 +84,7 @@ class Typoline:
     def makeTypoline(self):
         """Make a typoline from the three data parts in this class
         """
-        result = '{0:7d} '.format(self.count) + self.typo
+        result = self.typo
         if self.correction and self.correction != self.typo:
             result = result + '\t' + self.correction
 
