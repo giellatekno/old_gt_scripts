@@ -58,11 +58,11 @@ def main():
             line = line.rstrip()
             if line:
                 tl = typosfile.Typoline(line)
-                if tl.getCorrection() == None and tl.getTypo() in typos:
+                if tl.getTypo() in typos:
                     tl.setCorrection(typos[tl.getTypo()])
-                    line = tl.makeTypoline()
-                
-            print line
+                    
+                line = tl.makeTypoline()
+                print line
     
 if __name__ == '__main__':
     main()
