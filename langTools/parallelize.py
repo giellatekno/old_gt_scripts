@@ -677,14 +677,14 @@ class Tmx:
             string = tu[0][0].text.strip()
             string = self.removeUnwantedSpaceFromString(string)
             tu[0][0].text = string
-        except(AttributeError):
+        except AttributeError:
             pass
 
         try:
             string = tu[1][0].text.strip()
             string = self.removeUnwantedSpaceFromString(string)
             tu[1][0].text = string
-        except(AttributeError):
+        except AttributeError:
             pass
 
         return tu
@@ -725,6 +725,23 @@ class Tmx:
             print "I/O error({0}): {1}".format(errno, strerror), ":", outFilename
             sys.exit(1)
 
+    def removeTuWithEmptySeg(self):
+        """Remove tu elements that contain empty seg element
+        """
+        root = self.getTmx().getroot()
+        for tu in root.iter("tu"):
+            try:
+                self.checkIfEmtpySeg(tu)
+            except AttributeError:
+                tu.getparent().remove(tu)
+
+    def checkIfEmtpySeg(self, tu):
+        """Check if a tu element contains empty strings
+        If there are any empty elements an AttributeError is raised
+        """
+        string = tu[0][0].text.strip()
+        string = tu[1][0].text.strip()
+        
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
@@ -786,6 +803,13 @@ class TestTmx(unittest.TestCase):
         gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.\n</seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.\n</seg></tuv></tu>')
         self.assertXmlEqual(self.tmx.prettifySegs(gotXml), wantXml)
 
+    def testCheckIfEmtpySeg(self):
+        empty1 = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg></seg></tuv></tu>')
+        self.assertRaises(AttributeError, self.tmx.checkIfEmtpySeg, empty1)
+        
+        empty2 = etree.XML('<tu><tuv xml:lang="nob"><seg></seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
+        self.assertRaises(AttributeError, self.tmx.checkIfEmtpySeg, empty2)
+        
     def testRemoveUnwantedSpaceFromSegs(self):
         wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[30] (juli) «skoleturer».</seg></tuv><tuv xml:lang="sme"><seg>[30] (suoidnemánnu) «skuvlatuvrrat».</seg></tuv></tu>')
         gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[ 30 ] ( juli ) « skoleturer » .\n</seg></tuv><tuv xml:lang="sme"><seg>[ 30 ] ( suoidnemánnu ) « skuvlatuvrrat » .\n</seg></tuv></tu>')
@@ -795,7 +819,16 @@ class TestTmx(unittest.TestCase):
         got = self.tmx.removeUnwantedSpaceFromString(u'sámesearvvi ; [ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea :  okta , guokte .')
         want = u'sámesearvvi; [31] (suoidnemánnu) «skuvlatuvrrat» bargu lea: okta, guokte.'
         self.assertEqual(got, want)
+        
+    def testRemoveTuWithEmptySeg(self):
+        gotTmx = Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx'))
+        gotTmx.removeTuWithEmptySeg()
 
+        wantTmx = Tmx(etree.parse('parallelize_data/aarseth2-n-without-empty-seg.htm.toktmx'))
+        
+        self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
+        
+        
 class Tca2ToTmx(Tmx):
     """
     A class to make tmx files based on the output from tca2
@@ -1404,6 +1437,7 @@ class Toktmx2Tmx:
         """
         print "Cleaning"
         self.tmx.removeUnwantedSpace()
+        self.tmx.removeTuWithEmptySeg()
 
     def findToktmxFiles(self, dirname):
         """
