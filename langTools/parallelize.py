@@ -827,8 +827,7 @@ class TestTmx(unittest.TestCase):
         wantTmx = Tmx(etree.parse('parallelize_data/aarseth2-n-without-empty-seg.htm.toktmx'))
         
         self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
-        
-        
+                
 class Tca2ToTmx(Tmx):
     """
     A class to make tmx files based on the output from tca2
@@ -1407,8 +1406,6 @@ class Toktmx2Tmx:
     def readToktmxFile(self, toktmxFile):
         """Reads a toktmx file, parses it, sets the tmx file name
         """
-        print "Reading", toktmxFile
-
         self.tmxfileName = toktmxFile.replace('toktmx', 'tmx')
         self.tmx = Tmx(etree.parse(toktmxFile))
         self.addFilenameID()
@@ -1429,13 +1426,12 @@ class Toktmx2Tmx:
     def writeCleanedupTmx(self):
         """Write the cleanup tmx
         """
-        print "Writing", self.tmxfileName
+        print ".",
         self.tmx.writeTmxFile(self.tmxfileName)
     
     def cleanToktmx(self):
         """Do the cleanup of the toktmx file
         """
-        print "Cleaning"
         self.tmx.removeUnwantedSpace()
         self.tmx.removeTuWithEmptySeg()
 
