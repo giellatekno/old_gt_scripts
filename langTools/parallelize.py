@@ -746,15 +746,16 @@ class Tmx:
         """
         string = tu[0][0].text.strip()
         string = tu[1][0].text.strip()
-        
-    def removeTuWithWrongLang(self, lang):
-        """Remove tu elements that have the wrong lang according to the
-        language guesser
-        """
-        root = self.getTmx().getroot()
-        for tu in root.iter("tu"):
-            if self.checkLanguage(tu, lang) == False:
-                tu.getparent().remove(tu)
+
+    # Commented out this code because language detection doesn't work well enough
+    #def removeTuWithWrongLang(self, lang):
+        #"""Remove tu elements that have the wrong lang according to the
+        #language guesser
+        #"""
+        #root = self.getTmx().getroot()
+        #for tu in root.iter("tu"):
+            #if self.checkLanguage(tu, lang) == False:
+                #tu.getparent().remove(tu)
 
     def checkLanguage(self, tu, lang):
         """Get the text of the tuv element with the given lang
@@ -766,7 +767,8 @@ class Tmx:
                 text = tuv[0].text.encode("ascii", "ignore")
                 test_lang = self.language_guesser.classify(text)
                 if test_lang != lang:
-                    print "This text is not", lang, "but", test_lang, tuv[0].text
+                    # Remove the comment below for debugging purposes
+                    # print "This text is not", lang, "but", test_lang, tuv[0].text
                     return False
                     
         return True
@@ -857,14 +859,14 @@ class TestTmx(unittest.TestCase):
         
         self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
                 
-    def testRemoveTuWithWrongLang(self):
-        gotTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withsouthsami.toktmx'))
-        gotTmx.removeTuWithEmptySeg()
-        gotTmx.removeTuWithWrongLang('sme')
+    #def testRemoveTuWithWrongLang(self):
+        #gotTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withsouthsami.toktmx'))
+        #gotTmx.removeTuWithEmptySeg()
+        #gotTmx.removeTuWithWrongLang('sme')
 
-        wantTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withoutsouthsami.tmx'))
+        #wantTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withoutsouthsami.tmx'))
         
-        self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
+        #self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
         
     def testCheckLanguage(self):
         tuWithSme = etree.XML('<tu><tuv xml:lang="sme"><seg>Bargo- ja searvadahttindepartemeanta (BSD) nanne sámiid árbedieđu čohkkema, systematiserema ja gaskkusteami Norggas oktiibuot 1,6 milj. ruvnnuin.</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
