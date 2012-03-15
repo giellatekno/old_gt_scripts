@@ -29,6 +29,8 @@ import doctest
 from lxml import etree
 from lxml import doctestcompare
 import typosfile
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import ngram
 
 import unittest
 
@@ -546,6 +548,9 @@ class Tmx:
         """Input is a tmx element
         """
         self.tmx = tmx
+        
+        gthome = os.getenv('GTHOME')
+        self.language_guesser = ngram.NGram(gthome + '/tools/lang-guesser/LM/')
 
     def getSrcLang(self):
         """
@@ -742,6 +747,30 @@ class Tmx:
         string = tu[0][0].text.strip()
         string = tu[1][0].text.strip()
         
+    def removeTuWithWrongLang(self, lang):
+        """Remove tu elements that have the wrong lang according to the
+        language guesser
+        """
+        root = self.getTmx().getroot()
+        for tu in root.iter("tu"):
+            if self.checkLanguage(tu, lang) == False:
+                tu.getparent().remove(tu)
+
+    def checkLanguage(self, tu, lang):
+        """Get the text of the tuv element with the given lang
+        Run the text through the language guesser, return the result 
+        of this test
+        """
+        for tuv in tu:
+            if tuv.get('{http://www.w3.org/XML/1998/namespace}lang') == lang:
+                text = tuv[0].text.encode("ascii", "ignore")
+                test_lang = self.language_guesser.classify(text)
+                if test_lang != lang:
+                    print "This text is not", lang, "but", test_lang, tuv[0].text
+                    return False
+                    
+        return True
+        
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
@@ -828,6 +857,24 @@ class TestTmx(unittest.TestCase):
         
         self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
                 
+    def testRemoveTuWithWrongLang(self):
+        gotTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withsouthsami.toktmx'))
+        gotTmx.removeTuWithEmptySeg()
+        gotTmx.removeTuWithWrongLang('sme')
+
+        wantTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withoutsouthsami.tmx'))
+        
+        self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
+        
+    def testCheckLanguage(self):
+        tuWithSme = etree.XML('<tu><tuv xml:lang="sme"><seg>Bargo- ja searvadahttindepartemeanta (BSD) nanne sámiid árbedieđu čohkkema, systematiserema ja gaskkusteami Norggas oktiibuot 1,6 milj. ruvnnuin.</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
+        
+        self.assertTrue(self.tmx.checkLanguage(tuWithSme, 'sme'))
+        
+        tuWithSma = etree.XML('<tu><tuv xml:lang="sme"><seg>Barkoe- jïh ektiedimmiedepartemente (AID) galka nænnoestidh dovne tjöönghkeme- jïh öörnemebarkoem , jïh aaj bæjkoehtimmiem saemien aerpiemaahtoen muhteste Nöörjesne, abpe 1,6 millijovnh kråvnajgujmie.</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
+        
+        self.assertFalse(self.tmx.checkLanguage(tuWithSma, 'sme'))
+        
 class Tca2ToTmx(Tmx):
     """
     A class to make tmx files based on the output from tca2
