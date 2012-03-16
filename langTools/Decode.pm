@@ -258,10 +258,11 @@ sub guess_encoding () {
         if (
             %freq
             and (  ( $type eq "type11" )
+                or ( $type eq "type06" and $num > 1 )
                 or ( $type eq "type07" and $num > 1 )
                 or ( $type eq "type10" and $num > 1 )
                 or ( $type eq "type03" and $num > 3 )
-                or $type ne "type03" and $num > 3 )
+                or ( $type ne "type03" and $num > 3 ) )
           )
         {
             my $hits = 0;
