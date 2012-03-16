@@ -33,6 +33,7 @@ use langTools::Converter;
 my %test_cases = (
     "$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/273777-raportti_saami.pdf" => "0",
     "$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/1999_1s.doc" => "type10",
+    "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/1999/other_files/AIB-elg.txt" => "type06",
 );
 
 foreach ( keys %test_cases ) {
@@ -47,6 +48,7 @@ foreach ( keys %test_cases ) {
 sub test_decode {
     my ( $filename, $expected_result ) = @_;
 
+    print "\nTesting $filename\n";
     my $converter = langTools::Converter->new( $filename, $debug );
     $converter->getPreconverter();
     is( $converter->makeXslFile(),
