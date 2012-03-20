@@ -27,6 +27,7 @@ use open 'utf8';
 # permit named arguments
 use Getopt::Long;
 
+my $last_word = "";
 my %abbrs;
 my %corrections;
 my %corr_short;
@@ -411,8 +412,12 @@ sub process_word {
     }
 
     # Test for multiword expression.
-    if ( $idioms_short{$word}) { 
-        test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE); 
+    if ( $idioms_short{$word}) {
+        test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE);
+        if ($last_word eq $word && $word !~ /\.$/) {
+            $word = $word . ".";
+        }
+        $last_word = $word;
     }
 
     my $end_num;
