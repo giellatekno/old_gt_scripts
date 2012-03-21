@@ -1,0 +1,1716 @@
+\input cwebmac
+% -*- mode: c++ -*-
+\datethis % print date
+
+
+\N{0}{1}Introduction.
+This is OPATGEN, word hyphenation generator.
+
+This program takes a list of hyphenated words and creates set of
+hyphenation patterns which can be used by the \TeX\ paragraph breaking
+algorithm. This is a complete reimplementation of Frank Liang's PATGEN
+generator in order to be able to handle UNICODE and to remove the
+restrictions of that program.
+
+For user information of the program see the user manual.
+
+This program is written in ANSI C++ using the standard template library.
+Written and tested on Linux with glibc-2.2.2 and gcc-2.96. This program
+should work with any compiler supporting the STL and ANSI C++.
+
+This program uses the PATLIB library and shares its license, coding style,
+author, and maintainer.
+
+\medskip
+Written and maintained by David Anto\v s, {\tt xantos (at) fi.muni.cz}
+\medskip
+Copyright 2001 David Anto\v s
+\medskip
+You may use and redistribute this software under the terms of General
+Public License. As this software is distributed free of charge, there is
+no warranty for the program. The entire risk of this program is with
+you.
+
+The author does not want to forbid anyone to use this software,
+nevertheless the author considers any military usage unmoral and
+unethical.
+\medskip
+The following two strings define the version number (to be changed whenever
+the program changes) and the CVS identification string for the source file.
+
+\Y\B\&{const} \&{char} ${}{*}\\{opatgen\_version}\K\.{"1.0"};{}$\6
+\&{const} \&{char} ${}{*}\\{opatgen\_cvs\_id}\K\.{"\$Id:\ opatgen.w,v\ 1.}\)%
+\.{24\ 2001/12/03\ 17:51:}\)\.{13\ antos\ Exp\ \$"}{}$;\par
+\fi
+
+\M{2}Organization of the code. The code is highly templatized and consists of
+following main parts. First we prepare methods we want to use in the
+translate file, the translate file follows and last the input and output
+file reading and writing services are provided. The \\{main} function follows
+after a plethora of type definitions.
+
+All the services are put into one file (because of the templates we can't
+compile separately, though).
+
+\fi
+
+\M{3}The \\{utf\_8} global variable controls if we use UNICODE or 8-bit ASCII
+to
+deal with input and output. It is set in \\{main}.
+
+A note on exception handling. We reuse the PATLIB's exception class, it
+means that if error occurs we throw the \&{Patlib\_error}. In \\{main} this has
+it's \&{catch} sections.
+
+\Y\B\F\\{iterator} \5
+\\{int}\par
+\B\F\\{const\_iterator} \5
+\\{int}\par
+\B\F\\{Patlib\_error} \5
+\\{int}\par
+\Y\B\8\#\&{include} \.{<iostream>}\6
+\8\#\&{include} \.{<vector>}\6
+\8\#\&{include} \.{<set>}\6
+\8\#\&{include} \.{<map>}\6
+\8\#\&{include} \.{<string>}\6
+\8\#\&{include} \.{<fstream>}\6
+\8\#\&{include} \.{"ptl\_exc.h"}\6
+\8\#\&{include} \.{"ptl\_gen.h"}\6
+\8\#\&{include} \.{"ptl\_vers.h"}\6
+\&{using} \&{namespace} \&{std};\6
+\&{bool} \\{utf\_8};\par
+\fi
+
+\N{1}{4}Services for translate. We want to store the mapping from external
+data representation to internal alphabet (\&{Hword} in fact) into the word
+manipulator. We overload the accessing one-external-symbol fields of the
+manipulator as we do not want to build vectors to store one symbol.
+
+For the template conditions and other information on word manipulator
+see the definition of the class parent.
+
+\Y\B\F\\{Tpm\_pointer} \5
+\\{int}\par
+\B\F\\{Tin\_alph} \5
+\\{int}\par
+\B\F\\{Tout\_information} \5
+\\{int}\par
+\B\F\\{IO\_word\_manipulator} \5
+\\{int}\par
+\B\F\\{Trie\_pattern\_manipulator} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{Tpm\_pointer}${},\39{}$\&{class} \&{Tin%
+\_alph}${},\39{}$\&{class} \&{Tout\_information}${}\rangle{}$\6
+\&{class} \&{IO\_word\_manipulator} :\6
+\&{public} ${}\&{Trie\_pattern\_manipulator}\langle\&{Tpm\_pointer},\39\&{Tin%
+\_alph},\39\&{Tout\_information}\rangle{}$ ${}\{{}$\1\6
+\X5:IO word manipulator: constructor\X\6
+\X6:IO word manipulator: hard insert pattern\X\6
+\X7:IO word manipulator: word output\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{5}Constructor simply calls the parent. See \&{Trie\_pattern\_manipulator}
+for parameters.
+
+\Y\B\4\X5:IO word manipulator: constructor\X${}\E{}$\6
+\4\&{public}:\6
+\&{IO\_word\_manipulator}(\&{const} \&{Tin\_alph} ${}{\AND}\\{max\_i\_a},\39{}$%
+\&{const} \&{Tout\_information} ${}{\AND}\\{out\_i\_z},\39{}$\&{const} %
+\&{unsigned} ${}{\AND}\\{q\_thr}\K\T{3}){}$\1\1\2\2\6
+: ${}\&{Trie\_pattern\_manipulator}\langle\&{Tpm\_pointer},\39\&{Tin\_alph},\39%
+\&{Tout\_information}\rangle(\\{max\_i\_a},\39\\{out\_i\_z},\39\\{q\_thr}){}$
+${}\{\,\}{}$\par
+\U4.\fi
+
+\M{6}The usual hard pattern inserting uses vector. It is not always needed
+for the translate service, so we overload the method to be able to
+handle mere values only. We have to provide the interface of the
+original method here too, as we do not redefine but overload!
+
+Now we do it using brute force. FIXME: to be optimized later.
+
+\Y\B\4\X6:IO word manipulator: hard insert pattern\X${}\E{}$\6
+\&{inline} \&{void} \\{hard\_insert\_pattern}(\&{const} ${}\&{vector}\langle%
+\&{Tin\_alph}\rangle{}$ ${}{\AND}\|w,\39{}$\&{const} \&{Tout\_information} ${}{%
+\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\SHC{ Call the parent }\1\6
+${}\&{Trie\_pattern\_manipulator}\langle\&{Tpm\_pointer},\39\&{Tin\_alph},\39%
+\&{Tout\_information}\rangle\DC\\{hard\_insert\_pattern}(\|w,\39\|o);{}$\6
+\4${}\}{}$\2\7
+\&{void} \\{hard\_insert\_pattern}(\&{const} \&{Tin\_alph} ${}{\AND}\|w,\39{}$%
+\&{const} \&{Tout\_information} ${}{\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\&{vector}\langle\&{Tin\_alph}\rangle{}$ \\{vec};\7
+${}\\{vec}.\\{push\_back}(\|w){}$;\SHC{ FIXME: to be optimized }\6
+${}\&{Trie\_pattern\_manipulator}\langle\&{Tpm\_pointer},\39\&{Tin\_alph},\39%
+\&{Tout\_information}\rangle\DC\\{hard\_insert\_pattern}(\\{vec},\39\|o);{}$\6
+\4${}\}{}$\2\par
+\U4.\fi
+
+\M{7}The same reasons make us to handle ``one-character'' outputs the same
+way. Moreover we return single value. Again, the interface of the parent
+is here too, otherwise it would be redefined.
+
+Reading the output of a one symbol long word is easy and therefore
+efficient. It reduces to array access in fact.
+
+\Y\B\4\X7:IO word manipulator: word output\X${}\E{}$\6
+\&{void} \\{word\_output}(\&{const} ${}\&{vector}\langle\&{Tin\_alph}\rangle{}$
+${}{\AND}\|w,\39\&{vector}\langle\&{Tout\_information}\rangle{}$ ${}{\AND}%
+\|o){}$\1\1\2\2\6
+${}\{{}$\SHC{ Call the parent }\1\6
+${}\&{Trie\_pattern\_manipulator}\langle\&{Tpm\_pointer},\39\&{Tin\_alph},\39%
+\&{Tout\_information}\rangle\DC\\{word\_output}(\|w,\39\|o);{}$\6
+\4${}\}{}$\2\7
+\&{void} \\{word\_output}(\&{const} \&{Tin\_alph} ${}{\AND}\|w,\39{}$\&{Tout%
+\_information} ${}{\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\|o\K\\{trie\_outp}[\\{trie\_root}+\|w];{}$\6
+\4${}\}{}$\2\par
+\U4.\fi
+
+\M{8}The reverse mapping store. In the output phase the reverse mapping is
+needed to print words into files.
+It does not need to be extremely efficient, therefore we do it
+using map of internal codes and vectors of external representations.
+
+The \&{Tinternal} is type of internal code, the \&{Texternal} is the type of
+external information, we map \&{Tinternal} to vectors of \&{Texternal}.
+As data we define the appropriate \&{map}. Please note the order in the
+template, it is quite stupid but the more intelligent version is not
+compiled by some compilers (my gcc-2.96, for example).
+
+\Y\B\F\\{Texternal} \5
+\\{int}\par
+\B\F\\{Tinternal} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{Texternal}${},\39{}$\&{class} %
+\&{Tinternal}${}\rangle{}$\6
+\&{class} \&{IO\_reverse\_mapping} ${}\{{}$\1\6
+\4\&{protected}:\6
+${}\&{map}\langle\&{Tinternal},\39\&{vector}\langle\&{Texternal}\rangle%
+\rangle{}$ \\{mapping};\7
+\X9:IO reverse mapping: insert\X\6
+\X10:IO reverse mapping: add to string\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{9}Inserting is easy. We simply put it there.
+
+\Y\B\4\X9:IO reverse mapping: insert\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{insert}(\&{const} \&{Tinternal} ${}{\AND}\|i,\39{}$\&{const} ${}%
+\&{vector}\langle\&{Texternal}\rangle{}$ ${}{\AND}\|v){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{mapping}[\|i]\K\|v;{}$\6
+\4${}\}{}$\2\par
+\U8.\fi
+
+\M{10}Reading the value goes as follows. We have the internal code of a
+sequence and the vector of so-far collected external representations.
+The external representation of the internal code is added to the end of
+the \&{basic\_string}.
+
+Note that the existence of the field is not checked. FIXME: should throw
+an exception if out of bounds!
+
+\Y\B\4\X10:IO reverse mapping: add to string\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{add\_to\_string}(\&{const} \&{Tinternal} ${}{\AND}\|i,\39\&{basic%
+\_string}\langle\&{Texternal}\rangle{}$ ${}{\AND}\|s){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\&{map}\langle\&{Tinternal},\39\&{vector}\langle\&{Texternal}\rangle\rangle%
+\DC\&{const\_iterator}{}$ \\{it}${}\K\\{mapping}.\\{find}(\|i);{}$\7
+${}\|s.\\{insert}(\|s.\\{end}(\,),\39\\{it}\MG\\{second}.\\{begin}(\,),\39%
+\\{it}\MG\\{second}.\\{end}(\,));{}$\6
+\4${}\}{}$\2\par
+\U8.\fi
+
+\N{1}{11}Translate service. This service reads the translate file
+(and/or sets default values if there is none) and translates the input
+word from the file format into the internal encoding and vice versa.
+
+The \&{Tindex} type is the type of \\{max\_in\_alph} and \\{left\_hyphen\_min},
+the \&{Tnum\_type} is the type of internal representation of a letter
+(not here, in the generator). More precisely it must be a supertype of
+input alphabet, internal codes of numbers and hyphens and all the
+similar values. We do it like this only for ease of access to the
+internal codes of external representations.
+
+\&{THword} is here only to make \\{Thyf\_type} defined there available here.
+
+\Y\B\F\\{Tindex} \5
+\\{int}\par
+\B\F\\{Tnum\_type} \5
+\\{int}\par
+\B\F\\{THword} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{Tindex}${},\39{}$\&{class} \&{Tnum%
+\_type}${},\39{}$\&{class} \&{THword}${}\rangle{}$\6
+\&{class} \&{Translate} ${}\{{}$\1\6
+\X12:Translate: data\X\6
+\X13:Translate: get next internal code\X\7
+\X14:Translate: classify\X\7
+\X15:Translate: prepare fixed defaults\X\6
+\X16:Translate: prepare default hyfs\X\6
+\X17:Translate: prepare default alphabet\X\6
+\X18:Translate: handle preamble of translate\X\6
+\X19:Translate: handle line of translate\X\6
+\X22:Translate: read translate\X\6
+\X23:Translate: constructor\X\7
+\X24:Translate: gets\X\6
+\X25:Translate: get xdig\X\6
+\X26:Translate: get xhyf\X\6
+\X27:Translate: get xext\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{12}The reading routines recognize character classes in order to parse the
+input lines, so we provide names for them in the \&{Tcharacter\_class} type.
+
+The \&{Tfile\_unit} type is the type of the codes stored in local
+structures. The terminology goes crazy.
+
+The \&{Tclassified\_symbol} is the type of class and internal code and/or
+other useful value.
+
+The \\{edge\_of\_word} contains the internal code of
+``edge of word'' character.
+
+The \\{max\_in\_alph} is the highest internal code used, \\{left\_hyphen\_min}
+and \\{right\_hyphen\_min} are here only as they may be specified in the
+translate file.
+
+The \\{classified\_symbols} structure stores the classes and internal
+values of symbols. The three reverse mappings \\{xdig}, \\{xhyf}, and \\{xext}
+specify the printable values of symbols of \\{digit\_class}, \\{hyf\_class},
+and \\{letter\_class}.
+
+\Y\B\F\\{Tcharacter\_class} \5
+\\{int}\par
+\B\F\\{Tfile\_unit} \5
+\\{int}\par
+\B\F\\{Tclassified\_symbol} \5
+\\{int}\par
+\Y\B\4\X12:Translate: data\X${}\E{}$\6
+\4\&{public}:\6
+\&{typedef} \&{enum} ${}\{{}$\1\6
+${}\\{space\_class},{}$\SHC{ the space character }\6
+\\{digit\_class}${},{}$\SHC{ the characters '0'\dots '9' }\6
+\\{hyf\_class}${},{}$\SHC{ the hyphen characters, '.', '-', '*' by default }\6
+\\{letter\_class}${},{}$\SHC{ the letters }\6
+\\{escape\_class}${},{}$\C{ character starting a multi-character sequence 		
+representing a letter }\6
+\\{invalid\_class}\SHC{ character which should not occur }\2\6
+${}\}{}$ \&{Tcharacter\_class};\7
+\&{typedef} \&{unsigned} \&{char} \&{Tfile\_unit};\7
+\&{typedef} ${}\&{pair}\langle\&{Tcharacter\_class},\39\&{Tnum\_type}\rangle{}$
+\&{Tclassified\_symbol};\7
+\4\&{protected}:\6
+\&{Tnum\_type} \\{edge\_of\_word};\7
+\&{Tindex} \\{max\_in\_alph};\6
+\&{Tindex} \\{left\_hyphen\_min};\6
+\&{Tindex} \\{right\_hyphen\_min};\7
+${}\&{IO\_word\_manipulator}\langle\&{Tindex},\39\&{Tfile\_unit},\39%
+\&{Tclassified\_symbol}\rangle{}$ \\{classified\_symbols};\7
+${}\&{IO\_reverse\_mapping}\langle\&{Tfile\_unit},\39\&{Tnum\_type}\rangle{}$ %
+\\{xdig};\6
+${}\&{IO\_reverse\_mapping}\langle\&{Tfile\_unit},\39{}$\&{typename} \&{THword}%
+\DC\\{Thyf\_type}${}\rangle{}$ \\{xhyf};\6
+${}\&{IO\_reverse\_mapping}\langle\&{Tfile\_unit},\39\&{Tnum\_type}\rangle{}$ %
+\\{xext};\par
+\U11.\fi
+
+\M{13}When building the internal alphabet we need to keep track of last used
+internal code. Using this method only everything goes fine.
+It increments \\{max\_in\_alph} by one and returns it.
+
+\Y\B\4\X13:Translate: get next internal code\X${}\E{}$\6
+\4\&{protected}:\6
+\&{Tnum\_type} \\{get\_next\_internal\_code}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{max\_in\_alph}\PP;{}$\6
+\&{return} \\{max\_in\_alph};\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{14}Classification of characters. The first parameter is the ``file
+character'', the second one is the classification with the internal
+code. The method is also overloaded for vectors.
+
+\Y\B\4\X14:Translate: classify\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{classify}(\&{const} \&{Tfile\_unit} ${}{\AND}\|c,\39{}$%
+\&{Tclassified\_symbol} ${}{\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{classified\_symbols}.\\{word\_output}(\|c,\39\|o);{}$\6
+\4${}\}{}$\2\7
+\&{void} \\{classify}(\&{const} ${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$
+${}{\AND}\\{vc},\39{}$\&{Tclassified\_symbol} ${}{\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{classified\_symbols}.\\{word\_last\_output}(\\{vc},\39\|o);{}$\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{15}The internal codes of digits are their values. The printable digits
+are also set. The space and tab characters are bound to \\{space\_class}.
+The spaces need no value, so zero is substituted. Printable spaces are
+not needed. We put all of the symbols into the \\{classified\_symbols}.
+
+Moreover the \\{edge\_of\_word} is set to the first free
+internal code and \\{edge\_of\_word\_printable} is set to dot character and
+the representation is written into the \\{xext} structure.
+
+\Y\B\4\X15:Translate: prepare fixed defaults\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} \\{prepare\_fixed\_defaults}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+\&{Tnum\_type} \|d;\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{repres};\7
+\&{for} ${}(\|d\K\T{0};{}$ ${}\|d\Z\T{9};{}$ ${}\|d\PP){}$\5
+${}\{{}$\1\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}((\|d+\.{'0'}),\39\\{make%
+\_pair}(\\{digit\_class},\39\|d));{}$\6
+${}\\{repres}.\\{clear}(\,);{}$\6
+${}\\{repres}.\\{push\_back}(\|d+\.{'0'});{}$\6
+${}\\{xdig}.\\{insert}(\|d,\39\\{repres});{}$\6
+\4${}\}{}$\2\7
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\.{'\ '},\39\\{make%
+\_pair}(\\{space\_class},\39\T{0}));{}$\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\T{9},\39\\{make\_pair}(%
+\\{space\_class},\39\T{0})){}$;\SHC{ tab character }\7
+${}\\{edge\_of\_word}\K\\{get\_next\_internal\_code}(\,);{}$\7
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{edge\_of\_word\_printable};\7
+${}\\{edge\_of\_word\_printable}.\\{push\_back}(\.{'.'});{}$\6
+${}\\{xext}.\\{insert}(\\{edge\_of\_word},\39\\{edge\_of\_word\_printable});{}$%
+\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{16}Preparing default tables for hyfs and letters is used when no
+translate file exists. The default hyphenation symbols '.', '-', and '*'
+are set using the \\{prepare\_default\_hyfs} procedure, together with the
+\\{xhyf} printable values.
+
+\Y\B\4\X16:Translate: prepare default hyfs\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} \\{prepare\_default\_hyfs}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{repres};\7
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\.{'.'},\39\\{make\_pair}(%
+\\{hyf\_class},\39\&{THword}\DC\\{err\_hyf}));{}$\6
+${}\\{repres}.\\{clear}(\,);{}$\6
+${}\\{repres}.\\{push\_back}(\.{'.'});{}$\6
+${}\\{xhyf}.\\{insert}(\&{THword}\DC\\{err\_hyf},\39\\{repres});{}$\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\.{'-'},\39\\{make\_pair}(%
+\\{hyf\_class},\39\&{THword}\DC\\{is\_hyf}));{}$\6
+${}\\{repres}.\\{clear}(\,);{}$\6
+${}\\{repres}.\\{push\_back}(\.{'-'});{}$\6
+${}\\{xhyf}.\\{insert}(\&{THword}\DC\\{is\_hyf},\39\\{repres});{}$\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\.{'*'},\39\\{make\_pair}(%
+\\{hyf\_class},\39\&{THword}\DC\\{found\_hyf}));{}$\6
+${}\\{repres}.\\{clear}(\,);{}$\6
+${}\\{repres}.\\{push\_back}(\.{'*'});{}$\6
+${}\\{xhyf}.\\{insert}(\&{THword}\DC\\{found\_hyf},\39\\{repres});{}$\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{17}In \\{prepare\_default\_alphabet} we set the default English alphabet.
+All
+the 'a'\dots'z' characters and their uppercase counterparts are assigned
+to internal codes and \\{letter\_class}, the printable values are set to
+lowercase forms. The \\{max\_in\_alph} is increased.
+
+\Y\B\4\X17:Translate: prepare default alphabet\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} \\{prepare\_default\_alphabet}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{repres};\6
+\&{Tnum\_type} \\{internal};\7
+\&{for} (\&{Tfile\_unit} \|c${}\K\.{'a'};{}$ ${}\|c\Z\.{'z'};{}$ ${}\|c\PP){}$\5
+${}\{{}$\1\6
+${}\\{internal}\K\\{get\_next\_internal\_code}(\,);{}$\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\|c,\39\\{make\_pair}(%
+\\{letter\_class},\39\\{internal}));{}$\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\|c+\.{'A'}-\.{'a'},\39%
+\\{make\_pair}(\\{letter\_class},\39\\{internal}));{}$\6
+${}\\{repres}.\\{clear}(\,);{}$\6
+${}\\{repres}.\\{push\_back}(\|c);{}$\6
+${}\\{xext}.\\{insert}(\\{internal},\39\\{repres});{}$\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{18}The first line of the translate file is special. It
+must contain the values of
+\\{left\_hyphen\_min} and \\{right\_hyphen\_min} in columns 1--2 and 3--4.
+Moreover columns 5, 6, and 7 may contain replacements for the default
+characters \.{'.'}, \.{'-'}, and \.{'*'}, representing hyphens in the word
+list. The rest of the line is ignored.
+If the values specified for \\{left\_hyphen\_min} and
+\\{right\_hyphen\_min} are invalid, new values are read from the terminal.
+
+\Y\B\4\X18:Translate: handle preamble of translate\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} \\{handle\_preamble\_of\_translate}(\&{const} ${}\&{basic\_string}%
+\langle\&{Tfile\_unit}\rangle{}$ ${}{\AND}\|s){}$\1\1\2\2\6
+${}\{{}$\1\6
+\&{Tindex} \|n${}\K\T{0};{}$\6
+\&{bool} \\{bad}${}\K\\{false};{}$\6
+\&{Tclassified\_symbol} \\{cs};\7
+\&{if} ${}(\|s.\\{length}(\,)\G\T{4}){}$\5
+${}\{{}$\SHC{ we have them }\1\6
+${}\\{classify}(\|s[\T{0}],\39\\{cs}){}$;\SHC{ first two chars }\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{space\_class}){}$\1\5
+${}\|n\K\T{0};{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{digit\_class}){}$\1\5
+${}\|n\K\\{cs}.\\{second};{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true};{}$\2\6
+\4${}\}{}$\2\6
+${}\\{classify}(\|s[\T{1}],\39\\{cs});{}$\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{digit\_class}){}$\1\5
+${}\|n\K\T{10}*\|n+\\{cs}.\\{second};{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true};{}$\2\6
+\&{if} ${}(\|n\G\T{1}){}$\1\5
+${}\\{left\_hyphen\_min}\K\|n;{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true}{}$;\2\7
+${}\\{classify}(\|s[\T{2}],\39\\{cs}){}$;\SHC{ the second pair of chars }\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{space\_class}){}$\1\5
+${}\|n\K\T{0};{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{digit\_class}){}$\1\5
+${}\|n\K\\{cs}.\\{second};{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true};{}$\2\6
+\4${}\}{}$\2\6
+${}\\{classify}(\|s[\T{3}],\39\\{cs});{}$\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{digit\_class}){}$\1\5
+${}\|n\K\T{10}*\|n+\\{cs}.\\{second};{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true};{}$\2\6
+\&{if} ${}(\|n\G\T{1}){}$\1\5
+${}\\{right\_hyphen\_min}\K\|n;{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true};{}$\2\6
+\4${}\}{}$\2\6
+\&{else}\1\5
+${}\\{bad}\K\\{true};{}$\2\6
+\&{if} (\\{bad})\5
+${}\{{}$\SHC{ wrong, never mind, let's ask the user }\1\6
+${}\\{bad}\K\\{false};{}$\7
+\&{Tindex} \\{n1};\6
+\&{Tindex} \\{n2};\7
+${}\\{cout}\LL\.{"!\ Values\ of\ left\_hy}\)\.{phen\_min\ and\ right\_h}\)%
+\.{yphen\_min\ in\ transla}\)\.{te"};{}$\6
+${}\\{cout}\LL\.{"\ are\ invalid."}\LL\\{endl};{}$\6
+\&{do}\5
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"left\_hyphen\_min,\ ri}\)\.{ght\_hyphen\_min:\ "};{}$\6
+${}\\{cin}\GG\\{n1}\GG\\{n2};{}$\6
+\&{if} ${}(\\{n1}\G\T{1}\W\\{n2}\G\T{1}){}$\5
+${}\{{}$\1\6
+${}\\{left\_hyphen\_min}\K\\{n1};{}$\6
+${}\\{right\_hyphen\_min}\K\\{n2};{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{n1}\K\T{0};{}$\6
+${}\\{cout}\LL\.{"Specify\ 1<=left\_hyp}\)\.{hen\_min,\ right\_hyphe}\)\.{n%
+\_min!"}\LL\\{endl};{}$\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\5
+\&{while} ${}(\R\\{n1}>\T{0});{}$\6
+\4${}\}{}$\SHC{ closing of \&{if} (\\{bad}) }\2\7
+\&{for} (\&{Tindex} \|i${}\K\&{THword}\DC\\{err\_hyf};{}$ ${}\|i\Z\&{THword}\DC%
+\\{found\_hyf};{}$ ${}\|i\PP){}$\5
+${}\{{}$\SHC{ the last three characters }\1\6
+\&{if} ${}(\|s.\\{length}(\,)-\T{1}\G\|i+\T{3}){}$\5
+${}\{{}$\SHC{ there is a symbol }\1\6
+${}\\{classify}(\|s[\|i+\T{3}],\39\\{cs});{}$\6
+\&{if} ${}(\\{utf\_8}\W\|s[\|i+\T{3}]>\T{\^80}){}$\5
+${}\{{}$\1\6
+\&{throw} \&{Patlib\_error}(\.{"!\ Error\ reading\ tra}\)\.{nslate\ file,\ In\
+the\ }\)\.{first\ line,\ "}\.{"specifying\ hyf\ char}\)\.{acters:\\n"}\.{"In\
+UTF-8\ mode\ 8-bit}\)\.{\ symbol\ is\ not\ allow}\)\.{ed."});\6
+\4${}\}{}$\2\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{space\_class}){}$\1\5
+\&{continue};\SHC{ ignore if not specified }\2\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{invalid\_class}){}$\5
+${}\{{}$\SHC{ hasn't been used before }\1\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \|v;\7
+${}\|v.\\{push\_back}(\|s[\|i+\T{3}]);{}$\6
+${}\\{xhyf}.\\{insert}{}$((\&{typename} \&{THword}\DC\\{Thyf\_type}) \|i${},\39%
+\|v){}$;\SHC{ register it }\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\|s[\|i+\T{3}],\39\\{make%
+\_pair}(\\{hyf\_class},\39\|i));{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+\&{throw} \&{Patlib\_error}(\.{"!\ Error\ reading\ tra}\)\.{nslate\ file.\ In\
+the\ }\)\.{first\ line,\ "}\.{"specifying\ hyf\ char}\)\.{acters:\\n"}%
+\.{"Specified\ symbol\ ha}\)\.{s\ been\ already\ assig}\)\.{ned."});\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{19}Each line (except the first one) of the translate file is either a
+comment or specifies the external representation of one ``letter'' used
+by the language. Blank lines or lines starting with two equal characters
+are completely ignored. Other lines contain the external representation
+of one primary representation of a letter followed by any number of
+secondary representations. All the representations read from the file
+are mapped to one internal code. When typing a letter into file, only
+the primary representation is used. The representations are preceded and
+separated by a delimiter. The delimiter may be any 7-bit ASCII character
+not occurring in either version.
+
+The structure is PATGEN compatible, PATGEN only requires the multi-character
+sequences to be followed by doubled delimiter.
+
+How the line is parsed. We put a pair of delimiters to the end of the
+string. This assures we do not have to test the end of the string.
+The ``do forever'' loop skips the delimiter and tests the following
+character. Looking at delimiter again, we are done. Otherwise we collect
+the symbols into the \\{letter\_repres} vector and have it handled. Only
+for the first representation new internal code is prepared.
+
+The procedure quits, as the line is finite and each step eats a
+character and it does not overrun the \|s string as we put double
+delimiter to the end of it and when reaching two delimiters we always
+break the loop.
+
+\Y\B\4\X19:Translate: handle line of translate\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} ${}\\{handle\_line\_of\_translate}(\&{basic\_string}\langle\&{Tfile%
+\_unit}\rangle{}$ ${}{\AND}\|s,\39{}$\&{const} \&{unsigned} ${}{\AND}%
+\\{lineno}){}$\1\1\2\2\6
+${}\{{}$\1\6
+\&{if} ${}(\|s.\\{length}(\,)\E\T{0}){}$\1\5
+\&{return};\SHC{ nothing to do }\2\7
+\&{bool} \\{primary\_repres}${}\K\\{true}{}$;\SHC{ the first is the primary
+representation }\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{letter\_repres};\6
+\&{Tnum\_type} \\{internal};\SHC{ internal code of this letter }\6
+\&{Tfile\_unit} \\{delimiter}${}\K{*}\|s.\\{begin}(\,){}$;\7
+${}\|s\K\|s+\\{delimiter}+\\{delimiter}{}$;\C{ the line ends with a double 				
+   delimiter for sure }\7
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle\DC\&{const\_iterator}{}$ %
+\|i${}\K\|s.\\{begin}(\,){}$;\7
+\&{while} (\\{true})\5
+${}\{{}$\SHC{ do forever }\1\6
+${}\|i\PP{}$;\SHC{ skip the delimiter }\6
+\&{if} ${}({*}\|i\E\\{delimiter}){}$\1\5
+\&{break};\C{ quit if double delimiter, rest of 				   line ignored }\2\6
+${}\\{letter\_repres}.\\{clear}(\,);{}$\6
+\&{while} ${}({*}\|i\I\\{delimiter}){}$\5
+${}\{{}$\SHC{ read the representation }\1\6
+${}\\{letter\_repres}.\\{push\_back}({*}\|i);{}$\6
+${}\|i\PP;{}$\6
+\4${}\}{}$\2\6
+\&{if} (\\{primary\_repres})\1\5
+${}\\{internal}\K\\{get\_next\_internal\_code}(\,){}$;\SHC{ if primary, get new
+code }\2\6
+\X20:Translate: (handle line of translate) handle letter representation\X\6
+${}\\{primary\_repres}\K\\{false}{}$;\SHC{ next is not primary any more }\6
+\4${}\}{}$\SHC{ end of do forever }\2\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{20}Registering the letter representation. We store letters into
+\\{classified\_symbols} after some necessary tests.
+
+One-symbol letters must have not been assigned before, first symbol of
+multi-symbol letter must have escape-class and the symbol must have not
+been used before, too.
+
+\Y\B\4\X20:Translate: (handle line of translate) handle letter representation%
+\X${}\E{}$\6
+${}\{{}$\1\6
+\&{Tclassified\_symbol} \\{cs};\7
+\&{if} ${}(\\{letter\_repres}.\\{size}(\,)\E\T{1}){}$\5
+${}\{{}$\SHC{ has just one symbol }\1\6
+${}\\{classify}({*}\\{letter\_repres}.\\{begin}(\,),\39\\{cs});{}$\6
+\&{if} ${}(\\{utf\_8}\W{*}\\{letter\_repres}.\\{begin}(\,)>\T{127}){}$\5
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"!\ Warning:\ Translat}\)\.{e\ file,\ line\ "}\LL\\{lineno}\LL%
+\.{":"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"There\ is\ single\ 8-b}\)\.{it\ ASCII\ character,\ }\)\.{it\
+is\ probably\ an\ er}\)\.{ror\ "};{}$\6
+${}\\{cout}\LL\.{"in\ UTF-8\ mode"}\LL\\{endl};{}$\6
+\4${}\}{}$\2\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{invalid\_class}){}$\5
+${}\{{}$\1\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\\{letter\_repres},\39%
+\\{make\_pair}(\\{letter\_class},\39\\{internal}));{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error:\ Translate\ }\)\.{file,\ line\ "}\LL\\{lineno}\LL%
+\.{":"}\LL\\{endl};{}$\6
+${}\\{cerr}\LL\.{"Trying\ to\ redefine\ }\)\.{previously\ defined\ c}\)%
+\.{haracter"}\LL\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\SHC{ has more symbols than one }\1\6
+${}\\{classify}({*}\\{letter\_repres}.\\{begin}(\,),\39\\{cs});{}$\6
+\&{if} ${}(\\{cs}.\\{first}\E\\{invalid\_class}{}$)\SHC{ invalid $\rightarrow$
+escape is OK }\1\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}({*}\\{letter\_repres}.%
+\\{begin}(\,),\39\\{make\_pair}(\\{escape\_class},\39\T{0}));{}$\2\6
+${}\\{classify}({*}\\{letter\_repres}.\\{begin}(\,),\39\\{cs});{}$\6
+\&{if} ${}(\\{cs}.\\{first}\I\\{escape\_class}){}$\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error:\ Translate\ }\)\.{file,\ line\ "}\LL\\{lineno}\LL%
+\.{":"}\LL\\{endl};{}$\6
+${}\\{cerr}\LL\.{"The\ first\ symbol\ of}\)\.{\ multi-char\ or\ UTF-8}\)\.{\
+sequence\ has\ been\ "};{}$\6
+${}\\{cerr}\LL\.{"used\ before"};{}$\6
+${}\\{cerr}\LL\\{endl}\LL\.{"as\ non-escape\ chara}\)\.{cter"}\LL\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\SHC{ OK, now we start with escape, let's test the letter itself }\2\6
+${}\\{classify}(\\{letter\_repres},\39\\{cs});{}$\6
+\&{if} ${}(\\{cs}.\\{first}\I\\{invalid\_class}){}$\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error:\ Translate\ }\)\.{file,\ line\ "}\LL\\{lineno}\LL%
+\.{":"}\LL\\{endl};{}$\6
+${}\\{cerr}\LL\.{"Trying\ to\ redefine\ }\)\.{previously\ defined\ c}\)%
+\.{haracter"}\LL\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\SHC{ Now it should be correct, create the letter }\2\6
+\X21:Translate: (handle line of translate) check UTF-8 sequence\X\6
+${}\\{classified\_symbols}.\\{hard\_insert\_pattern}(\\{letter\_repres},\39%
+\\{make\_pair}(\\{letter\_class},\39\\{internal}));{}$\6
+\4${}\}{}$\2\6
+\&{if} (\\{primary\_repres})\SHC{ Reverse mapping }\1\6
+${}\\{xext}.\\{insert}(\\{internal},\39\\{letter\_repres});{}$\2\6
+\4${}\}{}$\2\par
+\U19.\fi
+
+\M{21}When having UTF-8 sequence, we'd better check it is OK and if it not, we
+give a warning.
+
+\Y\B\4\X21:Translate: (handle line of translate) check UTF-8 sequence\X${}\E{}$%
+\6
+\&{if} (\\{utf\_8})\5
+${}\{{}$\1\6
+\&{Tfile\_unit} \\{first}${}\K{*}\\{letter\_repres}.\\{begin}(\,);{}$\6
+\&{unsigned} \\{expected\_length}${}\K\T{0};{}$\7
+\&{while} ${}(\\{first}\AND\T{\^80}){}$\5
+${}\{{}$\SHC{ do until we reach first binary 0 }\1\6
+${}\\{expected\_length}\PP;{}$\6
+${}\\{first}\K\\{first}\LL\T{1};{}$\6
+\4${}\}{}$\2\6
+\&{if} ${}(\\{letter\_repres}.\\{size}(\,)\I\\{expected\_length}){}$\5
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"!\ Warning:\ Translat}\)\.{e\ file,\ line\ "}\LL\\{lineno}\LL%
+\.{":"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"UTF-8\ sequence\ seem}\)\.{s\ to\ be\ broken,\ it\ i}\)\.{s\
+probably\ an\ error.}\)\.{"}\LL\\{endl};{}$\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\par
+\U20.\fi
+
+\M{22}The translate file specifies the values of \\{left\_hyphen\_min} and
+\\{right\_hyphen\_min} as well as the external representations of letters used
+by the language. Replacements for the characters \.{'-'}, \.{'*'}, and \.{'.'}
+representing hyphens in the word list may also be specified. If the
+translate file is empty default values are used.
+
+This is PATGEN compatible behavior.
+
+\Y\B\4\X22:Translate: read translate\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} \\{read\_translate}(\&{const} \&{char} ${}{*}\\{tra}){}$\1\1\2\2\6
+${}\{{}$\1\6
+\&{unsigned} \\{lineno}${}\K\T{1};{}$\6
+\&{ifstream} \\{transl}(\\{tra});\6
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ \|s;\7
+\&{if} ${}(\\{getline}(\\{transl},\39\|s)){}$\5
+${}\{{}$\1\6
+\\{handle\_preamble\_of\_translate}(\|s);\6
+\&{while} ${}(\\{getline}(\\{transl},\39\|s)){}$\1\5
+${}\\{handle\_line\_of\_translate}(\|s,\39\PP\\{lineno});{}$\2\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"Translate\ file\ does}\)\.{\ not\ exist\ or\ is\ emp}\)\.{ty.%
+\ Defaults\ used."}\LL\\{endl};{}$\6
+\\{prepare\_default\_alphabet}(\,);\6
+${}\\{left\_hyphen\_min}\K\T{2};{}$\6
+${}\\{right\_hyphen\_min}\K\T{3};{}$\6
+\4${}\}{}$\2\7
+${}\\{cout}\LL\.{"left\_hyphen\_min\ =\ "}\LL\\{left\_hyphen\_min}\LL\.{",\
+right\_hyphen\_min\ }\)\.{=\ "}\LL\\{right\_hyphen\_min}\LL\\{endl}\LL\\{max%
+\_in\_alph}-\\{edge\_of\_word}\LL\.{"\ letters"}\LL\\{endl};{}$\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{23}The constructor reads the file and builds translating structures.
+In the beginning the \\{classified\_symbols} structure is initialized with
+\\{invalid\_class} (with zero internal code, which is not too important)
+and the \\{max\_in\_alph} is set to zero.
+
+\Y\B\4\X23:Translate: constructor\X${}\E{}$\6
+\4\&{public}:\6
+\&{Translate}(\&{const} \&{char} ${}{*}\\{tra}){}$\1\1\2\2\6
+: \\{max\_in\_alph}(\T{0})${},\39{}$ ${}\\{classified\_symbols}(\T{255},\39%
+\\{make\_pair}(\\{invalid\_class},\39\T{0})){}$ ${}\{{}$\1\6
+\\{prepare\_fixed\_defaults}(\,);\6
+\\{prepare\_default\_hyfs}(\,);\6
+\\{read\_translate}(\\{tra});\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{24}We must let the higher level know the following values.
+
+\Y\B\4\X24:Translate: gets\X${}\E{}$\6
+\4\&{public}:\6
+\&{Tindex} \\{get\_max\_in\_alph}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+\&{return} \\{max\_in\_alph};\6
+\4${}\}{}$\2\7
+\&{Tindex} \\{get\_right\_hyphen\_min}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+\&{return} \\{right\_hyphen\_min};\6
+\4${}\}{}$\2\7
+\&{Tindex} \\{get\_left\_hyphen\_min}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+\&{return} \\{left\_hyphen\_min};\6
+\4${}\}{}$\2\7
+\&{Tfile\_unit} \\{get\_edge\_of\_word}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+\&{return} \\{edge\_of\_word};\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{25}Getting outer representations of a number is the only a bit more
+complicated problem. We get a number and prepare its external
+representation using the most stupid way we can. We compute the reverse
+and append it (reversed, of course) to the \|e string.
+
+\Y\B\4\X25:Translate: get xdig\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{get\_xdig}(\&{Tnum\_type} \|i${},\39\&{basic\_string}\langle%
+\&{Tfile\_unit}\rangle{}$ ${}{\AND}\|e){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ \\{inv\_rep};\7
+\&{while} ${}(\|i>\T{0}){}$\5
+${}\{{}$\1\6
+${}\\{xdig}.\\{add\_to\_string}((\|i\MOD\T{10}),\39\\{inv\_rep});{}$\6
+${}\|i\K\&{Tnum\_type}(\|i/\T{10});{}$\6
+\4${}\}{}$\2\6
+${}\|e.\\{append}(\\{inv\_rep}.\\{rbegin}(\,),\39\\{inv\_rep}.\\{rend}(\,));{}$%
+\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{26}Get the external representation of hyphenation character. The
+representation is appended to the \|e string.
+
+\Y\B\4\X26:Translate: get xhyf\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{get\_xhyf}(\&{const} \&{typename} \&{THword}\DC\\{Thyf\_type} ${}{%
+\AND}\|i,\39\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ ${}{\AND}\|e){}$%
+\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{xhyf}.\\{add\_to\_string}(\|i,\39\|e);{}$\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\M{27}Get the external representation of a letter. Note that we do not have
+to take care of the length of the representation. The representation is
+appended to the \|e string.
+
+\Y\B\4\X27:Translate: get xext\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{get\_xext}(\&{const} \&{Tnum\_type} ${}{\AND}\|i,\39\&{basic%
+\_string}\langle\&{Tfile\_unit}\rangle{}$ ${}{\AND}\|e){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{xext}.\\{add\_to\_string}(\|i,\39\|e);{}$\6
+\4${}\}{}$\2\par
+\U11.\fi
+
+\N{1}{28}Word input file. We have to read the input data, which is a list of
+words together with the hyphenation information and weights. To make
+such an object, we have to know the weight type, the \&{THword}, and the
+\&{TTranslate} types.
+
+\Y\B\F\\{THword} \5
+\\{int}\par
+\B\F\\{TTranslate} \5
+\\{int}\par
+\B\F\\{Tnum\_type} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{THword}${},\39{}$\&{class} %
+\&{TTranslate}${},\39{}$\&{class} \&{Tnum\_type}${}\rangle{}$\6
+\&{class} \&{Word\_input\_file} ${}\{{}$\1\6
+\X29:Word input file: data\X\6
+\X30:Word input file: constructor\X\6
+\X31:Word input file: handle line\X\6
+\X40:Word input file: get\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{29}We have to know the translate and the file name. We also prepare the
+\\{file} to be \&{ifstream}. The \\{lineno} value is only the number of line
+just read. And finally we make some types available here easily.
+
+The \\{global\_word\_wt} holds the word weight which applies to all the next
+words until it is changed.
+
+\Y\B\4\X29:Word input file: data\X${}\E{}$\6
+\4\&{protected}:\6
+\&{TTranslate} ${}{\AND}\\{translate};{}$\6
+\&{const} \&{char} ${}{*}\\{file\_name};{}$\6
+\&{ifstream} \\{file};\6
+\&{unsigned} \\{lineno};\6
+\&{typedef} \&{typename} \&{TTranslate}\DC\&{Tfile\_unit} \&{Tfile\_unit};\6
+\&{typedef} \&{typename} \&{TTranslate}\DC\&{Tclassified\_symbol} %
+\&{Tclassified\_symbol};\6
+\&{Tnum\_type} \\{global\_word\_wt};\par
+\U28.\fi
+
+\M{30}The constructor sets the values and opens the file. The default word
+weight is~\T{1}.
+
+\Y\B\4\X30:Word input file: constructor\X${}\E{}$\6
+\4\&{public}:\6
+\&{Word\_input\_file}(\&{TTranslate} ${}{\AND}\|t,\39{}$\&{const} \&{char}
+${}{*}\\{fn}){}$\1\1\2\2\6
+: \\{translate}(\|t)${},\39{}$ \\{file\_name}(\\{fn})${},\39{}$ \\{file}(%
+\\{file\_name})${},\39{}$ \\{lineno}(\T{0})${},\39{}$ \\{global\_word\_wt}(%
+\T{1}) ${}\{\,\}{}$\par
+\U28.\fi
+
+\M{31}A line of input data in \|s is always ended by space character and the
+\\{hw} word is empty. We parse the line and fill the \\{hw}. The
+\\{edge\_of\_word} character is put at the very beginning and at the end of
+word.
+
+The line of input data contains just one word consisting of letters used
+by the language. ``Dots'' between the letters may be one of four
+possibilities: \.{'-'}---a hyphen, \.{'*'}---a found hyphen, \.{'.'}---an
+error, or nothing, represented internally by \\{is\_hyf}, \\{found\_hyf},
+\\{err\_hyf}, and \\{no\_hyf} respectively. When reading a word, we convert
+\\{err\_hyf} into \\{no\_hyf} and \\{found\_hyf} into \\{is\_hyf}, we ignore
+whether
+the hyphen has or has not been found by previous set of patterns.
+
+Digit weights are allowed. A number at some intercharacter position
+indices weight for that position. A number starting in the very first
+column indices global word weight which applies to all the positions of all
+the following words. The global weight is stored in $\\{hw}.\\{dotw}[\T{0}]$ as
+this
+position is not used by the generator. The other \\{dotw} positions are their
+logical weights, it means they have the global weight if there were nothing
+in the file and the value from the file if that is set. Note that \\{dotw}[%
+\T{0}]
+is a bit misused.
+
+\Y\B\4\X31:Word input file: handle line\X${}\E{}$\6
+\4\&{protected}:\6
+\&{void} \\{handle\_line}(\&{const} ${}\&{basic\_string}\langle\&{Tfile\_unit}%
+\rangle{}$ ${}{\AND}\|s,\39{}$\&{THword} ${}{\AND}\\{hw}){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{hw}.\\{push\_back}(\\{translate}.\\{get\_edge\_of\_word}(\,));{}$\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{global\_word\_wt}{}$;\SHC{ may be
+redefined later }\7
+\&{Tclassified\_symbol} \\{i\_class};\6
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle\DC\&{const\_iterator}{}$ %
+\|i${}\K\|s.\\{begin}(\,);{}$\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{seq};\6
+\&{Tnum\_type} \\{num};\7
+\&{do}\5
+${}\{{}$\1\6
+\&{if} ${}(\\{utf\_8}\W({*}\|i\AND\T{\^80})){}$\5
+${}\{{}$\1\6
+\X32:Word input file: (handle line) multibyte sequence\X\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\SHC{ we have one byte }\1\6
+${}\\{translate}.\\{classify}({*}\|i,\39\\{i\_class});{}$\6
+\&{switch} ${}(\\{i\_class}.\\{first}){}$\5
+${}\{{}$\1\6
+\4\&{case} \&{TTranslate}\DC\\{space\_class}:\5
+\&{goto} \\{done};\6
+\4\&{case} \&{TTranslate}\DC\\{digit\_class}:\5
+\X34:Word input file: (handle line) digit\X\6
+\&{break};\6
+\4\&{case} \&{TTranslate}\DC\\{hyf\_class}:\5
+\X36:Word input file: (handle line) hyf\X\6
+\&{break};\6
+\4\&{case} \&{TTranslate}\DC\\{letter\_class}:\5
+\X37:Word input file: (handle line) letter\X\6
+\&{break};\6
+\4\&{case} \&{TTranslate}\DC\\{escape\_class}:\5
+\X38:Word input file: (handle line) escape\X\6
+\&{break};\6
+\4\&{default}:\SHC{ \\{invalid\_class} is here }\6
+${}\\{cerr}\LL\.{"!\ Error\ in\ "}\LL\\{file\_name}\LL\.{"\ line\ "}\LL%
+\\{lineno}\LL\.{":\ "}\LL\.{"Invalid\ character\ i}\)\.{n\ input\ data"}\LL%
+\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\&{break};\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\5
+\&{while} ${}(\|i\I\|s.\\{end}(\,));{}$\6
+\4\\{done}:\5
+${}\\{hw}.\\{push\_back}(\\{translate}.\\{get\_edge\_of\_word}(\,));{}$\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{global\_word\_wt};{}$\6
+${}\\{hw}.\\{dotw}[\T{0}]\K\\{global\_word\_wt}{}$;\SHC{ the flag for the
+printing routine }\6
+\4${}\}{}$\2\par
+\U28.\fi
+
+\M{32}A multibyte sequence of symbols meaning one letter. We take all
+characters bigger than \T{127} which follow, collect them and test them to be
+a letter. In that case we put them into the \\{hw}, otherwise it's an error.
+
+\Y\B\4\X32:Word input file: (handle line) multibyte sequence\X${}\E{}$\6
+${}\{{}$\1\6
+\X33:Word input file: (handle line) read multibyte sequence\X\6
+${}\\{translate}.\\{classify}(\\{seq},\39\\{i\_class});{}$\6
+\&{if} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{letter\_class}){}$\5
+${}\{{}$\1\6
+${}\\{hw}.\\{push\_back}(\\{i\_class}.\\{second});{}$\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{global\_word\_wt};{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error\ in\ "}\LL\\{file\_name}\LL\.{"\ line\ "}\LL%
+\\{lineno}\LL\.{":\ "}\LL\.{"Multibyte\ sequence\ }\)\.{is\ invalid"}\LL%
+\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\par
+\U31.\fi
+
+\M{33}Reading the multibyte sequence. The UTF-8 sequence has all its members
+$>$ \T{127},  in other words with the most significant bit 1. The first
+character determines the length of the sequence, it has as many ones as the
+sequence has members before its first zero. The schema makes it clear.
+
+{\tt
+110xxxxx 10xxxxxx
+
+1110xxxx 10xxxxxx 10xxxxxx
+
+11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+}
+
+The UTF-8 characters may also be {\tt 0xxxxxxx}, but that is equivalent to
+7-bit ASCII and this is not handled by this procedure.
+
+We remember the first character and shift it left and testing the highest
+bit we count the following characters.
+
+\Y\B\4\X33:Word input file: (handle line) read multibyte sequence\X${}\E{}$\6
+\&{Tfile\_unit} \\{first\_i}${}\K{*}\|i;{}$\7
+${}\\{seq}.\\{clear}(\,);{}$\6
+\&{while} ${}((\\{first\_i}\AND\T{\^80})\W({*}\|i\AND\T{\^80})){}$\5
+${}\{{}$\C{ the highest bit is 1 and we 					     check the $n$th character too
+					  }\1\6
+${}\\{seq}.\\{push\_back}({*}\|i);{}$\6
+${}\|i\PP;{}$\6
+${}\\{first\_i}\K\\{first\_i}\LL\T{1}{}$;\SHC{ shift left }\6
+\4${}\}{}$\2\par
+\Us32\ET45.\fi
+
+\M{34}A number is a sequence of decadic digits. In the first column it means
+the global weight (until changed), otherwise it is only local to a
+position.
+
+\Y\B\4\X34:Word input file: (handle line) digit\X${}\E{}$\6
+\&{if} ${}(\|i\E\|s.\\{begin}(\,)){}$\5
+${}\{{}$\SHC{ in the first column set also the global weight }\1\6
+\X35:Word input file: (handle line) read number\X\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{num};{}$\6
+${}\\{global\_word\_wt}\K\\{num};{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\SHC{ otherwise only the position is affected }\1\6
+\X35:Word input file: (handle line) read number\X\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{num};{}$\6
+\4${}\}{}$\2\par
+\U31.\fi
+
+\M{35}Reading the number. We read digit-by-digit. The cycle ends, let us
+recall that there is always a space in the end of the line.
+
+\Y\B\4\X35:Word input file: (handle line) read number\X${}\E{}$\6
+$\\{num}\K\T{0};{}$\6
+\&{while} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{digit\_class}){}$\5
+${}\{{}$\1\6
+${}\\{num}\K\T{10}*\\{num}+\\{i\_class}.\\{second};{}$\6
+${}\|i\PP;{}$\6
+${}\\{translate}.\\{classify}({*}\|i,\39\\{i\_class});{}$\6
+\4${}\}{}$\2\par
+\Us34\ET46.\fi
+
+\M{36}A hyphen. The default value is \\{no\_hyf}, we have to change it only if
+we deal with \\{is\_hyf} or \\{found\_hyf}.
+
+\Y\B\4\X36:Word input file: (handle line) hyf\X${}\E{}$\6
+\&{if} ${}(\\{i\_class}.\\{second}\E\&{THword}\DC\\{is\_hyf}\V\\{i\_class}.%
+\\{second}\E\&{THword}\DC\\{found\_hyf}){}$\1\5
+${}\\{hw}.\\{dots}[\\{hw}.\\{size}(\,)]\K\&{THword}\DC\\{is\_hyf};{}$\2\6
+${}\|i\PP{}$;\par
+\U31.\fi
+
+\M{37}A letter.
+
+\Y\B\4\X37:Word input file: (handle line) letter\X${}\E{}$\6
+$\\{hw}.\\{push\_back}(\\{i\_class}.\\{second});{}$\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{global\_word\_wt};{}$\6
+${}\|i\PP{}$;\par
+\U31.\fi
+
+\M{38}Escape sequence is a sequence of an escape character and a non-empty
+mixture of letters and invalid characters. Any non-invalid and
+non-letter (e.g., space, digit, hyphen) character stops reading the
+sequence.
+
+If the sequence is followed by spaces (more precisely characters with
+\\{space\_class}), the spaces are skipped. Keep in mind the line always
+ends with at least one space.
+
+The escape sequence is checked to be a letter. We insert its internal
+code in that case.
+
+\Y\B\4\X38:Word input file: (handle line) escape\X${}\E{}$\6
+\X39:Word input file: (handle line) read escape sequence\X\6
+\&{if} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{letter\_class}){}$\5
+${}\{{}$\1\6
+${}\\{hw}.\\{push\_back}(\\{i\_class}.\\{second});{}$\6
+${}\\{hw}.\\{dotw}[\\{hw}.\\{size}(\,)]\K\\{global\_word\_wt};{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error\ in\ "}\LL\\{file\_name}\LL\.{"\ line\ "}\LL%
+\\{lineno}\LL\.{":\ "}\LL\.{"Escape\ sequence\ is\ }\)\.{invalid"}\LL%
+\\{endl};{}$\6
+${}\\{cerr}\LL\.{"(Are\ you\ using\ corr}\)\.{ect\ encoding--the\ -u}\)\.{8\
+switch?)"}\LL\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\2\par
+\U31.\fi
+
+\M{39}Reading the escape sequence.
+
+\Y\B\4\X39:Word input file: (handle line) read escape sequence\X${}\E{}$\6
+$\\{seq}.\\{clear}(\,);{}$\6
+${}\\{seq}.\\{push\_back}({*}\|i){}$;\SHC{ push back the escape }\6
+${}\|i\PP;{}$\6
+${}\\{translate}.\\{classify}({*}\|i,\39\\{i\_class});{}$\6
+\&{while} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{letter\_class}\V\\{i%
+\_class}.\\{first}\E\&{TTranslate}\DC\\{invalid\_class}){}$\5
+${}\{{}$\1\6
+${}\\{seq}.\\{push\_back}({*}\|i);{}$\6
+${}\|i\PP;{}$\6
+${}\\{translate}.\\{classify}({*}\|i,\39\\{i\_class});{}$\6
+\4${}\}{}$\SHC{ we have read the sequence }\2\6
+\&{while} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{space\_class}\W\|i\I%
+\|s.\\{end}(\,)){}$\5
+${}\{{}$\1\6
+${}\|i\PP;{}$\6
+${}\\{translate}.\\{classify}({*}\|i,\39\\{i\_class});{}$\6
+\4${}\}{}$\SHC{ we have skipped blanks }\2\6
+${}\\{translate}.\\{classify}(\\{seq},\39\\{i\_class}){}$;\par
+\Us38\ET48.\fi
+
+\M{40}Getting next \&{THword}. If there is one, we return true and the values,
+otherwise we return false. Each line must contain just one word with
+hyphenation information. The \\{handle\_line} method requires the \|s
+string to be ended with a space character.
+
+\Y\B\4\X40:Word input file: get\X${}\E{}$\6
+\4\&{public}:\6
+\&{bool} \\{get}(\&{THword} ${}{\AND}\\{hw}){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{hw}.\\{clear}(\,);{}$\7
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ \|s;\7
+\&{if} ${}(\R\\{getline}(\\{file},\39\|s)){}$\5
+${}\{{}$\1\6
+\&{return} \\{false};\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\SHC{ we have a line, so let's handle it }\1\6
+${}\\{lineno}\PP;{}$\6
+${}\|s.\\{push\_back}(\&{Tfile\_unit}(\.{'\ '}));{}$\6
+${}\\{handle\_line}(\|s,\39\\{hw});{}$\6
+\4${}\}{}$\2\6
+\&{return} \\{true};\6
+\4${}\}{}$\2\par
+\U28.\fi
+
+\N{1}{41}Pattern input file. Before the first pass is run, we may want to read
+the patterns, for example selected in previous runs. We must therefore
+be able to read them in.
+
+\Y\B\F\\{Tindex} \5
+\\{int}\par
+\B\F\\{Tin\_alph} \5
+\\{int}\par
+\B\F\\{Tval\_type} \5
+\\{int}\par
+\B\F\\{TTranslate} \5
+\\{int}\par
+\B\F\\{TOutputs\_of\_a\_pattern} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{Tindex}${},\39{}$\&{class} \&{Tin%
+\_alph}${},\39{}$\&{class} \&{Tval\_type}${},\39{}$\&{class} \&{TTranslate}${},%
+\39{}$\&{class} \&{TOutputs\_of\_a\_pattern}${}\rangle{}$\6
+\&{class} \&{Pattern\_input\_file} ${}\{{}$\1\6
+\X42:Pattern input file: data\X\6
+\X43:Pattern input file: constructor\X\6
+\X44:Pattern input file: handle line\X\6
+\X49:Pattern input file: get\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{42}Does the comment of this section bore you?
+
+\Y\B\4\X42:Pattern input file: data\X${}\E{}$\6
+\4\&{protected}:\6
+\&{TTranslate} ${}{\AND}\\{translate};{}$\6
+\&{const} \&{char} ${}{*}\\{file\_name};{}$\6
+\&{ifstream} \\{file};\6
+\&{unsigned} \\{lineno};\6
+\&{typedef} \&{typename} \&{TTranslate}\DC\&{Tfile\_unit} \&{Tfile\_unit};\6
+\&{typedef} \&{typename} \&{TTranslate}\DC\&{Tclassified\_symbol} %
+\&{Tclassified\_symbol};\par
+\U41.\fi
+
+\M{43}The constructor sets the values and opens the file.
+
+\Y\B\4\X43:Pattern input file: constructor\X${}\E{}$\6
+\4\&{public}:\6
+\&{Pattern\_input\_file}(\&{TTranslate} ${}{\AND}\|t,\39{}$\&{const} \&{char}
+${}{*}\\{fn}){}$\1\1\2\2\6
+: \\{translate}(\|t)${},\39{}$ \\{file\_name}(\\{fn})${},\39{}$ \\{file}(%
+\\{file\_name})${},\39{}$ \\{lineno}(\T{0}) ${}\{\,\}{}$\par
+\U41.\fi
+
+\M{44}We parse the \|s string (we know it end with at least one space) and
+return the word and its output.
+
+\Y\B\4\X44:Pattern input file: handle line\X${}\E{}$\6
+\&{protected}:\6
+\&{void} \\{handle\_line}(\&{const} ${}\&{basic\_string}\langle\&{Tfile\_unit}%
+\rangle{}$ ${}{\AND}\|s,\39\&{vector}\langle\&{Tin\_alph}\rangle{}$ ${}{\AND}%
+\|v,\39{}$\&{TOutputs\_of\_a\_pattern} ${}{\AND}\|o){}$\1\1 $\{$ \&{Tclassified%
+\_symbol} \\{i\_class};\6
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle\DC\&{const\_iterator}{}$ %
+\|i${}\K\|s.\\{begin}(\,);{}$\6
+${}\&{vector}\langle\&{Tfile\_unit}\rangle{}$ \\{seq};\6
+\&{Tval\_type} \\{num};\6
+\&{Tindex} \\{chars\_read}${}\K\T{0};$ \&{do} $\{$ \6
+\&{if} ${}({*}\|i\E\.{'.'}){}$\5
+${}\{{}$\SHC{ a dot means edge of word here, let's treat it specially }\1\6
+${}\|v.\\{push\_back}(\\{translate}.\\{get\_edge\_of\_word}(\,));{}$\6
+${}\\{chars\_read}\PP;{}$\6
+${}\|i\PP{}$;\SHC{ go to the next character }\6
+\&{continue};\6
+\4${}\}{}$\2\6
+\&{if} ${}(\\{utf\_8}\W{*}\|i>\T{127})$ \X45:Pattern input file: (handle line)
+multibyte sequence\X \6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{translate}.\\{classify}({*}\|i,\39\\{i\_class});{}$\6
+\&{switch} ${}(\\{i\_class}.\\{first}){}$\5
+${}\{{}$\1\6
+\4\&{case} \&{TTranslate}\DC\\{space\_class}:\5
+\&{goto} \\{done};\6
+\4\&{case} \&{TTranslate}\DC\\{digit\_class}:\5
+\X46:Pattern input file: (handle line) digit\X\6
+\&{break};\6
+\4\&{case} \&{TTranslate}\DC\\{letter\_class}:\5
+\X47:Pattern input file: (handle line) letter\X\6
+\&{break};\6
+\4\&{case} \&{TTranslate}\DC\\{escape\_class}:\5
+\X48:Pattern input file: (handle line) escape\X\6
+\&{break};\6
+\4\&{default}:\SHC{ \\{hyf\_class} (except a dot), \\{invalid\_class} }\6
+${}\\{cerr}\LL\.{"!\ Error\ in\ "}\LL\\{file\_name}\LL\.{"\ line\ "}\LL%
+\\{lineno}\LL\.{":\ "}\LL\.{"Invalid\ character\ i}\)\.{n\ pattern\ data"}\LL%
+\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\6
+$\}$ \6
+\&{while} ${}(\|i\I\|s.\\{end}(\,)){}$\1\5
+;\2\6
+\4\\{done}:\5
+; $\}{}$\par
+\U41.\fi
+
+\M{45}Multibyte sequence.
+
+\Y\B\4\X45:Pattern input file: (handle line) multibyte sequence\X${}\E{}$\6
+${}\{{}$\1\6
+\X33:Word input file: (handle line) read multibyte sequence\X\6
+${}\\{translate}.\\{classify}(\\{seq},\39\\{i\_class});{}$\6
+\&{if} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{letter\_class}){}$\5
+${}\{{}$\1\6
+${}\|v.\\{push\_back}(\\{i\_class}.\\{second});{}$\6
+${}\\{chars\_read}\PP;{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error\ in\ "}\LL\\{file\_name}\LL\.{"\ line\ "}\LL%
+\\{lineno}\LL\.{":\ "}\LL\.{"Multibyte\ sequence\ }\)\.{is\ invalid"}\LL%
+\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\par
+\U44.\fi
+
+\M{46}A digit.
+
+\Y\B\4\X46:Pattern input file: (handle line) digit\X${}\E{}$\6
+\X35:Word input file: (handle line) read number\X\6
+${}\|o.\\{insert}(\\{make\_pair}(\\{chars\_read},\39\\{num})){}$;\par
+\U44.\fi
+
+\M{47}A letter.
+
+\Y\B\4\X47:Pattern input file: (handle line) letter\X${}\E{}$\6
+$\|v.\\{push\_back}(\\{i\_class}.\\{second});{}$\6
+${}\\{chars\_read}\PP;{}$\6
+${}\|i\PP{}$;\par
+\U44.\fi
+
+\M{48}Escape sequence.
+
+\Y\B\4\X48:Pattern input file: (handle line) escape\X${}\E{}$\6
+\X39:Word input file: (handle line) read escape sequence\X\6
+\&{if} ${}(\\{i\_class}.\\{first}\E\&{TTranslate}\DC\\{letter\_class}){}$\5
+${}\{{}$\1\6
+${}\|v.\\{push\_back}(\\{i\_class}.\\{second});{}$\6
+${}\\{chars\_read}\PP;{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"!\ Error\ in\ "}\LL\\{file\_name}\LL\.{"\ line\ "}\LL%
+\\{lineno}\LL\.{":\ "}\LL\.{"Escape\ sequence\ is\ }\)\.{invalid"}\LL%
+\\{endl};{}$\6
+${}\\{cerr}\LL\.{"(Are\ you\ using\ corr}\)\.{ect\ encoding--the\ -u}\)\.{8\
+switch?)"}\LL\\{endl};{}$\6
+\&{throw} \&{Patlib\_error}(\.{""});\SHC{FIXME }\6
+\4${}\}{}$\2\par
+\U44.\fi
+
+\M{49}The \\{get} method returns the vector of internal codes representing the
+word and its output. The vector and the output is emptied in the
+beginning. Line is parsed and the values are set, returning \\{true}.
+When reaching the end of the file, \\{false} is returned.
+
+\Y\B\4\X49:Pattern input file: get\X${}\E{}$\6
+\4\&{public}:\6
+\&{bool} ${}\\{get}(\&{vector}\langle\&{Tin\_alph}\rangle{}$ ${}{\AND}\|v,%
+\39{}$\&{TOutputs\_of\_a\_pattern} ${}{\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\|v.\\{clear}(\,);{}$\6
+${}\|o.\\{clear}(\,);{}$\7
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ \|s;\7
+\&{if} ${}(\R\\{getline}(\\{file},\39\|s)){}$\5
+${}\{{}$\1\6
+\&{return} \\{false};\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\SHC{ we have a line, so let's handle it }\1\6
+${}\\{lineno}\PP;{}$\6
+${}\|s.\\{push\_back}(\.{'\ '});{}$\6
+${}\\{handle\_line}(\|s,\39\|v,\39\|o);{}$\6
+\4${}\}{}$\2\6
+\&{return} \\{true};\6
+\4${}\}{}$\2\par
+\U41.\fi
+
+\N{1}{50}Word output file. If the user wants to see the work of the patterns
+on his input data, writing hyphenated words is needed.
+
+\Y\B\F\\{Tindex} \5
+\\{int}\par
+\B\F\\{THword} \5
+\\{int}\par
+\B\F\\{TTranslate} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{Tindex}${},\39{}$\&{class} %
+\&{THword}${},\39{}$\&{class} \&{TTranslate}${}\rangle{}$\6
+\&{class} \&{Word\_output\_file} ${}\{{}$\1\6
+\X51:Word output file: data\X\6
+\X52:Word output file: constructor\X\6
+\X53:Word output file: put\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{51}We have to know the translate, the file name and the \&{ofstream}. We
+also prepare easy access to some type names.
+The \\{last\_global\_word\_wt} is the previous word weight. We output the
+global
+weight only if it is changed.
+FIXME: Why this couldn't be compiled with \&{typename} \&{THword}\DC\&{Twt%
+\_type}?!?
+
+\Y\B\4\X51:Word output file: data\X${}\E{}$\6
+\4\&{protected}:\6
+\&{TTranslate} ${}{\AND}\\{translate};{}$\6
+\&{const} \&{char} ${}{*}\\{file\_name};{}$\6
+\&{ofstream} \\{file};\6
+\&{typedef} \&{typename} \&{TTranslate}\DC\&{Tfile\_unit} \&{Tfile\_unit};\6
+\&{unsigned} \\{last\_global\_word\_wt};\6
+\&{unsigned} \\{global\_word\_wt};\par
+\U50.\fi
+
+\M{52}The constructor sets the values and opens the file.
+
+\Y\B\4\X52:Word output file: constructor\X${}\E{}$\6
+\4\&{public}:\6
+\&{Word\_output\_file}(\&{TTranslate} ${}{\AND}\|t,\39{}$\&{const} \&{char}
+${}{*}\\{fn}){}$\1\1\2\2\6
+: \\{translate}(\|t)${},\39{}$ \\{file\_name}(\\{fn})${},\39{}$ \\{file}(%
+\\{file\_name})${},\39{}$ \\{last\_global\_word\_wt}(\T{1}) ${}\{\,\}{}$\par
+\U50.\fi
+
+\M{53}Writing a \&{THword} into the file. The representation of \\{edge\_of%
+\_word}
+character is ignored (on both sides), printable version of the \\{hw} is
+put to the file.
+
+The global word weight is output in and only if it is changed. The
+interletter weights are output if they differ from the global word weight.
+
+\Y\B\4\X53:Word output file: put\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{put}(\&{THword} ${}{\AND}\\{hw}){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ \|s;\7
+${}\\{global\_word\_wt}\K\\{hw}.\\{dotw}[\T{0}];{}$\6
+\&{if} ${}(\\{last\_global\_word\_wt}\I\\{global\_word\_wt}){}$\5
+${}\{{}$\SHC{ global weight has changed }\1\6
+${}\\{translate}.\\{get\_xdig}(\\{hw}.\\{dotw}[\T{0}],\39\|s);{}$\6
+${}\\{last\_global\_word\_wt}\K\\{global\_word\_wt};{}$\6
+\4${}\}{}$\2\6
+\&{if} ${}(\\{hw}.\\{dots}[\T{1}]\I\&{THword}\DC\\{no\_hyf}){}$\1\5
+${}\\{translate}.\\{get\_xhyf}(\\{hw}.\\{dots}[\T{1}],\39\|s);{}$\2\6
+\&{for} (\&{Tindex} \\{dpos}${}\K\T{2};{}$ ${}\\{dpos}\Z\\{hw}.\\{size}(\,)-%
+\T{1};{}$ ${}\\{dpos}\PP){}$\5
+${}\{{}$\1\6
+${}\\{translate}.\\{get\_xext}(\\{hw}[\\{dpos}],\39\|s);{}$\6
+\&{if} ${}(\\{hw}.\\{dots}[\\{dpos}]\I\&{THword}\DC\\{no\_hyf}){}$\1\5
+${}\\{translate}.\\{get\_xhyf}(\\{hw}.\\{dots}[\\{dpos}],\39\|s);{}$\2\6
+\&{if} ${}(\\{hw}.\\{dotw}[\\{dpos}]\I\\{global\_word\_wt}){}$\1\5
+${}\\{translate}.\\{get\_xdig}(\\{hw}.\\{dotw}[\\{dpos}],\39\|s);{}$\2\6
+\4${}\}{}$\2\6
+${}\\{file}\LL\|s\LL\\{endl};{}$\6
+\4${}\}{}$\2\par
+\U50.\fi
+
+\N{1}{54}Pattern output file. This interface writes the generated patterns
+into the files.
+
+\Y\B\F\\{Tindex} \5
+\\{int}\par
+\B\F\\{Tin\_alph} \5
+\\{int}\par
+\B\F\\{Tval\_type} \5
+\\{int}\par
+\B\F\\{TTranslate} \5
+\\{int}\par
+\B\F\\{TOutputs\_of\_a\_pattern} \5
+\\{int}\par
+\Y\B$\&{template}\langle{}$\&{class} \&{Tindex}${},\39{}$\&{class} \&{Tin%
+\_alph}${},\39{}$\&{class} \&{Tval\_type}${},\39{}$\&{class} \&{TTranslate}${},%
+\39{}$\&{class} \&{TOutputs\_of\_a\_pattern}${}\rangle{}$\6
+\&{class} \&{Pattern\_output\_file} ${}\{{}$\1\6
+\X55:Pattern output file: data\X\6
+\X56:Pattern output file: constructor\X\6
+\X57:Pattern output file: put\X\2\6
+${}\}{}$;\par
+\fi
+
+\M{55}Hmm, quite as usual\dots
+
+\Y\B\4\X55:Pattern output file: data\X${}\E{}$\6
+\4\&{protected}:\6
+\&{TTranslate} ${}{\AND}\\{translate};{}$\6
+\&{const} \&{char} ${}{*}\\{file\_name};{}$\6
+\&{ofstream} \\{file};\6
+\&{typedef} \&{typename} \&{TTranslate}\DC\&{Tfile\_unit} \&{Tfile\_unit};\par
+\U54.\fi
+
+\M{56}Constructor sets values and opens the file.
+
+\Y\B\4\X56:Pattern output file: constructor\X${}\E{}$\6
+\4\&{public}:\6
+\&{Pattern\_output\_file}(\&{TTranslate} ${}{\AND}\|t,\39{}$\&{const} \&{char}
+${}{*}\\{fn}){}$\1\1\2\2\6
+: \\{translate}(\|t)${},\39{}$ \\{file\_name}(\\{fn})${},\39{}$ \\{file}(%
+\\{file\_name}) ${}\{\,\}{}$\par
+\U54.\fi
+
+\M{57}Putting a pattern into file. We go through it and handle outputs and
+characters and the last output in the end.
+
+\Y\B\4\X57:Pattern output file: put\X${}\E{}$\6
+\4\&{public}:\6
+\&{void} \\{put}(\&{const} ${}\&{vector}\langle\&{Tin\_alph}\rangle{}$ ${}{%
+\AND}\|v,\39{}$\&{const} \&{TOutputs\_of\_a\_pattern} ${}{\AND}\|o){}$\1\1\2\2\6
+${}\{{}$\1\6
+\&{typename} \&{TOutputs\_of\_a\_pattern}\DC\&{const\_iterator} \\{oi};\6
+${}\&{basic\_string}\langle\&{Tfile\_unit}\rangle{}$ \|s;\6
+\&{Tindex} \\{pos}${}\K\T{0};{}$\7
+\&{for} ${}(\&{vector}\langle\&{Tin\_alph}\rangle\DC\&{const\_iterator}{}$ %
+\\{vi}${}\K\|v.\\{begin}(\,);{}$ ${}\\{vi}\I\|v.\\{end}(\,);{}$ ${}\\{vi}%
+\PP){}$\5
+${}\{{}$\1\6
+\X58:Pattern output file: (put) output number on \\{pos} if exists\X\6
+${}\\{pos}\PP;{}$\6
+${}\\{translate}.\\{get\_xext}({*}\\{vi},\39\|s);{}$\6
+\4${}\}{}$\2\6
+\X58:Pattern output file: (put) output number on \\{pos} if exists\X\SHC{ the
+last output }\6
+${}\\{file}\LL\|s\LL\\{endl};{}$\6
+\4${}\}{}$\2\par
+\U54.\fi
+
+\M{58}If there is an output, handle it.
+
+\Y\B\4\X58:Pattern output file: (put) output number on \\{pos} if exists\X${}%
+\E{}$\6
+$\\{oi}\K\|o.\\{find}(\\{pos});{}$\6
+\&{if} ${}(\\{oi}\I\|o.\\{end}(\,)){}$\5
+${}\{{}$\SHC{ there is an output for that position }\1\6
+${}\\{translate}.\\{get\_xdig}(\\{oi}\MG\\{second},\39\|s);{}$\6
+\4${}\}{}$\2\par
+\U57.\fi
+
+\N{0}{59}Main function companion.
+Here we define the types for the generator.
+
+\Y\B\F\\{Tindex} \5
+\\{int}\par
+\B\F\\{Tin\_alph} \5
+\\{int}\par
+\B\F\\{Tval\_type} \5
+\\{int}\par
+\B\F\\{Twt\_type} \5
+\\{int}\par
+\B\F\\{Tcount\_type} \5
+\\{int}\par
+\B\F\\{THword} \5
+\\{int}\par
+\B\F\\{TTranslate} \5
+\\{int}\par
+\B\F\\{TCandidate\_count\_structure} \5
+\\{int}\par
+\B\F\\{TCompetitive\_multi\_out\_pat\_manip} \5
+\\{int}\par
+\B\F\\{TOutputs\_of\_a\_pattern} \5
+\\{int}\par
+\B\F\\{TWord\_input\_file} \5
+\\{int}\par
+\B\F\\{TWord\_output\_file} \5
+\\{int}\par
+\B\F\\{TPattern\_input\_file} \5
+\\{int}\par
+\B\F\\{TPattern\_output\_file} \5
+\\{int}\par
+\B\F\\{TPass} \5
+\\{int}\par
+\B\F\\{TLevel} \5
+\\{int}\par
+\B\F\\{Hword} \5
+\\{int}\par
+\B\F\\{Candidate\_count\_trie} \5
+\\{int}\par
+\B\F\\{Competitive\_multi\_out\_pat\_manip} \5
+\\{int}\par
+\B\F\\{Outputs\_of\_a\_pattern} \5
+\\{int}\par
+\B\F\\{Pass} \5
+\\{int}\par
+\B\F\\{Level} \5
+\\{int}\par
+\B\F\\{Generator} \5
+\\{int}\par
+\Y\B\&{typedef} \&{unsigned} \&{long} \&{Tindex};\SHC{ word/pattern index }\6
+\&{typedef} \&{unsigned} \&{Tin\_alph};\SHC{ input alphabet type }\6
+\&{typedef} \&{unsigned} \&{short} \&{Tval\_type};\SHC{ hyph. level number }\6
+\&{typedef} \&{unsigned} \&{Twt\_type};\SHC{ weight type }\6
+\&{typedef} \&{unsigned} \&{Tcount\_type};\SHC{ good/bad counts }\6
+\&{typedef} \&{unsigned} \&{Tnum\_type};\C{ we need a supertype of \&{Tin%
+\_alph}, 			       \&{Tval\_type}, and \&{Twt\_type} }\6
+\&{typedef} ${}\&{Hword}\langle\&{Tindex},\39\&{Tin\_alph},\39\&{Twt\_type},\39%
+\&{Tval\_type}\rangle{}$ \&{THword};\SHC{ Hword for generator }\6
+\&{typedef} ${}\&{Translate}\langle\&{Tindex},\39\&{Tin\_alph},\39\&{THword}%
+\rangle{}$ \&{TTranslate};\SHC{ translate service }\6
+\&{typedef} ${}\&{Candidate\_count\_trie}\langle\&{Tindex},\39\&{Tin\_alph},\39%
+\&{Tcount\_type},\39\&{Tcount\_type}\rangle{}$ \&{TCandidate\_count%
+\_structure};\SHC{ candidate manipulator }\6
+\&{typedef} ${}\&{Competitive\_multi\_out\_pat\_manip}\langle\&{Tindex},\39%
+\&{Tin\_alph},\39\&{Tval\_type}\rangle{}$ \&{TCompetitive\_multi\_out\_pat%
+\_manip};\SHC{ pattern manipulator }\6
+\&{typedef} ${}\&{Outputs\_of\_a\_pattern}\langle\&{Tindex},\39\&{Tval\_type}%
+\rangle{}$ \&{TOutputs\_of\_a\_pattern};\SHC{ outputs of a pattern type }\6
+\&{typedef} ${}\&{Word\_input\_file}\langle\&{THword},\39\&{TTranslate},\39%
+\&{Tnum\_type}\rangle{}$ \&{TWord\_input\_file};\SHC{ word input file }\6
+\&{typedef} ${}\&{Word\_output\_file}\langle\&{Tindex},\39\&{THword},\39%
+\&{TTranslate}\rangle{}$ \&{TWord\_output\_file};\SHC{ word output file }\6
+\&{typedef} ${}\&{Pattern\_input\_file}\langle\&{Tindex},\39\&{Tin\_alph},\39%
+\&{Tval\_type},\39\&{TTranslate},\39\&{TOutputs\_of\_a\_pattern}\rangle{}$ %
+\&{TPattern\_input\_file};\SHC{ pattern input file }\6
+\&{typedef} ${}\&{Pattern\_output\_file}\langle\&{Tindex},\39\&{Tin\_alph},\39%
+\&{Tval\_type},\39\&{TTranslate},\39\&{TOutputs\_of\_a\_pattern}\rangle{}$ %
+\&{TPattern\_output\_file};\SHC{ pattern output file }\6
+\&{typedef} ${}\&{Pass}\langle\&{Tindex},\39\&{Tin\_alph},\39\&{Tval\_type},\39%
+\&{Twt\_type},\39\&{Tcount\_type},\39\&{THword},\39\&{TTranslate},\39%
+\&{TCandidate\_count\_structure},\39\&{TCompetitive\_multi\_out\_pat\_manip},%
+\39\&{TOutputs\_of\_a\_pattern},\39\&{TWord\_input\_file}\rangle{}$ \&{TPass};%
+\SHC{ the pass }\6
+\&{typedef} ${}\&{Level}\langle\&{Tindex},\39\&{Tin\_alph},\39\&{Tval\_type},%
+\39\&{Twt\_type},\39\&{Tcount\_type},\39\&{THword},\39\&{TTranslate},\39%
+\&{TCandidate\_count\_structure},\39\&{TCompetitive\_multi\_out\_pat\_manip},%
+\39\&{TWord\_input\_file},\39\&{TPass}\rangle{}$ \&{TLevel};\SHC{ the level }%
+\par
+\fi
+
+\M{60}Some prints we use sometimes.
+
+\Y\B\&{void} \\{print\_banner}(\&{void})\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{cout}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"Written\ and\ maintai}\)\.{ned\ by\ David\ Antos,\ }\)%
+\.{xantos\ (at)\ fi.muni.}\)\.{cz"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"Copyright\ (C)\ 2001\ }\)\.{David\ Antos"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"This\ is\ free\ softwa}\)\.{re;\ see\ the\ source\ f}\)\.{or\
+copying\ "};{}$\6
+${}\\{cout}\LL\.{"conditions.\ There\ i}\)\.{s\ NO"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"warranty;\ not\ even\ }\)\.{for\ MERCHANTABILITY\ }\)\.{or\
+FITNESS\ "};{}$\6
+${}\\{cout}\LL\.{"FOR\ A\ PARTICULAR\ PU}\)\.{RPOSE."}\LL\\{endl}\LL%
+\\{endl};{}$\6
+${}\\{cout}\LL\.{"Thank\ you\ for\ using}\)\.{\ free\ software!"}\LL\\{endl}\LL%
+\\{endl};{}$\6
+\4${}\}{}$\2\par
+\fi
+
+\M{61}The main function. We parse the command line arguments and create the
+generator.
+
+\Y\B\&{int} \\{main}(\&{int} \\{argc}${},\39{}$\&{char} ${}{*}\\{argv}[\,]){}$%
+\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"This\ is\ OPATGEN,\ ve}\)\.{rsion\ "}\LL\\{opatgen\_version}%
+\LL\\{endl};{}$\6
+\&{if} ${}(\\{argc}\G\T{2}\W(\T{0}\E\\{strcmp}(\\{argv}[\T{1}],\39%
+\.{"--help"}))){}$\5
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"Usage:\ opatgen\ [-u8}\)\.{]\ DICTIONARY\ PATTERN}\)\.{S\
+OUTPUT\ TRANSLATE"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"\ \ Generate\ the\ OUTP}\)\.{UT\ hyphenation\ file\ }\)%
+\.{from\ the"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"\ \ DICTIONARY,\ PATTE}\)\.{RNS,\ and\ TRANSLATE\ f}\)%
+\.{iles."}\LL\\{endl}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"\ \ -u8\ \ \ \ \ files\ are}\)\.{\ in\ UTF-8\ UNICODE\ en}\)%
+\.{coding."}\LL\\{endl}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"opatgen\ --help\ \ \ \ \ }\)\.{print\ this\ help"}\LL%
+\\{endl};{}$\6
+${}\\{cout}\LL\.{"opatgen\ --version\ \ }\)\.{print\ version\ inform}\)%
+\.{ation"}\LL\\{endl};{}$\6
+\\{print\_banner}(\,);\6
+\&{return} \T{0};\6
+\4${}\}{}$\2\6
+\&{if} ${}(\\{argc}\G\T{2}\W(\T{0}\E\\{strcmp}(\\{argv}[\T{1}],\39%
+\.{"--version"}))){}$\5
+${}\{{}$\1\6
+${}\\{cout}\LL\.{"(CVS:\ "}\LL\\{opatgen\_cvs\_id}\LL\.{")"}\LL\\{endl};{}$\6
+${}\\{cout}\LL\.{"with\ PATLIB,\ versio}\)\.{n\ "}\LL\\{patlib\_version}\LL%
+\\{endl};{}$\6
+${}\\{cout}\LL\.{"(CVS:\ "}\LL\\{patlib\_cvs\_id}\LL\.{")"}\LL\\{endl};{}$\6
+\\{print\_banner}(\,);\6
+\&{return} \T{0};\6
+\4${}\}{}$\2\6
+\\{print\_banner}(\,);\6
+\&{try}\5
+${}\{{}$\1\6
+\&{if} ${}(\\{argc}\E\T{5}){}$\5
+${}\{{}$\SHC{ file names only }\1\6
+${}\\{utf\_8}\K\\{false};{}$\7
+${}\&{Generator}\langle\&{Tindex},\39\&{Tin\_alph},\39\&{Tval\_type},\39\&{Twt%
+\_type},\39\&{Tcount\_type},\39\&{THword},\39\&{TTranslate},\39\&{TCandidate%
+\_count\_structure},\39\&{TCompetitive\_multi\_out\_pat\_manip},\39\&{TOutputs%
+\_of\_a\_pattern},\39\&{TWord\_input\_file},\39\&{TWord\_output\_file},\39%
+\&{TPattern\_input\_file},\39\&{TPattern\_output\_file},\39\&{TPass},\39%
+\&{TLevel}\rangle{}$ ${}\|g(\\{argv}[\T{1}],\39\\{argv}[\T{2}],\39\\{argv}[%
+\T{3}],\39\\{argv}[\T{4}]);{}$\7
+${}\|g.\\{do\_all}(\,);{}$\6
+\4${}\}{}$\2\6
+\&{else} \&{if} ${}(\\{argc}\E\T{6}\W(\T{0}\E\\{strcmp}(\\{argv}[\T{1}],\39%
+\.{"-u8"}))){}$\5
+${}\{{}$\SHC{ -u8 and file names }\1\6
+${}\\{utf\_8}\K\\{true};{}$\7
+${}\&{Generator}\langle\&{Tindex},\39\&{Tin\_alph},\39\&{Tval\_type},\39\&{Twt%
+\_type},\39\&{Tcount\_type},\39\&{THword},\39\&{TTranslate},\39\&{TCandidate%
+\_count\_structure},\39\&{TCompetitive\_multi\_out\_pat\_manip},\39\&{TOutputs%
+\_of\_a\_pattern},\39\&{TWord\_input\_file},\39\&{TWord\_output\_file},\39%
+\&{TPattern\_input\_file},\39\&{TPattern\_output\_file},\39\&{TPass},\39%
+\&{TLevel}\rangle{}$ ${}\|g(\\{argv}[\T{2}],\39\\{argv}[\T{3}],\39\\{argv}[%
+\T{4}],\39\\{argv}[\T{5}]);{}$\7
+${}\|g.\\{do\_all}(\,);{}$\6
+\4${}\}{}$\2\6
+\&{else}\5
+${}\{{}$\SHC{ this is an error }\1\6
+${}\\{cout}\LL\.{"opatgen:\ needs\ some}\)\.{\ arguments"}\LL\\{endl}\LL\.{"Try%
+\ `opatgen\ --help}\)\.{'"}\LL\\{endl};{}$\6
+\&{return} \T{1};\6
+\4${}\}{}$\2\6
+\4${}\}{}$\2\7
+\&{catch}(\&{Patlib\_error} \|e)\1\1\2\2\6
+${}\{{}$\1\6
+${}\|e.\\{what}(\,);{}$\6
+${}\\{cerr}\LL\\{endl}\LL\.{"This\ was\ fatal\ erro}\)\.{r,\ sorry.\ Giving\
+up.}\)\.{"}\LL\\{endl};{}$\6
+\4${}\}{}$\2\7
+${}\&{catch}(\,\ldots\,){}$\1\1\2\2\6
+${}\{{}$\1\6
+${}\\{cerr}\LL\.{"An\ unexpected\ excep}\)\.{tion\ occurred.\ It\ me}\)\.{ans\
+there\ is\ probabl}\)\.{y"}\LL\\{endl};{}$\6
+${}\\{cerr}\LL\.{"a\ bug\ in\ the\ progra}\)\.{m.\ Please\ report\ it\ }\)\.{to%
+\ the\ maintainer."}\LL\\{endl};{}$\6
+${}\\{cerr}\LL\.{"Use\ opatgen\ --versi}\)\.{on\ to\ find\ out\ who\ t}\)\.{he\
+maintainer\ is."};{}$\6
+${}\\{cout}\LL\.{"Do\ you\ want\ me\ to\ d}\)\.{ump\ core?\ <y/n>\ "}\LL%
+\\{endl};{}$\7
+\&{string} \|s;\7
+${}\\{cin}\GG\|s;{}$\6
+\&{if} ${}(\|s\E\.{"y"}\V\|s\E\.{"Y"}){}$\5
+${}\{{}$\1\6
+${}\\{cout}\LL\\{endl}\LL\.{"Now\ I\ dump\ core..."}\LL\\{endl};{}$\6
+\\{terminate}(\,);\6
+\4${}\}{}$\SHC{ otherwise quit quietly }\2\6
+\4${}\}{}$\2\6
+\4${}\}{}$\SHC{ end of OPATGEN }\2\par
+\fi
+
+
+\inx
+\fin
+\con

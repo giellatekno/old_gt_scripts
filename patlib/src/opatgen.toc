@@ -1,0 +1,10 @@
+\unprotect 
+\ZZ{Introduction}{0}{1}{2::0:0:0:0:0:0:0::2}{2}
+\ZZ{Services for translate}{1}{4}{2::0:0:0:0:0:0:0::5}{5}
+\ZZ{Translate service}{1}{11}{2::0:0:0:0:0:0:0::12}{12}
+\ZZ{Word input file}{1}{28}{2::0:0:0:0:0:0:0::40}{40}
+\ZZ{Pattern input file}{1}{41}{2::0:0:0:0:0:0:0::55}{55}
+\ZZ{Word output file}{1}{50}{2::0:0:0:0:0:0:0::64}{64}
+\ZZ{Pattern output file}{1}{54}{2::0:0:0:0:0:0:0::68}{68}
+\ZZ{Main function companion}{0}{59}{2::0:0:0:0:0:0:0::72}{72}
+\protect 
