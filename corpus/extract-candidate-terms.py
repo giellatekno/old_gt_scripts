@@ -27,7 +27,7 @@ f_ut_relfreq = sys.argv[3];
 f_in_freq = sys.argv[4];
 f_ut_freq = sys.argv[5];
 
-for line in file(f_in_freq).read().split('\n'): #{
+for line in file(f_in_freq).read().decode('utf-8').split('\n'): #{
 	if len(line) < 1: #{
 		continue;
 	#}
@@ -37,7 +37,7 @@ for line in file(f_in_freq).read().split('\n'): #{
 	in_afreq[word] = float(afreq);
 #}
 
-for line in file(f_ut_freq).read().split('\n'): #{
+for line in file(f_ut_freq).read().decode('utf-8').split('\n'): #{
 	if len(line) < 1: #{
 		continue;
 	#}
@@ -47,7 +47,7 @@ for line in file(f_ut_freq).read().split('\n'): #{
 	ut_afreq[word] = float(afreq);
 #}
 
-for line in file(f_in_relfreq).read().split('\n'): #{
+for line in file(f_in_relfreq).read().decode('utf-8').split('\n'): #{
 	if len(line) < 1: #{
 		continue;
 	#}
@@ -57,7 +57,7 @@ for line in file(f_in_relfreq).read().split('\n'): #{
 	in_relfreq[word] = float(rfreq);
 #}
 
-for line in file(f_ut_relfreq).read().split('\n'): #{
+for line in file(f_ut_relfreq).read().decode('utf-8').split('\n'): #{
 	if len(line) < 1: #{
 		continue;
 	#}
@@ -67,7 +67,7 @@ for line in file(f_ut_relfreq).read().split('\n'): #{
 	ut_relfreq[word] = float(rfreq);
 #}
 
-for line in file(f_lex).read().split('\n'): #{
+for line in file(f_lex).read().decode('utf-8').split('\n'): #{
 	if len(line) < 1: #{
 		continue;
 	#}
