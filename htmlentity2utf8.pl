@@ -37,12 +37,15 @@ s/\&\#0352;/Š/g ;
 s/\&\#0358;/Ŧ/g ;
 s/\&\#0381;/Ž/g ;
 
+s/\&Aacute;/Á/g ;
 s/\&Acirc;/Â/g ;
 s/\&Agrave;/À/g ;
 s/\&Aring;/Å/g ;
 s/\&Auml;/Ä/g ;
+s/\&AElig;/Æ/g ;
 s/\&Ccedil;/Ç/g ;
 s/\&Iacute;/Ì/g ;
+s/\&Oslash;/Ø/g ;
 s/\&Otilde;/Õ/g ;
 s/\&Ouml;/Ö/g ;
 s/\&Scaron;/Š/g ;
@@ -65,7 +68,8 @@ s/\&eacute;/é/g ;
 s/\&ggr;/γ/g ;
 s/\&gt;/>/g ;
 s/\&icirc;/î/g ;
-s/\&ldquo;/«/g ;
+s/\&ldquo;/«/g ; # note! this is a bug
+s/\&laquo;/«/g ; # here ldquo and laquo are identical. Fix!
 s/\&lsquo;/‹/g ;
 s/\&lstrok;/ł/g ;
 s/\&mdash;/—/g ;
@@ -76,6 +80,7 @@ s/\&otilde;/õ/g ;
 s/\&ouml;/ö/g ;
 s/\&plusmn;/±/g ;
 s/\&rdquo;/”/g ;
+s/\&raquo;/»/g ;
 s/\&rsquo;/’/g ;
 s/\&scaron;/š/g ;
 s/\&sect;/§/g ;
@@ -87,7 +92,9 @@ s/\&umacr;/ū/g ;
 s/\&uuml;/ü/g ;
 s/\&yacute;/ý/g ;
 s/\&zcaron;/š/g ;
-
+s/\&ndash;/–/g ;
+s/\&mdash;/—/g ;
+s/\&quot;/"/g ;
 
 
 print ;
