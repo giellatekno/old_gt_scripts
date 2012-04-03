@@ -43,6 +43,6 @@ do
     set -- $sizes
     sample=$((${@/#/+}))
     let peak="sample > peak ? sample : peak"
-    sleep 0.1
+    sleep 10
 done
 echo "memusg: peak=$peak kb" >&2
