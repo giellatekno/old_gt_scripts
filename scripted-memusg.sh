@@ -17,6 +17,8 @@
 #
 # That is, make sure the process you want to measure is running in the
 # background before starting the memory monitoring script.
+#
+# Argument: process name
 
 set -um
 
