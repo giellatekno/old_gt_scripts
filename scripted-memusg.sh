@@ -45,4 +45,4 @@ do
     let peak="sample > peak ? sample : peak"
     sleep 10
 done
-echo "memusg: peak=$peak kb" >&2
+echo "$peak" >&2
