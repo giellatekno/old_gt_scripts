@@ -43,6 +43,9 @@ my $version;
 my $date;
 my @originals;
 my $toolversion;
+my $memoryuse = "";
+my $timeuse   = "";
+my @alltime ;
 
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
@@ -63,6 +66,8 @@ GetOptions (
 			"xml|x=s"            => \$print_xml,
 			"version|v=s"        => \$version,
 			"toolversion|w=s"    => \$toolversion,
+			"memoryuse|mem=s"    => \$memoryuse,
+			"timeuse|ti=s"       => \$timeuse,
 			);
 
 if ($help) {
@@ -83,6 +88,9 @@ if(! @originals) { exit; }
 $toolversion =~ s/\n/, /g;
 $toolversion =~ s/^, //;
 
+# Convert the system time input data to usable strings in seconds:
+@alltime = convert_systime( $timeuse );
+
 if ($applescript) { $input_type="mw"; read_applescript(); }
 elsif ($hunspell) { $input_type="hu"; read_hunspell(); }
 elsif ($polderland) { $input_type="pl"; read_polderland(); }
@@ -92,6 +100,29 @@ else { print STDERR "$0: Give the speller output type: --pl, --mw, --hu, --hf or
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
+
+sub convert_systime {
+	my $times = shift(@_);
+	if ( $times ) {
+		my ($empty, $real, $user, $sys) = split /\n/, $times;
+		$real = convert_systime_to_seconds( $real );
+		$user = convert_systime_to_seconds( $user );
+		$sys  = convert_systime_to_seconds( $sys  );
+		return ($real, $user, $sys);
+	} else {
+		return ("", "", "");
+	}
+}
+
+sub convert_systime_to_seconds {
+	my $time = shift(@_);
+	my ($text, $digits) = split /\t/, $time;
+	my ($minutes, $seconds) = split /m/, $digits;
+
+	# Remove the final 's' in the input string:
+	chop $seconds;
+    return $minutes * 60 + $seconds;
+}
 
 sub read_applescript {
 	
@@ -661,6 +692,10 @@ sub print_xml_output {
 	$tool->set_att('lexversion', $version);
 	$tool->set_att('toolversion', $toolversion);
 	$tool->set_att('type', $input_type);
+	$tool->set_att('memoryusage', $memoryuse);
+	$tool->set_att('realtime', $alltime[0]);
+	$tool->set_att('usertime', $alltime[1]);
+	$tool->set_att('systime',  $alltime[2]);
 	$tool->paste('last_child', $header);
 	
 	# what was the checked document
@@ -850,6 +885,12 @@ Usage: speller-testres.pl [OPTIONS]
 
 --toolversion     Hyphenator tool version information.
 -w
+
+--memoryuse       Max memory consumption of the speller process.
+--mem
+
+--timeuse         Time used by the speller process, as reported by 'time'.
+--ti
 END
 
 }
