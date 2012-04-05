@@ -175,6 +175,19 @@ echo "===>              <==="
 echo "===> ... and fst  <==="
 nice time make
 
+cd $GTHOME/kt/myv/src
+echo "===>              <==="
+echo "===>    Erzya     <===" 
+echo "===>              <==="
+echo "===> lexfiles...  <==="
+nice time make lexfiles
+echo "===>              <==="
+echo "===> ... and fst  <==="
+nice time make
+
+
+
+
 echo ""
 echo ""
 echo "===>   Now, let us try the hfst compiler     <==="
