@@ -27,7 +27,9 @@ set -um
 
 # TODO support more options: peak, footprint, sampling rate, etc.
 
-pgid=`ps -c | grep $1 | cut -f1 -d" "`
+# Get the PID of the target process. Insert initial space to get all PID's
+# in the same "column", irrespective of PID length
+pgid=`ps -c | grep $1 | sed -e 's/^/ /' | tr -s " " | cut -d" " -f2`
 
 # detect operating system and prepare measurement
 case `uname` in
