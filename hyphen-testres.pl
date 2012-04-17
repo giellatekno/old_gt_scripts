@@ -30,7 +30,7 @@ my $print_xml;
 my $forced=0;
 my $polderland;
 #my $applescript;
-#my $hunspell;
+my $hunspell;
 #my $ccat;
 my $out_file;
 my $typos=1;
@@ -47,7 +47,7 @@ GetOptions ("help|h" => \$help,
 			"document|d=s" => \$document,
 			"pl|p" => \$polderland,
 #			"mw|m" => \$applescript,
-#			"hu|u" => \$hunspell,
+			"hu|u" => \$hunspell,
 			"version|v=s" => \$version,
 			"date|e=s" => \$date,
 #			"ccat|c" => \$ccat,
@@ -72,8 +72,9 @@ read_typos();
 if(! @originals) { exit;}
 
 if ($polderland) { $input_type="pl"; read_polderland(); }
+elsif ($hunspell) { $input_type="hu"; read_polderland(); }
 #elsif ($applescript) { $input_type="mw"; read_applescript(); }
-else { print STDERR "$0: Give the speller output type: --pl\n"; exit; }
+else { print STDERR "$0: Give the hyphenator output type: --pl or --hu\n"; exit; }
 
 if ($print_xml) { print_xml_output(); }
 else { print_output(); }
@@ -491,13 +492,15 @@ sub get_index {
 	for (my $i = 0; $i < length($first)-$k; $i++) {
 		my $one = $i + $k;
 		my $two = $i + $l;
-		if (($first_chars[$one] ne $second_chars[$two])) {
-			if(($first_chars[$one] eq '^') or ($first_chars[$one] eq '-')) {
-				$l--;
-				push @index, $one;
-			}
-			else {
-				$k--;
+		if ( $first_chars[$one] and $second_chars[$two]) {
+            if (($first_chars[$one] ne $second_chars[$two])) {
+			     if(($first_chars[$one] eq '^') or ($first_chars[$one] eq '-')) {
+				    $l--;
+				    push @index, $one;
+			     }
+			     else {
+				    $k--;
+				}
 			}
 		}
 	}
