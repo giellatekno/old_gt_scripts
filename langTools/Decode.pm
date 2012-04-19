@@ -262,6 +262,7 @@ sub guess_encoding () {
                 or ( $type eq "type06" and $num > 1 )
                 or ( $type eq "type07" and $num > 1 )
                 or ( $type eq "type10" and $num > 1 )
+                or ( $type eq "type01" and $num > 2 )
                 or ( $type eq "type03" and $num > 3 )
                 or ( $type ne "type03" and $num > 3 ) )
           )

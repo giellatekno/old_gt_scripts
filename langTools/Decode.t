@@ -34,6 +34,7 @@ my %test_cases = (
     "$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/273777-raportti_saami.pdf" => "0",
     "$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/1999_1s.doc" => "type10",
     "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/1999/other_files/AIB-elg.txt" => "type06",
+    "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2001/1-100/_Listu2mega51.doc" => "type01",
 );
 
 foreach ( keys %test_cases ) {
