@@ -675,7 +675,7 @@ sub print_xml_output {
 #			cluck "INFO: nuvviDspeller contains suggestions.\n";
 			my @suggestions = @{$rec->{'sugg'}};
 			for my $sugg (@suggestions) {
-				#print "SUGG $sugg\n";
+#				print "SUGG $sugg\n";
 				if ($sugg && $sugg =~ /[0-9]/) {
 					$version = $sugg;
 #					cluck "INFO: Version string is: $version\n";
