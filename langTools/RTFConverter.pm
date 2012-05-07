@@ -73,6 +73,12 @@ sub clean_doc {
         '<font face=".*">' => "",
         "</font>" => "",
         "<br>" => "</p>\n<p>",
+        "<!--- char 0xb8 --->\n" => "č",
+        "<!--- char 0xb9 --->\n" => "đ",
+        "<!--- char 0xbe --->\n" => "æ",
+        "<!--- char 0xbc --->\n" => "ŧ",
+        "<!--- char 0xba --->\n" => "ŋ",
+        "<!--- char 0xbd --->\n" => "ž",
     );
 
     open( FH, "<:encoding(utf8)", $self->gettmp1() )
