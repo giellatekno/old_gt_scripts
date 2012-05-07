@@ -54,6 +54,7 @@ sub clean_doc {
     my ($self) = @_;
 
     my %replacements = (
+        "Ã¶" => "ö",    # this has to be here because ¶ otherwise is converted to <\/p><p>
         "ð"   => "đ",
         "¶"   => "<\/p><p>",
         "ﬁ"  => "fi",
