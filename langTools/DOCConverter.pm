@@ -54,7 +54,6 @@ sub clean_doc {
     my ($self) = @_;
 
     my %replacements = (
-        "Ã¶" => "ö",
         "ð"   => "đ",
         "¶"   => "<\/p><p>",
         "ﬁ"  => "fi",
