@@ -29,6 +29,7 @@ sub convert2intermediate {
         $error = 1;
     }
     else {
+        $self->clean_doc();
         $command =
             "tidy -config "
           . $self->{_bindir}
@@ -56,6 +57,40 @@ sub convert2intermediate {
     }
 
     return $error;
+}
+
+sub clean_doc {
+    my ($self) = @_;
+
+    my %replacements = (
+        "<!--- char 0x87 --->\n" => "á",
+        "<!--- char 0xbb --->\n" => "š",
+        "<!--- char 0xbf --->\n" => "ø",
+        "<!--- char 0xe3 --->\n" => "č",
+        "<!--- char 0xe2 --->\n" => "Č",
+        "<!--- char 0x8c --->\n" => "å",
+        "<!--- char 0xf7 --->\n" => "đ",
+        '<font face=".*">' => "",
+        "</font>" => "",
+        "<br>" => "</p>\n<p>",
+    );
+
+    open( FH, "<:encoding(utf8)", $self->gettmp1() )
+      or die "Cannot open " . $self->gettmp1() . "$!";
+    my @file = <FH>;
+    close(FH);
+
+    open( FH, ">:encoding(utf8)", $self->gettmp1() )
+      or die "Cannot open " . $self->gettmp1() . "$!";
+    foreach my $string (@file) {
+        foreach my $a ( keys %replacements ) {
+            my $ii = Encode::decode_utf8($a);
+            my $i  = Encode::decode_utf8( $replacements{$a} );
+            $string =~ s/$ii/$i/g;
+        }
+        print FH $string;
+    }
+    close(FH);
 }
 
 1;
