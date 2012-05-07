@@ -276,6 +276,12 @@ sub guess_encoding () {
                 $max_hits = $hits;
                 $encoding = $type;
             }
+            
+            # type11 always wins over type06 as long as there are any hits for type11
+            if ( $encoding eq "type06" and $type eq "type11" and $num > 1) {
+                $encoding = $type;
+            }
+                
             if ($Test) {
                 print
 "type is $type, encoding is $encoding, lang is $lang freq is ",
