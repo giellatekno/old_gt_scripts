@@ -97,6 +97,12 @@ echo "===>    Kurdish   <==="
 cd $GTHOME/st/kmr/src
 nice time make
 
+
+
+
+
+
+
 echo "===>                    <===" 
 echo "===>  Bilingual transd. <===" 
 echo "===>                    <===" 
@@ -185,7 +191,48 @@ echo "===>              <==="
 echo "===> ... and fst  <==="
 nice time make
 
+cd $GTHOME/kt/mdf/src
+echo "===>              <==="
+echo "===>    Moksha    <===" 
+echo "===>              <==="
+echo "===> lexfiles...  <==="
+nice time make lexfiles
+echo "===>              <==="
+echo "===> ... and fst  <==="
+nice time make
 
+
+cd $GTHOME/kt/vep/src
+echo "===>              <==="
+echo "===>    Veps      <===" 
+echo "===>              <==="
+echo "===> lexfiles...  <==="
+nice time make lexfiles
+echo "===>              <==="
+echo "===> ... and fst  <==="
+nice time make
+
+
+cd $GTHOME/kt/vro/src
+echo "===>              <==="
+echo "===>    Võro      <===" 
+echo "===>              <==="
+echo "===> lexfiles...  <==="
+nice time make lexfiles
+echo "===>              <==="
+echo "===> ... and fst  <==="
+nice time make
+
+
+cd $GTHOME/kt/mrj/src
+echo "===>              <==="
+echo "===>   Hill Mari  <===" 
+echo "===>              <==="
+echo "===> lexfiles...  <==="
+nice time make lexfiles
+echo "===>              <==="
+echo "===> ... and fst  <==="
+nice time make
 
 
 echo ""
