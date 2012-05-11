@@ -565,10 +565,12 @@ sub test_abbr {
         return 1;
     } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $ITRAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $ITRAB)) {
         # There is a sentence boundary if intransitive abbreviation 
-        # is NOT followed by a small alphabetic char or punctuation.
+        # is NOT followed by a small alphabetic char or punctuation,
+        # or if it is the last word
         
         add_token ($tokens_aref, $w_token, $word);
-        if ($next_word && $next_word !~ /^[\p{Ll}\pP]/o) {
+        if (!$next_word or ($next_word && $next_word !~ /^[\p{Ll}\pP]/o)) {
+            verbose("ITRAB", $next_word, __LINE__);
             add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
