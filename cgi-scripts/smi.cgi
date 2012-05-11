@@ -37,6 +37,7 @@ require "conf.pl";
 # Original written by Ken Beesley, Xerox, for Aymara.
 # reviewed and modified 12 april 2002, Trond Trosterud
 # reviewed and modified 2006,2007 Saara Huhmarniemi
+# modified 2012 Heli Uibo
 #
 # $Id$
 ########################################################################
@@ -155,7 +156,7 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 $text = digr_utf8($text);
 
 # Remove the unsecure characters from the input.
-$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
+$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;  # Deleted colon from this set to avoid removing colon from the word forms as NRK:s (Heli) 
 
 # Change linebreaks to space and check the word limit
 my @words = split(/[\s]+/, $text);
