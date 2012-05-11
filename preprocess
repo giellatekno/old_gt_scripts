@@ -559,7 +559,7 @@ sub test_abbr {
         # want no CLB after TRNUMAB.
 
         add_token ($tokens_aref, $w_token, $word);
-        if ($next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
+        if ($next_word && $next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o) {
             add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
