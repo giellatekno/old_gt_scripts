@@ -135,9 +135,12 @@ our %Error_Types = (
         "Ê" => " ",
         "¤" => "§",
         "Ò" => "“",
+        "Ó" => "”",
         "ª " => "™ ",
+        "ªÓ" => "™”",
         "Ã" => "√",
         "Ð" => "–",
+        
     },
 
  # found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc

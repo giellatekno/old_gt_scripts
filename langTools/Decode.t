@@ -37,7 +37,8 @@ my %test_cases = (
     "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2001/1-100/_Listu2mega51.doc" => "type01",
     "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2003/other_files/_NOTIS_3_-_Onsdag.doc" => "type01",
     "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/2003/other_files/NOTIS_2-FREDAG.doc" => "type01",
-    "$ENV{'GTBOUND'}/orig/sme/news/Assu/1997/A34-97/13-ann.beauty_.txt" => "type06",
+    "$ENV{'GTBOUND'}/orig/nob/news/Assu/1997/A34-97/13-ann.beauty_.txt" => "type06",
+    "$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.85/07-85-sak-neseplaster.txt"  => "type06",
 );
 
 foreach ( keys %test_cases ) {
