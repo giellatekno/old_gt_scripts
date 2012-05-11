@@ -721,68 +721,70 @@ sub test_idiom {
     my $last_part;
     my $idiom;
     my $ucidiom;
-    if( $words_aref->[0]{word} ) {
-        if ($words_aref->[0]{space}) {
-            $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
-            $ucidiom = ucfirst($$word_ref) . $words_aref->[0]{space} . ucfirst($words_aref->[0]{word});
-        } else {
-            $idiom = $$word_ref . $words_aref->[0]{word};
-            $ucidiom = ucfirst($$word_ref) . ucfirst($words_aref->[0]{word});
-        }
-    } elsif ($next_aref->[0]{word}) { 
-        $idiom = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word}; 
-        $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word}); 
-        $next=1;
-    } else { 
-        return 0; 
-    }
     
-    while ($i <= $size) {
-
-        # Remove the punctuation at the end of the expression.
-        (my $idiom2 = $idiom) =~ s/[^\w]*$//;
-        (my $ucidiom2 = $ucidiom) =~ s/[^\w]*$//;
-
-        # If the expressions contains punctuation in the middle, return.
-        return if ($idiom2 =~ /[^\w\s\d\.\-]/);
-
-        # Test if the formed multiword expression exists in the
-        # idiom list. Test also lower case version.
-
-        verbose ("test_idiom", $idiom, __LINE__);
-
-        if ($idioms{$idiom2} || $idioms{lc($idiom2)} || $idioms{($ucidiom2)}) {
-            for (my $j=0; $j <= $i; $j++) {
-                # Construct the new multiword processing unit.
-                # Remove the parts of the multiword expression from
-                # the word array.
-                if($next) { 
-                    $$word_ref = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word};
-                    shift @{$next_aref};
-                } else {
-                    if ($words_aref->[0]{space}) {
-                        $$word_ref = $$word_ref . $words_aref->[0]{space};
-                    }
-                    if ($words_aref->[0]{word}) {
-                        $$word_ref = $$word_ref . $words_aref->[0]{word};
-                    }
-                    shift @{$words_aref}; 
-                }
+    if ($words_aref->[0]{word} or $next_aref->[0]{word}) {
+        if( $words_aref->[0]{word} ) {
+            if ($words_aref->[0]{space}) {
+                $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
+                $ucidiom = ucfirst($$word_ref) . $words_aref->[0]{space} . ucfirst($words_aref->[0]{word});
+            } else {
+                $idiom = $$word_ref . $words_aref->[0]{word};
+                $ucidiom = ucfirst($$word_ref) . ucfirst($words_aref->[0]{word});
             }
-            return 1;
-        }
-        
-        $i++;
-        if($words_aref->[$i]) { 
-            $idiom = $idiom . $words_aref->[$i]{space} . $words_aref->[$i]{word};
-            $ucidiom = $ucidiom . $words_aref->[$i]{space} . ucfirst($words_aref->[$i]{word});
-        } elsif(! $next && $next_aref->[0]{word} && $next_aref->[0]{space}) { 
-            $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
-            $ucidiom = $ucidiom . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+        } elsif ($next_aref->[0]{word}) { 
+            $idiom = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word}; 
+            $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word}); 
             $next=1;
-        } else { 
-            return 0; 
         }
+        while ($i <= $size) {
+
+            # Remove the punctuation at the end of the expression.
+            (my $idiom2 = $idiom) =~ s/[^\w]*$//;
+            (my $ucidiom2 = $ucidiom) =~ s/[^\w]*$//;
+
+            # If the expressions contains punctuation in the middle, return.
+            return if ($idiom2 =~ /[^\w\s\d\.\-]/);
+
+            # Test if the formed multiword expression exists in the
+            # idiom list. Test also lower case version.
+
+            verbose ("test_idiom", $idiom, __LINE__);
+
+            if ($idioms{$idiom2} || $idioms{lc($idiom2)} || $idioms{($ucidiom2)}) {
+                for (my $j=0; $j <= $i; $j++) {
+                    # Construct the new multiword processing unit.
+                    # Remove the parts of the multiword expression from
+                    # the word array.
+                    if($next) { 
+                        $$word_ref = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word};
+                        shift @{$next_aref};
+                    } else {
+                        if ($words_aref->[0]{space}) {
+                            $$word_ref = $$word_ref . $words_aref->[0]{space};
+                        }
+                        if ($words_aref->[0]{word}) {
+                            $$word_ref = $$word_ref . $words_aref->[0]{word};
+                        }
+                        shift @{$words_aref}; 
+                    }
+                }
+                return 1;
+            }
+            
+            $i++;
+            if($words_aref->[$i]) { 
+                $idiom = $idiom . $words_aref->[$i]{space} . $words_aref->[$i]{word};
+                $ucidiom = $ucidiom . $words_aref->[$i]{space} . ucfirst($words_aref->[$i]{word});
+            } elsif(! $next && $next_aref->[0]{word} && $next_aref->[0]{space}) { 
+                $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
+                $ucidiom = $ucidiom . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+                $next=1;
+            } else { 
+                return 0; 
+            }
+        }
+    } else {
+        return 0;
     }
 }
 
