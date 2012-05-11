@@ -27,7 +27,6 @@ use open 'utf8';
 # permit named arguments
 use Getopt::Long;
 
-my $last_word = "";
 my %abbrs;
 my %corrections;
 my %corr_short;
@@ -398,6 +397,7 @@ sub process_words {
 sub process_word {
     my ($word, $w_token, $words_aref, $next_aref, $tokens_aref) = @_;
 
+    verbose ("entering process_word", $word, __LINE__);
     # variable for storing all the punctuation at the end of the word.
     # except dot (for abbreviations) and some other punct. if needed
     my $end_punct = "";
@@ -414,10 +414,6 @@ sub process_word {
     # Test for multiword expression.
     if ( $idioms_short{$word}) {
         test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE);
-        if ($last_word eq $word && $word !~ /\.$/) {
-            $word = $word . ".";
-        }
-        $last_word = $word;
     }
 
     my $end_num;
@@ -464,7 +460,8 @@ sub process_word {
 
         # The word is checked for abbreviation and sentence boundary.
         my $abbr = $word;
-        if ($abbr =~ s/\.$//) {
+        if ($abbr) {
+            $abbr =~ s/\.$//;
             if ($abbrs{$abbr} || $abbrs{lc($abbr)}) {
                 verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
                 test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
@@ -547,10 +544,9 @@ sub test_abbr {
     my ($word, $w_token, $next_word, $tokens_aref) = @_;
 
     my $abbr = $word;
-    if (! ($abbr =~ s/\.$//)) {
-        return 0;
-    }
-
+    
+    verbose("test_abbr", $abbr, __LINE__);
+    $abbr =~ s/\.$//;
     # Transitive abbreviations are never followed
     # by sentence boundary.
     if (($abbrs{$abbr} && $abbrs{$abbr} eq $TRAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $TRAB)) {
