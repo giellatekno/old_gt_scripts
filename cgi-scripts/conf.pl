@@ -65,7 +65,7 @@ sub init_variables {
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
-        my $hfst = "$fstdir/$lang.cg.hfst.ol";
+        my $hfst = "$fstdir/$lang.hfstol";
 	my $gen_fst = "$fstdir/i$lang.fst";
 	my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
@@ -181,7 +181,10 @@ sub init_variables {
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
 	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
 # for the next debug, this is the variable-free version of $disamb:
+# with xfst:
 # $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/sme.fst | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
+# with hfst:
+# $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/hfst-lookup  /opt/smi/sme/bin/sme.hfstol | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
     $generate = "tr ' ' '\n' | $gen_lookup";
