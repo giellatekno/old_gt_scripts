@@ -202,15 +202,15 @@ echo "===> ... and fst  <==="
 nice time make
 
 
-cd $GTHOME/kt/vep/src
-echo "===>              <==="
-echo "===>    Veps      <===" 
-echo "===>              <==="
-echo "===> lexfiles...  <==="
-nice time make lexfiles
-echo "===>              <==="
-echo "===> ... and fst  <==="
-nice time make
+!cd $GTHOME/kt/vep/src
+!echo "===>              <==="
+!echo "===>    Veps      <===" 
+!echo "===>              <==="
+!echo "===> lexfiles...  <==="
+!nice time make lexfiles
+!echo "===>              <==="
+!echo "===> ... and fst  <==="
+!nice time make
 
 
 cd $GTHOME/kt/vro/src
