@@ -40,6 +40,9 @@
 # Alias for svn update
 alias svnup="svn up $GTHOME $GTBIG $GTFREE $GTPRIV"
 
+# Sorting Cyrillic lists
+
+
 # Standardised aliases for Giellatekno work:
 alias victorio='ssh victorio.uit.no'
 alias vic='ssh victorio.uit.no'
@@ -60,7 +63,8 @@ alias xsl2="saxonXSL"
 
 # Unicode/UTF-8 aware rev:
 alias rev="perl -nle 'print scalar reverse \$_'"
-alias sortcyr="perl -nle 'print scalar \$_'"
+alias sortr='LC_ALL="ru" sort'
+
 
 # utility command
 alias path='echo -e ${PATH//:/\\n}'
