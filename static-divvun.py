@@ -313,7 +313,7 @@ class StaticSiteBuilder:
 		#shutil.copy(builddir, builtdir)
 
 	def add_lang_info(self, filename, lang):
-		trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Julevsábmáj", "sv": "På svenska" , "en": "In english"}
+		trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Julevsábmáj", "sv": "På svenska" , "en": "In English"}
 		#print 'filename', filename
 		#print 'path', self.builddir + "/build/site"
 		the_rest = filename[len(self.builddir + "/build/site"):]
