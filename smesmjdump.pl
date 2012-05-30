@@ -16,7 +16,6 @@ while(<>) {
 	s/ C-FI-NEN/nen LONDON/g ;
 	s/SUND/BERN/g ;
 	s/HEIM/BERN/g ;
-	s/DUBAI/BERN/g ;
 	s/NIKOSIIJA/ACCRA/g ;
 	s/SIJTE/ACCRA/g ;
 	s/j9/j/g ;
