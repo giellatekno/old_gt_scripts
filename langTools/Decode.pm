@@ -13,7 +13,7 @@ our ( $VERSION, @ISA, @EXPORT, @EXPORT_OK );
 
 @ISA = qw(Exporter);
 
-@EXPORT = qw(&guess_body_encoding &decode_para);
+@EXPORT = qw(&guess_body_encoding &guess_person_encoding &decode_para);
 
 our %Error_Types = (
 
@@ -216,10 +216,9 @@ our $ERROR       = -1;
 # Printing some test data, chars and their amounts
 our $Test = 0;
 
-# Guess text encoding from a file $file if it's given.
-# Else use the reference to a paragraph $para_ref.
+# Guess text encoding of $para_ref.
 sub guess_body_encoding () {
-    my ( $para_ref ) = @_;
+    my ( $text ) = @_;
 
     my $max_hits = 0;
 
@@ -228,7 +227,7 @@ sub guess_body_encoding () {
     my $encoding = $NO_ENCODING;
 
     if ( !@text_array ) {
-        @text_array = split( "\n", $$para_ref );
+        @text_array = split( "\n", $text );
     }
 
     for my $type ( sort( keys %Error_Types ) ) {
@@ -267,6 +266,60 @@ sub guess_body_encoding () {
             }
             
             # type11 always wins over type06 as long as there are any hits for type11
+            if ( $encoding eq "type06" and $type eq "type11" and $num > 0 ) {
+                $encoding = $type;
+            }
+                
+            if ($Test) {
+                print
+"type is $type, encoding is $encoding, freq is ",
+                  %freq, " num is ", $num, " hits is ", $hits, "\n";
+            }
+        }
+    }
+    return $encoding;
+}
+
+# Guess text encoding of $para_ref.
+sub guess_person_encoding () {
+    my ( $lastname ) = @_;
+
+    my $max_hits = 0;
+    my $encoding = $NO_ENCODING;
+    for my $type ( sort( keys %Error_Types ) ) {
+        my %freq;
+
+        foreach ( keys %{ $Error_Types{$type} } ) {
+            my $key = $_;
+
+            while ( $lastname =~ /$key/g ) {
+                $freq{$key}++;
+            }
+        }
+
+        my $num = ( keys %freq );
+
+        if (
+            %freq
+            and (  ( $type eq "type11" )
+                or ( $type eq "type06" )
+                or ( $type eq "type07" )
+                or ( $type eq "type10" )
+                or ( $type eq "type01" )
+                or ( $type eq "type03" )
+                or ( $type ne "type03" ) )
+          )
+        {
+            my $hits = 0;
+            for my $key ( keys %freq ) {
+                $hits += $freq{$key};
+            }
+            if ( $hits >= $max_hits ) {
+                $max_hits = $hits;
+                $encoding = $type;
+            }
+            
+            # type11 always wins over type06 as long as there are any hits for type11
             if ( $encoding eq "type06" and $type eq "type11" and $num > 1) {
                 $encoding = $type;
             }
@@ -282,11 +335,8 @@ sub guess_body_encoding () {
 }
 
 sub decode_para () {
-    my ( $lang, $para_ref, $encoding ) = @_;
+    my ( $para_ref, $encoding ) = @_;
 
-    if ( !$encoding ) {
-        $encoding = &guess_encoding( undef, $lang, $para_ref );
-    }
     if ( !$encoding eq $NO_ENCODING ) { return; }
 
     # 	if ($Test) {

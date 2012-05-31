@@ -45,11 +45,19 @@ foreach ( keys %body_test_cases ) {
     test_body_decode( $_, $body_test_cases{$_} );
 }
 
+my %person_test_cases = (
+    "$ENV{'GTFREE'}/goldstandard/orig/sma/ficti/Kruanebe_Sveerje_politihke.correct.doc" => "type06",
+);
+
+foreach ( keys %person_test_cases ) {
+    test_person_decode( $_, $person_test_cases{$_} );
+}
+
 #
 # Subroutines
 #
 
-# Test the encoding of one file
+# Test the encoding of the body of one file
 sub test_body_decode {
     my ( $filename, $expected_result ) = @_;
 
@@ -64,6 +72,25 @@ sub test_body_decode {
     my $text = $converter->get_doc_text();
     isnt( $text, '0', "extract text from xml" );
     my $language = $converter->getPreconverter()->getDoclang();
-    is( &guess_body_encoding( \$text ),
+    is( &guess_body_encoding( $text ),
+        $expected_result, "the encoding" );
+}
+
+# Test the encoding of the body of one file
+sub test_person_decode {
+    my ( $filename, $expected_result ) = @_;
+
+    print "\nTesting $filename\n";
+    my $converter = langTools::Converter->new( $filename, $debug );
+    $converter->getPreconverter();
+    is( $converter->makeXslFile(),
+        '0', "Check if we are able to make the tmp-metadata file" );
+    is( $converter->convert2intermediatexml(), '0', "pdf to int xml" );
+    is( $converter->convert2xml(),
+        '0', "Check if combination of internal xml and metadata goes well" );
+    my $text = $converter->get_person_lastname();
+    isnt( $text, '0', "extract text from xml" );
+    my $language = $converter->getPreconverter()->getDoclang();
+    is( &guess_person_encoding( $text ),
         $expected_result, "the encoding" );
 }
