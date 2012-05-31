@@ -30,7 +30,7 @@ require_ok('langTools::Decode');
 use langTools::Converter;
 
 # filename with expected result
-my %test_cases = (
+my %body_test_cases = (
     "$ENV{'GTFREE'}/orig/sme/admin/depts/other_files/273777-raportti_saami.pdf" => "0",
     "$ENV{'GTFREE'}/orig/sme/admin/sd/other_files/1999_1s.doc" => "type10",
     "$ENV{'GTBOUND'}/orig/sme/news/MinAigi/1999/other_files/AIB-elg.txt" => "type06",
@@ -41,8 +41,8 @@ my %test_cases = (
     "$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.85/07-85-sak-neseplaster.txt"  => "type06",
 );
 
-foreach ( keys %test_cases ) {
-    test_decode( $_, $test_cases{$_} );
+foreach ( keys %body_test_cases ) {
+    test_body_decode( $_, $body_test_cases{$_} );
 }
 
 #
@@ -50,7 +50,7 @@ foreach ( keys %test_cases ) {
 #
 
 # Test the encoding of one file
-sub test_decode {
+sub test_body_decode {
     my ( $filename, $expected_result ) = @_;
 
     print "\nTesting $filename\n";
