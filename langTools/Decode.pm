@@ -13,7 +13,7 @@ our ( $VERSION, @ISA, @EXPORT, @EXPORT_OK );
 
 @ISA = qw(Exporter);
 
-@EXPORT = qw(&guess_encoding &decode_para);
+@EXPORT = qw(&guess_body_encoding &decode_para);
 
 our %Error_Types = (
 
@@ -210,22 +210,16 @@ our %Error_Types = (
 
 );
 
-our $UNCONVERTED = 0;
-our $CORRECT     = 1;
 our $NO_ENCODING = 0;
 our $ERROR       = -1;
-
-# The minimal percentage of selected (unconverted) sámi characters in a file that
-# decides whether the file needs to be decoded at all.
-our $MIN_AMOUNT = 0.0;
 
 # Printing some test data, chars and their amounts
 our $Test = 0;
 
 # Guess text encoding from a file $file if it's given.
-# Else use the reference to a pargraph $para_ref.
-sub guess_encoding () {
-    my ( $file, $lang, $para_ref ) = @_;
+# Else use the reference to a paragraph $para_ref.
+sub guess_body_encoding () {
+    my ( $para_ref ) = @_;
 
     my $max_hits = 0;
 
@@ -233,15 +227,7 @@ sub guess_encoding () {
     my $error    = 0;
     my $encoding = $NO_ENCODING;
 
-    # Read the corpus file
-    if ($file) {
-        $error = &read_file( $file, \@text_array );
-    }
-    if ($error) {
-        carp "non-utf8 bytes.\n";
-        return $ERROR;
-    }
-    elsif ( !@text_array ) {
+    if ( !@text_array ) {
         @text_array = split( "\n", $$para_ref );
     }
 
@@ -287,7 +273,7 @@ sub guess_encoding () {
                 
             if ($Test) {
                 print
-"type is $type, encoding is $encoding, lang is $lang freq is ",
+"type is $type, encoding is $encoding, freq is ",
                   %freq, " num is ", $num, " hits is ", $hits, "\n";
             }
         }
