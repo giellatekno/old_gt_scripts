@@ -330,6 +330,23 @@ sub get_doc_text {
     }
 }
 
+sub get_person_lastname {
+    my ($self) = @_;
+
+    my $int = $self->getInt();
+
+    my $twig = XML::Twig->new();
+    if ( $twig->safe_parsefile($int) ) {
+        my $root = $twig->root;
+        my $person = $root->first_child('header')->first_child('author')->first_child('person');
+        my $text = $person->{'att'}{'lastname'};
+        return $text;
+    }
+    else {
+        return 0;
+    }
+}
+
 sub character_encoding {
     my ($self) = @_;
 
@@ -353,7 +370,7 @@ sub character_encoding {
     }
     else {
         if ( !$encoding ) {
-            $encoding = &guess_encoding( undef, $language, \$text );
+            $encoding = &guess_body_encoding( \$text );
         }
         if ($test) {
             print "(character_encoding) Encoding is: $encoding\n";
@@ -417,7 +434,7 @@ sub recursively_decode_text {
     for my $child ( $element->children ) {
         if ( $child->tag eq "#PCDATA" ) {
             my $text = $child->text;
-            &decode_para( $language, \$text, $coding );
+            &decode_para( \$text, $coding );
             push( @new_content, $text );
         }
         else {
@@ -432,18 +449,13 @@ sub recursively_decode_text {
 }
 
 sub call_decode_person {
-    my ( $self, $twig, $para, $coding ) = @_;
+    my ( $self, $twig, $person, $coding ) = @_;
 
-    my $language = $self->getPreconverter()->getDoclang();
-    my $error    = 0;
+    my $text = $person->{'att'}{'lastname'};
+    $coding = &guess_person_encoding($text);
+    &decode_para( \$text, $coding );
+    $person->atts->{'lastname'} = $text;
 
-    for my $a ( keys( %{ $para->atts } ) ) {
-        my $text = ${ $para->atts }{$a};
-        $error = &decode_para( $language, \$text, $coding );
-        $para->atts->{$a} = $text;
-    }
-
-    return $error;
 }
 
 sub error_markup {

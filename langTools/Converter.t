@@ -57,10 +57,7 @@ else {
     );
 
     my @pdf_names = (
-        "$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG02_2008.pdf",
-        "$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG05_2008.pdf",
-        "$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG15_2008.pdf",
-        "$ENV{'GTBOUND'}/orig/kal/news/AG/2008/AG21_2008.pdf",
+        "$ENV{'GTBOUND'}/orig/mixed/news/AG/2008/AG02_2008.pdf",
         "$ENV{'GTBOUND'}/orig/nob/facta/other_files/Nordområdestrategi06.pdf",
         "$ENV{'GTBOUND'}/orig/sma/facta/other_files/Vi_vill___MP.pdf",
         "$ENV{'GTBOUND'}/orig/sme/bible/other_files/vitkan.pdf",
