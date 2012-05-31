@@ -64,6 +64,6 @@ sub test_decode {
     my $text = $converter->get_doc_text();
     isnt( $text, '0', "extract text from xml" );
     my $language = $converter->getPreconverter()->getDoclang();
-    is( &guess_encoding( undef, $language, \$text ),
+    is( &guess_body_encoding( \$text ),
         $expected_result, "the encoding" );
 }
