@@ -347,6 +347,23 @@ sub get_person_lastname {
     }
 }
 
+sub get_title_text {
+    my ($self) = @_;
+
+    my $int = $self->getInt();
+
+    my $twig = XML::Twig->new();
+    if ( $twig->safe_parsefile($int) ) {
+        my $root = $twig->root;
+        my $title = $root->first_child('header')->first_child('title');
+        my $text = $title->text;
+        return $text;
+    }
+    else {
+        return 0;
+    }
+}
+
 sub character_encoding {
     my ($self) = @_;
 
@@ -370,7 +387,7 @@ sub character_encoding {
     }
     else {
         if ( !$encoding ) {
-            $encoding = &guess_body_encoding( \$text );
+            $encoding = &guess_body_encoding( $text );
         }
         if ($test) {
             print "(character_encoding) Encoding is: $encoding\n";
@@ -381,7 +398,7 @@ sub character_encoding {
             $d = XML::Twig->new(
                 twig_handlers => {
                     'p' => sub { call_decode_para( $self, @_, $encoding ); },
-                    'title'  => sub { call_decode_para( $self,   @_ ); },
+                    'title'  => sub { call_decode_title( $self,   @_ ); },
                     'person' => sub { call_decode_person( $self, @_ ); },
                 }
             );
@@ -389,7 +406,7 @@ sub character_encoding {
         else {
             $d = XML::Twig->new(
                 twig_handlers => {
-                    'title'  => sub { call_decode_para( $self,   @_ ); },
+                    'title'  => sub { call_decode_title( $self,   @_ ); },
                     'person' => sub { call_decode_person( $self, @_ ); },
                 }
             );
@@ -456,6 +473,17 @@ sub call_decode_person {
     &decode_para( \$text, $coding );
     $person->atts->{'lastname'} = $text;
 
+}
+
+sub call_decode_title {
+    my ( $self, $twig, $title, $coding ) = @_;
+
+    my $text = $title->text;
+    $coding = &guess_person_encoding($text);
+    &decode_para( \$text, $coding );
+    my @new_content;
+    push( @new_content, $text );
+    $title->set_content( @new_content );
 }
 
 sub error_markup {

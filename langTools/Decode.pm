@@ -236,8 +236,13 @@ sub guess_body_encoding () {
         for my $line (@text_array) {
             foreach ( keys %{ $Error_Types{$type} } ) {
                 my $key = $_;
-
-                while ( $line =~ /$key/g ) {
+                my $tmpline = $line;
+                
+                # ž is never found in the beginning or end of words
+                if ( $key eq '½' and $type eq "type06" ) {
+                    $tmpline =~ s/(\s½|½\s)//g;
+                }
+                while ( $tmpline =~ /$key/g ) {
                     $freq{$key}++;
                 }
             }
@@ -272,7 +277,7 @@ sub guess_body_encoding () {
                 
             if ($Test) {
                 print
-"type is $type, encoding is $encoding, freq is ",
+"body_encoding type is $type, encoding is $encoding, freq is ",
                   %freq, " num is ", $num, " hits is ", $hits, "\n";
             }
         }
