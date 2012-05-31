@@ -121,7 +121,7 @@ sub convertdoc {
                     print STDERR "Conversion failed: Wasn't able to identify the language(s) inside the text " . $converter->getOrig() . "\n";
                     $error = 1;
                     push (@{$error_hash{"text_categorization"}}, $file);
-                } elsif ($converter->get_mainlang_ratio() < 85) {
+                } elsif ($converter->get_mainlang_ratio() < 85 and $filename !~ /\/mixed\//) {
                     print STDERR "Conversion failed: More than 15% of the content is not in the mainlang " . $converter->getOrig() . "\n";
                     $error = 1;
                     push (@{$error_hash{"too_low_mainlang"}}, $file);
