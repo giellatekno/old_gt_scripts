@@ -22,7 +22,7 @@ use open 'utf8';
 # to other sámi tools. See documentation in 
 # http://giellatekno.uit.no/doc/ling/preprocessor.html
 # 
-# $Id: preprocess,v 1.90 2007/12/18 13:43:13 saara Exp $
+# $Id$
 
 # permit named arguments
 use Getopt::Long;
@@ -88,7 +88,8 @@ if ($connect) {
     } 
 }
 
-my $quotations = quotemeta("«»‹›“”„‘’‚´`'\"");
+# my $quotations = quotemeta("«»‹›“”„‘’‚´`'\""); # original
+my $quotations = quotemeta("«»‹›“”„‘’‚`'\"");   # Skolt Sami fix without ACUTE ACCENT as delimiter
 my $other = quotemeta("…•¶½¾¼"); # dash to be added
 my $parentheses = quotemeta("|{}[]()<>");
 if ($xml) { $parentheses = quotemeta("|{}[]()"); }
