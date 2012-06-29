@@ -31,10 +31,8 @@ update_trunk()
         svn co https://victorio.uit.no/biggies/trunk big
     else
         cd $HOME/gtsvn
-        echo "*** $HOME/gtsvn this is $GTHOME***"
         svn up
         cd $HOME/big
-        echo "*** $HOME/big this is $GTBIG ***"
         svn up
     fi
 }
@@ -73,19 +71,16 @@ build_and_copy_site()
 	fi
 }
 
+EXPECTED_ARGS=2
+E_BADARGS=65
 
-update_trunk
-
-build_and_copy_site \
-	$HOME/gtsvn/ped \
-	gtuit@giellatekno.uit.no:Sites/oahpa
-	
-build_and_copy_site \
-	$HOME/gtsvn/xtdoc/gtuit \
-	gtuit@giellatekno.uit.no:Sites
-
-build_and_copy_site \
-    $HOME/gtsvn/xtdoc/dicts \
-    gtuit@giellatekno.uit.no:Sites/dicts
+if [ $# -ne $EXPECTED_ARGS ]
+then
+  echo "Usage: `basename $0` <dir of forrest tree> <ssh destination>"
+  exit $E_BADARGS
+else 
+    update_trunk
+    build_and_copy_site $1 $2
+fi
     
 echo "Done updating giellatekno:-)!"
