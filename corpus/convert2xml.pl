@@ -80,11 +80,13 @@ sub convertdoc {
 				$error = 1;
 				push (@{$error_hash{"xsl"}}, $file);
 			} elsif ($converter->getOCRFromXsl() eq "''") {
-                if ($converter->do_parallels_exist()) {
-                    print STDERR "Conversion failed: Some parallel file doesn't exist\n";
-                    $error = 1;
-                    push (@{$error_hash{"parallel_file_lacks"}}, $file);
-                } elsif ($converter->convert2intermediatexml()) {
+			  # disabling the parallel files check: this should be done after xml conversion, one might need a file for a monolingual corpus
+                # if ($converter->do_parallels_exist()) {
+                #     print STDERR "Conversion failed: Some parallel file doesn't exist\n";
+                #     $error = 1;
+                #     push (@{$error_hash{"parallel_file_lacks"}}, $file);
+                # } elsif ($converter->convert2intermediatexml()) {
+                if ($converter->convert2intermediatexml()) {
                     print STDERR "Conversion failed: Couldn't convert " . $converter->getOrig() . " to intermediate xml format\n";
                     $error = 1;
                     push (@{$error_hash{"intermediate"}}, $file);
