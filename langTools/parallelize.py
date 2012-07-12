@@ -401,7 +401,7 @@ class Parallelize:
 
         tmpfile = ParallelFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
         self.origfiles.append(tmpfile)
-
+# the function reshuffle might be the cause of switched tu-elements in the tokxml files: to debug
         if self.isTranslatedFromLang2():
             self.reshuffleFiles()
 
