@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import os
+import os, errno
 import argparse
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
@@ -27,6 +27,14 @@ def main():
         print "Aligning files ..."
         if parallelizer.parallelizeFiles() == 0:
             tmx = parallelize.Tca2ToTmx(parallelizer.getFilelist())
+
+            oPath, oFile = os.path.split(tmx.getOutfileName())
+            oRelPath = oPath.replace(os.getcwd()+'/', '', 1)
+            try:
+                os.makedirs(oRelPath)
+            except OSError, e:
+                if e.errno != errno.EEXIST:
+                    raise
             print "Generating the tmx file", tmx.getOutfileName()
             tmx.writeTmxFile(tmx.getOutfileName())
 
