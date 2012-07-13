@@ -308,7 +308,6 @@ class SentenceDivider:
         preprocessCommand = []
         if (self.docLang == 'nob'):
             abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
-            #print >>sys.stderr, abbrFile
             preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
         else:
             abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
