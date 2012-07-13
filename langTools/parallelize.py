@@ -20,7 +20,7 @@
 #   Copyright 2011-2012 Børre Gaup <borre.gaup@uit.no>
 #
 
-import os
+import os, errno
 import re
 import sys
 import subprocess
@@ -289,6 +289,13 @@ class SentenceDivider:
     def writeResult(self, outfile):
         """Write self.document to the given outfile name
         """
+        oPath, oFile = os.path.split(outfile)
+        oRelPath = oPath.replace(os.getcwd()+'/', '', 1)
+        try:
+            os.makedirs(oRelPath)
+        except OSError, e:
+            if e.errno != errno.EEXIST:
+                raise
         f = open(outfile, 'w')
         et = etree.ElementTree(self.document)
         et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
@@ -301,6 +308,7 @@ class SentenceDivider:
         preprocessCommand = []
         if (self.docLang == 'nob'):
             abbrFile = os.path.join(os.environ['GTHOME'], 'st/nob/bin/abbr.txt')
+            #print >>sys.stderr, abbrFile
             preprocessCommand = ['preprocess', '--abbr=' + abbrFile]
         else:
             abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
