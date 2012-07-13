@@ -189,6 +189,12 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p><s id="9">elevene skal få !</s><s id="10">Sametingsrådet mener målet</s></p>')
         self.assertXmlEqual(got, want)
 
+        p = etree.XML('<p>Sametinget.............................................................................................................................. 2 Utdannings- og forskningsdepartementet............................................................................... 3 Kultur- og kirkedepartementet ............................................................................................... 7 Kommunal- og regionaldepartementet................................................................................... 9 Helsedepartementet .............................................................................................................. 14 Barne- og familiedepartementet ........................................................................................... 15 Landbruksdepartementet ...................................................................................................... 16 Miljøverndepartementet ....................................................................................................... 20 Utenriksdepartementet ......................................................................................................... 21 Justisdepartementet .............................................................................................................. 22 Oversikt over bevilgninger til samiske formål (1000 kr):</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="11">Sametinget ... 2 Utdannings- og forskningsdepartementet ... 3 Kultur- og kirkedepartementet ... 7 Kommunal- og regionaldepartementet ... 9 Helsedepartementet ... 14 Barne- og familiedepartementet ... 15 Landbruksdepartementet ... 16 Miljøverndepartementet ... 20 Utenriksdepartementet ... 21 Justisdepartementet ... 22 Oversikt over bevilgninger til samiske formål ( 1000 kr . ) :</s></p>')
+        self.assertXmlEqual(got, want)
+
+
     def testDotFollowedByDot(self):
         """Test of how processOneParagraph handles a paragraph 
         with . and ... in the end.
@@ -1507,8 +1513,8 @@ class Toktmx2Tmx:
             return files[:-1]
 
 if __name__ == '__main__':
-    #
-    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
+    #for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
+    for test in [TestSentenceDivider]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
