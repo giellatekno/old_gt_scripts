@@ -381,18 +381,17 @@ class SentenceDivider:
                         if words[i + 1] != '':
                             sentence.append(words[i + 1].decode('utf-8').strip())
                         i = i + 1
-                    if sentence != ['.', '.'] and sentence != ['?'] and sentence != ['.']:
+
+                    # exclude pseudo-sentences, i.e. sentences that don't contain any alphanumeric characters
+                    if not re.compile(r"^[\W|\s]*$").match(' '.join(sentence)):
                         newParagraph.append(self.makeSentence(sentence))
                     sentence = []
 
                 i = i + 1
 
+            # exclude pseudo-sentences, i.e. sentences that don't contain any alphanumeric characters
             if len(sentence) > 1 and not re.compile(r"^[\W|\s]*$").match(' '.join(sentence)):
-                #if re.compile(r"^[\W|\s]*$").match(' '.join(sentence)):
-                #   print >>sys.stderr, 'gogo_test|' + ' '.join(sentence) + '|test_gogo' 
-
-                if sentence != [',', '', ':']:
-                    newParagraph.append(self.makeSentence(sentence))
+                newParagraph.append(self.makeSentence(sentence))
 
         return newParagraph
 
@@ -409,7 +408,7 @@ class SentenceDivider:
         s.attrib["id"] = str(self.sentenceCounter)
 
         # substitute two or more spaces with one space
-        s.text = spaces.sub(' ', ' '.join(sentence))
+        s.text = spaces.sub(' ', ' '.join(sentence)).strip()
 
         self.sentenceCounter += 1
 
