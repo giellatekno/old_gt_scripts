@@ -387,8 +387,11 @@ class SentenceDivider:
 
                 i = i + 1
 
-            if len(sentence) > 1:
-                if sentence != [',', '']:
+            if len(sentence) > 1 and not re.compile(r"^[\W|\s]*$").match(' '.join(sentence)):
+                #if re.compile(r"^[\W|\s]*$").match(' '.join(sentence)):
+                #   print >>sys.stderr, 'gogo_test|' + ' '.join(sentence) + '|test_gogo' 
+
+                if sentence != [',', '', ':']:
                     newParagraph.append(self.makeSentence(sentence))
 
         return newParagraph
