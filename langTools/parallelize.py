@@ -168,12 +168,14 @@ class TestSentenceDivider(unittest.TestCase):
         want = etree.XML('<p><s id="3">Stuora oassi Romssa universitehta doaimmain lea juohkit dieđuid sámi , norgga ja riikkaidgaskasaš dutkanbirrasiidda , sámi ja norgga eiseválddiide , ja sámi servodagaide ( geahča mielddus A “ Romssa universitehta ja guoskevaš institušuvnnaid sámi dutkan ja oahpahus ” álggahusa ) .</s></p>')
         self.assertXmlEqual(got, want)
 
+
+
+        self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p>Artikkel i boka Samisk skolehistorie 2 . Davvi Girji 2007.</p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="4">Artikkel i boka Samisk skolehistorie 2 .</s><s id="5">Davvi Girji 2007 .</s></p>')
         self.assertXmlEqual(got, want)
 
-        self.sentenceDivider.docLang = 'nob'
         p = etree.XML('<p><em type="bold">Bjørn Aarseth med elever på skitur - på 1950-tallet.</em> (Foto: Trygve Madsen)</p>')
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="6">Bjørn Aarseth med elever på skitur - på 1950-tallet .</s><s id="7">( Foto : Trygve Madsen )</s></p>')
@@ -193,6 +195,24 @@ class TestSentenceDivider(unittest.TestCase):
         got = self.sentenceDivider.processOneParagraph(p)
         want = etree.XML('<p><s id="11">Sametinget ... 2 Utdannings- og forskningsdepartementet ... 3 Kultur- og kirkedepartementet ... 7 Kommunal- og regionaldepartementet ... 9 Helsedepartementet ... 14 Barne- og familiedepartementet ... 15 Landbruksdepartementet ... 16 Miljøverndepartementet ... 20 Utenriksdepartementet ... 21 Justisdepartementet ... 22 Oversikt over bevilgninger til samiske formål ( 1000 kr . ) :</s></p>')
         self.assertXmlEqual(got, want)
+
+        #cip: what do we want here? Both sme and nob document are not ok for tca2/sentence chopping and the incompleteSentence doesn't help
+        #Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_samiskversjon.pdfsme_sent.xml 
+        # <s id="42">Allaskuvllas lea maiddái ovddasvástádus julevsámegielas ja máttasámegielas .</s>
+        # <s id="43">( ... ) .</s>
+        # <s id="44">Berre leat vejolaš váldit oahpaheaddjeoahpu , mas erenoamáš deaddu lea davvi- , julev- , máttasámegielas ja kultuvrras .</s>
+        # <s id="45">Bodåddjå ja Davvi-Trøndelága allaskuvllaid ovddasvástádussan lea fállat julevsáme- ja máttasámegiela ja kultuvrra oahpahusa , mat lea oahpaheaddjeoahpu oassin dahje viidáset oahppun .</s>
+        self.sentenceDivider.docLang = 'sme'
+        p = etree.XML('<p>Allaskuvllas lea maiddái ovddasvástádus julevsámegielas ja máttasámegielas. (... ). Berre leat vejolaš váldit oahpaheaddjeoahpu, mas erenoamáš deaddu lea davvi-, julev-, máttasámegielas ja kultuvrras.</p>')
+        got = self.sentenceDivider.processOneParagraph(p)
+        want = etree.XML('<p><s id="12">Allaskuvllas lea maiddái ovddasvástádus julevsámegielas ja máttasámegielas . ( ... ) .</s><s id="13">Berre leat vejolaš váldit oahpaheaddjeoahpu , mas erenoamáš deaddu lea davvi- , julev- , máttasámegielas ja kultuvrras .</s></p>')
+        self.assertXmlEqual(got, want)
+
+        #Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_norskversjon.pdfnob_sent.xml 
+      # <s id="46">Høyskolen har også et ansvar for lulesamisk og sørsamisk.(…………)Det skal være mulig å ta lærerutdanning med særlig vekt på nordsamisk , lulesamisk og sørsamisk språk og kultur .</s>
+      # <s id="47">Høyskolene i .</s>
+      # <s id="48">Bodø og Nord-Trøndelag har ansvaret for å gi undervisning i henholdsvis lulesamisk og sørsamisk språk og kultur som del av lærerutdanningen eller som videreutdanning .</s>
+
 
 
     def testDotFollowedByDot(self):
@@ -345,7 +365,7 @@ class SentenceDivider:
             output = self.getPreprocessOutput(preprocessInput)
             sentence = []
             insideQuote = False
-            incompleteSentences = ['.', '?', '!', ')', ']', '...', '"', '»', '”', '°', '', ':']
+            incompleteSentences = ['.', '?', '!', ')', ']', '...', '…','"', '»', '”', '°', '', ':']
             words = output.split('\n')
             i = 0
             while i < len(words):
