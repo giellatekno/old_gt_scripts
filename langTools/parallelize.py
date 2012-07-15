@@ -676,6 +676,7 @@ class Tmx:
 
         return tu
 
+    # to debug here
     def reverseLangs(self):
         """
         Reverse the langs in a tmx
