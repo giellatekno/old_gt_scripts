@@ -21,7 +21,7 @@ def main():
     args = parse_options()
     parallelizer = parallelize.Parallelize(args.input_file, args.parallel_language)
     
-    print "Aligning", args.input_file, "and it's parallel file"
+    print "Aligning", args.input_file, "and its parallel file"
     print "Adding sentence structure that tca2 needs ..."
     if parallelizer.dividePIntoSentences() == 0:
         print "Aligning files ..."
