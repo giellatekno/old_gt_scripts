@@ -762,7 +762,7 @@ class Tmx:
             string = etree.tostring(self.getTmx(), pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.write(string)
             f.close()
-        except IOError as (errno, strerror):
+        except IOError, error:
             print "I/O error({0}): {1}".format(errno, strerror), ":", outFilename
             sys.exit(1)
 
@@ -1016,7 +1016,7 @@ class Tca2ToTmx(Tmx):
             f = open(pfileName, "r")
             text = f.readlines()
             f.close()
-        except IOError as (errno, strerror):
+        except IOError, error:
             print "I/O error({0}): {1}".format(errno, strerror)
             sys.exit(1)
 
@@ -1191,7 +1191,7 @@ class TmxTestDataWriter():
         try:
             tree = etree.parse(filename)
             self.setParagsTestingElement(tree.getroot())
-        except IOError as (errno, strerror):
+        except IOError, error:
             print "I/O error({0}): {1}".format(errno, strerror)
             sys.exit(1)
 
@@ -1242,7 +1242,7 @@ class TmxTestDataWriter():
             et = etree.ElementTree(self.paragstesting)
             et.write(f, pretty_print = True, encoding = "utf-8", xml_declaration = True)
             f.close()
-        except IOError as (errno, strerror):
+        except IOError, error:
             print "I/O error({0}): {1}".format(errno, strerror)
             sys.exit(1)
 
@@ -1440,7 +1440,7 @@ class TmxGoldstandardTester:
 
         try:
             f = open(os.path.join(dirname, filename), "w")
-        except IOError as (errno, strerror):
+        except IOError, error:
             print "I/O error({0}): {1}".format(errno, strerror)
             sys.exit(1)
 
