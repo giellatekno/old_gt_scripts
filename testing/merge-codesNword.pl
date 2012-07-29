@@ -53,10 +53,10 @@ foreach $code (@codes) {
 # or eventually via the …not-dict fst.
 # Todo: Flags in testing/Makefile for using different fst-s.
 
-###	print "$baseform\+v1$code\n";
-###	print "$baseform\+v2$code\n";
-###	print "$baseform\+v3$code\n";
-###	print "$baseform\+v4$code\n";
+	print "$baseform\+v1$code\n";
+	print "$baseform\+v2$code\n";
+	print "$baseform\+v3$code\n";
+	print "$baseform\+v4$code\n";
 }
 
 close TAGFILE;
