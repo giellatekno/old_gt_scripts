@@ -37,7 +37,7 @@ if ($baseform eq "") {
 # The input string is interpreted as Latin1 although it is UTF-8, thus
 # we decode it to get it right:
 $baseform = Encode::decode_utf8($baseform);
-#print STDERR "*** Word decoded is: $baseform\n";
+print STDERR "*** Word decoded is: $baseform\n";
 
 chop (@codes  = <TAGFILE>);
 
@@ -57,6 +57,7 @@ foreach $code (@codes) {
 	print "$baseform\+v2$code\n";
 	print "$baseform\+v3$code\n";
 	print "$baseform\+v4$code\n";
+	print "$baseform\+v5$code\n";
 }
 
 close TAGFILE;
