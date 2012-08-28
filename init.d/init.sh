@@ -34,6 +34,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+# Define GTCORE as relative to GTHOME for now. The use of GTHOME should be
+# discouraged, and be replaced with GTCORE. Only GTCORE should be needed,
+# everything else should be optional, but presently that is not the case.
+export GTCORE=$GTHOME/newinfra/gtcore
+
 # Add predefined lookup aliases for all languages:
 . $GTHOME/gt/script/init.d/lookup-init.sh
 
