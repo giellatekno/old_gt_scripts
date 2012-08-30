@@ -460,6 +460,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:div[contains(@id,'ShareArticle')]"/>
 <xsl:template match="html:div[contains(@id,'tipafriend')]"/>
 <xsl:template match="html:p[contains(@class,'breadcrumbs')]"/>
+<xsl:template match="html:div[contains(@class,'breadcrumbs')]"/>
 <xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
 <xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
 <xsl:template match="html:div[contains(@id,'blog-pager')]"/>
