@@ -453,6 +453,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:div[contains(@id,'ctl00_FullRegion_CenterAndRightRegion_Sorting_sortByDiv')]"/>
 <xsl:template match="html:div[contains(@id,'ctl00_FullRegion_CenterAndRightRegion_HitsControl_searchHitSummary')]"/>
 <xsl:template match="html:div[contains(@id,'AreaTopSiteNav')]"/>
+<xsl:template match="html:div[contains(@id,'SamiDisclaimer')]"/>
 <xsl:template match="html:div[contains(@id,'AreaTopRight')]"/>
 <xsl:template match="html:div[contains(@id,'AreaLeft')]"/>
 <xsl:template match="html:div[contains(@id,'AreaRight')]"/>
