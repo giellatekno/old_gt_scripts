@@ -445,6 +445,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
 <xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
 <xsl:template match="html:ul[contains(@class,'QuickNav')]"/>
+<xsl:template match="html:div[contains(@class,'QuickNav')]"/>
 <xsl:template match="html:div[contains(@class,'tabbedmenu')]"/>
 <xsl:template match="html:div[contains(@class,'printContact')]"/>
 <xsl:template match="html:div[contains(@id,'searchBox')]"/>
