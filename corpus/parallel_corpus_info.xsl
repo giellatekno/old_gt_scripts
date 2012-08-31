@@ -25,10 +25,11 @@
 	      omit-xml-declaration="no"
 	      indent="yes"/>
   
-  <!-- Input dir -->
+  <!-- Input dir; lang1=source_lang; lang2=target_lang -->
+  <!-- to get infors about a possible parallelity between nob2sme: lang1=nob and lang2=sme -->
   <xsl:param name="inDir" select="'converted'"/>
-  <xsl:param name="lang1" select="'sme'"/>
-  <xsl:param name="lang2" select="'nob'"/>
+  <xsl:param name="lang1" select="'nob'"/>
+  <xsl:param name="lang2" select="'sme'"/>
   
   <!-- Output dir and file -->
   <xsl:variable name="outDir" select="'corpus_report'"/>
@@ -36,7 +37,7 @@
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
   <xsl:variable name="nl" select="'&#xa;'"/>
-  <xsl:variable name="debug" select="'true'"/>
+  <xsl:variable name="debug" select="true()"/>
 
   <xsl:template match="/" name="main">
     <xsl:for-each select="(concat($lang1, $lang2), concat($lang2, $lang1))">
@@ -90,7 +91,7 @@
 		<xsl:value-of select="concat('current_pfile: ', $current_pfile, $nl)"/>
 	      </xsl:message>
 	      
-	      <xsl:if test="$debug = 'true_gogo'">
+	      <xsl:if test="$debug">
 		<xsl:message terminate="no">
 		  <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
 		  <xsl:value-of select="concat('here sf: ', $nl)"/>
@@ -135,7 +136,7 @@
 		  <!-- 		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($pf_orig_path, $pf_orig_name)))"/> -->
 		  <!-- 		</xsl:attribute> -->
 		  
-		  <xsl:if test="$debug = 'true'">
+		  <xsl:if test="$debug">
 		    <xsl:message terminate="no">
 		      <xsl:value-of select="concat('..........................................', $nl)"/>
 		      <xsl:value-of select="concat($pf_orig_path, $pf_orig_name, $nl)"/>
