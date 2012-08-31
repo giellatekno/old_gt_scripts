@@ -26,7 +26,7 @@
 	      indent="yes"/>
   
   <!-- Input dir -->
-  <xsl:param name="inDir" select="'default'"/>
+  <xsl:param name="inDir" select="'converted'"/>
   <xsl:param name="lang1" select="'sme'"/>
   <xsl:param name="lang2" select="'nob'"/>
   
@@ -36,7 +36,7 @@
   <xsl:variable name="outFormat" select="'xml'"/>
   <xsl:variable name="e" select="$outFormat"/>
   <xsl:variable name="nl" select="'&#xa;'"/>
-  <xsl:variable name="debug" select="'false'"/>
+  <xsl:variable name="debug" select="'true'"/>
 
   <xsl:template match="/" name="main">
     <xsl:for-each select="(concat($lang1, $lang2), concat($lang2, $lang1))">
@@ -90,7 +90,7 @@
 		<xsl:value-of select="concat('current_pfile: ', $current_pfile, $nl)"/>
 	      </xsl:message>
 	      
-	      <xsl:if test="$debug = 'true'">
+	      <xsl:if test="$debug = 'true_gogo'">
 		<xsl:message terminate="no">
 		  <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
 		  <xsl:value-of select="concat('here sf: ', $nl)"/>
@@ -135,6 +135,14 @@
 		  <!-- 		  <xsl:value-of select="misc:file-exists(resolve-uri(concat($pf_orig_path, $pf_orig_name)))"/> -->
 		  <!-- 		</xsl:attribute> -->
 		  
+		  <xsl:if test="$debug = 'true'">
+		    <xsl:message terminate="no">
+		      <xsl:value-of select="concat('..........................................', $nl)"/>
+		      <xsl:value-of select="concat($pf_orig_path, $pf_orig_name, $nl)"/>
+		      <xsl:value-of select="'..........................................'"/>
+		    </xsl:message>
+		  </xsl:if>
+
 		  <xsl:variable name="exists_pf_orig" select="misc:file-exists(resolve-uri(concat($pf_orig_path, $pf_orig_name)))"/>
 		  
 		  <xsl:if test="$exists_pf_orig">
@@ -282,7 +290,7 @@
 	  <xsl:attribute name="ko">
 	    <xsl:value-of select="count($parallel_files/file[./@parallelity = 'false'])"/>
 	  </xsl:attribute>
-	  <xsl:attribute name="coversion_error">
+	  <xsl:attribute name="conversion_error">
 	    <xsl:value-of select="count($parallel_files/file[./@reason = 'conversion_error'])"/>
 	  </xsl:attribute>
 	  <xsl:attribute name="no_orig_file">
