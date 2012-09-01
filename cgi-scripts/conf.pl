@@ -176,7 +176,7 @@ sub init_variables {
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
     $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
-	if ($lang eq "fin") { $analyse = $hfstanalyse; }
+#	if ($lang eq "fin") { $analyse = $hfstanalyse; } # new infra, fin in xfst.
 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
 	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
