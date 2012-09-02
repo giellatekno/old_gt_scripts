@@ -95,7 +95,8 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
-	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
+	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
+#	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
 #	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
 	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
@@ -134,6 +135,10 @@ sub init_variables {
 
 	if ($action eq "analyze" && ! -f $fst) { 
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
+	}
+# testing
+	if ($action eq "hfstanalyze" && ! -f $hfst) { 
+		http_die '--no-alert','404 Not Found',"$lang.hfstol: Analysis is not supported";
 	}
 #	if ($action eq "disamb" && ! -f $dis_rle) { 
 #		http_die '--no-alert','404 Not Found',"$lang-dis.rle: Disambiguation is not supported";
