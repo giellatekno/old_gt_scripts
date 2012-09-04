@@ -403,6 +403,7 @@ sub process_word {
 sub test_punctuation {
     my ($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct) = @_;
     
+    verbose ("test_punctuation", $word, __LINE__);
     TEST: {
         # If the punctuation at the end contains a sentence delimiter
         # ? or !, the word ends the sentence in any case, so the word can
@@ -431,7 +432,9 @@ sub test_punctuation {
                 # There is a sentence boundary. todo: Remove this as irrelevant!!
                 
                 verbose ("process_word/test_two_three_cap_letters", $abbr, __LINE__);
-                if ($words_aref->[0]{word} && $words_aref->[0]{word} !~ /^[\p{Ll}]/o ) {
+                
+                
+                if ($words_aref->[0]{word} && $words_aref->[0]{word} !~ /^\p{Ll}/o ) {
                     if($corr) { 
                         if ($corrections{$word}) { 
                             test_corr(\$word, $words_aref, $tokens_aref); 
@@ -446,10 +449,16 @@ sub test_punctuation {
                 }
             } elsif ($abbr =~ /^\p{Ll}$/){
                 # If an abbreviation like b.
-                
                 add_token($tokens_aref, $w_token, $word);
 
-                if ($words_aref->[0]{word} && $words_aref->[0]{word}!~ /^[\p{Ll}]/o ) {
+                if (
+                    # Is our $abbr truely an abbr
+                    ($abbrs{$abbr} || $abbrs{lc($abbr)}) 
+                    # Is there a word after our abbr
+                    && $words_aref->[0]{word}
+                    ## Does this word start with an uppercase letter
+                    && $words_aref->[0]{word} !~ /^[\p{Ll}]/o 
+                    ) {
                     my @tmp = (".");
                     add_array($tokens_aref, \@tmp);
                 }
