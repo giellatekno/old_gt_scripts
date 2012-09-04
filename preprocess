@@ -392,6 +392,16 @@ sub process_word {
         verbose ("process_word/end_punct", $end_punct, __LINE__);
         verbose ("process_word/end_punct/word", $word, __LINE__);
     }
+
+    test_punctuation($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct);
+    
+    my @ep = split(//, $end_punct);
+    unshift(@ep, $end_num);
+    add_array($tokens_aref, \@ep);
+}
+
+sub test_punctuation {
+    my ($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct) = @_;
     
     TEST: {
         # If the punctuation at the end contains a sentence delimiter
@@ -482,10 +492,6 @@ sub process_word {
         add_token($tokens_aref, $w_token, $word);
         
     } # end of block TEST
-    
-    my @ep = split(//, $end_punct);
-    unshift(@ep, $end_num);
-    add_array($tokens_aref, \@ep);
 }
 
 sub process_word2 {
