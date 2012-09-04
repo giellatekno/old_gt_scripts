@@ -1126,7 +1126,7 @@ sub read_corr {
 
     local $/="\n";
 
-    open CORR, "< $corr" or die "preprocess: Can't open the file $corr: $!\n";
+    open CORR, "< $corr" or die "preprocess: Can't open the corr file $corr: $!\n";
 
     while (<CORR>) {
         chomp;
@@ -1155,7 +1155,7 @@ sub read_corr {
 sub read_abbr {
     my ($abbr_href, $idiom_href, $idiom_short_href, $num_href, $regex_href) = @_;
     
-    open LEX, "< $abbr_file" or die "preprocess: Can't open the file: $!\n";
+    open LEX, "< $abbr_file" or die "preprocess: Can't open the abbr file: $!\n";
 
     my $current;
     while (<LEX>) {
