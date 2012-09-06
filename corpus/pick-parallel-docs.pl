@@ -49,6 +49,8 @@ sub get_mainlang {
     
     my @nodelist = $xp->find('//document')->get_nodelist;
     my $mainlang = $nodelist[0]->findvalue('@xml:lang', $nodelist[0])->value;
+    
+    return $mainlang;
 }
 
 sub get_paralleldoc {
