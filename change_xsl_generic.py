@@ -26,19 +26,24 @@ for index in range(1, len(sys.argv) - 1, 2):
 
 xsl_filename = sys.argv[len(sys.argv) - 1]
 if (xsl_filename.rfind('.xsl') > 0):
-	tree = etree.parse(xsl_filename)
-	root = tree.getroot()
-	for element in root.iter():
-		for key, value in change_variables.iteritems():
-			if element.attrib.get('name') == key:
-				element.set('select', "'" + value + "'")
+    try:
+        tree = etree.parse(xsl_filename)
+    except Exception, inst:
+        print "Unexpected error opening %s: %s" % (xsl_filename, inst)
+        sys.exit(254)
+        
+    root = tree.getroot()
+    for element in root.iter():
+        for key, value in change_variables.iteritems():
+            if element.attrib.get('name') == key:
+                element.set('select', "'" + value + "'")
 
-	try:
-		tree.write(xsl_filename, encoding="utf-8", xml_declaration = True)
-	except IOError:
-		print 'cannot open', xsl_filename
-		sys.exit(255)
-
+    try:
+        tree.write(xsl_filename, encoding="utf-8", xml_declaration = True)
+    except IOError:
+        print 'cannot open', xsl_filename
+        sys.exit(254)
+        
 else:
 	print "This is not an xsl file: " + xsl_filename
 	print
