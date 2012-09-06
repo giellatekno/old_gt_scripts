@@ -41,7 +41,7 @@ if (xsl_filename.rfind('.xsl') > 0):
     try:
         tree.write(xsl_filename, encoding="utf-8", xml_declaration = True)
     except IOError:
-        print 'cannot open', xsl_filename
+        print 'cannot write', xsl_filename
         sys.exit(254)
         
 else:
