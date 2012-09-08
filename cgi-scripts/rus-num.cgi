@@ -27,7 +27,8 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/opt/xerox/bin" ;
+#$utilitydir =    "/opt/xerox/bin" ; # new fst
+$utilitydir =    "/opt/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin" ; # old, commercial fst
 # The directory where rus-num.fst is stored
 $rusfstdir = "/opt/smi/rus/bin" ;
 
