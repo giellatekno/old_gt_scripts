@@ -27,7 +27,8 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/opt/xerox/bin" ;
+#$utilitydir =    "/opt/xerox/bin" ; # new lookup
+$utilitydir = "/opt/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin" ; # old, commercial lookup
 # The directory where iclock-rus.fst is stored
 $rusfstdir = "/opt/smi/rus/bin" ;
 
