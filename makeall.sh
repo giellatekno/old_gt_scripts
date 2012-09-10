@@ -1,5 +1,20 @@
 #!/bin/sh
 
+echo ""
+echo " This script will compile in our new infrastructure"
+echo ""
+
+
+echo ""
+echo "===>     All the newinfra languages      <==="
+pushd $GTHOME/newinfra/langs
+nice ./autogen.sh
+nice ./configure
+nice make
+nice make install
+echo ""
+
+
 # File to run all our compilation
 # processes in xerox.
 echo ""
@@ -10,14 +25,8 @@ echo "===>                    <==="
 echo "===>   Sámi languages   <===" 
 echo "===>                    <===" 
 echo ""
-echo "===>     South Sámi      <==="
-nice time make GTLANG=sma all
-echo ""
 echo "===>     North Sámi      <==="
 nice time make GTLANG=sme all
-echo ""
-echo "===>     Lule Sámi       <==="
-nice time make GTLANG=smj all
 echo ""
 echo "===>     Inari Sámi      <==="
 nice time make GTLANG=smn all
