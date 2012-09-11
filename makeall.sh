@@ -11,7 +11,6 @@ pushd $GTHOME/newinfra/langs
 nice ./autogen.sh
 nice ./configure
 nice make
-nice make install
 echo ""
 
 
