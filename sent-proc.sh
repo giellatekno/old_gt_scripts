@@ -55,10 +55,13 @@ else
 fi
 
 # lang group
-if [[ "$l" == "sme" ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]]
+if [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]]
+then
+	lg="newinfra/langs"
+elif [[ "$l" == "sme" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]]
 then
     lg="gt"
-elif [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "fkv" ]] || [[ "$l" == "mhr" ]]
+elif [[ "$l" == "fkv" ]]
 then
     lg="kt"
 else
@@ -73,13 +76,21 @@ else
     abbr=""
 fi
 
-# omorfi or not omorfi
-if [[ "$l" == fin ]]
+# New infra or not
+if [[ "$l" == fin ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]]
 then 
-	MORPH="$HLOOKUP $GTHOME/kt/fin/bin/share/omorfi/mor-omorfi.cg.hfst.ol"
+	MORPH="$LOOKUP $GTHOME/$lg/$l/src/analyser.gt.xfst"
 else
 	MORPH="$LOOKUP -q -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
 fi
+
+if [[ "$l" == fin ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]]
+then 
+	DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.rle"
+else
+	DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
+fi
+
 
 print_help() {
     echo "USAGE: 1. sent-proc.sh [-t] [-l=LANG] [-s=PROCESSING_STEP] \"INPUT_TEXT\""
@@ -126,7 +137,7 @@ else
 fi
 
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
-dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/$l-dis.rle $t"
+dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
 dep_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle $t"
 
 # processing step
