@@ -40,6 +40,7 @@ my %body_test_cases = (
     "$ENV{'GTBOUND'}/orig/nob/news/Assu/1997/A34-97/13-ann.beauty_.txt" => "type06",
     "$ENV{'GTBOUND'}/orig/sme/news/Assu/1998/Assunr.85/07-85-sak-neseplaster.txt"  => "type06",
     "$ENV{'GTBOUND'}/orig/sma/facta/other_files/Peehpere_8.3_ferdig.doc" => "0",
+    "$ENV{'GTFREE'}/orig/sme/laws/other_files/jus.txt"  => "type12",
 );
 
 foreach ( keys %body_test_cases ) {
