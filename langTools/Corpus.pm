@@ -429,11 +429,30 @@ sub printheader {
 }
 
 sub print_header {
-    my ( $outfile, $lang ) = @_;
+    my ( $outfile ) = @_;
     
     print $outfile qq|<?xml version='1.0'  encoding="UTF-8"?>|, "\n";
-    print $outfile qq|<document xml:lang="$lang">|,             "\n";
     
+}
+
+sub initialize_xml_structure {
+    my ( $lang ) = @_;
+    
+    my $twig = XML::Twig->new(map_xmlns => {'http://www.w3.org/XML/1998/namespace' => "xml"});
+    $twig->set_pretty_print('indented');
+
+    my $document = XML::Twig::Elt->new('document');
+    $document->set_att( 'xml:lang' => $lang);
+    
+    my $header = XML::Twig::Elt->new('header');
+    $header->paste('last_child', $document);
+    
+    my $body   = XML::Twig::Elt->new('body');
+    $body->paste('last_child', $document);
+    
+    $twig->set_root( $document );
+
+    return $twig;
 }
 
 # Add preliminary xml-structure for the text files.
@@ -451,12 +470,10 @@ sub txtclean {
     print_header( $FH1, $lang );
     
     # Initialize XML-structure
-    my $twig = XML::Twig->new();
-    $twig->set_pretty_print('indented');
-
-    my $header = XML::Twig::Elt->new('header');
-    my $body   = XML::Twig::Elt->new('body');
-
+    my $twig = initialize_xml_structure($lang);
+    my $body = $twig->root->first_child('body');
+    my $header = $twig->root->first_child('header');
+    
     # Start reading the text
     # enable slurp mode
     local $/ = undef;
@@ -589,10 +606,12 @@ sub txtclean {
         if ( $p && $body ) {
             $p->paste( 'last_child', $body );
         }
-        $header->print($FH1);
-        $body->print($FH1);
-
-        print $FH1 qq|</document>|;
+        
+        $twig->print($FH1);
+#         $header->print($FH1);
+#         $body->print($FH1);
+# 
+#         print $FH1 qq|</document>|;
         close $FH1;
     }
 }
