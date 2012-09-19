@@ -455,13 +455,87 @@ sub initialize_xml_structure {
     return $twig;
 }
 
+sub handle_newstext_tags {
+    my ( $twig, $string ) = @_;
+    
+    my $body = $twig->root->first_child('body');
+    my $header = $twig->root->first_child('header');
+    my $notitle = 1;
+    my @text_array;
+    my $maxtitle = 30;
+    my $title;
+    my $p;
+    
+    while ( $string =~ s/(\@(.*?)\:[^\@]*)// ) {
+        push @text_array, $1;
+    }
+    for my $line (@text_array) {
+        if ( $line =~ /^\@(.*?)\:(.*?)$/ ) {
+            my $tag  = $1;
+            my $text = $2;
+
+            if ( $tag =~ /(tittel|m.titt)/ && $text ) {
+                $text =~ s/[\r\n]+//;
+
+                # If the title is too long, there is probably an error
+                # and the text is treated as normal paragraph.
+                if ( length($text) > $maxtitle ) {
+                    $p = XML::Twig::Elt->new('p');
+                    $p->set_text($text);
+                    $p->paste( 'last_child', $body );
+                    $p = undef;
+                    next;
+                }
+                if ($notitle) {
+                    $title = XML::Twig::Elt->new('title');
+                    $title->set_text($text);
+                    $title->paste( 'last_child', $header );
+                    $notitle = 0;
+                }
+                my $p = XML::Twig::Elt->new('p');
+                $p->set_att( 'type', "title" );
+                $p->set_text($text);
+                $p->paste( 'last_child', $body );
+                $p = undef;
+                next;
+            }
+            if ( $tag =~ /(tekst|ingress)/ ) {
+                my $p = XML::Twig::Elt->new('p');
+                $p->set_text($text);
+                $p->paste( 'last_child', $body );
+                $p = undef;
+                next;
+            }
+            if ( $tag =~ /(byline)/ ) {
+                my $a = XML::Twig::Elt->new('author');
+                my $p = XML::Twig::Elt->new('person');
+                $p->set_att( 'firstname', "" );
+                $p->set_att( 'lastname',  "$text" );
+                $p->paste( 'last_child', $a );
+                $p = undef;
+                $a->paste( 'last_child', $header );
+                next;
+            }
+            my $p = XML::Twig::Elt->new('p');
+            $p->set_text($text);
+            $p->set_att( 'type', "title" );
+            $p->paste( 'last_child', $body );
+            $p = undef;
+            next;
+        }
+        else {
+            carp "ERROR: line did not match: $line\n";
+            return "ERROR";
+        }
+    }
+}
+
 # Add preliminary xml-structure for the text files.
 sub txtclean {
 
     my ( $file, $outfile, $lang ) = @_;
 
     my $replaced = qq(\^\@\;|–&lt;|\!q|&gt);
-    my $maxtitle = 30;
 
     # Open file for printing out the summary.
     my $FH1;
@@ -473,7 +547,7 @@ sub txtclean {
     my $twig = initialize_xml_structure($lang);
     my $body = $twig->root->first_child('body');
     my $header = $twig->root->first_child('header');
-    
+    my $title;
     # Start reading the text
     # enable slurp mode
     local $/ = undef;
@@ -483,7 +557,6 @@ sub txtclean {
     } else {
 
         my $text    = 0;
-        my $notitle = 1;
         my $p;
 
         while ( my $string = <INFH> ) {
@@ -496,80 +569,19 @@ sub txtclean {
             # remove all the xml-tags.
             $string =~ s/<.*?>//g;
             $string =~ s/[<>]//g;
-            my @text_array;
-            my $title;
+            
+            
 
             if ( !$string ){
             } else {
                 # The text contains newstext tags:
                 if ( $string =~ /\@(.*?)\:/ ) {
-                    while ( $string =~ s/(\@(.*?)\:[^\@]*)// ) {
-                        push @text_array, $1;
-                    }
-                    for my $line (@text_array) {
-                        if ( $line =~ /^\@(.*?)\:(.*?)$/ ) {
-                            my $tag  = $1;
-                            my $text = $2;
-
-                            if ( $tag =~ /(tittel|m.titt)/ && $text ) {
-                                $text =~ s/[\r\n]+//;
-
-                                # If the title is too long, there is probably an error
-                                # and the text is treated as normal paragraph.
-                                if ( length($text) > $maxtitle ) {
-                                    $p = XML::Twig::Elt->new('p');
-                                    $p->set_text($text);
-                                    $p->paste( 'last_child', $body );
-                                    $p = undef;
-                                    next;
-                                }
-                                if ($notitle) {
-                                    $title = XML::Twig::Elt->new('title');
-                                    $title->set_text($text);
-                                    $title->paste( 'last_child', $header );
-                                    $notitle = 0;
-                                }
-                                my $p = XML::Twig::Elt->new('p');
-                                $p->set_att( 'type', "title" );
-                                $p->set_text($text);
-                                $p->paste( 'last_child', $body );
-                                $p = undef;
-                                next;
-                            }
-                            if ( $tag =~ /(tekst|ingress)/ ) {
-                                my $p = XML::Twig::Elt->new('p');
-                                $p->set_text($text);
-                                $p->paste( 'last_child', $body );
-                                $p = undef;
-                                next;
-                            }
-                            if ( $tag =~ /(byline)/ ) {
-                                my $a = XML::Twig::Elt->new('author');
-                                my $p = XML::Twig::Elt->new('person');
-                                $p->set_att( 'firstname', "" );
-                                $p->set_att( 'lastname',  "$text" );
-                                $p->paste( 'last_child', $a );
-                                $p = undef;
-                                $a->paste( 'last_child', $header );
-                                next;
-                            }
-                            my $p = XML::Twig::Elt->new('p');
-                            $p->set_text($text);
-                            $p->set_att( 'type', "title" );
-                            $p->paste( 'last_child', $body );
-                            $p = undef;
-                            next;
-                        }
-                        else {
-                            carp "ERROR: line did not match: $line\n";
-                            return "ERROR";
-                        }
-                    }
+                    handle_newstext_tags( $twig, $string );
                 }
-
+                    
                 # The text does not contain newstext tags:
                 else {
-                    $notitle = 0;
+                    my $notitle = 0;
                     my $p_continues = 0;
 
                     my @text_array = split( /[\n\r]/, $string );
