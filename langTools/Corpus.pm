@@ -428,6 +428,14 @@ sub printheader {
 
 }
 
+sub print_header {
+    my ( $outfile, $lang ) = @_;
+    
+    print $outfile qq|<?xml version='1.0'  encoding="UTF-8"?>|, "\n";
+    print $outfile qq|<document xml:lang="$lang">|,             "\n";
+    
+}
+
 # Add preliminary xml-structure for the text files.
 sub txtclean {
 
@@ -439,9 +447,9 @@ sub txtclean {
     # Open file for printing out the summary.
     my $FH1;
     open( $FH1, ">$outfile" );
-    print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|, "\n";
-    print $FH1 qq|<document xml:lang="$lang">|,             "\n";
 
+    print_header( $FH1, $lang );
+    
     # Initialize XML-structure
     my $twig = XML::Twig->new();
     $twig->set_pretty_print('indented');
