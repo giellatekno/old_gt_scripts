@@ -462,7 +462,7 @@ sub handle_newstext_tags {
     my $header = $twig->root->first_child('header');
     my $notitle = 1;
     my @text_array;
-    my $maxtitle = 30;
+    my $maxtitle = 80;
     my $title;
     my $p;
     
@@ -474,7 +474,7 @@ sub handle_newstext_tags {
             my $tag  = $1;
             my $text = $2;
 
-            if ( $tag =~ /(tittel|m.titt)/ && $text ) {
+            if ( $tag =~ /(titt|m.titt)/ && $text ) {
                 $text =~ s/[\r\n]+//;
 
                 # If the title is too long, there is probably an error
@@ -495,7 +495,9 @@ sub handle_newstext_tags {
                 my $p = XML::Twig::Elt->new('p');
                 $p->set_att( 'type', "title" );
                 $p->set_text($text);
-                $p->paste( 'last_child', $body );
+                my $section = XML::Twig::Elt->new('section');
+                $p->paste( 'last_child', $section );
+                $section->paste( 'last_child', $body );
                 $p = undef;
                 next;
             }
