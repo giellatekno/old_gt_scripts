@@ -428,7 +428,7 @@ sub printheader {
 
 }
 
-# Add prelimnary xml-structure for the text files.
+# Add preliminary xml-structure for the text files.
 sub txtclean {
 
     my ( $file, $outfile, $lang ) = @_;
