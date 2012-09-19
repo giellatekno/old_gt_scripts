@@ -19,7 +19,8 @@ my $debug = 0;
 GetOptions( "debug" => \$debug );
 $langTools::Corpus::test = $debug;
 
-# Unset $/, the Input Record Separator, to make <> give you the whole file at once.
+# Unset $/, the Input Record Separator, to make <> give the whole file at once,
+# aka slurp mode.
 local $/=undef;
 
 txtclean('Corpus-data/plain-text.txt', 'Corpus-data/got-plain-text.xml', 'sme');
