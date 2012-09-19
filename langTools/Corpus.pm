@@ -509,6 +509,7 @@ sub handle_newstext_tags {
                 next;
             }
             if ( $tag =~ /(byline)/ ) {
+                $text =~ s/[\r\n]+//;
                 my $a = XML::Twig::Elt->new('author');
                 my $p = XML::Twig::Elt->new('person');
                 $p->set_att( 'firstname', "" );
@@ -621,10 +622,7 @@ sub txtclean {
         }
         
         $twig->print($FH1);
-#         $header->print($FH1);
-#         $body->print($FH1);
-# 
-#         print $FH1 qq|</document>|;
+
         close $FH1;
     }
 }
