@@ -8,10 +8,28 @@ echo ""
 echo ""
 echo "===>     All the newinfra languages      <==="
 pushd $GTHOME/newinfra/langs
-nice ./autogen.sh
-nice ./configure
-nice make
-echo ""
+
+cd   fao && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../fin && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../izh && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+#cd ../kal && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../kca && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../kpv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../liv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../mdf && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../mhr && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../mrj && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../myv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../ndl && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../nio && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../olo && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../sma && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../smj && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../tlh && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../tuv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../vep && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../yrk && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
+cd ../zul && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "--- >>> <<< ---"
 
 
 # File to run all our compilation
