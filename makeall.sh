@@ -60,20 +60,6 @@ echo "===>                    <==="
 echo "===>   Other languages  <===" 
 echo "===>                    <===" 
 echo ""
-echo "===>       Faroese       <===" 
-cd $GTHOME/st/fao/src
-nice time make -f Makefile.orig
-echo ""
-echo "===>     Greenlandic     <===" 
-echo
-echo Greenlandic takes 1,5 hour to compile. 
-echo It is therefore removed from the makeall list.
-echo If you want to compile it, do this:
-echo
-echo cd \$GTHOME/st/kal/src
-echo nice time make GTLANG=sloppy
-# cd $GTHOME/st/kal/src
-# nice time make GTLANG=sloppy
 echo ""
 echo "===>      Bokmål      <===" 
 cd $GTHOME/st/nob/src
@@ -178,77 +164,8 @@ nice time make
 #echo "===>   Swedish - Meänkieli   <===" 
 #cd $GTHOME/words/dicts/swefit
 #nice time make
-echo "===>                    <===" 
-echo "===> Other FU languages <===" 
-echo "===>                    <===" 
-echo "===>               <==="
-echo "===>     Finnish   <===" 
-echo "===>               <==="
 
 
-cd $GTHOME/kt/kom/src
- For some reason, the Makefile timing does not work here. Have a look.
-echo "===>              <==="
-echo "===>     Komi     <===" 
-echo "===>              <==="
-echo "===> lexfiles...  <==="
-nice time make lexfiles
-echo "===>              <==="
-echo "===> ... and fst  <==="
-nice time make
-
-cd $GTHOME/kt/myv/src
-echo "===>              <==="
-echo "===>    Erzya     <===" 
-echo "===>              <==="
-echo "===> lexfiles...  <==="
-nice time make lexfiles
-echo "===>              <==="
-echo "===> ... and fst  <==="
-nice time make
-
-cd $GTHOME/kt/mdf/src
-echo "===>              <==="
-echo "===>    Moksha    <===" 
-echo "===>              <==="
-echo "===> lexfiles...  <==="
-nice time make lexfiles
-echo "===>              <==="
-echo "===> ... and fst  <==="
-nice time make
-
-
-!cd $GTHOME/kt/vep/src
-!echo "===>              <==="
-!echo "===>    Veps      <===" 
-!echo "===>              <==="
-!echo "===> lexfiles...  <==="
-!nice time make lexfiles
-!echo "===>              <==="
-!echo "===> ... and fst  <==="
-!nice time make
-
-
-cd $GTHOME/kt/vro/src
-echo "===>              <==="
-echo "===>    Võro      <===" 
-echo "===>              <==="
-echo "===> lexfiles...  <==="
-nice time make lexfiles
-echo "===>              <==="
-echo "===> ... and fst  <==="
-nice time make
-
-
-cd $GTHOME/kt/mrj/src
-echo "===>              <==="
-echo "===>   Hill Mari  <===" 
-echo "===>              <==="
-echo "===> lexfiles...  <==="
-nice time make lexfiles
-echo "===>              <==="
-echo "===> ... and fst  <==="
-nice time make
 
 popd
 echo "===>                  <==="
