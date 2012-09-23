@@ -82,6 +82,8 @@ alias   убхр='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
 
 # Other FU languages:
 alias dhun='$LOOKUP $GTHOME/kt/hun/bin/ihun.fst'
+
+alias dizh='$LOOKUP $GTHOME/newinfra/langs/izh/src/generator.gt.xfst'
 alias dkca='$LOOKUP $GTHOME/newinfra/langs/kca/src/generator.gt.xfst'
 alias dkom='$LOOKUP $GTHOME/newinfra/langs/kpv/src/generator.gt.xfst'
 alias dkpv='$LOOKUP $GTHOME/newinfra/langs/kpv/src/generator.gt.xfst'
@@ -95,6 +97,8 @@ alias dvep='$LOOKUP $GTHOME/newinfra/langs/vep/src/generator.gt.xfst'
 alias dvro='$LOOKUP $GTHOME/kt/vro/bin/ivro.fst'
 alias dyrk='$LOOKUP $GTHOME/newinfra/langs/yrk/src/generator.gt.xfst'
 alias uhun='$LOOKUP $GTHOME/kt/hun/bin/hun.fst'
+
+alias uizh='$LOOKUP $GTHOME/newinfra/langs/izh/src/analyser.gt.xfst'
 alias ukca='$LOOKUP $GTHOME/newinfra/langs/kca/src/analyser.gt.xfst'
 alias ukom='$LOOKUP $GTHOME/newinfra/langs/kpv/src/analyser.gt.xfst'
 alias ukpv='$LOOKUP $GTHOME/newinfra/langs/kpv/src/analyser.gt.xfst'
