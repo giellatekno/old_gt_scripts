@@ -171,7 +171,6 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
    sme-multisyn.sh --- used in: ../../techdoc/tools/docu-sme-manual.xml
    
    sme-visl.sh --- used in: NULL
-   smesmjdump.sh --- used in: NULL
    smj-dis.sh --- used in: ../../gt/script/smj-multi.sh
                            ../../gt/script/teaksta.sh
                            ../../techdoc/tools/docu-sme-manual.xml
