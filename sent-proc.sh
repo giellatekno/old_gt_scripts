@@ -57,7 +57,7 @@ fi
 # lang group
 if [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]]
 then
-	lg="newinfra/langs"
+	lg="langs"
 elif [[ "$l" == "sme" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]]
 then
     lg="gt"
