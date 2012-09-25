@@ -8,25 +8,24 @@ use strict;
 use utf8;
 
 while(<>) {
-	last if (/The dump/);
-}
-
-while(<>) {
-
+	# Continuation lexicon substitutions:
 	s/ C-FI-NEN/nen LONDON/g ;
 	s/SUND/BERN/g ;
 	s/HEIM/BERN/g ;
 	s/NIKOSIIJA/ACCRA/g ;
 	s/SIJTE/ACCRA/g ;
+	s/BALAK/ANAR/g ;
+	s/HAWAII/ACCRA/g ;
+	s/SKANIK/SULLOT/g ;
+	# SME escape char deletion:
 	s/j9/j/g ;
 	s/7 / /g ;
 	s/8 / /g ;
 	s/9 / /g ;
+	# SMJ escape char insertion:
 	s/ss /ss9 /g ;
 	s/st /st9 /g ;
-	s/BALAK/ANAR/g ;
-	s/HAWAII/ACCRA/g ;
-	s/SKANIK/SULLOT/g ;
+	# Substitutions due to orthographic differences between SMJ and SME:
 	s/t:(.*)h /t:$1d9 /g ;
 	s/čč/ttj/g ;
 	s/Č/Tj/g ;
@@ -44,6 +43,7 @@ while(<>) {
 	s/([ÁAEIOUaáeiou])i(.*):(.*)([ÁAEIOUaáeiou])j/$1i$2:$3$4i/g ;
 	my $line = $_;
 
+	# Special treatment of æ in SMJ:
 	if ($line =~ /æ/) {
 			# Replace space in multipart names temporarily with $.
 		$line =~ s/% /\$/g;
