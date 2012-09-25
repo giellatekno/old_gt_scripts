@@ -247,6 +247,14 @@ sub sanity_check {
 			print "SUSE: sudo zypper install unrtf\n\n";
 			$invalid_setup = 1;
 		}
+		if (qx{which ccat} eq "") {
+			print "Didn't find ccat\n";
+			print "Install it on Mac by issuing these commands\n\n";
+			print "cd $ENV{'GTHOME'}/gt/script/samiXMLParser/\n";
+			print "make\n";
+			print "sudo make install\n\n";
+			$invalid_setup = 1;
+		}
 
 		if (!-f "/bin/readlink") {
 			#This is not a Linux system, check for a usable readlink
