@@ -272,6 +272,13 @@ sub sanity_check {
             print "make GTLANG=sme abbr\n\n";
             $invalid_setup = 1;
 		}
+		if (!-f "$ENV{'GTHOME'}/gt/sme/bin/sme.fst") {
+            print "You don't have North Saami transducer.\n";
+            print "Install it issuing the command:\n\n";
+            print "cd $ENV{'GTHOME'}/gt\n";
+            print "make GTLANG=sme\n\n";
+            $invalid_setup = 1;
+		}
 	}
 	
 	return $invalid_setup;
