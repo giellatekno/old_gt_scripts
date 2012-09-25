@@ -249,7 +249,7 @@ sub sanity_check {
 		}
 		if (qx{which ccat} eq "") {
 			print "Didn't find ccat\n";
-			print "Install it on Mac by issuing these commands\n\n";
+			print "Install it by issuing these commands\n\n";
 			print "cd $ENV{'GTHOME'}/gt/script/samiXMLParser/\n";
 			print "make\n";
 			print "sudo make install\n\n";
