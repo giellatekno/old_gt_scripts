@@ -7,7 +7,7 @@ echo ""
 
 echo ""
 echo "===>     All the newinfra languages      <==="
-pushd $GTHOME/newinfra/langs
+pushd $GTHOME/langs
 
 cd   fao && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
 cd ../fin && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
