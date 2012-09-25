@@ -265,6 +265,13 @@ sub sanity_check {
 				$invalid_setup = 1;
 			}
 		}
+		if (!-f "$ENV{'GTHOME'}/gt/sme/bin/abbr.txt") {
+            print "You don't have a list of North Saami abbreviations.\n";
+            print "Install it issuing the command:\n\n";
+            print "cd $ENV{'GTHOME'}/gt\n";
+            print "make GTLANG=sme abbr\n\n";
+            $invalid_setup = 1;
+		}
 	}
 	
 	return $invalid_setup;
