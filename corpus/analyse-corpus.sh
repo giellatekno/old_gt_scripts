@@ -1,5 +1,50 @@
 #!/bin/bash
 
+function build_lang {
+    LANG=$1
+    
+    if [ "$LANG" == "sme" ]
+    then
+        cd $GTHOME/gt/$LANG
+        make
+        make abbr
+    else 
+        cd $GTHOME/langs/$LANG
+        make
+    fi
+}
+
+function preprocess_lookup2cg {
+    INPUTFILE=$1
+    LANG=$2
+
+    if [ "$LANG" == "sme" ]
+    then
+        cat $i | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $i.lookup2cg
+    else
+        cat $i | preprocess 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser.gt.xfst | lookup2cg > $i.lookup2cg
+    fi
+}
+
+function disambiguation_analysis {
+    INPUTFILE=$1
+    LANG=$2
+    
+    if [ "$LANG" == "sme" ] 
+    then
+        vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+    else
+        vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+    fi
+}
+
+function dependency_analysis {
+    INPUTFILE=$1
+    
+    vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
+}
+
+# main
 cd $GTHOME
 SVNREVISION=`svn info | grep Revision | cut -f1 -d" "`
 
@@ -57,46 +102,3 @@ do
     done
 done
 
-function build_lang {
-    LANG=$1
-    
-    if [ "$LANG" == "sme" ]
-    then
-        cd $GTHOME/gt/$LANG
-        make
-        make abbr
-    else 
-        cd $GTHOME/langs/$LANG
-        make
-    fi
-}
-
-function preprocess_lookup2cg {
-    INPUTFILE=$1
-    LANG=$2
-
-    if [ "$LANG" == "sme" ]
-    then
-        cat $i | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $i.lookup2cg
-    else
-        cat $i | preprocess 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser.gt.xfst | lookup2cg > $i.lookup2cg
-    fi
-}
-
-function disambiguation_analysis {
-    INPUTFILE=$1
-    LANG=$2
-    
-    if [ "$LANG" == "sme" ] 
-    then
-        vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
-    else
-        vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
-    fi
-}
-
-function dependency_analysis {
-    INPUTFILE=$1
-    
-    vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
-}
