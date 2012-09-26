@@ -77,9 +77,9 @@ function preprocess_lookup2cg {
 
     if [ "$LANG" == "sme" ]
     then
-        cat $i | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt | lookup2cg > $i.lookup2cg
+        cat $i | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $i.lookup2cg
     else
-        cat $i | preprocess | lookup2cg > $i.lookup2cg
+        cat $i | preprocess 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser.gt.xfst | lookup2cg > $i.lookup2cg
     fi
 }
 
