@@ -7,7 +7,6 @@ ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
 
 if [ -d $ANALYSED_DIR ]
 then
-    echo "removing content in $ANALYSED_DIR"
     rm $ANALYSED_DIR/*
 else
     mkdir $ANALYSED_DIR
@@ -17,7 +16,6 @@ chmod 777 $ANALYSED_DIR
 for SMILANG in sma sme smj
 do
     # First ccat all texts
-    echo "ccat'ing all $SMILANG xml files"
     for CORPUS in boundcorpus freecorpus
     do
         cd /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG
@@ -39,7 +37,6 @@ do
                             CCAT_FILE="$ANALYSED_DIR/$SMILANG-$TRANSLATED_FROM-$GENREDIR.ccat.txt"
                         fi
                         touch $CCAT_FILE
-    #                     echo "ccat'ing $f into $CCAT_FILE"
                         ccat -l $SMILANG -a $f >> $CCAT_FILE
                     fi
                 else
@@ -49,26 +46,57 @@ do
         done
     done
 
-    cd $GTHOME/gt
-    echo " "
-    echo "compiling the transducer $SMILANG.fst, and $SMILANG/bin/abbr.txt"
-    make GTLANG=$SMILANG
-    make GTLANG=$SMILANG abbr
-    if [ $SMILANG == "sma" ]
-    then
-        PREPROCESS="preprocess"
-    else
-        PREPROCESS="preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt"
-    fi
+    build_lang $SMILANG
     
-    for i in $ANALYSED_DIR/$SMILANG*.ccat.txt
+    for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
-        echo "Preprocessing $i …"
-        time cat $i | $PREPROCESS 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$SMILANG/bin/$SMILANG.fst | lookup2cg > $i.lookup2cg
-        echo "$SMILANG dis analysis of $i.lookup2cg …"
-        time vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $i.lookup2cg > $i.dis
-        echo "$SMILANG dep analysis of $i.dis …"
+        preprocess_lookup2cg $INPUTFILE $SMILANG
+        disambiguation_analysis $INPUTFILE $SMILANG
         touch $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
-        time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $i.dis >> $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
+        dependency_analysis $INPUTFILE
     done
 done
+
+function build_lang {
+    LANG=$1
+    
+    if [ "$LANG" == "sme" ]
+    then
+        cd $GTHOME/gt/$LANG
+        make
+        make abbr
+    else 
+        cd $GTHOME/langs/$LANG
+        make
+    fi
+}
+
+function preprocess_lookup2cg {
+    INPUTFILE=$1
+    LANG=$2
+
+    if [ "$LANG" == "sme" ]
+    then
+        cat $i | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt | lookup2cg > $i.lookup2cg
+    else
+        cat $i | preprocess | lookup2cg > $i.lookup2cg
+    fi
+}
+
+function disambiguation_analysis {
+    INPUTFILE=$1
+    LANG=$2
+    
+    if [ "$LANG" == "sme" ] 
+    then
+        vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+    else
+        vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+    fi
+}
+
+function dependency_analysis {
+    INPUTFILE=$1
+    
+    vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
+}
