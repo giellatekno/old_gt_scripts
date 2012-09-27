@@ -86,7 +86,7 @@ fi
 
 if [[ "$l" == fin ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]]
 then 
-	DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.rle"
+	DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.cg3"
 else
 	DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
 fi
