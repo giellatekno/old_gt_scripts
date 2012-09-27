@@ -5,8 +5,10 @@
 HOSTNAME=`hostname`
 
 if [ $HOSTNAME == 'victorio.uit.no' ]
-then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -q -flags  mbTT -utf8'
-else export LOOKUP='lookup -q -flags mbTT'
+then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags  mbTT -utf8'
+#then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -q -flags  mbTT -utf8'
+else export LOOKUP='lookup -flags mbTT'
+#else export LOOKUP='lookup -q -flags mbTT'
 fi
 
 export HLOOKUP='hfst-lookup -q'
@@ -113,8 +115,6 @@ alias uudm='$LOOKUP $GTHOME/langs/udm/src/analyser.gt.xfst'
 alias uvep='$LOOKUP $GTHOME/langs/vep/src/analyser.gt.xfst'
 alias uvro='$LOOKUP $GTHOME/kt/vro/bin/vro.fst'
 alias uyrk='$LOOKUP $GTHOME/klangst/yrk/src/analyser.gt.xfst'
-alias xdfin='$LOOKUP $GTHOME/kt/fin/bin/ifin.fst'
-alias xufin='$LOOKUP $GTHOME/kt/fin/bin/fin.fst'
 alias дком='$LOOKUP $GTHOME/langs/kom/src/generator.gt.xfst'
 alias уком='$LOOKUP $GTHOME/langs/kom/src/analyser.gt.xfst'
 alias дмчр='$LOOKUP $GTHOME/langs/mhr/src/generator.gt.xfst'
@@ -128,10 +128,6 @@ alias уырк='$LOOKUP $GTHOME/kt/udm/bin/udm.fst'
 
 alias   глщь='$LOOKUP $GTHOME/kt/kom/bin/kom.fst'
 
-alias dfin='$HLOOKUP $GTHOME/langs/fin/omorfi/src/morphology.generate.cg.hfstol'
-alias dfins='$HLOOKUP $GTHOME/kt/fin/omorfi/src/morphology.generate.cg.hfst'
-alias dmyvh='$HLOOKUP $GTHOME/kt/myv/bin/imyv.hfst'
-alias umyvh='$HLOOKUP $GTHOME/kt/myv/bin/myv.hfst'
 
 
 # Bilingual transducers:
