@@ -158,6 +158,8 @@ $text = digr_utf8($text);
 # Remove the unsecure characters from the input.
 $text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;  # Deleted colon from this set to avoid removing colon from the word forms as NRK:s (Heli) 
 
+# ` This stupid dummy line is here just to restore emacs syntax colouring.
+
 # Change linebreaks to space and check the word limit
 my @words = split(/[\s]+/, $text);
 $text = join(' ', splice(@words,0,$wordlimit));
