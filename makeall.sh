@@ -9,27 +9,48 @@ echo ""
 echo "===>     All the newinfra languages      <==="
 pushd $GTHOME/langs
 
-cd   fao && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../fin && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../izh && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-#cd ../kal && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../kca && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../kpv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../liv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../mdf && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../mhr && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../mrj && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../myv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../ndl && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../nio && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../olo && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../sma && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../smj && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../tlh && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../tuv && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../vep && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../yrk && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
-cd ../zul && pwd && nice ./autogen.sh && nice ./configure && nice make && echo "-------------------- >>>>>     AND WE START COMPILING THE NEXT LANGUAGE     <<<<< ----------------------------------------"
+echo " -------------------------------------------------------------------------------------- fao, Faroese "
+cd   fao && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- fin, Finnish "
+cd ../fin && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- izh, Izhorian "
+cd ../izh && pwd && nice ./autogen.sh && nice ./configure && nice make 
+#echo " -------------------------------------------------------------------------------------- kal, Greenlandic "
+#cd ../kal && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- kca, Khanty "
+cd ../kca && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- kpv, Komi Zyryan "
+cd ../kpv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- liv, Livonian "
+cd ../liv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- mdf, Moksha "
+cd ../mdf && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- mhr, Meadow Mari "
+cd ../mhr && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- mrj, Hill Mari "
+cd ../mrj && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- myv, Erzya "
+cd ../myv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- ndl, Ndolo "
+cd ../ndl && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- nio, Nganasan "
+cd ../nio && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- olo, Olonetsian "
+cd ../olo && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- sma, South Saami "
+cd ../sma && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- smj, Lule Saami "
+cd ../smj && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- tlh, Klingon "
+cd ../tlh && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- tuv, Turkana "
+cd ../tuv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- vep, Veps "
+cd ../vep && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- yrk, Tundra Nenets "
+cd ../yrk && pwd && nice ./autogen.sh && nice ./configure && nice make 
+echo " -------------------------------------------------------------------------------------- zul, Zulu "
+cd ../zul && pwd && nice ./autogen.sh && nice ./configure && nice make 
 
 
 # File to run all our compilation
