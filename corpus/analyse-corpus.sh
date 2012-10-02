@@ -20,9 +20,9 @@ function preprocess_lookup2cg {
 
     if [ "$LANG" == "sme" ]
     then
-        cat $i | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $i.lookup2cg
+        cat $INPUTFILE | preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $INPUTFILE.lookup2cg
     else
-        cat $i | preprocess 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser.gt.xfst | lookup2cg > $i.lookup2cg
+        cat $INPUTFILE | preprocess 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser.gt.xfst | lookup2cg > $INPUTFILE.lookup2cg
     fi
 }
 
@@ -97,7 +97,7 @@ do
     do
         preprocess_lookup2cg $INPUTFILE $SMILANG
         disambiguation_analysis $INPUTFILE $SMILANG
-        touch $ANALYSED_DIR/`basename $i .ccat.txt`.dep.txt
+        touch $ANALYSED_DIR/`basename $INPUTFILE .ccat.txt`.dep.txt
         dependency_analysis $INPUTFILE
     done
 done
