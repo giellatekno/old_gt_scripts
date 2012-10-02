@@ -6,8 +6,8 @@ function build_lang {
     if [ "$LANG" == "sme" ]
     then
         cd $GTHOME/gt/$LANG
-        make
-        make abbr
+        make GTLANG=$LANG
+        make GTLANG=$LANG abbr
     else 
         cd $GTHOME/langs/$LANG
         make
