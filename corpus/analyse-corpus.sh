@@ -6,11 +6,13 @@ function build_lang {
     if [ "$LANG" == "sme" ]
     then
         cd $GTHOME/gt/$LANG
-        make GTLANG=$LANG
-        make GTLANG=$LANG abbr
+        make GTLANG=$LANG > /dev/null
+        make GTLANG=$LANG abbr > /dev/null
     else 
         cd $GTHOME/langs/$LANG
-        make
+        ./autogen.sh > /dev/null
+        ./configure > /dev/null
+        make > /dev/null
     fi
 }
 
