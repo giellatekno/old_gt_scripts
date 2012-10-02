@@ -47,9 +47,6 @@ function dependency_analysis {
 }
 
 # main
-cd $GTHOME
-SVNREVISION=`svn info | grep Revision | cut -f1 -d" "`
-
 ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
 
 if [ -d $ANALYSED_DIR ]
@@ -99,7 +96,6 @@ do
     do
         preprocess_lookup2cg $INPUTFILE $SMILANG
         disambiguation_analysis $INPUTFILE $SMILANG
-        touch $ANALYSED_DIR/`basename $INPUTFILE .ccat.txt`.dep.txt
         dependency_analysis $INPUTFILE
     done
 done
