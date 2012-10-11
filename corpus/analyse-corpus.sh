@@ -5,13 +5,20 @@ function build_lang {
     
     if [ "$LANG" == "sme" ]
     then
-        cd $GTHOME/gt/$LANG
+        echo "cd $GTHOME/gt"
+        cd $GTHOME/gt
+        echo "make GTLANG=$LANG > /dev/null"
         make GTLANG=$LANG > /dev/null
+        echo "make GTLANG=$LANG abbr > /dev/null"
         make GTLANG=$LANG abbr > /dev/null
     else 
+        echo "cd $GTHOME/langs/$LANG"
         cd $GTHOME/langs/$LANG
+        echo "./autogen.sh > /dev/null"
         ./autogen.sh > /dev/null
+        echo "./configure > /dev/null"
         ./configure > /dev/null
+        echo "make > /dev/null"
         make > /dev/null
     fi
 }
@@ -22,9 +29,11 @@ function preprocess_lookup2cg {
 
     if [ "$LANG" == "sme" ]
     then
-        preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $INPUTFILE.lookup2cg
+        echo "preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $INPUTFILE.lookup2cg"
+        time preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $INPUTFILE.lookup2cg
     else
-        preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser.gt.xfst | lookup2cg > $INPUTFILE.lookup2cg
+        echo "preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst | lookup2cg > $INPUTFILE.lookup2cg"
+        time preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst | lookup2cg > $INPUTFILE.lookup2cg
     fi
 }
 
@@ -34,35 +43,29 @@ function disambiguation_analysis {
     
     if [ "$LANG" == "sme" ] 
     then
-        vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+        echo "vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis"
+        time vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
     else
-        vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+        echo "vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis"
+        time vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
     fi
 }
 
 function dependency_analysis {
     INPUTFILE=$1
     
-    vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
+    echo "vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt"
+    time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
 }
 
-# main
-ANALYSED_DIR="/Users/hoavda/Public/corp/analysed/`date +%Y-%m-%d`"
-
-if [ -d $ANALYSED_DIR ]
-then
-    rm $ANALYSED_DIR/*
-else
-    mkdir $ANALYSED_DIR
-fi
-chmod 777 $ANALYSED_DIR
-
-for SMILANG in sma sme smj
-do
-    # First ccat all texts
-    for CORPUS in boundcorpus freecorpus
+function ccat_all_texts {
+    SMILANG=$1
+    BOUND=$2
+    FREE=$3
+    
+    for CORPUS in $BOUND $FREE
     do
-        cd /Users/hoavda/Public/corp/$CORPUS/converted/$SMILANG
+        cd $CORPUS/converted/$SMILANG
         for GENREDIR in `ls`
         do
             for f in `find $GENREDIR -type f`
@@ -89,9 +92,25 @@ do
             done
         done
     done
+}
+# main
+BOUND_DIR=$1
+FREE_DIR=$2
+ANALYSED_DIR="$3/`date +%Y-%m-%d`"
 
+if [ -d $ANALYSED_DIR ]
+then
+    rm $ANALYSED_DIR/*
+else
+    mkdir $ANALYSED_DIR
+fi
+chmod 777 $ANALYSED_DIR
+
+for SMILANG in smj sme
+do
     build_lang $SMILANG
-    
+    ccat_all_texts $SMILANG $BOUND_DIR $FREE_DIR
+
     for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
         preprocess_lookup2cg $INPUTFILE $SMILANG
