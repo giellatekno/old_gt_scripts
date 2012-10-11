@@ -32,7 +32,15 @@ my $f = $ARGV[0];
 if (-e $f) {
     my $abs_path = Cwd::abs_path($f);
     my $pdoc_path = get_paralleldoc($abs_path, "nob");
-    check_and_copy_files($abs_path, $pdoc_path);
+    if ( -e $pdoc_path) {
+        check_and_copy_files($abs_path, $pdoc_path);
+    } else {
+        if ($quiet) {
+            print "|";
+        } else {
+            die "$pdoc_path doesn't exist\n";
+        }
+    }
 } else {
     die "$f doesn't exist\n";
 }
