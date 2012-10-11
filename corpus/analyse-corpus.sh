@@ -106,7 +106,7 @@ else
 fi
 chmod 777 $ANALYSED_DIR
 
-for SMILANG in smj sme
+for SMILANG in sma smj sme
 do
     build_lang $SMILANG
     ccat_all_texts $SMILANG $BOUND_DIR $FREE_DIR
