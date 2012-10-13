@@ -43,9 +43,11 @@ sub init_variables {
 	
 	# System-Specific directories
 	# The directory where utilities like 'lookup' are stored
-	my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin";
+	#my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin"; # for oldinfra
+	my $utilitydir = "/usr/local/bin"; # for newinfra
 	# The directory for vislcg and lookup2cg
-	my $bindir = "/opt/sami/cg/bin/";
+	#my $bindir = "/opt/sami/cg/bin/"; # old infra
+	my $bindir = "/usr/local/bin"; # new infra
 	# The directory for hfst tools
         my $hfstutilitydir = "/usr/local/bin";
         my $hfstlookup = "hfst-lookup";
@@ -138,7 +140,7 @@ sub init_variables {
 	}
 # testing
 	if ($action eq "hfstanalyze" && ! -f $hfst) { 
-		http_die '--no-alert','404 Not Found',"$lang.hfstol: Analysis is not supported";
+		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
 	}
 #	if ($action eq "disamb" && ! -f $dis_rle) { 
 #		http_die '--no-alert','404 Not Found',"$lang-dis.rle: Disambiguation is not supported";
@@ -181,7 +183,7 @@ sub init_variables {
     $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
     $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
-#	if ($lang eq "fin") { $analyse = $hfstanalyse; } # new infra, fin in xfst.
+#	if ($lang eq "fin") { $analyze = $hfstanalyze; }
 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
 	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
