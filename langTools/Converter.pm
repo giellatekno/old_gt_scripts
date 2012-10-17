@@ -259,10 +259,8 @@ sub checklang {
     my $id       = $root->{'att'}->{'id'};
 
     if ( !$mainlang || $mainlang eq "unknown" ) {
-
-#print "setting language: $language \n";
-#$root->set_att('xml:lang', $language);
-# Setting language by using the directory path is a better 'guess' for documents lacking this piece of information
+        # Setting language by using the directory path is a better 'guess' for 
+        # documents lacking this piece of information
         $root->set_att( 'xml:lang', $self->getPreconverter()->getDoclang() );
     }
     my $fh;
