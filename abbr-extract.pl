@@ -156,7 +156,9 @@ for my $file (@lex_file_names) {
                         my $string = "$abbr+$a";
                         $all .= $string . "\n";
                     }
-                    push (@all_a, $all);
+                    if ($all) {
+                        push (@all_a, $all);
+                    }
                     for my $a (@all_a) {
                         call_gen(\@idioms,$a); 
                     }
