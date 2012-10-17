@@ -131,39 +131,45 @@ for my $file (@lex_file_names) {
     open LEX, "< $file" or die "Cant open the file: $!\n";
     while (<LEX>) {
         chomp;
-        next if /^\!/ ;    #discard comments
-        
-        if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+)+).*?[\s|:].*/$1/) {
-            $abbr =~ s/%//g;
-            $abbr =~ s/\^//g;
-            $abbr =~ s/0//g;
-            $abbr =~ s/[987]$//g;
+        if (! /^\!/) { #discard comments
+            
+            if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+)+).*?[\s|:].*/$1/) {
+                $abbr =~ s/%//g;
+                $abbr =~ s/\^//g;
+                $abbr =~ s/0//g;
+                $abbr =~ s/[987]$//g;
 
-            my @idioms;
-            if (! $pos || $noparadigm) { print ABB "$abbr\n"; next; }
-            my @all_a;
-            my $all;
-            my $i=0;
+                my @idioms;
+                if (! $pos || $noparadigm) { 
+                    print ABB "$abbr\n"; 
+                }
+                else {
+                    my @all_a;
+                    my $all;
+                    my $i=0;
 
-            # Collect all possible strings for generator.
-            # The strings are splitted since there are so many possible
-            # forms for pronouns.
-            for my $a ( @{$paradigms{$pos}} ) {
-                if ($i++ > 1000) { push (@all_a, $all); $all=""; $i=0; }
-                my $string = "$abbr+$a";
-                $all .= $string . "\n";
-            }
-            push (@all_a, $all);
-            for my $a (@all_a) {
-                call_gen(\@idioms,$a); 
-            }
+                    # Collect all possible strings for generator.
+                    # The strings are splitted since there are so many possible
+                    # forms for pronouns.
+                    for my $a ( @{$paradigms{$pos}} ) {
+                        if ($i++ > 1000) { push (@all_a, $all); $all=""; $i=0; }
+                        my $string = "$abbr+$a";
+                        $all .= $string . "\n";
+                    }
+                    push (@all_a, $all);
+                    for my $a (@all_a) {
+                        call_gen(\@idioms,$a); 
+                    }
 
-            if (! @idioms) {
-                print ABB "$abbr\n";
-                next;
-            }
-            for my $idi (@idioms) {
-                print ABB "$idi\n";
+                    if (! @idioms) {
+                        print ABB "$abbr\n";
+                    }
+                    else {
+                        for my $idi (@idioms) {
+                            print ABB "$idi\n";
+                        }
+                    }
+                }
             }
         }
     }
