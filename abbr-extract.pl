@@ -42,11 +42,11 @@ my @numbers = qw(1 17);
 my %idioms;
 
 GetOptions ("output=s" => \$abbr_file,
-			"abbr_lex=s" => \$abbr_lex_file,
-			"fst=s" => \$fst,
-			"paradigm=s" => \$paradigmfile,
-			"tags=s" => \$tagfile,
-			"lex=s" => \$lex_files, );
+            "abbr_lex=s" => \$abbr_lex_file,
+            "fst=s" => \$fst,
+            "paradigm=s" => \$paradigmfile,
+            "tags=s" => \$tagfile,
+            "lex=s" => \$lex_files, );
 
 
 
@@ -64,34 +64,34 @@ open LEX, "< $abbr_lex_file" or die "Cant open the abbreviation file: $!\n";
 # read from the beginning of the file.
 # idioms come first.
 while (<LEX>) {
-	if (/^LEXICON ITRAB/) {
-		print ABB "$_\n";
-		last;
-	}
+    if (/^LEXICON ITRAB/) {
+        print ABB "$_\n";
+        last;
+    }
 }
 
-while (<LEX>) {	
-	chomp;
+while (<LEX>) {    
+    chomp;
 
-	if (/^LEXICON/) {
-		print ABB "$_\n";
-		next;
-	}
-	next if /^\!/;    #discard comments
-	
-	# The regular expression matches expressions of 
-	# at least following type (see documentation)
-	# nr
-	# j.d.s
-	# earret% eará
-	# but we unfortunately also have
-	# čuj:čuj9
-	# A+Use/-Spell:A 
-	
-	if ((my $abbr = $_)	=~ s/^([\w\.]+(% [\w\.]+)*)[\s+:].*/$1/) {
-		$abbr =~ s/%//g;
-		print ABB "$abbr\n";
-	}
+    if (/^LEXICON/) {
+        print ABB "$_\n";
+        next;
+    }
+    next if /^\!/;    #discard comments
+    
+    # The regular expression matches expressions of 
+    # at least following type (see documentation)
+    # nr
+    # j.d.s
+    # earret% eará
+    # but we unfortunately also have
+    # čuj:čuj9
+    # A+Use/-Spell:A 
+    
+    if ((my $abbr = $_)    =~ s/^([\w\.]+(% [\w\.]+)*)[\s+:].*/$1/) {
+        $abbr =~ s/%//g;
+        print ABB "$abbr\n";
+    }
 }
 close LEX;
 
@@ -100,122 +100,122 @@ close LEX;
 print ABB "LEXICON IDIOM\n";
 
 my %lex_pos = ( 'noun' => 'N',
-				'adv' => 'Adv',
-				'adj' => 'Adj',
-				'propernoun' => 'N',
-				'verb' => 'V',
-				'pronoun' => 'Pron',
-				'numeral' => 'Num',
-				);
+                'adv' => 'Adv',
+                'adj' => 'Adj',
+                'propernoun' => 'N',
+                'verb' => 'V',
+                'pronoun' => 'Pron',
+                'numeral' => 'Num',
+                );
 
 # Initialize paradigm and generator
 my %paradigms;
 my $gen_lookup;
 if (! $noparadigm) {
-	generate_taglist($paradigmfile,$tagfile,\%paradigms);
-	$gen_lookup="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
+    generate_taglist($paradigmfile,$tagfile,\%paradigms);
+    $gen_lookup="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
 }
 
 
 for my $file (@lex_file_names) {
 
-	print STDERR "abbr-extract: reading file $file\n";
+    print STDERR "abbr-extract: reading file $file\n";
 
-	my $pos;
-	for my $key (keys %lex_pos) {
-		if ($file =~ /\/$key\-/) {
-			$pos = $lex_pos{$key};
-		}
-	}
+    my $pos;
+    for my $key (keys %lex_pos) {
+        if ($file =~ /\/$key\-/) {
+            $pos = $lex_pos{$key};
+        }
+    }
 
-	open LEX, "< $file" or die "Cant open the file: $!\n";
-	while (<LEX>) {
-		chomp;
-		next if /^\!/ ;    #discard comments
-		
-		if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+)+).*?[\s|:].*/$1/) {
-			$abbr =~ s/%//g;
-			$abbr =~ s/\^//g;
-			$abbr =~ s/0//g;
-			$abbr =~ s/[987]$//g;
+    open LEX, "< $file" or die "Cant open the file: $!\n";
+    while (<LEX>) {
+        chomp;
+        next if /^\!/ ;    #discard comments
+        
+        if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+)+).*?[\s|:].*/$1/) {
+            $abbr =~ s/%//g;
+            $abbr =~ s/\^//g;
+            $abbr =~ s/0//g;
+            $abbr =~ s/[987]$//g;
 
-			my @idioms;
-			if (! $pos || $noparadigm) { print ABB "$abbr\n"; next; }
-			my @all_a;
-			my $all;
-			my $i=0;
+            my @idioms;
+            if (! $pos || $noparadigm) { print ABB "$abbr\n"; next; }
+            my @all_a;
+            my $all;
+            my $i=0;
 
-			# Collect all possible strings for generator.
-			# The strings are splitted since there are so many possible
-			# forms for pronouns.
-			for my $a ( @{$paradigms{$pos}} ) {
-				if ($i++ > 1000) { push (@all_a, $all); $all=""; $i=0; }
-				my $string = "$abbr+$a";
-				$all .= $string . "\n";
-			}
-			push (@all_a, $all);
-			for my $a (@all_a) {
-				call_gen(\@idioms,$a); 
-			}
+            # Collect all possible strings for generator.
+            # The strings are splitted since there are so many possible
+            # forms for pronouns.
+            for my $a ( @{$paradigms{$pos}} ) {
+                if ($i++ > 1000) { push (@all_a, $all); $all=""; $i=0; }
+                my $string = "$abbr+$a";
+                $all .= $string . "\n";
+            }
+            push (@all_a, $all);
+            for my $a (@all_a) {
+                call_gen(\@idioms,$a); 
+            }
 
-			if (! @idioms) {
-				print ABB "$abbr\n";
-				next;
-			}
-			for my $idi (@idioms) {
-				print ABB "$idi\n";
-			}
-		}
-	}
-	close LEX;
+            if (! @idioms) {
+                print ABB "$abbr\n";
+                next;
+            }
+            for my $idi (@idioms) {
+                print ABB "$idi\n";
+            }
+        }
+    }
+    close LEX;
 }
 
 if( ! $noparadigm) {
-	print ABB "\nLEXICON NUM\n";
-	
-	my $all;
-	my %num_suffix;
-	for my $n (@numbers) {
-		for my $a ( @{$paradigms{"Num"}} ) {
-			my $string = "$n+$a";
-			$all .= $string . "\n";
-		}
-		my $generated = `echo \"$all\" | $gen_lookup`;		
-		my @analyses = split(/\n+/, $generated);
-		
-		for my $a (@analyses) { 
-			next if ($a =~ /\+\?/);
-			next if ($a =~ /[\:\-]/);
-			my ($word, $analysis) = split(/\t/, $a);
-			next if (! $analysis);
-			
-			next if ($analysis =~ /^\s*$/);
-			
-			$analysis =~ s/$n//g;
-			$analysis =~ s/1//g;
-			$num_suffix{$analysis} = 1; 
-		}
-	}
-	for my $idi (keys %num_suffix) {
-		print ABB "$idi\n";
-	}
+    print ABB "\nLEXICON NUM\n";
+    
+    my $all;
+    my %num_suffix;
+    for my $n (@numbers) {
+        for my $a ( @{$paradigms{"Num"}} ) {
+            my $string = "$n+$a";
+            $all .= $string . "\n";
+        }
+        my $generated = `echo \"$all\" | $gen_lookup`;        
+        my @analyses = split(/\n+/, $generated);
+        
+        for my $a (@analyses) { 
+            next if ($a =~ /\+\?/);
+            next if ($a =~ /[\:\-]/);
+            my ($word, $analysis) = split(/\t/, $a);
+            next if (! $analysis);
+            
+            next if ($analysis =~ /^\s*$/);
+            
+            $analysis =~ s/$n//g;
+            $analysis =~ s/1//g;
+            $num_suffix{$analysis} = 1; 
+        }
+    }
+    for my $idi (keys %num_suffix) {
+        print ABB "$idi\n";
+    }
 }
 
 
 # Call generator for all word forms.
 sub call_gen {
-	my ($tmp_aref, $all) = @_;
+    my ($tmp_aref, $all) = @_;
 
-	my $generated = `echo \"$all\" | $gen_lookup`;
-	my @analyses = split(/\n+/, $generated);
-	for my $idi (@analyses) {
-		next if ($idi =~ /\+\?/);
-		next if ($idi =~ /[\:\-]/);
-		my ($word, $analysis) = split(/\t/, $idi);
-		next if (! $analysis);
+    my $generated = `echo \"$all\" | $gen_lookup`;
+    my @analyses = split(/\n+/, $generated);
+    for my $idi (@analyses) {
+        next if ($idi =~ /\+\?/);
+        next if ($idi =~ /[\:\-]/);
+        my ($word, $analysis) = split(/\t/, $idi);
+        next if (! $analysis);
 
-		push (@$tmp_aref, $analysis);
-	}
+        push (@$tmp_aref, $analysis);
+    }
 }
 
 close ABB;
