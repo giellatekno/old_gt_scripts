@@ -206,8 +206,8 @@ if( ! $noparadigm) {
             $num_suffix{$analysis} = 1; 
         }
     }
-    for my $idi (keys %num_suffix) {
-        print ABB "$idi\n";
+    for my $idiom (keys %num_suffix) {
+        print ABB "$idiom\n";
     }
 }
 
@@ -218,10 +218,10 @@ sub call_gen {
 
     my $generated = `echo \"$all\" | $gen_lookup`;
     my @analyses = split(/\n+/, $generated);
-    for my $idi (@analyses) {
-        next if ($idi =~ /\+\?/);
-        next if ($idi =~ /[\:\-]/);
-        my ($word, $analysis) = split(/\t/, $idi);
+    for my $idiom (@analyses) {
+        next if ($idiom =~ /\+\?/);
+        next if ($idiom =~ /[\:\-]/);
+        my ($word, $analysis) = split(/\t/, $idiom);
         next if (! $analysis);
 
         push (@$tmp_aref, $analysis);
