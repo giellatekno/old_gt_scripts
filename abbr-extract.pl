@@ -165,8 +165,10 @@ for my $file (@lex_file_names) {
                         print ABB "$abbr\n";
                     }
                     else {
-                        for my $idi (@idioms) {
-                            print ABB "$idi\n";
+                        for my $idiom (@idioms) {
+                            if ( $idiom =~ / /) { # print idiom only if it contains space
+                                print ABB "$idiom\n";
+                            }
                         }
                     }
                 }
