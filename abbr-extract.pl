@@ -79,7 +79,6 @@ while (<LEX>) {
         print ABB "$_\n";
         next;
     }
-    next if /^\!/;    #discard comments
     
     # Replace the incoming line ($_) 
     # with the first group of the string ($1)
