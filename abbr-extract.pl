@@ -79,16 +79,16 @@ while (<LEX>) {
     }
     next if /^\!/;    #discard comments
     
-    # The regular expression matches expressions of 
-    # at least following type (see documentation)
-    # nr
-    # j.d.s
-    # earret% eará
-    # but we unfortunately also have
-    # čuj:čuj9
-    # A+Use/-Spell:A 
-    
-    if ((my $abbr = $_)    =~ s/^([\w\.]+(% [\w\.]+)*)[\s+:].*/$1/) {
+    # Replace the incoming line ($_) 
+    # with the first group of the string ($1)
+    # Assign the result to $abbr
+    # The group ($1) consists of:
+    # A string starting with one or more wordcharacters: [\w\.]+
+    # Alternatively followed by a group consisting of
+    # %, a space char and then one or more wordcharacters: % [\w\.]+
+    # or (signaled by |)
+    # by a - and one or more wordcharacters: -[\w\.]+
+    if ((my $abbr = $_)    =~ s/^([\w\.]+(% [\w\.]+|-[\w\.]+)*)[\s+:].*/$1/) {
         $abbr =~ s/%//g;
         print ABB "$abbr\n";
     }
