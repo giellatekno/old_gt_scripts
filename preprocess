@@ -762,8 +762,8 @@ sub test_idiom {
         while ($i <= $size) {
 
             # Remove the punctuation at the end of the expression.
-            (my $idiom2 = $idiom) =~ s/[^\w\s\d\.\-]*$//;
-            (my $ucidiom2 = $ucidiom) =~ s/[^\w\s\d\.\-]*$//;
+            (my $idiom2 = $idiom) =~ s/[^\w]*$//;
+            (my $ucidiom2 = $ucidiom) =~ s/[^\w]*$//;
 
             # If the expressions contains punctuation in the middle, return.
             return if ($idiom2 =~ /[^\w\s\d\.\-]/);
