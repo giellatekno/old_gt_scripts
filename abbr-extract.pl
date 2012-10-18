@@ -53,7 +53,9 @@ GetOptions ("output=s" => \$abbr_file,
 my $noparadigm;
 if(! $fst || !$paradigmfile || ! -f $paradigmfile) { $noparadigm=1; }
 
-@lex_file_names = split (/,/, $lex_files);
+if ($lex_files) {
+    @lex_file_names = split (/,/, $lex_files);
+}
 
 # Read from lex-file and write to abbr file.
 open ABB, "> $abbr_file" or die "Cant open the output file: $!\n";
