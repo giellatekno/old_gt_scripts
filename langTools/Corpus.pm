@@ -216,14 +216,26 @@ sub look_for_extended_attributes {
     
     return ($correct, $extatt, $attlist);
 }
+
+sub get_error_element_name {
+    my ($separator) = @_;
+    
+    if ( $types{$separator} ) { 
+        return $types{$separator}; 
+    }
+    else {
+        return "error";
+    }
+}
+
 sub get_error {
     my ( $error, $separator, $correct ) = @_;
 
     my ($fixed_correct, $extatt, $attlist) = look_for_extended_attributes($correct);
     
+    my $error_elt_name = get_error_element_name($separator);
+    
     my $error_elt;
-    my $error_elt_name = "error";
-    if ( $types{$separator} ) { $error_elt_name = $types{$separator}; }
     if ( ref($error) eq 'XML::Twig::Elt' ) {
         $error_elt = $error;
         $error_elt->set_tag($error_elt_name);
