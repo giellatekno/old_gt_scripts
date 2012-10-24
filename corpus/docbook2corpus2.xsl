@@ -330,6 +330,7 @@ Find the book element, which then is converted to the "document" tag
 <!-- Ignored elements -->
 <xsl:template match="footnote" mode="inpara"/>
 <xsl:template match="footnote" mode="para"/>
+<xsl:template match="footnote"/>
 <xsl:template match="footnoteref"/>
 <xsl:template match="note"/>
 <xsl:template match="tip"/>
