@@ -228,14 +228,10 @@ sub get_error_element_name {
     }
 }
 
-sub get_error {
-    my ( $error, $separator, $correct ) = @_;
-
-    my ($fixed_correct, $extatt, $attlist) = look_for_extended_attributes($correct);
-    
-    my $error_elt_name = get_error_element_name($separator);
-    
+sub make_error_element {
+    my ($error, $fixed_correct, $error_elt_name) = @_;
     my $error_elt;
+    
     if ( ref($error) eq 'XML::Twig::Elt' ) {
         $error_elt = $error;
         $error_elt->set_tag($error_elt_name);
@@ -248,6 +244,19 @@ sub get_error {
         );
     }
 
+
+    return $error_elt;
+}
+
+sub get_error {
+    my ( $error, $separator, $correct ) = @_;
+
+    my ($fixed_correct, $extatt, $attlist) = look_for_extended_attributes($correct);
+    
+    my $error_elt_name = get_error_element_name($separator);
+    
+    my $error_elt = make_error_element($error, $fixed_correct, $error_elt_name);
+    
     # Add extra attributes if found:
     if ($extatt) {
 
