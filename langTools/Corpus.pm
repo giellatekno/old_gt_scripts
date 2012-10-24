@@ -200,31 +200,38 @@ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])//s;
     return @new_content;
 }
 
-sub get_error {
-    my ( $error, $separator, $correct ) = @_;
-
-    # look for extended attributes:
+sub look_for_extended_attributes {
+    my ($correct) = @_;
+    
     my $extatt  = 0;
     my $attlist = "";
     if ( $correct =~ /\|/ ) {
         $extatt = 1;
         ( $attlist, $correct ) = split( /\|/, $correct );
         $attlist =~ s/\s//g;
-        if ($test) { print STDERR "Attribute list is: $attlist.\n"; }
-
-        #			my $fieldnum = ($pos, errtype, teacher) = split(/,/, $attlist);
+        if ($test) { 
+            print STDERR "Attribute list is: $attlist.\n"; 
+        }
     }
+    
+    return ($correct, $extatt, $attlist);
+}
+sub get_error {
+    my ( $error, $separator, $correct ) = @_;
+
+    my ($fixed_correct, $extatt, $attlist) = look_for_extended_attributes($correct);
+    
     my $error_elt;
     my $error_elt_name = "error";
     if ( $types{$separator} ) { $error_elt_name = $types{$separator}; }
     if ( ref($error) eq 'XML::Twig::Elt' ) {
         $error_elt = $error;
         $error_elt->set_tag($error_elt_name);
-        $error_elt->set_att( correct => $correct );
+        $error_elt->set_att( correct => $fixed_correct );
     }
     else {
         $error_elt = XML::Twig::Elt->new(
-            $error_elt_name => { correct => $correct },
+            $error_elt_name => { correct => $fixed_correct },
             $error
         );
     }
