@@ -150,7 +150,7 @@ Find the book element, which then is converted to the "document" tag
     <xsl:if test="normalize-space(.)">
     		<xsl:choose>
     			<!-- Guessing whether a para is actually a title -->
-    			<xsl:when test="emphasis[@role='bold'] and 130 > string-length(.)">
+    			<xsl:when test="emphasis[@role='bold'] and 130 > string-length(text())">
     				<xsl:element name="p">
     					<xsl:attribute
 						name="type">title</xsl:attribute>
@@ -329,6 +329,7 @@ Find the book element, which then is converted to the "document" tag
 
 <!-- Ignored elements -->
 <xsl:template match="footnote" mode="inpara"/>
+<xsl:template match="footnote" mode="para"/>
 <xsl:template match="footnoteref"/>
 <xsl:template match="note"/>
 <xsl:template match="tip"/>
