@@ -37,8 +37,10 @@
 <xsl:variable name="mlang_ger" select="''"/>
 <xsl:variable name="mlang_isl" select="''"/>
 <xsl:variable name="mlang_kal" select="''"/>
+<xsl:variable name="mlang_kpv" select="''"/>
 <xsl:variable name="mlang_nno" select="''"/>
 <xsl:variable name="mlang_nob" select="''"/>
+<xsl:variable name="mlang_rus" select="''"/>
 <xsl:variable name="mlang_sma" select="''"/>
 <xsl:variable name="mlang_sme" select="''"/>
 <xsl:variable name="mlang_smj" select="''"/>
@@ -58,6 +60,8 @@
 <xsl:variable name="para_dan" select="''"/>
 <xsl:variable name="para_isl" select="''"/>
 <xsl:variable name="para_kal" select="''"/>
+<xsl:variable name="para_kpv" select="''"/>
+<xsl:variable name="para_rus" select="''"/>
 
 <xsl:variable name="smelang" select="'sme'"/>
 <xsl:variable name="smjlang" select="'smj'"/>
@@ -72,6 +76,8 @@
 <xsl:variable name="isllang" select="'isl'"/>
 <xsl:variable name="fkvlang" select="'fkv'"/>
 <xsl:variable name="kallang" select="'kal'"/>
+<xsl:variable name="kpvlang" select="'kpv'"/>
+<xsl:variable name="ruslang" select="'rus'"/>
 
 <xsl:variable name="debug" select="false()"/>
 <xsl:variable name="nl" select="'&#xa;'"/>

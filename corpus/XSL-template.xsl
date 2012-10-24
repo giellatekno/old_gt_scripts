@@ -85,8 +85,10 @@
 <xsl:variable name="mlang_ger" select="''"/>
 <xsl:variable name="mlang_isl" select="''"/>
 <xsl:variable name="mlang_kal" select="''"/>
+<xsl:variable name="mlang_kpv" select="''"/>
 <xsl:variable name="mlang_nno" select="''"/>
 <xsl:variable name="mlang_nob" select="''"/>
+<xsl:variable name="mlang_rus" select="''"/>
 <xsl:variable name="mlang_sma" select="''"/>
 <xsl:variable name="mlang_sme" select="''"/>
 <xsl:variable name="mlang_smj" select="''"/>
@@ -109,6 +111,8 @@
 <xsl:variable name="para_sme" select="''"/>
 <xsl:variable name="para_smj" select="''"/>
 <xsl:variable name="para_swe" select="''"/>
+<xsl:variable name="para_kpv" select="''"/>
+<xsl:variable name="para_rus" select="''"/>
 
 
 <!-- Tag the specified elements with the specified language: -->
@@ -125,6 +129,8 @@
 <xsl:variable name="smelang" select="'sme'"/>
 <xsl:variable name="smjlang" select="'smj'"/>
 <xsl:variable name="swelang" select="'swe'"/>
+<xsl:variable name="kpvlang" select="'kpv'"/>
+<xsl:variable name="ruslang" select="'rus'"/>
 
 
 <!-- Add all paragraphs that should have xml:lang=X           -->
