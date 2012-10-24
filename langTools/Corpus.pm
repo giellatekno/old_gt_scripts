@@ -248,6 +248,27 @@ sub make_error_element {
     return $error_elt;
 }
 
+sub add_orthographical_error_attributes {
+    my ($error_elt, $attlist) = @_;
+    
+    #           print "errorort: $attlist\n";
+    my ( $pos, $errtype, $teacher ) = split( /,/, $attlist );
+    if ( $errtype eq 'yes' || $errtype eq 'no' ) {
+        $teacher = $errtype;
+        $errtype = "";
+    }
+    elsif ( $pos eq 'yes' || $pos eq 'no' ) {
+        $teacher = $pos;
+        $pos     = "";
+        $errtype = "";
+    }
+    if ($pos)     { $error_elt->set_att( 'pos',     $pos ); }
+    if ($errtype) { $error_elt->set_att( 'errtype', $errtype ); }
+    if ($teacher) { $error_elt->set_att( 'teacher', $teacher ); }
+
+    return $error_elt;
+}
+
 sub get_error {
     my ( $error, $separator, $correct ) = @_;
 
@@ -264,21 +285,7 @@ sub get_error {
         if (   $types{$separator} eq 'errorort'
             || $types{$separator} eq 'errorortreal' )
         {
-
-            #    		print "errorort: $attlist\n";
-            my ( $pos, $errtype, $teacher ) = split( /,/, $attlist );
-            if ( $errtype eq 'yes' || $errtype eq 'no' ) {
-                $teacher = $errtype;
-                $errtype = "";
-            }
-            elsif ( $pos eq 'yes' || $pos eq 'no' ) {
-                $teacher = $pos;
-                $pos     = "";
-                $errtype = "";
-            }
-            if ($pos)     { $error_elt->set_att( 'pos',     $pos ); }
-            if ($errtype) { $error_elt->set_att( 'errtype', $errtype ); }
-            if ($teacher) { $error_elt->set_att( 'teacher', $teacher ); }
+            $error_elt = add_orthographical_error_attributes($error_elt, $attlist);
         }
 
         # Add attributes for lexical errors:
