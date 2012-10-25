@@ -438,8 +438,6 @@ sub check_if_word_is_abbr {
         }
     } elsif ($abbr =~ /^\p{Ll}$/){
         # If an abbreviation like b.
-        add_token($tokens_aref, $w_token, $word);
-
         if (
             # Is our $abbr truely an abbr
             ($abbrs{$abbr} || $abbrs{lc($abbr)}) 
@@ -449,6 +447,7 @@ sub check_if_word_is_abbr {
             && $words_aref->[0]{word} !~ /^[\p{Ll}]/o 
             ) 
         {
+            add_token($tokens_aref, $w_token, $word);
             my @tmp = (".");
             add_array($tokens_aref, \@tmp);
         } else {
