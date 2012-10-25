@@ -42,7 +42,7 @@ class ParallelFile:
     def __init__(self, name, paralang):
         self.name = name
         self.paralang = paralang
-        self.setLang()
+        self.eTree = etree.parse(name)
 
     def getName(self):
         """
@@ -62,26 +62,18 @@ class ParallelFile:
         """
         return os.path.basename(self.name)
 
-    def setLang(self):
-        """
-        Set the lang of the file
-        """
-        origfile1Tree = etree.parse(self.getName())
-        self.lang = origfile1Tree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
-
     def getLang(self):
         """
         Get the lang of the file
         """
-        return self.lang
+        return self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
 
     def getParallelBasename(self):
         """
         Get the basename of the parallel file
         Input is the lang of the parallel file
         """
-        origfile1Tree = etree.parse(self.getName())
-        root = origfile1Tree.getroot()
+        root = self.eTree.getroot()
         parallelFiles = root.findall(".//parallel_text")
         for p in parallelFiles:
             if p.attrib['{http://www.w3.org/XML/1998/namespace}lang'] == self.paralang:
