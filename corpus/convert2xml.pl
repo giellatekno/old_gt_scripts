@@ -310,6 +310,7 @@ sub conclusion {
 		}
 		print "To find which files caused the errors, do the command\n";
 		print "grep \"Conversion failed\" tmp/*.log\n";
+		exit(1);
 	} else {
 		print "no errors encountered\n";
 	}
