@@ -400,6 +400,66 @@ sub process_word {
     add_array($tokens_aref, \@ep);
 }
 
+sub check_if_word_is_abbr {
+    my ($word, $w_token, $words_aref, $tokens_aref) = @_;
+    
+    my $is_abbr = 0;
+    
+    my $abbr = $word;
+    $abbr =~ s/\.$//;
+    if ($abbrs{$abbr} || $abbrs{lc($abbr)}) {
+        verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
+        test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
+        
+        # This really is an abbr
+        $is_abbr = 1;
+    } elsif ($abbr =~ /^[\p{Lu}]{2,3}$/o ) {
+        # Check for abbreviation with 2-3 capital letters
+        # If followed by a capital letter or number,
+        # There is a sentence boundary. todo: Remove this as irrelevant!!
+        
+        verbose ("process_word/test_two_three_cap_letters", $abbr, __LINE__);
+        
+        
+        if ($words_aref->[0]{word} && $words_aref->[0]{word} !~ /^\p{Ll}/o ) {
+            if($corr) { 
+                if ($corrections{$word}) { 
+                    test_corr(\$word, $words_aref, $tokens_aref); 
+                } 
+            }
+            my @tmp = ($abbr, ".");
+            add_array($tokens_aref, \@tmp);
+            # This really is an abbr
+            $is_abbr = 1;
+        } else {
+            add_token($tokens_aref, $w_token, $word);
+            # This really is an abbr
+            $is_abbr = 1;
+        }
+    } elsif ($abbr =~ /^\p{Ll}$/){
+        # If an abbreviation like b.
+        add_token($tokens_aref, $w_token, $word);
+
+        if (
+            # Is our $abbr truely an abbr
+            ($abbrs{$abbr} || $abbrs{lc($abbr)}) 
+            # Is there a word after our abbr
+            && $words_aref->[0]{word}
+            ## Does this word start with an uppercase letter
+            && $words_aref->[0]{word} !~ /^[\p{Ll}]/o 
+            ) 
+        {
+            my @tmp = (".");
+            add_array($tokens_aref, \@tmp);
+        } else {
+            # This is not an abbr
+            $is_abbr = 0;
+        }
+    }
+    
+    return $is_abbr;
+}
+
 sub test_punctuation {
     my ($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct) = @_;
     
@@ -419,87 +479,44 @@ sub test_punctuation {
         }
 
         # The word is checked for abbreviation and sentence boundary.
-        my $abbr = $word;
-        if ($abbr) {
-            $abbr =~ s/\.$//;
-            if ($abbrs{$abbr} || $abbrs{lc($abbr)}) {
-                verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
-                test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
-                last TEST;
-            } elsif ($abbr =~ /^[\p{Lu}]{2,3}$/o ) {
-                # Check for abbreviation with 2-3 capital letters
-                # If followed by a capital letter or number,
-                # There is a sentence boundary. todo: Remove this as irrelevant!!
-                
-                verbose ("process_word/test_two_three_cap_letters", $abbr, __LINE__);
-                
-                
-                if ($words_aref->[0]{word} && $words_aref->[0]{word} !~ /^\p{Ll}/o ) {
+        if ($word) {
+            if (!check_if_word_is_abbr($word, $w_token, $words_aref, $tokens_aref)) {
+                # Cut the word into tokens if there is punctuation in the middle.
+                # e.g. gielddat/guovllut
+                # Check for expressions in $CONTAIN_PUNCT -variable.
+                verbose ("process_word/not_abbr", "$word", __LINE__);
+                if (($split_strings && $word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
+                    if ($word !~ /$CONTAIN_PUNCT/o) {
+                        $word = $1;
+                        my %w = ('word' => $2);
+                        unshift (@{$words_aref}, \%w);
+
+                        process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
+                        verbose ("process_word/contain_punct", "$word", __LINE__);
+                        return 1;
+                    }
+                }
+                # If the word was not an abbreviation, the rest
+                # of the punctuation is removed and stored as separate tokens.
+                # This operation is for taking the dot out.
+                if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
+                    $rest_punct =  $1;
+                    verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
                     if($corr) { 
-                        if ($corrections{$word}) { 
+                        if ($corrections{$word}) {
                             test_corr(\$word, $words_aref, $tokens_aref); 
                         } 
                     }
-                    my @tmp = ($abbr, ".");
-                    add_array($tokens_aref, \@tmp);
-                    last TEST;
-                } else {
                     add_token($tokens_aref, $w_token, $word);
+
+                    my @rest = split ("", $rest_punct);
+                    add_array($tokens_aref, \@rest);
+
                     last TEST;
                 }
-            } elsif ($abbr =~ /^\p{Ll}$/){
-                # If an abbreviation like b.
-                add_token($tokens_aref, $w_token, $word);
-
-                if (
-                    # Is our $abbr truely an abbr
-                    ($abbrs{$abbr} || $abbrs{lc($abbr)}) 
-                    # Is there a word after our abbr
-                    && $words_aref->[0]{word}
-                    ## Does this word start with an uppercase letter
-                    && $words_aref->[0]{word} !~ /^[\p{Ll}]/o 
-                    ) {
-                    my @tmp = (".");
-                    add_array($tokens_aref, \@tmp);
-                }
-                last TEST;
+                add_token($tokens_aref, $w_token, $word);            
             }
         }
-        # Cut the word into tokens if there is punctuation in the middle.
-        # e.g. gielddat/guovllut
-        # Check for expressions in $CONTAIN_PUNCT -variable.
-        verbose ("process_word/not_abbr", "$word", __LINE__);
-        if (($split_strings && $word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
-            if ($word !~ /$CONTAIN_PUNCT/o) {
-                $word = $1;
-                my %w = ('word' => $2);
-                unshift (@{$words_aref}, \%w);
-
-                process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
-                verbose ("process_word/contain_punct", "$word", __LINE__);
-                return 1;
-            }
-        }
-        # If the word was not an abbreviation, the rest
-        # of the punctuation is removed and stored as separate tokens.
-        # This operation is for taking the dot out.
-        if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
-            $rest_punct =  $1;
-            verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
-            if($corr) { 
-                if ($corrections{$word}) {
-                    test_corr(\$word, $words_aref, $tokens_aref); 
-                } 
-            }
-            add_token($tokens_aref, $w_token, $word);
-
-            my @rest = split ("", $rest_punct);
-            add_array($tokens_aref, \@rest);
-
-            last TEST;
-        }
-        add_token($tokens_aref, $w_token, $word);
-        
     } # end of block TEST
 }
 
