@@ -248,6 +248,16 @@ sub make_error_element {
     return $error_elt;
 }
 
+sub set_common_attributes {
+    my ($error_elt, $pos, $errtype, $teacher) = @_;
+    
+    if ($pos)     { $error_elt->set_att( 'pos',     $pos ); }
+    if ($errtype) { $error_elt->set_att( 'errtype', $errtype ); }
+    if ($teacher) { $error_elt->set_att( 'teacher', $teacher ); }
+    
+    return $error_elt;
+}
+
 sub add_orthographical_error_attributes {
     my ($error_elt, $attlist) = @_;
     
@@ -262,10 +272,9 @@ sub add_orthographical_error_attributes {
         $pos     = "";
         $errtype = "";
     }
-    if ($pos)     { $error_elt->set_att( 'pos',     $pos ); }
-    if ($errtype) { $error_elt->set_att( 'errtype', $errtype ); }
-    if ($teacher) { $error_elt->set_att( 'teacher', $teacher ); }
 
+    $error_elt = set_common_attributes($error_elt, $pos, $errtype, $teacher);
+    
     return $error_elt;
 }
 
@@ -290,15 +299,9 @@ sub add_lexical_error_attributes {
         $origpos = "";
         $errtype = "";
     }
-    if ($pos) {
-        $error_elt->set_att( 'pos', $pos );
-    }
-    if ($errtype) {
-        $error_elt->set_att( 'errtype', $errtype );
-    }
-    if ($teacher) {
-        $error_elt->set_att( 'teacher', $teacher );
-    }
+    
+    $error_elt = set_common_attributes($error_elt, $pos, $errtype, $teacher);
+    
     if ($origpos) {
         $error_elt->set_att( 'origpos', $origpos );
     }
@@ -342,12 +345,12 @@ sub add_morphosyntactic_error_attributes {
         $orig    = "";
         $errtype = "";
     }
-    if ($pos)     { $error_elt->set_att( 'pos',     $pos ); }
+
+    $error_elt = set_common_attributes($error_elt, $pos, $errtype, $teacher);
+    
     if ($const)   { $error_elt->set_att( 'const',   $const ); }
     if ($cat)     { $error_elt->set_att( 'cat',     $cat ); }
     if ($orig)    { $error_elt->set_att( 'orig',    $orig ); }
-    if ($errtype) { $error_elt->set_att( 'errtype', $errtype ); }
-    if ($teacher) { $error_elt->set_att( 'teacher', $teacher ); }
 
     return $error_elt;
 }
@@ -366,10 +369,8 @@ sub add_syntactic_error_attributes {
         $pos     = "";
         $errtype = "";
     }
-    if ($pos)     { $error_elt->set_att( 'pos',     $pos ); }
-    if ($errtype) { $error_elt->set_att( 'errtype', $errtype ); }
-    if ($teacher) { $error_elt->set_att( 'teacher', $teacher ); }
-
+    $error_elt = set_common_attributes($error_elt, $pos, $errtype, $teacher);
+    
     return $error_elt;
 }
 
