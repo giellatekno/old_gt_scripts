@@ -85,7 +85,7 @@ sub error_parser {
 
             if ($test) {
                 print
-"error_parser 71 text «$text» separator «$separator» correct «$correct» rest «$rest»\n";
+"error_parser __LINE__ text «$text» separator «$separator» correct «$correct» rest «$rest»\n";
             }
 
             $text =~
@@ -96,7 +96,7 @@ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])//s;
 
             if ($test) {
                 print
-"error_parser 81 text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
+"error_parser __LINE__ text «$text» error «$error» separator «$separator» correct «$correct» rest «$rest»\n";
             }
 
             if ( $error =~ /[$sep]/ ) {
@@ -122,7 +122,7 @@ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])//s;
                     }
                     else {
                         if ($test) {
-                            print "error_parser 99 $next_bit\n";
+                            print "error_parser __LINE__ $next_bit\n";
                         }
                         if ($parenthesis) {
                             my $position = rindex( $next_bit, '(' );
@@ -192,7 +192,7 @@ s/(\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)([$sep])//s;
             push( @new_content, $error_elt );
             $text = $rest;
             if ($test) {
-                print "error_parser 127 «@new_content», text «$text»\n\n";
+                print "error_parser __LINE__ «@new_content», text «$text»\n\n";
             }
         }
     }
