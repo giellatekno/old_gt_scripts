@@ -245,12 +245,13 @@ alias   hunno='$HLOOKUP $GTHOME/st/nno/bin/nno.hfst.ol'
 alias   hunob='$HLOOKUP $GTHOME/st/nob/bin/nob.hfst.ol'
 alias   hunon='$HLOOKUP $GTHOME/st/non/bin/non.hfst.ol'
 
-alias   hdfao='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-desc.hfst'
-alias   hdkal='$HLOOKUP $GTHOME/langs/kal/src/generator-gt-desc.hfst'
-alias   hufao='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.hfst'
-alias   hukal='$HLOOKUP $GTHOME/langs/kal/src/analyser-gt-desc.hfst'
+alias       hdfao='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-desc.hfst'
+alias       hdkal='$HLOOKUP $GTHOME/langs/kal/src/generator-gt-desc.hfst'
 alias   hdfaoNorm='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-norm.hfst'
 alias   hdkalNorm='$HLOOKUP $GTHOME/langs/kal/src/generator-gt-norm.hfst'
+
+alias       hufao='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.hfst'
+alias       hukal='$HLOOKUP $GTHOME/langs/kal/src/analyser-gt-desc.hfst'
 alias   hufaoNorm='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.hfst'
 alias   hukalNorm='$HLOOKUP $GTHOME/langs/kal/src/analyser-gt-norm.hfst'
 
