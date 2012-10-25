@@ -87,6 +87,15 @@ class ParallelFile:
         parallelBasename = self.getParallelBasename() + '.xml'
 
         return os.path.join(parallelDirname, parallelBasename)
+    
+    def getTranslatedFrom(self):
+        """
+        Get the translated_from element from the orig doc
+        """
+        root = self.eTree.getroot()
+        translated_from = root.find(".//translated_from")
+        
+        return translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang']
 
 class TestParallelFile(unittest.TestCase):
     """
@@ -112,6 +121,9 @@ class TestParallelFile(unittest.TestCase):
 
     def testGetParallelFilename(self):
         self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
+    
+    def testGetTranslatedFrom(self):
+        self.assertEqual(self.pfile.getTranslatedFrom(), "nob")
 
 class TestSentenceDivider(unittest.TestCase):
     """A test class for the SentenceDivider class
