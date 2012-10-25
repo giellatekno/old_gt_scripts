@@ -205,7 +205,7 @@ class TestSentenceDivider(unittest.TestCase):
         self.sentenceDivider.docLang = 'sme'
         p = etree.XML('<p>Allaskuvllas lea maiddái ovddasvástádus julevsámegielas ja máttasámegielas. (... ). Berre leat vejolaš váldit oahpaheaddjeoahpu, mas erenoamáš deaddu lea davvi-, julev-, máttasámegielas ja kultuvrras.</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="12">Allaskuvllas lea maiddái ovddasvástádus julevsámegielas ja máttasámegielas . ( ... ) .</s><s id="13">Berre leat vejolaš váldit oahpaheaddjeoahpu , mas erenoamáš deaddu lea davvi- , julev- , máttasámegielas ja kultuvrras .</s></p>')
+        want = etree.XML('<p><s id="12">Allaskuvllas lea maiddái ovddasvástádus julevsámegielas ja máttasámegielas .</s><s id="13">Berre leat vejolaš váldit oahpaheaddjeoahpu , mas erenoamáš deaddu lea davvi- , julev- , máttasámegielas ja kultuvrras .</s></p>')
         self.assertXmlEqual(got, want)
 
         #Hoeringsnotat_forskrift_rammeplan_samiske_grunnskolelaererutdanninger_norskversjon.pdfnob_sent.xml 
@@ -436,7 +436,7 @@ class Parallelize:
 
         tmpfile = ParallelFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
         self.origfiles.append(tmpfile)
-# the function reshuffle might be the cause of switched tu-elements in the tokxml files: to debug
+
         if self.isTranslatedFromLang2():
             self.reshuffleFiles()
 
@@ -1536,8 +1536,7 @@ class Toktmx2Tmx:
             return files[:-1]
 
 if __name__ == '__main__':
-    #for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
-    for test in [TestSentenceDivider]:
+    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator, TestTmxTestDataWriter]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
