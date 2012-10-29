@@ -165,7 +165,7 @@ sub process_file {
 		
 		$line = $_;
 		return if (! $line);
-
+		#bug 982: this is the line which actually DOES the job of ignoring empty lines in input
 		next if ($line =~ /^\s*$/);
 
 		# hash of hashes base -> analyses
