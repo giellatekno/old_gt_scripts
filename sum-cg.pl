@@ -182,7 +182,7 @@ sub process_file {
 			$analyses{$base}{$analysis} = 1;
 		      }
 		      else { 
-			print STDERR "Line not recognized: $word, $_\n"; 
+			print STDERR "Line $. not recognized: $word, $_\n"; 
 		      }
 		      
 		      while(<FH>) {
