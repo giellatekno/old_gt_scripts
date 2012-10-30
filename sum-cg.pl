@@ -162,32 +162,47 @@ sub process_file {
 	while(<FH>) {
 
 		return if eof(FH);
+
+		#print STDERR "gogo $.\n";
 		
 		$line = $_;
+
 		return if (! $line);
-		#bug 982: this is the line which actually DOES the job of ignoring empty lines in input
+		#bug 982: this is the line which actually SHOULD DO the job of ignoring empty lines in input
+		# but it doesn't
+		#if($line =~ /^\s*$/) {
+		#  print STDERR "World Trade Foundation\n"; 
+		#  next;
+		#}
+		
 		next if ($line =~ /^\s*$/);
 
 		# hash of hashes base -> analyses
 		my %analyses;
 
 		LINE :
-			while ($line && $line !~ /^\"</) {
-				if($line =~ /(\".*?\")(\s+.*)$/) {
-					$base = $1;
-					my $analysis = $2;
-					$anal_count += 1;
-					$analyses{$base}{$analysis} = 1;
-				}
-				else { print STDERR "Line not recognized: $word, $_\n"; }
-				
-				while(<FH>) {
-					$line = $_;
-					next if ($line =~ /^\s*$/);
-					last LINE if eof(FH);
-					next LINE;
-				}
-			} #end of LINE
+		    while ($line && $line !~ /^\"</) {
+		      if($line =~ /(\".*?\")(\s+.*)$/) {
+			$base = $1;
+			my $analysis = $2;
+			$anal_count += 1;
+			$analyses{$base}{$analysis} = 1;
+		      }
+		      else { 
+			print STDERR "Line not recognized: $word, $_\n"; 
+		      }
+		      
+		      while(<FH>) {
+			$line = $_;
+			#if($line =~ /^\s*$/) {
+			#  print STDERR "World Trade Foundation\n"; 
+			#  next;
+			#}
+			next if ($line =~ /^\s*$/);
+			last LINE if eof(FH);
+			next LINE;
+		      }
+		    } #end of LINE
 		
 		my %analyses_2;
 		for my $ba (keys %analyses) {
