@@ -84,8 +84,10 @@ sub get_wordcount {
     my ($doc_path) = @_;
     
     my $xp = XML::XPath->new(filename => $doc_path);
-    my $mainlang = get_mainlang($xp);
-    return `ccat -S -a $doc_path | wc -l`;
+    my @nodelist = $xp->find('//wordcount')->get_nodelist;
+    my @wordcounts = map($_->string_value, @nodelist);
+    
+    return $wordcounts[0];
 }
 
 sub copy_file_to_prestable {
