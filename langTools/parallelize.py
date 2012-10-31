@@ -34,7 +34,7 @@ import ngram
 
 import unittest
 
-class ParallelFile:
+class CorpusXMLFile:
     """
     A class that contains the info on a file to be parallellized, name and language
     """
@@ -97,12 +97,12 @@ class ParallelFile:
         
         return translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang']
 
-class TestParallelFile(unittest.TestCase):
+class TestCorpusXMLFile(unittest.TestCase):
     """
-    A test class for the ParallelFile class
+    A test class for the CorpusXMLFile class
     """
     def setUp(self):
-        self.pfile = ParallelFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
+        self.pfile = CorpusXMLFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
 
     def testBasename(self):
         self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
@@ -422,10 +422,10 @@ class Parallelize:
         """
         self.origfiles = []
 
-        tmpfile = ParallelFile(os.path.abspath(origfile1), lang2)
+        tmpfile = CorpusXMLFile(os.path.abspath(origfile1), lang2)
         self.origfiles.append(tmpfile)
 
-        tmpfile = ParallelFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
+        tmpfile = CorpusXMLFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
         self.origfiles.append(tmpfile)
 
         if self.isTranslatedFromLang2():
@@ -511,7 +511,7 @@ class Parallelize:
     def getSentFilename(self, pfile):
         """
         Compute a name for the corpus-analyze output and tca2 input file
-        Input is a ParallelFile
+        Input is a CorpusXMLFile
         """
         origfilename = pfile.getBasename().replace('.xml', '')
         return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
@@ -910,7 +910,7 @@ class Tca2ToTmx(Tmx):
     """
     def __init__(self, filelist):
         """
-        Input is a list of ParallelFile objects
+        Input is a list of CorpusXMLFile objects
         """
         self.filelist = filelist
         Tmx.__init__(self, self.setTmx())
@@ -999,7 +999,7 @@ class Tca2ToTmx(Tmx):
     def readTca2Output(self, pfile):
         """
         Read the output of tca2
-        Input is a ParallelFile
+        Input is a CorpusXMLFile
         """
         text = ""
         pfileName = self.getSentFilename(pfile).replace('.xml', '_new.txt')
@@ -1017,7 +1017,7 @@ class Tca2ToTmx(Tmx):
     def getSentFilename(self, pfile):
         """
         Compute a name for the corpus-analyze output and tca2 input file
-        Input is a ParallelFile
+        Input is a CorpusXMLFile
         """
         origfilename = pfile.getBasename().replace('.xml', '')
         return os.environ['GTFREE'] + '/tmp/' + origfilename + pfile.getLang() + '_sent.xml'
@@ -1528,7 +1528,7 @@ class Toktmx2Tmx:
 
 if __name__ == '__main__':
     #, TestTmxTestDataWriter
-    for test in [TestSentenceDivider, TestParallelFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator]:
+    for test in [TestSentenceDivider, TestCorpusXMLFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator]:
         testSuite = unittest.TestSuite()
         testSuite.addTest(unittest.makeSuite(test))
         unittest.TextTestRunner().run(testSuite)
