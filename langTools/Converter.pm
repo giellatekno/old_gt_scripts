@@ -491,6 +491,7 @@ sub set_word_count {
     
     my $words = $self->get_total_wordcount();
     chomp $words;
+    $words=trim($words);
     
     my $wordcount = $header->first_child('wordcount');
     
@@ -770,5 +771,15 @@ sub which_parallels_do_exist {
     }
     return 0;
 }
+
+# remove whitespace from the start and end of the string
+sub trim($)
+{
+        my $string = shift;
+        $string =~ s/^\s+//;
+        $string =~ s/\s+$//;
+        return $string;
+}
+
 
 1;
