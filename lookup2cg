@@ -172,6 +172,7 @@ sub rate_compounds {
 		$boundary_count = tr/\#//;
 		$der_count = () = $_ =~ /Der\//g;
 		$boundary_count += $der_count;
+		#cip: commenting out the next two lines would not delete the Der-lines (see bug 1283)
 		if ( $boundary_count > $min_boundary_count )
 		{ delete($$href{$_}); }
 	}
