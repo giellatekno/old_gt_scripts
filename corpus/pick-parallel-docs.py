@@ -56,6 +56,8 @@ class ParallelPicker:
         self.noParallel = []
         self.poorRatio = []
         self.tooFewWords = []
+        self.changedFiles = []
+        self.noFilesTranslations = []   
 
     def calculateLanguage1(self, language1Dir):
         """
@@ -95,6 +97,9 @@ class ParallelPicker:
         file before new files were added
         """
         self.noParallel.append(filename)
+    
+    def addNoFilesTranslations(self, language1File, parallelFile):
+        self.noFilesTranslations.append(language1File.getName() + ' ,' + parallelFile.getName())
         
     def removeFile(self, filename):
         """
@@ -206,8 +211,44 @@ class ParallelPicker:
             return False
             
     def addPoorRatio(self, name1, name2, ratio):
+        """
+        Add filenames to the poorRatio list
+        """
         self.poorRatio.append(name1 + ',' + name2 + ',' + repr(ratio))
+        
+    def addChangedFile(self, corpusFile):
+        self.changedFiles.append(corpusFile.getName())
+        prestableFilename = corpusFile.getName().replace('converted/', 'prestable/converted')
+        if prestableFilename in self.oldFiles:
+            self.oldFiles.remove(prestableFilename)
 
+    def bothFilesTranslatedFrom(self, parallelFile, language1File):
+        
+        if parallelFile.getTranslatedFrom() == language1File.getLang() and \
+        language1File.getTranslatedFrom() == self.parallelLanguage:
+            print ("Both files claim to be translations of the other")
+            self.addBothFilesTranslated(language1File, parallelFile)
+            return True
+        else:
+            return False
+
+    def oneFileTranslatedFrom(self, language1File, parallelFile):
+        if language1File.getTranslatedFrom() == self.parallelLanguage or \
+        parallelFile.getTranslatedFrom() == language1File.getLang():
+            
+            if self.validDiff(language1File, parallelFile.getLang()):
+                self.addChangedFile(language1File)
+                self.copyFile(language1File)
+            
+            if self.validDiff(parallelFile, language1File.getLang()):
+                self.addChangedFile(parallelFile)
+                self.copyFile(parallelFile)
+                
+        else:
+            print ("None of the files are translations of the other", language1File.getName(), parallelFile.getName())
+            self.addNoFilesTranslations(language1File, parallelFile)
+            
+    
     def traverseFiles(self):
         """
         Go through all files
@@ -225,21 +266,10 @@ class ParallelPicker:
                 if self.hasSufficientWords(language1File, parallelFile) and \
                 self.hasSufficientRatio(language1File, parallelFile):
                         
-                        if parallelFile.getTranslatedFrom() == language1File.getLang() and language1File.getTranslatedFrom() == self.parallelLanguage:
-                            print ("Both files claim to be translations of the other")
+                        if not self.bothFilesTranslatedFrom(parallelFile, language1File):
+                            self.oneFileTranslatedFrom(language1File, parallelFile)
                                 
-                        elif language1File.getTranslatedFrom() == self.parallelLanguage or parallelFile.getTranslatedFrom() == language1File.getLang():
-                            #self.addFilePair(language1File, parallelFile)
                             
-                            if self.validDiff(language1File, parallelFile.getLang()):
-                                self.copyFile(language1File)
-                            
-                            if self.validDiff(parallelFile, language1File.getLang()):
-                                self.copyFile(parallelFile)
-                                
-                        else:
-                            print ("None of the files are translations of the other", language1File.getName(), parallelFile.getName())
-                        
                     
     def validDiff(self, convertedFile, parallelLanguage):
         """
