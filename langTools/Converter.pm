@@ -746,21 +746,12 @@ sub which_parallels_do_exist {
 sub set_word_count {
     my ($self, $twig) = @_;
     
-    my $root = $twig->root;
-    my $body = $root->first_child('body');
-    my $text = $body->text();
+    my $words = $self->get_total_wordcount();
     
-    my $words = scalar(split(/\s+/, $text));
-    
-    my $int = $self->getInt();
-
     my $root = $twig->root;
     my $wordcount = $root->first_child('header')->first_child('wordcount');
     
-    if ($wordcount) {
-        $wordcount->set_text($words);
-    }
-    else {
+    if (!$wordcount) {
         $wordcount = XML::Twig::Elt->new('wordcount');
         $wordcount->set_text($words);
 
