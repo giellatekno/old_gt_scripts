@@ -47,20 +47,16 @@ def PrintFrame(input = "empty"):
     print(info.lineno, info.function, input)
 
 class TestParallelPicker(unittest.TestCase):
-    def setup(self):
+    def setUp(self):
         self.language1ConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorp/converted/sme')
         self.pp = ParallelPicker(self.language1ConvertedDir, 'nob', '73', '110')
 
     def testCalculateLanguage1(self):
-        language1ConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorp/converted/sme')
-        pp = ParallelPicker(language1ConvertedDir, 'nob', '73', '110')
-        pp.calculateLanguage1(language1ConvertedDir)
-        self.assertEqual(pp.getLanguage1(), 'sme')
+        self.pp.calculateLanguage1(self.language1ConvertedDir)
+        self.assertEqual(self.pp.getLanguage1(), 'sme')
         
     def testGetParallelLanguage(self):
-        self.language1ConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorp/converted/sme')
-        pp = ParallelPicker(self.language1ConvertedDir, 'nob', '73', '110')
-        self.assertEqual(pp.getParallelLanguage(), 'nob')
+        self.assertEqual(self.pp.getParallelLanguage(), 'nob')
         
 class ParallelPicker:
     def __init__(self, language1Dir, parallelLanguage, minratio, maxratio):
