@@ -508,6 +508,9 @@ sub set_word_count {
             }
         }
     }
+    else {
+        $wordcount->set_text($words);
+    }
 }
 
 sub error_markup {
