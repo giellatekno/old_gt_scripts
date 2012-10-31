@@ -70,6 +70,12 @@ class CorpusXMLFile:
         Get the lang of the file
         """
         return self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
+    
+    def getWordCount(self):
+        root = self.eTree.getroot()
+        wordCount = root.find(".//wordcount")
+        if wordCount is not None:
+            return wordCount.text
 
     def getParallelBasename(self):
         """
@@ -87,18 +93,20 @@ class CorpusXMLFile:
         Infer the absolute path of the parallel file
         """
         parallelDirname = self.getDirname().replace(self.getLang(), self.paralang)
-        parallelBasename = self.getParallelBasename() + '.xml'
+        if self.getParallelBasename() is not None:
+            parallelBasename = self.getParallelBasename() + '.xml'
 
-        return os.path.join(parallelDirname, parallelBasename)
+            return os.path.join(parallelDirname, parallelBasename)
     
     def getTranslatedFrom(self):
         """
         Get the translated_from element from the orig doc
         """
         root = self.eTree.getroot()
-        translated_from = root.find(".//translated_from")
+        translatedFrom = root.find(".//translated_from")
         
-        return translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang']
+        if translatedFrom is not None:
+            return translatedFrom.attrib['{http://www.w3.org/XML/1998/namespace}lang']
     
     def removeVersion(self):
         """
@@ -145,6 +153,10 @@ class TestCorpusXMLFile(unittest.TestCase):
     
     def testGetTranslatedFrom(self):
         self.assertEqual(self.pfile.getTranslatedFrom(), "nob")
+        
+    def testGetWordCount(self):
+        corpusfile = CorpusXMLFile('parallelize_data/aarseth2-n-with-version.htm.xml', 'sme')
+        self.assertEqual(corpusfile.getWordCount(), "4009")
         
     def testRemoveVersion(self):
         fileWithVersion = CorpusXMLFile('parallelize_data/aarseth2-n-with-version.htm.xml', 'sme')
