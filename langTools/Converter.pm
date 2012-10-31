@@ -398,6 +398,7 @@ sub character_encoding {
                     'p' => sub { call_decode_para( $self, @_, $encoding ); },
                     'title'  => sub { call_decode_title( $self,   @_ ); },
                     'person' => sub { call_decode_person( $self, @_ ); },
+                    'header' => sub { set_word_count($self, @_); },
                 }
             );
         }
@@ -406,6 +407,7 @@ sub character_encoding {
                 twig_handlers => {
                     'title'  => sub { call_decode_title( $self,   @_ ); },
                     'person' => sub { call_decode_person( $self, @_ ); },
+                    'header' => sub { set_word_count($self, @_); },
                 }
             );
         }
@@ -419,7 +421,6 @@ sub character_encoding {
             $error = 2;
         }
         else {
-            $self->set_word_count($d);
             $d->set_pretty_print('indented');
             $d->print($fh);
             close($fh);
@@ -483,6 +484,30 @@ sub call_decode_title {
     my @new_content;
     push( @new_content, $text );
     $title->set_content( @new_content );
+}
+
+sub set_word_count {
+    my ($self, $twig, $header) = @_;
+    
+    my $words = $self->get_total_wordcount();
+    chomp $words;
+    
+    my $wordcount = $header->first_child('wordcount');
+    
+    if (!$wordcount) {
+        $wordcount = XML::Twig::Elt->new('wordcount');
+        $wordcount->set_text($words);
+
+        my @tags = ('collection', 'publChannel', 'place', 'year', 'translated_from', 'translator', 'author');
+        foreach my $tag (@tags) {
+            my $found = $header->first_child($tag);
+            
+            if ($found) {
+                $wordcount->paste('after', $found);
+                last;
+            }
+        }
+    }
 }
 
 sub error_markup {
@@ -741,30 +766,6 @@ sub which_parallels_do_exist {
         }
     }
     return 0;
-}
-
-sub set_word_count {
-    my ($self, $twig) = @_;
-    
-    my $words = $self->get_total_wordcount();
-    
-    my $root = $twig->root;
-    my $wordcount = $root->first_child('header')->first_child('wordcount');
-    
-    if (!$wordcount) {
-        $wordcount = XML::Twig::Elt->new('wordcount');
-        $wordcount->set_text($words);
-
-        my @tags = ('collection', 'publChannel', 'place', 'year', 'translated_from', 'translator', 'author');
-        foreach my $tag (@tags) {
-            my $found = $root->first_child('header')->first_child($tag);
-            
-            if ($found) {
-                $wordcount->paste('after', $found);
-                last;
-            }
-        }
-    }
 }
 
 1;
