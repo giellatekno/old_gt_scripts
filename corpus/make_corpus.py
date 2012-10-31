@@ -45,7 +45,7 @@ class CorpusBuilder:
 
             self.svg_dep = [os.path.join(gthome, 'gt/script/langTools/SVGConverter.pm'), os.path.join(gthome, 'gt/script/corpus/svg2corpus.xsl')]
 
-            self.common_dep = [os.path.join(gthome, 'gt/script/langTools/CantHandle.pm'), os.path.join(gthome, 'gt/script/langTools/CorrectXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/convert2xml.pl'), os.path.join(gthome, 'gt/script/langTools/Preconverter.pm'), os.path.join(gthome, 'gt/script/langTools/Converter.pm'), os.path.join(gthome, 'gt/script/langTools/Corpus.pm'), os.path.join(gthome, 'gt/script/langTools/Decode.pm'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl')]
+            self.common_dep = [os.path.join(gthome, 'gt/script/langTools/CantHandle.pm'), os.path.join(gthome, 'gt/script/langTools/CorrectXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/convert2xml.pl'), os.path.join(gthome, 'gt/script/langTools/Preconverter.pm'), os.path.join(gthome, 'gt/script/langTools/Converter.pm'), os.path.join(gthome, 'gt/script/langTools/Corpus.pm'), os.path.join(gthome, 'gt/script/langTools/Decode.pm'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/corpus/convert2xml.p.'), os.path.join(gthome, 'gt/script/preprocess')]
 
             self.avvir_dep = [os.path.join(gthome, 'gt/script/langTools/AvvirXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/avvir2corpus.xsl')]
 
