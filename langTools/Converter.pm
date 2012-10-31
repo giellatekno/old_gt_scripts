@@ -490,8 +490,6 @@ sub set_word_count {
     my ($self, $twig, $header) = @_;
     
     my $words = $self->get_total_wordcount();
-    chomp $words;
-    $words=trim($words);
     
     my $wordcount = $header->first_child('wordcount');
     
@@ -717,7 +715,7 @@ sub get_total_wordcount {
     my ($self) = @_;
 
     my $int = $self->getInt();
-    my $wc  = `ccat -a -S $int | wc -l`;
+    my $wc  = trim(`ccat -a -S $int | wc -l`);
 
     if ( $self->{_test} ) {
         print "this is total word count: " . $wc . "\n";
