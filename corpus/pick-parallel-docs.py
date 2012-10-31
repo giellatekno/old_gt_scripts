@@ -35,6 +35,7 @@ import inspect
 
 import unittest
 
+
 def PrintFrame(input = "empty"):
     """
     Print debug output
@@ -48,7 +49,8 @@ def PrintFrame(input = "empty"):
 
 class TestParallelPicker(unittest.TestCase):
     def setUp(self):
-        self.language1ConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorp/converted/sme')
+        self.language1ConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorpus/converted/sme')
+        
         self.pp = ParallelPicker(self.language1ConvertedDir, 'nob', '73', '110')
 
     def testCalculateLanguage1(self):
@@ -57,6 +59,22 @@ class TestParallelPicker(unittest.TestCase):
         
     def testGetParallelLanguage(self):
         self.assertEqual(self.pp.getParallelLanguage(), 'nob')
+    
+    def testHasOrig(self):
+        fileWithOrig1 = parallelize.CorpusXMLFile(os.path.join(self.language1ConvertedDir, 'samediggi-article-47.html.xml'), self.pp.getParallelLanguage())
+        self.assertEqual(self.pp.hasOrig(fileWithOrig1), True)
+        
+        language1PrestableConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorpus/prestable/converted/sme')
+        fileWithOrig2 = parallelize.CorpusXMLFile(os.path.join(language1PrestableConvertedDir, 'samediggi-article-47.html.xml'), self.pp.getParallelLanguage())
+        self.assertEqual(self.pp.hasOrig(fileWithOrig2), True)
+        
+        fileWithoutOrig1 = parallelize.CorpusXMLFile(os.path.join(self.language1ConvertedDir, 'samediggi-article-1.html.xml'), self.pp.getParallelLanguage())
+        self.assertEqual(self.pp.hasOrig(fileWithoutOrig1), False)
+        
+        language1PrestableConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorpus/prestable/converted/sme')
+        fileWithoutOrig2 = parallelize.CorpusXMLFile(os.path.join(language1PrestableConvertedDir, 'samediggi-article-1.html.xml'), self.pp.getParallelLanguage())
+        self.assertEqual(self.pp.hasOrig(fileWithoutOrig2), False)
+        
         
 class ParallelPicker:
     def __init__(self, language1Dir, parallelLanguage, minratio, maxratio):
