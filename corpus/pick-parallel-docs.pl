@@ -111,7 +111,7 @@ sub copy_file_to_wrongratio {
         File::Path::mkpath($parallel_path);
     }
     if (! $quiet) {
-        print " $to_file ";
+        print STDERR " $to_file ";
     }
     File::Copy::copy($file_to_copy, $to_file) or die "Copy failed: $!";
 }
@@ -146,6 +146,7 @@ sub check_and_copy_files {
                         print STDERR "\nWrong ratio $ratio, $abs_path: $abs_path_wordcount $pdoc_path: $pdoc_path_wordcount\n";
                         copy_file_to_wrongratio($abs_path);
                         copy_file_to_wrongratio($pdoc_path);
+                        print STDERR "\n";
                     }
                 }
             } else {
