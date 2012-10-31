@@ -71,7 +71,6 @@ class TestParallelPicker(unittest.TestCase):
         fileWithoutOrig1 = parallelize.CorpusXMLFile(os.path.join(self.language1ConvertedDir, 'samediggi-article-1.html.xml'), self.pp.getParallelLanguage())
         self.assertEqual(self.pp.hasOrig(fileWithoutOrig1), False)
         
-        language1PrestableConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorpus/prestable/converted/sme')
         fileWithoutOrig2 = parallelize.CorpusXMLFile(os.path.join(language1PrestableConvertedDir, 'samediggi-article-1.html.xml'), self.pp.getParallelLanguage())
         self.assertEqual(self.pp.hasOrig(fileWithoutOrig2), False)
         
@@ -86,7 +85,6 @@ class TestParallelPicker(unittest.TestCase):
         fileWithoutParallel1 = parallelize.CorpusXMLFile(os.path.join(self.language1ConvertedDir, 'samediggi-article-53.html.xml'), self.pp.getParallelLanguage())
         self.assertEqual(self.pp.hasParallel(fileWithoutParallel1), False)
         
-        language1PrestableConvertedDir = os.path.join(os.environ['GTHOME'], 'gt/script/langTools/fakecorpus/prestable/converted/sme')
         fileWithoutParallel2 = parallelize.CorpusXMLFile(os.path.join(language1PrestableConvertedDir, 'samediggi-article-53.html.xml'), self.pp.getParallelLanguage())
         self.assertEqual(self.pp.hasParallel(fileWithoutParallel2), False)
         
