@@ -43,6 +43,9 @@ class CorpusXMLFile:
         self.name = name
         self.paralang = paralang
         self.eTree = etree.parse(name)
+        
+    def geteTree(self):
+        return self.eTree
 
     def getName(self):
         """
@@ -96,6 +99,16 @@ class CorpusXMLFile:
         translated_from = root.find(".//translated_from")
         
         return translated_from.attrib['{http://www.w3.org/XML/1998/namespace}lang']
+    
+    def removeVersion(self):
+        """
+        Remove the version element
+        This is often the only difference between the otherwise
+        identical files in converted and prestable/converted
+        """
+        root = self.eTree.getroot()
+        versionElement = root.find(".//version")
+        versionElement.getparent().remove(versionElement)
 
 class TestCorpusXMLFile(unittest.TestCase):
     """
@@ -104,6 +117,14 @@ class TestCorpusXMLFile(unittest.TestCase):
     def setUp(self):
         self.pfile = CorpusXMLFile(os.environ['GTFREE'] + "/prestable/converted/sme/facta/skuvlahistorja2/aarseth2-s.htm.xml", "nob")
 
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
     def testBasename(self):
         self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
 
@@ -124,6 +145,17 @@ class TestCorpusXMLFile(unittest.TestCase):
     
     def testGetTranslatedFrom(self):
         self.assertEqual(self.pfile.getTranslatedFrom(), "nob")
+        
+    def testRemoveVersion(self):
+        fileWithVersion = CorpusXMLFile('parallelize_data/aarseth2-n-with-version.htm.xml', 'sme')
+        fileWithoutVersion = CorpusXMLFile('parallelize_data/aarseth2-n-without-version.htm.xml', 'sme')
+        
+        fileWithVersion.removeVersion()
+        
+        got = etree.tostring(fileWithoutVersion.geteTree())
+        want = etree.tostring(fileWithVersion.geteTree())
+        
+        self.assertXmlEqual(got, want)
 
 class TestSentenceDivider(unittest.TestCase):
     """A test class for the SentenceDivider class
