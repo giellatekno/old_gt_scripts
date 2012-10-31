@@ -45,8 +45,8 @@ class ParallelPicker:
     def __init__(self, language1Dir, parallelLanguage, minratio, maxratio):
         self.language1Dir = language1Dir
         self.parallelLanguage = parallelLanguage
-        self.minRatio = minRatio
-        self.maxRatio = maxRatio
+        self.minratio = minratio
+        self.maxratio = maxratio
 
     def getOldFileNames(self, language1, parallelLanguage):
         """
@@ -81,64 +81,60 @@ class ParallelPicker:
                 
         return language1Files
     
+    def hasParallel(self, language1File):
+        """
+        Check if the given file has a parallel file
+        """
+        
+        return language1File.getParallelFilename() is not None and os.path.isfile(language1File.getParallelFilename())
+
+    def hasSufficientWords(self, language1File, parallelFile):
+        """
+        Check if the given file contains more words than the threshold
+        """
+        
+        if language1File.getWordCount() is not None and float(language1File.getWordCount()) > 30 and parallelFile.getWordCount() is not None and float(parallelFile.getWordCount()) > 30 :
+            return True
+        else:
+            print (u'Too few words', language1File.getName(), language1File.getWordCount(), parallelFile.getName(), parallelFile.getWordCount())
+            return False
+            
     def traverseFiles(self, language1Files):
         """
         Go through all files
         """
         for language1File in language1Files:
             print('.', end='')
-            if language1File.getParallelFilename() is not None and os.path.isfile(language1File.getParallelFilename()):
+            
+            if self.hasParallel(language1File):
                 
-                if language1File.getWordCount() is not None and language1File.getWordCount() > 30:
+                parallelFile = parallelize.CorpusXMLFile(language1File.getParallelFilename(), language1File.getLang())
+                
+                PrintFrame(language1File.getName() + ' ' + language1File.getWordCount())
+                PrintFrame(parallelFile.getName() + ' ' + parallelFile.getWordCount())
+                
+                if self.hasSufficientWords(language1File, parallelFile):
                     
-                    parallelFile = parallelize.CorpusXMLFile(language1File.getParallelFilename(), language1File)
+                    ratio = float(language1File.getWordCount())/float(parallelFile.getWordCount())*100
                     
-                    try:
-                        PrintFrame(language1File.getName())
-                        PrintFrame(parallelFile.getName())
-                        ratio = float(language1File.getWordCount())/float(parallelFile.getWordCount())*100
+                    if ratio > float(self.minratio) and ratio < float(self.maxratio):
                         
-                        if ratio > float(self.minRatio) and ratio < float(self.maxRatio):
-                            if language1File.getTranslatedFrom() == self.parallelLanguage:
+                        if parallelFile.getTranslatedFrom() == language1File.getLang() and language1File.getTranslatedFrom() == self.parallelLanguage:
+                                print ("Both files claim to be translations of the other")
                                 
+                        elif language1File.getTranslatedFrom() == self.parallelLanguage or parallelFile.getTranslatedFrom() == language1File.getLang():
+                                #self.addFilePair(language1File, parallelFile)
                                 
-                                if parallelFile.getTranslatedFrom() == language1File.getLang():
-                                    print ("Both files claim to be translations of the other")
-                                else:
-                                    #self.addFilePair(language1File, parallelFile)
-                                    
-                                    if self.validDiff(language1File, parallelFile.getLang()):
-                                        self.copyFile(language1File)
-                                    
-                                    if self.validDiff(parallelFile, language1File.getLang()):
-                                        self.copyFile(parallelFile)
-                                        
-                            elif parallelFile.getTranslatedFrom() == language1File.getLang():
-                                if language1File.getTranslatedFrom() == self.parallelLanguage:
-                                    print ("Both files claim to be translations of the other")
+                                if self.validDiff(language1File, parallelFile.getLang()):
+                                    self.copyFile(language1File)
                                 
-                                else:
-                                    #self.addFilePair(language1File, parallelFile)
-                                    
-                                    if self.validDiff(language1File, parallelFile.getLang()):
-                                        print ("True")
-                                        self.copyFile(language1File)
-                                    
-                                    if self.validDiff(parallelFile, language1File.getLang()):
-                                        print ("True")
-                                        self.copyFile(parallelFile)
+                                if self.validDiff(parallelFile, language1File.getLang()):
+                                    self.copyFile(parallelFile)
                                 
-                            else:
-                                print ("None of the files are translations of the other", language1File.getName(), parallelFile.getName())
                         else:
-                            print ("Wrong ratio", ratio, language1File.getName(), parallelFile.getName())
-                    except TypeError:
-                        print ("Didn't get wordCount", language1File.getName(), parallelFile.getName())
-                else:
-                    print ("Too few words", language1File.getName())
-            else:
-                print ("No parallel", language1File.getName())
-                
+                            print ("None of the files are translations of the other", language1File.getName(), parallelFile.getName())
+                        
+                    
     def validDiff(self, convertedFile, parallelLanguage):
         """
         Check if there are differences between the files in
@@ -196,8 +192,8 @@ def parseOptions():
     
     parser.add_argument('language1Dir', help = "directory where the files of language1 exist")
     parser.add_argument('-p', '--parallelLanguage', dest = 'parallelLanguage', help = "The language where we would like to find parallel documents", required = True)
-    parser.add_argument('--minRatio', dest = 'minRatio', help = "The minimum ratio", required = True)
-    parser.add_argument('--maxRatio', dest = 'maxRatio', help = "The maximum ratio", required = True)
+    parser.add_argument('--minratio', dest = 'minratio', help = "The minimum ratio", required = True)
+    parser.add_argument('--maxratio', dest = 'maxratio', help = "The maximum ratio", required = True)
     
     args = parser.parse_args()
     return args
@@ -207,10 +203,10 @@ def main():
     
     language1Dir = args.language1Dir
     parallelLanguage = args.parallelLanguage
-    minRatio = args.minRatio
-    maxRatio = args.maxRatio
+    minratio = args.minratio
+    maxratio = args.maxratio
     
-    pp = ParallelPicker(language1Dir, parallelLanguage, minRatio, maxRatio)
+    pp = ParallelPicker(language1Dir, parallelLanguage, minratio, maxratio)
     pp.getOldFileNames('sme', 'nob')
     pp.traverseFiles(pp.findLang1Files())
     
