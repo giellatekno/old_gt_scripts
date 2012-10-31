@@ -98,6 +98,12 @@ class CorpusXMLFile:
 
             return os.path.join(parallelDirname, parallelBasename)
     
+    def getOriginalFilename(self):
+        """
+        Infer the path of the original file
+        """
+        return self.getName().replace('prestable/', '').replace('converted/', 'orig/').replace('.xml', '')
+    
     def getTranslatedFrom(self):
         """
         Get the translated_from element from the orig doc
@@ -150,6 +156,9 @@ class TestCorpusXMLFile(unittest.TestCase):
 
     def testGetParallelFilename(self):
         self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
+    
+    def testGetOriginalFilename(self):
+        self.assertEqual(self.pfile.getOriginalFilename(), os.environ['GTFREE'] + "/orig/sme/facta/skuvlahistorja2/aarseth2-s.htm")
     
     def testGetTranslatedFrom(self):
         self.assertEqual(self.pfile.getTranslatedFrom(), "nob")
