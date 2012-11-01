@@ -135,6 +135,18 @@ class CorpusXMLFile:
         for skipElement in skipList:
             skipElement.getparent().remove(skipElement)
 
+    def moveLater(self):
+        """
+        Move the later elements to the end of the body element.
+        """
+        root = self.eTree.getroot()
+        body = root.xpath("/document/body")[0]
+        
+        laterList = root.xpath(".//later")
+        
+        for laterElement in laterList:
+            body.append(laterElement)
+
 class TestCorpusXMLFile(unittest.TestCase):
     """
     A test class for the CorpusXMLFile class
@@ -202,13 +214,11 @@ class TestCorpusXMLFile(unittest.TestCase):
 
     def testMoveLater(self):
         fileWithLater = CorpusXMLFile('parallelize_data/aarseth2-s-with-later.htm.xml', 'sme')
-        fileWithoutLater = CorpusXMLFile('parallelize_data/aarseth2-s-without-later.htm.xml', 'sme')
+        fileWithMovedLater = CorpusXMLFile('parallelize_data/aarseth2-s-with-moved-later.htm.xml', 'sme')
         
         fileWithLater.moveLater()
-        
-        got = etree.tostring(fileWithoutLater.geteTree())
+        got = etree.tostring(fileWithMovedLater.geteTree())
         want = etree.tostring(fileWithLater.geteTree())
-        
         self.assertXmlEqual(got, want)
 
 class TestSentenceDivider(unittest.TestCase):
