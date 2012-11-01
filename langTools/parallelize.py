@@ -177,6 +177,17 @@ class TestCorpusXMLFile(unittest.TestCase):
         want = etree.tostring(fileWithVersion.geteTree())
         
         self.assertXmlEqual(got, want)
+        
+    def testRemoveSkip(self):
+        fileWithSkip = CorpusXMLFile('parallelize_data/aarseth2-s-with-skip.htm.xml', 'sme')
+        fileWithoutSkip = CorpusXMLFile('parallelize_data/aarseth2-s-without-skip.htm.xml', 'sme')
+        
+        fileWithSkip.removeSkip()
+        
+        got = etree.tostring(fileWithoutSkip.geteTree())
+        want = etree.tostring(fileWithSkip.geteTree())
+        
+        self.assertXmlEqual(got, want)
 
 class TestSentenceDivider(unittest.TestCase):
     """A test class for the SentenceDivider class
