@@ -124,6 +124,17 @@ class CorpusXMLFile:
         versionElement = root.find(".//version")
         versionElement.getparent().remove(versionElement)
 
+    def removeSkip(self):
+        """
+        Remove the skip element
+        This contains text that is not wanted in e.g. sentence alignment
+        """
+        root = self.eTree.getroot()
+        skipList = root.findall(".//skip")
+        
+        for skipElement in skipList:
+            skipElement.getparent().remove(skipElement)
+
 class TestCorpusXMLFile(unittest.TestCase):
     """
     A test class for the CorpusXMLFile class
