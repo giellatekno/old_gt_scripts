@@ -15,7 +15,8 @@
 		xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
 		exclude-result-prefixes="xs local fmp ss File misc">
 
-  <xsl:import href="/Users/cipriangerstenberger/local/xsl/file_checker.xsl"/>
+  <!-- Caveat: file_checker.xsl needed -->
+  <xsl:import href="/Users/ciprian/local/xsl/file_checker.xsl"/>
 
   <xsl:strip-space elements="*"/>
 
@@ -39,7 +40,7 @@
 
  
   <!-- out -->
-  <xsl:variable name="outDir" select="'outDir'"/>
+  <xsl:variable name="outDir" select="'html_check'"/>
   
   <xsl:variable name="oe" select="'html'"/>
   <xsl:variable name="tb" select="'&#9;'"/>
