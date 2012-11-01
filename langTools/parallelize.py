@@ -225,7 +225,7 @@ class TestSentenceDivider(unittest.TestCase):
     """A test class for the SentenceDivider class
     """
     def setUp(self):
-        self.sentenceDivider = SentenceDivider("parallelize_data/finnmarkkulahka_web_lettere.pdf.xml", "sme")
+        self.sentenceDivider = SentenceDivider("parallelize_data/finnmarkkulahka_web_lettere.pdf.xml", "nob")
 
     def assertXmlEqual(self, got, want):
         """
@@ -375,20 +375,31 @@ class SentenceDivider:
     into sentences, but otherwise is unchanged.
     Each sentence is encased in an s tag, and has an id number
     """
-    def __init__(self, inputXmlfile, lang):
+    def __init__(self, inputXmlfile, parallelLang):
         """Parse the inputXmlfile, set docLang to lang and read typos from the
         corresponding .typos file if it exists
         """
+        self.setUpInputFile(inputXmlfile, parallelLang)
         self.sentenceCounter = 0
-        self.docLang = lang
-        self.inputEtree = etree.parse(inputXmlfile)
         self.typos = {}
         
         typosname = inputXmlfile.replace('.xml', '.typos')
         if os.path.isfile(typosname):
             t = typosfile.Typos(inputXmlfile.replace('.xml', '.typos'))
             self.typos.update(t.getTypos())
-
+    
+    def setUpInputFile(self, inputXmlfile, parallelLang):
+        """
+        Initialize the inputfile, skip those parts that are meant to be 
+        skipped, move <later> elements.
+        """
+        inFile = CorpusXMLFile(inputXmlfile, parallelLang)
+        self.docLang = inFile.getLang()
+        
+        inFile.moveLater()
+        inFile.removeSkip()
+        self.inputEtree = inFile.geteTree()
+        
     def processAllParagraphs(self):
         """Go through all paragraphs in the etree and process them one by one.
         """
