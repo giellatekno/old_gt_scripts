@@ -200,6 +200,17 @@ class TestCorpusXMLFile(unittest.TestCase):
         
         self.assertXmlEqual(got, want)
 
+    def testMoveLater(self):
+        fileWithLater = CorpusXMLFile('parallelize_data/aarseth2-s-with-later.htm.xml', 'sme')
+        fileWithoutLater = CorpusXMLFile('parallelize_data/aarseth2-s-without-later.htm.xml', 'sme')
+        
+        fileWithLater.moveLater()
+        
+        got = etree.tostring(fileWithoutLater.geteTree())
+        want = etree.tostring(fileWithLater.geteTree())
+        
+        self.assertXmlEqual(got, want)
+
 class TestSentenceDivider(unittest.TestCase):
     """A test class for the SentenceDivider class
     """
