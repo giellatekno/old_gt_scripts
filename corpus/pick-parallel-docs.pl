@@ -103,9 +103,9 @@ sub copy_file_to_prestable {
     File::Copy::copy($file_to_copy, $to_file) or die "Copy failed: $!";
 }
 
-sub copy_file_to_wrongratio {
+sub copy_file_to_word_ratio_check {
     my ($file_to_copy) = @_;
-    (my $to_file = $file_to_copy) =~ s/\/converted\//\/wrongratio\/converted\//;
+    (my $to_file = $file_to_copy) =~ s/\/converted\//\/word_ratio_check\/converted\//;
     my $parallel_path = substr($to_file, 0, rindex($to_file, "/"));
     if (! -e $parallel_path) {
         File::Path::mkpath($parallel_path);
@@ -144,8 +144,8 @@ sub check_and_copy_files {
                         print "|";
                     } else {
                         print STDERR "\nWrong ratio $ratio, $abs_path: $abs_path_wordcount $pdoc_path: $pdoc_path_wordcount\n";
-                        copy_file_to_wrongratio($abs_path);
-                        copy_file_to_wrongratio($pdoc_path);
+                        copy_file_to_word_ratio_check($abs_path);
+                        copy_file_to_word_ratio_check($pdoc_path);
                         print STDERR "\n";
                     }
                 }
