@@ -37,7 +37,7 @@ class CorpusBuilder:
             self.buildable_files = 0
             self.failed_files = 0
 
-            self.bible_dep = [os.path.join(gthome, 'gt/script/langTools/BibleXMLConverter.pm'), os.path.join(gthome, '/gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl'), os.path.join(gthome, 'gt/script/langTools/ParatextConverter.pm')]
+            self.bible_dep = [os.path.join(gthome, 'gt/script/langTools/BibleXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl'), os.path.join(gthome, 'gt/script/langTools/ParatextConverter.pm')]
 
             self.pdf_dep = [os.path.join(gthome, 'gt/script/langTools/PDFConverter.pm'), os.path.join(gthome, 'gt/script/langTools/PlaintextConverter.pm')]
 
