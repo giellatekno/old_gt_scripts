@@ -34,7 +34,7 @@ class CorpusBuilder:
             sys.exit(1)
         else:
             self.orig_dir = orig_dir
-            self.buildable_files = 0
+            self.convertable_files = 0
             self.failed_files = 0
 
             self.bible_dep = [os.path.join(gthome, 'gt/script/langTools/BibleXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl'), os.path.join(gthome, 'gt/script/langTools/ParatextConverter.pm')]
@@ -94,11 +94,14 @@ class CorpusBuilder:
                 if f.endswith('.xsl'):
                     xsl_files.append(root + '/' + f)
                 
-        self.buildable_files = len(xsl_files)
+        self.convertable_files = len(xsl_files)
         return xsl_files
 
     def final_call(self):
-        print "Failed at building", self.failed_files, "of", self.buildable_files, "buildable files"
+        if self.failed_files > 0:
+            print "Couldn't convert", self.failed_files, "files of", self.convertable_files, "convertable files"
+        else:
+            print "Converted all", self.convertable_files, "convertible files"
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Convert original files to giellatekno xml, using dependency checking.')
