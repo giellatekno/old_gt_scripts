@@ -144,10 +144,12 @@ sub check_and_copy_files {
                         print "|";
                     } else {
                         print STDERR "\nWrong ratio $ratio, $abs_path: $abs_path_wordcount $pdoc_path: $pdoc_path_wordcount\n";
-                        #cip: only files complying with specific conditions (Berit Merete and Marja know which ones) should be copied over
+                        #only files complying with specific conditions should be copied over
                         #     to the word_ration_check directory
-                        copy_file_to_word_ratio_check($abs_path);
-                        copy_file_to_word_ratio_check($pdoc_path);
+                        if ($ratio > 65 and $ratio < 125 and $abs_path_wordcount > 100) {
+                            copy_file_to_word_ratio_check($abs_path);
+                            copy_file_to_word_ratio_check($pdoc_path);
+                        }
                         print STDERR "\n";
                     }
                 }
