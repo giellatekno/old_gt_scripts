@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--+
     | 
-    | Script to transform the xml-converted corpus file in html format with link between the parallel files for easy checck
+    | Script to transform the xml-converted corpus file in html format with link between the parallel files for easy check
     | Usage: java net.sf.saxon.Transform -it main STYLESHEET_NAME.xsl (inFile=INPUT_FILE_NAME.xml | inDir=INPUT_DIR)
     +-->
 
