@@ -10,47 +10,60 @@ echo "===>     All the newinfra languages      <==="
 pushd $GTHOME/langs
 
 echo " -------------------------------------------------------------------------------------- fao, Faroese "
-cd   fao && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd   fao && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fin, Finnish "
-cd ../fin && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../fin && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- fkv, Kven "
+cd ../fkv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- izh, Izhorian "
-cd ../izh && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../izh && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 #echo " -------------------------------------------------------------------------------------- kal, Greenlandic "
-#cd ../kal && pwd && nice ./autogen.sh && nice ./configure && nice make 
+#cd ../kal && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- kca, Khanty "
-cd ../kca && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../kca && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- kpv, Komi Zyryan "
-cd ../kpv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../kpv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- liv, Livonian "
-cd ../liv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../liv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- mdf, Moksha "
-cd ../mdf && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../mdf && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- mhr, Meadow Mari "
-cd ../mhr && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../mhr && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- mrj, Hill Mari "
-cd ../mrj && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../mrj && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- myv, Erzya "
-cd ../myv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../myv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- ndl, Ndolo "
-cd ../ndl && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../ndl && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- nio, Nganasan "
-cd ../nio && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../nio && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- olo, Olonetsian "
-cd ../olo && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../olo && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- sjd, Kildin Saami "
+cd ../sjd && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- sje, Pite Saami "
+cd ../sje && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- sma, South Saami "
-cd ../sma && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../sma && pwd && nice ./autogen.sh && nice ./configure --enable-oahpa --with-hfst&& nice make   # adjectives.lexc
+#cd ../sma && pwd && nice ./autogen.sh && nice ./configure --enable-oahpa --with-hfst&& nice make  # adjectives-oahpa.lexc
 echo " -------------------------------------------------------------------------------------- smj, Lule Saami "
-cd ../smj && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../smj && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- smn, Inari Saami "
+cd ../smn && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- sms, Skolt Saami "
+cd ../sms && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- tlh, Klingon "
-cd ../tlh && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../tlh && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- tuv, Turkana "
-cd ../tuv && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../tuv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- udm, Udmurt "
+cd ../udm && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- vep, Veps "
-cd ../vep && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../vep && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- yrk, Tundra Nenets "
-cd ../yrk && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../yrk && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- zul, Zulu "
-cd ../zul && pwd && nice ./autogen.sh && nice ./configure && nice make 
+cd ../zul && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 
 
 # File to run all our compilation
