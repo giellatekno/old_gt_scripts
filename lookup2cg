@@ -282,3 +282,12 @@ sub format_compound {
 		}
 	}
 }
+
+sub print_help {
+    print "Usage: lookup2cg [OPTIONS] [FILES]\n";
+    print "Options:\n";
+    print "    --der=<DERIVATION>  Derivation\n";
+    print "    --dict=<DICTIONARY> Dictionary\n";
+    print "    --help              Print this message and exit.\n";
+};
+
