@@ -29,7 +29,6 @@ my $tmp;
 my $compound = 0;
 my $comp_rate = 0;
 my $max_comp_rate = 0;
-my $der=0;
 
 my $dict=0;
 my $der=0;
