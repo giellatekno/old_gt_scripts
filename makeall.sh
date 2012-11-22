@@ -79,17 +79,6 @@ echo ""
 echo "===>     North Sámi      <==="
 nice time make GTLANG=sme all
 echo ""
-echo "===>     Inari Sámi      <==="
-nice time make GTLANG=smn all
-echo ""
-echo "===>     Skolt Sámi      <==="
-nice time make GTLANG=sms all
-echo ""
-echo "===>     Kildin Sámi     <==="
-nice time make GTLANG=sjd all
-echo ""
-echo "===>      Pite Sámi      <==="
-nice time make GTLANG=sje all
 echo "===>                    <===" 
 echo "===>   Other languages  <===" 
 echo "===>                    <===" 
