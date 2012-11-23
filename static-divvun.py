@@ -13,7 +13,7 @@ import sys
 import shutil
 import time
 import re
-import getopt
+import argparse
 from lxml import etree
 
 def revert_files(vcs, files):
@@ -139,7 +139,11 @@ class StaticSiteBuilder:
             lang_specific_file: keeps trace of which files are localized
         """
         print "Setting up..."
+        if builddir.endswith('/'):
+            builddir = builddir[:-1]
         self.builddir = builddir
+        if not destination.endswith('/'):
+            destination = destination + '/'
         self.destination = destination
         self.vcs = vcs
         
@@ -345,50 +349,29 @@ class StaticSiteBuilder:
         """
 
         builtdir = os.path.join(self.builddir, "built")
-        os.chdir(builtdir)
-        os.system("scp -r * " + self.destination)
+        os.system("rsync -avz -e ssh " + builtdir + " " + self.destination + '.')
 
+def parse_options():
+    parser = argparse.ArgumentParser(description = 'This script builds a multilingual forrest site.')
+    parser.add_argument('--destination', '-d', help = "an ssh destination", required = True)
+    parser.add_argument('--vcs', '-c', help = "the version control system", default = 'svn')
+    parser.add_argument('--sitehome', '-s', help = "where the forrest site lives", required = True)
+    parser.add_argument('langs', help = "list of languages", nargs = '+')
     
+    args = parser.parse_args()
+    return args
+   
 
 def main():
-    # parse command line options
-    vcs = "svn"
-    langs = []
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hc:d:s:l:", ["help", "vcs", "destination", "langs"])
-    except getopt.error, msg:
-        print msg
-        print "for help use --help"
-        sys.exit(2)
-    # process options
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            print __doc__
-            sys.exit(1)
-        elif o in ("-c", "--vcs"):
-            if a != "":
-                vcs = a
-        elif o in ("-d", "--destination"):
-            destination = a
-        elif o in ("-s", "--sitehome"):
-            sitehome = a
-        elif o in ("-l", "--langs"):
-            for l in a.split(","):
-                langs.append(l)
-        else:
-            assert False, "unhandled option"
+    args = parse_options()
 
-    if len(args) != 0:
-        print __doc__
-        sys.exit(3)
-
-    builder = StaticSiteBuilder(sitehome, destination, vcs)
+    builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs)
     builder.validate()
     
-    for lang in langs:
+    for lang in args.langs:
         builder.setlang(lang)
         builder.buildsite(lang)
-        if len(langs) == 1:
+        if len(args.langs) == 1:
             builder.rename_site_files()
         else:
             builder.rename_site_files(lang)
