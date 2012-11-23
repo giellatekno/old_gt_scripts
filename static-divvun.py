@@ -348,7 +348,7 @@ class StaticSiteBuilder:
         """Copy the entire site to 'path'
         """
 
-        builtdir = os.path.join(self.builddir, "built")
+        builtdir = os.path.join(self.builddir, "built/")
         os.system("rsync -avz -e ssh " + builtdir + " " + self.destination + '.')
 
 def parse_options():
