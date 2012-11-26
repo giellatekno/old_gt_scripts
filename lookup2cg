@@ -162,7 +162,7 @@ sub rate_compounds {
 		if ( $boundary_count < $min_boundary_count )
 		{ $min_boundary_count = $boundary_count; }
 	}
-	my $i=0;
+
 	for (keys %$href) {
 		$boundary_count = 0;
 		$der_count = 0;
