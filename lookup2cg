@@ -22,15 +22,6 @@ use utf8;
 #
 # $Id$
 
-my @Analyses;
-my %forms;
-my %rated;
-my $word;
-my $tmp;
-my $compound = 0;
-my $comp_rate = 0;
-my $max_comp_rate = 0;
-
 my $dict=0;
 my $der=0;
 my $help;
@@ -142,7 +133,7 @@ while(<>) {
                  $line =~ s/("[^"]+?)\s+([^"]+?")/$1_$2/g;
                  print "$line"; }
 		}
-	} # end of while
+  } # end of while
 
 
 sub rate_compounds {
