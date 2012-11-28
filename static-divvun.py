@@ -345,11 +345,11 @@ class StaticSiteBuilder:
         outfile2.close()
 
     def copy_to_site(self):
-        """Copy the entire site to 'path'
+        """Copy the entire site to self.destination
         """
 
         builtdir = os.path.join(self.builddir, "built/")
-        os.system("rsync -avz -e ssh " + builtdir + " " + self.destination + '.')
+        os.system("rsync -qavz -e ssh " + builtdir + " " + self.destination + '.')
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'This script builds a multilingual forrest site.')
