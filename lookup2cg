@@ -41,7 +41,7 @@ $/ = "";
 
 # Read while not eol
 while(<>) {	
-    if(/\t/) {s/ /_/g;} # Shall not be placed here, but in wordformmaking
+    if(/\t/) {s/ /_/g;} # Shall not be placed here, but in word form making
 	my @Analyses;
 	my %forms;
 	my %rated;
@@ -49,7 +49,6 @@ while(<>) {
 	my $word;
 	my $comp_rate = 0;
 	my $max_comp_rate = 0;
-
 
 	my @lines = split(/\n/, $_);
 	for my $line (@lines) {
@@ -160,8 +159,9 @@ sub rate_compounds {
 		}
 		$boundary_count = tr/\#//;
 		$der_count = () = $_ =~ /Der\//g;
-		$boundary_count += $der_count;
-		#cip: commenting out the next two lines would not delete the Der-lines (see bug 1283)
+		#cip: commented out the next line,
+		# which would not delete the Der-lines (see bug 1283)
+		#$boundary_count += $der_count;
 		if ( $boundary_count > $min_boundary_count )
 		{ delete($$href{$_}); }
 	}
