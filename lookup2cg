@@ -108,13 +108,20 @@ while(<>) {
     if ( $comp_rate > 0 && ! $der && ! $dict) {
       format_compound(\$base, \$line2, \$word); 
     }
-    # Mark derivational tags
+    # Mark derivational tags: the order of replacement is relevant!
+    # 1. basic tags
     1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
     
-    # Mark IV with star when there is later TV
-    # (causative derivation)
+    # 2. star IV if last occurence is TV (causative derivation)
     1 while $line2 =~ s/\b(IV)(\ |\ .*?\ )(TV)\b/$1\*$2$3/g;
     
+    #(Fixes to bug 954)
+    # 3. star TV if last occurence is IV (passive derivation)
+    1 while $line2 =~ s/\b(TV)(\ |\ .*?\ )(IV)\b/$1\*$2$3/g;
+
+    # 4. star TV|IV if last occurence is N (nominal derivation)
+    1 while $line2 =~ s/\b(TV|IV)(\ |\ .*?\ )(N)\b/$1\*$2$3/g;
+
     #Format output
     $line =  "\t" . " \"$base\" " . $line2 . "\n";
     
