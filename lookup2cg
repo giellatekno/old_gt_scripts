@@ -108,7 +108,7 @@ while(<>) {
     if ( $comp_rate > 0 && ! $der && ! $dict) {
       format_compound(\$base, \$line2, \$word); 
     }
-    # Mark derivational tags: the order of replacement is relevant!
+    # Mark derivational tags
     # 1. basic tags
     1 while $line2 =~ s/\b(V|N|Adv|A)(\ |\ .*?\ )(V|N|Adv|A)\b/$1\*$2$3/g;
     
@@ -121,6 +121,9 @@ while(<>) {
 
     # 4. star TV|IV if last occurence is N (nominal derivation)
     1 while $line2 =~ s/\b(TV|IV)(\ |\ .*?\ )(N)\b/$1\*$2$3/g;
+
+    # 5. star IV if last occurence is IV (derivation without transitivity change, e.g. 'gildojuvvon')
+    1 while $line2 =~ s/\b(IV)(\ |\ .*?\ )(IV)\b/$1\*$2$3/g;
 
     #Format output
     $line =  "\t" . " \"$base\" " . $line2 . "\n";
