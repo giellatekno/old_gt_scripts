@@ -294,7 +294,7 @@ sub hyph2html {
     my @input = split( /\n/, $text );
     for my $out (@input) {
         my ( $word, $hyph ) = split( /\t/, $out );
-        if ($hyph) { push( @content, $hyph ); push( @content, " " ); next; }
+	if ($hyph && ($hyph !~ /100/) && ($hyph !~ />+/)) { push(@content,$hyph); push (@content," "); next; }
     }
 
     $output->set_content(@content);
