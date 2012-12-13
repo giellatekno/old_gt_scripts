@@ -28,6 +28,7 @@ sub init_variables {
 			      sma => 1,
 			      eng => 1,
 			      nno => 1,
+			      fin => 1,
 			      rus => 1);
 	
 	%avail_pos = (Any => 1,
@@ -67,7 +68,8 @@ sub init_variables {
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
-        my $hfst = "$fstdir/$lang.hfstol";
+	my $fst_without_semtags = "$fstdir/$lang-nosemtags.fst";
+    my $hfst = "$fstdir/$lang.hfstol";
 	my $gen_fst = "$fstdir/i$lang.fst";
 	my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
@@ -180,7 +182,11 @@ sub init_variables {
 	else { $preprocess = "$bindir/preprocess"; }
 
 
-    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
+	if ($action eq "paradigm") {
+    	$analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+    } else {
+	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
+    }
     $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
 #	if ($lang eq "fin") { $analyze = $hfstanalyze; }
