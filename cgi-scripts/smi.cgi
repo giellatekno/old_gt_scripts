@@ -37,7 +37,7 @@ require "conf.pl";
 # Original written by Ken Beesley, Xerox, for Aymara.
 # reviewed and modified 12 april 2002, Trond Trosterud
 # reviewed and modified 2006,2007 Saara Huhmarniemi
-# modified 2012 Heli Uibo
+# modified 2012 Heli Uibo, Sjur Moshagen
 #
 # $Id$
 ########################################################################
@@ -156,6 +156,7 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 $text = digr_utf8($text);
 
 # Remove the unsecure characters from the input.
+#$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
 $text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;  # Deleted colon from this set to avoid removing colon from the word forms as NRK:s (Heli) 
 
 # ` This stupid dummy line is here just to restore emacs syntax colouring.
@@ -357,7 +358,7 @@ sub generate_paradigm {
 	}
 
 	# ... but in case we do not know the POS:
-	# Pick the POS-tag from analysis and send it pack to the paradigm generator.	
+	# Pick the POS-tag from analysis and send it back to the paradigm generator.    
 	my %poses;
 	my %derivations;
 	my @der_anl;
@@ -368,20 +369,20 @@ sub generate_paradigm {
 		# Derivations are processed separately
 		if ($anl !~ /Der/) { 
 
-			# If the word is a compound with no tags in the first parts.
-			# e.g. sáme#giel+A+Attr remove the boundary marks.
-            # Format compounds that consists of several analyzed parts.
-			# Call the baseform generating function (same as in lookup2cg)
-            # bátni+N+SgNomCmp#lohku --> bátnelohku+N+Sg+Nom
+	# If the word is a compound with no tags in the first parts.
+	# e.g. sáme#giel+A+Attr remove the boundary marks.
+        # Format compounds that consists of several analyzed parts.
+	# Call the baseform generating function (same as in lookup2cg)
+        # bátni+N+SgNomCmp#lohku --> bátnelohku+N+Sg+Nom
 			
 			my $anlpos;
 			my $anllemma;
 			my $fulllemma;
-			# If the analysis contains #, and does not start with something else than + followed by #
-			# it is a compound:
+                        # If the analysis contains #, and does not start with something else than + followed by #
+                        # it is a compound:
 			if ($anl =~/\#/ && $anl !~ /^[^\+]+\#[^\#]+$/) {
  				my $anltmp = $anl;
- 				# Note: Is the following line needed when we negate /Der/ 15 lines further up?
+                               # Note: Is the following line needed when we negate /Der/ 15 lines further up?
 				$anltmp =~ s/\#\+Der\d\+Der\//\#/g;
 				$anltmp =~ /^(.*\#.*?)\+(.*)$/;
 				$anltmp = $1;
@@ -392,7 +393,7 @@ sub generate_paradigm {
                 ($anllemma = $anltmp) =~ s/^.*\#([^\#]+)$/$1/;
 				#print FH "$anltmp ja $line2 ja $anllemma ja $anlpos\n";
 			}
-			# if not, it is NOT a compound (nor a derivation):
+                       # if not, it is NOT a compound (nor a derivation):
             else {
       			my @line = split (/\+/, $anl);
                 $anllemma=$line[0];
