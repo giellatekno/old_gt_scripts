@@ -68,7 +68,7 @@ sub init_variables {
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
 	my $fst = "$fstdir/$lang.fst";
-	my $fst_without_semtags = "$fstdir/$lang-nosemtags.fst";
+	my $fst_without_semtags = "$fstdir/$lang-site.fst";
     my $hfst = "$fstdir/$lang.hfstol";
 	my $gen_fst = "$fstdir/i$lang.fst";
 	my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
