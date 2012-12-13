@@ -337,6 +337,7 @@ sub generate_paradigm {
 	my @analyzes = split(/\n+/, $result);
 
 	# Generate paradigm for the given word class
+	# when it is given by the user, ie we know the POS:
 	if (! $anypos) {
 		$answer = call_para($word, \@{$paradigms{$pos}});
 		if($answer) {
@@ -351,11 +352,12 @@ sub generate_paradigm {
 			}
 			$i++;
 			if ($pos eq "Pron") { format_pron($answer_href, 0); }
-			return $i;
+			return $i; # We got the paradigm, stop here and present it.
 		}
 	}
 
-	# Pick the POS-tag and send it pack to the paradigm generator.	
+	# ... but in case we do not know the POS:
+	# Pick the POS-tag from analysis and send it pack to the paradigm generator.	
 	my %poses;
 	my %derivations;
 	my @der_anl;
@@ -375,8 +377,11 @@ sub generate_paradigm {
 			my $anlpos;
 			my $anllemma;
 			my $fulllemma;
+			# If the analysis contains #, and does not start with something else than + followed by #
+			# it is a compound:
 			if ($anl =~/\#/ && $anl !~ /^[^\+]+\#[^\#]+$/) {
  				my $anltmp = $anl;
+ 				# Note: Is the following line needed when we negate /Der/ 15 lines further up?
 				$anltmp =~ s/\#\+Der\d\+Der\//\#/g;
 				$anltmp =~ /^(.*\#.*?)\+(.*)$/;
 				$anltmp = $1;
@@ -387,6 +392,7 @@ sub generate_paradigm {
                 ($anllemma = $anltmp) =~ s/^.*\#([^\#]+)$/$1/;
 				#print FH "$anltmp ja $line2 ja $anllemma ja $anlpos\n";
 			}
+			# if not, it is NOT a compound (nor a derivation):
             else {
       			my @line = split (/\+/, $anl);
                 $anllemma=$line[0];
