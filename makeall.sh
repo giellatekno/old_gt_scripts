@@ -60,6 +60,8 @@ echo " -------------------------------------------------------------------------
 cd ../udm && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- vep, Veps "
 cd ../vep && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- vro, Võro "
+cd ../vro && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- yrk, Tundra Nenets "
 cd ../yrk && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- zul, Zulu "
