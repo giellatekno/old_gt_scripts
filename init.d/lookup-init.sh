@@ -53,6 +53,7 @@ alias dsmn='$LOOKUP $GTHOME/langs/smn/src/generator-gt-desc.xfst'
 alias dsms='$LOOKUP $GTHOME/langs/sms/src/generator-gt-desc.xfst'
 alias dudm='$LOOKUP $GTHOME/langs/udm/src/generator-gt-desc.xfst'
 alias dvep='$LOOKUP $GTHOME/langs/vep/src/generator-gt-desc.xfst'
+alias dvro='$LOOKUP $GTHOME/langs/vro/src/generator-gt-desc.xfst'
 alias dyrk='$LOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.xfst'
 
 alias ufao='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.xfst'
@@ -77,6 +78,7 @@ alias usmn='$LOOKUP $GTHOME/langs/smn/src/analyser-gt-desc.xfst'
 alias usms='$LOOKUP $GTHOME/langs/sms/src/analyser-gt-desc.xfst'
 alias uudm='$LOOKUP $GTHOME/langs/udm/src/analyser-gt-desc.xfst'
 alias uvep='$LOOKUP $GTHOME/langs/vep/src/analyser-gt-desc.xfst'
+alias uvro='$LOOKUP $GTHOME/langs/vro/src/analyser-gt-desc.xfst'
 alias uyrk='$LOOKUP $GTHOME/langs/yrk/src/analyser-gt-desc.xfst'
 
 # Languages in newinfra, lazy cyrillic aliases:
@@ -113,6 +115,7 @@ alias dsmaNorm='$LOOKUP $GTHOME/langs/sma/src/generator-gt-norm.xfst'
 alias dsmjNorm='$LOOKUP $GTHOME/langs/smj/src/generator-gt-norm.xfst'
 alias dudmNorm='$LOOKUP $GTHOME/langs/udm/src/generator-gt-norm.xfst'
 alias dvepNorm='$LOOKUP $GTHOME/langs/vep/src/generator-gt-norm.xfst'
+alias dvroNorm='$LOOKUP $GTHOME/langs/vro/src/generator-gt-norm.xfst'
 alias dyrkNorm='$LOOKUP $GTHOME/langs/yrk/src/generator-gt-norm.xfst'
 
 alias ufaoNorm='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.xfst'
@@ -131,6 +134,7 @@ alias usmaNorm='$LOOKUP $GTHOME/langs/sma/src/analyser-gt-norm.xfst'
 alias usmjNorm='$LOOKUP $GTHOME/langs/smj/src/analyser-gt-norm.xfst'
 alias uudmNorm='$LOOKUP $GTHOME/langs/udm/src/analyser-gt-norm.xfst'
 alias uvepNorm='$LOOKUP $GTHOME/langs/vep/src/analyser-gt-norm.xfst'
+alias uvroNorm='$LOOKUP $GTHOME/langs/vro/src/analyser-gt-norm.xfst'
 alias uyrkNorm='$LOOKUP $GTHOME/langs/yrk/src/analyser-gt-norm.xfst'
 
 # Languages in newinfra, lazy cyrillic aliases:
@@ -189,8 +193,6 @@ alias   убхр='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
 alias dhun='$LOOKUP $GTHOME/kt/hun/bin/ihun.fst'
 alias uhun='$LOOKUP $GTHOME/kt/hun/bin/hun.fst'
 
-alias dvro='$LOOKUP $GTHOME/kt/vro/bin/ivro.fst'
-alias uvro='$LOOKUP $GTHOME/kt/vro/bin/vro.fst'
 
 
 
@@ -250,6 +252,7 @@ alias hdsmn='$HLOOKUP $GTHOME/langs/smn/src/generator-gt-desc.hfst'
 alias hdsms='$HLOOKUP $GTHOME/langs/sms/src/generator-gt-desc.hfst'
 alias hdudm='$HLOOKUP $GTHOME/langs/udm/src/generator-gt-desc.hfst'
 alias hdvep='$HLOOKUP $GTHOME/langs/vep/src/generator-gt-desc.hfst'
+alias hdvro='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-desc.hfst'
 alias hdyrk='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.hfst'
 
 alias hufao='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.hfst'
@@ -274,6 +277,7 @@ alias husmn='$HLOOKUP $GTHOME/langs/smn/src/analyser-gt-desc.hfst'
 alias husms='$HLOOKUP $GTHOME/langs/sms/src/analyser-gt-desc.hfst'
 alias huudm='$HLOOKUP $GTHOME/langs/udm/src/analyser-gt-desc.hfst'
 alias huvep='$HLOOKUP $GTHOME/langs/vep/src/analyser-gt-desc.hfst'
+alias huvro='$HLOOKUP $GTHOME/langs/vro/src/analyser-gt-desc.hfst'
 alias huyrk='$HLOOKUP $GTHOME/langs/yrk/src/analyser-gt-desc.hfst'
 
 # Normative variants:
@@ -291,6 +295,7 @@ alias hdmyvNorm='$HLOOKUP $GTHOME/langs/myv/src/generator-gt-norm.hfst'
 alias hdoloNorm='$HLOOKUP $GTHOME/langs/olo/src/generator-gt-norm.hfst'
 alias hdudmNorm='$HLOOKUP $GTHOME/langs/udm/src/generator-gt-norm.hfst'
 alias hdvepNorm='$HLOOKUP $GTHOME/langs/vep/src/generator-gt-norm.hfst'
+alias hdvroNorm='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-norm.hfst'
 alias hdyrkNorm='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-norm.hfst'
 
 alias hufaoNorm='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.hfst'
@@ -307,6 +312,7 @@ alias humyvNorm='$HLOOKUP $GTHOME/langs/myv/src/analyser-gt-norm.hfst'
 alias huoloNorm='$HLOOKUP $GTHOME/langs/olo/src/analyser-gt-norm.hfst'
 alias huudmNorm='$HLOOKUP $GTHOME/langs/udm/src/analyser-gt-norm.hfst'
 alias huvepNorm='$HLOOKUP $GTHOME/langs/vep/src/analyser-gt-norm.hfst'
+alias huvroNorm='$HLOOKUP $GTHOME/langs/vro/src/analyser-gt-norm.hfst'
 alias huyrkNorm='$HLOOKUP $GTHOME/langs/yrk/src/analyser-gt-norm.hfst'
 
 # Other languages:
@@ -334,8 +340,6 @@ alias   hunon='$HLOOKUP $GTHOME/st/non/bin/non.hfst.ol'
 
 
 # Other FU languages:
-alias hdvro='$HLOOKUP $GTHOME/kt/vro/bin/ivro.hfstol'
-alias huvro='$HLOOKUP $GTHOME/kt/vro/bin/vro.fstol'
 
 
 # Cyrillic aliases:
