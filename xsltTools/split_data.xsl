@@ -62,12 +62,12 @@
       <xsl:for-each select="./corpus/s">
 	
 	<xsl:message terminate="no">
-	  <xsl:value-of select="concat('line: ', concat('s_', position()))"/>
+	  <xsl:value-of select="concat('line ', concat('s_', position()))"/>
 	  <!-- xsl:value-of select="concat('Location: ', $current_dir, $nl)"/ -->
 	</xsl:message>
 	
         <!-- number of stories to go into a file -->
-	<xsl:variable name="subcorpus_id" select="position() - $fileSize + 1"/>
+  	<xsl:variable name="subcorpus_id" select="position() - $fileSize + 1"/>
 	<xsl:variable name="from_filler" select="string-length(string($line_total)) - string-length(string($subcorpus_id))"/>
 	<xsl:variable name="to_filler" select="string-length(string($line_total)) - string-length(string(position()))"/>
 	
