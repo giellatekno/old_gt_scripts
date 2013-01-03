@@ -9,8 +9,10 @@ echo ""
 echo "===>     All the newinfra languages      <==="
 pushd $GTHOME/langs
 
+echo " -------------------------------------------------------------------------------------- est, Estonian "
+cd   est && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fao, Faroese "
-cd   fao && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+cd   ../fao && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fin, Finnish "
 cd ../fin && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fkv, Kven "
