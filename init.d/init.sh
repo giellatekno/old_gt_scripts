@@ -109,12 +109,11 @@ export PATH
 osMajorVer=`uname -r | cut -d. -f1`
 osMinorVer=`uname -r | cut -d. -f2`
 
-# add Saxon to the classpath with a default location of ~/lib/, and a default name
-# saxon9.jar
+# add Saxon to the classpath looking for it in /opt/ and $HOME/lib/
 if [ -z "$CLASSPATH" ]; then
-  CLASSPATH=~/lib/saxon9.jar
+  CLASSPATH=/opt/local/share/java/saxon9he.jar:$HOME/lib/saxon9he.jar:$HOME/lib/saxon9.jar
 else
-  prepend_path CLASSPATH ~/lib/saxon9.jar
+  CLASSPATH=/opt/local/share/java/saxon9he.jar:$HOME/lib/saxon9he.jar:$HOME/lib/saxon9.jar:${CLASSPATH}
 fi
 export CLASSPATH
 
