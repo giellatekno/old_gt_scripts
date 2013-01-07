@@ -167,7 +167,7 @@ class AvvirConverter:
 import chardet
 import re
 
-class TestNewstextConverter(unittest.TestCase):
+class TestTextConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
         """
@@ -177,7 +177,7 @@ class TestNewstextConverter(unittest.TestCase):
             raise AssertionError(message)
         
     def testToUnicode(self):
-        converter = NewstextConverter('parallelize_data/winsami2-test-ws2.txt')
+        converter = TextConverter('parallelize_data/winsami2-test-ws2.txt')
         got  = converter.toUnicode()
         
         f = open('parallelize_data/winsami2-test-utf8.txt')
@@ -187,76 +187,76 @@ class TestNewstextConverter(unittest.TestCase):
         self.assertEqual(got, want)
         
     def testPlaintext(self):
-        plaintext = NewstextConverter('parallelize_data/plaintext.txt')
+        plaintext = TextConverter('parallelize_data/plaintext.txt')
         got = plaintext.convert2intermediate()
         want = etree.parse('parallelize_data/plaintext.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testNewstext(self):
-        newstext = NewstextConverter('parallelize_data/newstext.txt')
+        newstext = TextConverter('parallelize_data/newstext.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/newstext.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testAssu97(self):
-        newstext = NewstextConverter('parallelize_data/assu97.txt')
+        newstext = TextConverter('parallelize_data/assu97.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/assu97.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testBilde(self):
-        newstext = NewstextConverter('parallelize_data/bilde.txt')
+        newstext = TextConverter('parallelize_data/bilde.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/bilde.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testIngress(self):
-        newstext = NewstextConverter('parallelize_data/ingress.txt')
+        newstext = TextConverter('parallelize_data/ingress.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/ingress.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testMtitt(self):
-        newstext = NewstextConverter('parallelize_data/mtitt.txt')
+        newstext = TextConverter('parallelize_data/mtitt.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/mtitt.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testTekst(self):
-        newstext = NewstextConverter('parallelize_data/tekst.txt')
+        newstext = TextConverter('parallelize_data/tekst.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tekst.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testNBSP(self):
-        newstext = NewstextConverter('parallelize_data/nbsp.txt')
+        newstext = TextConverter('parallelize_data/nbsp.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/nbsp.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testTittel(self):
-        newstext = NewstextConverter('parallelize_data/tittel.txt')
+        newstext = TextConverter('parallelize_data/tittel.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tittel.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testByline(self):
-        newstext = NewstextConverter('parallelize_data/byline.txt')
+        newstext = TextConverter('parallelize_data/byline.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/byline.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
-class NewstextConverter:
+class TextConverter:
     """
     A class to convert plain text files containing "news" tags to the 
     giellatekno xml format
