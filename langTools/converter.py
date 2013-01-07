@@ -204,7 +204,7 @@ class TestAvvirConverter(unittest.TestCase):
         got = self.avvir.convert2intermediate()
         want = etree.parse('parallelize_data/gt-02nr028av.article.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
         
 class AvvirConverter:
     """
@@ -227,7 +227,7 @@ class AvvirConverter:
         doc = etree.parse(self.orig)
         intermediate = transform(doc)
         
-        return intermediate
+        return etree.tostring(intermediate, encoding='utf8')
 
 import chardet
 import re
@@ -258,70 +258,70 @@ class TestPlaintextConverter(unittest.TestCase):
         got = plaintext.convert2intermediate()
         want = etree.parse('parallelize_data/plaintext.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testNewstext(self):
         newstext = PlaintextConverter('parallelize_data/newstext.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/newstext.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testAssu97(self):
         newstext = PlaintextConverter('parallelize_data/assu97.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/assu97.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testBilde(self):
         newstext = PlaintextConverter('parallelize_data/bilde.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/bilde.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testIngress(self):
         newstext = PlaintextConverter('parallelize_data/ingress.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/ingress.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testMtitt(self):
         newstext = PlaintextConverter('parallelize_data/mtitt.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/mtitt.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testTekst(self):
         newstext = PlaintextConverter('parallelize_data/tekst.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tekst.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testNBSP(self):
         newstext = PlaintextConverter('parallelize_data/nbsp.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/nbsp.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testTittel(self):
         newstext = PlaintextConverter('parallelize_data/tittel.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tittel.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
     def testByline(self):
         newstext = PlaintextConverter('parallelize_data/byline.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/byline.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
 import io
 
@@ -452,7 +452,7 @@ class PlaintextConverter:
         document.append(header)
         document.append(body)
         
-        return document
+        return etree.tostring(document, encoding = 'utf8')
 
 from pdfminer.pdfparser import PDFDocument, PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter, process_pdf
@@ -477,7 +477,7 @@ class TestPDFConverter(unittest.TestCase):
         got = pdfdocument.convert2intermediate()
         want = etree.parse('parallelize_data/pdf-test.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
 class PDFConverter:
     def __init__(self, filename):
@@ -545,7 +545,7 @@ class PDFConverter:
         document.append(header)
         document.append(body)
         
-        return document
+        return etree.tostring(document, encoding = 'utf8')
 
 import subprocess
 class TestDocConverter(unittest.TestCase):
@@ -564,7 +564,7 @@ class TestDocConverter(unittest.TestCase):
         got = self.testdoc.convert2intermediate()
         want = etree.parse('parallelize_data/doc-test.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
         
 class DocConverter:
     """
@@ -603,7 +603,7 @@ class DocConverter:
         doc = etree.fromstring(self.extractText())
         intermediate = transform(doc)
         
-        return intermediate
+        return etree.tostring(intermediate, encoding = 'utf8')
     
 class TestHTMLConverter(unittest.TestCase):
     def setUp(self):
@@ -621,7 +621,7 @@ class TestHTMLConverter(unittest.TestCase):
         got = self.testhtml.convert2intermediate()
         want = etree.parse('parallelize_data/samediggi-article-48s.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
 
 import BeautifulSoup
 
@@ -687,7 +687,7 @@ class HTMLConverter:
         doc = etree.fromstring(self.tidy())
         intermediate = transform(doc)
         
-        return intermediate
+        return etree.tostring(intermediate, encoding = 'utf8')
     
 import decode
 
@@ -708,7 +708,7 @@ class TestEncodingFixer:
         
         want = etree.parse('parallelize_data/assu97.xml')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
         
     
 class EncodingFixer:
@@ -725,13 +725,7 @@ class EncodingFixer:
         It returns the same version, but with fixed characters.
         Parse the returned string, insert it into the document
         """
-        #ibi = open('ibi.xml', 'w')
-        kloff = etree.tostring(self.etree, encoding='utf8')
-        #ibi.write(kloff)
-        #ibi.close()
-        
-        
-        document = etree.fromstring(kloff)
+        document = etree.fromstring(self.etree)
         
         body = document.find('body')
         
@@ -745,7 +739,7 @@ class EncodingFixer:
         body = etree.fromstring(eg.decodePara(encoding, bodyString))
         
         document.append(body)
-        return document
+        return etree.tostring(document, encoding = 'utf8')
 
 class TestXslMaker(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -762,7 +756,7 @@ class TestXslMaker(unittest.TestCase):
         
         want = etree.parse('parallelize_data/test.xsl')
         
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(got, etree.tostring(want))
         
 class XslMaker:
     """
@@ -782,12 +776,14 @@ class XslMaker:
         transform2 = etree.XSLT(xsl1)
         filexsl = etree.parse(xslfile)
         
-        self.finalXsl = transform2(filexsl)
+        finalXsl = transform2(filexsl)
         
-        root = self.finalXsl.getroot()
+        root = finalXsl.getroot()
         imp = root.find('{http://www.w3.org/1999/XSL/Transform}import')
         imp.set('href', os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/common.xsl'))
+        
+        self.finalXsl = etree.tostring(finalXsl, encoding = 'utf8')
         
     def getXsl(self):
         return self.finalXsl
