@@ -1414,6 +1414,8 @@ class LanguageDetector:
             for paragraph in self.document.iter('p'):
                 paragraph = self.setParagraphLanguage(paragraph)
 
+import decimal
+
 class TestDocumentTester(unittest.TestCase):
     def setUp(self):
         pass
@@ -1474,21 +1476,33 @@ class TestDocumentTester(unittest.TestCase):
 
         self.assertEqual(dt.getMainlangRatio(), 0.50)
 
+    def testGetUnknownWordsRatio(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sme" id="no_id"><header><title/><genre/><author><unknown/></author><wordcount>86</wordcount><availability><free/></availability><multilingual/></header><body><p>Sámegiellaqw leaqw 2004 čavččaqw rájesqw standárdaqw giellaválgaqw Microsoftaqw qwoperatiivavuogádagas qwWindows qwXP. qwDat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote" xml:lang="nob">«Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p></body></document>'))
+
+        dt = DocumentTester(origDoc)
+
+        self.assertEqual(decimal.Decimal(dt.getUnknownWordsRatio()).quantize(decimal.Decimal('.1'), rounding=decimal.ROUND_DOWN) , decimal.Decimal('0.2').quantize(decimal.Decimal('.1'), rounding=decimal.ROUND_DOWN))
 
 class DocumentTester:
     def __init__(self, document):
         self.document = document
-
-    def getMainlangRatio(self):
+        self.mainlang = self.document.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
         self.removeForeignLanguage()
 
-        plist = []
-        for paragraph in self.document.iter('p'):
-            plist.append(etree.tostring(paragraph, method = 'text', encoding = 'utf8'))
+    def getMainlang(self):
+        """
+        Get the mainlang of the file
+        """
+        return self.mainlang
 
-        words = len(re.findall(r'\S+', ' '.join(plist)))
+    def getMainlangWordcount(self):
+        return len(re.findall(r'\S+', self.getMainlangWords()))
 
-        return 1.0 * words / float(self.document.find('header/wordcount').text)
+    def getUnknownWordsRatio(self):
+        return 1.0 * self.getUnknownWordcount() / self.getMainlangWordcount()
+
+    def getMainlangRatio(self):
+        return 1.0 * self.getMainlangWordcount() / float(self.document.find('header/wordcount').text)
 
     def removeForeignLanguage(self):
         """Remove text mark as not belonging to mainlang
@@ -1516,3 +1530,56 @@ class DocumentTester:
                 paragraph.getparent().remove(paragraph)
             else:
                 del paragraph.attrib['{http://www.w3.org/XML/1998/namespace}lang']
+
+    def getUnknownWordcount(self):
+        lookupCommand = ['lookup', '-flags', 'mbTT']
+        if self.getMainlang() == 'sme':
+            lookupCommand.append(os.getenv('GTHOME') + '/gt/' + self.getMainlang() + '/bin/' + self.getMainlang() + '.fst')
+        else:
+            lookupCommand.append(os.getenv('GTHOME') + '/langs/' + self.getMainlang() + '/src/analyser-gt-desc.xfst')
+
+        subp = subprocess.Popen(lookupCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(self.getPreprocessedMainlangWords())
+
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not preprocess text'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            sys.exit()
+        else:
+            count = 0
+            for line in output.split():
+                if '+?' in line:
+                    count += 1
+
+            return count
+
+    def getPreprocessedMainlangWords(self):
+        """Send the text into preprocess, return the result.
+        If the process fails, exit the program
+        """
+        preprocessCommand = []
+        if self.getMainlang() == 'sme':
+            abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
+            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
+            preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
+        else:
+            preprocessCommand = ['preprocess']
+
+        subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(self.getMainlangWords().replace('\n', ' '))
+
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not preprocess text'
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            sys.exit()
+        else:
+            return output
+
+    def getMainlangWords(self):
+        plist = []
+        for paragraph in self.document.iter('p'):
+            plist.append(etree.tostring(paragraph, method = 'text', encoding = 'utf8'))
+
+        return ' '.join(plist)
