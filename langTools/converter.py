@@ -170,6 +170,9 @@ class Converter:
         ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
         complete = ef.fixBodyEncoding()
 
+        ld = LanguageDetector(complete)
+        ld.detectLanguage()
+
         return complete
 
     def writeComplete(self):
@@ -1019,6 +1022,8 @@ class TestDocumentFixer(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
 
+import io
+
 class DocumentFixer:
     """
     Receive a stringified etree from one of the raw converters,
@@ -1098,7 +1103,9 @@ class DocumentFixer:
         body = etree.fromstring(eg.decodePara(encoding, bodyString))
         self.etree.append(body)
 
-        return self.etree
+        self.detectQuotes()
+
+        return etree.parse(io.BytesIO(etree.tostring(self.etree)))
 
     def detectQuote(self, element):
         """Detect quotes in an etree element.
@@ -1113,25 +1120,26 @@ class DocumentFixer:
         quoteRegexes = [re.compile('".+?"'), re.compile(u'«.+?»'), re.compile(u'“.+?”')]
 
         text = newelement.text
-        for quoteRegex in quoteRegexes:
-            for m in quoteRegex.finditer(text):
-                quoteList.append(m.span())
+        if text:
+            for quoteRegex in quoteRegexes:
+                for m in quoteRegex.finditer(text):
+                    quoteList.append(m.span())
 
-        if len(quoteList) > 0:
-            quoteList.sort()
-            element.text = text[0:quoteList[0][0]]
+            if len(quoteList) > 0:
+                quoteList.sort()
+                element.text = text[0:quoteList[0][0]]
 
-            for x in range(0, len(quoteList)):
-                span = etree.Element('span')
-                span.set('type', 'quote')
-                span.text = text[quoteList[x][0]:quoteList[x][1]]
-                if x + 1 < len(quoteList):
-                    span.tail = text[quoteList[x][1]:quoteList[x + 1][0]]
-                else:
-                    span.tail = text[quoteList[x][1]:]
-                element.append(span)
-        else:
-            element.text = text
+                for x in range(0, len(quoteList)):
+                    span = etree.Element('span')
+                    span.set('type', 'quote')
+                    span.text = text[quoteList[x][0]:quoteList[x][1]]
+                    if x + 1 < len(quoteList):
+                        span.tail = text[quoteList[x][1]:quoteList[x + 1][0]]
+                    else:
+                        span.tail = text[quoteList[x][1]:]
+                    element.append(span)
+            else:
+                element.text = text
 
         for child in newelement:
             element.append(self.detectQuote(child))
@@ -1159,6 +1167,12 @@ class DocumentFixer:
                     element.append(span)
 
         return element
+
+    def detectQuotes(self):
+        """Detect quotes in all paragraphs
+        """
+        for paragraph in self.etree.iter('p'):
+            paragraph = self.detectQuote(paragraph)
 
 class TestXslMaker(unittest.TestCase):
     def assertXmlEqual(self, got, want):
