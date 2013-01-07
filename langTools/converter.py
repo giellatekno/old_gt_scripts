@@ -24,6 +24,12 @@ import os
 import sys
 import unittest
 
+import inspect
+
+def lineno():
+    """Returns the current line number in our program."""
+    return inspect.currentframe().f_back.f_lineno
+
 class ConversionException(Exception):
     def __init__(self, value):
         self.parameter = value
@@ -1126,6 +1132,24 @@ class TestLanguageDetector(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
 
+    def testDetectQuoteWithTagInfront(self):
+        origParagraph = '<p>bla bla <em>bla bla</em> «bla bla»</p>'
+        expectedParagraph = '<p>bla bla <em>bla bla</em> <span type="quote">«bla bla»</span></p>'
+
+        ld = LanguageDetector(self.string)
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testDetectQuoteWithinTag(self):
+        origParagraph = '<p>bla bla <em>bla bla «bla bla»</em></p>'
+        expectedParagraph = '<p>bla bla <em>bla bla <span type="quote">«bla bla»</span></em></p>'
+
+        ld = LanguageDetector(self.string)
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
     def testSetParagraphLanguageMainlanguage(self):
         origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
         expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
@@ -1203,41 +1227,63 @@ class LanguageDetector:
         """
         return self.mainlang
 
-    def detectQuote(self, paragraph):
-        """Detect and set language of quotes in a paragraph.
-        paragraph is an etree element"""
-        text = etree.tostring(paragraph, encoding = 'unicode', method = 'text')
-        quoteRegexes = [re.compile('".+?"'), re.compile(u'«.+?»'), re.compile(u'“.+?”')]
+    def detectQuote(self, element):
+        """Detect quotes in an etree element.
+        """
+        newelement = etree.Element(element.tag)
+        for (key, value) in element.attrib.items():
+            newelement.set(key, value)
 
         quoteList = []
+        quoteRegexes = [re.compile('".+?"'), re.compile(u'«.+?»'), re.compile(u'“.+?”')]
+
+        text = element.text
         for quoteRegex in quoteRegexes:
             for m in quoteRegex.finditer(text):
                 quoteList.append(m.span())
 
         if len(quoteList) > 0:
             quoteList.sort()
-            paragraph.text = text[0:quoteList[0][0]]
+            newelement.text = text[0:quoteList[0][0]]
 
-            start = 0
-            span = etree.Element('span')
-            span.set('type', 'quote')
-            for quoteSpan in quoteList:
-                if start > 0:
-                    span.tail = text[start:quoteSpan[0]]
-                    paragraph.append(span)
+            for x in range(0, len(quoteList)):
+                span = etree.Element('span')
+                span.set('type', 'quote')
+                span.text = text[quoteList[x][0]:quoteList[x][1]]
+                if x + 1 < len(quoteList):
+                    span.tail = text[quoteList[x][1]:quoteList[x + 1][0]]
+                else:
+                    span.tail = text[quoteList[x][1]:]
+                newelement.append(span)
+        else:
+            newelement.text = text
+
+        for child in element:
+            newelement.append(self.detectQuote(child))
+
+            if child.tail:
+                quoteList = []
+                text = child.tail
+
+                for quoteRegex in quoteRegexes:
+                    for m in quoteRegex.finditer(text):
+                        quoteList.append(m.span())
+
+                if len(quoteList) > 0:
+                    quoteList.sort()
+                    child.tail = text[0:quoteList[0][0]]
+
+                for x in range(0, len(quoteList)):
                     span = etree.Element('span')
                     span.set('type', 'quote')
+                    span.text = text[quoteList[x][0]:quoteList[x][1]]
+                    if x + 1 < len(quoteList):
+                        span.tail = text[quoteList[x][1]:quoteList[x + 1][0]]
+                    else:
+                        span.tail = text[quoteList[x][1]:]
+                    newelement.append(span)
 
-                span.text = text[quoteSpan[0]:quoteSpan[1]]
-
-                start = quoteSpan[1]
-
-            if start < len(text):
-                span.tail = text[quoteSpan[1]:]
-
-            paragraph.append(span)
-
-        return paragraph
+        return newelement
 
 
     def setParagraphLanguage(self, paragraph):
