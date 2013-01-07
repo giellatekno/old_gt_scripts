@@ -24,6 +24,12 @@ import os
 import sys
 import unittest
 
+class ConversionException(Exception):
+    def __init__(self, value):
+        self.parameter = value
+    def __str__(self):
+        return repr(self.parameter)
+    
 class TestConverter(unittest.TestCase):
     def setUp(self):
         self.converterInsideOrig = \
@@ -115,7 +121,7 @@ class Converter:
         elif self.orig.endswith('.svg'):
             intermediate = SVGConverter(self.orig)
         
-        elif '.html' in self.orig:
+        elif '.htm' in self.orig or '.php' in self.orig:
             intermediate = HTMLConverter(self.orig)
         
         elif '.doc' in self.orig:
@@ -124,9 +130,11 @@ class Converter:
         elif '.rtf' in self.orig:
             intermediate = RTFConverter(self.orig)
             
+        elif self.orig.endswith('.bible.xml'):
+            intermediate = BiblexmlConverter(self.orig)
+            
         else:
-            print self.orig
-            sys.exit(1)
+            raise ConversionException("Can't convert " + self.orig)
         
         document = intermediate.convert2intermediate()
         
