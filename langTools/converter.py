@@ -946,6 +946,78 @@ class TestDocumentFixer(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+    def testSimpleDetectQuote1(self):
+        origParagraph = '<p>bla bla "bla bla" bla bla </p>'
+        expectedParagraph = '<p>bla bla <span type="quote">"bla bla"</span> bla bla</p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSimpleDetectQuote2(self):
+        origParagraph = '<p>bla bla “bla bla” bla bla</p>'
+        expectedParagraph = '<p>bla bla <span type="quote">“bla bla”</span> bla bla</p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSimpleDetectQuote3(self):
+        origParagraph = '<p>bla bla «bla bla» bla bla</p>'
+        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla</p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSimpleDetectQuote4(self):
+        origParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
+        expectedParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSimpleDetectQuote2Quotes(self):
+        origParagraph = '<p>bla bla «bla bla» bla bla «bla bla» bla bla</p>'
+        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla <span type="quote">«bla bla»</span> bla bla</p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testDetectQuoteWithFollowingTag(self):
+        origParagraph = '<p>bla bla «bla bla» <em>bla bla</em></p>'
+        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> <em>bla bla</em></p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testDetectQuoteWithTagInfront(self):
+        origParagraph = '<p>bla bla <em>bla bla</em> «bla bla»</p>'
+        expectedParagraph = '<p>bla bla <em>bla bla</em> <span type="quote">«bla bla»</span></p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testDetectQuoteWithinTag(self):
+        origParagraph = '<p>bla bla <em>bla bla «bla bla»</em></p>'
+        expectedParagraph = '<p>bla bla <em>bla bla <span type="quote">«bla bla»</span></em></p>'
+
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
 class DocumentFixer:
     """
     Receive a stringified etree from one of the raw converters,
@@ -1027,213 +1099,6 @@ class DocumentFixer:
 
         return self.etree
 
-class TestXslMaker(unittest.TestCase):
-    def assertXmlEqual(self, got, want):
-        """Check if two stringified xml snippets are equal
-        """
-        checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(want, got, 0):
-            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
-            raise AssertionError(message)
-
-    def testGetXsl(self):
-        xslmaker = XslMaker('parallelize_data/samediggi-article-48.html.xsl')
-        got = xslmaker.getXsl()
-
-        want = etree.parse('parallelize_data/test.xsl')
-
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
-
-class XslMaker:
-    """
-    To convert the intermediate xml to a fullfledged  giellatekno document
-    a combination of three xsl files + the intermediate files is needed
-    This class makes the xsl file
-    """
-
-    def __init__(self, xslfile):
-        preprocessXsl = etree.parse(os.path.join(os.getenv('GTHOME'), \
-            'gt/script/corpus/preprocxsl.xsl'))
-        preprocessXslTransformer = etree.XSLT(preprocessXsl)
-
-        filexsl = etree.parse(xslfile)
-
-        self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
-            'gt/script/corpus/common.xsl')))
-
-    def getXsl(self):
-        return self.finalXsl
-
-class TestLanguageDetector(unittest.TestCase):
-    """
-    Test the functionality of LanguageDetector
-    """
-    def setUp(self):
-        self.document = etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml')
-
-    def assertXmlEqual(self, got, want):
-        """Check if two stringified xml snippets are equal
-        """
-        checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(want, got, 0):
-            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
-            raise AssertionError(message)
-
-    def testGetMainLang(self):
-        testMainLang = 'sme'
-        ld = LanguageDetector(self.document)
-        self.assertEqual(testMainLang, ld.getMainlang())
-
-    def testSimpleDetectQuote1(self):
-        origParagraph = '<p>bla bla "bla bla" bla bla </p>'
-        expectedParagraph = '<p>bla bla <span type="quote">"bla bla"</span> bla bla</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSimpleDetectQuote2(self):
-        origParagraph = '<p>bla bla “bla bla” bla bla</p>'
-        expectedParagraph = '<p>bla bla <span type="quote">“bla bla”</span> bla bla</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSimpleDetectQuote3(self):
-        origParagraph = '<p>bla bla «bla bla» bla bla</p>'
-        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSimpleDetectQuote4(self):
-        origParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
-        expectedParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSimpleDetectQuote2Quotes(self):
-        origParagraph = '<p>bla bla «bla bla» bla bla «bla bla» bla bla</p>'
-        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla <span type="quote">«bla bla»</span> bla bla</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testDetectQuoteWithFollowingTag(self):
-        origParagraph = '<p>bla bla «bla bla» <em>bla bla</em></p>'
-        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> <em>bla bla</em></p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testDetectQuoteWithTagInfront(self):
-        origParagraph = '<p>bla bla <em>bla bla</em> «bla bla»</p>'
-        expectedParagraph = '<p>bla bla <em>bla bla</em> <span type="quote">«bla bla»</span></p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testDetectQuoteWithinTag(self):
-        origParagraph = '<p>bla bla <em>bla bla «bla bla»</em></p>'
-        expectedParagraph = '<p>bla bla <em>bla bla <span type="quote">«bla bla»</span></em></p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSetParagraphLanguageMainlanguage(self):
-        origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
-        expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSetParagraphLanguageMainlanguageQuoteMainlang(self):
-        origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. «Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii». Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
-        expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote">«Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSetParagraphLanguageMainlanguageQuoteNotMainlang(self):
-        origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. «Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk». Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
-        expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote" xml:lang="nob">«Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testSetParagraphLanguageNotMainlanguage(self):
-        origParagraph = '<p>Samisk er fra høsten 2004 et standard språkvalg Microsofts operativsystem Windows XP. I praksis betyr det at samiske bokstaver og formater kan velges i alle programmer. Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk. Du vil imidlertid fremdeles kunne oppleve problemer med å skrive samisk i Outlook-kalenderen eller i tittel-feltet i e-post, og med å skrive samisk i programmer levert av andre enn Microsoft.</p>'
-        expectedParagraph = '<p xml:lang="nob">Samisk er fra høsten 2004 et standard språkvalg Microsofts operativsystem Windows XP. I praksis betyr det at samiske bokstaver og formater kan velges i alle programmer. Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk. Du vil imidlertid fremdeles kunne oppleve problemer med å skrive samisk i Outlook-kalenderen eller i tittel-feltet i e-post, og med å skrive samisk i programmer levert av andre enn Microsoft.</p>'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
-
-        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
-
-    def testRemoveQuote(self):
-        origParagraph = '<p>bla bla <span type="quote">bla1 bla</span> ble ble <span type="quote">bla2 bla</span> <b>bli</b> bli <span type="quote">bla3 bla</span> blo blo</p>'
-        expectedParagraph = 'bla bla  ble ble  bli bli  blo blo'
-
-        ld = LanguageDetector(self.document)
-        gotParagraph = ld.removeQuote(etree.fromstring(origParagraph))
-
-        self.assertEqual(gotParagraph, expectedParagraph)
-
-    def testDetectLanguage(self):
-        ld = LanguageDetector(self.document)
-        ld.detectLanguage()
-        gotDocument = ld.getDocument()
-
-        expectedDocument = etree.parse('parallelize_data/samediggi-article-48s-after-lang-detection.xml')
-
-        self.assertXmlEqual(etree.tostring(gotDocument), etree.tostring(expectedDocument))
-
-sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
-import ngram
-from copy import deepcopy
-
-class LanguageDetector:
-    """
-    Receive an etree.
-    Detect and set languages of quotes.
-    Detect the languages of the paragraphs.
-    """
-    def __init__(self, document):
-        self.document = document
-        self.mainlang = self.document.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
-        self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'))
-
-    def getDocument(self):
-        return self.document
-
-    def getMainlang(self):
-        """
-        Get the mainlang of the file
-        """
-        return self.mainlang
-
     def detectQuote(self, element):
         """Detect quotes in an etree element.
         """
@@ -1294,27 +1159,158 @@ class LanguageDetector:
 
         return element
 
+class TestXslMaker(unittest.TestCase):
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+
+    def testGetXsl(self):
+        xslmaker = XslMaker('parallelize_data/samediggi-article-48.html.xsl')
+        got = xslmaker.getXsl()
+
+        want = etree.parse('parallelize_data/test.xsl')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+class XslMaker:
+    """
+    To convert the intermediate xml to a fullfledged  giellatekno document
+    a combination of three xsl files + the intermediate files is needed
+    This class makes the xsl file
+    """
+
+    def __init__(self, xslfile):
+        preprocessXsl = etree.parse(os.path.join(os.getenv('GTHOME'), \
+            'gt/script/corpus/preprocxsl.xsl'))
+        preprocessXslTransformer = etree.XSLT(preprocessXsl)
+
+        filexsl = etree.parse(xslfile)
+
+        self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
+            'gt/script/corpus/common.xsl')))
+
+    def getXsl(self):
+        return self.finalXsl
+
+class TestLanguageDetector(unittest.TestCase):
+    """
+    Test the functionality of LanguageDetector
+    """
+    def setUp(self):
+        self.document = etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml')
+
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+
+    def testGetMainLang(self):
+        testMainLang = 'sme'
+        ld = LanguageDetector(self.document)
+        self.assertEqual(testMainLang, ld.getMainlang())
+
+    def testSetParagraphLanguageMainlanguage(self):
+        origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
+        expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
+
+        ld = LanguageDetector(self.document)
+        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSetParagraphLanguageMainlanguageQuoteMainlang(self):
+        origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote">«Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
+        expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote">«Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
+
+        ld = LanguageDetector(self.document)
+        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSetParagraphLanguageMainlanguageQuoteNotMainlang(self):
+        origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote">«Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
+        expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote" xml:lang="nob">«Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
+
+        ld = LanguageDetector(self.document)
+        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSetParagraphLanguageNotMainlanguage(self):
+        origParagraph = '<p>Samisk er fra høsten 2004 et standard språkvalg Microsofts operativsystem Windows XP. I praksis betyr det at samiske bokstaver og formater kan velges i alle programmer. Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk. Du vil imidlertid fremdeles kunne oppleve problemer med å skrive samisk i Outlook-kalenderen eller i tittel-feltet i e-post, og med å skrive samisk i programmer levert av andre enn Microsoft.</p>'
+        expectedParagraph = '<p xml:lang="nob">Samisk er fra høsten 2004 et standard språkvalg Microsofts operativsystem Windows XP. I praksis betyr det at samiske bokstaver og formater kan velges i alle programmer. Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk. Du vil imidlertid fremdeles kunne oppleve problemer med å skrive samisk i Outlook-kalenderen eller i tittel-feltet i e-post, og med å skrive samisk i programmer levert av andre enn Microsoft.</p>'
+
+        ld = LanguageDetector(self.document)
+        gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testRemoveQuote(self):
+        origParagraph = '<p>bla bla <span type="quote">bla1 bla</span> ble ble <span type="quote">bla2 bla</span> <b>bli</b> bli <span type="quote">bla3 bla</span> blo blo</p>'
+        expectedParagraph = 'bla bla  ble ble  bli bli  blo blo'
+
+        ld = LanguageDetector(self.document)
+        gotParagraph = ld.removeQuote(etree.fromstring(origParagraph))
+
+        self.assertEqual(gotParagraph, expectedParagraph)
+
+    def testDetectLanguage(self):
+        ld = LanguageDetector(self.document)
+        ld.detectLanguage()
+        gotDocument = ld.getDocument()
+
+        expectedDocument = etree.parse('parallelize_data/samediggi-article-48s-after-lang-detection.xml')
+
+        self.assertXmlEqual(etree.tostring(gotDocument), etree.tostring(expectedDocument))
+
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import ngram
+from copy import deepcopy
+
+class LanguageDetector:
+    """
+    Receive an etree.
+    Detect and set languages of quotes.
+    Detect the languages of the paragraphs.
+    """
+    def __init__(self, document):
+        self.document = document
+        self.mainlang = self.document.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
+        self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'))
+
+    def getDocument(self):
+        return self.document
+
+    def getMainlang(self):
+        """
+        Get the mainlang of the file
+        """
+        return self.mainlang
 
     def setParagraphLanguage(self, paragraph):
-        """Markup quotes in a paragraph
-        Extract the text outside the quotes, use this text to set language of
+        """Extract the text outside the quotes, use this text to set language of
         the paragraph.
         Set the language of the quotes in the paragraph
         """
-        pWithQuote = self.detectQuote(paragraph)
-
-        paragraphText = self.removeQuote(pWithQuote)
+        paragraphText = self.removeQuote(paragraph)
         lang = self.languageGuesser.classify(paragraphText.encode("ascii", "ignore"))
         if lang != self.getMainlang():
-            pWithQuote.set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+            paragraph.set('{http://www.w3.org/XML/1998/namespace}lang', lang)
 
-        for element in pWithQuote.iter("span"):
+        for element in paragraph.iter("span"):
             if element.get("type") == "quote":
                 lang = self.languageGuesser.classify(element.text.encode("ascii", "ignore"))
                 if lang != self.getMainlang():
                     element.set('{http://www.w3.org/XML/1998/namespace}lang', lang)
 
-        return pWithQuote
+        return paragraph
 
     def removeQuote(self, paragraph):
         """Extract all text except the one inside <span type='quote'>"""
