@@ -1030,7 +1030,7 @@ class TestXslMaker(unittest.TestCase):
 
         want = etree.parse('parallelize_data/test.xsl')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class XslMaker:
     """
