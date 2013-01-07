@@ -124,7 +124,7 @@ class Converter:
         elif '.htm' in self.orig or '.php' in self.orig:
             intermediate = HTMLConverter(self.orig)
         
-        elif '.doc' in self.orig:
+        elif '.doc' in self.orig or '.DOC' in self.orig:
             intermediate = DocConverter(self.orig)
             
         elif '.rtf' in self.orig:
@@ -166,10 +166,10 @@ class Converter:
         
         if not os.path.isdir(os.path.dirname(convertedFilename)):
             os.makedirs(os.path.dirname(convertedFilename))
-
-        converted = open(convertedFilename, 'w')
+            
         complete = self.makeComplete()
         
+        converted = open(convertedFilename, 'w')
         converted.write(complete)
         converted.close()
     
@@ -420,6 +420,7 @@ class PlaintextConverter:
         
         bilde = re.compile(r'BILDE(\s\d)*:(.*)')
         
+        # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
             if line.startswith('@bilde:'):
                 p = etree.Element('p')
@@ -487,14 +488,13 @@ class PlaintextConverter:
                 author = etree.Element('author')
                 author.append(person)
                 header.append(author)
-                
             elif line == '\n' and ptext != '':
                 p = etree.Element('p')
                 p.text = ptext
                 body.append(p)
                 ptext = ''
             else:
-                ptext = ptext.strip() + line.strip()
+                ptext = ptext + line
                 
         if ptext != '':
             p = etree.Element('p')
