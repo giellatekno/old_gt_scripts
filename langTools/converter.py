@@ -410,10 +410,25 @@ class PlaintextConverter:
         content = content.replace(u'  ', '\n\n')
         content = content.replace(u'–<\!q>', u'– ')
         content = content.replace('\x0d', '\x0a')
-        content = content.replace('\x00', '')
+        content = content.replace('<*B>', '')
+        content = content.replace('<*P>', '')
+        content = content.replace('<*I>', '')
+        content = self.strip_chars(content)
         
         return content
-
+    
+    def strip_chars(self, content, extra=u''):
+        remove_re = re.compile(u'[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F%s]'
+                            % extra)
+        stripped = 0
+        content, count = remove_re.subn('', content)
+        if count > 0:
+            plur = ((count > 1) and u's') or u''
+            sys.stderr.write('Removed %s character%s.\n'
+                            % (count, plur))
+        
+        return content
+    
     def convert2intermediate(self):
         document = etree.Element('document')
         
@@ -426,15 +441,16 @@ class PlaintextConverter:
         
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
-            if line.startswith('@bilde:'):
+            if line.startswith('@bilde:') or line.startswith('Bilde:'):
                 p = etree.Element('p')
-                p.text = line.replace('@bilde:', '')
+                p.text = line.replace('@bilde:', '').strip()
+                p.text = line.replace('Bilde:', '').strip()
                 body.append(p)
                 ptext = ''
             elif bilde.match(line):
                 m = bilde.match(line)
                 p = etree.Element('p')
-                p.text = m.group(2)
+                p.text = m.group(2).strip()
                 body.append(p)
                 ptext = ''
             elif line.startswith('@bold:'):
@@ -444,9 +460,11 @@ class PlaintextConverter:
                 p.append(em)
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@ingress:'):
+            elif line.startswith('@ingress:') or line.startswith('Ingress:'):
                 p = etree.Element('p')
-                p.text = line.replace(u'@ingress:', u'')
+                line = line.replace(u'Ingress:', u'')
+                line = line.replace(u'@ingress:', u'')
+                p.text = line.strip()
                 body.append(p)
                 ptext = ''
             elif line.startswith('LOGO:'):
@@ -454,39 +472,43 @@ class PlaintextConverter:
                 p.text = line.replace('LOGO:', '').strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto'):
+            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto') or line.startswith('Stikk'):
                 p = etree.Element('p')
                 line = line.replace('@tekst:', '')
                 line = line.replace('@stikk:', '')
+                line = line.replace('Stikk:', '')
                 line = line.replace('TEKST:', '')
                 line = line.replace('@foto:', '')
-                p.text = line
+                p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:'):
                 p = etree.Element('p', type="title")
                 line = line.replace('@m.titt:', '')
                 line = line.replace('M:TITT:', '')
-                p.text = line
+                line = line.replace('Mellomtittel:', '')
+                p.text = line.strip()
                 body.append(p)
                 ptext = ''
             elif line.startswith(u'  '):
                 p = etree.Element('p')
-                p.text = line #.replace(u'  ', '')
+                p.text = line.strip() #.replace(u'  ', '')
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:'):
+            elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:') or line.startswith('Tittel:'):
                 title = etree.Element('title')
                 line = line.replace('@tittel:', '')
                 line = line.replace('@titt:', '')
                 line = line.replace('TITT:', '')
-                title.text = line
+                line = line.replace('Tittel:', '')
+                title.text = line.strip()
                 header.append(title)
-            elif line.startswith('@byline:'):
+            elif line.startswith('@byline:') or line.startswith('Byline:'):
                 person = etree.Element('person')
                 
                 line = line.replace('@byline:', '').strip()
-                names = line.split(' ')
+                line = line.replace('Byline:', '').strip()
+                names = line.strip().split(' ')
                 person.set('lastname', names[-1])
                 person.set('firstname', ' '.join(names[:-1]))
                 
@@ -495,16 +517,20 @@ class PlaintextConverter:
                 header.append(author)
             elif line == '\n' and ptext != '':
                 if ptext.strip() != '':
-                    p = etree.Element('p')
-                    p.text = ptext
-                    body.append(p)
+                    try:
+                        p = etree.Element('p')
+                        p.text = ptext.strip()
+                        body.append(p)
+                    except ValueError:
+                        print "«", ptext.strip().encode('utf-8'), "»"
+                        sys.exit(2)
                 ptext = ''
             else:
                 ptext = ptext + line
                 
         if ptext != '':
             p = etree.Element('p')
-            p.text = ptext
+            p.text = ptext.strip()
             body.append(p)
         
         document.append(header)
