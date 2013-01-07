@@ -32,3 +32,4 @@
 @m.titt:Du válljejupmi
 @tekst:Guhtemušat dáin šaddet.  
 @stikk:–<\!q>Vašálaččat geavahit fuones koansttaid
+@foto:Kirkenytt govva
