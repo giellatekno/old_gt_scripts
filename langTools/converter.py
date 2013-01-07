@@ -128,7 +128,7 @@ class Converter:
         xsltRoot = xm.getXsl()
         
         aba = open('aba.xsl', 'w')
-        aba.write(etree.tostring(xsltRoot, encoding='utf8'))
+        aba.write(xsltRoot)
         aba.close()
         
         aba = etree.parse('aba.xsl')
@@ -137,12 +137,12 @@ class Converter:
         
         intermediate = self.makeIntermediate()
         
-        complete = transform(intermediate)
+        complete = transform(etree.fromstring(intermediate))
         
-        ef = EncodingFixer(complete)
+        ef = EncodingFixer(etree.tostring(complete))
         
         aba = open('aba.xml', 'w')
-        aba.write(etree.tostring(ef.fixBodyEncoding(), encoding='utf8'))
+        aba.write(ef.fixBodyEncoding())
         aba.close()
         #fixed = ef.fixBodyEncoding()
         
