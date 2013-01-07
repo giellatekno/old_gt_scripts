@@ -950,7 +950,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla "bla bla" bla bla </p>'
         expectedParagraph = '<p>bla bla <span type="quote">"bla bla"</span> bla bla</p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -959,7 +959,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla “bla bla” bla bla</p>'
         expectedParagraph = '<p>bla bla <span type="quote">“bla bla”</span> bla bla</p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -968,7 +968,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla «bla bla» bla bla</p>'
         expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla</p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -977,7 +977,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
         expectedParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -986,7 +986,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla «bla bla» bla bla «bla bla» bla bla</p>'
         expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla <span type="quote">«bla bla»</span> bla bla</p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -995,7 +995,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla «bla bla» <em>bla bla</em></p>'
         expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> <em>bla bla</em></p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1004,7 +1004,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla <em>bla bla</em> «bla bla»</p>'
         expectedParagraph = '<p>bla bla <em>bla bla</em> <span type="quote">«bla bla»</span></p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1013,7 +1013,7 @@ class TestDocumentFixer(unittest.TestCase):
         origParagraph = '<p>bla bla <em>bla bla «bla bla»</em></p>'
         expectedParagraph = '<p>bla bla <em>bla bla <span type="quote">«bla bla»</span></em></p>'
 
-        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml'))
+        df = DocumentFixer(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         gotParagraph = df.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1201,7 +1201,7 @@ class TestLanguageDetector(unittest.TestCase):
     Test the functionality of LanguageDetector
     """
     def setUp(self):
-        self.document = etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml')
+        self.document = etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml')
 
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
@@ -1261,12 +1261,21 @@ class TestLanguageDetector(unittest.TestCase):
 
         self.assertEqual(gotParagraph, expectedParagraph)
 
-    def testDetectLanguage(self):
-        ld = LanguageDetector(self.document)
+    def testDetectLanguageWithMultilingualtag(self):
+        ld = LanguageDetector(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-with-multilingual-tag.xml'))
         ld.detectLanguage()
         gotDocument = ld.getDocument()
 
-        expectedDocument = etree.parse('parallelize_data/samediggi-article-48s-after-lang-detection.xml')
+        expectedDocument = etree.parse('parallelize_data/samediggi-article-48s-after-lang-detection-with-multilingual-tag.xml')
+
+        self.assertXmlEqual(etree.tostring(gotDocument), etree.tostring(expectedDocument))
+
+    def testDetectLanguageWithoutMultilingualtag(self):
+        ld = LanguageDetector(etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection-without-multilingual-tag.xml'))
+        ld.detectLanguage()
+        gotDocument = ld.getDocument()
+
+        expectedDocument = etree.parse('parallelize_data/samediggi-article-48s-after-lang-detection-without-multilingual-tag.xml')
 
         self.assertXmlEqual(etree.tostring(gotDocument), etree.tostring(expectedDocument))
 
@@ -1329,5 +1338,6 @@ class LanguageDetector:
     def detectLanguage(self):
         """Detect language in all the paragraphs in self.document
         """
-        for paragraph in self.document.iter('p'):
-            paragraph = self.setParagraphLanguage(paragraph)
+        if self.document.find('header/multilingual') is not None:
+            for paragraph in self.document.iter('p'):
+                paragraph = self.setParagraphLanguage(paragraph)
