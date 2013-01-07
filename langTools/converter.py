@@ -17,7 +17,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this file. If not, see <http://www.gnu.org/licenses/>.
 #
-#   Copyright 2012 Børre Gaup <borre.gaup@uit.no>
+#   Copyright 2012-2013 Børre Gaup <borre.gaup@uit.no>
 #
 
 import os
@@ -160,7 +160,7 @@ class Converter:
 
         ef = EncodingFixer(etree.tostring(complete))
         complete = ef.fixBodyEncoding()
-        
+
         return complete
 
     def writeComplete(self):
@@ -1193,7 +1193,7 @@ class LanguageDetector:
         Set the language of the quotes in the paragraph
         """
         pWithQuote = self.detectQuote(paragraph)
-        
+
         paragraphText = self.removeQuote(pWithQuote)
         lang = self.languageGuesser.classify(paragraphText.encode("ascii", "ignore"))
         if lang != self.getMainlang():
@@ -1201,10 +1201,10 @@ class LanguageDetector:
 
         for element in pWithQuote.iter("span"):
             if element.get("type") == "quote":
-                lang = self.languageGuesser.classify(element.text.encode("ascii", "ignore")) 
+                lang = self.languageGuesser.classify(element.text.encode("ascii", "ignore"))
                 if lang != self.getMainlang():
                     element.set('{http://www.w3.org/XML/1998/namespace}lang', lang)
-                    
+
         return pWithQuote
 
     def removeQuote(self, paragraph):
