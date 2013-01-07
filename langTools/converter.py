@@ -71,24 +71,28 @@ class TestConverter(unittest.TestCase):
     
     def testGetTmpdir(self):
         self.assertEqual(self.converterInsideOrig.getTmpdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus/tmp'))
+            os.path.join(os.getenv('GTHOME'), \
+            'gt/script/langTools/fakecorpus/tmp'))
         
         self.assertEqual(self.converterOutsideOrig.getTmpdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/tmp'))
+            os.path.join(os.getenv('GTHOME'), \
+            'gt/script/langTools/tmp'))
         
         self.assertEqual(self.converterInsideFreecorpus.getTmpdir(), \
-        os.path.join(os.getenv('GTFREE'), 'tmp'))
+            os.path.join(os.getenv('GTFREE'), 'tmp'))
         
     def testGetCorpusdir(self):
         self.assertEqual(self.converterInsideOrig.getCorpusdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus'))
+            os.path.join(os.getenv('GTHOME'), \
+            'gt/script/langTools/fakecorpus'))
         
         self.assertEqual(self.converterOutsideOrig.getCorpusdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools'))
+            os.path.join(os.getenv('GTHOME'), \
+            'gt/script/langTools'))
         
         self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
-        os.getenv('GTFREE'))    
-
+            os.getenv('GTFREE'))
+    
 class Converter:
     """
     Class to take care of data common to all Converter classes
@@ -97,7 +101,67 @@ class Converter:
         self.orig = os.path.abspath(filename)
         self.setCorpusdir()
         self.test = test
+    
+    def makeIntermediate(self):
+        if 'Avvir' in self.orig:
+            intermediate = AvvirConverter(self.orig)
+            
+        elif self.orig.endswith('.txt'):
+            intermediate = PlaintextConverter(self.orig)
+            
+        elif self.orig.endswith('.pdf'):
+            intermediate = PDFConverter(self.orig)
         
+        elif '.html' in self.orig:
+            intermediate = HTMLConverter(self.orig)
+        
+        elif '.doc' in self.orig:
+            intermediate = DocConverter(self.orig)
+        else:
+            print self.orig
+            sys.exit(1)
+            
+        return intermediate.convert2intermediate()
+    
+    def makeComplete(self):
+        xm = XslMaker(self.getXsl())
+        xsltRoot = xm.getXsl()
+        
+        aba = open('aba.xsl', 'w')
+        aba.write(etree.tostring(xsltRoot, encoding='utf8'))
+        aba.close()
+        
+        aba = etree.parse('aba.xsl')
+        #aba = etree.parse('parallelize_data/test.xsl')
+        transform = etree.XSLT(aba)
+        
+        intermediate = self.makeIntermediate()
+        
+        complete = transform(intermediate)
+        
+        ef = EncodingFixer(complete)
+        
+        aba = open('aba.xml', 'w')
+        aba.write(etree.tostring(ef.fixBodyEncoding(), encoding='utf8'))
+        aba.close()
+        #fixed = ef.fixBodyEncoding()
+        
+        complete = etree.parse('aba.xml')
+        
+        return complete
+    
+    def writeComplete(self):
+        convertedFilename = self.getOrig().replace('/orig/', '/converted/') + '.xml'
+        
+        if not os.path.isdir(os.path.dirname(convertedFilename)):
+            os.makedirs(os.path.dirname(convertedFilename))
+
+        converted = open(convertedFilename, 'w')
+        complete = self.makeComplete()
+        
+        converted.write(etree.tostring(complete, pretty_print = True, encoding = 'utf-8'))
+        converted.close()
+    
     def getOrig(self):
         return self.orig
     
@@ -325,7 +389,7 @@ class PlaintextConverter:
                 ptext = ''
             elif line.startswith('@ingress:'):
                 p = etree.Element('p')
-                p.text = line.replace('@ingress:', '').decode('utf-8')
+                p.text = line.replace(u'@ingress:', u'')
                 body.append(p)
                 ptext = ''
             elif line.startswith('LOGO:'):
@@ -410,7 +474,7 @@ class TestPDFConverter(unittest.TestCase):
         
     def testPDFConverter(self):
         pdfdocument = PDFConverter('parallelize_data/pdf-test.pdf')
-        got = pdfdocument.convert2intermediate(pdfdocument.extractText())
+        got = pdfdocument.convert2intermediate()
         want = etree.parse('parallelize_data/pdf-test.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
@@ -454,12 +518,12 @@ class PDFConverter:
         
         return text
 
-    def convert2intermediate(self, text):
+    def convert2intermediate(self):
         document = etree.Element('document')
         header = etree.Element('header')
         body = etree.Element('body')
         
-        content = io.StringIO(unicode(text, encoding='utf-8'))
+        content = io.StringIO(unicode(self.extractText(), encoding='utf-8'))
         ptext = ''
         
         for line in content:
@@ -497,8 +561,7 @@ class TestDocConverter(unittest.TestCase):
             raise AssertionError(message)
         
     def testConvert2intermediate(self):
-        docbook = self.testdoc.extractText()
-        got = self.testdoc.convert2intermediate(docbook)
+        got = self.testdoc.convert2intermediate()
         want = etree.parse('parallelize_data/doc-test.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
@@ -529,7 +592,7 @@ class DocConverter:
 
         return output
     
-    def convert2intermediate(self, docbook):
+    def convert2intermediate(self):
         """
         Convert the original document to the giellatekno xml format, with no 
         metadata
@@ -537,7 +600,7 @@ class DocConverter:
         """
         docbookXsltRoot = etree.parse(self.converterXsl)
         transform = etree.XSLT(docbookXsltRoot)
-        doc = etree.fromstring(docbook)
+        doc = etree.fromstring(self.extractText())
         intermediate = transform(doc)
         
         return intermediate
@@ -555,8 +618,7 @@ class TestHTMLConverter(unittest.TestCase):
             raise AssertionError(message)
         
     def testConvert2intermediate(self):
-        docbook = self.testhtml.tidy()
-        got = self.testhtml.convert2intermediate(docbook)
+        got = self.testhtml.convert2intermediate()
         want = etree.parse('parallelize_data/samediggi-article-48s.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
@@ -613,7 +675,7 @@ class HTMLConverter:
 
         return soup.prettify()
     
-    def convert2intermediate(self, html):
+    def convert2intermediate(self):
         """
         Convert the original document to the giellatekno xml format, with no 
         metadata
@@ -622,7 +684,7 @@ class HTMLConverter:
         #print docbook
         htmlXsltRoot = etree.parse(self.converterXsl)
         transform = etree.XSLT(htmlXsltRoot)
-        doc = etree.fromstring(html)
+        doc = etree.fromstring(self.tidy())
         intermediate = transform(doc)
         
         return intermediate
@@ -663,7 +725,14 @@ class EncodingFixer:
         It returns the same version, but with fixed characters.
         Parse the returned string, insert it into the document
         """
-        document = self.etree
+        #ibi = open('ibi.xml', 'w')
+        kloff = etree.tostring(self.etree, encoding='utf8')
+        #ibi.write(kloff)
+        #ibi.close()
+        
+        
+        document = etree.fromstring(kloff)
+        
         body = document.find('body')
         
         eg = decode.EncodingGuesser()
