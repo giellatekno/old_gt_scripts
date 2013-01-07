@@ -121,6 +121,9 @@ class Converter:
         elif '.doc' in self.orig:
             intermediate = DocConverter(self.orig)
             
+        elif '.rtf' in self.orig:
+            intermediate = RTFConverter(self.orig)
+            
         else:
             print self.orig
             sys.exit(1)
@@ -707,12 +710,14 @@ class TestHTMLConverter(unittest.TestCase):
 
 import BeautifulSoup
 
-class HTMLConverter:
+class HTMLContentConverter:
     """
     Class to convert html documents to the giellatekno xml format
     """
-    def __init__(self, filename):
+    def __init__(self, filename, content):
         self.orig = filename
+        self.content = content
+        
         self.converterXsl = \
         os.path.join(os.getenv('GTHOME'), 'gt/script/corpus/xhtml2corpus.xsl')
     
@@ -720,12 +725,12 @@ class HTMLConverter:
         """
         Run html through tidy
         """
-        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-asxml', '-quiet', self.orig]
-        subp = subprocess.Popen(tidycommand, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate()
+        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-asxml', '-quiet']
+        subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(self.content)
         
         if subp.returncode == 512:
-            print >>sys.stderr, 'Could not process', self.orig
+            print >>sys.stderr, 'Tidy could not process', self.orig
             print >>sys.stderr, output
             print >>sys.stderr, error
             return subp.returncode
@@ -771,6 +776,45 @@ class HTMLConverter:
         
         return etree.tostring(intermediate, encoding = 'utf8')
     
+class HTMLConverter(HTMLContentConverter):
+    def __init__(self, filename):
+        f = open(filename)
+        HTMLContentConverter.__init__(self, filename, f.read())
+        f.close()
+        
+class TestRTFConverter(unittest.TestCase):
+    def setUp(self):
+        self.testrtf = RTFConverter('parallelize_data/Folkemøte.rtf')
+    
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testConvert2intermediate(self):
+        got = self.testrtf.convert2intermediate()
+        want = etree.parse('parallelize_data/Folkemøte.xml')
+        
+        self.assertXmlEqual(got, etree.tostring(want))
+
+from pyth.plugins.rtf15.reader import Rtf15Reader
+from pyth.plugins.xhtml.writer import XHTMLWriter
+
+class RTFConverter(HTMLContentConverter):
+    """
+    Class to convert html documents to the giellatekno xml format
+    """
+    def __init__(self, filename):
+        self.orig = filename
+        HTMLContentConverter.__init__(self, filename, self.rtf2html())
+    
+    def rtf2html(self):
+        doc = Rtf15Reader.read(open(self.orig, "rb"))
+        return XHTMLWriter.write(doc, pretty=True).read()
+
 import decode
 
 class TestEncodingFixer:
