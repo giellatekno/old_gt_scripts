@@ -166,7 +166,7 @@ class AvvirConverter(Preconverter):
 
 import chardet
 
-class TestPlaintextConverter(unittest.TestCase):
+class TestNewstextConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
         """
@@ -176,7 +176,7 @@ class TestPlaintextConverter(unittest.TestCase):
             raise AssertionError(message)
         
     def testToUnicode(self):
-        converter = PlaintextConverter('parallelize_data/winsami2-test-ws2.txt')
+        converter = NewstextConverter('parallelize_data/winsami2-test-ws2.txt')
         got  = converter.toUnicode()
         
         f = open('parallelize_data/winsami2-test-utf8.txt')
@@ -185,16 +185,73 @@ class TestPlaintextConverter(unittest.TestCase):
         
         self.assertEqual(got, want)
         
-    def testConvert2intermediate(self):
-        plaintext = PlaintextConverter('parallelize_data/plaintext.txt')
+    def testPlaintext(self):
+        plaintext = NewstextConverter('parallelize_data/plaintext.txt')
         got = plaintext.convert2intermediate()
         want = etree.parse('parallelize_data/plaintext.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
-class PlaintextConverter(Preconverter):
+    def testNewstext(self):
+        newstext = NewstextConverter('parallelize_data/newstext.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/newstext.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testBilde(self):
+        newstext = NewstextConverter('parallelize_data/bilde.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/bilde.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testIngress(self):
+        newstext = NewstextConverter('parallelize_data/ingress.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/ingress.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testMtitt(self):
+        newstext = NewstextConverter('parallelize_data/mtitt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/mtitt.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testTekst(self):
+        newstext = NewstextConverter('parallelize_data/tekst.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/tekst.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testNBSP(self):
+        newstext = NewstextConverter('parallelize_data/nbsp.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/nbsp.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testTittel(self):
+        newstext = NewstextConverter('parallelize_data/tittel.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/tittel.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testByline(self):
+        newstext = NewstextConverter('parallelize_data/byline.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/byline.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+class NewstextConverter(Preconverter):
     """
-    A class to convert plain text files to the giellatekno xml format
+    A class to convert plain text files containing "news" tags to the 
+    giellatekno xml format
     """
     
     def __init__(self, filename, test="False"):
@@ -211,35 +268,81 @@ class PlaintextConverter(Preconverter):
         encoding = chardet.detect(content)['encoding']
         if encoding != 'utf-8':
             content = content.decode('latin1', 'replace').encode('utf-8')
-            
+        
+        content = content.replace('  ', '\n\n')
+        content = content.replace('–<\!q>', '– ')
         return content
 
     def handleContent(self):
+        document = etree.Element('document')
         import io
         
         content = io.StringIO(self.toUnicode().decode('utf-8'))
+        header = etree.Element('header')
         body = etree.Element('body')
         ptext = ''
         
+        
+        
         for line in content:
-            #print "line", line
-            if line == '\n':
+            if line.startswith('@bilde:'):
+                p = etree.Element('p')
+                p.text = line.replace('@bilde:', '')
+                body.append(p)
+                ptext = ''
+            elif line.startswith('@ingress:'):
+                p = etree.Element('p')
+                p.text = line.replace('@ingress:', '').decode('utf-8')
+                body.append(p)
+                ptext = ''
+            elif line.startswith('@tekst:'):
+                p = etree.Element('p')
+                p.text = line.replace('@tekst:', '')
+                body.append(p)
+                ptext = ''
+            elif line.startswith('@m.titt:'):
+                p = etree.Element('p', type="title")
+                p.text = line.replace('@m.titt:', '')
+                body.append(p)
+                ptext = ''
+            elif line.startswith(u'  '):
+                p = etree.Element('p')
+                p.text = line #.replace(u'  ', '')
+                body.append(p)
+                ptext = ''
+            elif line.startswith('@tittel:'):
+                title = etree.Element('title')
+                title.text = line.replace('@tittel:', '')
+                header.append(title)
+            elif line.startswith('@byline:'):
+                person = etree.Element('person')
+                
+                line = line.replace('@byline:', '').strip()
+                names = line.split(' ')
+                person.set('lastname', names[-1])
+                person.set('firstname', ' '.join(names[:-1]))
+                
+                author = etree.Element('author')
+                author.append(person)
+                header.append(author)
+                
+            elif line == '\n' and ptext != '':
                 p = etree.Element('p')
                 p.text = ptext
                 body.append(p)
                 ptext = ''
             else:
-                ptext = ptext + line
+                ptext = ptext.strip() + line.strip()
                 
-        p = etree.Element('p')
-        p.text = ptext
-        body.append(p)
-
-        return body
+        if ptext != '':
+            p = etree.Element('p')
+            p.text = ptext
+            body.append(p)
+        
+        document.append(header)
+        document.append(body)
+        
+        return document
         
     def convert2intermediate(self):
-        intermediate = etree.Element('document')
-        
-        intermediate.append(self.handleContent())
-        
-        return intermediate
+        return self.handleContent()
