@@ -23,101 +23,101 @@
 import os
 import unittest
 
-class TestConverter(unittest.TestCase):
-    def setUp(self):
-        self.converterInsideOrig = \
-        Converter('fakecorpus/orig/nob/samediggi-article-16.html', True)
+#class TestConverter(unittest.TestCase):
+    #def setUp(self):
+        #self.converterInsideOrig = \
+        #Converter('fakecorpus/orig/nob/samediggi-article-16.html', True)
         
-        self.converterOutsideOrig = \
-        Converter('parallelize_data/samediggi-article-48.html', False)
+        #self.converterOutsideOrig = \
+        #Converter('parallelize_data/samediggi-article-48.html', False)
         
-        self.converterInsideFreecorpus = \
-        Converter(os.path.join(os.getenv('GTFREE'), \
-        'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'), False)
+        #self.converterInsideFreecorpus = \
+        #Converter(os.path.join(os.getenv('GTFREE'), \
+        #'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'), False)
     
-    def testGetOrig(self):
-        self.assertEqual(self.converterInsideOrig.getOrig(), \
-        os.path.join(os.getenv('GTHOME'),\
-        'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html'))
+    #def testGetOrig(self):
+        #self.assertEqual(self.converterInsideOrig.getOrig(), \
+        #os.path.join(os.getenv('GTHOME'),\
+        #'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html'))
         
-        self.assertEqual(self.converterOutsideOrig.getOrig(), \
-        os.path.join(os.getenv('GTHOME'), \
-        'gt/script/langTools/parallelize_data/samediggi-article-48.html'))
+        #self.assertEqual(self.converterOutsideOrig.getOrig(), \
+        #os.path.join(os.getenv('GTHOME'), \
+        #'gt/script/langTools/parallelize_data/samediggi-article-48.html'))
         
-        self.assertEqual(self.converterInsideFreecorpus.getOrig(), \
-        os.path.join(os.getenv('GTFREE'), \
-        'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'))
+        #self.assertEqual(self.converterInsideFreecorpus.getOrig(), \
+        #os.path.join(os.getenv('GTFREE'), \
+        #'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'))
     
-    def testGetXsl(self):
-        self.assertEqual(self.converterInsideOrig.getXsl(), \
-        os.path.join(os.getenv('GTHOME'),\
-        'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html.xsl'))
+    #def testGetXsl(self):
+        #self.assertEqual(self.converterInsideOrig.getXsl(), \
+        #os.path.join(os.getenv('GTHOME'),\
+        #'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html.xsl'))
         
-        self.assertEqual(self.converterOutsideOrig.getXsl(), \
-        os.path.join(os.getenv('GTHOME'), \
-        'gt/script/langTools/parallelize_data/samediggi-article-48.html.xsl'))
+        #self.assertEqual(self.converterOutsideOrig.getXsl(), \
+        #os.path.join(os.getenv('GTHOME'), \
+        #'gt/script/langTools/parallelize_data/samediggi-article-48.html.xsl'))
         
-        self.assertEqual(self.converterInsideFreecorpus.getXsl(), \
-        os.path.join(os.getenv('GTFREE'), \
-        'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html.xsl'))
+        #self.assertEqual(self.converterInsideFreecorpus.getXsl(), \
+        #os.path.join(os.getenv('GTFREE'), \
+        #'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html.xsl'))
     
-    def testGetTest(self):
-        self.assertEqual(self.converterInsideOrig.getTest(), True)
+    #def testGetTest(self):
+        #self.assertEqual(self.converterInsideOrig.getTest(), True)
         
-        self.assertEqual(self.converterOutsideOrig.getTest(), False)
+        #self.assertEqual(self.converterOutsideOrig.getTest(), False)
         
-        self.assertEqual(self.converterInsideFreecorpus.getTest(), False)
+        #self.assertEqual(self.converterInsideFreecorpus.getTest(), False)
     
-    def testGetTmpdir(self):
-        self.assertEqual(self.converterInsideOrig.getTmpdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus/tmp'))
+    #def testGetTmpdir(self):
+        #self.assertEqual(self.converterInsideOrig.getTmpdir(), \
+        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus/tmp'))
         
-        self.assertEqual(self.converterOutsideOrig.getTmpdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/tmp'))
+        #self.assertEqual(self.converterOutsideOrig.getTmpdir(), \
+        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/tmp'))
         
-        self.assertEqual(self.converterInsideFreecorpus.getTmpdir(), \
-        os.path.join(os.getenv('GTFREE'), 'tmp'))
+        #self.assertEqual(self.converterInsideFreecorpus.getTmpdir(), \
+        #os.path.join(os.getenv('GTFREE'), 'tmp'))
         
-    def testGetCorpusdir(self):
-        self.assertEqual(self.converterInsideOrig.getCorpusdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus'))
+    #def testGetCorpusdir(self):
+        #self.assertEqual(self.converterInsideOrig.getCorpusdir(), \
+        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus'))
         
-        self.assertEqual(self.converterOutsideOrig.getCorpusdir(), \
-        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools'))
+        #self.assertEqual(self.converterOutsideOrig.getCorpusdir(), \
+        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools'))
         
-        self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
-        os.getenv('GTFREE'))    
+        #self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
+        #os.getenv('GTFREE'))    
 
-class Converter:
-    """
-    Class to take care of data common to all Converter classes
-    """
-    def __init__(self, filename, test = False):
-        self.orig = os.path.abspath(filename)
-        self.setCorpusdir()
-        self.test = test
+#class Converter:
+    #"""
+    #Class to take care of data common to all Converter classes
+    #"""
+    #def __init__(self, filename, test = False):
+        #self.orig = os.path.abspath(filename)
+        #self.setCorpusdir()
+        #self.test = test
         
-    def getOrig(self):
-        return self.orig
+    #def getOrig(self):
+        #return self.orig
     
-    def getXsl(self):
-        return self.orig + '.xsl'
+    #def getXsl(self):
+        #return self.orig + '.xsl'
     
-    def getTest(self):
-        return self.test
+    #def getTest(self):
+        #return self.test
     
-    def getTmpdir(self):
-        return os.path.join(self.getCorpusdir(), 'tmp')
+    #def getTmpdir(self):
+        #return os.path.join(self.getCorpusdir(), 'tmp')
     
-    def getCorpusdir(self):
-        return self.corpusdir
+    #def getCorpusdir(self):
+        #return self.corpusdir
     
-    def setCorpusdir(self):
-        origPos = self.orig.find('orig/')
-        if origPos != -1:
-            self.corpusdir = os.path.dirname(self.orig[:origPos])
-        else:
-            self.corpusdir = os.getcwd()
+    #def setCorpusdir(self):
+        #origPos = self.orig.find('orig/')
+        #if origPos != -1:
+            #self.corpusdir = os.path.dirname(self.orig[:origPos])
+        #else:
+            #self.corpusdir = os.getcwd()
     
 import doctest
 from lxml import etree
@@ -167,7 +167,7 @@ class AvvirConverter:
 import chardet
 import re
 
-class TestTextConverter(unittest.TestCase):
+class TestPlaintextConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
         """
@@ -177,7 +177,7 @@ class TestTextConverter(unittest.TestCase):
             raise AssertionError(message)
         
     def testToUnicode(self):
-        converter = TextConverter('parallelize_data/winsami2-test-ws2.txt')
+        converter = PlaintextConverter('parallelize_data/winsami2-test-ws2.txt')
         got  = converter.toUnicode()
         
         f = open('parallelize_data/winsami2-test-utf8.txt')
@@ -187,76 +187,78 @@ class TestTextConverter(unittest.TestCase):
         self.assertEqual(got, want)
         
     def testPlaintext(self):
-        plaintext = TextConverter('parallelize_data/plaintext.txt')
+        plaintext = PlaintextConverter('parallelize_data/plaintext.txt')
         got = plaintext.convert2intermediate()
         want = etree.parse('parallelize_data/plaintext.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testNewstext(self):
-        newstext = TextConverter('parallelize_data/newstext.txt')
+        newstext = PlaintextConverter('parallelize_data/newstext.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/newstext.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testAssu97(self):
-        newstext = TextConverter('parallelize_data/assu97.txt')
+        newstext = PlaintextConverter('parallelize_data/assu97.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/assu97.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testBilde(self):
-        newstext = TextConverter('parallelize_data/bilde.txt')
+        newstext = PlaintextConverter('parallelize_data/bilde.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/bilde.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testIngress(self):
-        newstext = TextConverter('parallelize_data/ingress.txt')
+        newstext = PlaintextConverter('parallelize_data/ingress.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/ingress.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testMtitt(self):
-        newstext = TextConverter('parallelize_data/mtitt.txt')
+        newstext = PlaintextConverter('parallelize_data/mtitt.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/mtitt.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testTekst(self):
-        newstext = TextConverter('parallelize_data/tekst.txt')
+        newstext = PlaintextConverter('parallelize_data/tekst.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tekst.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testNBSP(self):
-        newstext = TextConverter('parallelize_data/nbsp.txt')
+        newstext = PlaintextConverter('parallelize_data/nbsp.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/nbsp.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testTittel(self):
-        newstext = TextConverter('parallelize_data/tittel.txt')
+        newstext = PlaintextConverter('parallelize_data/tittel.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tittel.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testByline(self):
-        newstext = TextConverter('parallelize_data/byline.txt')
+        newstext = PlaintextConverter('parallelize_data/byline.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/byline.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
-class TextConverter:
+import io
+
+class PlaintextConverter:
     """
     A class to convert plain text files containing "news" tags to the 
     giellatekno xml format
@@ -283,9 +285,8 @@ class TextConverter:
         
         return content
 
-    def handleContent(self):
+    def convert2intermediate(self):
         document = etree.Element('document')
-        import io
         
         content = io.StringIO(self.toUnicode().decode('utf-8'))
         header = etree.Element('header')
@@ -379,10 +380,101 @@ class TextConverter:
         document.append(body)
         
         return document
-        
-    def convert2intermediate(self):
-        return self.handleContent()
 
+from pdfminer.pdfparser import PDFDocument, PDFParser
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter, process_pdf
+from pdfminer.pdfdevice import PDFDevice, TagExtractor
+from pdfminer.converter import TextConverter
+from pdfminer.cmapdb import CMapDB
+from pdfminer.layout import LAParams
+
+import cStringIO
+
+class TestPDFConverter(unittest.TestCase):
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testPDFConverter(self):
+        pdfdocument = PDFConverter('parallelize_data/pdf-test.pdf')
+        got = pdfdocument.convert2intermediate(pdfdocument.extractText())
+        want = etree.parse('parallelize_data/pdf-test.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+class PDFConverter:
+    def __init__(self, filename):
+        self.orig = filename
+        
+    def extractText(self):
+        # debug option
+        debug = 0
+        # input option
+        pagenos = set()
+        maxpages = 0
+        # output option
+        codec = 'utf-8'
+        caching = True
+        laparams = LAParams()
+
+        PDFDocument.debug = debug
+        PDFParser.debug = debug
+        CMapDB.debug = debug
+        PDFResourceManager.debug = debug
+        PDFPageInterpreter.debug = debug
+        PDFDevice.debug = debug
+        #
+        rsrcmgr = PDFResourceManager(caching=caching)
+
+        outfp = cStringIO.StringIO()
+            
+        device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
+
+        fp = file(self.orig, 'rb')
+        process_pdf(rsrcmgr, device, fp, pagenos, maxpages=maxpages, 
+                    caching=caching, check_extractable=True)
+        fp.close()
+        
+        device.close()
+        text = outfp.getvalue()
+        outfp.close()
+        
+        return text
+
+    def convert2intermediate(self, text):
+        document = etree.Element('document')
+        header = etree.Element('header')
+        body = etree.Element('body')
+        
+        content = io.StringIO(unicode(text, encoding='utf-8'))
+        ptext = ''
+        
+        for line in content:
+            line = line.replace('\x0c', '')
+            #print 'line', line
+            if line == '\n':
+                p = etree.Element('p')
+                p.text = ptext
+                body.append(p)
+                ptext = ''
+            else:
+                ptext = ptext + line
+        
+        if ptext != '':
+            p = etree.Element('p')
+            p.text = ptext.replace('\x0c', '')
+            body.append(p)
+        
+        document.append(header)
+        document.append(body)
+        
+        return document
+
+    
 import decode
 
 class TestEncodingFixer:
@@ -395,7 +487,7 @@ class TestEncodingFixer:
             raise AssertionError(message)
         
     def testFixBodyEncoding(self):
-        newstext = TextConverter('parallelize_data/assu97-mac-sami.txt')
+        newstext = PlaintextConverter('parallelize_data/assu97-mac-sami.txt')
         eg = EncodingFixer(newstext.convert2intermediate())
 
         got = eg.fixBodyEncoding()
