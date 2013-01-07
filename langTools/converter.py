@@ -677,3 +677,48 @@ class EncodingFixer:
         
         document.append(body)
         return document
+
+class TestXslMaker(unittest.TestCase):
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testGetXsl(self):
+        xslmaker = XslMaker('parallelize_data/samediggi-article-48.html.xsl')
+        got = xslmaker.getXsl()
+        
+        want = etree.parse('parallelize_data/test.xsl')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        
+class XslMaker:
+    """
+    To convert the intermediate xml to a fullfledged  giellatekno document
+    a combination of three xsl files + the intermediate files is needed
+    This class makes the xsl file
+    """
+    
+    def __init__(self, xslfile):
+        commonXsltRoot = etree.parse(os.path.join(os.getenv('GTHOME'), \
+            'gt/script/corpus/common.xsl'))
+        transform1 = etree.XSLT(commonXsltRoot)
+        preprocessXsl = etree.parse(os.path.join(os.getenv('GTHOME'), \
+            'gt/script/corpus/preprocxsl.xsl'))
+        xsl1 = transform1(preprocessXsl)
+        
+        transform2 = etree.XSLT(xsl1)
+        filexsl = etree.parse(xslfile)
+        
+        self.finalXsl = transform2(filexsl)
+        
+        root = self.finalXsl.getroot()
+        imp = root.find('{http://www.w3.org/1999/XSL/Transform}import')
+        imp.set('href', os.path.join(os.getenv('GTHOME'), \
+            'gt/script/corpus/common.xsl'))
+        
+    def getXsl(self):
+        return self.finalXsl
