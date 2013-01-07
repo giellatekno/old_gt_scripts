@@ -1206,6 +1206,7 @@ class TestLanguageDetector(unittest.TestCase):
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
+from copy import deepcopy
 
 class LanguageDetector:
     """
@@ -1230,21 +1231,23 @@ class LanguageDetector:
     def detectQuote(self, element):
         """Detect quotes in an etree element.
         """
-        newelement = etree.Element(element.tag)
-        for (key, value) in element.attrib.items():
-            newelement.set(key, value)
+        newelement = deepcopy(element)
+
+        element.text = ''
+        for child in element:
+            child.getparent().remove(child)
 
         quoteList = []
         quoteRegexes = [re.compile('".+?"'), re.compile(u'«.+?»'), re.compile(u'“.+?”')]
 
-        text = element.text
+        text = newelement.text
         for quoteRegex in quoteRegexes:
             for m in quoteRegex.finditer(text):
                 quoteList.append(m.span())
 
         if len(quoteList) > 0:
             quoteList.sort()
-            newelement.text = text[0:quoteList[0][0]]
+            element.text = text[0:quoteList[0][0]]
 
             for x in range(0, len(quoteList)):
                 span = etree.Element('span')
@@ -1254,12 +1257,12 @@ class LanguageDetector:
                     span.tail = text[quoteList[x][1]:quoteList[x + 1][0]]
                 else:
                     span.tail = text[quoteList[x][1]:]
-                newelement.append(span)
+                element.append(span)
         else:
-            newelement.text = text
+            element.text = text
 
-        for child in element:
-            newelement.append(self.detectQuote(child))
+        for child in newelement:
+            element.append(self.detectQuote(child))
 
             if child.tail:
                 quoteList = []
@@ -1281,9 +1284,9 @@ class LanguageDetector:
                         span.tail = text[quoteList[x][1]:quoteList[x + 1][0]]
                     else:
                         span.tail = text[quoteList[x][1]:]
-                    newelement.append(span)
+                    element.append(span)
 
-        return newelement
+        return element
 
 
     def setParagraphLanguage(self, paragraph):
