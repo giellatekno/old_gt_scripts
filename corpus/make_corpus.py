@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#   This file contains a program to convert corpus files with a 
+#   This file contains a program to convert corpus files with a
 #   make like function
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -44,13 +44,13 @@ class CorpusBuilder:
             self.failed_files = 0
 
     def find_xsl_files(self):
-        print "find_xsl_files"
         xsl_files = []
         for root, dirs, files in os.walk(self.orig_dir): # Walk directory tree
             for f in files:
                 if f.endswith('.xsl'):
+                    #sys.stderr.write(str(converter.lineno()) + ' «' + f + '»\n')
                     xsl_files.append(root + '/' + f)
-                
+
         self.convertable_files = len(xsl_files)
         return xsl_files
 
@@ -77,81 +77,99 @@ def find_dependencies(xsl_files):
     doc_dep = [os.path.join(gthome, 'gt/script/corpus/docbook2corpus2.xsl')]
 
     from distutils.dep_util import newer_group
-    
-    print "find_dependencies"
+
+    #sys.stderr.write(str(converter.lineno()) + ' find_dependencies\n')
+    failed = 0
     for xsl_file in xsl_files:
+        #sys.stderr.write(str(converter.lineno()) + ' «' + xsl_file + '»\n')
         dependencies = common_dep
         xml_file = xsl_file.replace('.xsl', '.xml').replace('orig', 'converted')
         source = xsl_file[:-4]
-        
+
         dependencies.append(xsl_file)
         dependencies.append(source)
-        
+
+        #for dep in dependencies:
+            #sys.stderr.write(str(converter.lineno()) + ' «' + dep + '» «' + source + '»\n')
+
         if source.endswith('.doc'):
-            dependencies = dependencies + self.doc_dep
+            dependencies = dependencies + doc_dep
         elif source.endswith('.pdf'):
-            dependencies = dependencies + self.pdf_dep
+            dependencies = dependencies + pdf_dep
         elif 'Avvir_xml-filer' in source:
-            dependencies = dependencies + self.avvir_dep
+            dependencies = dependencies + avvir_dep
         elif source.endswith('.svg'):
-            dependencies = dependencies + self.svg_dep
+            dependencies = dependencies + svg_dep
         elif 'bible' in source or source.endswith('.ptx'):
-            dependencies = dependencies + self.bible_dep
+            dependencies = dependencies + bible_dep
         elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
-            dependencies = dependencies + self.html_dep
-        
+            dependencies = dependencies + html_dep
+
         if newer_group(dependencies, xml_file):
-            convert_file(source)
+            failed += convert_file(source)
+
+    print "Couldn't convert", failed, "out of totally", len(xsl_files)
 
 def convert_file(source):
+    failed = 0
     conv = converter.Converter(source)
     try:
-        
+
         #print source, multiprocessing.current_process().name
         t = time.time()
+        #sys.stderr.write(source)
         conv.writeComplete()
-        print source, time.time() - t
-                
+        #sys.stderr.write(' ' + str(time.time() - t) + '\n')
+        return 0
     except converter.ConversionException, (instance):
         print "Can't convert: " + instance.parameter
-        
-        
+        return 1
+
+
     except lxml.etree.XMLSyntaxError:
         print "etree", source
-        
-        
+        return 1
+
+
     except pdfminer.pdfinterp.PDFTextExtractionNotAllowed:
         print "pdf", source
-        
-        
+        return 1
+
+
     except lxml.etree.XSLTParseError:
         print "xslt", source
-        
-        
+        return 1
+
+
     except AssertionError:
         print "pdf?", source
-        
-        
+        return 1
+
+
     except pdfminer.psparser.PSEOF:
         print "pdf: Unexpected EOF", source
-        
-        
+        return 1
+
+
     except IOError:
         print "no such file", source
-        
-        
+        return 1
+
+
     except ValueError:
         print "not valid text for xml:", source
-        
-        
+        return 1
+
+
     except OSError:
         print "file not found:", source
-        
+        return 1
+
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Convert original files to giellatekno xml, using dependency checking.')
     parser.add_argument('orig_dir', help = "directory where the original files exist")
-    
+
     args = parser.parse_args()
     return args
 
@@ -162,7 +180,8 @@ if __name__ == '__main__':
     cb = CorpusBuilder(args.orig_dir)
     xsl_files = cb.find_xsl_files()
 
-    jobs = []
-    
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map(find_dependencies, xsl_files)
+    find_dependencies(xsl_files)
+    #jobs = []
+
+    #pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    #pool.map(find_dependencies, xsl_files)
