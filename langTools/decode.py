@@ -256,14 +256,14 @@ class EncodingGuesser:
                     
                 hits = hits + len(re.compile(key).findall(content))
                 
-            print "position", position, "hits", hits, "num", num
+            #print "position", position, "hits", hits, "num", num
             
             if hits > maxhits and limits[position] < num:
                 winner = position
                 maxhits = hits
-                print "winner", winner, "maxhits", maxhits
+                #print "winner", winner, "maxhits", maxhits
             
-        print "the winner is", winner
+        #print "the winner is", winner
         return winner
         
     def guessPersonEncoding(self, person):
@@ -285,19 +285,20 @@ class EncodingGuesser:
                     
                 hits = hits + len(re.compile(key).findall(content))
                 
-            print "position", position, "hits", hits, "num", num
+            #print "position", position, "hits", hits, "num", num
             
             
             if hits > maxhits:
                 winner = position
                 maxhits = hits
-                print "winner", winner, "maxhits", maxhits
+                #print "winner", winner, "maxhits", maxhits
                 
             # 8 always wins over 5 as long as there are any hits for 8
             if winner == 5 and num > 1:
                 winner = 8
             
-        print "the winner is", winner
+        #print "the winner is", winner
+        return winner
         
     def decodePara(self, position, text):
         encoding = ctypes[position]
