@@ -26,6 +26,9 @@ import sys
 import subprocess
 import argparse
 
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import converter
+
 class CorpusBuilder:
     def __init__(self, orig_dir):
         gthome = os.getenv('GTHOME')
@@ -37,19 +40,19 @@ class CorpusBuilder:
             self.convertable_files = 0
             self.failed_files = 0
 
-            self.bible_dep = [os.path.join(gthome, 'gt/script/langTools/BibleXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl'), os.path.join(gthome, 'gt/script/langTools/ParatextConverter.pm')]
+            self.bible_dep = [os.path.join(gthome, 'gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl')]
 
-            self.pdf_dep = [os.path.join(gthome, 'gt/script/langTools/PDFConverter.pm'), os.path.join(gthome, 'gt/script/langTools/PlaintextConverter.pm')]
+            self.pdf_dep = []
 
-            self.html_dep = [os.path.join(gthome, 'gt/script/langTools/HTMLConverter.pm'), os.path.join(gthome, 'gt/script/langTools/RTFConverter.pm'), os.path.join(gthome, 'gt/script/corpus/xhtml2corpus.xsl')]
+            self.html_dep = [os.path.join(gthome, 'gt/script/corpus/xhtml2corpus.xsl')]
 
-            self.svg_dep = [os.path.join(gthome, 'gt/script/langTools/SVGConverter.pm'), os.path.join(gthome, 'gt/script/corpus/svg2corpus.xsl')]
+            self.svg_dep = [os.path.join(gthome, 'gt/script/corpus/svg2corpus.xsl')]
 
-            self.common_dep = [os.path.join(gthome, 'gt/script/langTools/CantHandle.pm'), os.path.join(gthome, 'gt/script/langTools/CorrectXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/convert2xml.pl'), os.path.join(gthome, 'gt/script/langTools/Preconverter.pm'), os.path.join(gthome, 'gt/script/langTools/Converter.pm'), os.path.join(gthome, 'gt/script/langTools/Corpus.pm'), os.path.join(gthome, 'gt/script/langTools/Decode.pm'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/preprocess')]
+            self.common_dep = [os.path.join(gthome, 'gt/script/langTools/converter.py'), os.path.join(gthome, 'gt/script/langTools/decode.py'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/convert2xml.py'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/preprocess')]
 
-            self.avvir_dep = [os.path.join(gthome, 'gt/script/langTools/AvvirXMLConverter.pm'), os.path.join(gthome, 'gt/script/corpus/avvir2corpus.xsl')]
+            self.avvir_dep = [os.path.join(gthome, 'gt/script/corpus/avvir2corpus.xsl')]
 
-            self.doc_dep = [os.path.join(gthome, 'gt/script/corpus/docbook2corpus2.xsl'), os.path.join(gthome, 'gt/script/langTools/DOCConverter.pm')]
+            self.doc_dep = [os.path.join(gthome, 'gt/script/corpus/docbook2corpus2.xsl')]
 
     def find_dependencies(self, xsl_files):
         from distutils.dep_util import newer_group
@@ -70,22 +73,20 @@ class CorpusBuilder:
                 dependencies = dependencies + self.avvir_dep
             elif source.endswith('.svg'):
                 dependencies = dependencies + self.svg_dep
-            elif 'bible' in source:
+            elif 'bible' in source or source.endswith('.ptx'):
                 dependencies = dependencies + self.bible_dep
-            elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source:
+            elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
                 dependencies = dependencies + self.html_dep
             
             if newer_group(dependencies, xml_file):
                 self.convert_file(source)
 
     def convert_file(self, source):
-        subp = subprocess.Popen(['convert2xml.pl', '--debug', source], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate()
-
-        if subp.returncode != 0:
-            #print >>sys.stderr, "couldn't build", source
-            #print >>sys.stderr, error
-            self.failed_files += 1
+        conv = converter.Converter(source)
+        try:
+            conv.writeComplete()
+        except converter.ConversionException, (instance):
+            print "Caught: " + instance.parameter
 
     def find_xsl_files(self):
         xsl_files = []
