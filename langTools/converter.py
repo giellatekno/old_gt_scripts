@@ -99,6 +99,7 @@ class Preconverter:
         else:
             self.corpusdir = os.getcwd()
             
+import doctest
 from lxml import etree
 from lxml import doctestcompare
 
@@ -120,7 +121,6 @@ class TestAvvirConverter(unittest.TestCase):
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
         
-    
 class AvvirConverter(Preconverter):
     """
     Class to convert Ávvir xml files to the giellatekno xml format
@@ -143,3 +143,84 @@ class AvvirConverter(Preconverter):
         intermediate = transform(doc)
         
         return intermediate
+
+import chardet
+
+class TestPlaintextConverter(unittest.TestCase):
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testToUnicode(self):
+        converter = PlaintextConverter('parallelize_data/winsami2-test-ws2.txt')
+        got  = converter.toUnicode()
+        
+        f = open('parallelize_data/winsami2-test-utf8.txt')
+        want = f.read()
+        f.close()
+        
+        self.assertEqual(got, want)
+        
+    def testConvert2intermediate(self):
+        plaintext = PlaintextConverter('parallelize_data/plaintext.txt')
+        got = plaintext.convert2intermediate()
+        want = etree.parse('parallelize_data/plaintext.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+class PlaintextConverter(Preconverter):
+    """
+    A class to convert plain text files to the giellatekno xml format
+    """
+    
+    def __init__(self, filename, test="False"):
+        Preconverter.__init__(self, filename, test)
+        
+    def toUnicode(self):
+        """
+        Convert anything not utf-8 to utf-8, using the latin1 encoding
+        """
+        f = open(self.orig)
+        content = f.read()
+        f.close()
+        
+        encoding = chardet.detect(content)['encoding']
+        if encoding != 'utf-8':
+            content = content.decode('latin1', 'replace').encode('utf-8')
+            
+        return content
+
+    def handleContent(self):
+        import io
+        
+        content = io.StringIO(self.toUnicode().decode('utf-8'))
+        body = etree.Element('body')
+        ptext = ''
+        
+        for line in content:
+            #print "line", line
+            if line == '\n':
+                p = etree.Element('p')
+                p.text = ptext
+                body.append(p)
+                ptext = ''
+            else:
+                ptext = ptext + line
+                
+        p = etree.Element('p')
+        p.text = ptext
+        body.append(p)
+
+        return body
+        
+    def convert2intermediate(self):
+        intermediate = etree.Element('document')
+        
+        intermediate.append(self.handleContent())
+        
+        return intermediate
+    
