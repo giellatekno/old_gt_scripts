@@ -1188,8 +1188,8 @@ class LanguageDetector:
     def detectQuote(self, paragraph):
         """Detect and set language of quotes in a paragraph.
         paragraph is an etree element"""
-        text = etree.tostring(paragraph, encoding = "utf-8")
-        quoteRegexes = [re.compile('".+?"'), re.compile('«.+?»'), re.compile('“.+?”')]
+        text = etree.tostring(paragraph, encoding = 'unicode', method = 'text')
+        quoteRegexes = [re.compile('".+?"'), re.compile(u'«.+?»'), re.compile(u'“.+?”')]
 
         newtext = []
         start = 0
@@ -1197,14 +1197,15 @@ class LanguageDetector:
         for quoteRegex in quoteRegexes:
             for m in quoteRegex.finditer(text):
                 if m.start() != 0:
-                    newtext.append(text[start:m.start()])
-                newtext.append('<span type="quote">' + text[m.start():m.end()] + '</span>')
-                start = m.end()
+                    paragraph.text = (text[start:m.start()])
+                span = etree.Element('span')
+                span.set('type', 'quote')
+                span.text = text[m.start():m.end()]
+                if m.end() < len(text):
+                    span.tail = text[m.end():]
+                paragraph.append(span)
 
-        if start != len(text):
-            newtext.append(text[start:])
-
-        return etree.fromstring(''.join(newtext))
+        return paragraph
 
 
     def setParagraphLanguage(self, paragraph):
