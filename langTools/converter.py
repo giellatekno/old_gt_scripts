@@ -526,11 +526,94 @@ class DocConverter:
         metadata
         The resulting xml is stored in intermediate
         """
-        #print docbook
         docbookXsltRoot = etree.parse(self.converterXsl)
         transform = etree.XSLT(docbookXsltRoot)
-        #abba = unicode(docbook, encoding='utf-8')
         doc = etree.fromstring(docbook)
+        intermediate = transform(doc)
+        
+        return intermediate
+    
+class TestHTMLConverter(unittest.TestCase):
+    def setUp(self):
+        self.testhtml = HTMLConverter('parallelize_data/samediggi-article-48s.html')
+    
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testConvert2intermediate(self):
+        docbook = self.testhtml.tidy()
+        got = self.testhtml.convert2intermediate(docbook)
+        want = etree.parse('parallelize_data/samediggi-article-48s.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+import BeautifulSoup
+
+class HTMLConverter:
+    """
+    Class to convert html documents to the giellatekno xml format
+    """
+    def __init__(self, filename):
+        self.orig = filename
+        self.converterXsl = \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/corpus/xhtml2corpus.xsl')
+    
+    def tidy(self):
+        """
+        Run html through tidy
+        """
+        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-asxml', '-quiet', self.orig]
+        subp = subprocess.Popen(tidycommand, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+        
+        if subp.returncode == 512:
+            print >>sys.stderr, 'Could not process', self.orig
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+
+        try:
+                soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+        except HTMLParseError, e:
+                print 'Cannot parse', sys.argv[1]
+                print 'Reason', e
+                sys.exit(4)
+
+        comments = soup.findAll(text=lambda text:isinstance(text, BeautifulSoup.Comment))
+        [comment.extract() for comment in comments]
+
+        [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.ProcessingInstruction ))]
+        [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.Declaration ))]
+            
+        remove_tags = ['noscript', 'script', 'input', 'img', 'v:shapetype', 'v:shape', 'textarea', 'label', 'o:p', 'st1:metricconverter', 'st1:placename', 'st1:place', 'meta']
+        for remove_tag in remove_tags:
+                removes = soup.findAll(remove_tag)
+                for remove in removes:
+                        remove.extract()
+
+        try:
+                if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
+                        soup.html.attrs.append(("xmlns", "http://www.w3.org/1999/xhtml"))
+        except AttributeError:
+                pass
+
+        return soup.prettify()
+    
+    def convert2intermediate(self, html):
+        """
+        Convert the original document to the giellatekno xml format, with no 
+        metadata
+        The resulting xml is stored in intermediate
+        """
+        #print docbook
+        htmlXsltRoot = etree.parse(self.converterXsl)
+        transform = etree.XSLT(htmlXsltRoot)
+        doc = etree.fromstring(html)
         intermediate = transform(doc)
         
         return intermediate
