@@ -316,6 +316,11 @@ class NewstextConverter(Preconverter):
                 p.text = line.replace('@ingress:', '').decode('utf-8')
                 body.append(p)
                 ptext = ''
+            elif line.startswith('LOGO:'):
+                p = etree.Element('p')
+                p.text = line.replace('LOGO:', '').strip()
+                body.append(p)
+                ptext = ''
             elif line.startswith('@tekst:') or line.startswith('TEKST:'):
                 p = etree.Element('p')
                 line = line.replace('@tekst:', '')
