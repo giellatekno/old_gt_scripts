@@ -165,6 +165,7 @@ class AvvirConverter(Preconverter):
         return intermediate
 
 import chardet
+import re
 
 class TestNewstextConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -196,6 +197,13 @@ class TestNewstextConverter(unittest.TestCase):
         newstext = NewstextConverter('parallelize_data/newstext.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/newstext.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testAssu97(self):
+        newstext = NewstextConverter('parallelize_data/assu97.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/assu97.xml')
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
@@ -282,7 +290,7 @@ class NewstextConverter(Preconverter):
         body = etree.Element('body')
         ptext = ''
         
-        
+        bilde = re.compile(r'BILDE(\s\d)*:(.*)')
         
         for line in content:
             if line.startswith('@bilde:'):
@@ -290,19 +298,29 @@ class NewstextConverter(Preconverter):
                 p.text = line.replace('@bilde:', '')
                 body.append(p)
                 ptext = ''
+            elif bilde.match(line):
+                m = bilde.match(line)
+                p = etree.Element('p')
+                p.text = m.group(2)
+                body.append(p)
+                ptext = ''
             elif line.startswith('@ingress:'):
                 p = etree.Element('p')
                 p.text = line.replace('@ingress:', '').decode('utf-8')
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tekst:'):
+            elif line.startswith('@tekst:') or line.startswith('TEKST:'):
                 p = etree.Element('p')
-                p.text = line.replace('@tekst:', '')
+                line = line.replace('@tekst:', '')
+                line = line.replace('TEKST:', '')
+                p.text = line
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:'):
                 p = etree.Element('p', type="title")
-                p.text = line.replace('@m.titt:', '')
+                line = line.replace('@m.titt:', '')
+                line = line.replace('M:TITT:', '')
+                p.text = line
                 body.append(p)
                 ptext = ''
             elif line.startswith(u'  '):
@@ -310,9 +328,11 @@ class NewstextConverter(Preconverter):
                 p.text = line #.replace(u'  ', '')
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tittel:'):
+            elif line.startswith('@tittel:') or line.startswith('TITT'):
                 title = etree.Element('title')
-                title.text = line.replace('@tittel:', '')
+                line = line.replace('@tittel:', '')
+                line = line.replace('TITT:', '')
+                title.text = line
                 header.append(title)
             elif line.startswith('@byline:'):
                 person = etree.Element('person')
@@ -346,3 +366,4 @@ class NewstextConverter(Preconverter):
         
     def convert2intermediate(self):
         return self.handleContent()
+
