@@ -304,6 +304,13 @@ class NewstextConverter(Preconverter):
                 p.text = m.group(2)
                 body.append(p)
                 ptext = ''
+            elif line.startswith('@bold:'):
+                em = etree.Element('em', type = "bold")
+                em.text = line.replace('@bold:', '')
+                p = etree.Element('p')
+                p.append(em)
+                body.append(p)
+                ptext = ''
             elif line.startswith('@ingress:'):
                 p = etree.Element('p')
                 p.text = line.replace('@ingress:', '').decode('utf-8')
