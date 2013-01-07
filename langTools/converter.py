@@ -1099,6 +1099,15 @@ class TestLanguageDetector(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
 
+    def testSimpleDetectQuote4(self):
+        origParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
+        expectedParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
+
+        ld = LanguageDetector(self.string)
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
     def testSetParagraphLanguageMainlanguage(self):
         origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
         expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
@@ -1144,6 +1153,15 @@ class TestLanguageDetector(unittest.TestCase):
 
         self.assertEqual(gotParagraph, expectedParagraph)
 
+    def testDetectLanguage(self):
+        ld = LanguageDetector(self.string)
+        ld.detectLanguage()
+        gotDocument = ld.getDocument()
+
+        expectedDocument = etree.parse('parallelize_data/samediggi-article-48s-after-lang-detection.xml')
+
+        self.assertXmlEqual(etree.tostring(gotDocument), etree.tostring(expectedDocument))
+
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
 
@@ -1157,6 +1175,9 @@ class LanguageDetector:
         self.document = document
         self.mainlang = self.document.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
         self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'))
+
+    def getDocument(self):
+        return self.document
 
     def getMainlang(self):
         """
@@ -1220,3 +1241,9 @@ class LanguageDetector:
                     text = text + element.tail
 
         return text
+
+    def detectLanguage(self):
+        """Detect language in all the paragraphs in self.document
+        """
+        for paragraph in self.document.iter('p'):
+            paragraph = self.setParagraphLanguage(paragraph)
