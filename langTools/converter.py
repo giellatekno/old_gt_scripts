@@ -1040,6 +1040,16 @@ class TestDocumentFixer(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
 
+    def testWordCount(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen pryövoej bïjre</p><p>2008</p><p>Bïevnesh eejhtegidie, tjidtjieh aehtjieh bielide naasjovnalen pryövoej bïjre giej leah maanah 5. jïh 8. tsiehkine</p></body></document>'))
+
+        expectedDoc = '<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><wordcount>20</wordcount><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen pryövoej bïjre</p><p>2008</p><p>Bïevnesh eejhtegidie, tjidtjieh aehtjieh bielide naasjovnalen pryövoej bïjre giej leah maanah 5. jïh 8. tsiehkine</p></body></document>'
+
+        df = DocumentFixer(origDoc)
+        df.setWordCount()
+
+        self.assertXmlEqual(etree.tostring(df.etree), expectedDoc)
+
 import io
 
 class DocumentFixer:
@@ -1191,6 +1201,29 @@ class DocumentFixer:
         """
         for paragraph in self.etree.iter('p'):
             paragraph = self.detectQuote(paragraph)
+
+    def setWordCount(self):
+        """Count the words in the file
+        """
+        plist = []
+        for paragraph in self.etree.iter('p'):
+            plist.append(etree.tostring(paragraph, method = 'text', encoding = 'utf8'))
+
+        words = len(re.findall(r'\S+', ' '.join(plist)))
+
+        wordcount = self.etree.find('header/wordcount')
+        if wordcount is None:
+            tags = ['collection', 'publChannel', 'place', 'year', 'translated_from', 'translator', 'author']
+            for tag in tags:
+                found = self.etree.find('header/' + tag)
+                if found is not None:
+                    wordcount = etree.Element('wordcount')
+                    header = found.getparent()
+                    header.insert(header.index(found) + 1, wordcount)
+                    break
+
+        wordcount.text = str(words)
+
 
 class TestXslMaker(unittest.TestCase):
     def assertXmlEqual(self, got, want):
