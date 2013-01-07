@@ -403,10 +403,14 @@ class PlaintextConverter:
         if encoding != 'utf-8':
             content = content.decode('latin1', 'replace').encode('utf-8')
         
+        eg = decode.EncodingGuesser()
+        encoding = eg.guessBodyEncoding(content)
+        content = eg.decodePara(encoding, content)
         content = unicode(content, encoding='utf-8')
         content = content.replace(u'  ', '\n\n')
         content = content.replace(u'–<\!q>', u'– ')
         content = content.replace('\x0d', '\x0a')
+        content = content.replace('\x00', '')
         
         return content
 
@@ -471,9 +475,10 @@ class PlaintextConverter:
                 p.text = line #.replace(u'  ', '')
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tittel:') or line.startswith('TITT'):
+            elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:'):
                 title = etree.Element('title')
                 line = line.replace('@tittel:', '')
+                line = line.replace('@titt:', '')
                 line = line.replace('TITT:', '')
                 title.text = line
                 header.append(title)
@@ -489,9 +494,10 @@ class PlaintextConverter:
                 author.append(person)
                 header.append(author)
             elif line == '\n' and ptext != '':
-                p = etree.Element('p')
-                p.text = ptext
-                body.append(p)
+                if ptext.strip() != '':
+                    p = etree.Element('p')
+                    p.text = ptext
+                    body.append(p)
                 ptext = ''
             else:
                 ptext = ptext + line
