@@ -1467,14 +1467,37 @@ class TestDocumentTester(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(dt.document), expectedDoc)
 
+    def testGetMainLangRatio(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><wordcount>12</wordcount><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen</p><p xml:lang="nob">Nasjonale prøver</p><p xml:lang="nob">Nasjonale prøver <span type="quote">Bïevnesh naasjovnalen </span></p><p>Bïevnesh naasjovnalen <span type="quote" xml:lang="nob">Nasjonale prøver</span></p></body></document>'))
+
+        dt = DocumentTester(origDoc)
+
+        self.assertEqual(dt.getMainlangRatio(), 0.50)
+
+
 class DocumentTester:
     def __init__(self, document):
         self.document = document
 
     def getMainlangRatio(self):
-        pass
+        self.removeForeignLanguage()
+
+        plist = []
+        for paragraph in self.document.iter('p'):
+            plist.append(etree.tostring(paragraph, method = 'text', encoding = 'utf8'))
+
+        words = len(re.findall(r'\S+', ' '.join(plist)))
+
+        return 1.0 * words / float(self.document.find('header/wordcount').text)
 
     def removeForeignLanguage(self):
+        """Remove text mark as not belonging to mainlang
+        First remove foreign language in quotes
+        Then look for paragraphs with foreign language
+        If they contain quotes in the original language, set that as the text
+        of the paragraph and remove the xml:lang attribute
+        If it contains only foreign text, remove the whole paragraph
+        """
 
         for span in self.document.xpath('//span[@xml:lang]'):
             span.text = ''
