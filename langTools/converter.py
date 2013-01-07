@@ -87,7 +87,7 @@ class TestConverter(unittest.TestCase):
         
         self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
         os.getenv('GTFREE'))    
-    
+
 class Converter:
     """
     Class to take care of data common to all Converter classes
@@ -118,7 +118,7 @@ class Converter:
             self.corpusdir = os.path.dirname(self.orig[:origPos])
         else:
             self.corpusdir = os.getcwd()
-            
+    
 import doctest
 from lxml import etree
 from lxml import doctestcompare
@@ -383,3 +383,53 @@ class TextConverter:
     def convert2intermediate(self):
         return self.handleContent()
 
+import decode
+
+class TestEncodingFixer:
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testFixBodyEncoding(self):
+        newstext = TextConverter('parallelize_data/assu97-mac-sami.txt')
+        eg = EncodingFixer(newstext.convert2intermediate())
+
+        got = eg.fixBodyEncoding()
+        
+        want = etree.parse('parallelize_data/assu97.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        
+    
+class EncodingFixer:
+    """
+    Receive an etree from one of the raw converters, fix the encoding, return 
+    an etree with correct characters
+    """
+    def __init__(self, etree):
+        self.etree = etree
+
+    def fixBodyEncoding(self):
+        """
+        Send a stringified version of the body into the EncodingGuesser class.
+        It returns the same version, but with fixed characters.
+        Parse the returned string, insert it into the document
+        """
+        document = self.etree
+        body = document.find('body')
+        
+        eg = decode.EncodingGuesser()
+        
+        bodyString = etree.tostring(body, encoding='utf-8')
+        
+        body.getparent().remove(body)
+        
+        encoding = eg.guessBodyEncoding(bodyString)
+        body = etree.fromstring(eg.decodePara(encoding, bodyString))
+        
+        document.append(body)
+        return document

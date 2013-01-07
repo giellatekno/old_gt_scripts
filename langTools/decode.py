@@ -224,6 +224,7 @@ class EncodingGuesser:
     def guessBodyEncoding(self, content):
         
         maxhits = 0
+        winner = -1
         for position in range(0, len(ctypes)):
             hits = 0
             num = 0
