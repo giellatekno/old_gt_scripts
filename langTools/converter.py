@@ -141,13 +141,13 @@ class TestAvvirConverter(unittest.TestCase):
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
         
-class AvvirConverter(Preconverter):
+class AvvirConverter:
     """
     Class to convert Ávvir xml files to the giellatekno xml format
     """
     
-    def __init__(self, filename, test="False"):
-        Preconverter.__init__(self, filename, test)
+    def __init__(self, filename):
+        self.orig = filename
         self.converterXsl = \
         os.path.join(os.getenv('GTHOME'), 'gt/script/corpus/avvir2corpus.xsl')
         
@@ -256,14 +256,14 @@ class TestNewstextConverter(unittest.TestCase):
         
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
-class NewstextConverter(Preconverter):
+class NewstextConverter:
     """
     A class to convert plain text files containing "news" tags to the 
     giellatekno xml format
     """
     
-    def __init__(self, filename, test="False"):
-        Preconverter.__init__(self, filename, test)
+    def __init__(self, filename):
+        self.orig = filename
         
     def toUnicode(self):
         """
