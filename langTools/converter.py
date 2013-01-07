@@ -152,22 +152,15 @@ class Converter:
         xm = XslMaker(self.getXsl())
         xsltRoot = xm.getXsl()
 
-        aba = open('aba.xsl', 'w')
-        aba.write(xsltRoot)
-        aba.close()
-
-        aba = etree.parse('aba.xsl')
-
-        transform = etree.XSLT(aba)
+        transform = etree.XSLT(xsltRoot)
 
         intermediate = self.makeIntermediate()
 
         complete = transform(etree.fromstring(intermediate))
 
         ef = EncodingFixer(etree.tostring(complete))
-
         complete = ef.fixBodyEncoding()
-
+        
         return complete
 
     def writeComplete(self):
@@ -1053,11 +1046,11 @@ class XslMaker:
 
         filexsl = etree.parse(xslfile)
 
-        self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam(os.path.join(os.getenv('GTHOME'), \
+        self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/common.xsl')))
 
     def getXsl(self):
-        return etree.tostring(self.finalXsl, encoding = 'utf8')
+        return self.finalXsl
 
 class TestLanguageDetector(unittest.TestCase):
     """
