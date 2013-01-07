@@ -632,6 +632,24 @@ class PDFConverter:
             self.text = self.text.replace(key, value)
 
     def extractText(self):
+        """
+        Extract the text from the pdf file using pdftotext
+        output contains string from the program and is a utf-8 string
+        """
+        subp = subprocess.Popen(['pdftotext', '-enc', 'UTF-8', '-nopgbrk', '-eol', 'unix', self.orig, '-'], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not process', self.orig
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+
+        self.text = unicode(output, encoding='utf8')
+        self.replaceLigatures()
+        return self.text
+
+    def extractText1(self):
         # debug option
         debug = 0
         # input option
