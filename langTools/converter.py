@@ -168,10 +168,6 @@ class Converter:
 
         complete = ef.fixBodyEncoding()
 
-        ld = LanguageDetector(etree.tostring(complete))
-
-        complete = ls.detectLanguages()
-
         return complete
 
     def writeComplete(self):
@@ -1051,22 +1047,14 @@ class XslMaker:
     """
 
     def __init__(self, xslfile):
-        commonXsltRoot = etree.parse(os.path.join(os.getenv('GTHOME'), \
-            'gt/script/corpus/common.xsl'))
-        transform1 = etree.XSLT(commonXsltRoot)
         preprocessXsl = etree.parse(os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/preprocxsl.xsl'))
-        xsl1 = transform1(preprocessXsl)
+        preprocessXslTransformer = etree.XSLT(preprocessXsl)
 
-        transform2 = etree.XSLT(xsl1)
         filexsl = etree.parse(xslfile)
 
-        self.finalXsl = transform2(filexsl)
-
-        root = self.finalXsl.getroot()
-        imp = root.find('{http://www.w3.org/1999/XSL/Transform}import')
-        imp.set('href', os.path.join(os.getenv('GTHOME'), \
-            'gt/script/corpus/common.xsl'))
+        self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam(os.path.join(os.getenv('GTHOME'), \
+            'gt/script/corpus/common.xsl')))
 
     def getXsl(self):
         return etree.tostring(self.finalXsl, encoding = 'utf8')
