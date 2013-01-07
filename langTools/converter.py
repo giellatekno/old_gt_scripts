@@ -918,6 +918,7 @@ class RTFConverter(HTMLContentConverter):
         return XHTMLWriter.write(doc, pretty=True).read()
 
 import decode
+from copy import deepcopy
 
 class TestDocumentFixer(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -1281,7 +1282,6 @@ class TestLanguageDetector(unittest.TestCase):
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import ngram
-from copy import deepcopy
 
 class LanguageDetector:
     """
