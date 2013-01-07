@@ -23,72 +23,72 @@
 import os
 import unittest
 
-class TestPreconverter(unittest.TestCase):
+class TestConverter(unittest.TestCase):
     def setUp(self):
-        self.preconverterInsideOrig = \
-        Preconverter('fakecorpus/orig/nob/samediggi-article-16.html', True)
+        self.converterInsideOrig = \
+        Converter('fakecorpus/orig/nob/samediggi-article-16.html', True)
         
-        self.preconverterOutsideOrig = \
-        Preconverter('parallelize_data/samediggi-article-48.html', False)
+        self.converterOutsideOrig = \
+        Converter('parallelize_data/samediggi-article-48.html', False)
         
-        self.preconverterInsideFreecorpus = \
-        Preconverter(os.path.join(os.getenv('GTFREE'), \
+        self.converterInsideFreecorpus = \
+        Converter(os.path.join(os.getenv('GTFREE'), \
         'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'), False)
     
     def testGetOrig(self):
-        self.assertEqual(self.preconverterInsideOrig.getOrig(), \
+        self.assertEqual(self.converterInsideOrig.getOrig(), \
         os.path.join(os.getenv('GTHOME'),\
         'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html'))
         
-        self.assertEqual(self.preconverterOutsideOrig.getOrig(), \
+        self.assertEqual(self.converterOutsideOrig.getOrig(), \
         os.path.join(os.getenv('GTHOME'), \
         'gt/script/langTools/parallelize_data/samediggi-article-48.html'))
         
-        self.assertEqual(self.preconverterInsideFreecorpus.getOrig(), \
+        self.assertEqual(self.converterInsideFreecorpus.getOrig(), \
         os.path.join(os.getenv('GTFREE'), \
         'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'))
     
     def testGetXsl(self):
-        self.assertEqual(self.preconverterInsideOrig.getXsl(), \
+        self.assertEqual(self.converterInsideOrig.getXsl(), \
         os.path.join(os.getenv('GTHOME'),\
         'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html.xsl'))
         
-        self.assertEqual(self.preconverterOutsideOrig.getXsl(), \
+        self.assertEqual(self.converterOutsideOrig.getXsl(), \
         os.path.join(os.getenv('GTHOME'), \
         'gt/script/langTools/parallelize_data/samediggi-article-48.html.xsl'))
         
-        self.assertEqual(self.preconverterInsideFreecorpus.getXsl(), \
+        self.assertEqual(self.converterInsideFreecorpus.getXsl(), \
         os.path.join(os.getenv('GTFREE'), \
         'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html.xsl'))
     
     def testGetTest(self):
-        self.assertEqual(self.preconverterInsideOrig.getTest(), True)
+        self.assertEqual(self.converterInsideOrig.getTest(), True)
         
-        self.assertEqual(self.preconverterOutsideOrig.getTest(), False)
+        self.assertEqual(self.converterOutsideOrig.getTest(), False)
         
-        self.assertEqual(self.preconverterInsideFreecorpus.getTest(), False)
+        self.assertEqual(self.converterInsideFreecorpus.getTest(), False)
     
     def testGetTmpdir(self):
-        self.assertEqual(self.preconverterInsideOrig.getTmpdir(), \
+        self.assertEqual(self.converterInsideOrig.getTmpdir(), \
         os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus/tmp'))
         
-        self.assertEqual(self.preconverterOutsideOrig.getTmpdir(), \
+        self.assertEqual(self.converterOutsideOrig.getTmpdir(), \
         os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/tmp'))
         
-        self.assertEqual(self.preconverterInsideFreecorpus.getTmpdir(), \
+        self.assertEqual(self.converterInsideFreecorpus.getTmpdir(), \
         os.path.join(os.getenv('GTFREE'), 'tmp'))
         
     def testGetCorpusdir(self):
-        self.assertEqual(self.preconverterInsideOrig.getCorpusdir(), \
+        self.assertEqual(self.converterInsideOrig.getCorpusdir(), \
         os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus'))
         
-        self.assertEqual(self.preconverterOutsideOrig.getCorpusdir(), \
+        self.assertEqual(self.converterOutsideOrig.getCorpusdir(), \
         os.path.join(os.getenv('GTHOME'), 'gt/script/langTools'))
         
-        self.assertEqual(self.preconverterInsideFreecorpus.getCorpusdir(), \
+        self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
         os.getenv('GTFREE'))    
     
-class Preconverter:
+class Converter:
     """
     Class to take care of data common to all Converter classes
     """
