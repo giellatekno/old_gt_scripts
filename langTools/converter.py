@@ -164,7 +164,7 @@ class Converter:
 
         complete = transform(etree.fromstring(intermediate))
 
-        ef = EncodingFixer(etree.tostring(complete))
+        ef = DocumentFixer(etree.tostring(complete))
         complete = ef.fixBodyEncoding()
 
         return complete
@@ -916,7 +916,7 @@ class RTFConverter(HTMLContentConverter):
 
 import decode
 
-class TestEncodingFixer(unittest.TestCase):
+class TestDocumentFixer(unittest.TestCase):
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
         """
@@ -927,7 +927,7 @@ class TestEncodingFixer(unittest.TestCase):
 
     def testFixBodyEncoding(self):
         newstext = PlaintextConverter('parallelize_data/assu97-mac-sami.txt')
-        eg = EncodingFixer(newstext.convert2intermediate())
+        eg = DocumentFixer(newstext.convert2intermediate())
         got = eg.fixBodyEncoding()
 
         want = etree.parse('parallelize_data/assu97.xml')
@@ -936,14 +936,14 @@ class TestEncodingFixer(unittest.TestCase):
 
     def testReplaceLigatures(self):
         svgtext = SVGConverter('parallelize_data/Riddu_Riddu_avis_TXT.200923.svg')
-        eg = EncodingFixer(svgtext.convert2intermediate())
+        eg = DocumentFixer(svgtext.convert2intermediate())
         got = eg.fixBodyEncoding()
 
         want = etree.parse('parallelize_data/Riddu_Riddu_avis_TXT.200923.xml')
 
         self.assertXmlEqual(got, etree.tostring(want))
 
-class EncodingFixer:
+class DocumentFixer:
     """
     Receive a stringified etree from one of the raw converters,
     replace ligatures, fix the encoding and return an etree with correct
