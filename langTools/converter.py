@@ -147,7 +147,7 @@ class Converter:
 
         document = intermediate.convert2intermediate()
 
-        if isinstance(document, lxml.etree._XSLTResultTree):
+        if isinstance(document, etree._XSLTResultTree):
             document = etree.fromstring(etree.tostring(document))
 
         return document
@@ -165,9 +165,9 @@ class Converter:
 
         intermediate = self.makeIntermediate()
 
-        complete = transform(etree.fromstring(intermediate))
+        complete = transform(intermediate)
 
-        ef = DocumentFixer(etree.tostring(complete))
+        ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
         complete = ef.fixBodyEncoding()
 
         return complete
@@ -181,7 +181,7 @@ class Converter:
         complete = self.makeComplete()
 
         converted = open(convertedFilename, 'w')
-        converted.write(complete)
+        converted.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
         converted.close()
 
     def getOrig(self):
@@ -1286,13 +1286,20 @@ import ngram
 class LanguageDetector:
     """
     Receive an etree.
-    Detect and set languages of quotes.
+    Detect the languages of quotes.
     Detect the languages of the paragraphs.
     """
     def __init__(self, document):
         self.document = document
         self.mainlang = self.document.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
-        self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'))
+
+        inlangs = []
+        for language in self.document.findall('header/multilingual/language'):
+            inlangs.append(language.get('{http://www.w3.org/XML/1998/namespace}lang'))
+        if len(inlangs) != 0:
+            inlangs.append(self.mainlang)
+
+        self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'), langs = inlangs )
 
     def getDocument(self):
         return self.document

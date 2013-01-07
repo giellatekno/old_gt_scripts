@@ -63,15 +63,24 @@ class _NGram:
 
 import os
 import glob
+import sys
 
 class NGram:
-    def __init__ (self,folder,ext='.lm'):
+    def __init__ (self,folder,ext='.lm',langs=[]):
         self.ngrams = dict()
-        folder = os.path.join(folder,'*'+ext)
+
         size = len(ext)
         count = 0
 
-        for fname in glob.glob(os.path.normcase(folder)):
+        fnames = []
+        if len(langs) == 0:
+            folder = os.path.join(folder,'*'+ext)
+            fnames = glob.glob(os.path.normcase(folder))
+        else:
+            for lang in langs:
+                fnames.append(os.path.join(folder,lang+ext))
+
+        for fname in fnames:
             count += 1
             lang = os.path.split(fname)[-1][:-size]
             ngrams = dict()
