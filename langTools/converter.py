@@ -92,7 +92,7 @@ class TestConverter(unittest.TestCase):
         
         self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
             os.getenv('GTFREE'))
-    
+        
 class Converter:
     """
     Class to take care of data common to all Converter classes
@@ -113,7 +113,7 @@ class Converter:
             intermediate = PDFConverter(self.orig)
         
         elif self.orig.endswith('.svg'):
-            intermediate = PDFConverter(self.orig)
+            intermediate = SVGConverter(self.orig)
         
         elif '.html' in self.orig:
             intermediate = HTMLConverter(self.orig)
@@ -124,8 +124,10 @@ class Converter:
         else:
             print self.orig
             sys.exit(1)
-            
-        return intermediate.convert2intermediate()
+        
+        document = intermediate.convert2intermediate()
+        
+        return document
     
     def makeComplete(self):
         xm = XslMaker(self.getXsl())
@@ -783,43 +785,68 @@ class TestEncodingFixer:
     def testFixBodyEncoding(self):
         newstext = PlaintextConverter('parallelize_data/assu97-mac-sami.txt')
         eg = EncodingFixer(newstext.convert2intermediate())
-
         got = eg.fixBodyEncoding()
         
         want = etree.parse('parallelize_data/assu97.xml')
         
         self.assertXmlEqual(got, etree.tostring(want))
         
+    def testReplaceLigatures(self):
+        svgtext = SVGConverter('parallelize_data/Riddu_Riddu_avis_TXT.200923.svg')
+        eg = EncodingFixer(svgtext.convert2intermediate())
+        got = eg.fixBodyEncoding()
+        
+        want = etree.parse('parallelize_data/Riddu_Riddu_avis_TXT.200923.xml')
+        
+        self.assertXmlEqual(got, etree.tostring(want))
     
 class EncodingFixer:
     """
-    Receive an etree from one of the raw converters, fix the encoding, return 
-    an etree with correct characters
+    Receive an stringified etree from one of the raw converters, 
+    replace ligatures, fix the encoding and return an etree with correct 
+    characters
     """
-    def __init__(self, etree):
-        self.etree = etree
+    def __init__(self, document):
+        self.etree = etree.fromstring(document)
 
+    def replaceLigatures(self):
+        """
+        document is a stringified xml document
+        """
+        replacements = {
+            u"ﬁ": "fi",
+            u"ﬂ": "fl",
+            u"ﬀ": "ff",
+            u"ﬃ": "ffi",
+            u"ﬄ": "ffl",
+            u"ﬅ": "ft",
+        }
+        
+        for element in self.etree.getiterator():
+            if element.text:
+                for key, value in replacements.items():
+                    element.text = element.text.replace(key + ' ', value)
+                    element.text = element.text.replace(key, value)
+                #print element.tag, element.text.encode('utf8')
+        
     def fixBodyEncoding(self):
         """
         Send a stringified version of the body into the EncodingGuesser class.
         It returns the same version, but with fixed characters.
         Parse the returned string, insert it into the document
         """
-        document = etree.fromstring(self.etree)
+        self.replaceLigatures()
         
-        body = document.find('body')
-        
-        eg = decode.EncodingGuesser()
-        
+        body = self.etree.find('body')
         bodyString = etree.tostring(body, encoding='utf-8')
-        
         body.getparent().remove(body)
         
+        eg = decode.EncodingGuesser()
         encoding = eg.guessBodyEncoding(bodyString)
         body = etree.fromstring(eg.decodePara(encoding, bodyString))
+        self.etree.append(body)
         
-        document.append(body)
-        return etree.tostring(document, encoding = 'utf8', pretty_print = True)
+        return etree.tostring(self.etree, encoding = 'utf8', pretty_print = True)
 
 class TestXslMaker(unittest.TestCase):
     def assertXmlEqual(self, got, want):
