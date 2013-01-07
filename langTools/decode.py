@@ -133,6 +133,8 @@ ctypes = [
         "ªÓ": "™”",
         "Ã": "√",
         "Ð": "–",
+        #"Ç": "«",
+        #"È": "»",
     },
     
     # found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
@@ -150,6 +152,7 @@ ctypes = [
     # found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
     # and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc
     # found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
+    # latin4 as latin1
     # 7
     {
         "ð": "đ",
@@ -285,5 +288,9 @@ class EncodingGuesser:
         
         for key, value in encoding.items():
             text = text.replace(key, value)
-            
+        
+        if position == 5:
+            text = text.replace("Ç", "«")
+            text = text.replace("È", "»")
+
         return text
