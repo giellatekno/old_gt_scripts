@@ -321,9 +321,10 @@ class NewstextConverter(Preconverter):
                 p.text = line.replace('LOGO:', '').strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tekst:') or line.startswith('TEKST:'):
+            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:'):
                 p = etree.Element('p')
                 line = line.replace('@tekst:', '')
+                line = line.replace('@stikk:', '')
                 line = line.replace('TEKST:', '')
                 p.text = line
                 body.append(p)
