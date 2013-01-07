@@ -587,6 +587,7 @@ class PDFConverter:
         return etree.tostring(document, encoding = 'utf8')
 
 import subprocess
+
 class TestDocConverter(unittest.TestCase):
     def setUp(self):
         self.testdoc = DocConverter('parallelize_data/doc-test.doc')
@@ -643,6 +644,46 @@ class DocConverter:
         intermediate = transform(doc)
         
         return etree.tostring(intermediate, encoding = 'utf8')
+    
+class TestBiblexmlConverter(unittest.TestCase):
+    def setUp(self):
+        self.testdoc = BiblexmlConverter('parallelize_data/bible-test.xml')
+    
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testConvert2intermediate(self):
+        got = self.testdoc.convert2intermediate()
+        want = etree.parse('parallelize_data/bible-test.xml.xml')
+        
+        self.assertXmlEqual(got, etree.tostring(want))
+        
+class BiblexmlConverter:
+    """
+    Class to convert bible xml files to the giellatekno xml format
+    """
+    def __init__(self, filename):
+        self.orig = filename
+    
+    def convert2intermediate(self):
+        """
+        Convert the bible xml to giellatekno xml format using bible2xml.pl
+        """
+        subp = subprocess.Popen(['bible2xml.pl', '-out',  'kluff.xml', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+        
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not process', self.orig
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+
+        return etree.tostring(etree.parse('kluff.xml'), encoding = 'utf8')
     
 class TestHTMLConverter(unittest.TestCase):
     def setUp(self):
