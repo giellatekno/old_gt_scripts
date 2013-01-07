@@ -21,103 +21,104 @@
 #
 
 import os
+import sys
 import unittest
 
-#class TestConverter(unittest.TestCase):
-    #def setUp(self):
-        #self.converterInsideOrig = \
-        #Converter('fakecorpus/orig/nob/samediggi-article-16.html', True)
+class TestConverter(unittest.TestCase):
+    def setUp(self):
+        self.converterInsideOrig = \
+        Converter('fakecorpus/orig/nob/samediggi-article-16.html', True)
         
-        #self.converterOutsideOrig = \
-        #Converter('parallelize_data/samediggi-article-48.html', False)
+        self.converterOutsideOrig = \
+        Converter('parallelize_data/samediggi-article-48.html', False)
         
-        #self.converterInsideFreecorpus = \
-        #Converter(os.path.join(os.getenv('GTFREE'), \
-        #'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'), False)
+        self.converterInsideFreecorpus = \
+        Converter(os.path.join(os.getenv('GTFREE'), \
+        'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'), False)
     
-    #def testGetOrig(self):
-        #self.assertEqual(self.converterInsideOrig.getOrig(), \
-        #os.path.join(os.getenv('GTHOME'),\
-        #'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html'))
+    def testGetOrig(self):
+        self.assertEqual(self.converterInsideOrig.getOrig(), \
+        os.path.join(os.getenv('GTHOME'),\
+        'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html'))
         
-        #self.assertEqual(self.converterOutsideOrig.getOrig(), \
-        #os.path.join(os.getenv('GTHOME'), \
-        #'gt/script/langTools/parallelize_data/samediggi-article-48.html'))
+        self.assertEqual(self.converterOutsideOrig.getOrig(), \
+        os.path.join(os.getenv('GTHOME'), \
+        'gt/script/langTools/parallelize_data/samediggi-article-48.html'))
         
-        #self.assertEqual(self.converterInsideFreecorpus.getOrig(), \
-        #os.path.join(os.getenv('GTFREE'), \
-        #'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'))
+        self.assertEqual(self.converterInsideFreecorpus.getOrig(), \
+        os.path.join(os.getenv('GTFREE'), \
+        'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html'))
     
-    #def testGetXsl(self):
-        #self.assertEqual(self.converterInsideOrig.getXsl(), \
-        #os.path.join(os.getenv('GTHOME'),\
-        #'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html.xsl'))
+    def testGetXsl(self):
+        self.assertEqual(self.converterInsideOrig.getXsl(), \
+        os.path.join(os.getenv('GTHOME'),\
+        'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html.xsl'))
         
-        #self.assertEqual(self.converterOutsideOrig.getXsl(), \
-        #os.path.join(os.getenv('GTHOME'), \
-        #'gt/script/langTools/parallelize_data/samediggi-article-48.html.xsl'))
+        self.assertEqual(self.converterOutsideOrig.getXsl(), \
+        os.path.join(os.getenv('GTHOME'), \
+        'gt/script/langTools/parallelize_data/samediggi-article-48.html.xsl'))
         
-        #self.assertEqual(self.converterInsideFreecorpus.getXsl(), \
-        #os.path.join(os.getenv('GTFREE'), \
-        #'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html.xsl'))
+        self.assertEqual(self.converterInsideFreecorpus.getXsl(), \
+        os.path.join(os.getenv('GTFREE'), \
+        'orig/sme/admin/sd/samediggi.no/samediggi-article-48.html.xsl'))
     
-    #def testGetTest(self):
-        #self.assertEqual(self.converterInsideOrig.getTest(), True)
+    def testGetTest(self):
+        self.assertEqual(self.converterInsideOrig.getTest(), True)
         
-        #self.assertEqual(self.converterOutsideOrig.getTest(), False)
+        self.assertEqual(self.converterOutsideOrig.getTest(), False)
         
-        #self.assertEqual(self.converterInsideFreecorpus.getTest(), False)
+        self.assertEqual(self.converterInsideFreecorpus.getTest(), False)
     
-    #def testGetTmpdir(self):
-        #self.assertEqual(self.converterInsideOrig.getTmpdir(), \
-        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus/tmp'))
+    def testGetTmpdir(self):
+        self.assertEqual(self.converterInsideOrig.getTmpdir(), \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus/tmp'))
         
-        #self.assertEqual(self.converterOutsideOrig.getTmpdir(), \
-        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/tmp'))
+        self.assertEqual(self.converterOutsideOrig.getTmpdir(), \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/tmp'))
         
-        #self.assertEqual(self.converterInsideFreecorpus.getTmpdir(), \
-        #os.path.join(os.getenv('GTFREE'), 'tmp'))
+        self.assertEqual(self.converterInsideFreecorpus.getTmpdir(), \
+        os.path.join(os.getenv('GTFREE'), 'tmp'))
         
-    #def testGetCorpusdir(self):
-        #self.assertEqual(self.converterInsideOrig.getCorpusdir(), \
-        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus'))
+    def testGetCorpusdir(self):
+        self.assertEqual(self.converterInsideOrig.getCorpusdir(), \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools/fakecorpus'))
         
-        #self.assertEqual(self.converterOutsideOrig.getCorpusdir(), \
-        #os.path.join(os.getenv('GTHOME'), 'gt/script/langTools'))
+        self.assertEqual(self.converterOutsideOrig.getCorpusdir(), \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/langTools'))
         
-        #self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
-        #os.getenv('GTFREE'))    
+        self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
+        os.getenv('GTFREE'))    
 
-#class Converter:
-    #"""
-    #Class to take care of data common to all Converter classes
-    #"""
-    #def __init__(self, filename, test = False):
-        #self.orig = os.path.abspath(filename)
-        #self.setCorpusdir()
-        #self.test = test
+class Converter:
+    """
+    Class to take care of data common to all Converter classes
+    """
+    def __init__(self, filename, test = False):
+        self.orig = os.path.abspath(filename)
+        self.setCorpusdir()
+        self.test = test
         
-    #def getOrig(self):
-        #return self.orig
+    def getOrig(self):
+        return self.orig
     
-    #def getXsl(self):
-        #return self.orig + '.xsl'
+    def getXsl(self):
+        return self.orig + '.xsl'
     
-    #def getTest(self):
-        #return self.test
+    def getTest(self):
+        return self.test
     
-    #def getTmpdir(self):
-        #return os.path.join(self.getCorpusdir(), 'tmp')
+    def getTmpdir(self):
+        return os.path.join(self.getCorpusdir(), 'tmp')
     
-    #def getCorpusdir(self):
-        #return self.corpusdir
+    def getCorpusdir(self):
+        return self.corpusdir
     
-    #def setCorpusdir(self):
-        #origPos = self.orig.find('orig/')
-        #if origPos != -1:
-            #self.corpusdir = os.path.dirname(self.orig[:origPos])
-        #else:
-            #self.corpusdir = os.getcwd()
+    def setCorpusdir(self):
+        origPos = self.orig.find('orig/')
+        if origPos != -1:
+            self.corpusdir = os.path.dirname(self.orig[:origPos])
+        else:
+            self.corpusdir = os.getcwd()
     
 import doctest
 from lxml import etree
@@ -474,6 +475,65 @@ class PDFConverter:
         
         return document
 
+import subprocess
+class TestDocConverter(unittest.TestCase):
+    def setUp(self):
+        self.testdoc = DocConverter('parallelize_data/doc-test.doc')
+    
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testConvert2intermediate(self):
+        docbook = self.testdoc.extractText()
+        got = self.testdoc.convert2intermediate(docbook)
+        want = etree.parse('parallelize_data/doc-test.xml')
+        
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        
+class DocConverter:
+    """
+    Class to convert Microsoft Word documents to the giellatekno xml format
+    """
+    def __init__(self, filename):
+        self.orig = filename
+        self.converterXsl = \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/corpus/docbook2corpus2.xsl')
+    
+    def extractText(self):
+        """
+        Extract the text from the doc file using antiword
+        Output contains the docbook xml output by antiword
+        """
+        subp = subprocess.Popen(['antiword', '-x',  'db', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+        
+        if subp.returncode != 0:
+            print >>sys.stderr, 'Could not process', self.orig
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
+
+        return output
+    
+    def convert2intermediate(self, docbook):
+        """
+        Convert the original document to the giellatekno xml format, with no 
+        metadata
+        The resulting xml is stored in intermediate
+        """
+        #print docbook
+        docbookXsltRoot = etree.parse(self.converterXsl)
+        transform = etree.XSLT(docbookXsltRoot)
+        #abba = unicode(docbook, encoding='utf-8')
+        doc = etree.fromstring(docbook)
+        intermediate = transform(doc)
+        
+        return intermediate
     
 import decode
 
