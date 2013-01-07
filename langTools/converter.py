@@ -112,11 +112,15 @@ class Converter:
         elif self.orig.endswith('.pdf'):
             intermediate = PDFConverter(self.orig)
         
+        elif self.orig.endswith('.svg'):
+            intermediate = PDFConverter(self.orig)
+        
         elif '.html' in self.orig:
             intermediate = HTMLConverter(self.orig)
         
         elif '.doc' in self.orig:
             intermediate = DocConverter(self.orig)
+            
         else:
             print self.orig
             sys.exit(1)
@@ -132,7 +136,7 @@ class Converter:
         aba.close()
         
         aba = etree.parse('aba.xsl')
-        #aba = etree.parse('parallelize_data/test.xsl')
+        
         transform = etree.XSLT(aba)
         
         intermediate = self.makeIntermediate()
@@ -141,13 +145,7 @@ class Converter:
         
         ef = EncodingFixer(etree.tostring(complete))
         
-        aba = open('aba.xml', 'w')
-        aba.write(ef.fixBodyEncoding())
-        aba.close()
-        #fixed = ef.fixBodyEncoding()
-        
-        complete = etree.parse('aba.xml')
-        
+        complete = ef.fixBodyEncoding()
         return complete
     
     def writeComplete(self):
@@ -159,7 +157,7 @@ class Converter:
         converted = open(convertedFilename, 'w')
         complete = self.makeComplete()
         
-        converted.write(etree.tostring(complete, pretty_print = True, encoding = 'utf-8'))
+        converted.write(complete)
         converted.close()
     
     def getOrig(self):
@@ -224,6 +222,47 @@ class AvvirConverter:
         """
         avvirXsltRoot = etree.parse(self.converterXsl)
         transform = etree.XSLT(avvirXsltRoot)
+        doc = etree.parse(self.orig)
+        intermediate = transform(doc)
+        
+        return etree.tostring(intermediate, encoding='utf8')
+
+class TestSVGConverter(unittest.TestCase):
+    def setUp(self):
+        self.svg = SVGConverter('parallelize_data/Riddu_Riddu_avis_TXT.200923.svg')
+    
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+        
+    def testConvert2intermediate(self):
+        got = self.svg.convert2intermediate()
+        want = etree.parse('parallelize_data/Riddu_Riddu_avis_TXT.200923.svg.xml')
+        
+        self.assertXmlEqual(got, etree.tostring(want))
+        
+class SVGConverter:
+    """
+    Class to convert SVG files to the giellatekno xml format
+    """
+    
+    def __init__(self, filename):
+        self.orig = filename
+        self.converterXsl = \
+        os.path.join(os.getenv('GTHOME'), 'gt/script/corpus/svg2corpus.xsl')
+        
+    def convert2intermediate(self):
+        """
+        Convert the original document to the giellatekno xml format, with no 
+        metadata
+        The resulting xml is stored in intermediate
+        """
+        svgXsltRoot = etree.parse(self.converterXsl)
+        transform = etree.XSLT(svgXsltRoot)
         doc = etree.parse(self.orig)
         intermediate = transform(doc)
         
@@ -528,7 +567,7 @@ class PDFConverter:
         
         for line in content:
             line = line.replace('\x0c', '')
-            #print 'line', line
+
             if line == '\n':
                 p = etree.Element('p')
                 p.text = ptext
@@ -739,7 +778,7 @@ class EncodingFixer:
         body = etree.fromstring(eg.decodePara(encoding, bodyString))
         
         document.append(body)
-        return etree.tostring(document, encoding = 'utf8')
+        return etree.tostring(document, encoding = 'utf8', pretty_print = True)
 
 class TestXslMaker(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -776,14 +815,12 @@ class XslMaker:
         transform2 = etree.XSLT(xsl1)
         filexsl = etree.parse(xslfile)
         
-        finalXsl = transform2(filexsl)
+        self.finalXsl = transform2(filexsl)
         
-        root = finalXsl.getroot()
+        root = self.finalXsl.getroot()
         imp = root.find('{http://www.w3.org/1999/XSL/Transform}import')
         imp.set('href', os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/common.xsl'))
         
-        self.finalXsl = etree.tostring(finalXsl, encoding = 'utf8')
-        
     def getXsl(self):
-        return self.finalXsl
+        return etree.tostring(self.finalXsl, encoding = 'utf8')
