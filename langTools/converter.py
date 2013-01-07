@@ -167,6 +167,7 @@ class AvvirConverter:
 
 import chardet
 import re
+import codecs
 
 class TestPlaintextConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -181,7 +182,8 @@ class TestPlaintextConverter(unittest.TestCase):
         converter = PlaintextConverter('parallelize_data/winsami2-test-ws2.txt')
         got  = converter.toUnicode()
         
-        f = open('parallelize_data/winsami2-test-utf8.txt')
+        # Ensure that the data in want is unicode
+        f = codecs.open('parallelize_data/winsami2-test-utf8.txt', encoding = 'utf8')
         want = f.read()
         f.close()
         
@@ -270,7 +272,12 @@ class PlaintextConverter:
         
     def toUnicode(self):
         """
-        Convert anything not utf-8 to utf-8, using the latin1 encoding
+        Read a file into a string of type str
+        If the content of the file is not utf-8, convert it to utf-8,
+        pretending the encoding is latin1. The real encoding will be
+        detected later.
+        
+        Return a python unicode string
         """
         f = open(self.orig)
         content = f.read()
@@ -280,8 +287,9 @@ class PlaintextConverter:
         if encoding != 'utf-8':
             content = content.decode('latin1', 'replace').encode('utf-8')
         
-        content = content.replace('  ', '\n\n')
-        content = content.replace('–<\!q>', '– ')
+        content = unicode(content, encoding='utf-8')
+        content = content.replace(u'  ', '\n\n')
+        content = content.replace(u'–<\!q>', u'– ')
         content = content.replace('\x0d', '\x0a')
         
         return content
@@ -289,7 +297,7 @@ class PlaintextConverter:
     def convert2intermediate(self):
         document = etree.Element('document')
         
-        content = io.StringIO(self.toUnicode().decode('utf-8'))
+        content = io.StringIO(self.toUnicode())
         header = etree.Element('header')
         body = etree.Element('body')
         ptext = ''
