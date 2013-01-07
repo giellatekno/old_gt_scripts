@@ -1063,7 +1063,7 @@ class TestLanguageDetector(unittest.TestCase):
     Test the functionality of LanguageDetector
     """
     def setUp(self):
-        self.string = etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml')
+        self.document = etree.parse('parallelize_data/samediggi-article-48s-before-lang-detection.xml')
 
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
@@ -1075,14 +1075,14 @@ class TestLanguageDetector(unittest.TestCase):
 
     def testGetMainLang(self):
         testMainLang = 'sme'
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         self.assertEqual(testMainLang, ld.getMainlang())
 
     def testSimpleDetectQuote1(self):
         origParagraph = '<p>bla bla "bla bla" bla bla </p>'
         expectedParagraph = '<p>bla bla <span type="quote">"bla bla"</span> bla bla</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1091,7 +1091,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla “bla bla” bla bla</p>'
         expectedParagraph = '<p>bla bla <span type="quote">“bla bla”</span> bla bla</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1100,7 +1100,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla «bla bla» bla bla</p>'
         expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1109,7 +1109,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
         expectedParagraph = '<p type="title">Sámegiel čálamearkkat Windows XP várás.</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1118,7 +1118,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla «bla bla» bla bla «bla bla» bla bla</p>'
         expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla <span type="quote">«bla bla»</span> bla bla</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1127,7 +1127,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla «bla bla» <em>bla bla</em></p>'
         expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> <em>bla bla</em></p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1136,7 +1136,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla <em>bla bla</em> «bla bla»</p>'
         expectedParagraph = '<p>bla bla <em>bla bla</em> <span type="quote">«bla bla»</span></p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1145,7 +1145,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla <em>bla bla «bla bla»</em></p>'
         expectedParagraph = '<p>bla bla <em>bla bla <span type="quote">«bla bla»</span></em></p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1154,7 +1154,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
         expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1163,7 +1163,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. «Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii». Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
         expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote">«Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1172,7 +1172,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. «Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk». Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
         expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. <span type="quote" xml:lang="nob">«Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk»</span>. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1181,7 +1181,7 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>Samisk er fra høsten 2004 et standard språkvalg Microsofts operativsystem Windows XP. I praksis betyr det at samiske bokstaver og formater kan velges i alle programmer. Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk. Du vil imidlertid fremdeles kunne oppleve problemer med å skrive samisk i Outlook-kalenderen eller i tittel-feltet i e-post, og med å skrive samisk i programmer levert av andre enn Microsoft.</p>'
         expectedParagraph = '<p xml:lang="nob">Samisk er fra høsten 2004 et standard språkvalg Microsofts operativsystem Windows XP. I praksis betyr det at samiske bokstaver og formater kan velges i alle programmer. Alt finnes i den foreliggende Service Pack 2 fra selskapet, som må lastes ned og installeres på din datamaskin. Konsekvensen er at all framtidig programvare fra Microsoft vil inneholde støtte for samisk. Du vil imidlertid fremdeles kunne oppleve problemer med å skrive samisk i Outlook-kalenderen eller i tittel-feltet i e-post, og med å skrive samisk i programmer levert av andre enn Microsoft.</p>'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.setParagraphLanguage(etree.fromstring(origParagraph))
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
@@ -1190,13 +1190,13 @@ class TestLanguageDetector(unittest.TestCase):
         origParagraph = '<p>bla bla <span type="quote">bla1 bla</span> ble ble <span type="quote">bla2 bla</span> <b>bli</b> bli <span type="quote">bla3 bla</span> blo blo</p>'
         expectedParagraph = 'bla bla  ble ble  bli bli  blo blo'
 
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         gotParagraph = ld.removeQuote(etree.fromstring(origParagraph))
 
         self.assertEqual(gotParagraph, expectedParagraph)
 
     def testDetectLanguage(self):
-        ld = LanguageDetector(self.string)
+        ld = LanguageDetector(self.document)
         ld.detectLanguage()
         gotDocument = ld.getDocument()
 
