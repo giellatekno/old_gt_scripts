@@ -515,7 +515,8 @@ class DocConverter:
     def extractText(self):
         """
         Extract the text from the doc file using antiword
-        Output contains the docbook xml output by antiword
+        output contains the docbook xml output by antiword, 
+        and is a utf-8 string
         """
         subp = subprocess.Popen(['antiword', '-x',  'db', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
