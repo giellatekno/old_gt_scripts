@@ -1200,19 +1200,33 @@ class LanguageDetector:
         text = etree.tostring(paragraph, encoding = 'unicode', method = 'text')
         quoteRegexes = [re.compile('".+?"'), re.compile(u'«.+?»'), re.compile(u'“.+?”')]
 
-        newtext = []
-        start = 0
-
+        quoteList = []
         for quoteRegex in quoteRegexes:
             for m in quoteRegex.finditer(text):
-                if m.start() != 0:
-                    paragraph.text = (text[start:m.start()])
-                span = etree.Element('span')
-                span.set('type', 'quote')
-                span.text = text[m.start():m.end()]
-                if m.end() < len(text):
-                    span.tail = text[m.end():]
-                paragraph.append(span)
+                quoteList.append(m.span())
+
+        if len(quoteList) > 0:
+            quoteList.sort()
+            paragraph.text = text[0:quoteList[0][0]]
+
+            start = 0
+            span = etree.Element('span')
+            span.set('type', 'quote')
+            for quoteSpan in quoteList:
+                if start > 0:
+                    span.tail = text[start:quoteSpan[0]]
+                    paragraph.append(span)
+                    span = etree.Element('span')
+                    span.set('type', 'quote')
+
+                span.text = text[quoteSpan[0]:quoteSpan[1]]
+
+                start = quoteSpan[1]
+
+            if start < len(text):
+                span.tail = text[quoteSpan[1]:]
+
+            paragraph.append(span)
 
         return paragraph
 
