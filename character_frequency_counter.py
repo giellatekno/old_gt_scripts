@@ -32,4 +32,3 @@ for vk in value_key:
     if vk[1] not in u" \n0123456789.¶,-–:«»!()?[]/'’…":
 	c = unicode(vk[1]).encode('utf8')
         print c , vk[0]
- 
