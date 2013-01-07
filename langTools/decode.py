@@ -74,8 +74,8 @@ ctypes = [
         "": "Đ",
         "¿": "ž",
         "¾": "Ž",
-        "\xc3\xb6": "č",
-        "\xc3\x96": "Č",
+        "": "č",
+        "": "Č",
     },
     
     # iso-ir-197 converted as iconv -f latin1 -t utf8
@@ -294,3 +294,9 @@ class EncodingGuesser:
             text = text.replace("È", "»")
 
         return text
+
+if __name__ == '__main__':
+    import sys
+    eg = EncodingGuesser()
+    print eg.guessFileEncoding(sys.argv[1])
+    
