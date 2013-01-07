@@ -1117,6 +1117,15 @@ class TestLanguageDetector(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
 
+    def testDetectQuoteWithFollowingTag(self):
+        origParagraph = '<p>bla bla «bla bla» <em>bla bla</em></p>'
+        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> <em>bla bla</em></p>'
+
+        ld = LanguageDetector(self.string)
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
     def testSetParagraphLanguageMainlanguage(self):
         origParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
         expectedParagraph = '<p>Sámegiella lea 2004 čavčča rájes standárda giellaválga Microsofta operatiivavuogádagas Windows XP. Dat mearkkaša ahte sámegiel bustávaid ja hámiid sáhttá válljet buot prográmmain. Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bidjat dihtorii. Boađus lea ahte buot boahttevaš Microsoft prográmmat dorjot sámegiela. Dattetge sáhttet deaividit váttisvuođat go čálát sámegiela Outlook-kaleandaris dahje e-poastta namahussajis, ja go čálát sámegillii dakkár prográmmain, maid Microsoft ii leat ráhkadan.</p>'
