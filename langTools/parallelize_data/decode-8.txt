@@ -1,6 +1,6 @@
-DavvisÃ¡megiel sÃ¡tne- ja teakstaanalysaprogrÃ¡mma
-ÄŒÃ¡le dahje kopiere sÃ¡niid lÃ¡sii, ja deatte "Analysere". ÄŒilgehusaid morfologalaÅ¡ ja syntÃ¡vssalaÅ¡ oanÃ¡dusaide gÃ¡vnnat vuolÃ¡bealde. Jos vÃ¡lljet "Atte buot analysaid", de progrÃ¡mma addÃ¡ buot vejolaÅ¡ analysaid, muhto jos vÃ¡lljet "Disambiguere", de progrÃ¡mma geahÄ?Ä?ala addit duÅ¡Å¡e analysa mii heive dan cealkagii. ProgrÃ¡mma sÃ¡httÃ¡ maid botket sÃ¡niid, dahje addit stÃ¡vvalsÃ¡zu - deatte "Botke".
+Davvisámegiel sátne- ja teakstaanalysaprográmma
+C1ále dahje kopiere sániid lásii, ja deatte "Analysere". C1ilgehusaid morfologalas1 ja syntávssalas1 oanádusaide gávnnat vuolábealde. Jos válljet "Atte buot analysaid", de prográmma addá buot vejolas1 analysaid, muhto jos válljet "Disambiguere", de prográmma geahc1c1ala addit dus1s1e analysa mii heive dan cealkagii. Prográmma sáhttá maid botket sániid, dahje addit stávvalsázu - deatte "Botke".
 
-Jos dus lea sÃ¡megiel boallobeavdi (Linuxii, Mac OSX:i dahje Windows XP:i), de sÃ¡htÃ¡t Ä?Ã¡llit "Ã¡, Ä?, Ä‘, Å‹, Å¡, Å§, Å¾", dego dÃ¡bÃ¡laÄ?Ä?at, ja vÃ¡lljet UTF-8.
+Jos dus lea sámegiel boallobeavdi (Linuxii, Mac OSX:i dahje Windows XP:i), de sáhtát c1állit "á, c1, d1, n1, s1, t1, z1", dego dábálac1c1at, ja válljet UTF-8.
 
-ÄŒÃ¡le sÃ¡tnehÃ¡mi:
+C1ále sátnehámi:

@@ -3,4 +3,4 @@ Davvisámegiel sátne- ja teakstaanalysaprográmma
 
 Jos dus lea sámegiel boallobeavdi (Linuxii, Mac OSX:i dahje Windows XP:i), de sáhtát ¢állit "á, ¢, ¤, ±, ³, ¸, º", dego dábála¢¢at, ja válljet UTF-8.
 
-¡ále sátnehámi
+¡ále sátnehámi:

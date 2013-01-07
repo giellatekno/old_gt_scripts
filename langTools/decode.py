@@ -161,49 +161,12 @@ ctypes = [
         "¼": "ŧ",
         "‚": "Č",
         "„": "č",
-        "¹": "ŋ",
+        #"¹": "ŋ",
         "˜": "đ",
-        "¿": "ž",
+        #"¿": "ž",
     },
 
-    # found in titles in Min Áigi docs
-    # double utf'ed letters
     # 8
-    {
-        "Ã¯": "ï",
-        "Ã¡": "á",
-        "Ã\\?": "Á",
-        "Å¡": "š",
-        "Â¹": "š",
-        "Å¾": "ž",
-        "Å½": "Ž",
-        "Â«": "«",
-        "â‰¤": "«",
-        "Â»": "»",
-        "â‰¥": "»",
-        "Ã…": "Å",
-        "Ã¥": "å",
-        "Ã…": "Å",
-        "Ä\\?": "č",
-        "Ã¨": "č",
-        "ÄŒ": "Č",
-        "Ä‘": "đ",
-        "Ã°": "đ",
-        "Ä\\?": "Đ",
-        "Ã¸": "ø",
-        "Ã˜": "Ø",
-        "Ã¤": "ö",
-        "Ã¤": "ä",
-        "Ã„": "Ä",
-        "Å§": "ŧ",
-        "Ã©": "é",
-        "â€\\?": "”",
-        "Ã¦": "æ",
-        "Å‹": "ŋ",
-        "â€¢": "•",
-    },
-    
-    # 9
     {
         "t1": "ŧ",
         "T1": "Ŧ",
@@ -222,16 +185,32 @@ ctypes = [
     }
 ]
 
-limits = { 0: 1, 1: 1, 2: 3, 3: 3, 4: 3, 5: 3, 6: 1, 7: 1, 8: 0, 9: 3}
+limits = { 0: 1, 1: 1, 2: 3, 3: 3, 4: 3, 5: 3, 6: 1, 7: 1, 8: 3}
 
 import unittest
 
 class TestEncodingGuesser(unittest.TestCase):
     def testEncodingGuesser(self):
         eg = EncodingGuesser()
-        for i in range(0, 9):
+        for i in range(0, len(ctypes)):
             self.assertEqual(eg.guessFileEncoding('parallelize_data/decode-' + str(i) + '.txt'), i)
 
+    def testRoundTripping(self):
+        eg = EncodingGuesser()
+        
+        f = open('parallelize_data/decode-utf8.txt')
+        utf8_content = f.read()
+        f.close()
+        
+        for i in range(0, len(ctypes)):
+            f = open('parallelize_data/decode-' + str(i) + '.txt')
+            content = f.read()
+            f.close()
+            
+            test_content = eg.decodePara(i, content)
+            
+            self.assertEqual(utf8_content, test_content)
+        
 class EncodingGuesser:
     def guessFileEncoding(self, filename):
         
@@ -303,7 +282,7 @@ class EncodingGuesser:
     def decodePara(self, position, text):
         encoding = ctypes[position]
         
-        for key, value in encoding.dicitems():
+        for key, value in encoding.items():
             text = text.replace(key, value)
             
         return text
