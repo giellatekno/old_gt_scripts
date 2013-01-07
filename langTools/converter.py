@@ -147,6 +147,9 @@ class Converter:
 
         document = intermediate.convert2intermediate()
 
+        if isinstance(document, lxml.etree._XSLTResultTree):
+            document = etree.fromstring(etree.tostring(document))
+
         return document
 
     def makeComplete(self):
@@ -223,7 +226,7 @@ class TestAvvirConverter(unittest.TestCase):
         got = self.avvir.convert2intermediate()
         want = etree.parse('parallelize_data/gt-02nr028av.article.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class AvvirConverter:
     """
@@ -246,7 +249,7 @@ class AvvirConverter:
         doc = etree.parse(self.orig)
         intermediate = transform(doc)
 
-        return etree.tostring(intermediate, encoding='utf8')
+        return intermediate
 
 class TestSVGConverter(unittest.TestCase):
     def setUp(self):
@@ -264,7 +267,7 @@ class TestSVGConverter(unittest.TestCase):
         got = self.svg.convert2intermediate()
         want = etree.parse('parallelize_data/Riddu_Riddu_avis_TXT.200923.svg.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class SVGConverter:
     """
@@ -287,7 +290,7 @@ class SVGConverter:
         doc = etree.parse(self.orig)
         intermediate = transform(doc)
 
-        return etree.tostring(intermediate, encoding='utf8')
+        return intermediate
 
 import chardet
 import re
@@ -318,70 +321,70 @@ class TestPlaintextConverter(unittest.TestCase):
         got = plaintext.convert2intermediate()
         want = etree.parse('parallelize_data/plaintext.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testNewstext(self):
         newstext = PlaintextConverter('parallelize_data/newstext.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/newstext.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testAssu97(self):
         newstext = PlaintextConverter('parallelize_data/assu97.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/assu97.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testBilde(self):
         newstext = PlaintextConverter('parallelize_data/bilde.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/bilde.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testIngress(self):
         newstext = PlaintextConverter('parallelize_data/ingress.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/ingress.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testMtitt(self):
         newstext = PlaintextConverter('parallelize_data/mtitt.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/mtitt.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testTekst(self):
         newstext = PlaintextConverter('parallelize_data/tekst.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tekst.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testNBSP(self):
         newstext = PlaintextConverter('parallelize_data/nbsp.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/nbsp.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testTittel(self):
         newstext = PlaintextConverter('parallelize_data/tittel.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/tittel.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testByline(self):
         newstext = PlaintextConverter('parallelize_data/byline.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/byline.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 import io
 
@@ -545,7 +548,7 @@ class PlaintextConverter:
         document.append(header)
         document.append(body)
 
-        return etree.tostring(document, encoding = 'utf8')
+        return document
 
 from pdfminer.pdfparser import PDFDocument, PDFParser
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter, process_pdf
@@ -570,7 +573,7 @@ class TestPDFConverter(unittest.TestCase):
         got = pdfdocument.convert2intermediate()
         want = etree.parse('parallelize_data/pdf-test.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class PDFConverter:
     def __init__(self, filename):
@@ -688,7 +691,7 @@ class PDFConverter:
         document.append(header)
         document.append(body)
 
-        return etree.tostring(document, encoding = 'utf8')
+        return document
 
 import subprocess
 
@@ -708,7 +711,7 @@ class TestDocConverter(unittest.TestCase):
         got = self.testdoc.convert2intermediate()
         want = etree.parse('parallelize_data/doc-test.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class DocConverter:
     """
@@ -747,7 +750,7 @@ class DocConverter:
         doc = etree.fromstring(self.extractText())
         intermediate = transform(doc)
 
-        return etree.tostring(intermediate, encoding = 'utf8')
+        return intermediate
 
 class TestBiblexmlConverter(unittest.TestCase):
     def setUp(self):
@@ -765,7 +768,7 @@ class TestBiblexmlConverter(unittest.TestCase):
         got = self.testdoc.convert2intermediate()
         want = etree.parse('parallelize_data/bible-test.xml.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class BiblexmlConverter:
     """
@@ -787,7 +790,7 @@ class BiblexmlConverter:
             print >>sys.stderr, error
             return subp.returncode
 
-        return etree.tostring(etree.parse('kluff.xml'), encoding = 'utf8')
+        return etree.parse('kluff.xml')
 
 class TestHTMLConverter(unittest.TestCase):
     def setUp(self):
@@ -805,7 +808,7 @@ class TestHTMLConverter(unittest.TestCase):
         got = self.testhtml.convert2intermediate()
         want = etree.parse('parallelize_data/samediggi-article-48s.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 import BeautifulSoup
 
@@ -873,7 +876,7 @@ class HTMLContentConverter:
         doc = etree.fromstring(self.tidy())
         intermediate = transform(doc)
 
-        return etree.tostring(intermediate, encoding = 'utf8')
+        return intermediate
 
 class HTMLConverter(HTMLContentConverter):
     def __init__(self, filename):
@@ -897,7 +900,7 @@ class TestRTFConverter(unittest.TestCase):
         got = self.testrtf.convert2intermediate()
         want = etree.parse('parallelize_data/Folkemøte.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 from pyth.plugins.rtf15.reader import Rtf15Reader
 from pyth.plugins.xhtml.writer import XHTMLWriter
@@ -932,16 +935,16 @@ class TestDocumentFixer(unittest.TestCase):
 
         want = etree.parse('parallelize_data/assu97.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
     def testReplaceLigatures(self):
         svgtext = SVGConverter('parallelize_data/Riddu_Riddu_avis_TXT.200923.svg')
-        eg = DocumentFixer(svgtext.convert2intermediate())
+        eg = DocumentFixer(etree.fromstring(etree.tostring(svgtext.convert2intermediate())))
         got = eg.fixBodyEncoding()
 
         want = etree.parse('parallelize_data/Riddu_Riddu_avis_TXT.200923.xml')
 
-        self.assertXmlEqual(got, etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 class DocumentFixer:
     """
@@ -950,7 +953,7 @@ class DocumentFixer:
     characters
     """
     def __init__(self, document):
-        self.etree = etree.fromstring(document)
+        self.etree = document
 
     def replaceLigatures(self):
         """
@@ -996,7 +999,7 @@ class DocumentFixer:
             u"ﬅ": "ft",
         }
 
-        for element in self.etree.getiterator():
+        for element in self.etree.iter('p'):
             if element.text:
                 for key, value in replacements.items():
                     element.text = element.text.replace(key + ' ', value)
@@ -1010,6 +1013,9 @@ class DocumentFixer:
         """
         self.replaceLigatures()
 
+        if isinstance(self.etree, etree._XSLTResultTree):
+            sys.stderr.write("xslt!\n")
+
         body = self.etree.find('body')
         bodyString = etree.tostring(body, encoding='utf-8')
         body.getparent().remove(body)
@@ -1019,7 +1025,7 @@ class DocumentFixer:
         body = etree.fromstring(eg.decodePara(encoding, bodyString))
         self.etree.append(body)
 
-        return etree.tostring(self.etree, encoding = 'utf8', pretty_print = True)
+        return self.etree
 
 class TestXslMaker(unittest.TestCase):
     def assertXmlEqual(self, got, want):
