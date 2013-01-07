@@ -535,6 +535,55 @@ class PDFConverter:
     def __init__(self, filename):
         self.orig = filename
         
+    def replaceLigatures(self):
+        """
+        document is a stringified xml document
+        """
+        replacements = {
+            u"[dstrok]": u"đ",
+            u"[Dstrok]": u"Đ",
+            u"[tstrok]": u"ŧ",
+            u"[Tstrok]": u"Ŧ",
+            u"[scaron]": u"š",
+            u"[Scaron]": u"Š",
+            u"[zcaron]": u"ž",
+            u"[Zcaron]": u"Ž",
+            u"[ccaron]": u"č",
+            u"[Ccaron]": u"Č",
+            u"[eng": u"ŋ",
+            " ]": "",
+            u"Ď": u"đ", # cough
+            u"ď": u"đ", # cough
+            "\x03": "",
+            "\x04": "",
+            "\x07": "",
+            "\x08": "",
+            "\x0F": "",
+            "\x10": "",
+            "\x11": "",
+            "\x13": "",
+            "\x14": "",
+            "\x15": "",
+            "\x17": "",
+            "\x18": "",
+            "\x1A": "",
+            "\x1B": "",
+            "\x1C": "",
+            "\x1D": "",
+            "\x1E": "",
+            u"ﬁ": "fi",
+            u"ﬂ": "fl",
+            u"ﬀ": "ff",
+            u"ﬃ": "ffi",
+            u"ﬄ": "ffl",
+            u"ﬅ": "ft",
+        }
+        
+        for key, value in replacements.items():
+            #print '583', key, value
+            self.text = self.text.replace(key + ' ', value)
+            self.text = self.text.replace(key, value)
+        
     def extractText(self):
         # debug option
         debug = 0
@@ -565,17 +614,18 @@ class PDFConverter:
         fp.close()
         
         device.close()
-        text = outfp.getvalue()
+        self.text = unicode(outfp.getvalue(), encoding='utf8')
+        self.replaceLigatures()
         outfp.close()
         
-        return text
+        return self.text
 
     def convert2intermediate(self):
         document = etree.Element('document')
         header = etree.Element('header')
         body = etree.Element('body')
         
-        content = io.StringIO(unicode(self.extractText(), encoding='utf-8'))
+        content = io.StringIO(self.extractText())
         ptext = ''
         
         for line in content:
@@ -733,7 +783,7 @@ class HTMLContentConverter:
         """
         Run html through tidy
         """
-        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-asxml', '-quiet']
+        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-quiet']
         subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate(self.content)
         
@@ -758,15 +808,15 @@ class HTMLContentConverter:
             
         remove_tags = ['noscript', 'script', 'input', 'img', 'v:shapetype', 'v:shape', 'textarea', 'label', 'o:p', 'st1:metricconverter', 'st1:placename', 'st1:place', 'meta']
         for remove_tag in remove_tags:
-                removes = soup.findAll(remove_tag)
-                for remove in removes:
-                        remove.extract()
+            removes = soup.findAll(remove_tag)
+            for remove in removes:
+                remove.extract()
 
         try:
-                if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
-                        soup.html.attrs.append(("xmlns", "http://www.w3.org/1999/xhtml"))
+            if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
+                soup.html.attrs.append(("xmlns", "http://www.w3.org/1999/xhtml"))
         except AttributeError:
-                pass
+            pass
 
         return soup.prettify()
     
