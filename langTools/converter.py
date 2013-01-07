@@ -1058,3 +1058,131 @@ class XslMaker:
 
     def getXsl(self):
         return etree.tostring(self.finalXsl, encoding = 'utf8')
+
+class TestLanguageDetector(unittest.TestCase):
+    """
+    Test the functionality of LanguageDetector
+    """
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+
+    #def testGetMainLang(self):
+        #testMainLang = 'sme'
+        #string = etree.tostring(etree.parse('bla-bla.xml'))
+        #ld = LanguageDetector(string)
+        #assertEqual(testMainLang, ld.getMainlang())
+
+    def testSimpleDetectQuote1(self):
+        origParagraph = '<p>bla bla "bla bla" bla bla </p>'
+        expectedParagraph = '<p>bla bla <span type="quote">"bla bla"</span> bla bla</p>'
+
+        ld = LanguageDetector()
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSimpleDetectQuote2(self):
+        origParagraph = '<p>bla bla “bla bla” bla bla</p>'
+        expectedParagraph = '<p>bla bla <span type="quote">“bla bla”</span> bla bla</p>'
+
+        ld = LanguageDetector()
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    def testSimpleDetectQuote3(self):
+        origParagraph = '<p>bla bla «bla bla» bla bla</p>'
+        expectedParagraph = '<p>bla bla <span type="quote">«bla bla»</span> bla bla</p>'
+
+        ld = LanguageDetector()
+        gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        self.assertXmlEqual(etree.tostring(gotParagraph), expectedParagraph)
+
+    #def testSetParagraphLanguage(self):
+        #origParagraph = ''
+        #expectedParagraph = ''
+
+        #ld = LanguageDetector(string)
+        #gotParagraph = ld.detectQuote(etree.fromstring(origParagraph))
+
+        #assertXmlEqual(gotParagraph, expectedParagraph)
+
+    def testRemoveQuote(self):
+        origParagraph = '<p>bla bla <span type="quote">bla1 bla</span> ble ble <span type="quote">bla2 bla</span> <b>bli</b> bli <span type="quote">bla3 bla</span> blo blo</p>'
+        expectedParagraph = 'bla bla  ble ble  bli bli  blo blo'
+
+        ld = LanguageDetector()
+        gotParagraph = ld.removeQuote(etree.fromstring(origParagraph))
+
+        self.assertEqual(gotParagraph, expectedParagraph)
+
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import ngram
+
+class LanguageDetector:
+    """
+    Receive a stringified etree.
+    Detect and set languages of quotes.
+    Detect the languages of the paragraphs.
+    """
+    def __init__(self):
+        #self.etree = etree.fromstring(document)
+        #self.mainlang = self.etree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
+        self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'))
+
+    def getMainlang(self):
+        """
+        Get the mainlang of the file
+        """
+        return mainlang
+
+    def detectQuote(self, paragraph):
+        """Detect and set language of quotes in a paragraph
+        paragraph is an etree element"""
+        text = etree.tostring(paragraph, encoding = "utf-8")
+        quoteRegexes = [re.compile('".+?"'), re.compile('«.+?»'), re.compile('“.+?”')]
+
+        newtext = []
+        start = 0
+
+        for quoteRegex in quoteRegexes:
+            for m in quoteRegex.finditer(text):
+                if m.start() != 0:
+                    newtext.append(text[start:m.start()])
+                newtext.append('<span type="quote">' + text[m.start():m.end()] + '</span>')
+                start = m.end()
+
+        if start != len(text):
+            newtext.append(text[start:])
+
+        return etree.fromstring(''.join(newtext))
+
+
+    def setParagraphLanguage(self, paragraph):
+        pWithQuote = self.detectQuote(paragraph)
+        pWithoutQuote = self.removeQuote(pWithQuote)
+        lang = lg.classify(pWithoutQuote.text)
+        if lang != 'guess' or lang != self.getMainlang():
+            pWithQuote.set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+
+        return pWithQuote
+
+    def removeQuote(self, paragraph):
+        """Extract all text except the one inside <span type='quote'>"""
+        text = ''
+        for element in paragraph.iter():
+            if element.tag == 'span' and element.get('type') == 'quote' and element.tail != None:
+                text = text + element.tail
+            else:
+                if element.text != None:
+                    text = text + element.text
+                if element.tail != None:
+                    text = text + element.tail
+
+        return text
