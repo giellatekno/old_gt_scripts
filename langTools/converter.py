@@ -623,7 +623,7 @@ class DocConverter:
         output contains the docbook xml output by antiword, 
         and is a utf-8 string
         """
-        subp = subprocess.Popen(['antiword', '-x',  'db', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['antiword', '-x', 'db', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
         
         if subp.returncode != 0:
@@ -676,7 +676,7 @@ class BiblexmlConverter:
         """
         Convert the bible xml to giellatekno xml format using bible2xml.pl
         """
-        subp = subprocess.Popen(['bible2xml.pl', '-out',  'kluff.xml', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(['bible2xml.pl', '-out', 'kluff.xml', self.orig], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate()
         
         if subp.returncode != 0:
@@ -814,6 +814,37 @@ class EncodingFixer:
         document is a stringified xml document
         """
         replacements = {
+            u"[dstrok]": u"đ",
+            u"[Dstrok]": u"Đ",
+            u"[tstrok]": u"ŧ",
+            u"[Tstrok]": u"Ŧ",
+            u"[scaron]": u"š",
+            u"[Scaron]": u"Š",
+            u"[zcaron]": u"ž",
+            u"[Zcaron]": u"Ž",
+            u"[ccaron]": u"č",
+            u"[Ccaron]": u"Č",
+            u"[eng": u"ŋ",
+            " ]": "",
+            u"Ď": u"đ", # cough
+            u"ď": u"đ", # cough
+            "\x03": "",
+            "\x04": "",
+            "\x07": "",
+            "\x08": "",
+            "\x0F": "",
+            "\x10": "",
+            "\x11": "",
+            "\x13": "",
+            "\x14": "",
+            "\x15": "",
+            "\x17": "",
+            "\x18": "",
+            "\x1A": "",
+            "\x1B": "",
+            "\x1C": "",
+            "\x1D": "",
+            "\x1E": "",
             u"ﬁ": "fi",
             u"ﬂ": "fl",
             u"ﬀ": "ff",
@@ -827,7 +858,6 @@ class EncodingFixer:
                 for key, value in replacements.items():
                     element.text = element.text.replace(key + ' ', value)
                     element.text = element.text.replace(key, value)
-                #print element.tag, element.text.encode('utf8')
         
     def fixBodyEncoding(self):
         """
