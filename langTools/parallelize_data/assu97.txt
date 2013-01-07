@@ -1,15 +1,15 @@
-BILDE 1:‚ÄìMun lean njeallje jagi boaris.
-BILDE 2:Nu beaivv√°dat.
+BILDE 1:–Mun lean njeallje jagi boaris.
+BILDE 2:Nu beaivvádat.
 BILDE 3:oahppat guovttejuvlla nalde sykkelastit.
 
 TITT:njeallje suorpma boaris.
 
-TEKST:Olggobealde √Å≈°≈°u
+TEKST:Olggobealde Áªªu
 
 M:TITT:Lea go dus meahccebiila ?
 
-TEKST:‚ÄìMii lea suohttaseamos geassebargu dus ?
+TEKST:–Mii lea suohttaseamos geassebargu dus ?
 
-@bold:Suohkana beara≈°√°sodagaid juohkin
+@bold:Suohkana bearaªásodagaid juohkin
 
-LOGO: S√°mi kulturfestivala 1998
+LOGO: Sámi kulturfestivala 1998
