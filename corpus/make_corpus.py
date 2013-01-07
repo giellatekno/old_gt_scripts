@@ -25,6 +25,8 @@ import os
 import sys
 import subprocess
 import argparse
+import lxml
+import pdfminer
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import converter
@@ -32,7 +34,7 @@ import converter
 class CorpusBuilder:
     def __init__(self, orig_dir):
         gthome = os.getenv('GTHOME')
-        
+        self.converted = 0
         if not os.path.isdir(orig_dir):
             sys.exit(1)
         else:
@@ -80,13 +82,41 @@ class CorpusBuilder:
             
             if newer_group(dependencies, xml_file):
                 self.convert_file(source)
-
+                                                                                                                                                                                                                                                                
     def convert_file(self, source):
         conv = converter.Converter(source)
         try:
+            self.converted += 1
+            print self.converted, source
             conv.writeComplete()
+            self.converted += 1
+            print self.converted, source
         except converter.ConversionException, (instance):
-            print "Caught: " + instance.parameter
+            print "Can't convert: " + instance.parameter
+            self.failed_files += 1
+        except lxml.etree.XMLSyntaxError:
+            print "etree", source
+            self.failed_files += 1
+        except pdfminer.pdfinterp.PDFTextExtractionNotAllowed:
+            print "pdf", source
+            self.failed_files += 1
+        except lxml.etree.XSLTParseError:
+            print "xslt", source
+            self.failed_files += 1
+        except AssertionError:
+            print "pdf?", source
+            self.failed_files += 1
+        except pdfminer.psparser.PSEOF:
+            print "pdf: Unexpected EOF", source
+            self.failed_files += 1
+        except IOError:
+            print "no such file", source
+            self.failed_files += 1
+        except ValueError:
+            print "not valid text for xml:", source
+            self.failed_files += 1
+        except OSError:
+            print "file not found:", source
 
     def find_xsl_files(self):
         xsl_files = []
