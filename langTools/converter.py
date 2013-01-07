@@ -279,6 +279,8 @@ class NewstextConverter(Preconverter):
         
         content = content.replace('  ', '\n\n')
         content = content.replace('–<\!q>', '– ')
+        content = content.replace('\x0d', '\x0a')
+        
         return content
 
     def handleContent(self):
