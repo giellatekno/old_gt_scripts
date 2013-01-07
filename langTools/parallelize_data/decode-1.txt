@@ -1,0 +1,6 @@
+Davvis·megiel s·tne- ja teakstaanalysaprogr·mma
+Ç·le dahje kopiere s·niid l·sii, ja deatte "Analysere". Çilgehusaid morfologalaö ja synt·vssalaö oan·dusaide g·vnnat vuol·bealde. Jos v·lljet "Atte buot analysaid", de progr·mma add· buot vejolaö analysaid, muhto jos v·lljet "Disambiguere", de progr·mma geahÑÑala addit duööe analysa mii heive dan cealkagii. Progr·mma s·htt· maid botket s·niid, dahje addit st·vvals·zu - deatte "Botke".
+
+Jos dus lea s·megiel boallobeavdi (Linuxii, Mac OSX:i dahje Windows XP:i), de s·ht·t Ñ·llit "·, Ñ, ò, π, ö, º, ø", dego d·b·laÑÑat, ja v·lljet UTF-8.
+
+Ç·le s·tneh·mi:
