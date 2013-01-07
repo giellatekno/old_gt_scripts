@@ -210,8 +210,8 @@ class Converter:
             self.corpusdir = os.getcwd()
 
 import doctest
-from lxml import etree
-from lxml import doctestcompare
+import lxml.etree as etree
+import lxml.doctestcompare as doctestcompare
 
 class TestAvvirConverter(unittest.TestCase):
     def setUp(self):
@@ -1413,3 +1413,83 @@ class LanguageDetector:
         if self.document.find('header/multilingual') is not None:
             for paragraph in self.document.iter('p'):
                 paragraph = self.setParagraphLanguage(paragraph)
+
+class TestDocumentTester(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+
+
+    def testRemoveForeignLanguage1(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen</p></body></document>'))
+
+        expectedDoc = '<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen</p></body></document>'
+
+        dt = DocumentTester(origDoc)
+        dt.removeForeignLanguage()
+
+        self.assertXmlEqual(etree.tostring(dt.document), expectedDoc)
+
+    def testRemoveForeignLanguage2(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p xml:lang="nob">Nasjonale prøver</p></body></document>'))
+
+        expectedDoc = '<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body></body></document>'
+
+        dt = DocumentTester(origDoc)
+        dt.removeForeignLanguage()
+
+        self.assertXmlEqual(etree.tostring(dt.document), expectedDoc)
+
+    def testRemoveForeignLanguage3(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p xml:lang="nob">Nasjonale prøver<span type="quote">Bïevnesh naasjovnalen </span></p></body></document>'))
+
+        expectedDoc = '<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen </p></body></document>'
+
+        dt = DocumentTester(origDoc)
+        dt.removeForeignLanguage()
+
+        self.assertXmlEqual(etree.tostring(dt.document), expectedDoc)
+
+    def testRemoveForeignLanguage4(self):
+        origDoc = etree.parse(io.BytesIO('<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen <span type="quote" xml:lang="nob">Nasjonale prøver</span></p></body></document>'))
+
+        expectedDoc = '<document xml:lang="sma" id="no_id"><header><title/><genre/><author><unknown/></author><availability><free/></availability><multilingual/></header><body><p>Bïevnesh naasjovnalen <span type="quote" xml:lang="nob"></span></p></body></document>'
+
+        dt = DocumentTester(origDoc)
+        dt.removeForeignLanguage()
+
+        self.assertXmlEqual(etree.tostring(dt.document), expectedDoc)
+
+class DocumentTester:
+    def __init__(self, document):
+        self.document = document
+
+    def getMainlangRatio(self):
+        pass
+
+    def removeForeignLanguage(self):
+
+        for span in self.document.xpath('//span[@xml:lang]'):
+            span.text = ''
+
+        hit = False
+
+        for paragraph in self.document.xpath('//p[@xml:lang]'):
+            paragraph.text = ''
+            for span in paragraph.xpath('//span[@type="quote"]'):
+                if span.get('xml:lang') is None:
+                    hit = True
+                    paragraph.text = paragraph.text + span.text
+                span.getparent().remove(span)
+
+            if not hit:
+                paragraph.getparent().remove(paragraph)
+            else:
+                del paragraph.attrib['{http://www.w3.org/XML/1998/namespace}lang']
