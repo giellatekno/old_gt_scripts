@@ -26,7 +26,6 @@ import sys
 import subprocess
 import argparse
 import lxml
-import pdfminer
 import multiprocessing
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
