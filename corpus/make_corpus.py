@@ -130,11 +130,6 @@ def convert_file(source):
         return 1
 
 
-    except pdfminer.pdfinterp.PDFTextExtractionNotAllowed:
-        print "pdf", source
-        return 1
-
-
     except lxml.etree.XSLTParseError:
         print "xslt", source
         return 1
@@ -142,11 +137,6 @@ def convert_file(source):
 
     except AssertionError:
         print "pdf?", source
-        return 1
-
-
-    except pdfminer.psparser.PSEOF:
-        print "pdf: Unexpected EOF", source
         return 1
 
 
