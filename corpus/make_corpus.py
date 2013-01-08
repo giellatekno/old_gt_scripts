@@ -69,7 +69,7 @@ def find_dependencies(xsl_files):
 
     svg_dep = [os.path.join(gthome, 'gt/script/corpus/svg2corpus.xsl')]
 
-    common_dep = [os.path.join(gthome, 'gt/script/langTools/converter.py'), os.path.join(gthome, 'gt/script/langTools/decode.py'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/convert2xml.py'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/preprocess')]
+    common_dep = [os.path.join(gthome, 'gt/script/langTools/converter.py'), os.path.join(gthome, 'gt/script/langTools/decode.py'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/preprocess')]
 
     avvir_dep = [os.path.join(gthome, 'gt/script/corpus/avvir2corpus.xsl')]
 
