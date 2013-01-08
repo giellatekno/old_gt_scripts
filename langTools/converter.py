@@ -553,12 +553,12 @@ class PlaintextConverter:
 
         return document
 
-from pdfminer.pdfparser import PDFDocument, PDFParser
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter, process_pdf
-from pdfminer.pdfdevice import PDFDevice, TagExtractor
-from pdfminer.converter import TextConverter
-from pdfminer.cmapdb import CMapDB
-from pdfminer.layout import LAParams
+#from pdfminer.pdfparser import PDFDocument, PDFParser
+#from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter, process_pdf
+#from pdfminer.pdfdevice import PDFDevice, TagExtractor
+#from pdfminer.converter import TextConverter
+#from pdfminer.cmapdb import CMapDB
+#from pdfminer.layout import LAParams
 
 import cStringIO
 
@@ -649,41 +649,41 @@ class PDFConverter:
         self.replaceLigatures()
         return self.text
 
-    def extractText1(self):
-        # debug option
-        debug = 0
-        # input option
-        pagenos = set()
-        maxpages = 0
-        # output option
-        codec = 'utf-8'
-        caching = True
-        laparams = LAParams()
+    #def extractText1(self):
+        ## debug option
+        #debug = 0
+        ## input option
+        #pagenos = set()
+        #maxpages = 0
+        ## output option
+        #codec = 'utf-8'
+        #caching = True
+        #laparams = LAParams()
 
-        PDFDocument.debug = debug
-        PDFParser.debug = debug
-        CMapDB.debug = debug
-        PDFResourceManager.debug = debug
-        PDFPageInterpreter.debug = debug
-        PDFDevice.debug = debug
-        #
-        rsrcmgr = PDFResourceManager(caching=caching)
+        #PDFDocument.debug = debug
+        #PDFParser.debug = debug
+        #CMapDB.debug = debug
+        #PDFResourceManager.debug = debug
+        #PDFPageInterpreter.debug = debug
+        #PDFDevice.debug = debug
+        ##
+        #rsrcmgr = PDFResourceManager(caching=caching)
 
-        outfp = cStringIO.StringIO()
+        #outfp = cStringIO.StringIO()
 
-        device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
+        #device = TextConverter(rsrcmgr, outfp, codec=codec, laparams=laparams)
 
-        fp = file(self.orig, 'rb')
-        process_pdf(rsrcmgr, device, fp, pagenos, maxpages=maxpages,
-                    caching=caching, check_extractable=True)
-        fp.close()
+        #fp = file(self.orig, 'rb')
+        #process_pdf(rsrcmgr, device, fp, pagenos, maxpages=maxpages,
+                    #caching=caching, check_extractable=True)
+        #fp.close()
 
-        device.close()
-        self.text = unicode(outfp.getvalue(), encoding='utf8')
-        self.replaceLigatures()
-        outfp.close()
+        #device.close()
+        #self.text = unicode(outfp.getvalue(), encoding='utf8')
+        #self.replaceLigatures()
+        #outfp.close()
 
-        return self.text
+        #return self.text
 
     def convert2intermediate(self):
         document = etree.Element('document')
