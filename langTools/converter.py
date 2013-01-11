@@ -389,6 +389,13 @@ class TestPlaintextConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+    def testStikktitt(self):
+        newstext = PlaintextConverter('parallelize_data/stikktitt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/stikktitt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
 import io
 
 class PlaintextConverter:
@@ -497,11 +504,12 @@ class PlaintextConverter:
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:'):
                 p = etree.Element('p', type="title")
                 line = line.replace('@m.titt:', '')
                 line = line.replace('M:TITT:', '')
                 line = line.replace('Mellomtittel:', '')
+                line = line.replace('@stikktitt:', '')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
