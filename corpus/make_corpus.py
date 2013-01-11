@@ -71,20 +71,22 @@ def find_dependencies(xsl_file):
     dependencies.append(xsl_file)
     dependencies.append(source)
 
-    if source.endswith('.doc'):
-        dependencies = dependencies + doc_dep
-    elif source.endswith('.pdf'):
-        dependencies = dependencies + pdf_dep
-    elif 'Avvir_xml-filer' in source:
-        dependencies = dependencies + avvir_dep
-    elif source.endswith('.svg'):
-        dependencies = dependencies + svg_dep
-    elif 'bible' in source or source.endswith('.ptx'):
-        dependencies = dependencies + bible_dep
-    elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
-        dependencies = dependencies + html_dep
-    elif source.endswith('.rtf'):
-        dependencies = dependencies + html_dep
+    #if source.endswith('.doc'):
+        #dependencies = dependencies + doc_dep
+    #elif source.endswith('.pdf'):
+        #dependencies = dependencies + pdf_dep
+    #elif 'Avvir_xml-filer' in source:
+        #dependencies = dependencies + avvir_dep
+    #elif source.endswith('.svg'):
+        #dependencies = dependencies + svg_dep
+    #elif 'bible' in source or source.endswith('.ptx'):
+        #dependencies = dependencies + bible_dep
+    #elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
+        #dependencies = dependencies + html_dep
+    #elif source.endswith('.rtf'):
+        #dependencies = dependencies + html_dep
+    #el
+    if source.endswith('.txt'):
         if newer_group(dependencies, xml_file):
             convert = 1
             convert_file(source)
