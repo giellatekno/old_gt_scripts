@@ -990,11 +990,11 @@ class TestRTFConverter(unittest.TestCase):
             message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
             raise AssertionError(message)
 
-    #def testConvert2intermediate(self):
-        #got = self.testrtf.convert2intermediate()
-        #want = etree.parse('parallelize_data/Folkemøte.xml')
+    def testConvert2intermediate(self):
+        got = self.testrtf.convert2intermediate()
+        want = etree.parse('parallelize_data/Folkemøte.xml')
 
-        #self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 from pyth.plugins.rtf15.reader import Rtf15Reader
 from pyth.plugins.xhtml.writer import XHTMLWriter
@@ -1008,8 +1008,18 @@ class RTFConverter(HTMLContentConverter):
         HTMLContentConverter.__init__(self, filename, self.rtf2html())
 
     def rtf2html(self):
+        """Open the rtf document
+        Turn it into an html snippet (which starts with a div)
+        Change the div tag to body
+        Append the body to an html element
+        """
         doc = Rtf15Reader.read(open(self.orig, "rb"))
-        return XHTMLWriter.write(doc, pretty=True).read()
+        html = XHTMLWriter.write(doc, pretty=True).read()
+        xml = etree.fromstring(html)
+        xml.tag = 'body'
+        htmlElement = etree.Element('html')
+        htmlElement.append(xml)
+        return etree.tostring(htmlElement)
 
 import decode
 from copy import deepcopy
