@@ -831,6 +831,71 @@ class TestHTMLConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+class TestHTMLContentConverter(unittest.TestCase):
+    def assertXmlEqual(self, got, want):
+        """Check if two stringified xml snippets are equal
+        """
+        checker = doctestcompare.LXMLOutputChecker()
+        if not checker.check_output(want, got, 0):
+            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            raise AssertionError(message)
+
+    def testRemoveOp(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><o:p><font face="Times New Roman" size="3">&nbsp;</font></o:p></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveEmbed(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><embed src="http://www.flickr.com/apps/slideshow/show.swf?v=71649" width="400" height="300" type="application/x-shockwave-flash" flashvars="offsite=true&amp;lang=en-us&amp;page_show_url=%2Fphotos%2Fkrdep%2Fsets%2F72157623914681611%2Fshow%2F&amp;page_show_back_url=%2Fphotos%2Fkrdep%2Fsets%2F72157623914681611%2F&amp;set_id=72157623914681611&amp;jump_to=" allowfullscreen="true"><br />Foto: Agnar Kaarbø/KRD. Bildene kan benyttes fritt av media.</embed></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveSt1CountryRegion(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><st1:country-region w:st="on"><st1:place w:st="on">Norway</st1:place></st1:country-region></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveSt1MetricConverter(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><st1:metricconverter productid="1,85 G"><span lang="I-SAMI-NO" style="mso-ansi-language: I-SAMI-NO">1,85 G</span></st1:metricconverter></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveVShapeType(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><v:shapetype id="_x0000_t75" path="m@4@5l@4@11@9@11@9@5xe" stroked="f" filled="f" o:preferrelative="t" o:spt="75" coordsize="21600,21600"> <v:stroke joinstyle="miter"></v:stroke><v:formulas><v:f eqn="if lineDrawn pixelLineWidth 0"></v:f><v:f eqn="sum @0 1 0"></v:f><v:f eqn="sum 0 0 @1"></v:f><v:f eqn="prod @2 1 2"></v:f><v:f eqn="prod @3 21600 pixelWidth"></v:f><v:f eqn="prod @3 21600 pixelHeight"></v:f><v:f eqn="sum @0 0 1"></v:f><v:f eqn="prod @6 1 2"></v:f><v:f eqn="prod @7 21600 pixelWidth"></v:f><v:f eqn="sum @8 21600 0"></v:f><v:f eqn="prod @7 21600 pixelHeight"></v:f><v:f eqn="sum @10 21600 0"></v:f></v:formulas><v:path o:connecttype="rect" gradientshapeok="t" o:extrusionok="f"></v:path><?xml:namespace prefix = o ns = "urn:schemas-microsoft-com:office:office"/?><o:lock aspectratio="t" v:ext="edit"></o:lock></v:shapetype></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveVShape(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><v:shape style="WIDTH: 405pt; HEIGHT: 202.5pt" id="_x0000_i1025" type="#_x0000_t75" alt="Jens Stoltenberg, Dmitrij Medvedjev og Jonas Gahr Støre. Foto: Statsministerens kontor"><v:imagedata src="file:///C:\DOCUME~1\oeoe\LOCALS~1\Temp\msohtml1\01\clip_image001.jpg" o:href="http://www.regjeringen.no/upload/SMK/Nyhetsbilder/2010/Stoltenberg-og-Medvedjev_samtaler1_540x270.jpg"></v:imagedata></v:shape></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveArea(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><area title="Suodjalusministtar" href="/fd/sami/p30007057/p30007075/bn.html" shape="rect" alt="Suodjalusministtar" coords="230,10,374,24" /></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveObject(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/1HH5pmM4SAs&amp;hl=nb_NO&amp;fs=1&amp;rel=0" /><param name="allowFullScreen" value="true" /><param name="allowscriptaccess" value="always" /><embed src="http://www.youtube.com/v/1HH5pmM4SAs&amp;hl=nb_NO&amp;fs=1&amp;rel=0" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object></body></html>').tidy()
+
+        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"></body></html>'
+
+        self.assertXmlEqual(got, want)
+
 import BeautifulSoup
 
 class HTMLContentConverter:
@@ -848,18 +913,18 @@ class HTMLContentConverter:
         """
         Run html through tidy
         """
-        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-quiet']
-        subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.content)
+        #tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-quiet']
+        #subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        #(output, error) = subp.communicate(self.content)
 
-        if subp.returncode == 512:
-            print >>sys.stderr, 'Tidy could not process', self.orig
-            print >>sys.stderr, output
-            print >>sys.stderr, error
-            return subp.returncode
+        #if subp.returncode == 512:
+            #print >>sys.stderr, 'Tidy could not process', self.orig
+            #print >>sys.stderr, output
+            #print >>sys.stderr, error
+            #return subp.returncode
 
         try:
-                soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+                soup = BeautifulSoup.BeautifulSoup(self.content, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
         except HTMLParseError, e:
                 print 'Cannot parse', sys.argv[1]
                 print 'Reason', e
@@ -871,7 +936,8 @@ class HTMLContentConverter:
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.ProcessingInstruction ))]
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.Declaration ))]
 
-        remove_tags = ['noscript', 'script', 'input', 'img', 'v:shapetype', 'v:shape', 'textarea', 'label', 'o:p', 'st1:metricconverter', 'st1:placename', 'st1:place', 'meta', 'nobr', 'embed']
+        remove_tags = ['o:p', 'embed', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object']
+            #'noscript', 'script', 'input', 'img', 'textarea', 'label', 'st1:placename', 'st1:place', 'meta', 'nobr', 'link']
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
             for remove in removes:
@@ -883,7 +949,8 @@ class HTMLContentConverter:
         except AttributeError:
             pass
 
-        return soup.prettify().replace('&shy;', '­')
+        #sys.stderr.write(str(lineno()) + ' ' +  soup.prettify())
+        return soup.prettify().replace('&shy;', '­').replace('&nbsp;', ' ')
 
     def convert2intermediate(self):
         """
@@ -894,12 +961,13 @@ class HTMLContentConverter:
         #print docbook
         htmlXsltRoot = etree.parse(self.converterXsl)
         transform = etree.XSLT(htmlXsltRoot)
+
         doc = etree.fromstring(self.tidy())
         intermediate = transform(doc)
 
-        if transform.error_log:
+        if len(transform.error_log) > 0:
             for entry in transform.error_log:
-                print entry.message
+                print lineno(), entry.message
             raise ConversionException('transformation failed ' + self.orig)
 
         return intermediate
@@ -922,11 +990,11 @@ class TestRTFConverter(unittest.TestCase):
             message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
             raise AssertionError(message)
 
-    def testConvert2intermediate(self):
-        got = self.testrtf.convert2intermediate()
-        want = etree.parse('parallelize_data/Folkemøte.xml')
+    #def testConvert2intermediate(self):
+        #got = self.testrtf.convert2intermediate()
+        #want = etree.parse('parallelize_data/Folkemøte.xml')
 
-        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+        #self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
 from pyth.plugins.rtf15.reader import Rtf15Reader
 from pyth.plugins.xhtml.writer import XHTMLWriter
