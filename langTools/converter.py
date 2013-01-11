@@ -871,7 +871,7 @@ class HTMLContentConverter:
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.ProcessingInstruction ))]
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.Declaration ))]
 
-        remove_tags = ['noscript', 'script', 'input', 'img', 'v:shapetype', 'v:shape', 'textarea', 'label', 'o:p', 'st1:metricconverter', 'st1:placename', 'st1:place', 'meta']
+        remove_tags = ['noscript', 'script', 'input', 'img', 'v:shapetype', 'v:shape', 'textarea', 'label', 'o:p', 'st1:metricconverter', 'st1:placename', 'st1:place', 'meta', 'nobr', 'embed']
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
             for remove in removes:
@@ -883,7 +883,7 @@ class HTMLContentConverter:
         except AttributeError:
             pass
 
-        return soup.prettify()
+        return soup.prettify().replace('&shy;', '­')
 
     def convert2intermediate(self):
         """
@@ -896,6 +896,11 @@ class HTMLContentConverter:
         transform = etree.XSLT(htmlXsltRoot)
         doc = etree.fromstring(self.tidy())
         intermediate = transform(doc)
+
+        if transform.error_log:
+            for entry in transform.error_log:
+                print entry.message
+            raise ConversionException('transformation failed ' + self.orig)
 
         return intermediate
 
