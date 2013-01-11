@@ -1362,7 +1362,10 @@ class LanguageDetector:
         for language in self.document.findall('header/multilingual/language'):
             inlangs.append(language.get('{http://www.w3.org/XML/1998/namespace}lang'))
         if len(inlangs) != 0:
-            inlangs.append(self.mainlang)
+            if self.mainlang != '':
+                inlangs.append(self.mainlang)
+            else:
+                raise ConversionException('mainlang not set')
 
         self.languageGuesser = ngram.NGram(os.path.join(os.getenv('GTHOME'), 'tools/lang-guesser/LM/'), langs = inlangs )
 
