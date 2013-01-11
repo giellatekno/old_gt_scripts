@@ -396,6 +396,34 @@ class TestPlaintextConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+    def testUtitt(self):
+        newstext = PlaintextConverter('parallelize_data/utitt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/utitt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testUdotTitt(self):
+        newstext = PlaintextConverter('parallelize_data/udottitt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/udottitt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testUndertitt(self):
+        newstext = PlaintextConverter('parallelize_data/undertitt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/undertitt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testTtitt(self):
+        newstext = PlaintextConverter('parallelize_data/ttitt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/ttitt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
 import io
 
 class PlaintextConverter:
@@ -504,12 +532,17 @@ class PlaintextConverter:
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:'):
                 p = etree.Element('p', type="title")
                 line = line.replace('@m.titt:', '')
                 line = line.replace('M:TITT:', '')
                 line = line.replace('Mellomtittel:', '')
                 line = line.replace('@stikktitt:', '')
+                line = line.replace('@utitt:', '')
+                line = line.replace('@u.titt:', '')
+                line = line.replace('@undertitt:', '')
+                line = line.replace('undertitt:', '')
+                line = line.replace('@ttitt:', '')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
