@@ -424,6 +424,13 @@ class TestPlaintextConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+    def testTtt(self):
+        newstext = PlaintextConverter('parallelize_data/ttt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/ttt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
 import io
 
 class PlaintextConverter:
@@ -532,7 +539,7 @@ class PlaintextConverter:
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:'):
                 p = etree.Element('p', type="title")
                 line = line.replace('@m.titt:', '')
                 line = line.replace('M:TITT:', '')
@@ -543,6 +550,7 @@ class PlaintextConverter:
                 line = line.replace('@undertitt:', '')
                 line = line.replace('undertitt:', '')
                 line = line.replace('@ttitt:', '')
+                line = line.replace('@ttt:', '')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
