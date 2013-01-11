@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" 
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-                xmlns:fo="http://www.w3.org/1999/XSL/Format" 
-                xmlns:html="http://www.w3.org/1999/xhtml" 
+<xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:fo="http://www.w3.org/1999/XSL/Format"
+                xmlns:html="http://www.w3.org/1999/xhtml"
                 xmlns:saxon="http://icl.com/saxon"
                 xmlns:str="http://exslt.org/strings"
                 extension-element-prefixes="str"
                 exclude-result-prefixes="xsl fo html saxon">
 <!--$Revision: 38657 $ -->
 
-<!-- 
-Usage: ~/Desktop/bin/tidy - -quote-nbsp no - -add-xml-decl yes 
-                        - -enclose-block-text yes -asxml -utf8 -language sme 
-                        file.html | 
+<!--
+Usage: ~/Desktop/bin/tidy - -quote-nbsp no - -add-xml-decl yes
+                        - -enclose-block-text yes -asxml -utf8 -language sme
+                        file.html |
 xsltproc xhtml2corpus.xsl - > file.xml
 -->
 
@@ -52,8 +52,8 @@ xsltproc xhtml2corpus.xsl - > file.xml
 </xsl:template>
 
 
-<!-- This template matches on all HTML header items and makes them into 
-     bridgeheads. It attempts to assign an ID to each bridgehead by looking 
+<!-- This template matches on all HTML header items and makes them into
+     bridgeheads. It attempts to assign an ID to each bridgehead by looking
      for a named anchor as a child of the header or as the immediate preceding
      or following sibling -->
 <xsl:template match="html:h1
@@ -87,14 +87,14 @@ xsltproc xhtml2corpus.xsl - > file.xml
             </xsl:when>
             <xsl:when test="contains(., '•')">
                 <xsl:for-each select="str:tokenize(., '•')">
-                    <p type="listitem"> 
+                    <p type="listitem">
                         <xsl:value-of select="."/>
                     </p>
                 </xsl:for-each>
             </xsl:when>
             <xsl:otherwise>
-                    <p> 
-                        <xsl:apply-templates /> 
+                    <p>
+                        <xsl:apply-templates />
                     </p>
             </xsl:otherwise>
         </xsl:choose>
@@ -193,7 +193,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
                 <xsl:apply-templates/>
             </em>
         </xsl:when>
-        
+
         <xsl:otherwise>
             <p>
                 <em type="bold">
@@ -272,7 +272,11 @@ xsltproc xhtml2corpus.xsl - > file.xml
     <xsl:apply-templates />
 </xsl:template>
 
-<!--  
+<xsl:template match="html:pb">
+    <xsl:apply-templates />
+</xsl:template>
+
+<!--
 A td can either behave as a container or a p like element.
 If it is a container it has one or more of the these tags:
 * p, hX, table, div (just apply-templates)
@@ -282,7 +286,7 @@ If it is a container it has one or more of the these tags:
     <xsl:apply-templates/>
 </xsl:template>
 
-<!--  
+<!--
 A div can either behave as a container or a p like element.
 If it is a container it has one or more of the these tags:
 * p, hX, table, div (just apply-templates)
@@ -372,7 +376,7 @@ If it is a container it has one or more of the these tags:
 
 <xsl:template match="html:span">
     <xsl:apply-templates/><xsl:text> </xsl:text>
-</xsl:template> 
+</xsl:template>
 
 <xsl:template match="html:div/html:span|html:td/html:span">
     <p>
@@ -410,6 +414,10 @@ If it is a container it has one or more of the these tags:
 </xsl:template>
 
 <xsl:template match="pb">
+    <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="html:title">
     <xsl:apply-templates/>
 </xsl:template>
 
