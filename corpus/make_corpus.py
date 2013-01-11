@@ -27,6 +27,9 @@ import subprocess
 import argparse
 import lxml
 import multiprocessing
+import time
+from distutils.dep_util import newer_group
+
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import converter
@@ -47,7 +50,6 @@ class CorpusBuilder:
         for root, dirs, files in os.walk(self.orig_dir): # Walk directory tree
             for f in files:
                 if f.endswith('.xsl'):
-                    #sys.stderr.write(str(converter.lineno()) + ' «' + f + '»\n')
                     xsl_files.append(root + '/' + f)
 
         self.convertable_files = len(xsl_files)
@@ -59,100 +61,77 @@ class CorpusBuilder:
         else:
             print "Converted all", self.convertable_files, "convertible files"
 
-def find_dependencies(xsl_files):
-    gthome = os.getenv('GTHOME')
-    bible_dep = [os.path.join(gthome, 'gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl')]
+def find_dependencies(xsl_file):
+    dependencies = common_dep
+    xml_file = xsl_file.replace('.xsl', '.xml').replace('orig', 'converted')
+    source = xsl_file[:-4]
+    #sys.stderr.write(' '.join([str(converter.lineno()), source, '\n']))
 
-    pdf_dep = []
+    convert = 0
+    dependencies.append(xsl_file)
+    dependencies.append(source)
 
-    html_dep = [os.path.join(gthome, 'gt/script/corpus/xhtml2corpus.xsl')]
-
-    svg_dep = [os.path.join(gthome, 'gt/script/corpus/svg2corpus.xsl')]
-
-    common_dep = [os.path.join(gthome, 'gt/script/langTools/converter.py'), os.path.join(gthome, 'gt/script/langTools/decode.py'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/preprocess')]
-
-    avvir_dep = [os.path.join(gthome, 'gt/script/corpus/avvir2corpus.xsl')]
-
-    doc_dep = [os.path.join(gthome, 'gt/script/corpus/docbook2corpus2.xsl')]
-
-    from distutils.dep_util import newer_group
-
-    #sys.stderr.write(str(converter.lineno()) + ' find_dependencies\n')
-    failed = 0
-    for xsl_file in xsl_files:
-        #sys.stderr.write(str(converter.lineno()) + ' «' + xsl_file + '»\n')
-        dependencies = common_dep
-        xml_file = xsl_file.replace('.xsl', '.xml').replace('orig', 'converted')
-        source = xsl_file[:-4]
-
-        dependencies.append(xsl_file)
-        dependencies.append(source)
-
-        #for dep in dependencies:
-            #sys.stderr.write(str(converter.lineno()) + ' «' + dep + '» «' + source + '»\n')
-
-        if source.endswith('.doc'):
-            dependencies = dependencies + doc_dep
-        elif source.endswith('.pdf'):
-            dependencies = dependencies + pdf_dep
-        elif 'Avvir_xml-filer' in source:
-            dependencies = dependencies + avvir_dep
-        elif source.endswith('.svg'):
-            dependencies = dependencies + svg_dep
-        elif 'bible' in source or source.endswith('.ptx'):
-            dependencies = dependencies + bible_dep
-        elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
-            dependencies = dependencies + html_dep
-
+    if source.endswith('.doc'):
+        dependencies = dependencies + doc_dep
+    elif source.endswith('.pdf'):
+        dependencies = dependencies + pdf_dep
+    elif 'Avvir_xml-filer' in source:
+        dependencies = dependencies + avvir_dep
+    elif source.endswith('.svg'):
+        dependencies = dependencies + svg_dep
+    elif 'bible' in source or source.endswith('.ptx'):
+        dependencies = dependencies + bible_dep
+    elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
+        dependencies = dependencies + html_dep
         if newer_group(dependencies, xml_file):
-            failed += convert_file(source)
+            convert = 1
+            convert_file(source)
 
-    print "Couldn't convert", failed, "out of totally", len(xsl_files)
+    return convert
 
 def convert_file(source):
     failed = 0
+    sys.stderr.write(' '.join([str(converter.lineno()), source, '\n']))
     conv = converter.Converter(source)
-    try:
+    #try:
 
-        #print source, multiprocessing.current_process().name
-        t = time.time()
-        #sys.stderr.write(source)
-        conv.writeComplete()
-        #sys.stderr.write(' ' + str(time.time() - t) + '\n')
-        return 0
-    except converter.ConversionException, (instance):
-        print "Can't convert: " + instance.parameter
-        return 1
+    t = time.time()
+    conv.writeComplete()
+    return 0
+
+    #except converter.ConversionException, (instance):
+        #print "Can't convert: " + instance.parameter
+        #return 1
 
 
-    except lxml.etree.XMLSyntaxError:
-        print "etree", source
-        return 1
+    #except lxml.etree.XMLSyntaxError:
+        #print "etree", source
+        #return 1
 
 
-    except lxml.etree.XSLTParseError:
-        print "xslt", source
-        return 1
+    #except lxml.etree.XSLTParseError:
+        #print "xslt", source
+        #return 1
 
 
-    except AssertionError:
-        print "pdf?", source
-        return 1
+    #except AssertionError:
+        #print "pdf?", source
+        #return 1
 
 
-    except IOError:
-        print "no such file", source
-        return 1
+    ##except IOError:
+        ##print "IOError", source
+        ##return sys.exit(2)
 
 
-    except ValueError:
-        print "not valid text for xml:", source
-        return 1
+    #except ValueError:
+        #print "not valid text for xml:", source
+        #return 1
 
 
-    except OSError:
-        print "file not found:", source
-        return 1
+    #except OSError:
+        #print "file not found:", source
+        #return 1
 
 
 def parse_options():
@@ -162,15 +141,31 @@ def parse_options():
     args = parser.parse_args()
     return args
 
-import time
+gthome = os.getenv('GTHOME')
+bible_dep = [os.path.join(gthome, 'gt/script/corpus/bible2xml.pl'), os.path.join(gthome, 'gt/script/corpus/paratext2xml.pl')]
+
+pdf_dep = []
+
+html_dep = [os.path.join(gthome, 'gt/script/corpus/xhtml2corpus.xsl')]
+
+svg_dep = [os.path.join(gthome, 'gt/script/corpus/svg2corpus.xsl')]
+
+common_dep = [os.path.join(gthome, 'gt/script/langTools/converter.py'), os.path.join(gthome, 'gt/script/langTools/decode.py'), os.path.join(gthome, 'gt/script/corpus/common.xsl'), os.path.join(gthome, 'gt/script/corpus/XSL-template.xsl'), os.path.join(gthome, 'gt/script/preprocess')]
+
+avvir_dep = [os.path.join(gthome, 'gt/script/corpus/avvir2corpus.xsl')]
+
+doc_dep = [os.path.join(gthome, 'gt/script/corpus/docbook2corpus2.xsl')]
 
 if __name__ == '__main__':
     args = parse_options()
+
     cb = CorpusBuilder(args.orig_dir)
     xsl_files = cb.find_xsl_files()
-
-    find_dependencies(xsl_files)
-    #jobs = []
-
+    xsl_files.sort()
+    print "Found", len(xsl_files), "convertable files"
+    converted = 0
+    for xsl_file in xsl_files:
+        converted += find_dependencies(xsl_file)
+    print "Converted", converted, "files"
     #pool = multiprocessing.Pool(multiprocessing.cpu_count())
     #pool.map(find_dependencies, xsl_files)
