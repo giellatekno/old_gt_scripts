@@ -424,10 +424,24 @@ class TestPlaintextConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+    def testTitt(self):
+        newstext = PlaintextConverter('parallelize_data/titt.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/titt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
     def testTtt(self):
         newstext = PlaintextConverter('parallelize_data/ttt.txt')
         got = newstext.convert2intermediate()
         want = etree.parse('parallelize_data/ttt.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
+    def testTit(self):
+        newstext = PlaintextConverter('parallelize_data/tit.txt')
+        got = newstext.convert2intermediate()
+        want = etree.parse('parallelize_data/tit.xml')
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
@@ -529,19 +543,21 @@ class PlaintextConverter:
                 p.text = line.replace('LOGO:', '').strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto') or line.startswith('Stikk'):
+            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto') or line.startswith('Stikk') or line.startswith('tekst:'):
                 p = etree.Element('p')
                 line = line.replace('@tekst:', '')
                 line = line.replace('@stikk:', '')
                 line = line.replace('Stikk:', '')
                 line = line.replace('TEKST:', '')
+                line = line.replace('tekst:', '')
                 line = line.replace('@foto:', '')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('m.titt:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:') or line.startswith('@tit:') or line.startswith('@Titt:') or line.startswith('titt:'):
                 p = etree.Element('p', type="title")
                 line = line.replace('@m.titt:', '')
+                line = line.replace('m.titt:', '')
                 line = line.replace('M:TITT:', '')
                 line = line.replace('Mellomtittel:', '')
                 line = line.replace('@stikktitt:', '')
@@ -551,6 +567,9 @@ class PlaintextConverter:
                 line = line.replace('undertitt:', '')
                 line = line.replace('@ttitt:', '')
                 line = line.replace('@ttt:', '')
+                line = line.replace('@tit:', '')
+                line = line.replace('@Titt:', '')
+                line = line.replace('titt:', '')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
