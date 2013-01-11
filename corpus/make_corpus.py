@@ -83,6 +83,8 @@ def find_dependencies(xsl_file):
         dependencies = dependencies + bible_dep
     elif source.endswith('.htm') or source.endswith('.html') or 'html_id' in source or '.php' in source:
         dependencies = dependencies + html_dep
+    elif source.endswith('.rtf'):
+        dependencies = dependencies + html_dep
         if newer_group(dependencies, xml_file):
             convert = 1
             convert_file(source)
