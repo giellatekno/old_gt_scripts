@@ -169,7 +169,11 @@ class Converter:
 
         intermediate = self.makeIntermediate()
 
-        complete = transform(intermediate)
+        try:
+            complete = transform(intermediate)
+        except etree.XSLTApplyError as (e):
+            print "Check the search and replace expression at the end of this file:", xm.filename
+            sys.exit(19)
 
         ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
         complete = ef.fixBodyEncoding()
@@ -1410,7 +1414,12 @@ class XslMaker:
         preprocessXslTransformer = etree.XSLT(preprocessXsl)
 
         self.filename = xslfile
-        filexsl = etree.parse(xslfile)
+        try:
+            filexsl = etree.parse(xslfile)
+        except etree.XMLSyntaxError as e:
+            print "Error in", self.filename
+            print (e)
+            sys.exit(19)
 
         self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/common.xsl')))
