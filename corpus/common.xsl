@@ -29,7 +29,7 @@
 <!-- the DTD to avoid error messages for old templates not  -->
 <!-- containing all languages. -->
 <xsl:variable name="ocr" select="''"/>
-
+<xsl:variable name="note" select="''"/>
 <xsl:variable name="mlang_dan" select="''"/>
 <xsl:variable name="mlang_eng" select="''"/>
 <xsl:variable name="mlang_fin" select="''"/>
