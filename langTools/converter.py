@@ -161,7 +161,11 @@ class Converter:
         xm = XslMaker(self.getXsl())
         xsltRoot = xm.getXsl()
 
-        transform = etree.XSLT(xsltRoot)
+        try:
+            transform = etree.XSLT(xsltRoot)
+        except etree.XSLTParseError as (e):
+            print "There is a syntax error in", xm.filename
+            sys.exit(18)
 
         intermediate = self.makeIntermediate()
 
@@ -992,7 +996,7 @@ class HTMLContentConverter:
         try:
                 soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
         except HTMLParseError, e:
-                print 'Cannot parse', sys.argv[1]
+                print 'Cannot parse', self.orig
                 print 'Reason', e
                 sys.exit(4)
 
@@ -1003,7 +1007,7 @@ class HTMLContentConverter:
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.Declaration ))]
 
         remove_tags = ['o:p', 'embed', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object']
-            #'noscript', 'script', 'input', 'img', 'textarea', 'label', 'st1:placename', 'st1:place', 'meta', 'nobr', 'link']
+
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
             for remove in removes:
@@ -1016,7 +1020,7 @@ class HTMLContentConverter:
             pass
 
         #sys.stderr.write(str(lineno()) + ' ' +  soup.prettify())
-        return soup.prettify().replace('&shy;', '­').replace('&nbsp;', ' ')
+        return soup.prettify().replace('&shy;', '­').replace('&nbsp;', ' ').replace('&aelig;', 'æ').replace('&eacute;', 'é')
 
     def convert2intermediate(self):
         """
@@ -1403,6 +1407,7 @@ class XslMaker:
             'gt/script/corpus/preprocxsl.xsl'))
         preprocessXslTransformer = etree.XSLT(preprocessXsl)
 
+        self.filename = xslfile
         filexsl = etree.parse(xslfile)
 
         self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
