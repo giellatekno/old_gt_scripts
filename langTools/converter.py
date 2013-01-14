@@ -1083,7 +1083,9 @@ class RTFConverter(HTMLContentConverter):
         Change the div tag to body
         Append the body to an html element
         """
-        doc = Rtf15Reader.read(open(self.orig, "rb"))
+        doc = open(self.orig, "rb")
+        content = doc.read()
+        doc = Rtf15Reader.read(io.BytesIO(content.replace('fcharset256', 'fcharset255')))
         html = XHTMLWriter.write(doc, pretty=True).read()
         xml = etree.fromstring(html)
         xml.tag = 'body'
