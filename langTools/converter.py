@@ -669,23 +669,6 @@ class PDFConverter:
             " ]": "",
             u"Ď": u"đ", # cough
             u"ď": u"đ", # cough
-            "\x03": "",
-            "\x04": "",
-            "\x07": "",
-            "\x08": "",
-            "\x0F": "",
-            "\x10": "",
-            "\x11": "",
-            "\x13": "",
-            "\x14": "",
-            "\x15": "",
-            "\x17": "",
-            "\x18": "",
-            "\x1A": "",
-            "\x1B": "",
-            "\x1C": "",
-            "\x1D": "",
-            "\x1E": "",
             u"ﬁ": "fi",
             u"ﬂ": "fl",
             u"ﬀ": "ff",
@@ -715,7 +698,19 @@ class PDFConverter:
 
         self.text = unicode(output, encoding='utf8')
         self.replaceLigatures()
-        return self.text
+        return self.strip_chars(self.text)
+
+    def strip_chars(self, content, extra=u''):
+        remove_re = re.compile(u'[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F%s]'
+                            % extra)
+        stripped = 0
+        content, count = remove_re.subn('', content)
+        if count > 0:
+            plur = ((count > 1) and u's') or u''
+            sys.stderr.write('Removed %s character%s.\n'
+                            % (count, plur))
+
+        return content
 
     #def extractText1(self):
         ## debug option
@@ -762,8 +757,6 @@ class PDFConverter:
         ptext = ''
 
         for line in content:
-            line = line.replace('\x0c', '')
-
             if line == '\n':
                 p = etree.Element('p')
                 p.text = ptext
