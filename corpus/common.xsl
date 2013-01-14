@@ -747,11 +747,11 @@
             </xsl:if>
 			</xsl:element>
 
-			<!--<xsl:if test="$note">
+			<xsl:if test="$note">
 					<xsl:element name="note">
 					<xsl:value-of select="$note"/>
 					</xsl:element>
-			</xsl:if>-->
+			</xsl:if>
 
 
   </xsl:element>
