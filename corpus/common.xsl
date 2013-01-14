@@ -3,17 +3,17 @@
 
 <!-- Format query results for display -->
 
-<xsl:stylesheet 
+<xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:i18n="http://apache.org/cocoon/i18n/2.1"
     version="1.0">
 
-<xsl:output method="xml" 
-            version="1.0" 
-            encoding="UTF-8" 
+<xsl:output method="xml"
+            version="1.0"
+            encoding="UTF-8"
             indent="yes"
             doctype-public="-//UIT//DTD Corpus V1.0//EN"
-			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/> 
+			doctype-system="http://giellatekno.uit.no/dtd/corpus.dtd"/>
 
 
 <xsl:variable name="common_version" select="'$Revision$'"/>
@@ -129,7 +129,7 @@
 	</xsl:choose>
     </xsl:attribute>
 
-    <xsl:attribute name="id">			
+    <xsl:attribute name="id">
 	    <xsl:value-of select="$document_id"/>
     </xsl:attribute>
 
@@ -226,7 +226,7 @@
 	    </xsl:choose>
 	    <xsl:choose>
         <xsl:when test="$author3_ln">
-			 <xsl:element name="author"> 
+			 <xsl:element name="author">
             <xsl:element name="person">
                 <xsl:attribute name="firstname">
                     <xsl:value-of select="$author3_fn"/>
@@ -323,12 +323,12 @@
 
     <xsl:choose>
         <xsl:when test="$year">
-    <xsl:element name="year">	
+    <xsl:element name="year">
                 <xsl:value-of select="$year"/>
      </xsl:element>
         </xsl:when>
         <xsl:otherwise>
-                <xsl:apply-templates select="header/year"/>			
+                <xsl:apply-templates select="header/year"/>
         </xsl:otherwise>
     </xsl:choose>
 
@@ -426,7 +426,7 @@
 						</xsl:when>
 						<xsl:when test="contract_id">
 							<xsl:element name="license">
-								<xsl:attribute name="type">	
+								<xsl:attribute name="type">
 									<xsl:value-of select="$license_type"/>
 								</xsl:attribute>
 								<xsl:attribute name="contract_id">
@@ -436,7 +436,7 @@
 						</xsl:when>
 						<xsl:otherwise>
 								<xsl:element name="license">
-									<xsl:attribute name="type">	
+									<xsl:attribute name="type">
 										<xsl:value-of select="$license_type"/>
 									</xsl:attribute>
 								</xsl:element>
@@ -450,7 +450,7 @@
 			<xsl:otherwise>
 				<xsl:element name="availability">
 					<xsl:element name="license">
-					<xsl:attribute name="type">	
+					<xsl:attribute name="type">
 						<text>standard</text>
 					</xsl:attribute>
 		            </xsl:element>
@@ -475,77 +475,77 @@
 
 			<xsl:choose>
 			<xsl:when test="$monolingual">
-			</xsl:when>	
+			</xsl:when>
 			<xsl:when test="$multilingual">
 				<xsl:element name="multilingual">
 				<xsl:if test="$mlang_sme">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$smelang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_smj">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$smjlang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_sma">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$smalang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_nno">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$nnolang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_nob">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$noblang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_fin">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$finlang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_swe">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$swelang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_eng">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$englang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_dan">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<text>dan</text>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_ger">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$gerlang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_kal">
@@ -559,16 +559,16 @@
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<text>isl</text>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$mlang_fkv">
 					<xsl:element name="language">
 						<xsl:attribute name="xml:lang">
 							<text>fkv</text>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
-				</xsl:if>				
+				</xsl:if>
 				</xsl:element>
 			</xsl:when>
 
@@ -589,90 +589,90 @@
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$smelang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_sme"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_smj">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$smjlang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_smj"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_sma">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$smalang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_sma"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_nob">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$noblang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_nob"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_nno">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$nnolang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_nno"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_swe">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$swelang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_swe"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_fin">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$finlang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_fin"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_ger">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$gerlang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_ger"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 				<xsl:if test="$para_eng">
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 							<xsl:value-of select="$englang"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_eng"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 
@@ -680,10 +680,10 @@
 					<xsl:element name="parallel_text">
 						<xsl:attribute name="xml:lang">
 						<xsl:text>fkv</xsl:text>
-						</xsl:attribute>	  
+						</xsl:attribute>
 						<xsl:attribute name="location">
 							<xsl:value-of select="$para_fkv"/>
-						</xsl:attribute>	  
+						</xsl:attribute>
 					</xsl:element>
 				</xsl:if>
 
@@ -712,7 +712,7 @@
 			<xsl:element name="version">
 			<xsl:if test="$template_version">
 					<xsl:text>XSLtemplate </xsl:text>
-					<xsl:value-of select="$template_version"/>	
+					<xsl:value-of select="$template_version"/>
 					<xsl:text>; </xsl:text>
 			</xsl:if>
 			<xsl:if test="$current_version">
@@ -722,7 +722,7 @@
 			</xsl:if>
 			<xsl:if test="$common_version">
 					<xsl:text>common.xsl  </xsl:text>
-					<xsl:value-of select="$common_version"/>			
+					<xsl:value-of select="$common_version"/>
 					<xsl:text>; </xsl:text>
 			</xsl:if>
 			<xsl:if test="$convert2xml_version">
@@ -762,7 +762,7 @@
 
 <!-- template for adding correct markup to the xml-file -->
 <!-- the target-string is searched from the file and replaced -->
-<!-- with "replacement" using error-correct -markup. --> 
+<!-- with "replacement" using error-correct -markup. -->
 
 <xsl:template name="globalCorrectMarkup">
    <xsl:param name="target"/>
@@ -797,21 +797,21 @@
 <!-- the target and replacment strings are given as parameters -->
 <!-- separated by slash (/) -->
 <xsl:template name="globalTextReplace">
-  
+
   <xsl:param name="continue"/>
   <xsl:param name="inputString"/>
   <xsl:param name="target"/>
   <xsl:param name="replacement"/>
-  
+
   <xsl:variable name="OneTarget" select="substring-before($target,'/')"/>
   <xsl:variable name="OneReplacement" select="substring-before($replacement,'/')"/>
-  
+
   <xsl:variable name="tmpTarget" select="substring-after($target,$OneTarget)"/>
   <xsl:variable name="tmpReplacement" select="substring-after($replacement,$OneReplacement)"/>
-  
+
   <xsl:variable name="restTarget" select="substring($tmpTarget,2)"/>
   <xsl:variable name="restReplacement" select="substring($tmpReplacement,2)"/>
-  
+
   <xsl:if test="$debug">
     <xsl:message terminate="no">
       <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
@@ -819,18 +819,18 @@
 
       <xsl:value-of select="concat('OneTarget ss-before-slash-in-oneTarget |', $OneTarget, '|', $nl)"/>
       <xsl:value-of select="concat('OneReplacement ss-before-OneReplacement |', $OneReplacement, '|', $nl)"/>
-      
+
       <xsl:value-of select="concat('tmpTarget ss-before-slash-in-tmpTarget |', $tmpTarget, '|', $nl)"/>
       <xsl:value-of select="concat('tmpReplacement ss-before-tmpReplacement |', $tmpReplacement, '|', $nl)"/>
 
       <xsl:value-of select="concat('restTarget ss-tmp_target-2 |', restTarget, '|', $nl)"/>
       <xsl:value-of select="concat('restReplacement ss-tmp_replacement-2 |', $restReplacement, '|', $nl)"/>
-      
+
       <xsl:value-of select="'-----------------------------------------'"/>
     </xsl:message>
   </xsl:if>
-  
-  
+
+
   <!--
       <xsl:message>
       inputString <xsl:value-of select="$inputString"/>
@@ -844,12 +844,12 @@
       replacement <xsl:value-of select="$replacement"/>
       </xsl:message>
   -->
-  
-  <!-- when there is no more targets to test, the recursion ends here-->  
+
+  <!-- when there is no more targets to test, the recursion ends here-->
   <xsl:choose>
     <xsl:when test="not(contains($tmpTarget,'/'))">
-      
-      <xsl:value-of select="$inputString"/>	  
+
+      <xsl:value-of select="$inputString"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:choose>
@@ -870,7 +870,7 @@
 	      </xsl:call-template>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      
+
 	      <xsl:call-template name="globalTextReplace">
 		<xsl:with-param name="continue" select="0"/>
 		<xsl:with-param name="inputString" select="$inputString"/>
@@ -880,17 +880,17 @@
 	    </xsl:otherwise>
 	  </xsl:choose>
 	</xsl:when>
-	<xsl:otherwise>	
-	  
+	<xsl:otherwise>
+
 	  <!-- When the text is encountered first time, -->
-	  <!-- the whole text is searched --> 
+	  <!-- the whole text is searched -->
 	  <xsl:choose>
 	    <xsl:when test="contains($inputString, $OneTarget)">
 	      <xsl:variable name="before" select="substring-before($inputString,$OneTarget)"/>
 	      <xsl:variable name="after" select="substring-after($inputString,$OneTarget)"/>
 	      <xsl:variable name="prefix" select="concat($before,$OneReplacement)"/>
 	      <xsl:variable name="whole" select="concat($prefix,$after)"/>
-	      
+
 	      <xsl:call-template name="globalTextReplace">
 		<xsl:with-param name="continue" select="1"/>
 		<xsl:with-param name="inputString" select="$whole"/>
@@ -899,7 +899,7 @@
 	      </xsl:call-template>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      
+
 	      <xsl:call-template name="globalTextReplace">
 		<xsl:with-param name="continue" select="0"/>
 		<xsl:with-param name="inputString" select="$inputString"/>
