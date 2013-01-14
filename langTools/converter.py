@@ -1036,8 +1036,16 @@ class HTMLContentConverter:
         htmlXsltRoot = etree.parse(self.converterXsl)
         transform = etree.XSLT(htmlXsltRoot)
 
-        doc = etree.fromstring(self.tidy())
-        intermediate = transform(doc)
+        intermediate = ''
+
+        html = self.tidy()
+        try:
+            doc = etree.fromstring(html)
+            intermediate = transform(doc)
+        except etree.XMLSyntaxError as e:
+            print html
+            print e
+            sys.exit()
 
         if len(transform.error_log) > 0:
             for entry in transform.error_log:
