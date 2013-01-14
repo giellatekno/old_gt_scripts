@@ -2,7 +2,7 @@
 
 function build_lang {
     LANG=$1
-    
+
     if [ "$LANG" == "sme" ]
     then
         echo "cd $GTHOME/gt"
@@ -11,7 +11,7 @@ function build_lang {
         make GTLANG=$LANG > /dev/null
         echo "make GTLANG=$LANG abbr > /dev/null"
         make GTLANG=$LANG abbr > /dev/null
-    else 
+    else
         echo "cd $GTHOME/langs/$LANG"
         cd $GTHOME/langs/$LANG
         echo "./autogen.sh > /dev/null"
@@ -40,8 +40,8 @@ function preprocess_lookup2cg {
 function disambiguation_analysis {
     INPUTFILE=$1
     LANG=$2
-    
-    if [ "$LANG" == "sme" ] 
+
+    if [ "$LANG" == "sme" ]
     then
         echo "vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis"
         time vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
@@ -53,7 +53,7 @@ function disambiguation_analysis {
 
 function dependency_analysis {
     INPUTFILE=$1
-    
+
     echo "vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt"
     time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
 }
@@ -62,7 +62,7 @@ function ccat_all_texts {
     SMILANG=$1
     BOUND=$2
     FREE=$3
-    
+
     for CORPUS in $BOUND $FREE
     do
         cd $CORPUS/converted/$SMILANG
@@ -104,7 +104,6 @@ then
 else
     mkdir $ANALYSED_DIR
 fi
-chmod 777 $ANALYSED_DIR
 
 for SMILANG in sma smj sme
 do
