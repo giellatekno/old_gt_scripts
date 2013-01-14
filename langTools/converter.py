@@ -981,18 +981,23 @@ class HTMLContentConverter:
         """
         Run html through tidy
         """
-        #tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-quiet']
-        #subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        #(output, error) = subp.communicate(self.content)
+        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-quiet']
+        subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(self.content)
 
-        #if subp.returncode == 512:
-            #print >>sys.stderr, 'Tidy could not process', self.orig
-            #print >>sys.stderr, output
-            #print >>sys.stderr, error
-            #return subp.returncode
+        if len(output) == 0:
+            print >>sys.stderr, 'Tidy made no output'
+            print >>sys.stderr, error
+            sys.exit(5)
+
+        if subp.returncode == 512:
+            print >>sys.stderr, 'Tidy could not process', self.orig
+            print >>sys.stderr, output
+            print >>sys.stderr, error
+            return subp.returncode
 
         try:
-                soup = BeautifulSoup.BeautifulSoup(self.content, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+                soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
         except HTMLParseError, e:
                 print 'Cannot parse', sys.argv[1]
                 print 'Reason', e
