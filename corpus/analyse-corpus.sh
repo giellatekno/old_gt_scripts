@@ -91,12 +91,15 @@ function ccat_all_texts {
                 fi
             done
         done
+        cd ../../..
     done
 }
 # main
-BOUND_DIR=$1
-FREE_DIR=$2
-ANALYSED_DIR="$3/`date +%Y-%m-%d`"
+thisdir=`pwd`
+
+BOUND_DIR=$thisdir/$1
+FREE_DIR=$thisdir/$2
+ANALYSED_DIR="$thisdir/$3/`date +%Y-%m-%d`"
 
 if [ -d $ANALYSED_DIR ]
 then
@@ -108,7 +111,9 @@ fi
 for SMILANG in sma smj sme
 do
     build_lang $SMILANG
+    cd $thisdir
     ccat_all_texts $SMILANG $BOUND_DIR $FREE_DIR
+    cd $thisdir
 
     for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
