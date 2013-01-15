@@ -94,7 +94,7 @@ def find_dependencies(xsl_file):
 
 def convert_file(source):
     failed = 0
-    sys.stderr.write(' '.join([str(converter.lineno()), source, '\n']))
+    #sys.stderr.write(' '.join([str(converter.lineno()), source, '\n']))
     conv = converter.Converter(source)
     try:
 
@@ -103,38 +103,42 @@ def convert_file(source):
         return 0
 
     except converter.ConversionException, (instance):
-        print "Can't convert: " + instance.parameter
+        print "Can't convert: " + instance.parameter, source
         return 1
 
 
-    #except lxml.etree.XMLSyntaxError:
-        #print "etree", source
-        #return 1
+    except lxml.etree.XMLSyntaxError:
+        print "etree", source
+        return 1
 
 
-    #except lxml.etree.XSLTParseError:
-        #print "xslt", source
-        #return 1
+    except lxml.etree.XSLTParseError:
+        print "xslt", source
+        return 1
 
 
-    #except AssertionError:
-        #print "pdf?", source
-        #return 1
+    except AssertionError:
+        print "pdf?", source
+        return 1
 
 
-    ##except IOError:
-        ##print "IOError", source
-        ##return sys.exit(2)
+    except IOError:
+        print "IOError", source
+        #return sys.exit(2)
 
 
-    #except ValueError:
-        #print "not valid text for xml:", source
-        #return 1
+    except ValueError:
+        print "not valid text for xml:", source
+        return 1
 
 
-    #except OSError:
-        #print "file not found:", source
-        #return 1
+    except OSError:
+        print "file not found:", source
+        return 1
+
+    except TypeError:
+        print "plong:", source
+        return 1
 
 
 def parse_options():
