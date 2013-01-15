@@ -448,6 +448,9 @@ If it is a container it has one or more of the these tags:
 <!-- Ignored elements -->
 <xsl:template match="html:hr"/>
 <xsl:template match="html:br"/>
+<xsl:template match="html:nf"/>
+<xsl:template match="html:mb"/>
+<xsl:template match="html:ms"/>
 <xsl:template match="html:script"/>
 <xsl:template match="html:img"/>
 <xsl:template match="html:map"/>
