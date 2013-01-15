@@ -31,16 +31,16 @@ chars = {u'á':'a', u'š':'s', u'ŧ':'t', u'ŋ':'n', u'đ':'d', u'ž':'z', u'č'
 for line in sys.stdin:
     dirname = os.path.dirname(line.strip().decode('utf8'))
     oldname = os.path.basename(line.strip().decode('utf8'))
-    newname = os.path.basename(line.strip().decode('utf8'))
+    newname = os.path.basename(line.strip().decode('utf8').lower())
     for key, value in chars.items():
-        utf8keys = [unicodedata.normalize('NFD', key), unicodedata.normalize('NFD', key).upper(), unicodedata.normalize('NFC', key), unicodedata.normalize('NFC', key).upper()]
+        utf8keys = [unicodedata.normalize('NFD', key), unicodedata.normalize('NFC', key)]
         for utf8key in utf8keys:
             if utf8key in newname:
                 newname = newname.replace(utf8key, value)
 
     if newname != oldname:
         fromname = os.path.join(dirname, oldname)
-        toname = os.path.join(dirname, newname.lower())
+        toname = os.path.join(dirname, newname)
         if os.path.exists(fromname):
             subp = subprocess.Popen(['git', 'mv', '-f', fromname, toname], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
             (output, error) = subp.communicate()
