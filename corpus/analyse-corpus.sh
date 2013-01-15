@@ -23,17 +23,17 @@ function build_lang {
     fi
 }
 
-function preprocess_lookup2cg {
+function preprocess_file {
     INPUTFILE=$1
     LANG=$2
 
     if [ "$LANG" == "sme" ]
     then
-        echo "preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $INPUTFILE.lookup2cg"
-        time preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst | lookup2cg > $INPUTFILE.lookup2cg
+        echo "preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst > $INPUTFILE.preprocess"
+        time preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst > $INPUTFILE.preprocess
     else
-        echo "preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst | lookup2cg > $INPUTFILE.lookup2cg"
-        time preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst | lookup2cg > $INPUTFILE.lookup2cg
+        echo "preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst > $INPUTFILE.preprocess"
+        time preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst > $INPUTFILE.preprocess
     fi
 }
 
@@ -43,11 +43,11 @@ function disambiguation_analysis {
 
     if [ "$LANG" == "sme" ]
     then
-        echo "vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis"
-        time vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+        echo "lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $INPUTFILE.dis"
+        time lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $INPUTFILE.dis
     else
-        echo "vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis"
-        time vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $INPUTFILE.lookup2cg > $INPUTFILE.dis
+        echo "lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $INPUTFILE.dis"
+        time lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $INPUTFILE.dis
     fi
 }
 
@@ -123,7 +123,7 @@ do
 
     for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat.txt
     do
-        preprocess_lookup2cg $INPUTFILE $SMILANG
+        preprocess_file $INPUTFILE $SMILANG
         disambiguation_analysis $INPUTFILE $SMILANG
         dependency_analysis $INPUTFILE
     done
