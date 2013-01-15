@@ -24,38 +24,41 @@ function build_lang {
 }
 
 function preprocess_file {
-    INPUTFILE=$1
+    INFILE=$1
     LANG=$2
+    OUTPUTFILE=`basename $1 .ccat`.preprocess
 
     if [ "$LANG" == "sme" ]
     then
-        echo "preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst > $INPUTFILE.preprocess"
-        time preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst > $INPUTFILE.preprocess
+        echo "preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst > $OUTPUTFILE"
+        time preprocess --abbr=$GTHOME/gt/$SMILANG/bin/abbr.txt --corr=$GTHOME/gt/$SMILANG/bin/corr.txt $INFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/gt/$LANG/bin/$LANG.fst > $OUTPUTFILE
     else
-        echo "preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst > $INPUTFILE.preprocess"
-        time preprocess $INPUTFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst > $INPUTFILE.preprocess
+        echo "preprocess $INFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst > $OUTPUTFILE"
+        time preprocess $INFILE 2> /dev/null | lookup -q -flags mbTT $GTHOME/langs/$SMILANG/src/analyser-gt-desc.xfst > $OUTPUTFILE
     fi
 }
 
 function disambiguation_analysis {
-    INPUTFILE=$1
+    INFILE=`basename $1 .ccat`.preprocess
     LANG=$2
+    OUTPUTFILE=`basename $1 .ccat`.dis
 
     if [ "$LANG" == "sme" ]
     then
-        echo "lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $INPUTFILE.dis"
-        time lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $INPUTFILE.dis
+        echo "lookup2cg $INFILE | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $OUTPUTFILE"
+        time lookup2cg $INFILE | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $OUTPUTFILE
     else
-        echo "lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $INPUTFILE.dis"
-        time lookup2cg $INPUTFILE.preprocess | vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $INPUTFILE.dis
+        echo "lookup2cg $INFILE| vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $OUTPUTFILE"
+        time lookup2cg $INFILE| vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $OUTPUTFILE
     fi
 }
 
 function dependency_analysis {
-    INPUTFILE=$1
+    INFILE=`basename $1 .ccat`.dis
+    OUTPUTFILE=`basename $1 .ccat`.dep
 
-    echo "vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt"
-    time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INPUTFILE.dis >> $ANALYSED_DIR/`basename $INPUTFILE.ccat.txt`.dep.txt
+    echo "vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INFILE >> $ANALYSED_DIR/$OUTPUTFILE"
+    time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INFILE >> $ANALYSED_DIR/$OUTPUTFILE
 }
 
 function ccat_all_texts {
@@ -82,9 +85,9 @@ function ccat_all_texts {
                             TRANSLATED_FROM=`grep translated_from $f | cut -f2 -d'"'`
                             if [ "$TRANSLATED_FROM" == "" ]
                             then
-                                CCAT_FILE="$ANALYSED_DIR/$SMILANG-$GENREDIR.ccat.txt"
+                                CCAT_FILE="$ANALYSED_DIR/$SMILANG-$GENREDIR.ccat"
                             else
-                                CCAT_FILE="$ANALYSED_DIR/$SMILANG-$TRANSLATED_FROM-$GENREDIR.ccat.txt"
+                                CCAT_FILE="$ANALYSED_DIR/$SMILANG-$TRANSLATED_FROM-$GENREDIR.ccat"
                             fi
                             touch $CCAT_FILE
                             ccat -l $SMILANG -a $f >> $CCAT_FILE
@@ -93,11 +96,10 @@ function ccat_all_texts {
                         echo "ccat made invalid utf8, ignoring $f"
                     fi
                 else
-                    echo "ocr found in $f"
+                    echo "ocr found, ignoring $f"
                 fi
             done
         done
-        cd ../../..
     done
 }
 # main
@@ -121,7 +123,7 @@ do
     ccat_all_texts $SMILANG $BOUND_DIR $FREE_DIR
     cd $thisdir
 
-    for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat.txt
+    for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat
     do
         preprocess_file $INPUTFILE $SMILANG
         disambiguation_analysis $INPUTFILE $SMILANG
