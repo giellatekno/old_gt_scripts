@@ -121,9 +121,9 @@ do
     build_lang $SMILANG
     cd $thisdir
     ccat_all_texts $SMILANG $BOUND_DIR $FREE_DIR
-    cd $thisdir
+    cd $ANALYSED_DIR
 
-    for INPUTFILE in $ANALYSED_DIR/$SMILANG*.ccat
+    for INPUTFILE in $SMILANG*.ccat
     do
         preprocess_file $INPUTFILE $SMILANG
         disambiguation_analysis $INPUTFILE $SMILANG
