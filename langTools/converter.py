@@ -174,6 +174,14 @@ class Converter:
         except etree.XSLTApplyError as (e):
             raise ConversionException("Check the search and replace expression at the end of this file:" + xm.filename)
 
+        dtd = etree.DTD(os.path.join(os.getenv('GTHOME'), 'gt/dtd/corpus.dtd'))
+
+        if not dtd.validate(complete):
+            #print etree.tostring(complete)
+            for entry in dtd.error_log:
+                print entry
+            raise ConversionException("didn't validate")
+
         ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
         complete = ef.fixBodyEncoding()
 
