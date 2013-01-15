@@ -164,16 +164,15 @@ class Converter:
         try:
             transform = etree.XSLT(xsltRoot)
         except etree.XSLTParseError as (e):
-            print "There is a syntax error in", xm.filename
-            sys.exit(18)
+            raise ConversionException("There is a syntax error in" + xm.filename)
+
 
         intermediate = self.makeIntermediate()
 
         try:
             complete = transform(intermediate)
         except etree.XSLTApplyError as (e):
-            print "Check the search and replace expression at the end of this file:", xm.filename
-            sys.exit(19)
+            raise ConversionException("Check the search and replace expression at the end of this file:" + xm.filename)
 
         ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
         complete = ef.fixBodyEncoding()
@@ -619,8 +618,8 @@ class PlaintextConverter:
                         p.text = ptext.strip()
                         body.append(p)
                     except ValueError:
-                        print "«", ptext.strip().encode('utf-8'), "»"
-                        sys.exit(2)
+                        raise ConversionException("Invalid utf8 «" + ptext.strip().encode('utf-8') + "»")
+
                 ptext = ''
             else:
                 ptext = ptext + line
@@ -993,22 +992,18 @@ class HTMLContentConverter:
         (output, error) = subp.communicate(self.content)
 
         if len(output) == 0:
-            print >>sys.stderr, 'Tidy made no output'
             print >>sys.stderr, error
-            sys.exit(5)
+            raise ConversionException("Tidy made no output")
 
         if subp.returncode == 512:
-            print >>sys.stderr, 'Tidy could not process', self.orig
             print >>sys.stderr, output
             print >>sys.stderr, error
-            return subp.returncode
+            raise ConversionException('Tidy could not process' + self.orig)
 
         try:
-                soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
+            soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
         except HTMLParseError, e:
-                print 'Cannot parse', self.orig
-                print 'Reason', e
-                sys.exit(4)
+            raise ConversionException(e)
 
         comments = soup.findAll(text=lambda text:isinstance(text, BeautifulSoup.Comment))
         [comment.extract() for comment in comments]
@@ -1050,8 +1045,8 @@ class HTMLContentConverter:
             intermediate = transform(doc)
         except etree.XMLSyntaxError as e:
             print html
-            print e
-            sys.exit()
+            raise ConversionException(e)
+
 
         if len(transform.error_log) > 0:
             for entry in transform.error_log:
@@ -1432,8 +1427,7 @@ class XslMaker:
             filexsl = etree.parse(xslfile)
         except etree.XMLSyntaxError as e:
             print "Error in", self.filename
-            print (e)
-            sys.exit(19)
+            raise ConversionException(e)
 
         self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/common.xsl')))
@@ -1724,10 +1718,9 @@ class DocumentTester:
         (output, error) = subp.communicate(self.getPreprocessedMainlangWords())
 
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not preprocess text'
+            print >>sys.stderr, 'Could not lookup text'
             print >>sys.stderr, output
-            print >>sys.stderr, error
-            sys.exit()
+            raise ConversionException(error)
         else:
             count = 0
             for line in output.split():
@@ -1752,10 +1745,9 @@ class DocumentTester:
         (output, error) = subp.communicate(self.getMainlangWords().replace('\n', ' '))
 
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not preprocess text'
             print >>sys.stderr, output
             print >>sys.stderr, error
-            sys.exit()
+            raise ConversionException('Could not preprocess text')
         else:
             return output
 
