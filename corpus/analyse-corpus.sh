@@ -105,9 +105,9 @@ function ccat_all_texts {
 # main
 thisdir=`pwd`
 
-BOUND_DIR=$thisdir/$1
-FREE_DIR=$thisdir/$2
-ANALYSED_DIR="$thisdir/$3/`date +%Y-%m-%d`"
+BOUND_DIR=$(readlink -f $1)
+FREE_DIR=$(readlink -f $2)
+ANALYSED_DIR=$(readlink -f $3)/`date +%Y-%m-%d`
 
 if [ -d $ANALYSED_DIR ]
 then
