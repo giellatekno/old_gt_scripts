@@ -143,7 +143,7 @@ class Converter:
             intermediate = BiblexmlConverter(self.orig)
 
         else:
-            raise ConversionException("Can't convert " + self.orig)
+            raise ConversionException("Not able to convert " + self.orig)
 
         document = intermediate.convert2intermediate()
 
@@ -161,17 +161,16 @@ class Converter:
         xm = XslMaker(self.getXsl())
         xsltRoot = xm.getXsl()
 
-        try:
-            transform = etree.XSLT(xsltRoot)
-        except etree.XSLTParseError as (e):
-            raise ConversionException("There is a syntax error in" + xm.filename)
-
         intermediate = self.makeIntermediate()
 
         try:
             complete = transform(intermediate)
         except etree.XSLTApplyError as (e):
-            raise ConversionException("Check the search and replace expression at the end of this file:" + xm.filename)
+            for entry in e.error_log:
+                logfile = open(self.orig + '.log', 'w')
+                logfile.write(str(entry))
+                logfile.close()
+            raise ConversionException("Check the search and replace expression at the end of this file")
 
         dtd = etree.DTD(os.path.join(os.getenv('GTHOME'), 'gt/dtd/corpus.dtd'))
 
@@ -1015,8 +1014,8 @@ class HTMLContentConverter:
 
         try:
             soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
-        except HTMLParseError, e:
-            raise ConversionException(e)
+        except HTMLParseError:
+            raise ConversionException("BeautifulSoup couldn't parse the html")
 
         comments = soup.findAll(text=lambda text:isinstance(text, BeautifulSoup.Comment))
         [comment.extract() for comment in comments]
@@ -1035,7 +1034,7 @@ class HTMLContentConverter:
             if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
                 soup.html.attrs.append(("xmlns", "http://www.w3.org/1999/xhtml"))
         except AttributeError:
-            pass
+            raise ConversionException("AttributeError")
 
         #sys.stderr.write(str(lineno()) + ' ' +  soup.prettify())
         return soup.prettify().replace('&shy;', '­').replace('&nbsp;', ' ').replace('&aelig;', 'æ').replace('&eacute;', 'é')
@@ -1057,14 +1056,21 @@ class HTMLContentConverter:
             doc = etree.fromstring(html)
             intermediate = transform(doc)
         except etree.XMLSyntaxError as e:
-            print html
-            raise ConversionException(e)
+            for entry in e.error_log:
+                logfile = open(self.orig + '.log', 'w')
+                logfile.write(html)
+                logfile.write(str(entry))
+                logfile.close()
+            raise ConversionException("Invalid html, log is found in " + self.orig + '.log')
 
 
         if len(transform.error_log) > 0:
             for entry in transform.error_log:
-                print lineno(), entry.message
-            raise ConversionException('transformation failed ' + self.orig)
+                logfile = open(self.orig + '.log', 'w')
+                logfile.write(html)
+                logfile.write(str(entry))
+                logfile.close()
+            raise ConversionException('transformation failed' + self.orig + '.log')
 
         return intermediate
 
@@ -1439,8 +1445,11 @@ class XslMaker:
         try:
             filexsl = etree.parse(xslfile)
         except etree.XMLSyntaxError as e:
-            print "Error in", self.filename
-            raise ConversionException(e)
+            for entry in e.error_log:
+                logfile = open(self.filename + '.log', 'w')
+                logfile.write(str(entry))
+                logfile.close()
+            raise ConversionException("Syntax error in " + self.filename)
 
         self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
             'gt/script/corpus/common.xsl')))
