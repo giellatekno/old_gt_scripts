@@ -32,7 +32,7 @@ def main():
             clbfile = open(str(clbno), 'w')
             clbfile.write(vislcg3input)
             clbfile.close()
-            sys.stdout.write(str(clbno) + ' ' + str(len(lines)) + ' ')
+            sys.stdout.write(sys.argv[1] + ' ' + str(clbno) + ' ' + str(len(lines)) + ' ')
             sys.stdout.flush()
             run_visglcg3(vislcg3input)
             lines = []
