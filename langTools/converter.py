@@ -558,6 +558,13 @@ class PlaintextConverter:
                 p.append(em)
                 body.append(p)
                 ptext = ''
+            elif line.startswith('@kursiv:'):
+                em = etree.Element('em', type = "italic")
+                em.text = line.replace('@kursiv:', '')
+                p = etree.Element('p')
+                p.append(em)
+                body.append(p)
+                ptext = ''
             elif line.startswith('@ingress:') or line.startswith('Ingress:'):
                 p = etree.Element('p')
                 line = line.replace(u'Ingress:', u'')
