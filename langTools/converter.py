@@ -613,11 +613,12 @@ class PlaintextConverter:
                 p.text = line.strip() #.replace(u'  ', '')
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:') or line.startswith('Tittel:'):
+            elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:') or line.startswith('Tittel:') or line.startswith('@LEDtitt:'):
                 line = line.replace('@tittel:', '')
                 line = line.replace('@titt:', '')
                 line = line.replace('TITT:', '')
                 line = line.replace('Tittel:', '')
+                line = line.replace('@LEDtitt:', '')
 
                 if header.find("title") is None:
                     title = etree.Element('title')
