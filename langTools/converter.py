@@ -600,13 +600,19 @@ class PlaintextConverter:
                 body.append(p)
                 ptext = ''
             elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:') or line.startswith('Tittel:'):
-                title = etree.Element('title')
                 line = line.replace('@tittel:', '')
                 line = line.replace('@titt:', '')
                 line = line.replace('TITT:', '')
                 line = line.replace('Tittel:', '')
-                title.text = line.strip()
-                header.append(title)
+
+                if header.find("title") is None:
+                    title = etree.Element('title')
+                    title.text = line.strip()
+                    header.append(title)
+                else:
+                    p = etree.Element('p', type="title")
+                    p.text = line.strip()
+                    body.append(p)
             elif line.startswith('@byline:') or line.startswith('Byline:'):
                 person = etree.Element('person')
 
