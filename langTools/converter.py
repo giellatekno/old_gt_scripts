@@ -160,6 +160,7 @@ class Converter:
         """
         xm = XslMaker(self.getXsl())
         xsltRoot = xm.getXsl()
+        transform = etree.XSLT(xsltRoot)
 
         intermediate = self.makeIntermediate()
 
@@ -169,6 +170,7 @@ class Converter:
             for entry in e.error_log:
                 logfile = open(self.orig + '.log', 'w')
                 logfile.write(str(entry))
+                logfile.write('\n')
                 logfile.close()
             raise ConversionException("Check the search and replace expression at the end of this file")
 
@@ -177,7 +179,12 @@ class Converter:
         if not dtd.validate(complete):
             #print etree.tostring(complete)
             for entry in dtd.error_log:
-                print entry
+                logfile = open(self.getOrig() + '.log', 'w')
+                logfile.write(etree.tostring(complete))
+                logfile.write(str(entry))
+                logfile.write('\n')
+                logfile.close()
+
             raise ConversionException("didn't validate")
 
         ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
@@ -507,8 +514,8 @@ class PlaintextConverter:
         content, count = remove_re.subn('', content)
         if count > 0:
             plur = ((count > 1) and u's') or u''
-            sys.stderr.write('Removed %s character%s.\n'
-                            % (count, plur))
+            #sys.stderr.write('Removed %s character%s.\n'
+                            #% (count, plur))
 
         return content
 
@@ -716,10 +723,15 @@ class PDFConverter:
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
-            print >>sys.stderr, 'Could not process', self.orig
-            print >>sys.stderr, output
-            print >>sys.stderr, error
-            return subp.returncode
+            logfile = open(self.orig + '.log', 'w')
+            logfile.write('stdout\n')
+            logfile.write(output)
+            logfile.write('\n')
+            logfile.write('stderr\n')
+            logfile.write(error)
+            logfile.write('\n')
+            logfile.close()
+            raise ConversionException('Could not extract text from pdf')
 
         self.text = unicode(output, encoding='utf8')
         self.replaceLigatures()
@@ -732,8 +744,8 @@ class PDFConverter:
         content, count = remove_re.subn('', content)
         if count > 0:
             plur = ((count > 1) and u's') or u''
-            sys.stderr.write('Removed %s character%s.\n'
-                            % (count, plur))
+            #sys.stderr.write('Removed %s character%s.\n'
+                            #% (count, plur))
 
         return content
 
@@ -1004,12 +1016,21 @@ class HTMLContentConverter:
         (output, error) = subp.communicate(self.content)
 
         if len(output) == 0:
-            print >>sys.stderr, error
+            logfile = open(self.orig + '.log', 'w')
+            logfile.write(error)
+            logfile.write('\n')
+            logfile.close()
             raise ConversionException("Tidy made no output")
 
         if subp.returncode == 512:
-            print >>sys.stderr, output
-            print >>sys.stderr, error
+            logfile = open(self.orig + '.log', 'w')
+            logfile.write('stdout\n')
+            logfile.write(output)
+            logfile.write('\n')
+            logfile.write('stderr\n')
+            logfile.write(error)
+            logfile.write('\n')
+            logfile.close()
             raise ConversionException('Tidy could not process' + self.orig)
 
         try:
@@ -1059,7 +1080,9 @@ class HTMLContentConverter:
             for entry in e.error_log:
                 logfile = open(self.orig + '.log', 'w')
                 logfile.write(html)
+                logfile.write('\n')
                 logfile.write(str(entry))
+                logfile.write('\n')
                 logfile.close()
             raise ConversionException("Invalid html, log is found in " + self.orig + '.log')
 
@@ -1068,7 +1091,9 @@ class HTMLContentConverter:
             for entry in transform.error_log:
                 logfile = open(self.orig + '.log', 'w')
                 logfile.write(html)
+                logfile.write('\n')
                 logfile.write(str(entry))
+                logfile.write('\n')
                 logfile.close()
             raise ConversionException('transformation failed' + self.orig + '.log')
 
@@ -1448,6 +1473,7 @@ class XslMaker:
             for entry in e.error_log:
                 logfile = open(self.filename + '.log', 'w')
                 logfile.write(str(entry))
+                logfile.write('\n')
                 logfile.close()
             raise ConversionException("Syntax error in " + self.filename)
 
