@@ -12,7 +12,7 @@
 #
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
@@ -87,8 +87,7 @@ def find_dependencies(xsl_file):
         dependencies = dependencies + html_dep
 
     if newer_group(dependencies, xml_file):
-        convert = 1
-        convert_file(source)
+        convert = convert_file(source)
 
     return convert
 
@@ -100,26 +99,26 @@ def convert_file(source):
 
         t = time.time()
         conv.writeComplete()
-        return 0
+        return 1
 
     except converter.ConversionException, (instance):
         print "Can't convert: ", source
-        return 1
+        return 0
 
 
     except lxml.etree.XMLSyntaxError:
         print "etree", source
-        return 1
+        return 0
 
 
     except lxml.etree.XSLTParseError:
         print "xslt", source
-        return 1
+        return 0
 
 
     except AssertionError:
         print "pdf?", source
-        return 1
+        return 0
 
 
     except IOError:
@@ -129,16 +128,16 @@ def convert_file(source):
 
     except ValueError:
         print "not valid text for xml:", source
-        return 1
+        return 0
 
 
     except OSError:
         print "file not found:", source
-        return 1
+        return 0
 
     except TypeError:
         print "plong:", source
-        return 1
+        return 0
 
 
 def parse_options():
