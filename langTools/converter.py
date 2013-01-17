@@ -180,7 +180,7 @@ class Converter:
             #print etree.tostring(complete)
             for entry in dtd.error_log:
                 logfile = open(self.getOrig() + '.log', 'w')
-                logfile.write(etree.tostring(complete))
+                logfile.write(etree.tostring(complete, encoding = 'utf8'))
                 logfile.write('\n')
                 logfile.write(str(entry))
                 logfile.write('\n')
@@ -581,9 +581,10 @@ class PlaintextConverter:
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('m.titt:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:') or line.startswith('@tit:') or line.startswith('@Titt:') or line.startswith('titt:'):
+            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('@mtitt:') or line.startswith('m.titt:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:') or line.startswith('@tit:') or line.startswith('@Titt:') or line.startswith('titt:'):
                 p = etree.Element('p', type="title")
                 line = line.replace('@m.titt:', '')
+                line = line.replace('@mtitt:', '')
                 line = line.replace('m.titt:', '')
                 line = line.replace('M:TITT:', '')
                 line = line.replace('Mellomtittel:', '')
