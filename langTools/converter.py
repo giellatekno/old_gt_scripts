@@ -166,7 +166,6 @@ class Converter:
         except etree.XSLTParseError as (e):
             raise ConversionException("There is a syntax error in" + xm.filename)
 
-
         intermediate = self.makeIntermediate()
 
         try:
