@@ -40,16 +40,19 @@ function preprocess_file {
 
 function disambiguation_analysis {
     INFILE=`basename $1 .ccat`.preprocess
+    LOOKUPFILE=`basename $1 .ccat`.lookup2cg
     LANG=$2
     OUTPUTFILE=`basename $1 .ccat`.dis
 
+    echo "lookup2cg $INFILE > $LOOKUPFILE"
+    lookup2cg $INFILE > $LOOKUPFILE
     if [ "$LANG" == "sme" ]
     then
-        echo "lookup2cg $INFILE | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $OUTPUTFILE"
-        time lookup2cg $INFILE | vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle > $OUTPUTFILE
+        echo "vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $LOOKUPFILE -O $OUTPUTFILE"
+        time vislcg3 -g $GTHOME/gt/$SMILANG/src/$SMILANG-dis.rle -I $LOOKUPFILE -O $OUTPUTFILE
     else
-        echo "lookup2cg $INFILE| vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $OUTPUTFILE"
-        time lookup2cg $INFILE| vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 > $OUTPUTFILE
+        echo "vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $LOOKUPFILE -O $OUTPUTFILE"
+        time vislcg3 -g $GTHOME/langs/$SMILANG/src/syntax/disambiguation.cg3 -I $LOOKUPFILE -O $OUTPUTFILE
     fi
 }
 
@@ -57,8 +60,8 @@ function dependency_analysis {
     INFILE=`basename $1 .ccat`.dis
     OUTPUTFILE=`basename $1 .ccat`.dep
 
-    echo "vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INFILE >> $ANALYSED_DIR/$OUTPUTFILE"
-    time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INFILE >> $ANALYSED_DIR/$OUTPUTFILE
+    echo "vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INFILE -O $ANALYSED_DIR/$OUTPUTFILE"
+    time vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle -I $INFILE -O $ANALYSED_DIR/$OUTPUTFILE
 }
 
 function ccat_all_texts {
