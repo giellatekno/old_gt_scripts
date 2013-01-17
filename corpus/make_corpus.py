@@ -103,7 +103,7 @@ def convert_file(source):
         return 0
 
     except converter.ConversionException, (instance):
-        print "Can't convert: " + instance.parameter, source
+        print "Can't convert: ", source
         return 1
 
 
