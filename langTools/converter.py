@@ -181,6 +181,7 @@ class Converter:
             for entry in dtd.error_log:
                 logfile = open(self.getOrig() + '.log', 'w')
                 logfile.write(etree.tostring(complete))
+                logfile.write('\n')
                 logfile.write(str(entry))
                 logfile.write('\n')
                 logfile.close()
