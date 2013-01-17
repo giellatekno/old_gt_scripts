@@ -577,12 +577,13 @@ class PlaintextConverter:
                 p.text = line.replace('LOGO:', '').strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto') or line.startswith('Stikk') or line.startswith('tekst:'):
+            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto') or line.startswith('Stikk') or line.startswith('tekst:') or line.startswith('@LEDtekst:'):
                 p = etree.Element('p')
                 line = line.replace('@tekst:', '')
                 line = line.replace('@stikk:', '')
                 line = line.replace('Stikk:', '')
                 line = line.replace('TEKST:', '')
+                line = line.replace('@LEDtekst:', '')
                 line = line.replace('tekst:', '')
                 line = line.replace('@foto:', '')
                 p.text = line.strip()
