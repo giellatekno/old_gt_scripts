@@ -19,8 +19,9 @@
 #   Copyright 2013 Børre Gaup <borre.gaup@uit.no>
 #
 
-import unittest
 import os
+import sys
+import unittest
 import unicodedata
 
 class TestNameChanger(unittest.TestCase):
@@ -28,7 +29,7 @@ class TestNameChanger(unittest.TestCase):
         want = 'astndzcaoaoai_'
 
         name = u'ášŧŋđžčåøæöäï+'
-        nc = NameChanger(name.encode('utf8'))
+        nc = NameChanger(name)
 
         self.assertEqual(nc.newname, want)
 
@@ -36,7 +37,7 @@ class TestNameChanger(unittest.TestCase):
         want = 'astndzcaoaoai_'
 
         name = u'ÁŠŦŊĐŽČÅØÆÖÄÏ+'
-        nc = NameChanger(name.encode('utf8'))
+        nc = NameChanger(name)
 
         self.assertEqual(nc.newname, want)
 
@@ -44,7 +45,7 @@ class TestNameChanger(unittest.TestCase):
         want = 'astndzcaoaoai_'
 
         name = u'ášŧŋđŽČÅØÆÖÄï+'
-        nc = NameChanger(name.encode('utf8'))
+        nc = NameChanger(name)
 
         self.assertEqual(nc.newname, want)
 
@@ -96,8 +97,8 @@ class NameChanger:
         self.newname is the basename of oldname, in lowercase and
         with some characters replaced.
         """
-        self.dirname = os.path.dirname(oldname.decode('utf8'))
-        self.oldname = os.path.basename(oldname.decode('utf8'))
+        self.dirname = os.path.dirname(oldname)
+        self.oldname = os.path.basename(oldname)
 
         if newname is not None:
             self.newname = self.changeToAscii(newname.decode('utf8'))
@@ -131,3 +132,10 @@ class NameChanger:
             self.movePrestableConverted()
             self.movePrestableToktmx()
             self.movePrestableTmx()
+
+if __name__ == "__main__":
+    for line in sys.stdin:
+        nc = NameChanger(os.path.abspath(line.strip()).decode('utf8'))
+        print nc.dirname
+        print nc.oldname
+        print nc.newname
