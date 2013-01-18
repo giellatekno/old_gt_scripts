@@ -565,10 +565,11 @@ class PlaintextConverter:
                 p.append(em)
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@ingress:') or line.startswith('Ingress:'):
+            elif line.startswith('@ingress:') or line.startswith('Ingress:') or line.startswith('@ingres:'):
                 p = etree.Element('p')
                 line = line.replace(u'Ingress:', u'')
                 line = line.replace(u'@ingress:', u'')
+                line = line.replace(u'@ingres:', u'')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
