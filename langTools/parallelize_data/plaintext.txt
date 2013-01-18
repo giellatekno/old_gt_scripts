@@ -11,3 +11,5 @@ Buot leat dás dán fitnodaga Service Pack 2-páhkas, maid ferte viežžat ja bi
 @logo:Finnmark jordskifterett
 
 @fotobyline:Finnmark jordskifterett
+
+@bildetitt:Finnmark jordskifterett
