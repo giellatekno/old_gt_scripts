@@ -593,6 +593,7 @@ class PlaintextConverter:
                 ptext = ''
             elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('@mtitt:') or line.startswith('m.titt:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:') or line.startswith('@tit:') or line.startswith('@Titt:') or line.startswith('titt:'):
                 p = etree.Element('p', type="title")
+                line = line.replace('@m.titt:@ingress:', '')
                 line = line.replace('@m.titt:', '')
                 line = line.replace('@mtitt:', '')
                 line = line.replace('m.titt:', '')
