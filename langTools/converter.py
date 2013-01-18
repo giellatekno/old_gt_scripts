@@ -588,6 +588,7 @@ class PlaintextConverter:
                 line = line.replace('TEKST:', '')
                 line = line.replace('@LEDtekst:', '')
                 line = line.replace('tekst:', '')
+                line = line.replace('@fotobyline:', '')
                 line = line.replace('@foto:', '')
                 p.text = line.strip()
                 body.append(p)
