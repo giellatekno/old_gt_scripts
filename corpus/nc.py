@@ -28,5 +28,5 @@ import namechanger
 
 filename = sys.argv[1]
 if '.xsl' not in filename:
-    nc = NameChanger()
+    nc = namechanger.NameChanger(os.path.abspath(filename.decode('utf8')))
     nc.changeName()
