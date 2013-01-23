@@ -140,10 +140,9 @@ class NameChanger:
                 print >>sys.stderr, output
                 print >>sys.stderr, error
             else:
-                print "moved", fromname, "to", toname
-        else:
-            print >>sys.stderr, 'Does not exist', fromname
+                sys.stdout.write('.')
 
+        pass
 
     def changeName(self):
         """Change the name of the original file and it's metadata file
@@ -157,6 +156,8 @@ class NameChanger:
             self.movePrestableConverted()
             self.movePrestableToktmx()
             self.movePrestableTmx()
+
+        pass
 
     def moveOrigfile(self):
         """Change the name of the original file
@@ -194,13 +195,14 @@ class NameChanger:
         """
         """
         paradir = self.dirname.replace(mainlang, paralang)
+        parafile = os.path.join(paradir, paraname + '.xsl')
+        if os.path.exists(parafile):
+            paratree = self.openXslfile()
+            pararoot = paratree.getroot()
 
-        paratree = self.openXslfile(os.path.join(paradir, paraname + '.xsl'))
-        pararoot = paratree.getroot()
+            pararoot.find(".//*[@name='para_" + mainlang + "']").set('select', "'" + self.newname + "'")
 
-        pararoot.find(".//*[@name='para_" + mainlang + "']").set('select', "'" + self.newname + "'")
-
-        paratree.write(os.path.join(paradir, paraname + '.xsl'), encoding = 'utf8', xml_declaration = True)
+            paratree.write(parafile, encoding = 'utf8', xml_declaration = True)
 
         pass
 
@@ -209,19 +211,21 @@ class NameChanger:
         Open the xsl files of these parallel files and change the name of this
         parallel from the old to the new one
         """
-        xsltree = self.openXslfile(os.path.join(self.dirname, self.newname + '.xsl'))
-        xslroot = xsltree.getroot()
+        xslfile = os.path.join(self.dirname, self.newname + '.xsl')
+        if os.path.exists(xslfile):
+            xsltree = self.openXslfile(xslfile)
+            xslroot = xsltree.getroot()
 
-        mainlang = xslroot.find(".//*[@name='mainlang']").get('select').replace("'", "")
+            mainlang = xslroot.find(".//*[@name='mainlang']").get('select').replace("'", "")
 
-        if mainlang != "":
-            for element in xslroot.iter():
-                if element.attrib.get('name') and \
-                'para_' in element.attrib.get('name') and \
-                element.attrib.get('select') != "''":
-                    paralang = element.attrib.get('name').replace('para_', '')
-                    paraname = element.attrib.get('select').replace("'", "")
-                    self.setNewname(mainlang, paralang, paraname)
+            if mainlang != "":
+                for element in xslroot.iter():
+                    if element.attrib.get('name') and \
+                    'para_' in element.attrib.get('name') and \
+                    element.attrib.get('select') != "''":
+                        paralang = element.attrib.get('name').replace('para_', '')
+                        paraname = element.attrib.get('select').replace("'", "")
+                        self.setNewname(mainlang, paralang, paraname)
 
         pass
 
