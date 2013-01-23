@@ -117,7 +117,7 @@ class NameChanger:
     def changeToAscii(self, oldname):
         """Downcase all chars in oldname, replace some chars
         """
-        chars = {u'á':u'a', u'š':u's', u'ŧ':u't', u'ŋ':u'n', u'đ':u'd', u'ž':u'z', u'č':u'c', u'å':u'a', u'ø':u'o', u'æ':u'a', u'ö':u'o', u'ä':u'a', u'ï':u'i', u'+':'_', u' ': u'_', u'(': u'_', u')': u'_', u"'": u'_', u'–': '-'}
+        chars = {u'á':u'a', u'š':u's', u'ŧ':u't', u'ŋ':u'n', u'đ':u'd', u'ž':u'z', u'č':u'c', u'å':u'a', u'ø':u'o', u'æ':u'a', u'ö':u'o', u'ä':u'a', u'ï':u'i', u'+':'_', u' ': u'_', u'(': u'_', u')': u'_', u"'": u'_', u'–': u'-', u'?': u'_'}
 
         newname = oldname.lower()
 
