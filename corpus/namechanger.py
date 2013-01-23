@@ -21,35 +21,11 @@
 #   Copyright 2013 Børre Gaup <borre.gaup@uit.no>
 #
 
-import unicodedata
 import sys
 import os
-import subprocess
-
-chars = {u'á':'a', u'š':'s', u'ŧ':'t', u'ŋ':'n', u'đ':'d', u'ž':'z', u'č':'c', u'å':'a', u'ø':'o', u'æ':'a', u'ö':'o', u'ä':'a', u'ï':'i'}
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import namechanger
 
 for line in sys.stdin:
-    dirname = os.path.dirname(line.strip().decode('utf8'))
-    oldname = os.path.basename(line.strip().decode('utf8'))
-    newname = os.path.basename(line.strip().decode('utf8').lower())
-    for key, value in chars.items():
-        utf8keys = [unicodedata.normalize('NFD', key), unicodedata.normalize('NFC', key)]
-        for utf8key in utf8keys:
-            if utf8key in newname:
-                newname = newname.replace(utf8key, value)
-
-    if newname != oldname:
-        fromname = os.path.join(dirname, oldname)
-        toname = os.path.join(dirname, newname)
-        if os.path.exists(fromname):
-            subp = subprocess.Popen(['git', 'mv', '-f', fromname, toname], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-            (output, error) = subp.communicate()
-
-            if subp.returncode != 0:
-                print >>sys.stderr, 'Could not move', fromname, 'to', toname
-                print >>sys.stderr, output
-                print >>sys.stderr, error
-            else:
-                print "moved", fromname, "to", toname
-        else:
-            print >>sys.stderr, 'Does not exist', line.strip()
+    nc = NameChanger(line.strip())
+    nc.changeName()
