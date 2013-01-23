@@ -26,6 +26,7 @@ import os
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import namechanger
 
-for line in sys.stdin:
-    nc = NameChanger(line.strip())
+filename = sys.argv[1]
+if '.xsl' not in filename:
+    nc = NameChanger()
     nc.changeName()
