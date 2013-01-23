@@ -132,7 +132,7 @@ class NameChanger:
     def moveFile(self, fromname, toname):
         """Change name of file from fromname to toname"""
         if os.path.exists(fromname):
-            subp = subprocess.Popen(['git', 'mv', fromname, toname], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            subp = subprocess.Popen(['svn', 'mv', fromname, toname], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
             (output, error) = subp.communicate()
 
             if subp.returncode != 0:
