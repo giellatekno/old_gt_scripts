@@ -12,15 +12,19 @@ def generate_nums(lang, max_limit):
 
 #	if (lang == "sme"):
 	for x in range(0,max_limit + 1):
-		print(str(x) + '\t' + 'UIBOEX')
+		print(str(x) + '\t' + 'UIE')
+		print(str(x) + '\t' + 'JuBO')
+#		print(str(x) + '\t' + 'UBOX')
 		print(str(x) + '--\t' + 'UIBOEX')
+		print(str(x) + '--\t' + 'JtB')
+		print(str(x) + '--\t' + 'JtOX')
 		print(str(x) + ':t' + '\t' + 'UIE')
 		print(str(x) + ':sis' + '\t' + 'UIE')
 		print(str(x) + ':siin' + '\t' + 'UIE')
 		print(str(x) + ':sii' + '\t' + 'UIE')
 		print(str(x) + ':sa' + '\t' + 'UIE')
 		print(str(x) + ':s' + '\t' + 'UIE')
-		print(str(x) + ':n' + '\t' + 'UIE')
+		print(str(x) + ':n' + '\t' + 'JuIE')
 		print(str(x) + ':in' + '\t' + 'UIE')
 		print(str(x) + ':id' + '\t' + 'UIE')
 		print(str(x) + ':i-guin' + '\t' + 'UIE')
