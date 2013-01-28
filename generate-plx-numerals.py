@@ -13,8 +13,8 @@ def generate_nums(lang, max_limit):
 #	if (lang == "sme"):
 	for x in range(0,max_limit + 1):
 		print(str(x) + '\t' + 'UIE')
-		print(str(x) + '\t' + 'JuBO')
-#		print(str(x) + '\t' + 'UBOX')
+		print(str(x) + '\t' + 'JuO')
+		print(str(x) + '\t' + 'JuBX')
 		print(str(x) + '--\t' + 'UIBOEX')
 		print(str(x) + '--\t' + 'JtB')
 		print(str(x) + '--\t' + 'JtOX')
