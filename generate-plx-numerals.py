@@ -17,7 +17,7 @@ def generate_nums(lang, max_limit):
 		print(str(x) + '\t' + 'JuBX')
 		print(str(x) + '--\t' + 'UIBOEX')
 		print(str(x) + '--\t' + 'JtB')
-		print(str(x) + '--\t' + 'JtOX')
+#		print(str(x) + '--\t' + 'JuO')
 		print(str(x) + ':t' + '\t' + 'UIE')
 		print(str(x) + ':sis' + '\t' + 'UIE')
 		print(str(x) + ':siin' + '\t' + 'UIE')
