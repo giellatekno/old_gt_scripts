@@ -20,7 +20,7 @@ def generate_nums(lang, max_limit):
 		print('0' + str(x) + '\t' + 'UIE')
 		print('0' + str(x) + '\t' + 'JuO')
 		print('0' + str(x) + '\t' + 'JuBX')
-		print('0' + str(x) + '--\t' + 'JuBX')
+		print('0' + str(x) + '--\t' + 'JuBX,UBX')
 		print('0' + str(x) + '--\t' + 'JuO')
 		print(str(x) + ':t' + '\t' + 'UIE')
 		print(str(x) + ':sis' + '\t' + 'UIE')
