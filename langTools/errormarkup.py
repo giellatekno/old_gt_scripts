@@ -276,6 +276,94 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(input), want)
 
+    def testSetMorphosyntacticAttributes1(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn cat="nompl" const="spred" errtype="agr" orig="nomsg" pos="a" teacher="yes">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg,agr,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes2(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn cat="nompl" const="spred" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg,agr")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes3(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn cat="nompl" const="spred" teacher="yes" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes4(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn cat="nompl" const="spred" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes5(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn cat="nompl" const="spred" teacher="no" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,no")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes6(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn cat="nompl" const="spred" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes7(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn teacher="no" const="spred" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred,no")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes8(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn const="spred" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,spred")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes9(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn teacher="no" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a,no")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes10(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "a")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetMorphosyntacticAttributes11(self):
+        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
+        want = '<errormorphsyn teacher="yes">Nieiddat leat nuorra</errormorphsyn>'
+
+        self.em.setMorphosyntacticAttributes(input, "yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
 class ErrorMarkup:
     def __init__(self):
         self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
@@ -340,6 +428,55 @@ class ErrorMarkup:
             attDict['origpos'] = atts[1]
             attDict['errtype'] = atts[2]
             attDict['teacher'] = atts[3]
+
+        self.setCommonAttributes(errorElement, attDict)
+
+    def setMorphosyntacticAttributes(self, errorElement, attributeList):
+        attDict = {}
+        atts = attributeList.split(',')
+
+        if len(atts) == 1:
+            if atts[0] == 'yes' or atts[0] == 'no':
+                attDict['teacher'] = atts[0]
+            else:
+                attDict['pos'] = atts[0]
+        elif len(atts) == 2:
+            attDict['pos'] = atts[0]
+            if atts[1] == 'yes' or atts[1] == 'no':
+                attDict['teacher'] = atts[1]
+            else:
+                attDict['const'] = atts[1]
+        elif len(atts) == 3:
+            attDict['pos'] = atts[0]
+            attDict['const'] = atts[1]
+            if atts[2] == 'yes' or atts[2] == 'no':
+                attDict['teacher'] = atts[2]
+            else:
+                attDict['cat'] = atts[2]
+        elif len(atts) == 4:
+            attDict['pos'] = atts[0]
+            attDict['const'] = atts[1]
+            attDict['cat'] = atts[2]
+            if atts[3] == 'yes' or atts[3] == 'no':
+                attDict['teacher'] = atts[3]
+            else:
+                attDict['orig'] = atts[3]
+        elif len(atts) == 5:
+            attDict['pos'] = atts[0]
+            attDict['const'] = atts[1]
+            attDict['cat'] = atts[2]
+            attDict['orig'] = atts[3]
+            if atts[4] == 'yes' or atts[4] == 'no':
+                attDict['teacher'] = atts[4]
+            else:
+                attDict['errtype'] = atts[4]
+        else:
+            attDict['pos'] = atts[0]
+            attDict['const'] = atts[1]
+            attDict['cat'] = atts[2]
+            attDict['orig'] = atts[3]
+            attDict['errtype'] = atts[4]
+            attDict['teacher'] = atts[5]
 
         self.setCommonAttributes(errorElement, attDict)
 
