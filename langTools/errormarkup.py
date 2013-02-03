@@ -204,6 +204,78 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(input), want)
 
+    def testSetOrthographicalAttributes4(self):
+        input = etree.fromstring('<errorort>jne.</errorort>')
+        want = '<errorort pos="blabla">jne.</errorort>'
+
+        self.em.setOrthographicalAttributes(input, "blabla")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetOrthographicalAttributes5(self):
+        input = etree.fromstring('<errorort>jne.</errorort>')
+        want = '<errorort pos="adj" errtype="blabla">jne.</errorort>'
+
+        self.em.setOrthographicalAttributes(input, "adj,blabla")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes1(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex pos="adv">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "adv")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes2(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex teacher="yes">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes3(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex pos="adv" origpos="adj">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "adv,adj")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes4(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex pos="adv" teacher="yes">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "adv,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes5(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex errtype="der" pos="adv" origpos="adj">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "adv,adj,der")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes6(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex teacher="yes" pos="adv" origpos="adj">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "adv,adj,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetLexicalAttributes7(self):
+        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
+        want = '<errorlex errtype="der" pos="adv" origpos="adj" teacher="yes">dábálaš</errorlex>'
+
+        self.em.setLexicalAttributes(input, "adv,adj,der,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
 class ErrorMarkup:
     def __init__(self):
         self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
@@ -224,11 +296,41 @@ class ErrorMarkup:
         atts = attributeList.split(',')
 
         if len(atts) == 1:
-            self.setCommonAttributes(errorElement, teacher=atts[0])
+            if atts[0] == 'yes' or atts[0] == 'no':
+                self.setCommonAttributes(errorElement, teacher=atts[0])
+            else:
+                self.setCommonAttributes(errorElement, pos=atts[0])
         elif len(atts) == 2:
-            self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[1])
+            if atts[1] == 'yes' or atts[1] == 'no':
+                self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[1])
+            else:
+                self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[1])
         else:
             self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[1], teacher=atts[2])
+
+    def setLexicalAttributes(self, errorElement, attributeList):
+        atts = attributeList.split(',')
+
+        if len(atts) == 1:
+            if atts[0] == 'yes' or atts[0] == 'no':
+                self.setCommonAttributes(errorElement, teacher=atts[0])
+            else:
+                self.setCommonAttributes(errorElement, pos=atts[0])
+        elif len(atts) == 2:
+            if atts[1] == 'yes' or atts[1] == 'no':
+                self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[1])
+            else:
+                self.setCommonAttributes(errorElement, pos=atts[0])
+                errorElement.set('origpos', atts[1])
+        elif len(atts) == 3:
+            if atts[2] == 'yes' or atts[2] == 'no':
+                self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[2])
+            else:
+                self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[2])
+            errorElement.set('origpos', atts[1])
+        else:
+            self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[2], teacher=atts[3])
+            errorElement.set('origpos', atts[1])
 
 
 
