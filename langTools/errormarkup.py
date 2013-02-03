@@ -180,6 +180,30 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(input), want)
 
+    def testSetOrthographicalAttributes1(self):
+        input = etree.fromstring('<errorort>jne.</errorort>')
+        want = '<errorort teacher="yes">jne.</errorort>'
+
+        self.em.setOrthographicalAttributes(input, "yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetOrthographicalAttributes2(self):
+        input = etree.fromstring('<errorort>jne.</errorort>')
+        want = '<errorort pos="adj" teacher="yes">jne.</errorort>'
+
+        self.em.setOrthographicalAttributes(input, "adj,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetOrthographicalAttributes3(self):
+        input = etree.fromstring('<errorort>jne.</errorort>')
+        want = '<errorort pos="adj" errtype="blabla" teacher="yes">jne.</errorort>'
+
+        self.em.setOrthographicalAttributes(input, "adj,blabla,yes")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
 class ErrorMarkup:
     def __init__(self):
         self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
@@ -195,3 +219,16 @@ class ErrorMarkup:
             errorElement.set('errtype', errtype)
         if teacher:
             errorElement.set('teacher', teacher)
+
+    def setOrthographicalAttributes(self, errorElement, attributeList):
+        atts = attributeList.split(',')
+
+        if len(atts) == 1:
+            self.setCommonAttributes(errorElement, teacher=atts[0])
+        elif len(atts) == 2:
+            self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[1])
+        else:
+            self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[1], teacher=atts[2])
+
+
+
