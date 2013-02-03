@@ -111,6 +111,16 @@ class TestErrorMarkup(unittest.TestCase):
         input = '<p>gitta Nordkjosbotn\'ii$Nordkjosbotnii (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos</p>'
         want = '<p>gitta <errorort correct="Nordkjosbotnii">Nordkjosbotn\'ii</errorort> (mii lea ge <errorort correct="Nordkjosbotn">nordkjosbotn</errorort> sámegillii? Muhtin, veahket mu!) gos</p>'
 
+    def testErrorParserWithTwoSimpleErrors(self):
+        input = u"gitta Nordkjosbotn'ii$Nordkjosbotnii (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos"
+        got = self.em.errorParser(input)
+
+        self.assertEqual(len(got), 3)
+        self.assertEqual(got[0], u'gitta ')
+        self.assertEqual(etree.tostring(got[1], encoding='utf8'), '<errorort correct="Nordkjosbotnii">Nordkjosbotn\'ii</errorort> (mii lea ge ')
+        self.assertEqual(etree.tostring(got[2], encoding='utf8'), '<errorort correct="Nordkjosbotn">nordkjosbotn</errorort> sámegillii? Muhtin, veahket mu!) gos')
+
+
     def testErrorMorphsyn2(self):
         input = '<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)£(noun,attr,gensg,nomsg,case|skuvlla ohppiid) ja VSM.</p>'
         want = '<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal <errormorphsyn cat="gensg" const="attr" correct="skuvlla ohppiid" errtype="case" orig="nomsg" pos="noun">skuvla ohppiid</errormorphsyn> ja VSM.</p>'
@@ -821,8 +831,7 @@ class ErrorMarkup:
 
             for x in range(0, len(result)):
                 if self.isCorrection(result[x]):
-                    (head, error) = self.processHead(result[x
-                    1])
+                    (head, error) = self.processHead(result[x-1])
                     if len(elements) == 0:
                         if head != '':
                             elements.append(head)
