@@ -796,12 +796,6 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertEqual(self.em.processText(text), want)
 
-    def testProcessText30(self):
-        text = u'Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot'
-        want = [u'Mirja ja Line leaba (gulahallan olbmožat)', u'¢(noun,cmp|gulahallanolbmožat)', u'€gulahallanolbmot']
-
-        self.assertEqual(self.em.processText(text), want)
-
     def testProcessText31(self):
         text = u'(Ovddit geasis)£(noun,advl,gensg,locsg,case|Ovddit geasi) ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)'
         want = [u'(Ovddit geasis)', u'£(noun,advl,gensg,locsg,case|Ovddit geasi)', u' ((čoaggen', u'$(verb,mono|čoggen)', u' ollu jokŋat)', u'£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid)', u' ja sarridat)', u'£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)']
@@ -822,12 +816,6 @@ class TestErrorMarkup(unittest.TestCase):
     def testIsCorrection2(self):
         text = u'Bruk ((epoxi)'
         self.assertTrue(not self.em.isCorrection(text))
-
-    #def testErrorParser1(self):
-        #input = 'jne.$(adv,typo|jna.)'
-        #want = ['jne.', '$', 'adv,type', 'jna.']
-
-        #self.assertEqual(got, want)
 
 class ErrorMarkup:
     def __init__(self):
@@ -1006,7 +994,7 @@ class ErrorMarkup:
 
             for x in range(0, len(result)):
                 if self.isCorrection(result[x]):
-                    if self.containsError(result[x-1]):
+                    if not self.isCorrection(result[x-1]) and  self.containsError(result[x-1]):
                         (head, error) = self.processHead(result[x-1])
                         if len(elements) == 0:
                             if head != '':
@@ -1020,32 +1008,36 @@ class ErrorMarkup:
                     else:
                         innerElement = elements[-1]
                         elements.remove(elements[-1])
-                        innerElement.tail = result[x-1][:-1]
+                        if not self.isCorrection(result[x-1]):
+                            innerElement.tail = result[x-1][:-1]
                         errorElement = self.getError(innerElement, result[x])
-
+                        print etree.tostring(errorElement)
                         parenthesisFound = False
 
-                        while not parenthesisFound:
-                            if isinstance(elements[-1], etree._Element):
-                                text = elements[-1].tail
-                            else:
-                                text = elements[-1]
-
-                            x = text.rfind('(')
-                            if x > -1:
-                                parenthesisFound = True
-
-                                errorElement.text = text[x+1:]
+                        if not self.isCorrection(result[x-1]):
+                            while not parenthesisFound:
                                 if isinstance(elements[-1], etree._Element):
-                                    elements[-1].tail = text[:x]
+                                    text = elements[-1].tail
                                 else:
-                                    elements[-1] = text[:x]
-                                elements.append(errorElement)
+                                    text = elements[-1]
 
-                            else:
-                                innerElement = elements[-1]
-                                elements.remove(elements[-1])
-                                errorElement.insert(0, innerElement)
+                                x = text.rfind('(')
+                                if x > -1:
+                                    parenthesisFound = True
+
+                                    errorElement.text = text[x+1:]
+                                    if isinstance(elements[-1], etree._Element):
+                                        elements[-1].tail = text[:x]
+                                    else:
+                                        elements[-1] = text[:x]
+                                    elements.append(errorElement)
+
+                                else:
+                                    innerElement = elements[-1]
+                                    elements.remove(elements[-1])
+                                    errorElement.insert(0, innerElement)
+                        else:
+                            elements.append(errorElement)
 
             if not self.isCorrection(result[-1]):
                 elements[-1].tail = result[-1]
