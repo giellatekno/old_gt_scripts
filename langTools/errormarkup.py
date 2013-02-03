@@ -238,9 +238,14 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
 
-    def testErrorort7(self):
+    def testErrorortSpanInP(self):
         input = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. Asbjørsen$(prop,typo|Asbjørnsen) døde 5. januar 1885, nesten 73 år gammel.</p>')
+
         want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort correct="Asbjørnsen" errtype="typo" pos="prop">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
+
+        self.em.addErrorMarkup(input[0])
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
 
     #Nested markup
     def testNestedMarkup1(self):
@@ -784,21 +789,6 @@ class ErrorMarkup:
 
         pass
 
-    def addErrorMarkup(self, element):
-        newContent = self.errorParser(element.text)
-
-        if newContent:
-            if isinstance(newContent[0], etree._Element):
-                element.text = ''
-                for part in newContent:
-                    element.append(part)
-            else:
-                element.text = newContent[0]
-                for part in newContent[1:]:
-                    element.append(part)
-
-        pass
-
     def setCommonAttributes(self, errorElement, attDict):
         for name, value in attDict.items():
             errorElement.set(name, value)
@@ -926,6 +916,38 @@ class ErrorMarkup:
             attDict['teacher'] = atts[2]
 
         self.setCommonAttributes(errorElement, attDict)
+
+    def addErrorMarkup(self, element):
+        text = element.text
+        tail = element.tail
+
+        if text:
+            newContent = self.errorParser(text)
+
+            if newContent:
+                if isinstance(newContent[0], etree._Element):
+                    element.text = ''
+                    for part in newContent:
+                        element.append(part)
+                else:
+                    element.text = newContent[0]
+                    for part in newContent[1:]:
+                        element.append(part)
+
+        if tail:
+            newContent = self.errorParser(tail)
+
+            if newContent:
+                if isinstance(newContent[0], etree._Element):
+                    element.tail = ''
+                    for part in newContent:
+                        element.getparent().append(part)
+                else:
+                    element.tail = newContent[0]
+                    for part in newContent[1:]:
+                        element.getparent().append(part)
+
+        pass
 
     def errorParser(self, text):
         result = self.processText(text)
