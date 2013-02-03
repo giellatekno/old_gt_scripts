@@ -160,7 +160,7 @@ class TestErrorMarkup(unittest.TestCase):
         input = etree.fromstring('<errorort>jne.</errorort>')
         want = '<errorort pos="adv">jne.</errorort>'
 
-        self.em.setCommonAttributes(input, pos = "adv")
+        self.em.setCommonAttributes(input, {'pos': "adv"})
 
         self.assertXmlEqual(etree.tostring(input), want)
 
@@ -168,7 +168,7 @@ class TestErrorMarkup(unittest.TestCase):
         input = etree.fromstring('<errorort>jne.</errorort>')
         want = '<errorort errtype="typo">jne.</errorort>'
 
-        self.em.setCommonAttributes(input, errtype = "typo")
+        self.em.setCommonAttributes(input, {'errtype': "typo"})
 
         self.assertXmlEqual(etree.tostring(input), want)
 
@@ -176,7 +176,7 @@ class TestErrorMarkup(unittest.TestCase):
         input = etree.fromstring('<errorort>jne.</errorort>')
         want = '<errorort teacher="yes">jne.</errorort>'
 
-        self.em.setCommonAttributes(input, teacher = "yes")
+        self.em.setCommonAttributes(input, {'teacher': "yes"})
 
         self.assertXmlEqual(etree.tostring(input), want)
 
@@ -284,53 +284,62 @@ class ErrorMarkup:
     def addErrorMarkup(self, paragraph):
         pass
 
-    def setCommonAttributes(self, errorElement, pos = None, errtype = None, teacher = None):
-        if pos:
-            errorElement.set('pos', pos)
-        if errtype:
-            errorElement.set('errtype', errtype)
-        if teacher:
-            errorElement.set('teacher', teacher)
+    def setCommonAttributes(self, errorElement, attDict):
+        for name, value in attDict.items():
+            errorElement.set(name, value)
 
     def setOrthographicalAttributes(self, errorElement, attributeList):
+        attDict = {}
         atts = attributeList.split(',')
 
         if len(atts) == 1:
             if atts[0] == 'yes' or atts[0] == 'no':
-                self.setCommonAttributes(errorElement, teacher=atts[0])
+                attDict['teacher'] = atts[0]
             else:
-                self.setCommonAttributes(errorElement, pos=atts[0])
+                attDict['pos'] = atts[0]
         elif len(atts) == 2:
             if atts[1] == 'yes' or atts[1] == 'no':
-                self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[1])
+                attDict['pos'] = atts[0]
+                attDict['teacher'] = atts[1]
             else:
-                self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[1])
+                attDict['pos'] = atts[0]
+                attDict['errtype'] = atts[1]
         else:
-            self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[1], teacher=atts[2])
+            attDict['pos'] = atts[0]
+            attDict['errtype'] = atts[1]
+            attDict['teacher'] = atts[2]
+
+        self.setCommonAttributes(errorElement, attDict)
 
     def setLexicalAttributes(self, errorElement, attributeList):
+        attDict = {}
         atts = attributeList.split(',')
 
         if len(atts) == 1:
             if atts[0] == 'yes' or atts[0] == 'no':
-                self.setCommonAttributes(errorElement, teacher=atts[0])
+                attDict['teacher'] = atts[0]
             else:
-                self.setCommonAttributes(errorElement, pos=atts[0])
+                attDict['pos'] = atts[0]
         elif len(atts) == 2:
             if atts[1] == 'yes' or atts[1] == 'no':
-                self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[1])
+                attDict['pos'] = atts[0]
+                attDict['teacher'] = atts[1]
             else:
-                self.setCommonAttributes(errorElement, pos=atts[0])
-                errorElement.set('origpos', atts[1])
+                attDict['pos'] = atts[0]
+                attDict['origpos'] = atts[1]
         elif len(atts) == 3:
+            attDict['origpos'] = atts[1]
             if atts[2] == 'yes' or atts[2] == 'no':
-                self.setCommonAttributes(errorElement, pos=atts[0], teacher=atts[2])
+                attDict['pos'] =atts[0]
+                attDict['teacher'] = atts[2]
             else:
-                self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[2])
-            errorElement.set('origpos', atts[1])
+                attDict['pos'] =atts[0]
+                attDict['errtype'] =atts[2]
         else:
-            self.setCommonAttributes(errorElement, pos=atts[0], errtype=atts[2], teacher=atts[3])
-            errorElement.set('origpos', atts[1])
+            attDict['pos'] = atts[0]
+            attDict['origpos'] = atts[1]
+            attDict['errtype'] = atts[2]
+            attDict['teacher'] = atts[3]
 
-
+        self.setCommonAttributes(errorElement, attDict)
 
