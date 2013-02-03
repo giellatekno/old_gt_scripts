@@ -624,6 +624,14 @@ class TestErrorMarkup(unittest.TestCase):
         print self.em.processText(text)
         self.assertEqual(self.em.processText(text), want)
 
+    def testIsCorrection1(self):
+        text = u'$(noun,cons|epoksy)'
+        self.assertTrue(self.em.isCorrection(text))
+
+    def testIsCorrection2(self):
+        text = u'Bruk ((epoxi)'
+        self.assertTrue(not self.em.isCorrection(text))
+
     #def testErrorParser1(self):
         #input = 'jne.$(adv,typo|jna.)'
         #want = ['jne.', '$', 'adv,type', 'jna.']
@@ -768,8 +776,39 @@ class ErrorMarkup:
         self.setCommonAttributes(errorElement, attDict)
 
     def errorParser(self, text):
-        result = []
+        result = self.processText(text)
 
+        elements = []
+
+        if len(result) > 1:
+
+            # This means that we are inside an error markup
+            # Start with the two first elements
+            # The first contains an error, the second one is a correction
+
+            for x in range(0, len(result)):
+                if self.isCorrection(result[x]):
+                    (head, error) = self.processHead(result[x-1])
+                    if len(elements) == 0:
+                        elements.append(head)
+                    else:
+                        elements[-1].tail = head
+                    #element = self.makeErrorElement(error, result[x])
+                    #elements.append(element)
+                    # make error element
+                    # remove the last element in elements, add that
+                    # as the error of the element
+                    pass
+
+            if self.isCorrection(result[-1]):
+                elements[-1].tail = result[-1]
+
+        return elements
+
+    def isCorrection(self, expression):
+        p = re.compile(u'(?P<correction>[$€£¥§¢]\([^\)]*\)|[$€£¥§¢]\S+)(?P<tail>.*)',re.UNICODE)
+
+        return p.search(expression)
 
     def processText(self, text):
 
@@ -793,8 +832,7 @@ class ErrorMarkup:
         return result
 
     def processHead(self, text):
-        print '876', text
-        p = re.compile(u'(?P<error>\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)(?P<separator>[$€£¥§¢])',re.UNICODE)
+        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\.]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
 
         m = p.search(text)
         text = p.sub('', text)
