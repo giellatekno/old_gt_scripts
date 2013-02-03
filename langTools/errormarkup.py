@@ -425,6 +425,15 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(errorElement), want)
 
+    def testGetErrorElementWithErrorAsElement(self):
+        want = u'<errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn>'
+
+        nestedElement = etree.fromstring(u'<errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort>')
+        nestedElement.tail = u' ollu jokŋat'
+        errorElement = self.em.getError(nestedElement, u'£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid)')
+
+        self.assertXmlEqual(etree.tostring(errorElement), want)
+
     def testLookForExtendedAttributes1(self):
         correctionString = '1]'
         want = ('1]', False, '')
@@ -648,7 +657,7 @@ class TestErrorMarkup(unittest.TestCase):
 
 class ErrorMarkup:
     def __init__(self):
-        self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
+        self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error"}
 
         pass
 
