@@ -27,6 +27,14 @@ class TestErrorMarkup(unittest.TestCase):
         #got = etree.tostring(self.em.addErrorMarkup(input), encoding = 'utf8')
         #self.assertXmlEqual(got, want)
 
+    def testErrorParserErrorort1(self):
+        input = u'jne.$(adv,typo|jna.)'
+        want = u'<errorort correct="jna." errtype="typo" pos="adv">jne.</errorort>'
+
+        got = self.em.errorParser(input)
+        self.assertEqual(len(got), 1)
+        self.assertXmlEqual(etree.tostring(got[0]), want)
+
     def testErrorort2(self):
         input = '<p>daesn\'$daesnie</p>'
         want = '<p><errorort correct="daesnie">daesn\'</errorort></p>'
@@ -74,6 +82,14 @@ class TestErrorMarkup(unittest.TestCase):
     def testErrorMorphsyn1(self):
         input = '<p>(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)</p>'
         want = '<p><errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn></p>'
+
+    def testGetErrorErrorMorphsyn1(self):
+        input = u'(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)'
+        want = u'<errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+
+        got = self.em.errorParser(input)
+        self.assertEqual(len(got), 1)
+        self.assertXmlEqual(etree.tostring(got[0]), want)
 
     def testErrorSyn1(self):
         input = '<p>(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)</p>'
@@ -805,19 +821,21 @@ class ErrorMarkup:
 
             for x in range(0, len(result)):
                 if self.isCorrection(result[x]):
-                    (head, error) = self.processHead(result[x-1])
+                    (head, error) = self.processHead(result[x
+                    1])
                     if len(elements) == 0:
-                        elements.append(head)
+                        if head != '':
+                            elements.append(head)
                     else:
                         elements[-1].tail = head
-                    #element = self.makeErrorElement(error, result[x])
-                    #elements.append(element)
+
+                    element = self.getError(error, result[x])
+                    elements.append(element)
                     # make error element
                     # remove the last element in elements, add that
                     # as the error of the element
-                    pass
 
-            if self.isCorrection(result[-1]):
+            if not self.isCorrection(result[-1]):
                 elements[-1].tail = result[-1]
 
         return elements
@@ -885,7 +903,7 @@ class ErrorMarkup:
         if isinstance(error, etree._Element):
             errorElement.append(error)
         else:
-            errorElement.text = error
+            errorElement.text = error.replace('(', '').replace(')', '')
         errorElement.set('correct', fixedCorrection)
 
         return errorElement
