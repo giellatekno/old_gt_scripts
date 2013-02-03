@@ -575,6 +575,126 @@ class TestErrorMarkup(unittest.TestCase):
         print self.em.processText(m)
         self.assertEqual(self.em.processText(m), want)
 
+    def testProcessText19(self):
+        text = u"Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)£(noun,attr,gensg,nomsg,case|skuvlla ohppiid) ja VSM."
+        want = (u'£', 'noun,attr,gensg,nomsg,case|skuvlla ohppiid', u' ja VSM.')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText20(self):
+        text = u"- ruksesruonáčalmmehisvuohta lea sullii 8%:as$(acr,suf|8%:s)"
+        want = (u'$', 'acr,suf|8%:s', '')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText21(self):
+        text = u"( nissonin¢(noun,suf|nissoniin) dušše (0.6 %:s)£(0.6 %) )"
+        want = (u'¢', u'noun,suf|nissoniin', u' dušše (0.6 %:s)£(0.6 %) )')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText22(self):
+        text = u"(haploida) ja njiŋŋalas$(noun,á|njiŋŋálas) ságahuvvon$(verb,a|sagahuvvon) manneseallas (diploida)"
+        want = (u'$', u'noun,á|njiŋŋálas', u' ságahuvvon$(verb,a|sagahuvvon) manneseallas (diploida)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText23(self):
+        text = u"(gii oahpaha) giinu$(x,notcmp|gii nu) manai intiánalávlagat$(loan,conc|indiánalávlagat) (guovža-klána)$(noun,cmp|guovžaklána) olbmuid"
+        want = (u'$', u'x,notcmp|gii nu', u' manai intiánalávlagat$(loan,conc|indiánalávlagat) (guovža-klána)$(noun,cmp|guovžaklána) olbmuid')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText24(self):
+        text = u'(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)'
+        want = (u'$', u'verb,conc|šattai', u' ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText25(self):
+        text = u'(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)'
+        want = (u'§', u'n,á|gánddat', u')£(n,nump,gensg,nompl,case|guokte gándda)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText26(self):
+        text = u'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)'
+        want = (u'$', u'adj,meta|nuorra', u')£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText26(self):
+        text = u'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)'
+        want = (u'$', u'adj,meta|nuorra', u')£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText27(self):
+        text = u'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)'
+        want = (u'£', u'n,spred,nomsg,gensg,case|okta mánná', u')£(v,v,sg3prs,pl3prs,agr|lea okta mánná)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText28(self):
+        text = u'heaitit dáhkaluddame$(verb,a|dahkaluddame) ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).'
+        want = (u'$', u'verb,a|dahkaluddame', u' ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText29(self):
+        text = u'(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.'
+        want = (u'$', u'noun,svow|Bearpmehat', u' earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText30(self):
+        text = u'Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot'
+        want = (u'¢', u'noun,cmp|gulahallanolbmožat', u'€gulahallanolbmot')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText31(self):
+        text = u'(Ovddit geasis)£(noun,advl,gensg,locsg,case|Ovddit geasi) ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)'
+        want = (u'£', u'noun,advl,gensg,locsg,case|Ovddit geasi', u' ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText32(self):
+        text = u'Bruk ((epoxi)$(noun,cons|epoksy) lim)¢(noun,mix|epoksylim) med god kvalitet.'
+        want = (u'$', u'noun,cons|epoksy', u' lim)¢(noun,mix|epoksylim) med god kvalitet.')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
     #def testErrorParser1(self):
         #input = 'jne.$(adv,typo|jna.)'
         #want = ['jne.', '$', 'adv,type', 'jna.']
@@ -729,8 +849,8 @@ class ErrorMarkup:
 
         m = self.errorRegex.search(text)
         while m:
-            head = self.errorRegex.sub(text)
             (separator, correction, tail) = self.processText(m)
+            head = self.errorRegex.sub(text) + separator
 
             (head, error) = self.processHead(head)
 
@@ -747,13 +867,14 @@ class ErrorMarkup:
 
     def processHead(self, text):
         p = re.compile(
-            r'(?P<head>.*)'
-            r'(?P<error>\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)$'
+            r'(?P<error>\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)'
+            u'(?P<separator>[$€£¥§¢])'
             )
 
         m = p.search(text)
-
-        return (m.group('head'), m.group('error'))
+        text = p.sub(text)
+        
+        return (text, m.group('error'))
 
     def getError(self, error, separator, correction):
         (fixedCorrection, extAtt, attList) = self.lookForExtendedAttributes(correction)
