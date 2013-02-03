@@ -432,268 +432,197 @@ class TestErrorMarkup(unittest.TestCase):
         self.assertEqual(got, want)
 
     def testProcessText1(self):
-        text = 'jne.$(adv,typo|jna.)'
-        want = ('$', 'adv,typo|jna.', '')
+        text = u'jne.$(adv,typo|jna.)'
+        want = [u'jne.', u'$(adv,typo|jna.)']
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText2(self):
-        text = "daesn'$daesnie"
-        want = ('$', 'daesnie', '')
+        text = u"daesn'$daesnie"
+        want = [u"daesn'", "$daesnie"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText3(self):
         text = u"1]§Ij"
-        want = (u'§', 'Ij', '')
+        want = [u"1]", u"§Ij"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText4(self):
         text = u"væ]keles§(væjkeles)"
-        want = (u'§', u'væjkeles', '')
+        want = [u"væ]keles", u"§(væjkeles)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText5(self):
         text = u"smávi-§smávit-"
-        want = (u'§', u'smávit-', '')
+        want = [u"smávi-", u"§smávit-"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText6(self):
         text = u"CD:t§CD:at"
-        want = (u'§', u'CD:at', '')
+        want = [u"CD:t", u"§CD:at"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText7(self):
         text = u"DNB-feaskáris§(DnB-feaskáris)"
-        want = (u'§', u'DnB-feaskáris', '')
+        want = [u"DNB-feaskáris", u"§(DnB-feaskáris)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText8(self):
         text = u"boade§boađe"
-        want = (u'§', u'boađe', '')
+        want = [u"boade", u"§boađe"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText9(self):
         text = u"2005’as§2005:s"
-        want = (u'§', u'2005:s', '')
+        want = [u"2005’as", u"§2005:s"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText10(self):
         text = u"NSRii§NSR:ii"
-        want = (u'§', u'NSR:ii', '')
+        want = [u"NSRii", u"§NSR:ii"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText11(self):
         text = u"Nordkjosbotn'ii§Nordkjosbotnii"
-        want = (u'§', u"Nordkjosbotnii", '')
+        want = [u"Nordkjosbotn'ii", u"§Nordkjosbotnii"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText12(self):
         text = u"nourra$(a,meta|nuorra)"
-        want = (u"$", u'a,meta|nuorra', '')
+        want = [u"nourra", u"$(a,meta|nuorra)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText13(self):
         text = u"(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)"
-        want = (u'£', u'a,spred,nompl,nomsg,agr|Nieiddat leat nuorat', '')
+        want = [u"(Nieiddat leat nuorra)", u"£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText14(self):
         text = u"(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)"
-        want = (u'¥', u'x,pph|riŋgen niidii', '')
+        want = [u"(riŋgen nieidda lusa)", u"¥(x,pph|riŋgen niidii)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText15(self):
         text = u"ovtta¥(num,redun| )"
-        want = (u'¥', u'num,redun| ', '')
+        want = [u"ovtta", u"¥(num,redun| )"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText16(self):
         text = u"dábálaš€(adv,adj,der|dábálaččat)"
-        want = (u'€', u'adv,adj,der|dábálaččat', '')
+        want = [u"dábálaš", u"€(adv,adj,der|dábálaččat)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText17(self):
         text = u"ráhččamušaid¢(noun,mix|rahčamušaid)"
-        want = (u'¢', u'noun,mix|rahčamušaid', '')
+        want = [u"ráhččamušaid", u"¢(noun,mix|rahčamušaid)"]
 
-        m = self.em.errorRegex.search(text)
-
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText18(self):
         text = u"gitta Nordkjosbotn'ii$Nordkjosbotnii (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos"
-        want = (u'$', u'Nordkjosbotnii', u' (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos')
+        want = [u"gitta Nordkjosbotn'ii", u"$Nordkjosbotnii", u" (mii lea ge nordkjosbotn", u"$Nordkjosbotn", u" sámegillii? Muhtin, veahket mu!) gos"]
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText19(self):
         text = u"Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)£(noun,attr,gensg,nomsg,case|skuvlla ohppiid) ja VSM."
-        want = (u'£', 'noun,attr,gensg,nomsg,case|skuvlla ohppiid', u' ja VSM.')
+        want = [u"Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)", u"£(noun,attr,gensg,nomsg,case|skuvlla ohppiid)", u" ja VSM."]
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText20(self):
         text = u"- ruksesruonáčalmmehisvuohta lea sullii 8%:as$(acr,suf|8%:s)"
-        want = (u'$', 'acr,suf|8%:s', '')
+        want = [u"- ruksesruonáčalmmehisvuohta lea sullii 8%:as", u"$(acr,suf|8%:s)"]
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText21(self):
         text = u"( nissonin¢(noun,suf|nissoniin) dušše (0.6 %:s)£(0.6 %) )"
-        want = (u'¢', u'noun,suf|nissoniin', u' dušše (0.6 %:s)£(0.6 %) )')
+        want = [u"( nissonin", u"¢(noun,suf|nissoniin)", u" dušše (0.6 %:s)", u"£(0.6 %)", u" )"]
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText22(self):
         text = u"(haploida) ja njiŋŋalas$(noun,á|njiŋŋálas) ságahuvvon$(verb,a|sagahuvvon) manneseallas (diploida)"
-        want = (u'$', u'noun,á|njiŋŋálas', u' ságahuvvon$(verb,a|sagahuvvon) manneseallas (diploida)')
+        want = [u"(haploida) ja njiŋŋalas", u"$(noun,á|njiŋŋálas)", u" ságahuvvon", u"$(verb,a|sagahuvvon)", u" manneseallas (diploida)"]
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText23(self):
         text = u"(gii oahpaha) giinu$(x,notcmp|gii nu) manai intiánalávlagat$(loan,conc|indiánalávlagat) (guovža-klána)$(noun,cmp|guovžaklána) olbmuid"
-        want = (u'$', u'x,notcmp|gii nu', u' manai intiánalávlagat$(loan,conc|indiánalávlagat) (guovža-klána)$(noun,cmp|guovžaklána) olbmuid')
+        want = [u"(gii oahpaha) giinu", "$(x,notcmp|gii nu)", u" manai intiánalávlagat", u"$(loan,conc|indiánalávlagat)", u" (guovža-klána)", u"$(noun,cmp|guovžaklána)", u" olbmuid"]
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText24(self):
         text = u'(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)'
-        want = (u'$', u'verb,conc|šattai', u' ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)')
+        want = [u'(šaddai', u"$(verb,conc|šattai)", u" ollu áššit)", u'£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText25(self):
         text = u'(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)'
-        want = (u'§', u'n,á|gánddat', u')£(n,nump,gensg,nompl,case|guokte gándda)')
+        want = [u'(guokte ganddat', u'§(n,á|gánddat)', u')', u'£(n,nump,gensg,nompl,case|guokte gándda)']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText26(self):
         text = u'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)'
-        want = (u'$', u'adj,meta|nuorra', u')£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)')
+        want = [u'(Nieiddat leat nourra', u'$(adj,meta|nuorra)', u')', u'£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
-
-    def testProcessText26(self):
-        text = u'(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)'
-        want = (u'$', u'adj,meta|nuorra', u')£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)')
-
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText27(self):
         text = u'(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)'
-        want = (u'£', u'n,spred,nomsg,gensg,case|okta mánná', u')£(v,v,sg3prs,pl3prs,agr|lea okta mánná)')
+        want = [u'(leat (okta máná)', u'£(n,spred,nomsg,gensg,case|okta mánná)', u')', u'£(v,v,sg3prs,pl3prs,agr|lea okta mánná)']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText28(self):
         text = u'heaitit dáhkaluddame$(verb,a|dahkaluddame) ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).'
-        want = (u'$', u'verb,a|dahkaluddame', u' ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).')
+        want = [u'heaitit dáhkaluddame', u'$(verb,a|dahkaluddame)', u' ahte sis máhkaš', u'¢(adv,á|mahkáš)', u' livččii makkarge', u'$(adv,á|makkárge)', u' politihkka, muhto rahpasit baicca muitalivčče (makkar', u'$(interr,á|makkár)', u' soga)', u'€(man soga)', u' sii ovddasttit', u'$(verb,conc|ovddastit)', u'.']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText29(self):
         text = u'(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.'
-        want = (u'$', u'noun,svow|Bearpmehat', u' earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.')
+        want = [u'(Bearpmahat', u'$(noun,svow|Bearpmehat)', u' earuha', u'€(verb,v,w|sirre)', u')', u'£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit)', u' uskki ja loaiddu.']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText30(self):
         text = u'Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot'
-        want = (u'¢', u'noun,cmp|gulahallanolbmožat', u'€gulahallanolbmot')
+        want = [u'Mirja ja Line leaba (gulahallan olbmožat)', u'¢(noun,cmp|gulahallanolbmožat)', u'€gulahallanolbmot']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText31(self):
         text = u'(Ovddit geasis)£(noun,advl,gensg,locsg,case|Ovddit geasi) ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)'
-        want = (u'£', u'noun,advl,gensg,locsg,case|Ovddit geasi', u' ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)')
+        want = [u'(Ovddit geasis)', u'£(noun,advl,gensg,locsg,case|Ovddit geasi)', u' ((čoaggen', u'$(verb,mono|čoggen)', u' ollu jokŋat)', u'£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid)', u' ja sarridat)', u'£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        self.assertEqual(self.em.processText(text), want)
 
     def testProcessText32(self):
         text = u'Bruk ((epoxi)$(noun,cons|epoksy) lim)¢(noun,mix|epoksylim) med god kvalitet.'
-        want = (u'$', u'noun,cons|epoksy', u' lim)¢(noun,mix|epoksylim) med god kvalitet.')
+        want = [u'Bruk ((epoxi)', u'$(noun,cons|epoksy)', u' lim)', u'¢(noun,mix|epoksylim)', u' med god kvalitet.']
 
-        m = self.em.errorRegex.search(text)
-        print self.em.processText(m)
-        self.assertEqual(self.em.processText(m), want)
+        print self.em.processText(text)
+        self.assertEqual(self.em.processText(text), want)
 
     #def testErrorParser1(self):
         #input = 'jne.$(adv,typo|jna.)'
@@ -705,12 +634,6 @@ class ErrorMarkup:
     def __init__(self):
         self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
 
-        separators = '[$€£¥§¢]'
-        self.errorRegex = re.compile(
-            u'(?P<separator>[$€£¥§¢])'
-            r'(?P<correction>\([^\)]*\)|\S+)'
-            r'(?P<tail>.*)',
-            re.UNICODE)
         pass
 
     def addErrorMarkup(self, paragraph):
@@ -847,33 +770,35 @@ class ErrorMarkup:
     def errorParser(self, text):
         result = []
 
-        m = self.errorRegex.search(text)
-        while m:
-            (separator, correction, tail) = self.processText(m)
-            head = self.errorRegex.sub(text) + separator
 
-            (head, error) = self.processHead(head)
+    def processText(self, text):
 
-            result.append(head)
-            if re.search(separators, error):
-                result.append(self.processNestedMarkup(error))
-            else:
-                error = error.replace('(', '').replace(')', '')
-                result.append(self.getError(error, separator, correction))
-            m = p.search(rest)
+        result = []
 
-    def processText(self, m):
-        return (m.group('separator'), m.group('correction').replace('(', '').replace(')', ''), m.group('tail'))
+        p = re.compile(u'(?P<correction>[$€£¥§¢]\([^\)]*\)|[$€£¥§¢]\S+)(?P<tail>.*)',re.UNICODE)
 
-    def processHead(self, text):
-        p = re.compile(
-            r'(?P<error>\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)'
-            u'(?P<separator>[$€£¥§¢])'
-            )
 
         m = p.search(text)
-        text = p.sub(text)
-        
+        while m:
+            head = p.sub('', text)
+            if head != '':
+                result.append(head)
+            result.append(m.group('correction'))
+            text = m.group('tail')
+            m = p.search(text)
+
+        if text != '':
+            result.append(text)
+
+        return result
+
+    def processHead(self, text):
+        print '876', text
+        p = re.compile(u'(?P<error>\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)(?P<separator>[$€£¥§¢])',re.UNICODE)
+
+        m = p.search(text)
+        text = p.sub('', text)
+
         return (text, m.group('error'))
 
     def getError(self, error, separator, correction):
