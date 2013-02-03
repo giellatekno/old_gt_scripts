@@ -23,8 +23,25 @@
 import os
 import sys
 import unittest
-
 import inspect
+import doctest
+import lxml.etree as etree
+import lxml.doctestcompare as doctestcompare
+import chardet
+import re
+import codecs
+import io
+import cStringIO
+import subprocess
+import BeautifulSoup
+from pyth.plugins.rtf15.reader import Rtf15Reader
+from pyth.plugins.xhtml.writer import XHTMLWriter
+from copy import deepcopy
+import decimal
+
+import decode
+import ngram
+import errormarkup
 
 def lineno():
     """Returns the current line number in our program."""
@@ -194,6 +211,12 @@ class Converter:
         ld = LanguageDetector(complete)
         ld.detectLanguage()
 
+        if 'correct.' in self.orig:
+            em = errormarkup.ErrorMarkup()
+
+            for element in complete.find('body'):
+                em.addErrorMarkup(element)
+
         return complete
 
     def writeComplete(self):
@@ -229,10 +252,6 @@ class Converter:
             self.corpusdir = os.path.dirname(self.orig[:origPos])
         else:
             self.corpusdir = os.getcwd()
-
-import doctest
-import lxml.etree as etree
-import lxml.doctestcompare as doctestcompare
 
 class TestAvvirConverter(unittest.TestCase):
     def setUp(self):
@@ -315,10 +334,6 @@ class SVGConverter:
         intermediate = transform(doc)
 
         return intermediate
-
-import chardet
-import re
-import codecs
 
 class TestPlaintextConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -465,8 +480,6 @@ class TestPlaintextConverter(unittest.TestCase):
         want = etree.parse('parallelize_data/tit.xml')
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
-
-import io
 
 class PlaintextConverter:
     """
@@ -677,8 +690,6 @@ class PlaintextConverter:
 #from pdfminer.cmapdb import CMapDB
 #from pdfminer.layout import LAParams
 
-import cStringIO
-
 class TestPDFConverter(unittest.TestCase):
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
@@ -828,8 +839,6 @@ class PDFConverter:
         document.append(body)
 
         return document
-
-import subprocess
 
 class TestDocConverter(unittest.TestCase):
     def setUp(self):
@@ -1011,8 +1020,6 @@ class TestHTMLContentConverter(unittest.TestCase):
 
         self.assertXmlEqual(got, want)
 
-import BeautifulSoup
-
 class HTMLContentConverter:
     """
     Class to convert html documents to the giellatekno xml format
@@ -1140,9 +1147,6 @@ class TestRTFConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
-from pyth.plugins.rtf15.reader import Rtf15Reader
-from pyth.plugins.xhtml.writer import XHTMLWriter
-
 class RTFConverter(HTMLContentConverter):
     """
     Class to convert html documents to the giellatekno xml format
@@ -1166,9 +1170,6 @@ class RTFConverter(HTMLContentConverter):
         htmlElement = etree.Element('html')
         htmlElement.append(xml)
         return etree.tostring(htmlElement)
-
-import decode
-from copy import deepcopy
 
 class TestDocumentFixer(unittest.TestCase):
     def assertXmlEqual(self, got, want):
@@ -1278,8 +1279,6 @@ class TestDocumentFixer(unittest.TestCase):
         df.setWordCount()
 
         self.assertXmlEqual(etree.tostring(df.etree), expectedDoc)
-
-import io
 
 class DocumentFixer:
     """
@@ -1583,9 +1582,6 @@ class TestLanguageDetector(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(gotDocument), etree.tostring(expectedDocument))
 
-sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
-import ngram
-
 class LanguageDetector:
     """
     Receive an etree.
@@ -1654,8 +1650,6 @@ class LanguageDetector:
         if self.document.find('header/multilingual') is not None:
             for paragraph in self.document.iter('p'):
                 paragraph = self.setParagraphLanguage(paragraph)
-
-import decimal
 
 class TestDocumentTester(unittest.TestCase):
     def setUp(self):
