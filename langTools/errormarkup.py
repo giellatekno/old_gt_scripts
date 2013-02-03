@@ -412,9 +412,17 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(input), want)
 
-    def testMakeErrorElement(self):
+    def testMakeErrorElementWithErrorAsText(self):
         want = '<errorsyn correct="riŋgen niidii">riŋgen nieidda lusa</errorsyn>'
         errorElement = self.em.makeErrorElement(u"riŋgen nieidda lusa", u"riŋgen niidii", "errorsyn")
+        self.assertXmlEqual(etree.tostring(errorElement), want)
+
+    def testMakeErrorElementWithErrorAsElement(self):
+        want = u'<errorlex correct="gulahallanolbmot"><errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">gulahallan olbmožat</errorortreal></errorlex>'
+
+        nestedElement = etree.fromstring(u'<errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">gulahallan olbmožat</errorortreal>')
+        errorElement = self.em.makeErrorElement(nestedElement, u"gulahallanolbmot", "errorlex")
+
         self.assertXmlEqual(etree.tostring(errorElement), want)
 
     def testLookForExtendedAttributes1(self):
@@ -839,10 +847,10 @@ class ErrorMarkup:
 
         return (text, m.group('error'))
 
-    def getError(self, error, separator, correction):
-        (fixedCorrection, extAtt, attList) = self.lookForExtendedAttributes(correction)
+    def getError(self, error, correction):
+        (fixedCorrection, extAtt, attList) = self.lookForExtendedAttributes(correction[1:].replace('(', '').replace(')', ''))
 
-        elementName = self.getElementName(separator)
+        elementName = self.getElementName(correction[0])
 
         errorElement = self.makeErrorElement(error, fixedCorrection, elementName)
 
@@ -852,13 +860,12 @@ class ErrorMarkup:
         return errorElement
 
     def lookForExtendedAttributes(self, correction):
-        print correction
         extAtt = False
         attList = ''
         if '|' in correction:
             extAtt = True
             (attList, correction) = correction.split('|')
-        print correction
+
         return (correction, extAtt, attList)
 
     def getElementName(self, separator):
@@ -866,7 +873,10 @@ class ErrorMarkup:
 
     def makeErrorElement(self, error, fixedCorrection, elementName):
         errorElement = etree.Element(elementName)
-        errorElement.text = error
+        if isinstance(error, etree._Element):
+            errorElement.append(error)
+        else:
+            errorElement.text = error
         errorElement.set('correct', fixedCorrection)
 
         return errorElement
