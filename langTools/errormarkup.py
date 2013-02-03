@@ -404,9 +404,193 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(input), want)
 
+    def testAddExtraAttributes1(self):
+        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
+        want = '<errorsyn pos="x">riŋgen nieidda lusa</errorsyn>'
+
+        self.em.addExtraAttributes(input, "x")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testMakeErrorElement(self):
+        want = '<errorsyn correct="riŋgen niidii">riŋgen nieidda lusa</errorsyn>'
+        errorElement = self.em.makeErrorElement(u"riŋgen nieidda lusa", u"riŋgen niidii", "errorsyn")
+        self.assertXmlEqual(etree.tostring(errorElement), want)
+
+    def testLookForExtendedAttributes1(self):
+        correctionString = '1]'
+        want = ('1]', False, '')
+        got = self.em.lookForExtendedAttributes(correctionString)
+
+        self.assertEqual(got, want)
+
+    def testLookForExtendedAttributes2(self):
+        correctionString = 'a,spred,nompl,nomsg,agr|Nieiddat leat nuorat'
+        want = ('Nieiddat leat nuorat', True, 'a,spred,nompl,nomsg,agr')
+        got = self.em.lookForExtendedAttributes(correctionString)
+
+        self.assertEqual(got, want)
+
+    def testProcessText1(self):
+        text = 'jne.$(adv,typo|jna.)'
+        want = ('$', 'adv,typo|jna.', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText2(self):
+        text = "daesn'$daesnie"
+        want = ('$', 'daesnie', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText3(self):
+        text = u"1]§Ij"
+        want = (u'§', 'Ij', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText4(self):
+        text = u"væ]keles§(væjkeles)"
+        want = (u'§', u'væjkeles', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText5(self):
+        text = u"smávi-§smávit-"
+        want = (u'§', u'smávit-', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText6(self):
+        text = u"CD:t§CD:at"
+        want = (u'§', u'CD:at', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText7(self):
+        text = u"DNB-feaskáris§(DnB-feaskáris)"
+        want = (u'§', u'DnB-feaskáris', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText8(self):
+        text = u"boade§boađe"
+        want = (u'§', u'boađe', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText9(self):
+        text = u"2005’as§2005:s"
+        want = (u'§', u'2005:s', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText10(self):
+        text = u"NSRii§NSR:ii"
+        want = (u'§', u'NSR:ii', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText11(self):
+        text = u"Nordkjosbotn'ii§Nordkjosbotnii"
+        want = (u'§', u"Nordkjosbotnii", '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText12(self):
+        text = u"nourra$(a,meta|nuorra)"
+        want = (u"$", u'a,meta|nuorra', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText13(self):
+        text = u"(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)"
+        want = (u'£', u'a,spred,nompl,nomsg,agr|Nieiddat leat nuorat', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText14(self):
+        text = u"(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)"
+        want = (u'¥', u'x,pph|riŋgen niidii', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText15(self):
+        text = u"ovtta¥(num,redun| )"
+        want = (u'¥', u'num,redun| ', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText16(self):
+        text = u"dábálaš€(adv,adj,der|dábálaččat)"
+        want = (u'€', u'adv,adj,der|dábálaččat', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText17(self):
+        text = u"ráhččamušaid¢(noun,mix|rahčamušaid)"
+        want = (u'¢', u'noun,mix|rahčamušaid', '')
+
+        m = self.em.errorRegex.search(text)
+
+        self.assertEqual(self.em.processText(m), want)
+
+    def testProcessText18(self):
+        text = u"gitta Nordkjosbotn'ii$Nordkjosbotnii (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos"
+        want = (u'$', u'Nordkjosbotnii', u' (mii lea ge nordkjosbotn$Nordkjosbotn sámegillii? Muhtin, veahket mu!) gos')
+
+        m = self.em.errorRegex.search(text)
+        print self.em.processText(m)
+        self.assertEqual(self.em.processText(m), want)
+
+    #def testErrorParser1(self):
+        #input = 'jne.$(adv,typo|jna.)'
+        #want = ['jne.', '$', 'adv,type', 'jna.']
+
+        #self.assertEqual(got, want)
+
 class ErrorMarkup:
     def __init__(self):
         self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
+
+        separators = '[$€£¥§¢]'
+        self.errorRegex = re.compile(
+            u'(?P<separator>[$€£¥§¢])'
+            r'(?P<correction>\([^\)]*\)|\S+)'
+            r'(?P<tail>.*)',
+            re.UNICODE)
         pass
 
     def addErrorMarkup(self, paragraph):
@@ -540,3 +724,78 @@ class ErrorMarkup:
 
         self.setCommonAttributes(errorElement, attDict)
 
+    def errorParser(self, text):
+        result = []
+
+        m = self.errorRegex.search(text)
+        while m:
+            head = self.errorRegex.sub(text)
+            (separator, correction, tail) = self.processText(m)
+
+            (head, error) = self.processHead(head)
+
+            result.append(head)
+            if re.search(separators, error):
+                result.append(self.processNestedMarkup(error))
+            else:
+                error = error.replace('(', '').replace(')', '')
+                result.append(self.getError(error, separator, correction))
+            m = p.search(rest)
+
+    def processText(self, m):
+        return (m.group('separator'), m.group('correction').replace('(', '').replace(')', ''), m.group('tail'))
+
+    def processHead(self, text):
+        p = re.compile(
+            r'(?P<head>.*)'
+            r'(?P<error>\([^\(]*\)|\w+|\w+[-\':\]]\w+|\w+[-\'\]\.]|\d+’\w+|\d+%:\w+)$'
+            )
+
+        m = p.search(text)
+
+        return (m.group('head'), m.group('error'))
+
+    def getError(self, error, separator, correction):
+        (fixedCorrection, extAtt, attList) = self.lookForExtendedAttributes(correction)
+
+        elementName = self.getElementName(separator)
+
+        errorElement = self.makeErrorElement(error, fixedCorrection, elementName)
+
+        if extAtt:
+            self.addExtraAttributes(errorElement, attList)
+
+        return errorElement
+
+    def lookForExtendedAttributes(self, correction):
+        print correction
+        extAtt = False
+        attList = ''
+        if '|' in correction:
+            extAtt = True
+            (attList, correction) = correction.split('|')
+        print correction
+        return (correction, extAtt, attList)
+
+    def getElementName(self, separator):
+        return self.types[separator]
+
+    def makeErrorElement(self, error, fixedCorrection, elementName):
+        errorElement = etree.Element(elementName)
+        errorElement.text = error
+        errorElement.set('correct', fixedCorrection)
+
+        return errorElement
+
+    def addExtraAttributes(self, errorElement, attList):
+        if errorElement.tag == 'errorort' or errorElement.tag == 'errorortreal':
+            self.setOrthographicalAttributes(errorElement, attList)
+
+        if errorElement.tag == 'errorlex':
+            self.setLexicalAttributes(errorElement, attList)
+
+        if errorElement.tag == 'errormorphsyn':
+            self.setMorphosyntacticAttributes(errorElement, attList)
+
+        if errorElement.tag == 'errorsyn':
+            self.setSyntacticAttributes(errorElement, attList)
