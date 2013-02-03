@@ -288,21 +288,49 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
 
+    def testProcessText29(self):
+        text = u'(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.'
+        want = [u'(Bearpmahat', u'$(noun,svow|Bearpmehat)', u' earuha', u'€(verb,v,w|sirre)', u')', u'£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit)', u' uskki ja loaiddu.']
+
+        self.assertEqual(self.em.processText(text), want)
+
     def testNestedMarkup6(self):
         input = etree.fromstring('<p>(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.</p>')
         want = '<p><errormorphsyn cat="pl3prs" const="fin" correct="Bearpmehat sirrejit" errtype="agr" orig="sg3prs" pos="verb"><errorort correct="Bearpmehat" errtype="svow" pos="noun">Bearpmahat</errorort> <errorlex correct="sirre" errtype="w" origpos="v" pos="verb">earuha</errorlex></errormorphsyn> uskki ja loaiddu.</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
+    def testProcessText30(self):
+        text = u'Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot'
+        want = [u'Mirja ja Line leaba (gulahallan olbmožat)', u'¢(noun,cmp|gulahallanolbmožat)', u'€gulahallanolbmot']
+
+        self.assertEqual(self.em.processText(text), want)
 
     def testNestedMarkup7(self):
         input = etree.fromstring('<p>Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot</p>')
         want = '<p>Mirja ja Line leaba <errorlex correct="gulahallanolbmot"><errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">gulahallan olbmožat</errorortreal></errorlex></p>'
 
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
     def testNestedMarkup8(self):
         input = etree.fromstring('<p>(Ovddit geasis)£(noun,advl,gensg,locsg,case|Ovddit geasi) ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)</p>')
         want = '<p><errormorphsyn cat="gensg" const="advl" correct="Ovddit geasi" errtype="case" orig="locsg" pos="noun">Ovddit geasis</errormorphsyn> <errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid ja sarridiid" errtype="case" orig="nompl" pos="noun"><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn> ja sarridat</errormorphsyn></p>'
 
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
     def testNestedMarkup9(self):
         input = etree.fromstring('<p>Bruk ((epoxi)$(noun,cons|epoksy) lim)¢(noun,mix|epoksylim) med god kvalitet.</p>')
-        want = '<p>Bruk  <errorortreal correct="epoksylim" errtype="mix" pos="noun"><errorort correct="epoksy" errtype="cons" pos="noun">epoxi</errorort> lim</errorortreal> med god kvalitet.</p>'
+        want = '<p>Bruk <errorortreal correct="epoksylim" errtype="mix" pos="noun"><errorort correct="epoksy" errtype="cons" pos="noun">epoxi</errorort> lim</errorortreal> med god kvalitet.</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -768,12 +796,6 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertEqual(self.em.processText(text), want)
 
-    def testProcessText29(self):
-        text = u'(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.'
-        want = [u'(Bearpmahat', u'$(noun,svow|Bearpmehat)', u' earuha', u'€(verb,v,w|sirre)', u')', u'£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit)', u' uskki ja loaiddu.']
-
-        self.assertEqual(self.em.processText(text), want)
-
     def testProcessText30(self):
         text = u'Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot'
         want = [u'Mirja ja Line leaba (gulahallan olbmožat)', u'¢(noun,cmp|gulahallanolbmožat)', u'€gulahallanolbmot']
@@ -1001,19 +1023,29 @@ class ErrorMarkup:
                         innerElement.tail = result[x-1][:-1]
                         errorElement = self.getError(innerElement, result[x])
 
-                        if len(elements) == 1:
-                            text = elements[-1]
-                        else:
-                            text = elements[-1].tail
+                        parenthesisFound = False
 
-                        x = text.rfind('(')
-                        if x > -1:
-                            errorElement.text = text[x+1:]
-                            if len(elements) == 1:
-                                elements[-1] = text[:x]
+                        while not parenthesisFound:
+                            if isinstance(elements[-1], etree._Element):
+                                text = elements[-1].tail
                             else:
-                                elements[-1].tail = text[:x]
-                            elements.append(errorElement)
+                                text = elements[-1]
+
+                            x = text.rfind('(')
+                            if x > -1:
+                                parenthesisFound = True
+
+                                errorElement.text = text[x+1:]
+                                if isinstance(elements[-1], etree._Element):
+                                    elements[-1].tail = text[:x]
+                                else:
+                                    elements[-1] = text[:x]
+                                elements.append(errorElement)
+
+                            else:
+                                innerElement = elements[-1]
+                                elements.remove(elements[-1])
+                                errorElement.insert(0, innerElement)
 
             if not self.isCorrection(result[-1]):
                 elements[-1].tail = result[-1]
