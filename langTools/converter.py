@@ -212,10 +212,18 @@ class Converter:
         ld.detectLanguage()
 
         if 'correct.' in self.orig:
-            em = errormarkup.ErrorMarkup()
+            try:
+                em = errormarkup.ErrorMarkup()
 
-            for element in complete.find('body'):
-                em.addErrorMarkup(element)
+                for element in complete.find('body'):
+                    em.addErrorMarkup(element)
+            except IndexError as e:
+                logfile = open(self.getOrig() + '.log', 'w')
+                logfile.write(etree.tostring(complete, encoding = 'utf8'))
+                logfile.write('\n')
+                logfile.write(e)
+                logfile.close()
+                raise ConversionException("Markup error")
 
         return complete
 
