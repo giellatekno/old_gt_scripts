@@ -252,21 +252,41 @@ class TestErrorMarkup(unittest.TestCase):
         input = etree.fromstring('<p>(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)</p>')
         want = '<p><errormorphsyn cat="pl3prs" const="fin" correct="šadde ollu áššit" errtype="tense" orig="sg3prs" pos="verb"><errorort correct="šattai" errtype="conc" pos="verb">šaddai</errorort> ollu áššit</errormorphsyn></p>'
 
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
     def testNestedMarkup2(self):
         input = etree.fromstring('<p>(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)</p>')
         want = '<p><errormorphsyn cat="gensg" const="nump" correct="guokte gándda" errtype="case" orig="nompl" pos="n">guokte <error correct="gánddat">ganddat</error></errormorphsyn></p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
 
     def testNestedMarkup3(self):
         input = etree.fromstring('<p>(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)</p>')
         want = '<p><errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="adj">Nieiddat leat <errorort correct="nuorra" errtype="meta" pos="adj">nourra</errorort></errormorphsyn></p>'
 
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
     def testNestedMarkup4(self):
         input = etree.fromstring('<p>(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)</p>')
         want = '<p><errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn></p>'
 
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
     def testNestedMarkup5(self):
         input = etree.fromstring('<p>heaitit dáhkaluddame$(verb,a|dahkaluddame) ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).</p>')
         want = '<p>heaitit <errorort correct="dahkaluddame" errtype="a" pos="verb">dáhkaluddame</errorort> ahte sis <errorortreal correct="mahkáš" errtype="á" pos="adv">máhkaš</errorortreal> livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex> sii <errorort correct="ovddastit" errtype="conc" pos="verb">ovddasttit</errorort>.</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
 
     def testNestedMarkup6(self):
         input = etree.fromstring('<p>(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.</p>')
@@ -283,6 +303,10 @@ class TestErrorMarkup(unittest.TestCase):
     def testNestedMarkup9(self):
         input = etree.fromstring('<p>Bruk ((epoxi)$(noun,cons|epoksy) lim)¢(noun,mix|epoksylim) med god kvalitet.</p>')
         want = '<p>Bruk  <errorortreal correct="epoksylim" errtype="mix" pos="noun"><errorort correct="epoksy" errtype="cons" pos="noun">epoxi</errorort> lim</errorortreal> med god kvalitet.</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
 
     def testSetCommonAttributes1(self):
         input = etree.fromstring('<errorort>jne.</errorort>')
@@ -960,18 +984,36 @@ class ErrorMarkup:
 
             for x in range(0, len(result)):
                 if self.isCorrection(result[x]):
-                    (head, error) = self.processHead(result[x-1])
-                    if len(elements) == 0:
-                        if head != '':
-                            elements.append(head)
-                    else:
-                        elements[-1].tail = head
+                    if self.containsError(result[x-1]):
+                        (head, error) = self.processHead(result[x-1])
+                        if len(elements) == 0:
+                            if head != '':
+                                elements.append(head)
+                        else:
+                            elements[-1].tail = head
 
-                    element = self.getError(error, result[x])
-                    elements.append(element)
-                    # make error element
-                    # remove the last element in elements, add that
-                    # as the error of the element
+                        element = self.getError(error, result[x])
+                        elements.append(element)
+
+                    else:
+                        innerElement = elements[-1]
+                        elements.remove(elements[-1])
+                        innerElement.tail = result[x-1][:-1]
+                        errorElement = self.getError(innerElement, result[x])
+
+                        if len(elements) == 1:
+                            text = elements[-1]
+                        else:
+                            text = elements[-1].tail
+
+                        x = text.rfind('(')
+                        if x > -1:
+                            errorElement.text = text[x+1:]
+                            if len(elements) == 1:
+                                elements[-1] = text[:x]
+                            else:
+                                elements[-1].tail = text[:x]
+                            elements.append(errorElement)
 
             if not self.isCorrection(result[-1]):
                 elements[-1].tail = result[-1]
@@ -1013,6 +1055,11 @@ class ErrorMarkup:
         text = p.sub('', text)
 
         return (text, m.group('error'))
+
+    def containsError(self, text):
+        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\.]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
+
+        return p.search(text)
 
     def getError(self, error, correction):
         (fixedCorrection, extAtt, attList) = self.lookForExtendedAttributes(correction[1:].replace('(', '').replace(')', ''))
