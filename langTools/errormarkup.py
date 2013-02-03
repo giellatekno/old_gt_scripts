@@ -364,6 +364,46 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(input), want)
 
+    def testSetSyntacticAttributes1(self):
+        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
+        want = '<errorsyn errtype="pph" pos="x" teacher="no">riŋgen nieidda lusa</errorsyn>'
+
+        self.em.setSyntacticAttributes(input, "x,pph,no")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetSyntacticAttributes2(self):
+        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
+        want = '<errorsyn errtype="pph" pos="x">riŋgen nieidda lusa</errorsyn>'
+
+        self.em.setSyntacticAttributes(input, "x,pph")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetSyntacticAttributes3(self):
+        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
+        want = '<errorsyn pos="x" teacher="no">riŋgen nieidda lusa</errorsyn>'
+
+        self.em.setSyntacticAttributes(input, "x,no")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetSyntacticAttributes4(self):
+        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
+        want = '<errorsyn pos="x">riŋgen nieidda lusa</errorsyn>'
+
+        self.em.setSyntacticAttributes(input, "x")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
+    def testSetSyntacticAttributes5(self):
+        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
+        want = '<errorsyn teacher="no">riŋgen nieidda lusa</errorsyn>'
+
+        self.em.setSyntacticAttributes(input, "no")
+
+        self.assertXmlEqual(etree.tostring(input), want)
+
 class ErrorMarkup:
     def __init__(self):
         self.types = { "$": "errorort", "¢": "errorortreal", "€": "errorlex", "£": "errormorphsyn", "¥": "errorsyn", "§": "error"}
@@ -409,19 +449,17 @@ class ErrorMarkup:
             else:
                 attDict['pos'] = atts[0]
         elif len(atts) == 2:
+            attDict['pos'] = atts[0]
             if atts[1] == 'yes' or atts[1] == 'no':
-                attDict['pos'] = atts[0]
                 attDict['teacher'] = atts[1]
             else:
-                attDict['pos'] = atts[0]
                 attDict['origpos'] = atts[1]
         elif len(atts) == 3:
+            attDict['pos'] =atts[0]
             attDict['origpos'] = atts[1]
             if atts[2] == 'yes' or atts[2] == 'no':
-                attDict['pos'] =atts[0]
                 attDict['teacher'] = atts[2]
             else:
-                attDict['pos'] =atts[0]
                 attDict['errtype'] =atts[2]
         else:
             attDict['pos'] = atts[0]
@@ -477,6 +515,28 @@ class ErrorMarkup:
             attDict['orig'] = atts[3]
             attDict['errtype'] = atts[4]
             attDict['teacher'] = atts[5]
+
+        self.setCommonAttributes(errorElement, attDict)
+
+    def setSyntacticAttributes(self, errorElement, attributeList):
+        attDict = {}
+        atts = attributeList.split(',')
+
+        if len(atts) == 1:
+            if atts[0] == 'yes' or atts[0] == 'no':
+                attDict['teacher'] = atts[0]
+            else:
+                attDict['pos'] = atts[0]
+        elif len(atts) == 2:
+            attDict['pos'] = atts[0]
+            if atts[1] == 'yes' or atts[1] == 'no':
+                attDict['teacher'] = atts[1]
+            else:
+                attDict['errtype'] = atts[1]
+        else:
+            attDict['pos'] = atts[0]
+            attDict['errtype'] = atts[1]
+            attDict['teacher'] = atts[2]
 
         self.setCommonAttributes(errorElement, attDict)
 
