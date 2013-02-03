@@ -1011,16 +1011,14 @@ class ErrorMarkup:
                         if not self.isCorrection(result[x-1]):
                             innerElement.tail = result[x-1][:-1]
                         errorElement = self.getError(innerElement, result[x])
-                        print etree.tostring(errorElement)
-                        parenthesisFound = False
+
 
                         if not self.isCorrection(result[x-1]):
-                            while not parenthesisFound:
-                                if isinstance(elements[-1], etree._Element):
-                                    text = elements[-1].tail
-                                else:
-                                    text = elements[-1]
+                            parenthesisFound = False
 
+                            while not parenthesisFound:
+                                text = self.getText(elements[-1])
+                                
                                 x = text.rfind('(')
                                 if x > -1:
                                     parenthesisFound = True
@@ -1045,6 +1043,15 @@ class ErrorMarkup:
             return elements
 
         pass
+
+    def getText(self, element):
+        text = None
+        if isinstance(element, etree._Element):
+            text = element.tail
+        else:
+            text = element
+
+        return text
 
     def isCorrection(self, expression):
         p = re.compile(u'(?P<correction>[$€£¥§¢]\([^\)]*\)|[$€£¥§¢]\S+)(?P<tail>.*)',re.UNICODE)
