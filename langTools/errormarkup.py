@@ -1056,9 +1056,12 @@ class ErrorMarkup:
         nested markup.
 
         '''
-        result = self.processText(text)
+
+        result = self.processText(text.strip())
 
         if len(result) > 1:
+            #print text
+            #print result
             elements = []
             # This means that we are inside an error markup
             # Start with the two first elements
@@ -1127,6 +1130,7 @@ class ErrorMarkup:
         of errorElement, continue searching
 
         '''
+        #print u'«' + errorstring + u'»', u'«' + correctionstring + u'»'
         innerElement = elements[-1]
         elements.remove(elements[-1])
         if not self.isCorrection(errorstring):
