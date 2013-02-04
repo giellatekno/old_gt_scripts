@@ -30,14 +30,14 @@ def revert_files(vcs, files):
 
 class Translate_XML:
     """Load site.xml and tabs.xml and their translation files.
-    Translate the tags 
+    Translate the tags
     """
 
     def __init__(self, sitehome, lang, vcs):
         self.lang = lang
         self.sitehome = sitehome
         self.vcs = vcs
-        
+
         os.chdir(self.sitehome)
         revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "../sd/src/documentation/skins/common/xslt/html/document-to-html.xsl", "../sd/src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
@@ -94,7 +94,7 @@ class Translate_XML:
         outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), "w")
         outfile.write(etree.tostring(self.site.getroot()))
         outfile.close()
-        
+
         for el in self.tabs.getroot().iter():
             try:
                 el.attrib["label"]
@@ -131,7 +131,7 @@ class StaticSiteBuilder:
         """
             site: The directory where the forrest site is
             destination: where the built site is copied (using ssh)
-            
+
             builddir: tells where the forrest should begin its crawl
             make a directory, built, where generated sites are stored
             logfile: print all errors into this one
@@ -146,7 +146,7 @@ class StaticSiteBuilder:
             destination = destination + '/'
         self.destination = destination
         self.vcs = vcs
-        
+
 
         os.chdir(self.builddir)
         revert_files(self.vcs, ["../sd/forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
@@ -194,9 +194,9 @@ class StaticSiteBuilder:
                 print >>sys.stderr, "\n\nCould not validate doc\n\n"
                 self.logfile.writelines(output)
                 self.logfile.writelines(error)
-    
+
                 raise SystemExit(subp.returncode)
-    
+
     def buildsite(self, lang):
         """Builds a site in the specified language
         Clean up the build files
@@ -224,18 +224,18 @@ class StaticSiteBuilder:
         if subp.returncode != 0:
             print >>sys.stderr, "Linking errors detected when building", lang
 
-        commands = [u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/ with google//g'"]
+        #commands = [u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/ with google//g'"]
 
-        if lang != "en":
-            commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/Search/" + trans.commont["Search"] + "/g'")
-            for key, value in trans.commont.items():
-                try:
-                    if key != "Search":
-                        commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value + "/g'")
-                except TypeError:
-                    continue
-        for command in commands:
-            os.system(command.encode('utf-8'))
+        #if lang != "en":
+            #commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/Search/" + trans.commont["Search"] + "/g'")
+            #for key, value in trans.commont.items():
+                #try:
+                    #if key != "Search":
+                        #commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value + "/g'")
+                #except TypeError:
+                    #continue
+        #for command in commands:
+            #os.system(command.encode('utf-8'))
         print "Done building "
 
     def setlang(self, lang):
@@ -253,7 +253,7 @@ class StaticSiteBuilder:
             raise SystemExit(2)
         incontent = inproperties.readlines()
         inproperties.close()
-        
+
         try:
             outproperties = open(os.path.join(self.builddir, "forrest.properties"), 'w')
         except IOError:
@@ -273,7 +273,7 @@ class StaticSiteBuilder:
             outproperties.write(line)
 
         outproperties.close()
-    
+
     def rename_site_files(self, lang = ""):
         """Search for files ending with html and pdf in the build site. Give all
         these files the ending '.lang'. Move them to the 'built' dir
@@ -281,14 +281,14 @@ class StaticSiteBuilder:
 
         builddir = os.path.join(self.builddir, "build/site")
         builtdir = os.path.join(self.builddir, "built")
-        
+
         # Copy the site to builtdir/lang
         if lang != "":
-            langdir = os.path.join(builtdir, lang) 
+            langdir = os.path.join(builtdir, lang)
             os.mkdir(langdir)
-            
+
             tree = os.walk(os.path.join(builddir))
-            
+
             for leafs in tree:
                 for directory in leafs[1]:
                     os.mkdir(langdir + leafs[0][len(builddir):] + "/" + directory)
@@ -325,7 +325,7 @@ class StaticSiteBuilder:
         infile = open(filename)
         outfile1 = open(self.builddir + "/built" + the_rest + "." + lang, "w")
         outfile2 = open(self.builddir + "/built/" + lang + the_rest, "w")
-        
+
         filebuf = infile.readlines()
         for line in filebuf:
             if line.find('id="content"') > -1:
@@ -339,7 +339,7 @@ class StaticSiteBuilder:
                 #print 'the line became', line
             outfile1.write(line)
             outfile2.write(line)
-            
+
         infile.close()
         outfile1.close()
         outfile2.close()
@@ -357,17 +357,17 @@ def parse_options():
     parser.add_argument('--vcs', '-c', help = "the version control system", default = 'svn')
     parser.add_argument('--sitehome', '-s', help = "where the forrest site lives", required = True)
     parser.add_argument('langs', help = "list of languages", nargs = '+')
-    
+
     args = parser.parse_args()
     return args
-   
+
 
 def main():
     args = parse_options()
 
     builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs)
     builder.validate()
-    
+
     for lang in args.langs:
         builder.setlang(lang)
         builder.buildsite(lang)
