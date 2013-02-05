@@ -116,7 +116,7 @@ if [ -d $ANALYSED_DIR ]
 then
     rm $ANALYSED_DIR/*
 else
-    mkdir $ANALYSED_DIR
+    mkdir -p $ANALYSED_DIR
 fi
 
 for SMILANG in sma smj sme
