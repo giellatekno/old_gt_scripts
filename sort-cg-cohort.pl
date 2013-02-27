@@ -39,15 +39,12 @@ $/ = "\n\n";
 # Read while not eol
 while(<>) {
 	chomp ;
-	my $sentence = "";
-	$sentence = $_ ;
-	process_sentence($sentence);
+	process_sentence($_);
 }
 
 sub process_sentence
   {
-    my $sent = $_;
-    my @cohort = split("\n\"", $sent);
+    my @cohort = split("\n\"", $_);
     
     foreach (@cohort) {
       my ($lemma, $lines) = split(/\n/, $_, 2);
