@@ -34,27 +34,28 @@ use utf8;
 # 	 "dii" N ABBR Nom
 
 # Set the record separator to newline + "
-$/ = "\n\"";
-
-# Boolean variable to identify the first cohort:
-my $nonfirst = 0;
+$/ = "\n\n";
 
 # Read while not eol
 while(<>) {
 	chomp ;
-	my $cohort = "";
-	# Only add an initial " to the non-first cohort - since the first
-	# one has the initial " that is otherwise part of the separator, and
-	# gets removed; without this conditiona, the first cohort will get
-	# an initial double " - not nice:
-	if ($nonfirst)
-		{ $cohort = "\"" . $_ ; }
-	else
-		{ $cohort = $_ ; }
-	my ($lemma, $lines) = split(/\n/, $cohort, 2);
-	my @lines = split(/\n/, $lines);
-	my @newlines = sort @lines;
-	my $sortlines = join("\n", @newlines);
-	print "$lemma\n$sortlines\n";
-	$nonfirst = 1;
+	my $sentence = "";
+	$sentence = $_ ;
+	process_sentence($sentence);
 }
+
+sub process_sentence
+  {
+    my $sent = $_;
+    my @cohort = split("\n\"", $sent);
+    
+    foreach (@cohort) {
+      my ($lemma, $lines) = split(/\n/, $_, 2);
+      my @lines = split(/\n/, $lines);
+      my @newlines = sort @lines;
+      my $sortlines = join("\n", @newlines);
+      unless ($lemma =~ /^\"/) { $lemma = "\"".$lemma; }
+      print "$lemma\n$sortlines\n";
+    }
+    print "\n";
+  }
