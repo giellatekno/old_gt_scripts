@@ -33,7 +33,7 @@ use utf8;
 # 	 "dii" N ABBR Gen
 # 	 "dii" N ABBR Nom
 
-# Set the record separator to newline + "
+# Set the record separator to 2*newline, which is the separator between sentences
 $/ = "\n\n";
 
 # Read while not eol
