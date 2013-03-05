@@ -22,9 +22,17 @@
 
 import sys
 import os
+import shutil
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import converter
 
+xslfile = sys.argv[1] + 'xsl'
+try:
+   with open(xslfile) as f: pass
+except IOError as e:
+   shutil.copy(os.path.join(os.getenv('GTHOME'), 'gt/script/corpus/XSL-template.xsl'), xslfile)
+   print "Fill in meta info in", xslfile
+   sys.exit(1)
 
 conv = converter.Converter(sys.argv[1])
 conv.writeComplete()
