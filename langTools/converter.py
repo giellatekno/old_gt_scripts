@@ -219,9 +219,13 @@ class Converter:
                     em.addErrorMarkup(element)
             except IndexError as e:
                 logfile = open(self.getOrig() + '.log', 'w')
+                logfile.write("There is a markup error\n")
+                logfile.write("The error message: ")
+                logfile.write(str(e))
+                logfile.write("\n\n")
+                logfile.write("This is the xml tree:\n")
                 logfile.write(etree.tostring(complete, encoding = 'utf8'))
                 logfile.write('\n')
-                logfile.write(e)
                 logfile.close()
                 raise ConversionException("Markup error")
 
