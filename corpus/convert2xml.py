@@ -26,7 +26,7 @@ import shutil
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import converter
 
-xslfile = sys.argv[1] + 'xsl'
+xslfile = sys.argv[1] + '.xsl'
 try:
    with open(xslfile) as f: pass
 except IOError as e:
