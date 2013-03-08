@@ -89,7 +89,7 @@ while (<LEX>) {
     # %, a space char and then one or more wordcharacters: % [\w\.]+
     # or (signaled by |)
     # by a - and one or more wordcharacters: -[\w\.]+
-    if ((my $abbr = $_)    =~ s/^([\w\.]+(% [\w\.]+|-[\w\.]+)*)[\s+:].*/$1/) {
+    if ((my $abbr = $_)    =~ s/^([\w\.]+(% [\w\.]+\+MWE|-[\w\.]+)*)[\s+:].*/$1/) {
         $abbr =~ s/%//g;
         print ABB "$abbr\n";
     }
@@ -134,7 +134,7 @@ for my $file (@lex_file_names) {
         chomp;
         if (! /^\!/) { #discard comments
             
-            if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+)+).*?[\s|:].*/$1/) {
+            if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+\+MWE)+).*?[\s|:].*/$1/) {
                 $abbr =~ s/%//g;
                 $abbr =~ s/\^//g;
                 $abbr =~ s/0//g;
