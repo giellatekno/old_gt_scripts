@@ -210,11 +210,11 @@ alias uhun='$LOOKUP $GTHOME/kt/hun/bin/hun.fst'
 
 # Bilingual transducers:
 alias fitswe='$LOOKUP $GTHOME/kvensk/fitswe/bin/fitswe.fst'
-alias fkvnob='$LOOKUP $GTHOME/kvensk/bin/fkvnob.fst'
+alias fkvnob='$LOOKUP $GTHOME/words/dicts/fkvnob/bin/fkvnob.fst'
 alias kaldan='$LOOKUP -flags mbTT -utf8 $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
 alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 alias kaleng='$LOOKUP $GTHOME/words/dicts/kaleng/bin/kaleng.fst'
-alias nobfkv='$LOOKUP $GTHOME/kvensk/bin/nobfkv.fst'
+alias nobfkv='$LOOKUP $GTHOME/words/dicts/nobfkv/bin/nobfkv.fst'
 alias nobsme='$LOOKUP $GTHOME/words/dicts/nobsme/bin/nobsme.fst'
 alias smenob='$LOOKUP $GTHOME/words/dicts/smenob/bin/smenob.fst'
 alias smesmj='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smesmj.fst'
