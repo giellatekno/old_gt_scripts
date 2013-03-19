@@ -228,7 +228,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorort4(self):
         input = etree.fromstring('<p>- ruksesruonáčalmmehisvuohta lea sullii 8%:as$(acr,suf|8%:s)</p>')
-        want = '<p>- ruksesruonáčalmmehisvuohta lea sullii <errorort correct="8%:s">8%:as</errorort></p>'
+        want = '<p>- ruksesruonáčalmmehisvuohta lea sullii <errorort correct="8%:s" errorinfo="acr,suf">8%:as</errorort></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -236,7 +236,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorOrtreal3(self):
         input = etree.fromstring('<p>( nissonin¢(noun,suf|nissoniin) dušše (0.6 %:s)£(0.6 %) )</p>')
-        want = '<p>( <errorortreal errorinfo="noun,suf" correct="nissoniin">nissonin</errorortreal> dušše <errormorphsyn correct="0.6 %">0.6 %)>0.6 %:s</errormorphsyn> )</p>'
+        want = '<p>( <errorortreal errorinfo="noun,suf" correct="nissoniin">nissonin</errorortreal> dušše <errormorphsyn correct="0.6 %">0.6 %:s</errormorphsyn> )</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -261,7 +261,7 @@ class TestErrorMarkup(unittest.TestCase):
     def testErrorortSpanInP(self):
         input = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. Asbjørsen$(prop,typo|Asbjørnsen) døde 5. januar 1885, nesten 73 år gammel.</p>')
 
-        want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort errorinfo="prop,typo" correct="Asbjørnsen">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
+        want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort correct="Asbjørnsen" errorinfo="prop,typo">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
 
         self.em.addErrorMarkup(input[0])
         got = etree.tostring(input, encoding = 'utf8')
@@ -302,7 +302,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup5(self):
         input = etree.fromstring('<p>heaitit dáhkaluddame$(verb,a|dahkaluddame) ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).</p>')
-        want = '<p>heaitit <errorort errorinfo="verb,a" correct="dahkaluddame">dáhkaluddame</errorort> ahte sis <errorortreal errorinfo="adv,á" correct="mahkáš">máhkaš</errorortreal> livččii <errorort errorinfo="adv,á" correct="makkárge">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex errorinfo="man soga)><errorort errorinfo="interr,á" correct="makkár">makkar</errorort> soga</errorlex> sii <errorort errorinfo="verb,conc" correct="ovddastit">ovddasttit</errorort>.</p>'
+        want = '<p>heaitit <errorort correct="dahkaluddame" errorinfo="verb,a">dáhkaluddame</errorort> ahte sis <errorortreal correct="mahkáš" errorinfo="adv,á">máhkaš</errorortreal> livččii <errorort correct="makkárge" errorinfo="adv,á">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errorinfo="interr,á">makkar</errorort> soga</errorlex> sii <errorort correct="ovddastit" errorinfo="verb,conc">ovddasttit</errorort>.</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -347,10 +347,6 @@ class TestErrorMarkup(unittest.TestCase):
     def testNestedMarkup9(self):
         input = etree.fromstring('<p>Bruk ((epoxi)$(noun,cons|epoksy) lim)¢(noun,mix|epoksylim) med god kvalitet.</p>')
         want = '<p>Bruk <errorortreal errorinfo="noun,mix" correct="epoksylim"><errorort errorinfo="noun,cons" correct="epoksy">epoxi</errorort> lim</errorortreal> med god kvalitet.</p>'
-
-        self.em.addErrorMarkup(input)
-        got = etree.tostring(input, encoding = 'utf8')
-        self.assertXmlEqual(got, want)
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -933,10 +929,7 @@ class ErrorMarkup:
 
         elementName = self.getElementName(correction[0])
 
-        errorElement = self.makeErrorElement(error, fixedCorrection, elementName)
-
-        if extAtt:
-            self.addExtraAttributes(errorElement, attList)
+        errorElement = self.makeErrorElement(error, fixedCorrection, elementName, attList)
 
         return errorElement
 
@@ -944,7 +937,7 @@ class ErrorMarkup:
         '''Extract attributes and correction from a correctionstring
         '''
         extAtt = False
-        attList = ''
+        attList = None
         if '|' in correction:
             extAtt = True
             (attList, correction) = correction.split('|')
@@ -954,13 +947,17 @@ class ErrorMarkup:
     def getElementName(self, separator):
         return self.types[separator]
 
-    def makeErrorElement(self, error, fixedCorrection, elementName):
+    def makeErrorElement(self, error, fixedCorrection, elementName, attList):
         errorElement = etree.Element(elementName)
         if isinstance(error, etree._Element):
             errorElement.append(error)
         else:
             errorElement.text = error.replace('(', '').replace(')', '')
+
         errorElement.set('correct', fixedCorrection)
+
+        if attList != None:
+            errorElement.set('errorinfo', attList)
 
         return errorElement
 
