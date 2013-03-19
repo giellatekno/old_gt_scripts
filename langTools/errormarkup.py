@@ -50,7 +50,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorParserErrorort1(self):
         input = u'jne.$(adv,typo|jna.)'
-        want = u'<errorort correct="jna." errtype="typo" pos="adv">jne.</errorort>'
+        want = u'<errorort errorinfo="adv,typo" correct="jna.">jne.</errorort>'
 
         got = self.em.errorParser(input)
         self.assertEqual(len(got), 1)
@@ -58,7 +58,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorort1(self):
         input = etree.fromstring('<p>jne.$(adv,typo|jna.)</p>')
-        want = '<p><errorort correct="jna." errtype="typo" pos="adv">jne.</errorort></p>'
+        want = '<p><errorort errorinfo="adv,typo" correct="jna.">jne.</errorort></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -129,8 +129,8 @@ class TestErrorMarkup(unittest.TestCase):
         self.assertXmlEqual(got, want)
 
     def testErrorCorrect8(self):
-        input = etree.fromstring('<p>NSRii§NSR:ii</p>')
-        want = '<p><error correct="NSR:ii">NSRii</error></p>'
+        input = etree.fromstring('<p>NSRii§NSR:i</p>')
+        want = '<p><error correct="NSR:i">NSRii</error></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -146,7 +146,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorort3(self):
         input = etree.fromstring('<p>nourra$(a,meta|nuorra)</p>')
-        want = '<p><errorort correct="nuorra" errtype="meta" pos="a">nourra</errorort></p>'
+        want = '<p><errorort errorinfo="a,meta" correct="nuorra">nourra</errorort></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -154,7 +154,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorMorphsyn1(self):
         input = etree.fromstring('<p>(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)</p>')
-        want = '<p><errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn></p>'
+        want = '<p><errormorphsyn errorinfo="a,spred,nompl,nomsg,agr" correct="Nieiddat leat nuorat">Nieiddat leat nuorra</errormorphsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -162,7 +162,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorParserErrorMorphsyn1(self):
         input = u'(Nieiddat leat nuorra)£(a,spred,nompl,nomsg,agr|Nieiddat leat nuorat)'
-        want = u'<errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
+        want = u'<errormorphsyn errorinfo="a,spred,nompl,nomsg,agr" correct="Nieiddat leat nuorat">Nieiddat leat nuorra</errormorphsyn>'
 
         got = self.em.errorParser(input)
         self.assertEqual(len(got), 1)
@@ -170,7 +170,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorSyn1(self):
         input = etree.fromstring('<p>(riŋgen nieidda lusa)¥(x,pph|riŋgen niidii)</p>')
-        want = '<p><errorsyn correct="riŋgen niidii" errtype="pph" pos="x">riŋgen nieidda lusa</errorsyn></p>'
+        want = '<p><errorsyn errorinfo="x,pph" correct="riŋgen niidii">riŋgen nieidda lusa</errorsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -178,7 +178,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorSyn2(self):
         input = etree.fromstring('<p>ovtta¥(num,redun| )</p>')
-        want = '<p><errorsyn correct=" " errtype="redun" pos="num">ovtta</errorsyn></p>'
+        want = '<p><errorsyn errorinfo="num,redun" correct=" ">ovtta</errorsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -186,7 +186,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorLex1(self):
         input = etree.fromstring('<p>dábálaš€(adv,adj,der|dábálaččat)</p>')
-        want = '<p><errorlex correct="dábálaččat" errtype="der" origpos="adj" pos="adv">dábálaš</errorlex></p>'
+        want = '<p><errorlex errorinfo="adv,adj,der" correct="dábálaččat">dábálaš</errorlex></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -194,7 +194,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorOrtreal1(self):
         input = etree.fromstring('<p>ráhččamušaid¢(noun,mix|rahčamušaid)</p>')
-        want = '<p><errorortreal pos="noun" errtype="mix" correct="rahčamušaid">ráhččamušaid</errorortreal></p>'
+        want = '<p><errorortreal errorinfo="noun,mix" correct="rahčamušaid">ráhččamušaid</errorortreal></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -220,7 +220,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorMorphsyn2(self):
         input = etree.fromstring('<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal (skuvla ohppiid)£(noun,attr,gensg,nomsg,case|skuvlla ohppiid) ja VSM.</p>')
-        want = '<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal <errormorphsyn cat="gensg" const="attr" correct="skuvlla ohppiid" errtype="case" orig="nomsg" pos="noun">skuvla ohppiid</errormorphsyn> ja VSM.</p>'
+        want = '<p>Čáppa muohtaskulptuvrraid ráhkadeapmi VSM olggobealde lei maiddái ovttasbargu gaskal <errormorphsyn errorinfo="noun,attr,gensg,nomsg,case" correct="skuvlla ohppiid">skuvla ohppiid</errormorphsyn> ja VSM.</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -228,7 +228,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorort4(self):
         input = etree.fromstring('<p>- ruksesruonáčalmmehisvuohta lea sullii 8%:as$(acr,suf|8%:s)</p>')
-        want = '<p>- ruksesruonáčalmmehisvuohta lea sullii <errorort correct="8%:s" errtype="suf" pos="acr">8%:as</errorort></p>'
+        want = '<p>- ruksesruonáčalmmehisvuohta lea sullii <errorort correct="8%:s">8%:as</errorort></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -236,7 +236,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorOrtreal3(self):
         input = etree.fromstring('<p>( nissonin¢(noun,suf|nissoniin) dušše (0.6 %:s)£(0.6 %) )</p>')
-        want = '<p>( <errorortreal correct="nissoniin" errtype="suf" pos="noun">nissonin</errorortreal> dušše <errormorphsyn correct="0.6 %">0.6 %:s</errormorphsyn> )</p>'
+        want = '<p>( <errorortreal errorinfo="noun,suf" correct="nissoniin">nissonin</errorortreal> dušše <errormorphsyn correct="0.6 %">0.6 %)>0.6 %:s</errormorphsyn> )</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -244,7 +244,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorort5(self):
         input = etree.fromstring('<p>(haploida) ja njiŋŋalas$(noun,á|njiŋŋálas) ságahuvvon$(verb,a|sagahuvvon) manneseallas (diploida)</p>')
-        want = '<p>(haploida) ja <errorort correct="njiŋŋálas" errtype="á" pos="noun">njiŋŋalas</errorort> <errorort correct="sagahuvvon" errtype="a" pos="verb">ságahuvvon</errorort> manneseallas (diploida)</p>'
+        want = '<p>(haploida) ja <errorort errorinfo="noun,á" correct="njiŋŋálas">njiŋŋalas</errorort> <errorort errorinfo="verb,a" correct="sagahuvvon">ságahuvvon</errorort> manneseallas (diploida)</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -252,7 +252,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testErrorort6(self):
         input = etree.fromstring('<p>(gii oahpaha) giinu$(x,notcmp|gii nu) manai intiánalávlagat$(loan,conc|indiánalávlagat) (guovža-klána)$(noun,cmp|guovžaklána) olbmuid</p>')
-        want = '<p>(gii oahpaha) <errorort correct="gii nu" errtype="notcmp" pos="x">giinu</errorort> manai <errorort correct="indiánalávlagat" errtype="conc" pos="loan">intiánalávlagat</errorort> <errorort correct="guovžaklána" errtype="cmp" pos="noun">guovža-klána</errorort> olbmuid</p>'
+        want = '<p>(gii oahpaha) <errorort errorinfo="x,notcmp" correct="gii nu">giinu</errorort> manai <errorort errorinfo="loan,conc" correct="indiánalávlagat">intiánalávlagat</errorort> <errorort errorinfo="noun,cmp" correct="guovžaklána">guovža-klána</errorort> olbmuid</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -261,7 +261,7 @@ class TestErrorMarkup(unittest.TestCase):
     def testErrorortSpanInP(self):
         input = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. Asbjørsen$(prop,typo|Asbjørnsen) døde 5. januar 1885, nesten 73 år gammel.</p>')
 
-        want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort correct="Asbjørnsen" errtype="typo" pos="prop">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
+        want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort errorinfo="prop,typo" correct="Asbjørnsen">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
 
         self.em.addErrorMarkup(input[0])
         got = etree.tostring(input, encoding = 'utf8')
@@ -270,7 +270,7 @@ class TestErrorMarkup(unittest.TestCase):
     #Nested markup
     def testNestedMarkup1(self):
         input = etree.fromstring('<p>(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)</p>')
-        want = '<p><errormorphsyn cat="pl3prs" const="fin" correct="šadde ollu áššit" errtype="tense" orig="sg3prs" pos="verb"><errorort correct="šattai" errtype="conc" pos="verb">šaddai</errorort> ollu áššit</errormorphsyn></p>'
+        want = '<p><errormorphsyn errorinfo="verb,fin,pl3prs,sg3prs,tense" correct="šadde ollu áššit"><errorort errorinfo="verb,conc" correct="šattai">šaddai</errorort> ollu áššit</errormorphsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -278,7 +278,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup2(self):
         input = etree.fromstring('<p>(guokte ganddat§(n,á|gánddat))£(n,nump,gensg,nompl,case|guokte gándda)</p>')
-        want = '<p><errormorphsyn cat="gensg" const="nump" correct="guokte gándda" errtype="case" orig="nompl" pos="n">guokte <error correct="gánddat">ganddat</error></errormorphsyn></p>'
+        want = '<p><errormorphsyn errorinfo="n,nump,gensg,nompl,case" correct="guokte gándda">guokte <error errorinfo="n,á" correct="gánddat">ganddat</error></errormorphsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -286,7 +286,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup3(self):
         input = etree.fromstring('<p>(Nieiddat leat nourra$(adj,meta|nuorra))£(adj,spred,nompl,nomsg,agr|Nieiddat leat nuorat)</p>')
-        want = '<p><errormorphsyn cat="nompl" const="spred" correct="Nieiddat leat nuorat" errtype="agr" orig="nomsg" pos="adj">Nieiddat leat <errorort correct="nuorra" errtype="meta" pos="adj">nourra</errorort></errormorphsyn></p>'
+        want = '<p><errormorphsyn errorinfo="adj,spred,nompl,nomsg,agr" correct="Nieiddat leat nuorat">Nieiddat leat <errorort errorinfo="adj,meta" correct="nuorra">nourra</errorort></errormorphsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -294,7 +294,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup4(self):
         input = etree.fromstring('<p>(leat (okta máná)£(n,spred,nomsg,gensg,case|okta mánná))£(v,v,sg3prs,pl3prs,agr|lea okta mánná)</p>')
-        want = '<p><errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn></p>'
+        want = '<p><errormorphsyn errorinfo="v,v,sg3prs,pl3prs,agr" correct="lea okta mánná">leat <errormorphsyn errorinfo="n,spred,nomsg,gensg,case" correct="okta mánná">okta máná</errormorphsyn></errormorphsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -302,7 +302,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup5(self):
         input = etree.fromstring('<p>heaitit dáhkaluddame$(verb,a|dahkaluddame) ahte sis máhkaš¢(adv,á|mahkáš) livččii makkarge$(adv,á|makkárge) politihkka, muhto rahpasit baicca muitalivčče (makkar$(interr,á|makkár) soga)€(man soga) sii ovddasttit$(verb,conc|ovddastit).</p>')
-        want = '<p>heaitit <errorort correct="dahkaluddame" errtype="a" pos="verb">dáhkaluddame</errorort> ahte sis <errorortreal correct="mahkáš" errtype="á" pos="adv">máhkaš</errorortreal> livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex> sii <errorort correct="ovddastit" errtype="conc" pos="verb">ovddasttit</errorort>.</p>'
+        want = '<p>heaitit <errorort errorinfo="verb,a" correct="dahkaluddame">dáhkaluddame</errorort> ahte sis <errorortreal errorinfo="adv,á" correct="mahkáš">máhkaš</errorortreal> livččii <errorort errorinfo="adv,á" correct="makkárge">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex errorinfo="man soga)><errorort errorinfo="interr,á" correct="makkár">makkar</errorort> soga</errorlex> sii <errorort errorinfo="verb,conc" correct="ovddastit">ovddasttit</errorort>.</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -316,7 +316,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup6(self):
         input = etree.fromstring('<p>(Bearpmahat$(noun,svow|Bearpmehat) earuha€(verb,v,w|sirre))£(verb,fin,pl3prs,sg3prs,agr|Bearpmehat sirrejit) uskki ja loaiddu.</p>')
-        want = '<p><errormorphsyn cat="pl3prs" const="fin" correct="Bearpmehat sirrejit" errtype="agr" orig="sg3prs" pos="verb"><errorort correct="Bearpmehat" errtype="svow" pos="noun">Bearpmahat</errorort> <errorlex correct="sirre" errtype="w" origpos="v" pos="verb">earuha</errorlex></errormorphsyn> uskki ja loaiddu.</p>'
+        want = '<p><errormorphsyn errorinfo="verb,fin,pl3prs,sg3prs,agr" correct="Bearpmehat sirrejit"><errorort errorinfo="noun,svow" correct="Bearpmehat">Bearpmahat</errorort> <errorlex errorinfo="verb,v,w" correct="sirre">earuha</errorlex></errormorphsyn> uskki ja loaiddu.</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -330,7 +330,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup7(self):
         input = etree.fromstring('<p>Mirja ja Line leaba (gulahallan olbmožat)¢(noun,cmp|gulahallanolbmožat)€gulahallanolbmot</p>')
-        want = '<p>Mirja ja Line leaba <errorlex correct="gulahallanolbmot"><errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">gulahallan olbmožat</errorortreal></errorlex></p>'
+        want = '<p>Mirja ja Line leaba <errorlex correct="gulahallanolbmot"><errorortreal errorinfo="noun,cmp" correct="gulahallanolbmožat">gulahallan olbmožat</errorortreal></errorlex></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -338,7 +338,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup8(self):
         input = etree.fromstring('<p>(Ovddit geasis)£(noun,advl,gensg,locsg,case|Ovddit geasi) ((čoaggen$(verb,mono|čoggen) ollu jokŋat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid) ja sarridat)£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid ja sarridiid)</p>')
-        want = '<p><errormorphsyn cat="gensg" const="advl" correct="Ovddit geasi" errtype="case" orig="locsg" pos="noun">Ovddit geasis</errormorphsyn> <errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid ja sarridiid" errtype="case" orig="nompl" pos="noun"><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn> ja sarridat</errormorphsyn></p>'
+        want = '<p><errormorphsyn errorinfo="noun,advl,gensg,locsg,case" correct="Ovddit geasi">Ovddit geasis</errormorphsyn> <errormorphsyn errorinfo="noun,obj,genpl,nompl,case" correct="čoggen ollu joŋaid ja sarridiid"><errormorphsyn errorinfo="noun,obj,genpl,nompl,case" correct="čoggen ollu joŋaid"><errorort errorinfo="verb,mono" correct="čoggen">čoaggen</errorort> ollu jokŋat</errormorphsyn> ja sarridat</errormorphsyn></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -346,7 +346,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testNestedMarkup9(self):
         input = etree.fromstring('<p>Bruk ((epoxi)$(noun,cons|epoksy) lim)¢(noun,mix|epoksylim) med god kvalitet.</p>')
-        want = '<p>Bruk <errorortreal correct="epoksylim" errtype="mix" pos="noun"><errorort correct="epoksy" errtype="cons" pos="noun">epoxi</errorort> lim</errorortreal> med god kvalitet.</p>'
+        want = '<p>Bruk <errorortreal errorinfo="noun,mix" correct="epoksylim"><errorort errorinfo="noun,cons" correct="epoksy">epoxi</errorort> lim</errorortreal> med god kvalitet.</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -355,298 +355,6 @@ class TestErrorMarkup(unittest.TestCase):
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
-
-    def testSetCommonAttributes1(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort pos="adv">jne.</errorort>'
-
-        self.em.setCommonAttributes(input, {'pos': "adv"})
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetCommonAttributes2(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort errtype="typo">jne.</errorort>'
-
-        self.em.setCommonAttributes(input, {'errtype': "typo"})
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetCommonAttributes3(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort teacher="yes">jne.</errorort>'
-
-        self.em.setCommonAttributes(input, {'teacher': "yes"})
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetOrthographicalAttributes1(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort teacher="yes">jne.</errorort>'
-
-        self.em.setOrthographicalAttributes(input, "yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetOrthographicalAttributes2(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort pos="adj" teacher="yes">jne.</errorort>'
-
-        self.em.setOrthographicalAttributes(input, "adj,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetOrthographicalAttributes3(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort pos="adj" errtype="blabla" teacher="yes">jne.</errorort>'
-
-        self.em.setOrthographicalAttributes(input, "adj,blabla,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetOrthographicalAttributes4(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort pos="blabla">jne.</errorort>'
-
-        self.em.setOrthographicalAttributes(input, "blabla")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetOrthographicalAttributes5(self):
-        input = etree.fromstring('<errorort>jne.</errorort>')
-        want = '<errorort pos="adj" errtype="blabla">jne.</errorort>'
-
-        self.em.setOrthographicalAttributes(input, "adj,blabla")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes1(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex pos="adv">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "adv")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes2(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex teacher="yes">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes3(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex pos="adv" origpos="adj">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "adv,adj")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes4(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex pos="adv" teacher="yes">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "adv,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes5(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex errtype="der" pos="adv" origpos="adj">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "adv,adj,der")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes6(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex teacher="yes" pos="adv" origpos="adj">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "adv,adj,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetLexicalAttributes7(self):
-        input = etree.fromstring('<errorlex>dábálaš</errorlex>')
-        want = '<errorlex errtype="der" pos="adv" origpos="adj" teacher="yes">dábálaš</errorlex>'
-
-        self.em.setLexicalAttributes(input, "adv,adj,der,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes1(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn cat="nompl" const="spred" errtype="agr" orig="nomsg" pos="a" teacher="yes">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg,agr,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes2(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn cat="nompl" const="spred" errtype="agr" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg,agr")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes3(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn cat="nompl" const="spred" teacher="yes" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg,yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes4(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn cat="nompl" const="spred" orig="nomsg" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,nomsg")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes5(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn cat="nompl" const="spred" teacher="no" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl,no")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes6(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn cat="nompl" const="spred" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,nompl")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes7(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn teacher="no" const="spred" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred,no")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes8(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn const="spred" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,spred")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes9(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn teacher="no" pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a,no")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes10(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn pos="a">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "a")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetMorphosyntacticAttributes11(self):
-        input = etree.fromstring('<errormorphsyn>Nieiddat leat nuorra</errormorphsyn>')
-        want = '<errormorphsyn teacher="yes">Nieiddat leat nuorra</errormorphsyn>'
-
-        self.em.setMorphosyntacticAttributes(input, "yes")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetSyntacticAttributes1(self):
-        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
-        want = '<errorsyn errtype="pph" pos="x" teacher="no">riŋgen nieidda lusa</errorsyn>'
-
-        self.em.setSyntacticAttributes(input, "x,pph,no")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetSyntacticAttributes2(self):
-        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
-        want = '<errorsyn errtype="pph" pos="x">riŋgen nieidda lusa</errorsyn>'
-
-        self.em.setSyntacticAttributes(input, "x,pph")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetSyntacticAttributes3(self):
-        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
-        want = '<errorsyn pos="x" teacher="no">riŋgen nieidda lusa</errorsyn>'
-
-        self.em.setSyntacticAttributes(input, "x,no")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetSyntacticAttributes4(self):
-        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
-        want = '<errorsyn pos="x">riŋgen nieidda lusa</errorsyn>'
-
-        self.em.setSyntacticAttributes(input, "x")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testSetSyntacticAttributes5(self):
-        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
-        want = '<errorsyn teacher="no">riŋgen nieidda lusa</errorsyn>'
-
-        self.em.setSyntacticAttributes(input, "no")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testAddExtraAttributes1(self):
-        input = etree.fromstring('<errorsyn>riŋgen nieidda lusa</errorsyn>')
-        want = '<errorsyn pos="x">riŋgen nieidda lusa</errorsyn>'
-
-        self.em.addExtraAttributes(input, "x")
-
-        self.assertXmlEqual(etree.tostring(input), want)
-
-    def testMakeErrorElementWithErrorAsText(self):
-        want = '<errorsyn correct="riŋgen niidii">riŋgen nieidda lusa</errorsyn>'
-        errorElement = self.em.makeErrorElement(u"riŋgen nieidda lusa", u"riŋgen niidii", "errorsyn")
-        self.assertXmlEqual(etree.tostring(errorElement), want)
-
-    def testMakeErrorElementWithErrorAsElement(self):
-        want = u'<errorlex correct="gulahallanolbmot"><errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">gulahallan olbmožat</errorortreal></errorlex>'
-
-        nestedElement = etree.fromstring(u'<errorortreal correct="gulahallanolbmožat" errtype="cmp" pos="noun">gulahallan olbmožat</errorortreal>')
-        errorElement = self.em.makeErrorElement(nestedElement, u"gulahallanolbmot", "errorlex")
-
-        self.assertXmlEqual(etree.tostring(errorElement), want)
-
-    def testGetErrorElementWithErrorAsElement(self):
-        want = u'<errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn>'
-
-        nestedElement = etree.fromstring(u'<errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort>')
-        nestedElement.tail = u' ollu jokŋat'
-        errorElement = self.em.getError(nestedElement, u'£(noun,obj,genpl,nompl,case|čoggen ollu joŋaid)')
-
-        self.assertXmlEqual(etree.tostring(errorElement), want)
-
-    def testLookForExtendedAttributes1(self):
-        correctionString = '1]'
-        want = ('1]', False, '')
-        got = self.em.lookForExtendedAttributes(correctionString)
-
-        self.assertEqual(got, want)
-
-    def testLookForExtendedAttributes2(self):
-        correctionString = 'a,spred,nompl,nomsg,agr|Nieiddat leat nuorat'
-        want = ('Nieiddat leat nuorat', True, 'a,spred,nompl,nomsg,agr')
-        got = self.em.lookForExtendedAttributes(correctionString)
-
-        self.assertEqual(got, want)
 
     def testProcessText1(self):
         text = u'jne.$(adv,typo|jna.)'
