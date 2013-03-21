@@ -263,7 +263,22 @@ class TestErrorMarkup(unittest.TestCase):
 
         want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort correct="Asbjørnsen" errorinfo="prop,typo">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
 
-        self.em.addErrorMarkup(input[0])
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
+    def testFaultyPlacedSentences(self):
+        '''The input:
+        buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. «Best Shorts Competition» bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.
+
+        gets converted to this:
+         <p>buvttadeaddji Anstein <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.<errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan.</p>
+        '''
+        input = etree.fromstring('<p>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.</p>')
+
+        want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu.</p>'
+
+        self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
         self.assertEqual(got, want)
 
