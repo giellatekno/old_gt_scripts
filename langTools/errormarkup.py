@@ -267,6 +267,16 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertEqual(got, want)
 
+    def testPreserveSpaceAtEndOfSentence(self):
+        input = etree.fromstring('<p>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. </p>')
+
+        want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. </p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
+
     def testFaultyPlacedSentences(self):
         '''The input:
         buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. «Best Shorts Competition» bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.
@@ -621,7 +631,7 @@ class ErrorMarkup:
 
         '''
 
-        result = self.processText(text.strip())
+        result = self.processText(text)
 
         if len(result) > 1:
             #print text
