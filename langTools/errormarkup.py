@@ -625,40 +625,44 @@ class ErrorMarkup:
         testErrorParser* methods
 
         '''
-        text = element.text
-        tail = element.tail
-
-
-        if text:
-            newContent = self.errorParser(text)
-
-            if newContent:
-                if isinstance(newContent[0], etree._Element):
-                    element.text = ''
-                    for x in range(0, len(newContent)):
-                        element.insert(x, newContent[x])
-                else:
-                    element.text = newContent[0]
-                    for x in range(1, len(newContent)):
-                        element.insert(x - 1, newContent[x])
-
-        if tail:
-            newContent = self.errorParser(tail)
-
-            newPos = element.getparent().index(element)
-            if newContent:
-                if isinstance(newContent[0], etree._Element):
-                    element.tail = ''
-                    for x in range(0, len(newContent)):
-                        newPos += 1
-                        element.getparent().insert(newPos, newContent[x])
-                else:
-                    element.tail = newContent[0]
-                    for x in range(1, len(newContent)):
-                        newPos += 1
-                        element.getparent().insert(newPos, newContent[x])
+        self.fixText(element)
+        self.fixTail(element)
 
         pass
+
+    def fixText(self, element):
+        '''Replace the text of an element with errormarkup if possible
+        '''
+        newContent = self.errorParser(element.text)
+
+        if newContent:
+            element.text = None
+
+            if isinstance(newContent[0], basestring):
+                element.text = newContent[0]
+                newContent = newContent[1:]
+
+            newPos = 0
+            for part in newContent:
+                element.insert(newPos, part)
+                newPos += 1
+
+    def fixTail(self, element):
+        '''Replace the tail of an element with errormarkup if possible
+        '''
+        newContent = self.errorParser(element.tail)
+
+        if newContent:
+            element.tail = None
+            
+            if isinstance(newContent[0], basestring):
+                element.tail = newContent[0]
+                newContent = newContent[1:]
+
+            newPos = element.getparent().index(element) + 1
+            for part in newContent:
+                element.getparent().insert(newPos, part)
+                newPos += 1
 
     def errorParser(self, text):
         '''
@@ -677,30 +681,31 @@ class ErrorMarkup:
 
         '''
 
-        result = self.processText(text)
+        if text:
+            result = self.processText(text)
 
-        if len(result) > 1:
-            #print text
-            #print result
-            elements = []
-            # This means that we are inside an error markup
-            # Start with the two first elements
-            # The first contains an error, the second one is a correction
+            if len(result) > 1:
+                #print text
+                #print result
+                elements = []
+                # This means that we are inside an error markup
+                # Start with the two first elements
+                # The first contains an error, the second one is a correction
 
-            for x in range(0, len(result)):
-                if self.isCorrection(result[x]):
-                    if not self.isCorrection(result[x-1]) and  self.containsError(result[x-1]):
+                for x in range(0, len(result)):
+                    if self.isCorrection(result[x]):
+                        if not self.isCorrection(result[x-1]) and  self.containsError(result[x-1]):
 
-                        self.addSimpleError(elements, result[x-1], result[x])
+                            self.addSimpleError(elements, result[x-1], result[x])
 
-                    else:
+                        else:
 
-                        self.addNestedError(elements, result[x-1], result[x])
+                            self.addNestedError(elements, result[x-1], result[x])
 
-            if not self.isCorrection(result[-1]):
-                elements[-1].tail = result[-1]
+                if not self.isCorrection(result[-1]):
+                    elements[-1].tail = result[-1]
 
-            return elements
+                return elements
 
         pass
 
