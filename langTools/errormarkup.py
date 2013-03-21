@@ -292,6 +292,28 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertEqual(got, want)
 
+    def testPlaceErrorElementsBeforeOldElement1(self):
+        '''Test if errorlements are inserted before the span element.
+        '''
+        input = etree.fromstring('<p>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span></p>')
+
+        want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span></p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
+    def testPlaceErrorElementsBeforeOldElement2(self):
+        '''Test if errorlements are inserted before the span element.
+        '''
+        input = etree.fromstring('<p>Mikkelsens$(typo|Mikkelsen) lea ráhkadan. bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span></p>')
+
+        want = '<p><errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span></p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
     #Nested markup
     def testNestedMarkup1(self):
         input = etree.fromstring('<p>(šaddai$(verb,conc|šattai) ollu áššit)£(verb,fin,pl3prs,sg3prs,tense|šadde ollu áššit)</p>')
@@ -586,31 +608,33 @@ class ErrorMarkup:
         text = element.text
         tail = element.tail
 
-        if text:
-            newContent = self.errorParser(text)
+        if len(element) == 0:
+            if text:
+                newContent = self.errorParser(text)
 
-            if newContent:
-                if isinstance(newContent[0], etree._Element):
-                    element.text = ''
-                    for part in newContent:
-                        element.append(part)
-                else:
-                    element.text = newContent[0]
-                    for part in newContent[1:]:
-                        element.append(part)
+                if newContent:
+                    if isinstance(newContent[0], etree._Element):
+                        element.text = ''
+                        for part in newContent:
+                            element.append(part)
+                    else:
+                        element.text = newContent[0]
+                        for part in newContent[1:]:
+                            element.append(part)
 
-        if tail:
-            newContent = self.errorParser(tail)
+        else:
+            if text:
+                newContent = self.errorParser(text)
 
-            if newContent:
-                if isinstance(newContent[0], etree._Element):
-                    element.tail = ''
-                    for part in newContent:
-                        element.getparent().append(part)
-                else:
-                    element.tail = newContent[0]
-                    for part in newContent[1:]:
-                        element.getparent().append(part)
+                if newContent:
+                    if isinstance(newContent[0], etree._Element):
+                        element.text = ''
+                        for x in range(0, len(newContent)):
+                            element.insert(x, newContent[x])
+                    else:
+                        element.text = newContent[0]
+                        for x in range(1, len(newContent)):
+                            element.insert(x - 1, newContent[x])
 
         pass
 
