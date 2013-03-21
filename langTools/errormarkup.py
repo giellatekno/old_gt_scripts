@@ -258,35 +258,10 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
 
-    def testErrorortSpanInP(self):
-        input = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. Asbjørsen$(prop,typo|Asbjørnsen) døde 5. januar 1885, nesten 73 år gammel.</p>')
-
-        want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort correct="Asbjørnsen" errorinfo="prop,typo">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
-
-        self.em.addErrorMarkup(input)
-        got = etree.tostring(input, encoding = 'utf8')
-        self.assertEqual(got, want)
-
     def testPreserveSpaceAtEndOfSentence(self):
         input = etree.fromstring('<p>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. </p>')
 
         want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. </p>'
-
-        self.em.addErrorMarkup(input)
-        got = etree.tostring(input, encoding = 'utf8')
-        self.assertEqual(got, want)
-
-
-    def testFaultyPlacedSentences(self):
-        '''The input:
-        buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. «Best Shorts Competition» bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.
-
-        gets converted to this:
-         <p>buvttadeaddji Anstein <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.<errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan.</p>
-        '''
-        input = etree.fromstring('<p>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.</p>')
-
-        want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu.</p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -309,6 +284,46 @@ class TestErrorMarkup(unittest.TestCase):
         input = etree.fromstring('<p>Mikkelsens$(typo|Mikkelsen) lea ráhkadan. bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span></p>')
 
         want = '<p><errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span></p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
+    def testPlaceErrorElementAfterOldElement(self):
+        input = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. Asbjørsen$(prop,typo|Asbjørnsen) døde 5. januar 1885, nesten 73 år gammel.</p>')
+
+        want = '<p>I 1864 ga han ut boka <span type="quote" xml:lang="swe">"Fornuftigt Madstel"</span>. <errorort correct="Asbjørnsen" errorinfo="prop,typo">Asbjørsen</errorort> døde 5. januar 1885, nesten 73 år gammel.</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
+
+    def testPlaceErrorElementBeforeAndAfterOldElement(self):
+        '''The input:
+        buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. «Best Shorts Competition» bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.
+
+        gets converted to this:
+         <p>buvttadeaddji Anstein <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.<errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan.</p>
+        '''
+        input = etree.fromstring('<p>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.</p>')
+
+        want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu.</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertEqual(got, want)
+
+    def testAddErrorMarkup3Levels(self):
+        '''The input:
+        buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. «Best Shorts Competition» bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.
+
+        gets converted to this:
+         <p>buvttadeaddji Anstein <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.<errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan.</p>
+        '''
+        input = etree.fromstring('<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu. <em>buvttadeaddji Anstein Mikkelsens$(typo|Mikkelsen) lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> bálkkášumi$(vowlat,á-a|bálkkašumi) miessemánu.</em></p>')
+
+        want = '<p>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu. <em>buvttadeaddji Anstein <errorort correct="Mikkelsen" errorinfo="typo">Mikkelsens</errorort> lea ráhkadan. <span type="quote" xml:lang="eng">«Best Shorts Competition»</span> <errorort correct="bálkkašumi" errorinfo="vowlat,á-a">bálkkášumi</errorort> miessemánu.</em></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -597,6 +612,11 @@ class ErrorMarkup:
         pass
 
     def addErrorMarkup(self, element):
+        self.reallyAddErrorMarkup(element)
+        for elt in element:
+            self.addErrorMarkup(elt)
+
+    def reallyAddErrorMarkup(self, element):
         '''
         Search for errormarkup in the text and tail of an etree.Element
         If found, replace errormarkuped text with xml
@@ -608,33 +628,35 @@ class ErrorMarkup:
         text = element.text
         tail = element.tail
 
-        if len(element) == 0:
-            if text:
-                newContent = self.errorParser(text)
 
-                if newContent:
-                    if isinstance(newContent[0], etree._Element):
-                        element.text = ''
-                        for part in newContent:
-                            element.append(part)
-                    else:
-                        element.text = newContent[0]
-                        for part in newContent[1:]:
-                            element.append(part)
+        if text:
+            newContent = self.errorParser(text)
 
-        else:
-            if text:
-                newContent = self.errorParser(text)
+            if newContent:
+                if isinstance(newContent[0], etree._Element):
+                    element.text = ''
+                    for x in range(0, len(newContent)):
+                        element.insert(x, newContent[x])
+                else:
+                    element.text = newContent[0]
+                    for x in range(1, len(newContent)):
+                        element.insert(x - 1, newContent[x])
 
-                if newContent:
-                    if isinstance(newContent[0], etree._Element):
-                        element.text = ''
-                        for x in range(0, len(newContent)):
-                            element.insert(x, newContent[x])
-                    else:
-                        element.text = newContent[0]
-                        for x in range(1, len(newContent)):
-                            element.insert(x - 1, newContent[x])
+        if tail:
+            newContent = self.errorParser(tail)
+
+            newPos = element.getparent().index(element)
+            if newContent:
+                if isinstance(newContent[0], etree._Element):
+                    element.tail = ''
+                    for x in range(0, len(newContent)):
+                        newPos += 1
+                        element.getparent().insert(newPos, newContent[x])
+                else:
+                    element.tail = newContent[0]
+                    for x in range(1, len(newContent)):
+                        newPos += 1
+                        element.getparent().insert(newPos, newContent[x])
 
         pass
 
