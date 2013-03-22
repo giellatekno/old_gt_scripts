@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w 
+#!/usr/bin/env perl 
 #
 # Convert bible texts to the project's xml-format.
 # The xml-format of the bible text is specified in bible.dtd.
@@ -9,7 +9,7 @@
 # $Id$
 
 use utf8;
-
+use warnings;
 use strict;
 use XML::Twig;
 use Getopt::Long;
