@@ -72,6 +72,14 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
 
+    def testInputContainsSlash(self):
+        input = etree.fromstring('<p>magistter/$(loan,vowlat,e-a|magisttar)</p>')
+        want = '<p><errorort correct="magisttar" erroinfo="loan,vowlat,e-a">magistter/</errorort></p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
+        self.assertXmlEqual(got, want)
+
     def testErrorCorrect1(self):
         input = etree.fromstring('<p>1]§Ij</p>')
         want = '<p><error correct="Ij">1]</error></p>'
@@ -756,7 +764,14 @@ class ErrorMarkup:
 
         '''
         #print u'«' + errorstring + u'»', u'«' + correctionstring + u'»'
-        innerElement = elements[-1]
+        try:
+            innerElement = elements[-1]
+        except IndexError:
+            print "Cannot handle:"
+            print errorstring + correctionstring
+            print "This is either an error in the markup or an error in the errormarkup conversion code"
+            print "If the markup is correct, send a report about this error to borre.gaup@uit.no"
+
         elements.remove(elements[-1])
         if not self.isCorrection(errorstring):
             innerElement.tail = errorstring[:-1]
@@ -785,13 +800,13 @@ class ErrorMarkup:
                 else:
                     innerElement = elements[-1]
                     elements.remove(elements[-1])
-                    try:
-                        errorElement.insert(0, innerElement)
-                    except TypeError as e:
-                        print u"The program expected an error element, but found a string:\n«" + innerElement + u"»"
-                        print u"There is either an error in errormarkup close to this sentence"
-                        print u"or the program cannot evaluate a correct errormarkup."
-                        print u"If the errormarkup is correct, please report about the error to borre.gaup@uit.no"
+                    #try:
+                    errorElement.insert(0, innerElement)
+                    #except TypeError as e:
+                        #print u"The program expected an error element, but found a string:\n«" + innerElement + u"»"
+                        #print u"There is either an error in errormarkup close to this sentence"
+                        #print u"or the program cannot evaluate a correct errormarkup."
+                        #print u"If the errormarkup is correct, please report about the error to borre.gaup@uit.no"
 
 
     def getText(self, element):
