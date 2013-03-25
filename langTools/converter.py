@@ -493,6 +493,13 @@ class TestPlaintextConverter(unittest.TestCase):
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
+    def testTwoLines(self):
+        twoLines = PlaintextConverter('parallelize_data/twolines.txt')
+        got = twoLines.convert2intermediate()
+        want = etree.parse('parallelize_data/twolines.xml')
+
+        self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
+
 class PlaintextConverter:
     """
     A class to convert plain text files containing "news" tags to the
@@ -683,7 +690,7 @@ class PlaintextConverter:
 
                 ptext = ''
             else:
-                ptext = ptext + line
+                ptext = ptext + line.replace('\n', ' ')
 
         if ptext != '':
             p = etree.Element('p')
