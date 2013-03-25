@@ -887,7 +887,13 @@ class ErrorMarkup:
         attList = None
         if '|' in correction:
             extAtt = True
-            (attList, correction) = correction.split('|')
+            try:
+                (attList, correction) = correction.split('|')
+            except ValueError as e:
+                print str(e)
+                print u"too many | characters inside the correction. «" + correction + u"»"
+                print u"Have you remembered to encase the error inside parenthesis, e.g. (vowlat,a-á|servodatvuogádat)?"
+                print u"If the errormarkup is correct, send a report about this error to borre.gaup@uit.no"
 
         return (correction, extAtt, attList)
 
