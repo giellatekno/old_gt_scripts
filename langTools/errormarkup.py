@@ -74,7 +74,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testInputContainsSlash(self):
         input = etree.fromstring('<p>magistter/$(loan,vowlat,e-a|magisttar)</p>')
-        want = '<p><errorort correct="magisttar" erroinfo="loan,vowlat,e-a">magistter/</errorort></p>'
+        want = '<p><errorort correct="magisttar" errorinfo="loan,vowlat,e-a">magistter/</errorort></p>'
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
@@ -611,6 +611,10 @@ class TestErrorMarkup(unittest.TestCase):
         text = u'Bruk ((epoxi)'
         self.assertTrue(not self.em.isCorrection(text))
 
+    def testContainsError(self):
+        text = u'aba/'
+        self.assertTrue(self.em.containsError(text))
+
 class ErrorMarkup:
     '''This is a class to convert errormarkuped text to xml
     '''
@@ -702,7 +706,7 @@ class ErrorMarkup:
 
                 for x in range(0, len(result)):
                     if self.isCorrection(result[x]):
-                        if not self.isCorrection(result[x-1]) and  self.containsError(result[x-1]):
+                        if not self.isCorrection(result[x-1]) and self.containsError(result[x-1]):
 
                             self.addSimpleError(elements, result[x-1], result[x])
 
@@ -767,7 +771,7 @@ class ErrorMarkup:
         try:
             innerElement = elements[-1]
         except IndexError:
-            print "Cannot handle:"
+            print "Cannot handle:\n"
             print errorstring + correctionstring
             print "This is either an error in the markup or an error in the errormarkup conversion code"
             print "If the markup is correct, send a report about this error to borre.gaup@uit.no"
@@ -849,7 +853,7 @@ class ErrorMarkup:
     def processHead(self, text):
         '''Divide text into text/error parts
         '''
-        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\.]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
+        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
 
         m = p.search(text)
         text = p.sub('', text)
@@ -857,7 +861,7 @@ class ErrorMarkup:
         return (text, m.group('error'))
 
     def containsError(self, text):
-        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\.]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
+        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
 
         return p.search(text)
 
