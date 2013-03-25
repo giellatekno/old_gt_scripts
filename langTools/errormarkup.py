@@ -654,7 +654,7 @@ class ErrorMarkup:
 
         if newContent:
             element.tail = None
-            
+
             if isinstance(newContent[0], basestring):
                 element.tail = newContent[0]
                 newContent = newContent[1:]
@@ -785,7 +785,10 @@ class ErrorMarkup:
                 else:
                     innerElement = elements[-1]
                     elements.remove(elements[-1])
-                    errorElement.insert(0, innerElement)
+                    try:
+                        errorElement.insert(0, innerElement)
+                    except TypeError as e:
+                        print u"Error in errormarkup close to this sentence:\n «" + innerElement + u"»"
 
     def getText(self, element):
         text = None
