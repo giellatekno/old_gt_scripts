@@ -788,7 +788,11 @@ class ErrorMarkup:
                     try:
                         errorElement.insert(0, innerElement)
                     except TypeError as e:
-                        print u"Error in errormarkup close to this sentence:\n «" + innerElement + u"»"
+                        print u"The program expected an error element, but found a string:\n«" + innerElement + u"»"
+                        print u"There is either an error in errormarkup close to this sentence"
+                        print u"or the program cannot evaluate a correct errormarkup."
+                        print u"If the errormarkup is correct, please report about the error to borre.gaup@uit.no"
+
 
     def getText(self, element):
         text = None
