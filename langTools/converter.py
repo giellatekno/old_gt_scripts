@@ -227,7 +227,7 @@ class Converter:
                 logfile.write(etree.tostring(complete, encoding = 'utf8'))
                 logfile.write('\n')
                 logfile.close()
-                raise ConversionException("Markup error")
+                raise ConversionException(u"Markup error. More info in the log file: " + self.getOrig() + u".log")
 
         return complete
 
