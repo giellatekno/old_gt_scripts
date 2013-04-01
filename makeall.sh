@@ -19,7 +19,13 @@ echo " -------------------------------------------------------------------------
 cd ../fkv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- izh, Izhorian "
 cd ../izh && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
-#echo " -------------------------------------------------------------------------------------- kal, Greenlandic "
+echo " -------------------------------------------------------------------------------------- kal, Greenlandic "
+echo " "
+echo " No, sorry, we skip Greenlandic. It takes to long time to compile."
+echo " In order to compile Greenlandic, do this:"
+echo " cd $GTHOME/langs/kal/"
+echo " ./autogen.sh && ./configure && make "
+echo " "
 #cd ../kal && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- kca, Khanty "
 cd ../kca && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
