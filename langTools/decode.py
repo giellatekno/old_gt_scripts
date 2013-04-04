@@ -64,8 +64,8 @@ ctypes = [
     # winsami2 converted as iconv -f latin1 -t utf8
     # 3
     {
-        "\xc2\x9a": "š",
-        "\xc2\x8a": "Š",
+        "": "š",
+        "": "Š",
         "¼": "ŧ",
         "º": "Ŧ",
         "¹": "ŋ",
