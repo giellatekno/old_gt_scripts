@@ -804,13 +804,14 @@ class ErrorMarkup:
                 else:
                     innerElement = elements[-1]
                     elements.remove(elements[-1])
-                    #try:
-                    errorElement.insert(0, innerElement)
-                    #except TypeError as e:
-                        #print u"The program expected an error element, but found a string:\n«" + innerElement + u"»"
-                        #print u"There is either an error in errormarkup close to this sentence"
-                        #print u"or the program cannot evaluate a correct errormarkup."
-                        #print u"If the errormarkup is correct, please report about the error to borre.gaup@uit.no"
+                    try:
+                        errorElement.insert(0, innerElement)
+                    except TypeError as e:
+                        print str(e)
+                        print u"The program expected an error element, but found a string:\n«" + innerElement + u"»"
+                        print u"There is either an error in errormarkup close to this sentence"
+                        print u"or the program cannot evaluate a correct errormarkup."
+                        print u"If the errormarkup is correct, please report about the error to borre.gaup@uit.no"
 
 
     def getText(self, element):
