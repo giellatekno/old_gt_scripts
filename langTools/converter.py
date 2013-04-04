@@ -384,7 +384,7 @@ class TestPlaintextConverter(unittest.TestCase):
     def testAssu97(self):
         newstext = PlaintextConverter('parallelize_data/assu97.txt')
         got = newstext.convert2intermediate()
-        want = etree.parse('parallelize_data/assu97.xml')
+        want = etree.parse('parallelize_data/assu97-unfixedutf8.xml')
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
@@ -1198,10 +1198,11 @@ class TestDocumentFixer(unittest.TestCase):
 
     def testFixBodyEncoding(self):
         newstext = PlaintextConverter('parallelize_data/assu97-mac-sami.txt')
+
         eg = DocumentFixer(newstext.convert2intermediate())
         got = eg.fixBodyEncoding()
 
-        want = etree.parse('parallelize_data/assu97.xml')
+        want = etree.parse('parallelize_data/assu97-fixedutf8.xml')
 
         self.assertXmlEqual(etree.tostring(got), etree.tostring(want))
 
@@ -1372,6 +1373,7 @@ class DocumentFixer:
 
         eg = decode.EncodingGuesser()
         encoding = eg.guessBodyEncoding(bodyString)
+
         body = etree.fromstring(eg.decodePara(encoding, bodyString))
         self.etree.append(body)
 
