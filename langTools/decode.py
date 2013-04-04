@@ -3,7 +3,7 @@ import sys
 import re
 
 ctypes = [
-    
+
     # mac-sami converted as iconv -f mac -t utf8
     # 0
     {
@@ -21,7 +21,7 @@ ctypes = [
         "∏": "č",
         "¢": "Č"
     },
-    
+
     # iso-ir-197 converted as iconv -f mac -t utf8
     # 1
     {
@@ -50,7 +50,7 @@ ctypes = [
         "ˆ": "ö",
         "÷": "Ö",
     },
-    
+
     # 2
     {
         "ƒ": "š",    #
@@ -60,7 +60,7 @@ ctypes = [
         "ª": "č",    #
         "º": "Č",    #
     },
-    
+
     # winsami2 converted as iconv -f latin1 -t utf8
     # 3
     {
@@ -77,7 +77,7 @@ ctypes = [
         "": "č",
         "": "Č",
     },
-    
+
     # iso-ir-197 converted as iconv -f latin1 -t utf8
     # 4
     {
@@ -94,7 +94,7 @@ ctypes = [
         "¢": "č",
         "¡": "Č",
     },
-    
+
     # mac-sami to latin1
     # 5
     {
@@ -136,7 +136,7 @@ ctypes = [
         #"Ç": "«",
         #"È": "»",
     },
-    
+
     # found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
     # and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
     # 6
@@ -198,97 +198,123 @@ class TestEncodingGuesser(unittest.TestCase):
         for i in range(0, len(ctypes)):
             self.assertEqual(eg.guessFileEncoding('parallelize_data/decode-' + str(i) + '.txt'), i)
 
-    def testRoundTripping(self):
+    def roundTripX(self, x):
         eg = EncodingGuesser()
-        
+
         f = open('parallelize_data/decode-utf8.txt')
         utf8_content = f.read()
         f.close()
-        
-        for i in range(0, len(ctypes)):
-            f = open('parallelize_data/decode-' + str(i) + '.txt')
-            content = f.read()
-            f.close()
-            
-            test_content = eg.decodePara(i, content)
-            
-            self.assertEqual(utf8_content, test_content)
-        
+
+        f = open('parallelize_data/decode-' + str(x) + '.txt')
+        content = f.read()
+        f.close()
+
+        test_content = eg.decodePara(x, content)
+
+        self.assertEqual(utf8_content, test_content)
+
+    def testRoundTripping0(self):
+        self.roundTripX(0)
+
+    def testRoundTripping1(self):
+        self.roundTripX(1)
+
+    def testRoundTripping2(self):
+        self.roundTripX(2)
+
+    def testRoundTripping3(self):
+        self.roundTripX(3)
+
+    def testRoundTripping4(self):
+        self.roundTripX(4)
+
+    def testRoundTripping5(self):
+        self.roundTripX(5)
+
+    def testRoundTripping6(self):
+        self.roundTripX(6)
+
+    def testRoundTripping7(self):
+        self.roundTripX(7)
+
+    def testRoundTripping8(self):
+        self.roundTripX(8)
+
 class EncodingGuesser:
     def guessFileEncoding(self, filename):
-        
+
         f = open(filename)
         content = f.read()
         f.close()
         winner = self.guessBodyEncoding(content)
-        
+
         return winner
-        
+
     def guessBodyEncoding(self, content):
-        
+
         maxhits = 0
         winner = -1
         for position in range(0, len(ctypes)):
             hits = 0
             num = 0
             for key in ctypes[position].viewkeys():
-                
+
                 #print len(re.compile(key).findall(content)), key
                 if len(re.compile(key).findall(content)) > 0:
                     num = num + 1
-                    
+
                 hits = hits + len(re.compile(key).findall(content))
-                
+
             #print "position", position, "hits", hits, "num", num
-            
+
             if hits > maxhits and limits[position] < num:
                 winner = position
                 maxhits = hits
                 #print "winner", winner, "maxhits", maxhits
-            
+
         #print "the winner is", winner
         return winner
-        
+
     def guessPersonEncoding(self, person):
-        
+
         f = open(filename)
         content = f.read()
         content = content.lower()
         f.close()
-        
+
         maxhits = 0
         for position in range(0, len(ctypes)):
             hits = 0
             num = 0
             for key in ctypes[position].viewkeys():
-                
+
                 #print len(re.compile(key).findall(content)), key
                 if len(re.compile(key).findall(content)) > 0:
                     num = num + 1
-                    
+
                 hits = hits + len(re.compile(key).findall(content))
-                
+
             #print "position", position, "hits", hits, "num", num
-            
-            
+
+
             if hits > maxhits:
                 winner = position
                 maxhits = hits
                 #print "winner", winner, "maxhits", maxhits
-                
+
             # 8 always wins over 5 as long as there are any hits for 8
             if winner == 5 and num > 1:
                 winner = 8
-            
+
         #print "the winner is", winner
         return winner
-        
+
     def decodePara(self, position, text):
         encoding = ctypes[position]
-        
+
         for key, value in encoding.items():
             text = text.replace(key, value)
-        
+
         if position == 5:
             text = text.replace("Ç", "«")
             text = text.replace("È", "»")
@@ -299,4 +325,3 @@ if __name__ == '__main__':
     import sys
     eg = EncodingGuesser()
     print eg.guessFileEncoding(sys.argv[1])
-    
