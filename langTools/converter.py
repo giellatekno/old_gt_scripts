@@ -526,9 +526,6 @@ class PlaintextConverter:
         if encoding != 'utf-8':
             content = content.decode('latin1', 'replace').encode('utf-8')
 
-        eg = decode.EncodingGuesser()
-        encoding = eg.guessBodyEncoding(content)
-        content = eg.decodePara(encoding, content)
         content = unicode(content, encoding='utf-8')
         content = content.replace(u'  ', '\n\n')
         content = content.replace(u'–<\!q>', u'– ')
