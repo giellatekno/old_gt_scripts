@@ -5,186 +5,193 @@ import re
 ctypes = [
 
     # mac-sami converted as iconv -f mac -t utf8
+    # mac-sami á appears at the same place as latin1 á
     # 0
     {
-        "ª": "š",
-        "¥": "Š",
-        "º": "ŧ",
-        "µ": "Ŧ",
-        "∫": "ŋ",
-        "±": "Ŋ",
-        "¸": "Ŋ",
-        "π": "đ",
-        "∞": "Đ",
-        "Ω": "ž",
-        "∑": "Ž",
-        "∏": "č",
-        "¢": "Č"
+        u"ª": u"š",
+        u"¥": u"Š",
+        u"º": u"ŧ",
+        u"µ": u"Ŧ",
+        u"∫": u"ŋ",
+        u"±": u"Ŋ",
+        u"¸": u"Ŋ",
+        u"π": u"đ",
+        u"∞": u"Đ",
+        u"Ω": u"ž",
+        u"∑": u"Ž",
+        u"∏": u"č",
+        u"¢": u"Č"
     },
 
     # iso-ir-197 converted as iconv -f mac -t utf8
     # 1
     {
-        "·": "á",
-        "¡": "Á",
-        "≥": "š",
-        "≤": "Š",
-        "∏": "ŧ",
-        "µ": "Ŧ",
-        "±": "ŋ",
-        "Ø": "Ŋ",
-        "§": "đ",
-        "£": "Đ",
-        "∫": "ž",
-        "π": "Ž",
-        "¢": "č",
-        "°": "Č",
-        "Ê": "æ",
-        "Δ": "Æ",
-        "¯": "ø",
-        "ÿ": "Ø",
-        "Â": "å",
-        "≈": "Å",
-        "‰": "ä",
-        "ƒ": "Ä",
-        "ˆ": "ö",
-        "÷": "Ö",
+        u"·": u"á",
+        u"¡": u"Á",
+        u"≥": u"š",
+        u"≤": u"Š",
+        u"∏": u"ŧ",
+        u"µ": u"Ŧ",
+        u"±": u"ŋ",
+        u"Ø": u"Ŋ",
+        u"§": u"đ",
+        u"£": u"Đ",
+        u"∫": u"ž",
+        u"π": u"Ž",
+        u"¢": u"č",
+        u"°": u"Č",
+        u"Ê": u"æ",
+        u"Δ": u"Æ",
+        u"¯": u"ø",
+        u"ÿ": u"Ø",
+        u"Â": u"å",
+        u"≈": u"Å",
+        u"‰": u"ä",
+        u"ƒ": u"Ä",
+        u"ˆ": u"ö",
+        u"÷": u"Ö",
     },
 
+    # á, æ, å, ø, ö, ä appear as themselves
     # 2
     {
-        "ƒ": "š",    #
-        "√": "ŋ",    #
-        "∂": "đ",    #
-        "π": "ž",    #
-        "ª": "č",    #
-        "º": "Č",    #
+        u"ƒ": u"š",    #
+        u"√": u"ŋ",    #
+        u"∂": u"đ",    #
+        u"π": u"ž",    #
+        u"ª": u"č",    #
+        u"º": u"Č",    #
     },
 
     # winsami2 converted as iconv -f latin1 -t utf8
+    # á, æ, å, ø, ö, ä appear as themselves
     # 3
     {
-        "": "š",
-        "": "Š",
-        "¼": "ŧ",
-        "º": "Ŧ",
-        "¹": "ŋ",
-        "¸": "Ŋ",
-        "": "đ",
-        "": "Đ",
-        "¿": "ž",
-        "¾": "Ž",
-        "": "č",
-        "": "Č",
+        u"": u"š",
+        u"": u"Š",
+        u"¼": u"ŧ",
+        u"º": u"Ŧ",
+        u"¹": u"ŋ",
+        u"¸": u"Ŋ",
+        u"": u"đ",
+        u"": u"Đ",
+        u"¿": u"ž",
+        u"¾": u"Ž",
+        u"": u"č",
+        u"": u"Č",
     },
 
     # iso-ir-197 converted as iconv -f latin1 -t utf8
+    # á, æ, å, ø, ö, ä appear as themselves
     # 4
     {
-        "³": "š",
-        "²": "Š",
-        "¸": "ŧ",
-        "µ": "Ŧ",
-        "±": "ŋ",
-        "¯": "Ŋ",
-        "¤": "đ",
-        "£": "Đ",
-        "º": "ž",
-        "¹": "Ž",
-        "¢": "č",
-        "¡": "Č",
+        u"³": u"š",
+        u"²": u"Š",
+        u"¸": u"ŧ",
+        u"µ": u"Ŧ",
+        u"±": u"ŋ",
+        u"¯": u"Ŋ",
+        u"¤": u"đ",
+        u"£": u"Đ",
+        u"º": u"ž",
+        u"¹": u"Ž",
+        u"¢": u"č",
+        u"¡": u"Č",
     },
 
     # mac-sami to latin1
     # 5
     {
-        "": "á",
-        "‡": "á",
-        "ç": "Á",
-        "»": "š",
-        "´": "Š",
-        "¼": "ŧ",
-        "µ": "Ŧ",
-        "º": "ŋ",
-        "±": "Ŋ",
-        "¹": "đ",
-        "°": "Đ",
-        "½": "ž",
-        "·": "Ž",
-        "¸": "č",
-        "¢": "Č",
-        "¾": "æ",
-        "®": "Æ",
-        "¿": "ø",
-        "¯": "Ø",
-        "": "å",
-        "": "é",
-        "Œ": "å",
-        "": "Å",
-        "": "ä",
-        "": "Ä",
-        "": "ö",
-        "": "Ö",
-        "Ê": " ",
-        "¤": "§",
-        "Ò": "“",
-        "Ó": "”",
-        "ª ": "™ ",
-        "ªÓ": "™”",
-        "Ã": "√",
-        "Ð": "–",
-        #"Ç": "«",
-        #"È": "»",
+        u"": u"á",
+        u"‡": u"á",
+        u"ç": u"Á",
+        u"»": u"š",
+        u"´": u"Š",
+        u"¼": u"ŧ",
+        u"µ": u"Ŧ",
+        u"º": u"ŋ",
+        u"±": u"Ŋ",
+        u"¹": u"đ",
+        u"°": u"Đ",
+        u"½": u"ž",
+        u"·": u"Ž",
+        u"¸": u"č",
+        u"¢": u"Č",
+        u"¾": u"æ",
+        u"®": u"Æ",
+        u"¿": u"ø",
+        u"¯": u"Ø",
+        u"": u"å",
+        u"": u"é",
+        u"Œ": u"å",
+        u"": u"Å",
+        u"": u"ä",
+        u"": u"Ä",
+        u"": u"ö",
+        u"": u"Ö",
+        u"Ê": u" ",
+        u"¤": u"§",
+        u"Ò": u"“",
+        u"Ó": u"”",
+        u"ª ": u"™ ",
+        u"ªÓ": u"™”",
+        u"Ã": u"√",
+        u"Ð": u"–",
+        #"Ç": u"«",
+        #"È": u"»",
     },
 
     # found in boundcorpus/goldstandard/orig/sme/facta/GIEHTAGIRJI.correct.doc
     # and boundcorpus/goldstandard/orig/sme/facta/learerhefte_-_vaatmarksfugler.doc
+    # á, æ, å, ø, ö, ä appear as themselves
     # 6
     {
-        "ð": "đ",
-        "Ç": "Č",
-        "ç": "č",
-        "ó": "š",
-        "ý": "ŧ",
-        "þ": "ž",
+        u"ð": u"đ",
+        u"Ç": u"Č",
+        u"ç": u"č",
+        u"ó": u"š",
+        u"ý": u"ŧ",
+        u"þ": u"ž",
     },
 
     # found in freecorpus/orig/sme/admin/sd/other_files/dc_00_1.doc
     # and freecorpus/orig/sme/admin/guovda/KS_02.12.99.doc
     # found in boundcorpus/orig/sme/bible/other_files/vitkan.pdf
     # latin4 as latin1
+    # á, æ, å, ø, ö, ä appear as themselves
     # 7
     {
-        "ð": "đ",
-        "È": "Č",
-        "è": "č",
-        "¹": "š",
-        "¿": "ŋ",
-        "¾": "ž",
-        "¼": "ŧ",
-        "‚": "Č",
-        "„": "č",
-        #"¹": "ŋ",
-        "˜": "đ",
-        #"¿": "ž",
+        u"ð": u"đ",
+        u"È": u"Č",
+        u"è": u"č",
+        u"¹": u"š",
+        u"¿": u"ŋ",
+        u"¾": u"ž",
+        u"¼": u"ŧ",
+        u"‚": u"Č",
+        u"„": u"č",
+        #"¹": u"ŋ",
+        u"˜": u"đ",
+        #"¿": u"ž",
     },
 
+    # á, æ, å, ø, ö, ä appear as themselves
     # 8
     {
-        "t1": "ŧ",
-        "T1": "Ŧ",
-        "s1": "š",
-        "S1": "Š",
-        "n1": "ŋ",
-        "N1": "Ŋ",
-        "d1": "đ",
-        "D1": "Đ",
-        "z1": "ž",
-        "Z1": "Ž",
-        "c1": "č",
-        "C1": "Č",
-        "ï¾«": "«",
-        "ï¾»": "»",
+        u"t1": u"ŧ",
+        u"T1": u"Ŧ",
+        u"s1": u"š",
+        u"S1": u"Š",
+        u"n1": u"ŋ",
+        u"N1": u"Ŋ",
+        u"d1": u"đ",
+        u"D1": u"Đ",
+        u"z1": u"ž",
+        u"Z1": u"Ž",
+        u"c1": u"č",
+        u"C1": u"Č",
+        u"ï¾«": u"«",
+        u"ï¾»": u"»",
     }
 ]
 
@@ -240,8 +247,21 @@ class TestEncodingGuesser(unittest.TestCase):
     def testRoundTripping8(self):
         self.roundTripX(8)
 
+    def testRoundTrippingFalsePositive(self):
+        eg = EncodingGuesser()
+        self.assertEqual(eg.guessFileEncoding('parallelize_data/decode-falsepositive.txt'), -1)
+
 class EncodingGuesser:
+    """Try to find out if some text or a file has faultily encoded (northern)
+    sami letters
+    """
+
     def guessFileEncoding(self, filename):
+        """ @brief Guess the encoding of a file
+
+        @param filename name of an utf-8 encoded file
+        @return winner is an int, pointing to a position in ctypes, or -1
+        """
 
         f = open(filename)
         content = f.read()
@@ -250,35 +270,99 @@ class EncodingGuesser:
 
         return winner
 
+    def getSamiLetterFrequency(self, content):
+        """@brief Get the frequency of real "sami" letters in content
+
+        @param content is a unicode text (not utf8 str)
+        #return samiLetterFrequency is a dict of letters and their frequencies
+        """
+        samiLetterFrequency = {}
+
+        for sami_letter in [u'á', u'š', u'ŧ', u'ŋ', u'đ', u'ž', u'č', u'æ', u'ø', u'å', u'ä', u'ö' ]:
+            samiLetterFrequency[sami_letter] = len(re.compile(sami_letter).findall(content.lower()))
+
+        #print len(content)
+        #for (key, value) in sami_letter_frequency.items():
+            #print key + ":", value
+
+        return samiLetterFrequency
+
+    def getEncodingFrequency(self, content, position):
+        """@ brief Get the frequency of the letters found at position "position" in ctypes
+
+        @param content is a unicode text (not utf8 str)
+        @param position is the position in ctypes
+        @return encodingFrequency is a dict of letters from ctypes[position]
+        and their frequencies
+        """
+
+        encodingFrequency = {}
+
+        for key in ctypes[position].viewkeys():
+
+            if len(re.compile(key).findall(content)) > 0:
+                encodingFrequency[key] = len(re.compile(key).findall(content))
+                #print key + ":", ctypes[position][key], len(re.compile(key).findall(content))
+
+        return encodingFrequency
+
     def guessBodyEncoding(self, content):
+        """@brief guess the encoding of the string content
+
+        First get the frequencies of the "sami letters"
+        Then get the frequencies of the letters in the encodings in ctypes
+
+        If "sami letters" that the encoding tries to fix exist in "content",
+        disregard the encoding
+
+        @param content a utf-8 encoded string
+        @return winner is an int pointing to a position in ctypes or -1
+        to tell that no known encoding is found
+        """
+        content = content.decode('utf8')
+        samiLetterFrequency = self.getSamiLetterFrequency(content)
 
         maxhits = 0
         winner = -1
         for position in range(0, len(ctypes)):
+            encodingFrequency = self.getEncodingFrequency(content, position)
+
+            num = len(encodingFrequency)
             hits = 0
-            num = 0
-            for key in ctypes[position].viewkeys():
+            hitter = False
+            for key in encodingFrequency.keys():
+                try:
+                    if not samiLetterFrequency[ctypes[position][key].lower()]:
+                        hitter = True
+                except KeyError:
+                    print ctypes[position][key], "does not exist in this file"
+                hits += encodingFrequency[key]
 
-                #print len(re.compile(key).findall(content)), key
-                if len(re.compile(key).findall(content)) > 0:
-                    num = num + 1
+            #if hits > 0:
+                #print "position", position, "hits", hits, "num", num
 
-                hits = hits + len(re.compile(key).findall(content))
-
-            #print "position", position, "hits", hits, "num", num
-
-            if hits > maxhits and limits[position] < num:
+            if hits > maxhits and limits[position] < num and hitter:
                 winner = position
                 maxhits = hits
                 #print "winner", winner, "maxhits", maxhits
 
         #print "the winner is", winner
+
         return winner
 
     def guessPersonEncoding(self, person):
+        """@brief guess the encoding of the string person
+
+        This is a little simplified version of guessBodyEncoding because the person string is short
+
+        @param content a utf-8 encoded string
+        @return winner is an int pointing to a position in ctypes or -1
+        to tell that no known encoding is found
+        """
 
         f = open(filename)
         content = f.read()
+        content = content.decode('utf8')
         content = content.lower()
         f.close()
 
@@ -310,16 +394,23 @@ class EncodingGuesser:
         return winner
 
     def decodePara(self, position, text):
+        """@brief Replace letters in text with the ones from the dict at position position in ctypes
+
+        @param position which place the encoding has in the ctypes list
+        @param text utf8 encoded str
+        @return utf8 encoded str
+        """
+        text = text.decode('utf8')
         encoding = ctypes[position]
 
         for key, value in encoding.items():
             text = text.replace(key, value)
 
         if position == 5:
-            text = text.replace("Ç", "«")
-            text = text.replace("È", "»")
+            text = text.replace(u"Ç", u"«")
+            text = text.replace(u"È", u"»")
 
-        return text
+        return text.encode('utf8')
 
 if __name__ == '__main__':
     import sys
