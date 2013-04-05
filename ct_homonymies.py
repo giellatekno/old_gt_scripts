@@ -1,5 +1,4 @@
 #!/usr/bin/env python3.2
-# coding=utf-8
 # -*- encoding: utf-8 -*-
 import sys ;
  
@@ -30,9 +29,10 @@ wordpairs = [
     "soahpat,V,sohpat,V",
     "vuhttot,V,vuohttot,V",
     "vuhttot,V,vuohttit,V"
-];
+]
  
-counter = {};
+counter = {}
+analysisCounter = {}
  
 # "<čilget>"         "čielgat" V IV Ind Prs Pl3 @+FMAINV          "čilget" V TV Ind Prs Sg2 @+FMAINV  
  
@@ -60,6 +60,16 @@ for line in sys.stdin.readlines(): #{
                         # Increment the counter by 1
                         counter[wordpair] = counter[wordpair] + 1;
                 #}
+                
+                if analysis1 not in analysisCounter:
+                    analysisCounter[analysis1] = 0
+                    
+                analysisCounter[analysis1] = analysisCounter[analysis1] + line.count(analysis1)
+       
+                if analysis2 not in analysisCounter:
+                    analysisCounter[analysis2] = 0
+                    
+                analysisCounter[analysis2] = analysisCounter[analysis2] + line.count(analysis2)
        
         #}
 #}
@@ -69,3 +79,6 @@ for wordpair in counter: #{
  
         print(counter[wordpair], wordpair);
 #}
+for analysis in analysisCounter: #{
+ 
+        print(analysisCounter[analysis], analysis);
