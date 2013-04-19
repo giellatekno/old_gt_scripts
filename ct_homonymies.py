@@ -27,7 +27,7 @@ wordpairs = [
     "ollásit,V,ollásit,Adv",
     "salastit,V,salla,N",
     "soahpat,V,sohpat,V",
-    "vuhttot,V,vuohttot,V",
+    "vuhttot,V,vuohttut,V",
     "vuhttot,V,vuohttit,V"
 ]
  
