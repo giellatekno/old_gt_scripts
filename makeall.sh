@@ -45,6 +45,8 @@ echo " -------------------------------------------------------------------------
 cd ../ndl && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- nio, Nganasan "
 cd ../nio && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- nob, Norwegian Bokmål "
+cd ../nob && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- olo, Olonetsian "
 cd ../olo && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- sjd, Kildin Saami "
@@ -92,11 +94,6 @@ echo ""
 echo "===>                    <===" 
 echo "===>   Other languages  <===" 
 echo "===>                    <===" 
-echo ""
-echo ""
-echo "===>      Bokmål      <===" 
-cd $GTHOME/st/nob/src
-nice time make
 echo ""
 echo "===>    Nynorsk       <===" 
 cd $GTHOME/st/nno/src
