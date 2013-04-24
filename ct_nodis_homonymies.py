@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.2
 # -*- encoding: utf-8 -*-
-import sys ;
+import sys
  
 wordpairs = [
     "áibat,V,áibbašit,V",
