@@ -63,22 +63,25 @@ for line in sys.stdin.readlines(): #{
                 
                 if analysis1 not in analysisCounter:
                     analysisCounter[analysis1] = 0
-                    
-                analysisCounter[analysis1] = analysisCounter[analysis1] + line.count(analysis1)
+                
+                if line.count(analysis1) > 0:    
+                	analysisCounter[analysis1] = analysisCounter[analysis1] + 1
        
                 if analysis2 not in analysisCounter:
                     analysisCounter[analysis2] = 0
                     
-                analysisCounter[analysis2] = analysisCounter[analysis2] + line.count(analysis2)
+                if line.count(analysis2) > 0:
+                	analysisCounter[analysis2] = analysisCounter[analysis2] + 1
        
         #}
 #}
  
 # For all the wordpairs we have seen, print out their values
-for wordpair in counter: #{
- 
-        print(counter[wordpair], wordpair);
-#}
+for wordpair in counter:
+	print(wordpair, counter[wordpair]);
+
+print
+
 for analysis in analysisCounter: #{
- 
-        print(analysisCounter[analysis], analysis);
+	if analysisCounter[analysis] > 0:
+		print(analysis, analysisCounter[analysis]);
