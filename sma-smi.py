@@ -26,6 +26,9 @@
 import os
 import re
 import fileinput
+import sys
+
+lang = sys.argv[1]
 
 myre = re.compile(r" .*;")
 
@@ -42,8 +45,9 @@ def lineInSmi(line):
 with open(os.getenv("GTHOME") + "/gtcore/templates/smi/src/morphology/stems/smi-propernouns.lexc", 'r') as content_file:
     content = content_file.read()
 
-smaname = os.getenv("GTHOME") + "/langs/sma/src/morphology/stems/sma-propernouns.lexc"
+smaname = os.getenv("GTHOME") + "/langs/" + lang + "/src/morphology/stems/" + lang + "-propernouns.lexc"
 
+print smaname
 for line in fileinput.FileInput(smaname, inplace=1):
     if line.startswith("!"):
         print line[:-1]
