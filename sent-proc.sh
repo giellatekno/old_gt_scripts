@@ -55,8 +55,8 @@ else
 fi
 
 # lang group
-if [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "fin" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]] || [[ "$l" == "smn" ]] || [[ "$l" == "sjd" ]] || [[ "$l" == "sje" ]] || [[ "$l" == "sms" ]] || [[ "$l" == "fkv" ]] 
-then
+if [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]] 
+ then
 	lg="langs"
 elif [[ "$l" == "sme" ]] 
 then
@@ -74,17 +74,18 @@ else
 fi
 
 # New infra or not
-if [[ "$l" == fin ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]] ||  [[ "$l" == "fkv" ]] 
+if [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == sme ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]] 
 then 
 	MORPH="$LOOKUP $GTHOME/$lg/$l/src/analyser-gt-desc.xfst"
 else
 	MORPH="$LOOKUP -q -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
 fi
 
-if [[ "$l" == fin ]] || [[ "$l" == "sma" ]] || [[ "$l" == "smj" ]] || [[ "$l" == "kom" ]] || [[ "$l" == "mhr" ]]
+if  [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]]  
 then 
 	DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.cg3"
 else
+#	DIS="$GTHOME/$lg/$l/src/N$l-dis.rle"
 	DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
 fi
 
