@@ -55,6 +55,7 @@ alias dsma='$LOOKUP $GTHOME/langs/sma/src/generator-gt-desc.xfst'
 alias dsmj='$LOOKUP $GTHOME/langs/smj/src/generator-gt-desc.xfst'
 alias dsmn='$LOOKUP $GTHOME/langs/smn/src/generator-gt-desc.xfst'
 alias dsms='$LOOKUP $GTHOME/langs/sms/src/generator-gt-desc.xfst'
+alias dsom='$LOOKUP $GTHOME/langs/som/src/generator-gt-desc.xfst'
 alias dudm='$LOOKUP $GTHOME/langs/udm/src/generator-gt-desc.xfst'
 alias dvep='$LOOKUP $GTHOME/langs/vep/src/generator-gt-desc.xfst'
 alias dvro='$LOOKUP $GTHOME/langs/vro/src/generator-gt-desc.xfst'
@@ -84,6 +85,7 @@ alias usma='$LOOKUP $GTHOME/langs/sma/src/analyser-gt-desc.xfst'
 alias usmj='$LOOKUP $GTHOME/langs/smj/src/analyser-gt-desc.xfst'
 alias usmn='$LOOKUP $GTHOME/langs/smn/src/analyser-gt-desc.xfst'
 alias usms='$LOOKUP $GTHOME/langs/sms/src/analyser-gt-desc.xfst'
+alias usom='$LOOKUP $GTHOME/langs/som/src/analyser-gt-desc.xfst'
 alias uudm='$LOOKUP $GTHOME/langs/udm/src/analyser-gt-desc.xfst'
 alias uvep='$LOOKUP $GTHOME/langs/vep/src/analyser-gt-desc.xfst'
 alias uvro='$LOOKUP $GTHOME/langs/vro/src/analyser-gt-desc.xfst'
@@ -274,6 +276,7 @@ alias hdsma='$HLOOKUP $GTHOME/langs/sma/src/generator-gt-desc.hfst'
 alias hdsmj='$HLOOKUP $GTHOME/langs/smj/src/generator-gt-desc.hfst'
 alias hdsmn='$HLOOKUP $GTHOME/langs/smn/src/generator-gt-desc.hfst'
 alias hdsms='$HLOOKUP $GTHOME/langs/sms/src/generator-gt-desc.hfst'
+alias hdsom='$HLOOKUP $GTHOME/langs/som/src/generator-gt-desc.hfst'
 alias hdudm='$HLOOKUP $GTHOME/langs/udm/src/generator-gt-desc.hfst'
 alias hdvep='$HLOOKUP $GTHOME/langs/vep/src/generator-gt-desc.hfst'
 alias hdvro='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-desc.hfst'
@@ -303,6 +306,7 @@ alias husma='$HLOOKUP $GTHOME/langs/sma/src/analyser-gt-desc.hfst'
 alias husmj='$HLOOKUP $GTHOME/langs/smj/src/analyser-gt-desc.hfst'
 alias husmn='$HLOOKUP $GTHOME/langs/smn/src/analyser-gt-desc.hfst'
 alias husms='$HLOOKUP $GTHOME/langs/sms/src/analyser-gt-desc.hfst'
+alias husom='$HLOOKUP $GTHOME/langs/som/src/analyser-gt-desc.hfst'
 alias huudm='$HLOOKUP $GTHOME/langs/udm/src/analyser-gt-desc.hfst'
 alias huvep='$HLOOKUP $GTHOME/langs/vep/src/analyser-gt-desc.hfst'
 alias huvro='$HLOOKUP $GTHOME/langs/vro/src/analyser-gt-desc.hfst'
@@ -499,4 +503,9 @@ alias smjdep="sent-proc.sh -l=smj -s=dep"
 alias smjdept="sent-proc.sh -l=smj -s=dep -t"
 alias smjdis="sent-proc.sh -l=smj -s=dis"
 alias smjdist="sent-proc.sh -l=smj -s=dis -t"
+
+alias somdep="sent-proc.sh -l=som -s=dep"
+alias somdept="sent-proc.sh -l=som -s=dep -t"
+alias somdis="sent-proc.sh -l=som -s=dis"
+alias somdist="sent-proc.sh -l=som -s=dis -t"
 
