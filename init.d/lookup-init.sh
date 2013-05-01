@@ -446,3 +446,57 @@ alias hswefit='$HLOOKUP $GTHOME/kvensk/swefit/bin/swefit.hfst.ol'
 
 # Other transducers
 alias ogeo='$HLOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
+
+
+# Direct sentence analysis:
+
+alias faodep="sent-proc.sh -s=dep"
+alias faodept="sent-proc.sh -s=dep -t"
+alias faodis="sent-proc.sh -s=dis"
+alias faodist="sent-proc.sh -s=dis -t"
+
+alias findep="sent-proc.sh -l=fin -s=dep"
+alias findept="sent-proc.sh -l=fin -s=dep -t"
+alias findis="sent-proc.sh -l=fin -s=dis"
+alias findist="sent-proc.sh -l=fin -s=dis -t"
+
+alias fkvdep="sent-proc.sh -l=fkv -s=dep"
+alias fkvdept="sent-proc.sh -l=fkv -s=dep -t"
+alias fkvdis="sent-proc.sh -l=fkv -s=dis"
+alias fkvdist="sent-proc.sh -l=fkv -s=dis -t"
+
+alias kaldep="sent-proc.sh -l=kal -s=dep"
+alias kaldept="sent-proc.sh -l=kal -s=dep -t"
+alias kaldis="sent-proc.sh -l=kal -s=dis"
+alias kaldist="sent-proc.sh -l=kal -s=dis -t"
+
+alias kphdep="sent-proc.sh -l=kph -s=dep"
+alias kphdept="sent-proc.sh -l=kph -s=dep -t"
+alias kphdis="sent-proc.sh -l=kph -s=dis"
+alias kphdist="sent-proc.sh -l=kph -s=dis -t"
+
+alias mhrdep="sent-proc.sh -l=mhr -s=dep"
+alias mhrdept="sent-proc.sh -l=mhr -s=dep -t"
+alias mhrdis="sent-proc.sh -l=mhr -s=dis"
+alias mhrdist="sent-proc.sh -l=mhr -s=dis -t"
+
+alias myvdep="sent-proc.sh -l=myv -s=dep"
+alias myvdept="sent-proc.sh -l=myv -s=dep -t"
+alias myvdis="sent-proc.sh -l=myv -s=dis"
+alias myvdist="sent-proc.sh -l=myv -s=dis -t"
+
+alias smadep="sent-proc.sh -l=sma -s=dep"
+alias smadept="sent-proc.sh -l=sma -s=dep -t"
+alias smadis="sent-proc.sh -l=sma -s=dis"
+alias smadist="sent-proc.sh -l=sma -s=dis -t"
+
+alias smedep="sent-proc.sh -s=dep"
+alias smedept="sent-proc.sh -s=dep -t"
+alias smedis="sent-proc.sh -s=dis"
+alias smedist="sent-proc.sh -s=dis -t"
+
+alias smjdep="sent-proc.sh -l=smj -s=dep"
+alias smjdept="sent-proc.sh -l=smj -s=dep -t"
+alias smjdis="sent-proc.sh -l=smj -s=dis"
+alias smjdist="sent-proc.sh -l=smj -s=dis -t"
+
