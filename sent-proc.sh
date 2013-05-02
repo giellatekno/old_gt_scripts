@@ -74,7 +74,7 @@ else
 fi
 
 # New infra or not
-if [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == sme ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]] 
+if [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]] 
 then 
 	MORPH="$LOOKUP $GTHOME/$lg/$l/src/analyser-gt-desc.xfst"
 else
