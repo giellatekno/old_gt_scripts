@@ -111,7 +111,7 @@ else
   # Make sure these paths are inserted before any "system" paths
   # This way locally installed programs will appear before system instaled ones
 
-  prepend_path PATH /usr/local/bin
+  PATH=/usr/local/bin:$PATH
   prepend_path PATH $HOME/bin
   prepend_path PATH $GTHOME/gt/script
   prepend_path PATH $GTHOME/gt/script/corpus
