@@ -98,16 +98,30 @@ prepend_path()
 if [ -z "$PATH" ]; then
   PATH=$GTHOME/gt/script:/bin:/sbin:/usr/bin:/usr/sbin
 else
+  # If MacPorts is installed, make sure it is also available in the environment.
+  # This is especially important on the XServe.
+  if [ -d /opt/local ]; then
+    prepend_path PATH /opt/local/sbin
+    prepend_path PATH /opt/local/bin
+    export MANPATH=/opt/local/share/man:${MANPATH}
+    export INFOPATH=/opt/local/share/info:${INFOPATH}
+    export CPATH=/opt/local/include:/usr/local/include:/usr/include:${CPATH}
+  fi
+
+  # Make sure these paths are inserted before any "system" paths
+  # This way locally installed programs will appear before system instaled ones
+
+  prepend_path PATH /usr/local/bin
   prepend_path PATH $HOME/bin
   prepend_path PATH $GTHOME/gt/script
   prepend_path PATH $GTHOME/gt/script/corpus
 fi
-export PATH
 
 # setup the path to private bins if $GTPRIV is defined:
 if [ -n "$GTPRIV" ]; then
   prepend_path PATH $GTPRIV/polderland/bin
 fi
+
 export PATH
 
 osMajorVer=`uname -r | cut -d. -f1`
@@ -130,15 +144,6 @@ else
 fi
 export PERL5LIB
 
-# If MacPorts is installed, make sure it is also available in the environment.
-# This is especially important on the XServe.
-if [ -d /opt/local ]; then
-	export PATH=/opt/local/bin:/opt/local/sbin:${PATH}
-	export MANPATH=/opt/local/share/man:${MANPATH}
-	export INFOPATH=/opt/local/share/info:${INFOPATH}
-	export CPATH=/opt/local/include:/usr/local/include:/usr/include:${CPATH}
-fi
-
 # This environment variable will by default exclude the .svn subdirs from being
 # searched when grepping files, which is almost always what you want.
 # It requires at least GNU grep 2.5.3. Default on Snow Leopard is 2.5.0, via
@@ -152,3 +157,4 @@ if [ "$HOSTN" = "divvun.no" ] ; then
 elif [ "$HOSTN" = "victorio.uit.no" ] ; then
     export GTBOUND=/home/apache_corpus/boundcorpus
 fi
+
