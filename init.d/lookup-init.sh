@@ -454,10 +454,10 @@ alias ogeo='$HLOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
 
 # Direct sentence analysis:
 
-alias faodep="sent-proc.sh -s=dep"
-alias faodept="sent-proc.sh -s=dep -t"
-alias faodis="sent-proc.sh -s=dis"
-alias faodist="sent-proc.sh -s=dis -t"
+alias faodep="sent-proc.sh -l=fao -s=dep"
+alias faodept="sent-proc.sh -l=fao -s=dep -t"
+alias faodis="sent-proc.sh -l=fao -s=dis"
+alias faodist="sent-proc.sh -l=fao -s=dis -t"
 
 alias findep="sent-proc.sh -l=fin -s=dep"
 alias findept="sent-proc.sh -l=fin -s=dep -t"
