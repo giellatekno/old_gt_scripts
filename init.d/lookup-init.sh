@@ -31,6 +31,7 @@ alias       drsme='$LOOKUP $GTHOME/gt/sme/bin/isme-GG.restr.fst'
 
 # Languages in newinfra
 
+alias dcor='$LOOKUP $GTHOME/langs/cor/src/generator-gt-desc.xfst'
 alias dest='$LOOKUP $GTHOME/langs/est/src/generator-gt-desc.xfst'
 alias dfao='$LOOKUP $GTHOME/langs/fao/src/generator-gt-desc.xfst'
 alias dfin='$LOOKUP $GTHOME/langs/fin/src/generator-gt-desc.xfst'
@@ -61,6 +62,7 @@ alias dvep='$LOOKUP $GTHOME/langs/vep/src/generator-gt-desc.xfst'
 alias dvro='$LOOKUP $GTHOME/langs/vro/src/generator-gt-desc.xfst'
 alias dyrk='$LOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.xfst'
 
+alias ucor='$LOOKUP $GTHOME/langs/cor/src/analyser-gt-desc.xfst'
 alias uest='$LOOKUP $GTHOME/langs/est/src/analyser-gt-desc.xfst'
 alias ufao='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.xfst'
 alias ufin='$LOOKUP $GTHOME/langs/fin/src/analyser-gt-desc.xfst'
@@ -109,6 +111,7 @@ alias дырк='$LOOKUP $GTHOME/langs/udm/src/generator-gt-desc.xfst'
 
 # Languages in newinfra, Normative variants:
 
+alias dcorNorm='$LOOKUP $GTHOME/langs/cor/src/generator-gt-norm.xfst'
 alias destNorm='$LOOKUP $GTHOME/langs/est/src/generator-gt-norm.xfst'
 alias dfaoNorm='$LOOKUP $GTHOME/langs/fao/src/generator-gt-norm.xfst'
 alias dfinNorm='$LOOKUP $GTHOME/langs/fin/src/generator-gt-norm.xfst'
@@ -133,6 +136,7 @@ alias dvepNorm='$LOOKUP $GTHOME/langs/vep/src/generator-gt-norm.xfst'
 alias dvroNorm='$LOOKUP $GTHOME/langs/vro/src/generator-gt-norm.xfst'
 alias dyrkNorm='$LOOKUP $GTHOME/langs/yrk/src/generator-gt-norm.xfst'
 
+alias ucorNorm='$LOOKUP $GTHOME/langs/cor/src/analyser-gt-norm.xfst'
 alias uestNorm='$LOOKUP $GTHOME/langs/est/src/analyser-gt-norm.xfst'
 alias ufaoNorm='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.xfst'
 alias ufinNorm='$LOOKUP $GTHOME/langs/fin/src/analyser-gt-norm.xfst'
@@ -179,7 +183,6 @@ alias   damh='$LOOKUP $GTHOME/st/amh/bin/iamh.fst'
 alias   dbxr='$LOOKUP $GTHOME/st/bxr/bin/ibxr.fst'
 alias   dces='$LOOKUP $GTHOME/st/ces/bin/ices.fst'
 alias   dciw='$LOOKUP $GTHOME/st/ciw/bin/iciw.fst'
-alias   dcor='$LOOKUP $GTHOME/st/cor/bin/icor.fst'
 alias   ddeu='$LOOKUP $GTHOME/st/deu/bin/ideu.fst'
 alias   deng='$LOOKUP $GTHOME/st/eng/bin/ieng.fst'
 alias   deus='$LOOKUP $GTHOME/st/eus/bin/ieus.fst'
@@ -192,7 +195,6 @@ alias   uamh='$LOOKUP $GTHOME/st/amh/bin/amh.fst'
 alias   ubxr='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
 alias   uces='$LOOKUP $GTHOME/st/ces/bin/ces.fst'
 alias   uciw='$LOOKUP $GTHOME/st/ciw/bin/ciw.fst'
-alias   ucor='$LOOKUP $GTHOME/st/cor/bin/cor.fst'
 alias   udeu='$LOOKUP $GTHOME/st/deu/bin/deu.fst'
 alias   ueng='$LOOKUP $GTHOME/st/eng/bin/eng.fst'
 alias   ueus='$LOOKUP $GTHOME/st/eus/bin/eus.fst'
@@ -252,6 +254,7 @@ alias husmaNorm='$HLOOKUP $GTHOME/langs/sma/src/analyser-gt-norm.hfst'
 alias husmjNorm='$HLOOKUP $GTHOME/langs/smj/src/analyser-gt-norm.hfst'
 
 
+alias hdcor='$HLOOKUP $GTHOME/langs/cor/src/generator-gt-desc.hfst'
 alias hdest='$HLOOKUP $GTHOME/langs/est/src/generator-gt-desc.hfst'
 alias hdfao='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-desc.hfst'
 alias hdfin='$HLOOKUP $GTHOME/langs/fin/src/generator-gt-desc.hfst'
@@ -282,6 +285,7 @@ alias hdvep='$HLOOKUP $GTHOME/langs/vep/src/generator-gt-desc.hfst'
 alias hdvro='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-desc.hfst'
 alias hdyrk='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.hfst'
 
+alias hucor='$HLOOKUP $GTHOME/langs/cor/src/analyser-gt-desc.hfst'
 alias huest='$HLOOKUP $GTHOME/langs/est/src/analyser-gt-desc.hfst'
 alias hufao='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.hfst'
 alias hufin='$HLOOKUP $GTHOME/langs/fin/src/analyser-gt-desc.hfst'
@@ -313,6 +317,7 @@ alias huvro='$HLOOKUP $GTHOME/langs/vro/src/analyser-gt-desc.hfst'
 alias huyrk='$HLOOKUP $GTHOME/langs/yrk/src/analyser-gt-desc.hfst'
 
 # Normative variants:
+alias hdcorNorm='$HLOOKUP $GTHOME/langs/cor/src/generator-gt-norm.hfst'
 alias hdestNorm='$HLOOKUP $GTHOME/langs/est/src/generator-gt-norm.hfst'
 alias hdfaoNorm='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-norm.hfst'
 alias hdfinNorm='$HLOOKUP $GTHOME/langs/fin/src/generator-gt-norm.hfst'
@@ -335,6 +340,7 @@ alias hdvepNorm='$HLOOKUP $GTHOME/langs/vep/src/generator-gt-norm.hfst'
 alias hdvroNorm='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-norm.hfst'
 alias hdyrkNorm='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-norm.hfst'
 
+alias hucorNorm='$HLOOKUP $GTHOME/langs/cor/src/analyser-gt-norm.hfst'
 alias huestNorm='$HLOOKUP $GTHOME/langs/est/src/analyser-gt-norm.hfst'
 alias hufaoNorm='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.hfst'
 alias hufinNorm='$HLOOKUP $GTHOME/langs/fin/src/analyser-gt-norm.hfst'
@@ -453,6 +459,11 @@ alias ogeo='$HLOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
 
 
 # Direct sentence analysis:
+
+alias cordep="sent-proc.sh -l=cor -s=dep"
+alias cordept="sent-proc.sh -l=cor -s=dep -t"
+alias cordis="sent-proc.sh -l=cor -s=dis"
+alias cordist="sent-proc.sh -l=cor -s=dis -t"
 
 alias faodep="sent-proc.sh -l=fao -s=dep"
 alias faodept="sent-proc.sh -l=fao -s=dep -t"
