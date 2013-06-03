@@ -85,7 +85,6 @@ if  [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fk
 then 
 	DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.cg3"
 else
-#	DIS="$GTHOME/$lg/$l/src/N$l-dis.rle"
 	DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
 fi
 
