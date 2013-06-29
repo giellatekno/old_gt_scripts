@@ -56,7 +56,7 @@ GetOptions (
 			"document|d=s"       => \$document,
 			"pl|p"               => \$polderland,
 			"mw|m"               => \$applescript,
-			"hu|u"               => \$hunspell,
+			"hu|fo|u"            => \$hunspell,
 			"vkmalaga|vkhfst|vk" => \$voikko,
 			"hfst|hf"            => \$hfst,
 			"typos|t"            => \$typos,
@@ -527,7 +527,7 @@ sub read_hfst {
 		my ($firstline, $suggs) = split(/\n/, $_, 2);
 
 		if ($firstline  =~ m/Unable to correct/ ) {
-			($flag, $orig, $rest) = split(/"/, $firstline, 3);
+			($flag, $orig, $rest) = split(/"/, $firstline, 3); #"# Reset sntx clr
 			$error = 'SplErr' ;
 		} elsif ($firstline  =~ m/is in the lexicon/ ) {
 			($rest, $orig, $flag) = split(/"/, $firstline, 3);
@@ -862,6 +862,7 @@ Usage: speller-testres.pl [OPTIONS]
 -m
 
 --hu              The speller output is in Hunspell format.
+--fo              (This includes also the foma-trie speller)
 -u
 
 --vkmalaga        The speller output is in Voikko format.
