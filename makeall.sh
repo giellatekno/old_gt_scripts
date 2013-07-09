@@ -9,14 +9,22 @@ echo ""
 echo "===>     All the newinfra languages      <==="
 pushd $GTHOME/langs
 
+echo " -------------------------------------------------------------------------------------- ciw, Ojibwe "
+cd   ciw && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- crk, Plains Cree "
+cd ../crk && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- cor, Cornish "
+cd ../cor && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- est, Estonian "
-cd   est && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+cd ../est && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fao, Faroese "
-cd   ../fao && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+cd ../fao && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fin, Finnish "
 cd ../fin && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- fkv, Kven "
 cd ../fkv && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- ipk, Iñupiaq "
+cd ../ipk && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- izh, Izhorian "
 cd ../izh && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- kal, Greenlandic "
@@ -49,6 +57,8 @@ echo " -------------------------------------------------------------------------
 cd ../nob && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- olo, Olonetsian "
 cd ../olo && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- ron, Rumanian "
+cd ../ron && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- sjd, Kildin Saami "
 cd ../sjd && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- sje, Pite Saami "
@@ -62,6 +72,8 @@ echo " -------------------------------------------------------------------------
 cd ../smn && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- sms, Skolt Saami "
 cd ../sms && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
+echo " -------------------------------------------------------------------------------------- som, Somali "
+cd ../som && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- tlh, Klingon "
 cd ../tlh && pwd && nice ./autogen.sh && nice ./configure --with-hfst&& nice make 
 echo " -------------------------------------------------------------------------------------- tuv, Turkana "
