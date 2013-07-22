@@ -493,5 +493,16 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:div[contains(@class,'documentInfoEm')]"/>
 <xsl:template match="html:div[contains(@id,'sidebar-wrapper')]"/>
 <xsl:template match="html:div[contains(@id,'footer-wrapper')]"/>
+<xsl:template match="html:div[contains(@id,'share-article')]"/>
+<xsl:template match="html:div[contains(@class,'article-column')]"/>
+<xsl:template match="html:div[contains(@class,'nrk-globalfooter')]"/>
+<xsl:template match="html:div[contains(@class,'article-related')]"/>
+<xsl:template match="html:div[contains(@class,'outer-column')]"/>
+<xsl:template match="html:div[contains(@class,'article-ad')]"/>
+<xsl:template match="html:div[contains(@class,'article-bottom-element')]"/>
+<xsl:template match="html:div[contains(@class,'banner-element')]"/>
+<xsl:template match="html:div[contains(@class,'nrk-globalnavigation')]"/>
+<xsl:template match="html:ul[contains(@class,'article-tools')]"/>
+<xsl:template match="html:ul[contains(@class,'byline')]"/>
 <xsl:template match="html:span[contains(@class,'K-NOTE-FOTNOTE')]"/>
 </xsl:stylesheet>
