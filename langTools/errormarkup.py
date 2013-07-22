@@ -48,6 +48,14 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
 
+    def testErrorParserErrorlang1(self):
+        input = u'(molekylærbiologimi)∞(kal,bio)'
+        want = u'<errorlang correct="kal,bio">molekylærbiologimi</errorlang>'
+
+        got = self.em.errorParser(input)
+        self.assertEqual(len(got), 1)
+        self.assertXmlEqual(etree.tostring(got[0]), want)
+
     def testErrorParserErrorort1(self):
         input = u'jne.$(adv,typo|jna.)'
         want = u'<errorort errorinfo="adv,typo" correct="jna.">jne.</errorort>'
@@ -619,7 +627,7 @@ class ErrorMarkup:
     '''This is a class to convert errormarkuped text to xml
     '''
     def __init__(self):
-        self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error"}
+        self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error", u"∞": "errorlang"}
 
         pass
 
@@ -824,7 +832,7 @@ class ErrorMarkup:
         return text
 
     def isCorrection(self, expression):
-        p = re.compile(u'(?P<correction>[$€£¥§¢]\([^\)]*\)|[$€£¥§¢]\S+)(?P<tail>.*)',re.UNICODE)
+        p = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
 
         return p.search(expression)
 
@@ -834,7 +842,7 @@ class ErrorMarkup:
         '''
         result = []
 
-        p = re.compile(u'(?P<correction>[$€£¥§¢]\([^\)]*\)|[$€£¥§¢]\S+)(?P<tail>.*)',re.UNICODE)
+        p = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
 
 
         m = p.search(text)
