@@ -457,6 +457,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:iframe"/>
 <xsl:template match="html:noscript"/>
 <xsl:template match="html:select"/>
+<xsl:template match="html:nav"/>
 <!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
 <!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
