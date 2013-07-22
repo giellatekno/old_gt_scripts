@@ -987,6 +987,27 @@ class TestHTMLContentConverter(unittest.TestCase):
 
         self.assertXmlEqual(got, want)
 
+    def testRemoveFblike(self):
+        got = HTMLContentConverter('with-fb:like.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><fb:like send="true" show_faces="false" action="recommend"></fb:like></body></html>').tidy()
+
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveFbcomments(self):
+        got = HTMLContentConverter('with-fb:comments.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><fb:comments href="http://www.nord-salten.no/no/nyheter/samisk/hellmocuhppa.4032" num_posts="2" width="750"></fb:comments></body></html>').tidy()
+
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveGplusone(self):
+        got = HTMLContentConverter('with-g:plusone.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><g:plusone size="standard" count="true"></g:plusone></body></html>').tidy()
+
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>'
+
+        self.assertXmlEqual(got, want)
+
     def testRemoveEmbed(self):
         got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><embed src="http://www.flickr.com/apps/slideshow/show.swf?v=71649" width="400" height="300" type="application/x-shockwave-flash" flashvars="offsite=true&amp;lang=en-us&amp;page_show_url=%2Fphotos%2Fkrdep%2Fsets%2F72157623914681611%2Fshow%2F&amp;page_show_back_url=%2Fphotos%2Fkrdep%2Fsets%2F72157623914681611%2F&amp;set_id=72157623914681611&amp;jump_to=" allowfullscreen="true"><br />Foto: Agnar Kaarbø/KRD. Bildene kan benyttes fritt av media.</embed></body></html>').tidy()
 
@@ -1084,7 +1105,7 @@ class HTMLContentConverter:
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.ProcessingInstruction ))]
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.Declaration ))]
 
-        remove_tags = ['o:p', 'embed', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta']
+        remove_tags = ['o:p', 'embed', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
 
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
