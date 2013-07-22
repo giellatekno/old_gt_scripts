@@ -1138,24 +1138,47 @@ class HTMLContentConverter:
             doc = etree.fromstring(html)
             intermediate = transform(doc)
         except etree.XMLSyntaxError as e:
+            logfile = open(self.orig + '.log', 'w')
+
             for entry in e.error_log:
-                logfile = open(self.orig + '.log', 'w')
-                logfile.write(html)
                 logfile.write('\n')
-                logfile.write(str(entry))
+                logfile.write(str(entry.line))
+                logfile.write(':')
+                logfile.write(str(entry.column))
+                logfile.write(" ")
+
+                try:
+                    logfile.write(entry.message)
+                except ValueError:
+                    logfile.write(entry.message.encode('latin1'))
+
                 logfile.write('\n')
-                logfile.close()
+
+            logfile.write(html)
+            logfile.close()
             raise ConversionException("Invalid html, log is found in " + self.orig + '.log')
 
 
         if len(transform.error_log) > 0:
+
+            logfile = open(self.orig + '.log', 'w')
+
             for entry in transform.error_log:
-                logfile = open(self.orig + '.log', 'w')
-                logfile.write(html)
                 logfile.write('\n')
-                logfile.write(str(entry))
+                logfile.write(str(entry.line))
+                logfile.write(':')
+                logfile.write(str(entry.column))
+                logfile.write(" ")
+
+                try:
+                    logfile.write(entry.message)
+                except ValueError:
+                    logfile.write(entry.message.encode('latin1'))
+
                 logfile.write('\n')
-                logfile.close()
+
+            logfile.write(html)
+            logfile.close()
             raise ConversionException('transformation failed' + self.orig + '.log')
 
         return intermediate
