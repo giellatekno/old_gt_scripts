@@ -427,6 +427,10 @@ If it is a container it has one or more of the these tags:
     </p>
 </xsl:template>
 
+<xsl:template match="html:article">
+    <xsl:apply-templates/>
+</xsl:template>
+
 <xsl:template match="text()">
         <xsl:value-of select="normalize-space(.)"/><xsl:text> </xsl:text>
 </xsl:template>
