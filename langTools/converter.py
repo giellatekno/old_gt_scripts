@@ -177,7 +177,17 @@ class Converter:
         """
         xm = XslMaker(self.getXsl())
         xsltRoot = xm.getXsl()
-        transform = etree.XSLT(xsltRoot)
+        try:
+            transform = etree.XSLT(xsltRoot)
+        except etree.XSLTParseError as (e):
+            logfile = open(self.orig + '.log', 'w')
+
+            for entry in e.error_log:
+                logfile.write(str(entry))
+                logfile.write('\n')
+
+            logfile.close()
+            raise ConversionException("Invalid XML in " + self.getXsl())
 
         intermediate = self.makeIntermediate()
 
@@ -200,11 +210,11 @@ class Converter:
             logfile = open(self.getOrig() + '.log', 'w')
 
             for entry in dtd.error_log:
-                logfile.write(etree.tostring(complete, encoding = 'utf8'))
                 logfile.write('\n')
                 logfile.write(str(entry))
                 logfile.write('\n')
 
+            logfile.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
             logfile.close()
 
             raise ConversionException("Not valid XML")
@@ -228,7 +238,7 @@ class Converter:
                 logfile.write(str(e))
                 logfile.write("\n\n")
                 logfile.write("This is the xml tree:\n")
-                logfile.write(etree.tostring(complete, encoding = 'utf8'))
+                logfile.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
                 logfile.write('\n')
                 logfile.close()
                 raise ConversionException(u"Markup error. More info in the log file: " + self.getOrig() + u".log")
