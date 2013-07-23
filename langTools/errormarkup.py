@@ -48,7 +48,7 @@ class TestErrorMarkup(unittest.TestCase):
         got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(got, want)
 
-    def testErrorParserErrorlang1(self):
+    def testErrorParserErrorlangInfinity(self):
         input = u'(molekylærbiologimi)∞(kal,bio)'
         want = u'<errorlang correct="kal,bio">molekylærbiologimi</errorlang>'
 
@@ -62,6 +62,14 @@ class TestErrorMarkup(unittest.TestCase):
 
         got = self.em.errorParser(input)
         self.assertEqual(len(got), 1)
+        self.assertXmlEqual(etree.tostring(got[0]), want)
+
+    def testParagraphCharacter(self):
+        input = etree.fromstring('<p>Vuodoláhkaj §110a</p>')
+        want = u'<p>Vuodoláhkaj §110a</p>'
+
+        self.em.addErrorMarkup(input)
+        got = etree.tostring(input, encoding = 'utf8')
         self.assertXmlEqual(etree.tostring(got[0]), want)
 
     def testErrorParserErrorort1(self):
