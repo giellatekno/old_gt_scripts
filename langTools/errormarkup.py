@@ -56,6 +56,14 @@ class TestErrorMarkup(unittest.TestCase):
         self.assertEqual(len(got), 1)
         self.assertXmlEqual(etree.tostring(got[0]), want)
 
+    def testQuoteChar(self):
+        input = u'”sjievnnijis”$(conc,vnn-vnnj|sjievnnjis)'
+        want = u'<errorort errorinfo="conc,vnn-vnnj" correct="sjievnnjis">”sjievnnijis”</errorort>'
+
+        got = self.em.errorParser(input)
+        self.assertEqual(len(got), 1)
+        self.assertXmlEqual(etree.tostring(got[0]), want)
+
     def testErrorParserErrorort1(self):
         input = u'jne.$(adv,typo|jna.)'
         want = u'<errorort errorinfo="adv,typo" correct="jna.">jne.</errorort>'
@@ -862,7 +870,7 @@ class ErrorMarkup:
     def processHead(self, text):
         '''Divide text into text/error parts
         '''
-        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
+        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
 
         m = p.search(text)
         text = p.sub('', text)
@@ -870,7 +878,7 @@ class ErrorMarkup:
         return (text, m.group('error'))
 
     def containsError(self, text):
-        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$)',re.UNICODE)
+        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
 
         return p.search(text)
 
