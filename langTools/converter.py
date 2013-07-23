@@ -526,22 +526,18 @@ class PlaintextConverter:
 
     def toUnicode(self):
         """
-        Read a file into a string of type str
-        If the content of the file is not utf-8, convert it to utf-8,
-        pretending the encoding is latin1. The real encoding will be
-        detected later.
+        Read a file into a unicode string.
+        If the content of the file is not utf-8, pretend the encoding is
+        latin1. The real encoding (for sma, sme and smj) will be detected
+        later.
 
-        Return a python unicode string
+        Return a unicode string
         """
-        f = open(self.orig)
-        content = f.read()
-        f.close()
+        try:
+            content = codecs.open(self.orig, encoding = 'utf8').read()
+        except:
+            content = codecs.open(self.orig, encoding = 'latin1').read()
 
-        encoding = chardet.detect(content)['encoding']
-        if encoding != 'utf-8':
-            content = content.decode('latin1', 'replace').encode('utf-8')
-
-        content = unicode(content, encoding='utf-8')
         content = content.replace(u'  ', '\n\n')
         content = content.replace(u'–<\!q>', u'– ')
         content = content.replace('\x0d', '\x0a')
