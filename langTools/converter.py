@@ -184,26 +184,30 @@ class Converter:
         try:
             complete = transform(intermediate)
         except etree.XSLTApplyError as (e):
+            logfile = open(self.orig + '.log', 'w')
+
             for entry in e.error_log:
-                logfile = open(self.orig + '.log', 'w')
                 logfile.write(str(entry))
                 logfile.write('\n')
-                logfile.close()
+
+            logfile.close()
             raise ConversionException("Check the search and replace expression at the end of this file")
 
         dtd = etree.DTD(os.path.join(os.getenv('GTHOME'), 'gt/dtd/corpus.dtd'))
 
         if not dtd.validate(complete):
             #print etree.tostring(complete)
+            logfile = open(self.getOrig() + '.log', 'w')
+
             for entry in dtd.error_log:
-                logfile = open(self.getOrig() + '.log', 'w')
                 logfile.write(etree.tostring(complete, encoding = 'utf8'))
                 logfile.write('\n')
                 logfile.write(str(entry))
                 logfile.write('\n')
-                logfile.close()
 
-            raise ConversionException("didn't validate")
+            logfile.close()
+
+            raise ConversionException("Not valid XML")
 
         ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
         complete = ef.fixBodyEncoding()
@@ -1548,11 +1552,13 @@ class XslMaker:
         try:
             filexsl = etree.parse(xslfile)
         except etree.XMLSyntaxError as e:
+            logfile = open(self.filename + '.log', 'w')
+
             for entry in e.error_log:
-                logfile = open(self.filename + '.log', 'w')
                 logfile.write(str(entry))
                 logfile.write('\n')
-                logfile.close()
+
+            logfile.close()
             raise ConversionException("Syntax error in " + self.filename)
 
         self.finalXsl = preprocessXslTransformer(filexsl, commonxsl = etree.XSLT.strparam('file://' + os.path.join(os.getenv('GTHOME'), \
