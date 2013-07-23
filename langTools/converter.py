@@ -219,7 +219,7 @@ class Converter:
 
             raise ConversionException("Not valid XML")
 
-        if complete.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'] in ['sma', 'sme', 'smj']:
+        if complete.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'] in ['sma', 'sme']:
             ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
             complete = ef.fixBodyEncoding()
 
