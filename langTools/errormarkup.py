@@ -635,7 +635,7 @@ class TestErrorMarkup(unittest.TestCase):
         text = u'Bruk ((epoxi)'
         self.assertTrue(not self.em.isCorrection(text))
 
-    def testContainsError(self):
+    def testIsErrorWithSlash(self):
         text = u'aba/'
         self.assertTrue(self.em.isError(text))
 
