@@ -70,7 +70,7 @@ class TestErrorMarkup(unittest.TestCase):
 
         self.em.addErrorMarkup(input)
         got = etree.tostring(input, encoding = 'utf8')
-        self.assertXmlEqual(etree.tostring(got[0]), want)
+        self.assertXmlEqual(got, want)
 
     def testErrorParserErrorort1(self):
         input = u'jne.$(adv,typo|jna.)'
@@ -864,9 +864,10 @@ class ErrorMarkup:
         m = p.search(text)
         while m:
             head = p.sub('', text)
-            if head != '':
-                result.append(head)
-            result.append(m.group('correction'))
+            if not (head != '' and head[-1] == " "):
+                if head != '':
+                    result.append(head)
+                result.append(m.group('correction'))
             text = m.group('tail')
             m = p.search(text)
 
