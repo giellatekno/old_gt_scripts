@@ -645,6 +645,7 @@ class ErrorMarkup:
     def __init__(self):
         self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error", u"∞": "errorlang"}
         self.errorRegex = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
+        self.correctionRegex = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
         pass
 
     def addErrorMarkup(self, element):
@@ -848,9 +849,7 @@ class ErrorMarkup:
         return text
 
     def isCorrection(self, expression):
-        p = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
-
-        return p.search(expression)
+        return self.correctionRegex.search(expression)
 
     def processText(self, text):
         '''Divide the text in to a list consisting of alternate
@@ -858,18 +857,15 @@ class ErrorMarkup:
         '''
         result = []
 
-        p = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
-
-
-        m = p.search(text)
+        m = self.correctionRegex.search(text)
         while m:
-            head = p.sub('', text)
+            head = self.correctionRegex.sub('', text)
             if not (head != '' and head[-1] == " "):
                 if head != '':
                     result.append(head)
                 result.append(m.group('correction'))
             text = m.group('tail')
-            m = p.search(text)
+            m = self.correctionRegex.search(text)
 
         if text != '':
             result.append(text)
