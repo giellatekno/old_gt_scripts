@@ -637,7 +637,7 @@ class TestErrorMarkup(unittest.TestCase):
 
     def testContainsError(self):
         text = u'aba/'
-        self.assertTrue(self.em.containsError(text))
+        self.assertTrue(self.em.isError(text))
 
 class ErrorMarkup:
     '''This is a class to convert errormarkuped text to xml
@@ -731,7 +731,7 @@ class ErrorMarkup:
 
                 for x in range(0, len(result)):
                     if self.isCorrection(result[x]):
-                        if not self.isCorrection(result[x-1]) and self.containsError(result[x-1]):
+                        if not self.isCorrection(result[x-1]) and self.isError(result[x-1]):
 
                             self.addSimpleError(elements, result[x-1], result[x])
 
@@ -880,7 +880,7 @@ class ErrorMarkup:
 
         return (text, m.group('error'))
 
-    def containsError(self, text):
+    def isError(self, text):
         return self.errorRegex.search(text)
 
     def getError(self, error, correction):
