@@ -644,7 +644,7 @@ class ErrorMarkup:
     '''
     def __init__(self):
         self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error", u"∞": "errorlang"}
-
+        self.errorRegex = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
         pass
 
     def addErrorMarkup(self, element):
@@ -879,17 +879,13 @@ class ErrorMarkup:
     def processHead(self, text):
         '''Divide text into text/error parts
         '''
-        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
-
-        m = p.search(text)
-        text = p.sub('', text)
+        m = self.errorRegex.search(text)
+        text = self.errorRegex.sub('', text)
 
         return (text, m.group('error'))
 
     def containsError(self, text):
-        p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
-
-        return p.search(text)
+        return self.errorRegex.search(text)
 
     def getError(self, error, correction):
         '''Make an errorElement
