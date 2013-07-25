@@ -635,15 +635,20 @@ class TestErrorMarkup(unittest.TestCase):
         text = u'Bruk ((epoxi)'
         self.assertTrue(not self.em.isCorrection(text))
 
-    def testContainsError(self):
+    def testIsErrorWithSlash(self):
         text = u'aba/'
-        self.assertTrue(self.em.containsError(text))
+        self.assertTrue(self.em.isError(text))
+
+    def testIsErrorWithQuotemarks(self):
+        self.assertTrue(self.em.isCorrection(('“smudge” suovain')))
+
 
 class ErrorMarkup:
     '''This is a class to convert errormarkuped text to xml
     '''
     def __init__(self):
         self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error", u"∞": "errorlang"}
+        self.errorRegex = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
 
         pass
 
@@ -730,7 +735,7 @@ class ErrorMarkup:
 
                 for x in range(0, len(result)):
                     if self.isCorrection(result[x]):
-                        if not self.isCorrection(result[x-1]) and self.containsError(result[x-1]):
+                        if not self.isCorrection(result[x-1]) and self.isError(result[x-1]):
 
                             self.addSimpleError(elements, result[x-1], result[x])
 
@@ -848,9 +853,7 @@ class ErrorMarkup:
         return text
 
     def isCorrection(self, expression):
-        p = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
-
-        return p.search(expression)
+        return self.errorRegex.search(expression)
 
     def processText(self, text):
         '''Divide the text in to a list consisting of alternate
@@ -858,10 +861,7 @@ class ErrorMarkup:
         '''
         result = []
 
-        p = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
-
-
-        m = p.search(text)
+        m = self.errorRegex.search(text)
         while m:
             head = p.sub('', text)
             if not (head != '' and head[-1] == " "):
@@ -886,7 +886,7 @@ class ErrorMarkup:
 
         return (text, m.group('error'))
 
-    def containsError(self, text):
+    def isError(self, text):
         p = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
 
         return p.search(text)
