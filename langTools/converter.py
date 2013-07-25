@@ -219,13 +219,6 @@ class Converter:
 
             raise ConversionException("Not valid XML")
 
-        if complete.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'] in ['sma', 'sme']:
-            ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
-            complete = ef.fixBodyEncoding()
-
-        ld = LanguageDetector(complete)
-        ld.detectLanguage()
-
         if 'correct.' in self.orig:
             try:
                 em = errormarkup.ErrorMarkup()
@@ -243,6 +236,13 @@ class Converter:
                 logfile.write('\n')
                 logfile.close()
                 raise ConversionException(u"Markup error. More info in the log file: " + self.getOrig() + u".log")
+
+        if complete.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'] in ['sma', 'sme']:
+            ef = DocumentFixer(etree.fromstring(etree.tostring(complete)))
+            complete = ef.fixBodyEncoding()
+
+        ld = LanguageDetector(complete)
+        ld.detectLanguage()
 
         return complete
 
