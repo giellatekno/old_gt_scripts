@@ -82,7 +82,7 @@ xsltproc xhtml2corpus.xsl - > file.xml
 <xsl:template match="html:p|html:label">
     <xsl:if test="string-length(normalize-space(.)) > 1">
         <xsl:choose>
-            <xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p|ancestor::html:li">
+            <xsl:when test="ancestor::html:i|ancestor::html:u|ancestor::html:b|ancestor::html:p|ancestor::html:li|ancestor::html:span">
                 <xsl:apply-templates />
             </xsl:when>
             <xsl:when test="contains(., '•')">
