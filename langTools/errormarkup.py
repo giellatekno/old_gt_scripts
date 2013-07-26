@@ -56,6 +56,14 @@ class TestErrorMarkup(unittest.TestCase):
         self.assertEqual(len(got), 1)
         self.assertXmlEqual(etree.tostring(got[0]), want)
 
+    def testErrorParserErrorlangInfinityWithNewLines(self):
+        input = u'\n\n\n\n(molekylærbiologimi)∞(kal,bio)\n\n\n\n'
+        want = u'<errorlang correct="kal,bio">molekylærbiologimi</errorlang>'
+
+        got = self.em.errorParser(input)
+        self.assertEqual(len(got), 2)
+        self.assertXmlEqual(etree.tostring(got[1]), want)
+
     def testQuoteChar(self):
         input = u'”sjievnnijis”$(conc,vnn-vnnj|sjievnnjis)'
         want = u'<errorort errorinfo="conc,vnn-vnnj" correct="sjievnnjis">”sjievnnijis”</errorort>'
@@ -719,6 +727,7 @@ class ErrorMarkup:
         '''
 
         if text:
+            text = text.replace('\n', ' ')
             result = self.processText(text)
 
             if len(result) > 1:
