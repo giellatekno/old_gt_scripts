@@ -33,7 +33,8 @@ import codecs
 import io
 import cStringIO
 import subprocess
-import BeautifulSoup
+import bs4
+import HTMLParser
 from pyth.plugins.rtf15.reader import Rtf15Reader
 from pyth.plugins.xhtml.writer import XHTMLWriter
 from copy import deepcopy
@@ -1019,13 +1020,6 @@ class TestHTMLContentConverter(unittest.TestCase):
 
         self.assertXmlEqual(got, want)
 
-    def testRemoveEmbed(self):
-        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><embed src="http://www.flickr.com/apps/slideshow/show.swf?v=71649" width="400" height="300" type="application/x-shockwave-flash" flashvars="offsite=true&amp;lang=en-us&amp;page_show_url=%2Fphotos%2Fkrdep%2Fsets%2F72157623914681611%2Fshow%2F&amp;page_show_back_url=%2Fphotos%2Fkrdep%2Fsets%2F72157623914681611%2F&amp;set_id=72157623914681611&amp;jump_to=" allowfullscreen="true"><br />Foto: Agnar Kaarbø/KRD. Bildene kan benyttes fritt av media.</embed></body></html>').tidy()
-
-        want = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><p/></body></html>'
-
-        self.assertXmlEqual(got, want)
-
     def testRemoveSt1CountryRegion(self):
         got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="nn" lang="nn"><head><title>Avdeling for havbruk, sj&#248;mat og marknad - regjeringen.no</title></head><body onload="javascript:Operatest();"><st1:country-region w:st="on"><st1:place w:st="on">Norway</st1:place></st1:country-region></body></html>').tidy()
 
@@ -1106,31 +1100,28 @@ class HTMLContentConverter:
             raise ConversionException('Tidy could not process' + self.orig)
 
         try:
-            soup = BeautifulSoup.BeautifulSoup(output, fromEncoding="utf-8", convertEntities=BeautifulSoup.BeautifulStoneSoup.HTML_ENTITIES)
-        except HTMLParseError:
+            soup = bs4.BeautifulSoup(output, from_encoding="utf-8")
+        except HTMLParser.HTMLParseError:
             raise ConversionException("BeautifulSoup couldn't parse the html")
 
-        comments = soup.findAll(text=lambda text:isinstance(text, BeautifulSoup.Comment))
+        comments = soup.findAll(text=lambda text:isinstance(text, bs4.Comment))
         [comment.extract() for comment in comments]
 
-        [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.ProcessingInstruction ))]
-        [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, BeautifulSoup.Declaration ))]
+        [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, bs4.ProcessingInstruction ))]
+        [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, bs4.Declaration ))]
 
-        remove_tags = ['o:p', 'embed', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
+        remove_tags = ['o:p', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
 
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
             for remove in removes:
                 remove.extract()
 
-        try:
-            if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
-                soup.html.attrs.append(("xmlns", "http://www.w3.org/1999/xhtml"))
-        except AttributeError:
-            raise ConversionException("AttributeError")
+        if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
+            soup.html["xmlns"] = "http://www.w3.org/1999/xhtml"
 
         #sys.stderr.write(str(lineno()) + ' ' +  soup.prettify())
-        return soup.prettify().replace('&shy;', '­').replace('&nbsp;', ' ').replace('&aelig;', 'æ').replace('&eacute;', 'é')
+        return soup.prettify().replace('&shy;', u'­').replace('&nbsp;', ' ').replace('&aelig;', u'æ').replace('&eacute;', u'é')
 
     def convert2intermediate(self):
         """
