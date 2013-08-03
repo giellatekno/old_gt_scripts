@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#   This file contains routines to sentence align two files 
+#   This file contains routines to sentence align two files
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ class CorpusXMLFile:
         self.name = name
         self.paralang = paralang
         self.eTree = etree.parse(name)
-        
+
     def geteTree(self):
         return self.eTree
 
@@ -70,7 +70,7 @@ class CorpusXMLFile:
         Get the lang of the file
         """
         return self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
-    
+
     def getWordCount(self):
         root = self.eTree.getroot()
         wordCount = root.find(".//wordcount")
@@ -97,23 +97,23 @@ class CorpusXMLFile:
             parallelBasename = self.getParallelBasename() + '.xml'
 
             return os.path.join(parallelDirname, parallelBasename)
-    
+
     def getOriginalFilename(self):
         """
         Infer the path of the original file
         """
         return self.getName().replace('prestable/', '').replace('converted/', 'orig/').replace('.xml', '')
-    
+
     def getTranslatedFrom(self):
         """
         Get the translated_from element from the orig doc
         """
         root = self.eTree.getroot()
         translatedFrom = root.find(".//translated_from")
-        
+
         if translatedFrom is not None:
             return translatedFrom.attrib['{http://www.w3.org/XML/1998/namespace}lang']
-    
+
     def removeVersion(self):
         """
         Remove the version element
@@ -131,7 +131,7 @@ class CorpusXMLFile:
         """
         root = self.eTree.getroot()
         skipList = root.findall(".//skip")
-        
+
         for skipElement in skipList:
             skipElement.getparent().remove(skipElement)
 
@@ -141,9 +141,9 @@ class CorpusXMLFile:
         """
         root = self.eTree.getroot()
         body = root.xpath("/document/body")[0]
-        
+
         laterList = root.xpath(".//later")
-        
+
         for laterElement in laterList:
             body.append(laterElement)
 
@@ -161,7 +161,7 @@ class TestCorpusXMLFile(unittest.TestCase):
         if not checker.check_output(want, got, 0):
             message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
             raise AssertionError(message)
-        
+
     def testBasename(self):
         self.assertEqual(self.pfile.getBasename(), "aarseth2-s.htm.xml")
 
@@ -179,43 +179,43 @@ class TestCorpusXMLFile(unittest.TestCase):
 
     def testGetParallelFilename(self):
         self.assertEqual(self.pfile.getParallelFilename(), os.environ['GTFREE'] + "/prestable/converted/nob/facta/skuvlahistorja2/aarseth2-n.htm.xml")
-    
+
     def testGetOriginalFilename(self):
         self.assertEqual(self.pfile.getOriginalFilename(), os.environ['GTFREE'] + "/orig/sme/facta/skuvlahistorja2/aarseth2-s.htm")
-    
+
     def testGetTranslatedFrom(self):
         self.assertEqual(self.pfile.getTranslatedFrom(), "nob")
-        
+
     def testGetWordCount(self):
         corpusfile = CorpusXMLFile('parallelize_data/aarseth2-n-with-version.htm.xml', 'sme')
         self.assertEqual(corpusfile.getWordCount(), "4009")
-        
+
     def testRemoveVersion(self):
         fileWithVersion = CorpusXMLFile('parallelize_data/aarseth2-n-with-version.htm.xml', 'sme')
         fileWithoutVersion = CorpusXMLFile('parallelize_data/aarseth2-n-without-version.htm.xml', 'sme')
-        
+
         fileWithVersion.removeVersion()
-        
+
         got = etree.tostring(fileWithoutVersion.geteTree())
         want = etree.tostring(fileWithVersion.geteTree())
-        
+
         self.assertXmlEqual(got, want)
-        
+
     def testRemoveSkip(self):
         fileWithSkip = CorpusXMLFile('parallelize_data/aarseth2-s-with-skip.htm.xml', 'sme')
         fileWithoutSkip = CorpusXMLFile('parallelize_data/aarseth2-s-without-skip.htm.xml', 'sme')
-        
+
         fileWithSkip.removeSkip()
-        
+
         got = etree.tostring(fileWithoutSkip.geteTree())
         want = etree.tostring(fileWithSkip.geteTree())
-        
+
         self.assertXmlEqual(got, want)
 
     def testMoveLater(self):
         fileWithLater = CorpusXMLFile('parallelize_data/aarseth2-s-with-later.htm.xml', 'sme')
         fileWithMovedLater = CorpusXMLFile('parallelize_data/aarseth2-s-with-moved-later.htm.xml', 'sme')
-        
+
         fileWithLater.moveLater()
         got = etree.tostring(fileWithMovedLater.geteTree())
         want = etree.tostring(fileWithLater.geteTree())
@@ -303,7 +303,7 @@ class TestSentenceDivider(unittest.TestCase):
         self.assertXmlEqual(got, want)
 
     def testDotFollowedByDot(self):
-        """Test of how processOneParagraph handles a paragraph 
+        """Test of how processOneParagraph handles a paragraph
         with . and ... in the end.
         tca2 doesn't accept sentences without real letters, so we have to make
         sure the ... doesn't end up alone inside a s tag"""
@@ -382,24 +382,24 @@ class SentenceDivider:
         self.setUpInputFile(inputXmlfile, parallelLang)
         self.sentenceCounter = 0
         self.typos = {}
-        
+
         typosname = inputXmlfile.replace('.xml', '.typos')
         if os.path.isfile(typosname):
             t = typosfile.Typos(inputXmlfile.replace('.xml', '.typos'))
             self.typos.update(t.getTypos())
-    
+
     def setUpInputFile(self, inputXmlfile, parallelLang):
         """
-        Initialize the inputfile, skip those parts that are meant to be 
+        Initialize the inputfile, skip those parts that are meant to be
         skipped, move <later> elements.
         """
         inFile = CorpusXMLFile(inputXmlfile, parallelLang)
         self.docLang = inFile.getLang()
-        
+
         inFile.moveLater()
         inFile.removeSkip()
         self.inputEtree = inFile.geteTree()
-        
+
     def processAllParagraphs(self):
         """Go through all paragraphs in the etree and process them one by one.
         """
@@ -426,7 +426,7 @@ class SentenceDivider:
         f.close()
 
     def getPreprocessOutput(self, preprocessInput):
-        """Send the text in preprocessInput into preprocess, return the result. 
+        """Send the text in preprocessInput into preprocess, return the result.
         If the process fails, exit the program
         """
         preprocessCommand = []
@@ -438,7 +438,8 @@ class SentenceDivider:
             corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
             preprocessCommand = ['preprocess', '--abbr=' + abbrFile, '--corr=' + corrFile]
 
-        subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        subp = subprocess.Popen(preprocessCommand, stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         (output, error) = subp.communicate(preprocessInput.encode('utf-8').replace('\n', ' '))
 
         if subp.returncode != 0:
@@ -468,11 +469,11 @@ class SentenceDivider:
             i = 0
             while i < len(words):
                 word = words[i].strip()
-                
+
                 # If word exists in typos, replace it with the correction
                 if word in self.typos:
                     word = self.typos[word]
-                    
+
                 sentence.append(word.decode('utf-8'))
                 if (word == '.' or word == '?' or word == '!'):
                     while i + 1 < len(words) and words[i + 1].strip() in incompleteSentences:
@@ -494,7 +495,7 @@ class SentenceDivider:
         return newParagraph
 
     def makeSentence(self, sentence):
-        """Make an s element, set the id and set the text to be the content of 
+        """Make an s element, set the id and set the text to be the content of
         the list sentence
         """
 
@@ -523,7 +524,7 @@ class Parallelize:
 
     def __init__(self, origfile1, lang2):
         """
-        Set the original file name, the lang of the original file and the 
+        Set the original file name, the lang of the original file and the
         language that it should parallellized with.
         Parse the original file to get the access to metadata
         """
@@ -681,7 +682,7 @@ class Tmx:
         """Input is a tmx element
         """
         self.tmx = tmx
-        
+
         gthome = os.getenv('GTHOME')
         self.language_guesser = ngram.NGram(gthome + '/tools/lang-guesser/LM/')
 
@@ -731,7 +732,7 @@ class Tmx:
 
     def langToStringlist(self, lang):
         """
-        Get all the strings in the tmx in language lang, insert them 
+        Get all the strings in the tmx in language lang, insert them
         into the list strings
         """
         all_tuv = self.getTmx().xpath('.//tuv[@xml:lang="' + lang + '"]',
@@ -755,7 +756,7 @@ class Tmx:
         return strings
 
     def prettifySegs(self, tu):
-        """Strip white space from start and end of the strings in the 
+        """Strip white space from start and end of the strings in the
         seg elements
         Input is a tu element
         Output is a tu element with white space stripped strings
@@ -795,18 +796,18 @@ class Tmx:
         self.tmx = tmx
 
     def removeUnwantedSpace(self):
-        """The SentenceDivider adds spaces before and after punctuation, 
+        """The SentenceDivider adds spaces before and after punctuation,
         quotemarks, parentheses and so on.
         Remove those spaces so that the tmxes are more appropriate for real
         world™ use cases.
         """
-        
+
         root = self.getTmx().getroot()
         for tu in root.iter("tu"):
             tu = self.removeUnwantedSpaceFromSegs(tu)
 
     def removeUnwantedSpaceFromSegs(self, tu):
-        """Remove spaces before and after punctuation, 
+        """Remove spaces before and after punctuation,
         quotemarks, parentheses and so on as appropriate in the seg elements
         in the tu elements.
         Input is a tu element
@@ -829,14 +830,14 @@ class Tmx:
         return tu
 
     def removeUnwantedSpaceFromString(self, inputString):
-        """Remove spaces before and after punctuation, 
+        """Remove spaces before and after punctuation,
         quotemarks, parentheses and so on as appropriate
         """
         result = inputString
 
         # regex to find space followed by punctuation
         spacePunctuation = re.compile("(?P<space>\s)(?P<punctuation>[\)\]\.»:;,])")
-        # for every match in the result string, replace the match 
+        # for every match in the result string, replace the match
         # (space+punctuation) with the punctuation part
         result = spacePunctuation.sub(lambda match: match.group('punctuation'), result)
 
@@ -893,7 +894,7 @@ class Tmx:
 
     def checkLanguage(self, tu, lang):
         """Get the text of the tuv element with the given lang
-        Run the text through the language guesser, return the result 
+        Run the text through the language guesser, return the result
         of this test
         """
         for tuv in tu:
@@ -904,9 +905,9 @@ class Tmx:
                     # Remove the comment below for debugging purposes
                     # print "This text is not", lang, "but", test_lang, tuv[0].text
                     return False
-                    
+
         return True
-        
+
 class TestTmx(unittest.TestCase):
     """
     A test class for the Tmx class
@@ -971,10 +972,10 @@ class TestTmx(unittest.TestCase):
     def testCheckIfEmtpySeg(self):
         empty1 = etree.XML('<tu><tuv xml:lang="nob"><seg>ubba gubba. ibba gibba.</seg></tuv><tuv xml:lang="sme"><seg></seg></tuv></tu>')
         self.assertRaises(AttributeError, self.tmx.checkIfEmtpySeg, empty1)
-        
+
         empty2 = etree.XML('<tu><tuv xml:lang="nob"><seg></seg></tuv><tuv xml:lang="sme"><seg>abba gabba. ebba gebba.</seg></tuv></tu>')
         self.assertRaises(AttributeError, self.tmx.checkIfEmtpySeg, empty2)
-        
+
     def testRemoveUnwantedSpaceFromSegs(self):
         wantXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[30] (juli) «skoleturer».</seg></tuv><tuv xml:lang="sme"><seg>[30] (suoidnemánnu) «skuvlatuvrrat».</seg></tuv></tu>')
         gotXml = etree.XML('<tu><tuv xml:lang="nob"><seg>[ 30 ] ( juli ) « skoleturer » .\n</seg></tuv><tuv xml:lang="sme"><seg>[ 30 ] ( suoidnemánnu ) « skuvlatuvrrat » .\n</seg></tuv></tu>')
@@ -984,33 +985,33 @@ class TestTmx(unittest.TestCase):
         got = self.tmx.removeUnwantedSpaceFromString(u'sámesearvvi ; [ 31 ] ( suoidnemánnu ) « skuvlatuvrrat » bargu lea :  okta , guokte .')
         want = u'sámesearvvi; [31] (suoidnemánnu) «skuvlatuvrrat» bargu lea: okta, guokte.'
         self.assertEqual(got, want)
-        
+
     def testRemoveTuWithEmptySeg(self):
         gotTmx = Tmx(etree.parse('parallelize_data/aarseth2-n.htm.toktmx'))
         gotTmx.removeTuWithEmptySeg()
 
         wantTmx = Tmx(etree.parse('parallelize_data/aarseth2-n-without-empty-seg.htm.toktmx'))
-        
+
         self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
-                
+
     #def testRemoveTuWithWrongLang(self):
         #gotTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withsouthsami.toktmx'))
         #gotTmx.removeTuWithEmptySeg()
         #gotTmx.removeTuWithWrongLang('sme')
 
         #wantTmx = Tmx(etree.parse('parallelize_data/nyheter.html_id=174.withoutsouthsami.tmx'))
-        
+
         #self.assertXmlEqual(gotTmx.getTmx(), wantTmx.getTmx())
-        
+
     def testCheckLanguage(self):
         tuWithSme = etree.XML('<tu><tuv xml:lang="sme"><seg>Bargo- ja searvadahttindepartemeanta (BSD) nanne sámiid árbedieđu čohkkema, systematiserema ja gaskkusteami Norggas oktiibuot 1,6 milj. ruvnnuin.</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
-        
+
         self.assertTrue(self.tmx.checkLanguage(tuWithSme, 'sme'))
-        
+
         tuWithSma = etree.XML('<tu><tuv xml:lang="sme"><seg>Barkoe- jïh ektiedimmiedepartemente (AID) galka nænnoestidh dovne tjöönghkeme- jïh öörnemebarkoem , jïh aaj bæjkoehtimmiem saemien aerpiemaahtoen muhteste Nöörjesne, abpe 1,6 millijovnh kråvnajgujmie.</seg></tuv><tuv xml:lang="nob"><seg>Samisk</seg></tuv></tu>')
-        
+
         self.assertFalse(self.tmx.checkLanguage(tuWithSma, 'sme'))
-        
+
 class Tca2ToTmx(Tmx):
     """
     A class to make tmx files based on the output from tca2
@@ -1593,7 +1594,7 @@ class Toktmx2Tmx:
         self.tmx = Tmx(etree.parse(toktmxFile))
         self.addFilenameID()
 
-    
+
     def addFilenameID(self):
         """Add the tmx filename as an prop element in the header
         """
@@ -1602,16 +1603,16 @@ class Toktmx2Tmx:
         prop.text = os.path.basename(self.tmxfileName).decode('utf-8')
 
         root = self.tmx.getTmx().getroot()
-        
+
         for header in root.iter('header'):
             header.append(prop)
-            
+
     def writeCleanedupTmx(self):
         """Write the cleanup tmx
         """
         print ".",
         self.tmx.writeTmxFile(self.tmxfileName)
-    
+
     def cleanToktmx(self):
         """Do the cleanup of the toktmx file
         """
