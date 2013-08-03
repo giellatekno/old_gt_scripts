@@ -57,7 +57,7 @@ class ConversionException(Exception):
 class TestConverter(unittest.TestCase):
     def setUp(self):
         self.converterInsideOrig = \
-        Converter('fakecorpus/orig/nob/samediggi-article-16.html', True)
+        Converter('fakecorpus/orig/nob/admin/samediggi-article-16.html', True)
 
         self.converterOutsideOrig = \
         Converter('parallelize_data/samediggi-article-48.html', False)
@@ -69,7 +69,7 @@ class TestConverter(unittest.TestCase):
     def testGetOrig(self):
         self.assertEqual(self.converterInsideOrig.getOrig(), \
         os.path.join(os.getenv('GTHOME'),\
-        'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html'))
+        'gt/script/langTools/fakecorpus/orig/nob/admin/samediggi-article-16.html'))
 
         self.assertEqual(self.converterOutsideOrig.getOrig(), \
         os.path.join(os.getenv('GTHOME'), \
@@ -82,7 +82,7 @@ class TestConverter(unittest.TestCase):
     def testGetXsl(self):
         self.assertEqual(self.converterInsideOrig.getXsl(), \
         os.path.join(os.getenv('GTHOME'),\
-        'gt/script/langTools/fakecorpus/orig/nob/samediggi-article-16.html.xsl'))
+        'gt/script/langTools/fakecorpus/orig/nob/admin/samediggi-article-16.html.xsl'))
 
         self.assertEqual(self.converterOutsideOrig.getXsl(), \
         os.path.join(os.getenv('GTHOME'), \
@@ -123,6 +123,21 @@ class TestConverter(unittest.TestCase):
         self.assertEqual(self.converterInsideFreecorpus.getCorpusdir(), \
             os.getenv('GTFREE'))
 
+    def testGetConvertedName1(self):
+        self.assertEqual(self.converterInsideOrig.getConvertedName(),
+            os.path.join(os.getenv('GTHOME'), \
+            'gt/script/langTools/fakecorpus/converted/nob_none_samediggi-article-16.html.none.xml'))
+
+    def testGetConvertedName2(self):
+        self.assertEqual(self.converterOutsideOrig.getConvertedName(), \
+            os.path.join(os.getenv('GTHOME'), \
+            'gt/script/langTools/converted/nob_none_samediggi-article-48.html.none.xml'))
+
+    def testGetConvertedName3(self):
+        self.assertEqual(self.converterInsideFreecorpus.getConvertedName(), \
+            os.path.join(os.getenv('GTFREE'), \
+            'converted/sme_admin_dir-sd-samediggi.no-dir_samediggi-article-48.html.nob.xml'))
+
 class Converter:
     """
     Class to take care of data common to all Converter classes
@@ -130,6 +145,7 @@ class Converter:
     def __init__(self, filename, test = False):
         self.orig = os.path.abspath(filename)
         self.setCorpusdir()
+        self.setConvertedName()
         self.test = test
 
     def makeIntermediate(self):
@@ -280,6 +296,84 @@ class Converter:
             self.corpusdir = os.path.dirname(self.orig[:origPos])
         else:
             self.corpusdir = os.getcwd()
+
+    def setConvertedName(self):
+        """Set the name of the converted file.
+
+        The format of this name is
+        lang_translatedfrom_genre_dir-dira-dirb-dir_filename.xml
+
+        orig/sme/facta/skuvlahistorja1/uhca-s.html becomes
+        converted/sme_nno_facta_dir-skuvlahistorja1-dir_uhca-s.html.xml
+
+        lang is determined this way:
+        1. from mainlang in the .xsl file.
+           If not found in the xsl file
+        2. from the directory (set the mainlang in the .xsl)
+           If not found this way
+        3. Set to none
+
+        genre is determined this way:
+        1. from genre in the the .xsl file.
+           If not found in the xsl file
+        2. from the directory (set the genre in the .xsl). It must be one of:
+           admin, bible, facta, ficti, news
+           If not found this way
+        3. Set to none
+
+        translatedfrom is determined this way:
+        1. from genre in the the .xsl file.
+           If not found in the xsl file
+        2. Set to none
+
+        """
+        xsltree = etree.parse(self.getXsl())
+        root = xsltree.getroot()
+        origname = self.getOrig().replace(self.getCorpusdir(), '')[1:]
+        print origname
+        parts = origname.split('/')
+        print parts
+
+        lang = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'].replace("'", "")
+
+        if lang == "":
+            if 'orig' in origname:
+                lang = parts[parts.index('orig') + 1]
+                root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'] = "'" + lang + "'"
+            else:
+                lang = 'none'
+
+        genre = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'].replace("'", "")
+
+        if genre == "":
+            if 'orig' in origname:
+                genre = parts[parts.index('orig') + 2]
+                root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'] = "'" + genre + "'"
+            else:
+                genre = 'none'
+
+        translated_from = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='translated_from']").attrib['select'].replace("'", "")
+
+        if translated_from == "":
+            translated_from = 'none'
+
+        if 'orig' in origname and len(parts[parts.index('orig') + 3:-1]) > 0:
+            dirnames = "dir-" + '-'.join(parts[parts.index('orig') + 3:-1]) + "-dir"
+
+            self._convertedName = os.path.join(self.getCorpusdir(), 'converted/' + lang + '_' + genre + '_' + dirnames + '_' + parts[-1] + '.' + translated_from + '.xml')
+        #elif len(parts[:-1]) > 0:
+            #dirnames = "dir" + '-'.join(parts[:-1]) + "-dir"
+            #print "363", dirnames
+
+            #self._convertedName = os.path.join(self.getCorpusdir(), lang + '_' + genre + '_' + dirnames + '_' + parts[-1] + '.' + translated_from + '.xml')
+        else:
+            print "369", lang, genre, parts[-1], translated_from, origname
+            self._convertedName = os.path.join(self.getCorpusdir(), 'converted/' + lang + '_' + genre + '_' + parts[-1] + '.' + translated_from + '.xml')
+
+        xsltree.write(self.getXsl(), encoding="utf-8", xml_declaration = True)
+
+    def getConvertedName(self):
+        return self._convertedName
 
 class TestAvvirConverter(unittest.TestCase):
     def setUp(self):
