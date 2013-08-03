@@ -31,19 +31,17 @@ if (xsl_filename.rfind('.xsl') > 0):
     except Exception, inst:
         print "Unexpected error opening %s: %s" % (xsl_filename, inst)
         sys.exit(254)
-        
+
     root = tree.getroot()
-    for element in root.iter():
-        for key, value in change_variables.iteritems():
-            if element.attrib.get('name') == key:
-                element.set('select', "'" + value + "'")
+    for key, value in change_variables.iteritems():
+        root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='" + key + "']").attrib['select'] = "'" + value + "'"
 
     try:
         tree.write(xsl_filename, encoding="utf-8", xml_declaration = True)
     except IOError:
         print 'cannot write', xsl_filename
         sys.exit(254)
-        
+
 else:
 	print "This is not an xsl file: " + xsl_filename
 	print
