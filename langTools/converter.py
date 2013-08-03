@@ -39,6 +39,7 @@ from pyth.plugins.rtf15.reader import Rtf15Reader
 from pyth.plugins.xhtml.writer import XHTMLWriter
 from copy import deepcopy
 import decimal
+import distutils.dep_util
 
 import decode
 import ngram
@@ -146,6 +147,7 @@ class Converter:
         self.orig = os.path.abspath(filename)
         self.setCorpusdir()
         self.setConvertedName()
+        self.dependencies = [self.getOrig(), self.getXsl()]
         self.test = test
 
     def makeIntermediate(self):
@@ -264,16 +266,15 @@ class Converter:
         return complete
 
     def writeComplete(self):
-        convertedFilename = self.getConvertedName()
+        if distutils.dep_util.newer_group(self.dependencies, self.getConvertedName()):
+            if not os.path.isdir(os.path.dirname(self.getConvertedName())):
+                os.makedirs(os.path.dirname(self.getConvertedName()))
 
-        if not os.path.isdir(os.path.dirname(convertedFilename)):
-            os.makedirs(os.path.dirname(convertedFilename))
+            complete = self.makeComplete()
 
-        complete = self.makeComplete()
-
-        converted = open(convertedFilename, 'w')
-        converted.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
-        converted.close()
+            converted = open(self.getConvertedName(), 'w')
+            converted.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
+            converted.close()
 
     def getOrig(self):
         return self.orig
