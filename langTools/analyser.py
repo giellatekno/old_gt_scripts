@@ -34,10 +34,14 @@ class Analyser:
         Returns the output of ccat
         """
         ccatCommand = ['ccat', '-a', '-l', self._lang, self._xmlFile]
-        ccatProcess = subprocess.Popen(ccatCommand,
-                                stdout = subprocess.PIPE)
 
-        return ccatProcess.stdout
+        infile = open(self._xmlFile)
+        outfile = open(self._xmlFile.replace(".xml", ".ccat"), "w")
+        subprocess.call(ccatCommand,
+                        stdin = infile,
+                        stdout = outfile)
+        infile.close()
+        outfile.close()
 
     def preprocess(self):
         """Runs preprocess on the ccat output.
@@ -52,11 +56,13 @@ class Analyser:
             preProcessCommand.append('--abbr=' + abbrFile)
             preProcessCommand.append('--corr=' + corrFile)
 
-        preprocessProcess = subprocess.Popen(preProcessCommand,
-                                      stdin = self.ccat(),
-                                      stdout = subprocess.PIPE)
-
-        return preprocessProcess.stdout
+        infile = open(self._xmlFile.replace(".xml", ".ccat"))
+        outfile = open(self._xmlFile.replace(".xml", ".preprocess"), "w")
+        subprocess.call(preProcessCommand,
+                        stdin = infile,
+                        stdout = outfile)
+        infile.close()
+        outfile.close()
 
     def lookup(self):
         """Runs lookup on the preprocess output
@@ -74,11 +80,13 @@ class Analyser:
                                    'langs/' + self._lang + '/src/analyser-gt-desc.xfst')
             lookupCommand.append(fstFile)
 
-        lookupProcess = subprocess.Popen(lookupCommand,
-                                  stdin = self.preprocess(),
-                                  stdout = subprocess.PIPE)
-
-        return lookupProcess.stdout
+        infile = open(self._xmlFile.replace(".xml", ".preprocess"))
+        outfile = open(self._xmlFile.replace(".xml", ".lookup"), "w")
+        subprocess.call(lookupCommand,
+                        stdin = infile,
+                        stdout = outfile)
+        infile.close()
+        outfile.close()
 
     def lookup2cg(self):
         """Runs the lookup on the lookup output
@@ -86,17 +94,24 @@ class Analyser:
         """
         lookup2cgCommand = ['lookup2cg']
 
-        lookup2cgProcess = subprocess.Popen(lookup2cgCommand,
-                                     stdin = self.lookup(),
-                                     stdout = subprocess.PIPE)
-
-        return lookup2cgProcess.stdout
+        infile = open(self._xmlFile.replace(".xml", ".lookup"))
+        outfile = open(self._xmlFile.replace(".xml", ".lookup2cg"), "w")
+        subprocess.call(lookup2cgCommand,
+                        stdin = infile,
+                        stdout = outfile)
+        infile.close()
+        outfile.close()
 
     def disambiguationAnalysis(self):
         """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
         analysis
         The output is stored in a .dis file
         """
+        self.ccat()
+        self.preprocess()
+        self.lookup()
+        self.lookup2cg()
+
         disambiguationAnalysisCommand = ['vislcg3', '-g']
 
         if self._lang == "sme":
@@ -108,12 +123,13 @@ class Analyser:
                                               self._lang + '/src/syntax/disambiguation.cg3')
             disambiguationAnalysisCommand.append(disambiguationFile)
 
-        disambiguationAnalysisCommand.append('-O')
-        disambiguationAnalysisCommand.append(self._xmlFile.replace('.xml', '.dis'))
-
-        disambiguationAnalysisProcess = subprocess.Popen(disambiguationAnalysisCommand,
-                         stdin = self.lookup2cg())
-
+        infile = open(self._xmlFile.replace(".xml", ".lookup2cg"))
+        outfile = open(self._xmlFile.replace(".xml", ".dis"), "w")
+        subprocess.call(disambiguationAnalysisCommand,
+                        stdin = infile,
+                        stdout = outfile)
+        infile.close()
+        outfile.close()
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
@@ -133,9 +149,10 @@ class Analyser:
                                           'gt/smi/src/smi-dep.rle')
             dependencyAnalysisCommand.append(dependencyFile)
 
-        dependencyAnalysisCommand.append('-I')
-        dependencyAnalysisCommand.append(self._xmlFile.replace('.xml', '.dis'))
-        dependencyAnalysisCommand.append('-O')
-        dependencyAnalysisCommand.append(self._xmlFile.replace('.xml', '.dep'))
-
-        dependencyAnalysisProcess = subprocess.Popen(dependencyAnalysisCommand)
+        infile = open(self._xmlFile.replace(".xml", ".dis"))
+        outfile = open(self._xmlFile.replace(".xml", ".dep"), "w")
+        subprocess.call(dependencyAnalysisCommand,
+                        stdin = infile,
+                        stdout = outfile)
+        infile.close()
+        outfile.close()
