@@ -35,12 +35,9 @@ class Analyser:
         """
         ccatCommand = ['ccat', '-a', '-l', self._lang, self._xmlFile]
 
-        infile = open(self._xmlFile)
         outfile = open(self._xmlFile.replace(".xml", ".ccat"), "w")
         subprocess.call(ccatCommand,
-                        stdin = infile,
                         stdout = outfile)
-        infile.close()
         outfile.close()
 
     def preprocess(self):
@@ -107,10 +104,6 @@ class Analyser:
         analysis
         The output is stored in a .dis file
         """
-        self.ccat()
-        self.preprocess()
-        self.lookup()
-        self.lookup2cg()
 
         disambiguationAnalysisCommand = ['vislcg3', '-g']
 
@@ -156,3 +149,17 @@ class Analyser:
                         stdout = outfile)
         infile.close()
         outfile.close()
+
+    def analyse(self):
+        self.ccat()
+	if os.path.isfile(self._xmlFile.replace(".xml", ".ccat")):
+            self.preprocess()
+	    if os.path.isfile(self._xmlFile.replace(".xml", ".preprocess")):
+                self.lookup()
+	        if os.path.isfile(self._xmlFile.replace(".xml", ".lookup")):
+                    self.lookup2cg()
+	            if os.path.isfile(self._xmlFile.replace(".xml", ".lookup2cg")):
+                        self.disambiguationAnalysis()
+	                if os.path.isfile(self._xmlFile.replace(".xml", ".dis")):
+                            self.dependencyAnalysis()
+

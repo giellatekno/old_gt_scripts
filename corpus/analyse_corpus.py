@@ -30,32 +30,35 @@ import time
 from distutils.dep_util import newer_group
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
-import converter
 import analyser
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Convert original files to giellatekno xml, using dependency checking.')
     parser.add_argument('lang', help = "lang which should be analysed")
-    parser.add_argument('orig_dir', help = "directory where the original files exist")
+    parser.add_argument('converted_dir', help = "directory where the converted files exist")
 
     args = parser.parse_args()
     return args
 
-def worker(lang, xsl_file):
-    conv = converter.Converter(xsl_file[:-4])
-    conv.writeComplete()
-
-    if os.path.isfile(conv.getConvertedName()):
-        ana = analyser.Analyser(lang, conv.getConvertedName())
-        ana.disambiguationAnalysis()
-        ana.dependencyAnalysis()
+def worker(inTuple):
+    (lang, xmlFile) = inTuple
+    ana = analyser.Analyser(lang, xmlFile)
+    ana.analyse()
 
 if __name__ == '__main__':
     args = parse_options()
-    jobs = []
-    for root, dirs, files in os.walk(args.orig_dir): # Walk directory tree
+    xmlFiles = []
+    for root, dirs, files in os.walk(args.converted_dir): # Walk directory tree
         for f in files:
-            if f.endswith('.xsl'):
-                p = multiprocessing.Process(target=worker, args=(args.lang, os.path.join(root, f),))
-                jobs.append(p)
-                p.start()
+            if f.startswith(args.lang) and f.endswith('.xml'):
+                #p = multiprocessing.Process(target=worker, args=(args.lang, os.path.join(root, f),))
+                #jobs.append(p)
+                #p.start()
+                xmlFiles.append((args.lang, os.path.join(root, f)))
+
+    poolSize = multiprocessing.cpu_count() * 2
+    pool = multiprocessing.Pool(processes=poolSize,
+                                )
+    poolOutputs = pool.map(worker, xmlFiles)
+    pool.close() # no more tasks
+    pool.join()  # wrap up current tasks
