@@ -335,7 +335,7 @@ class EncodingGuesser:
                     if not samiLetterFrequency[ctypes[position][key].lower()]:
                         hitter = True
                 except KeyError:
-                    print ctypes[position][key], "does not exist in this file"
+                    pass
                 hits += encodingFrequency[key]
 
             #if hits > 0:
