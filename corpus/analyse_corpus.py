@@ -31,6 +31,7 @@ from distutils.dep_util import newer_group
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import analyser
+import analysisconcatenator
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Convert original files to giellatekno xml, using dependency checking.')
@@ -57,8 +58,10 @@ if __name__ == '__main__':
                 xmlFiles.append((args.lang, os.path.join(root, f)))
 
     poolSize = multiprocessing.cpu_count() * 2
-    pool = multiprocessing.Pool(processes=poolSize,
-                                )
+    pool = multiprocessing.Pool(processes=poolSize,)
     poolOutputs = pool.map(worker, xmlFiles)
     pool.close() # no more tasks
     pool.join()  # wrap up current tasks
+
+    ac = analyser.AnalysisConcatenator(xmlFiles)
+    ac.concatenateAnalysedFiles()

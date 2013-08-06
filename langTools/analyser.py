@@ -23,6 +23,7 @@
 import os
 import sys
 import subprocess
+import re
 
 class Analyser:
     def __init__(self, lang, xmlFile):
@@ -61,6 +62,8 @@ class Analyser:
         infile.close()
         outfile.close()
 
+        os.unlink(self._xmlFile.replace(".xml", ".ccat"))
+
     def lookup(self):
         """Runs lookup on the preprocess output
         Returns the output of preprocess
@@ -85,6 +88,8 @@ class Analyser:
         infile.close()
         outfile.close()
 
+        os.unlink(self._xmlFile.replace(".xml", ".preprocess"))
+
     def lookup2cg(self):
         """Runs the lookup on the lookup output
         Returns the output of lookup2cg
@@ -98,6 +103,8 @@ class Analyser:
                         stdout = outfile)
         infile.close()
         outfile.close()
+
+        os.unlink(self._xmlFile.replace(".xml", ".lookup"))
 
     def disambiguationAnalysis(self):
         """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
@@ -123,6 +130,8 @@ class Analyser:
                         stdout = outfile)
         infile.close()
         outfile.close()
+
+        os.unlink(self._xmlFile.replace(".xml", ".lookup2cg"))
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
@@ -163,3 +172,67 @@ class Analyser:
 	                if os.path.isfile(self._xmlFile.replace(".xml", ".dis")):
                             self.dependencyAnalysis()
 
+class AnalysisConcatenator:
+    def __init__(self, xmlFiles):
+        """
+        @brief Receives a list of filenames that has been analysed
+        """
+        self._xmlFiles = xmlFiles
+        self._prefixRe = re.compile("(^.+/[a-z]+_[a-z]+_[a-z]+).+")
+        self._disFiles = {}
+        self._depFiles = {}
+
+    def concatenateAnalysedFiles(self):
+        """
+        @brief Concatenates analysed files according to origlang, translated_from_lang and genre
+        """
+        for xmlFile in self._xmlFiles:
+            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dis"))
+            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dep"))
+
+
+    def concatenateAnalysedFile(self, filename):
+        """
+        @brief Adds the content of the given file to file it belongs to
+
+        :returns: ...
+        """
+        if os.path.isfile(filename):
+            fromFile = open(filename)
+            self.getToFile(filename).write(fromFile.read())
+            fromFile.close()
+            os.unlink(filename)
+
+    def getToFile(self, filename):
+        """
+        @brief Gets the prefix of the filename. Opens a file object with the files prefix.
+
+        :returns: File object belonging to the prefix of the filename
+        """
+        prefix = self.getPrefix(filename)
+
+        if filename.endswith(".dis"):
+            try:
+                self._disFiles[prefix]
+            except KeyError:
+                self._disFiles[prefix] = open(prefix + ".dis", "w")
+
+            return self._disFiles[prefix]
+
+        else:
+            try:
+                self._depFiles[prefix]
+            except KeyError:
+                self._depFiles[prefix] = open(prefix + ".dep", "w")
+
+            return self._depFiles[prefix]
+
+    def getPrefix(self, filename):
+        """
+        @brief Extracts the prefix lang_translatedfrom_genre from the filename
+
+        :returns: a string containing the prefix
+        """
+        m = self._prefixRe.search(filename)
+
+        return m.group(1)
