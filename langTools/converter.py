@@ -149,6 +149,7 @@ class Converter:
         self.setConvertedName()
         self.dependencies = [self.getOrig(), self.getXsl()]
         self.test = test
+        self.fixLangGenreXsl()
 
     def makeIntermediate(self):
         """Convert the input file from the original format to a basic
@@ -298,84 +299,29 @@ class Converter:
         else:
             self.corpusdir = os.getcwd()
 
-    def setLangGenre(self):
-        """Set the name of the converted file.
-
-        The format of this name is
-        lang_translatedfrom_genre_dir-diraSLASHdirb-dir_filename.xml
-
-        orig/sme/facta/skuvlahistorja1/uhca-s.html becomes
-        converted/sme_nno_facta_dir-skuvlahistorja1-dir_uhca-s.html.xml
-
-        lang is determined this way:
-        1. from mainlang in the .xsl file.
-           If not found in the xsl file
-        2. from the directory (set the mainlang in the .xsl)
-           If not found this way
-        3. Set to none
-
-        genre is determined this way:
-        1. from genre in the the .xsl file.
-           If not found in the xsl file
-        2. from the directory (set the genre in the .xsl). It must be one of:
-           admin, bible, facta, ficti, news
-           If not found this way
-        3. Set to none
-
-        translatedfrom is determined this way:
-        1. from genre in the the .xsl file.
-           If not found in the xsl file
-        2. Set to none
-
+    def fixLangGenreXsl(self):
+        """Set the mainlang and genre variables in the xsl file, if possible
         """
         xsltree = etree.parse(self.getXsl())
         root = xsltree.getroot()
         origname = self.getOrig().replace(self.getCorpusdir(), '')
-        if origname.startswith('/'):
-            origname = origname[1:]
-        parts = origname.split('/')
+        if origname.startswith('/orig'):
+            parts = origname[1:].split('/')
 
-        lang = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'].replace("'", "")
+            lang = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'].replace("'", "")
 
-        if lang == "":
-            if 'orig/' in origname:
+            if lang == "":
                 lang = parts[1]
                 root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'] = "'" + lang + "'"
-            else:
-                lang = 'none'
 
-        genre = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'].replace("'", "")
+            genre = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'].replace("'", "")
 
-        if genre == "" or genre not in ['admin', 'bible', 'facta', 'ficti', 'news']:
-            if 'orig/' in origname:
+            if genre == "" or genre not in ['admin', 'bible', 'facta', 'ficti', 'news']:
                 if parts[2] in ['admin', 'bible', 'facta', 'ficti', 'news']:
                     genre = parts[parts.index('orig') + 2]
                     root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'] = "'" + genre + "'"
-                else:
-                    genre = 'none'
-            else:
-                genre = 'none'
 
-        translated_from = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='translated_from']").attrib['select'].replace("'", "")
-
-        if translated_from == "":
-            translated_from = 'none'
-
-        xsltree.write(self.getXsl(), encoding="utf-8", xml_declaration = True)
-
-        dirnames = []
-        if 'orig/' in origname and parts[2] in ['admin', 'bible', 'facta', 'ficti', 'news']:
-            dirnames = parts[3:-1]
-        elif 'orig/' in origname and not parts[2] in ['admin', 'bible', 'facta', 'ficti', 'news']:
-            dirnames = parts[2:-1]
-        else:
-            dirnames = parts[:-1]
-
-        name = 'converted/' + lang + '_' + translated_from + '_' + genre
-        if len(dirnames) > 0:
-            name = name + '_dir-' + 'SLASH'.join(dirnames) + '-dir'
-
-        name = name + '_' + parts[-1] + '.xml'
+            xsltree.write(self.getXsl(), encoding="utf-8", xml_declaration = True)
 
     def setConvertedName(self):
         """Set the name of the converted file
