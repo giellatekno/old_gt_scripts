@@ -127,17 +127,17 @@ class TestConverter(unittest.TestCase):
     def testGetConvertedNameInsideOrig(self):
         self.assertEqual(self.converterInsideOrig.getConvertedName(),
             os.path.join(os.getenv('GTHOME'), \
-            'gt/script/langTools/fakecorpus/converted/nob_none_none_samediggi-article-16.html.xml'))
+            'gt/script/langTools/fakecorpus/converted/nob/samediggi-article-16.html.xml'))
 
     def testGetConvertedNameOutsideOrig(self):
         self.assertEqual(self.converterOutsideOrig.getConvertedName(), \
             os.path.join(os.getenv('GTHOME'), \
-            'gt/script/langTools/converted/nob_none_none_dir-parallelize_data-dir_samediggi-article-48.html.xml'))
+            'gt/script/langTools/converted/samediggi-article-48.html.xml'))
 
     def testGetConvertedInsideFreecorpus(self):
         self.assertEqual(self.converterInsideFreecorpus.getConvertedName(), \
             os.path.join(os.getenv('GTFREE'), \
-            'converted/sme_nob_admin_dir-sdSLASHsamediggi.no-dir_samediggi-article-48.html.xml'))
+            'converted/sme/admin/sd/samediggi.no/samediggi-article-48.html.xml'))
 
 class Converter:
     """
@@ -298,7 +298,7 @@ class Converter:
         else:
             self.corpusdir = os.getcwd()
 
-    def setConvertedName(self):
+    def setLangGenre(self):
         """Set the name of the converted file.
 
         The format of this name is
@@ -377,7 +377,19 @@ class Converter:
 
         name = name + '_' + parts[-1] + '.xml'
 
-        self._convertedName = os.path.join(self.getCorpusdir(), name)
+    def setConvertedName(self):
+        """Set the name of the converted file
+        """
+        convertedBasename = os.path.join(self.getCorpusdir(), 'converted')
+        origname = self.getOrig().replace(self.getCorpusdir(), '')
+        if origname.startswith('/'):
+            origname = origname[1:]
+        if origname.startswith('orig/'):
+            origname = origname.replace('orig/', '')
+        else:
+            origname = os.path.basename(origname)
+
+        self._convertedName = os.path.join(convertedBasename, origname) + '.xml'
 
     def getConvertedName(self):
         return self._convertedName
