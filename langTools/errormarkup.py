@@ -650,7 +650,8 @@ class TestErrorMarkup(unittest.TestCase):
 class ErrorMarkup:
     '''This is a class to convert errormarkuped text to xml
     '''
-    def __init__(self):
+    def __init__(self, filename):
+        self._filename = filename
         self.types = { u"$": u"errorort", u"¢": "errorortreal", u"€": "errorlex", u"£": "errormorphsyn", u"¥": "errorsyn", u"§": "error", u"∞": "errorlang"}
         self.errorRegex = re.compile(u'(?P<error>\([^\(]*\)$|\w+$|\w+[-\':\]]\w+$|\w+[-\'\]\./]$|\d+’\w+$|\d+%:\w+$|”\w+”$)',re.UNICODE)
         self.correctionRegex = re.compile(u'(?P<correction>[$€£¥§¢∞]\([^\)]*\)|[$€£¥§¢∞]\S+)(?P<tail>.*)',re.UNICODE)
@@ -805,6 +806,7 @@ class ErrorMarkup:
         try:
             innerElement = elements[-1]
         except IndexError:
+            print '\n', self._filename
             print "Cannot handle:\n"
             print errorstring + correctionstring
             print "This is either an error in the markup or an error in the errormarkup conversion code"
@@ -841,6 +843,7 @@ class ErrorMarkup:
                     try:
                         errorElement.insert(0, innerElement)
                     except TypeError as e:
+                        print '\n', self._filename
                         print str(e)
                         print u"The program expected an error element, but found a string:\n«" + innerElement + u"»"
                         print u"There is either an error in errormarkup close to this sentence"
@@ -917,6 +920,7 @@ class ErrorMarkup:
             try:
                 (attList, correction) = correction.split('|')
             except ValueError as e:
+                print '\n', self._filename
                 print str(e)
                 print u"too many | characters inside the correction. «" + correction + u"»"
                 print u"Have you remembered to encase the error inside parenthesis, e.g. (vowlat,a-á|servodatvuogádat)?"

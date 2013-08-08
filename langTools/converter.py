@@ -241,7 +241,7 @@ class Converter:
 
         if 'correct.' in self.orig:
             try:
-                em = errormarkup.ErrorMarkup()
+                em = errormarkup.ErrorMarkup(self.getOrig())
 
                 for element in complete.find('body'):
                     em.addErrorMarkup(element)
