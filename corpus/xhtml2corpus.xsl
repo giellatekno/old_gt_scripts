@@ -473,6 +473,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:figcaption"/>
 <xsl:template match="html:footer"/>
 <xsl:template match="html:embed"/>
+<xsl:template match="html:cite"/>
 <!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
 <!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
