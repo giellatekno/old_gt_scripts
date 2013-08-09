@@ -436,7 +436,22 @@ If it is a container it has one or more of the these tags:
 </xsl:template>
 
 <xsl:template match="text()">
-        <xsl:value-of select="normalize-space(.)"/><xsl:text> </xsl:text>
+    <xsl:choose>
+        <xsl:when test="
+            preceding-sibling::html:h1|
+            preceding-sibling::html:h2|
+            preceding-sibling::html:h3|
+            preceding-sibling::html:h4|
+            preceding-sibling::html:h5|
+            preceding-sibling::html:h6">
+            <p>
+                <xsl:value-of select="normalize-space(.)"/>
+            </p>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="normalize-space(.)"/><xsl:text> </xsl:text>
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="*">
