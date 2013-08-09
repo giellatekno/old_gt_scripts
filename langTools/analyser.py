@@ -24,19 +24,69 @@ import os
 import sys
 import subprocess
 import re
+import lxml.etree as etree
 
 class Analyser:
     def __init__(self, lang, xmlFile):
         self._lang = lang
-        self._xmlFile = xmlFile
+        self.eTree = etree.parse(xmlFile)
+        self.calculateFilenames(xmlFile)
+
+    def getLang(self):
+        """
+        @brief Get the mainlang from the xml file
+
+        :returns: the language as set in the xml file
+        """
+        if self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'] is not None:
+            return self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
+        else:
+            return 'none'
+
+    def getGenre(self):
+        """
+        @brief Get the genre from the xml file
+
+        :returns: the genre as set in the xml file
+        """
+        if self.eTree.getroot().find(".//genre") is not None:
+            return self.eTree.getroot().find(".//genre").attrib["code"]
+        else:
+            return 'none'
+
+    def getTranslatedfrom(self):
+        """
+        @brief Get the translated_from value from the xml file
+
+        :returns: the value of translated_from as set in the xml file
+        """
+        if self.eTree.getroot().find(".//translated_from") is not None:
+            return self.eTree.getroot().find(".//translated_from").attrib["{http://www.w3.org/XML/1998/namespace}lang"]
+        else:
+            return 'none'
+
+    def calculateFilenames(self, xmlFile):
+        """Set the names of the analysis files
+        """
+
+
+        basename = xmlFile[:-4]
+
+        self.xmlFile = xmlFile
+        self.ccatName = basename + '.ccat'
+        self.preprocessName = basename + '.preprocess'
+        self.lookupName = basename + '.lookup'
+        self.lookup2cgName = basename + '.lookup2cg'
+        self.disambiguationAnalysisName = basename + '.dis'
+        self.dependencyAnalysisName = basename + '.dep'
 
     def ccat(self):
         """Runs ccat on the input file
         Returns the output of ccat
         """
-        ccatCommand = ['ccat', '-a', '-l', self._lang, self._xmlFile]
+        ccatCommand = ['ccat', '-a', '-l', self._lang, self.xmlFile]
 
-        outfile = open(self._xmlFile.replace(".xml", ".ccat"), "w")
+        outfile = open(self.ccatName, "w")
         subprocess.call(ccatCommand,
                         stdout = outfile)
         outfile.close()
@@ -54,15 +104,15 @@ class Analyser:
             preProcessCommand.append('--abbr=' + abbrFile)
             preProcessCommand.append('--corr=' + corrFile)
 
-        infile = open(self._xmlFile.replace(".xml", ".ccat"))
-        outfile = open(self._xmlFile.replace(".xml", ".preprocess"), "w")
+        infile = open(self.ccatName)
+        outfile = open(self.preprocessName, "w")
         subprocess.call(preProcessCommand,
                         stdin = infile,
                         stdout = outfile)
         infile.close()
         outfile.close()
 
-        os.unlink(self._xmlFile.replace(".xml", ".ccat"))
+        os.unlink(self.ccatName)
 
     def lookup(self):
         """Runs lookup on the preprocess output
@@ -80,15 +130,15 @@ class Analyser:
                                    'langs/' + self._lang + '/src/analyser-gt-desc.xfst')
             lookupCommand.append(fstFile)
 
-        infile = open(self._xmlFile.replace(".xml", ".preprocess"))
-        outfile = open(self._xmlFile.replace(".xml", ".lookup"), "w")
+        infile = open(self.preprocessName)
+        outfile = open(self.lookupName, "w")
         subprocess.call(lookupCommand,
                         stdin = infile,
                         stdout = outfile)
         infile.close()
         outfile.close()
 
-        os.unlink(self._xmlFile.replace(".xml", ".preprocess"))
+        os.unlink(self.preprocessName)
 
     def lookup2cg(self):
         """Runs the lookup on the lookup output
@@ -96,15 +146,15 @@ class Analyser:
         """
         lookup2cgCommand = ['lookup2cg']
 
-        infile = open(self._xmlFile.replace(".xml", ".lookup"))
-        outfile = open(self._xmlFile.replace(".xml", ".lookup2cg"), "w")
+        infile = open(self.lookupName)
+        outfile = open(self.lookup2cgName, "w")
         subprocess.call(lookup2cgCommand,
                         stdin = infile,
                         stdout = outfile)
         infile.close()
         outfile.close()
 
-        os.unlink(self._xmlFile.replace(".xml", ".lookup"))
+        os.unlink(self.lookupName)
 
     def disambiguationAnalysis(self):
         """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
@@ -123,15 +173,20 @@ class Analyser:
                                               self._lang + '/src/syntax/disambiguation.cg3')
             disambiguationAnalysisCommand.append(disambiguationFile)
 
-        infile = open(self._xmlFile.replace(".xml", ".lookup2cg"))
-        outfile = open(self._xmlFile.replace(".xml", ".dis"), "w")
-        subprocess.call(disambiguationAnalysisCommand,
-                        stdin = infile,
-                        stdout = outfile)
+        infile = open(self.lookup2cgName)
+        outfile = open(self.disambiguationAnalysisName, "w")
+
+        # Leave a clue for the AnalysisConcatenator
+        # Will go unchanged through dependencyAnalysis as vislcg3
+        # won't try to analyse clean text
+        outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
+
+        outfile.write(subprocess.check_output(disambiguationAnalysisCommand,
+                        stdin = infile))
         infile.close()
         outfile.close()
 
-        os.unlink(self._xmlFile.replace(".xml", ".lookup2cg"))
+        os.unlink(self.lookup2cgName)
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
@@ -151,8 +206,8 @@ class Analyser:
                                           'gt/smi/src/smi-dep.rle')
             dependencyAnalysisCommand.append(dependencyFile)
 
-        infile = open(self._xmlFile.replace(".xml", ".dis"))
-        outfile = open(self._xmlFile.replace(".xml", ".dep"), "w")
+        infile = open(self.disambiguationAnalysisName)
+        outfile = open(self.dependencyAnalysisName, "w")
         subprocess.call(dependencyAnalysisCommand,
                         stdin = infile,
                         stdout = outfile)
@@ -161,15 +216,15 @@ class Analyser:
 
     def analyse(self):
         self.ccat()
-	if os.path.isfile(self._xmlFile.replace(".xml", ".ccat")):
+	if os.path.isfile(self.ccatName):
             self.preprocess()
-	    if os.path.isfile(self._xmlFile.replace(".xml", ".preprocess")):
+	    if os.path.isfile(self.preprocessName):
                 self.lookup()
-	        if os.path.isfile(self._xmlFile.replace(".xml", ".lookup")):
+	        if os.path.isfile(self.lookupName):
                     self.lookup2cg()
-	            if os.path.isfile(self._xmlFile.replace(".xml", ".lookup2cg")):
+	            if os.path.isfile(self.lookup2cgName):
                         self.disambiguationAnalysis()
-	                if os.path.isfile(self._xmlFile.replace(".xml", ".dis")):
+	                if os.path.isfile(self.disambiguationAnalysisName):
                             self.dependencyAnalysis()
 
 class AnalysisConcatenator:
@@ -177,16 +232,15 @@ class AnalysisConcatenator:
         """
         @brief Receives a list of filenames that has been analysed
         """
-        self._xmlFiles = xmlFiles
-        self._prefixRe = re.compile("(^.+/[a-z]+_[a-z]+_[a-z]+).+")
-        self._disFiles = {}
-        self._depFiles = {}
+        self.basenames = xmlFiles
+        self.disFiles = {}
+        self.depFiles = {}
 
     def concatenateAnalysedFiles(self):
         """
         @brief Concatenates analysed files according to origlang, translated_from_lang and genre
         """
-        for xmlFile in self._xmlFiles:
+        for xmlFile in self.basenames:
             self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dis"))
             self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dep"))
 
@@ -199,40 +253,30 @@ class AnalysisConcatenator:
         """
         if os.path.isfile(filename):
             fromFile = open(filename)
-            self.getToFile(filename).write(fromFile.read())
+            self.getToFile(fromFile.readline(), filename[-4:]).write(fromFile.read())
             fromFile.close()
             os.unlink(filename)
 
-    def getToFile(self, filename):
+    def getToFile(self, prefix, extension):
         """
         @brief Gets the prefix of the filename. Opens a file object with the files prefix.
 
         :returns: File object belonging to the prefix of the filename
         """
-        prefix = self.getPrefix(filename)
 
-        if filename.endswith(".dis"):
+        prefix = prefix.strip()
+        if extension == ".dis":
             try:
-                self._disFiles[prefix]
+                self.disFiles[prefix]
             except KeyError:
-                self._disFiles[prefix] = open(prefix + ".dis", "w")
+                self.disFiles[prefix] = open(prefix + ".dis", "w")
 
-            return self._disFiles[prefix]
+            return self.disFiles[prefix]
 
         else:
             try:
-                self._depFiles[prefix]
+                self.depFiles[prefix]
             except KeyError:
-                self._depFiles[prefix] = open(prefix + ".dep", "w")
+                self.depFiles[prefix] = open(prefix + ".dep", "w")
 
-            return self._depFiles[prefix]
-
-    def getPrefix(self, filename):
-        """
-        @brief Extracts the prefix lang_translatedfrom_genre from the filename
-
-        :returns: a string containing the prefix
-        """
-        m = self._prefixRe.search(filename)
-
-        return m.group(1)
+            return self.depFiles[prefix]

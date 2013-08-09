@@ -51,10 +51,7 @@ if __name__ == '__main__':
     xmlFiles = []
     for root, dirs, files in os.walk(args.converted_dir): # Walk directory tree
         for f in files:
-            if f.startswith(args.lang) and f.endswith('.xml'):
-                #p = multiprocessing.Process(target=worker, args=(args.lang, os.path.join(root, f),))
-                #jobs.append(p)
-                #p.start()
+            if args.lang in root and f.endswith('.xml'):
                 xmlFiles.append((args.lang, os.path.join(root, f)))
 
     poolSize = multiprocessing.cpu_count() * 2
