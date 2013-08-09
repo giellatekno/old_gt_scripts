@@ -1136,30 +1136,8 @@ class HTMLContentConverter:
         """
         Run html through tidy
         """
-        tidycommand = ['tidy', '-config', os.path.join(os.getenv('GTHOME'), 'gt/script/tidy-config.txt'), '-utf8', '-quiet']
-        subp = subprocess.Popen(tidycommand, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.content)
-
-        if len(output) == 0:
-            logfile = open(self.orig + '.log', 'w')
-            logfile.write(error)
-            logfile.write('\n')
-            logfile.close()
-            raise ConversionException("Tidy made no output")
-
-        if subp.returncode == 512:
-            logfile = open(self.orig + '.log', 'w')
-            logfile.write('stdout\n')
-            logfile.write(output)
-            logfile.write('\n')
-            logfile.write('stderr\n')
-            logfile.write(error)
-            logfile.write('\n')
-            logfile.close()
-            raise ConversionException('Tidy could not process' + self.orig)
-
         try:
-            soup = bs4.BeautifulSoup(output, from_encoding="utf-8")
+            soup = bs4.BeautifulSoup(self.content)
         except HTMLParser.HTMLParseError:
             raise ConversionException("BeautifulSoup couldn't parse the html")
 
