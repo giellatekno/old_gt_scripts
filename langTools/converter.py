@@ -1187,7 +1187,7 @@ class HTMLContentConverter:
 
         soup = soup.prettify().replace('&shy;', u'­').replace('&nbsp;', ' ').replace('&aelig;', u'æ').replace('&eacute;', u'é')
 
-        tidyOption = { "indent": "auto",
+        tidyOption = {"indent": "auto",
                       "indent-spaces": 2,
                       "wrap": 72,
                       "markup": "yes",
@@ -1206,7 +1206,10 @@ class HTMLContentConverter:
                       "enclose-block-text": "yes",
                       "new-empty-tags": "ms,mb,nf,mu",
                       "new-inline-tags": "dato,note,idiv,o:p,pb,v:shapetype,v:stroke,v:formulas,v:f,v:path,v:shape,v:imagedata,o:lock,st1:country-region,st1:place,st1:metricconverter,g:plusone,fb:like,fb:comments",
-                      "new-blocklevel-tags": "label,nav,article,header,figcaption,time,aside,figure,footer"
+                      "new-blocklevel-tags": "label,nav,article,header,figcaption,time,aside,figure,footer",
+                      "clean": "true",
+                      "drop-proprietary-attributes": "true",
+                      "drop-empty-paras": "true"
                       }
 
         tidiedHtml, errors = tidylib.tidy_document(soup, tidyOption)
