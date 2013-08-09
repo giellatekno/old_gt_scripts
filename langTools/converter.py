@@ -1135,6 +1135,13 @@ class TestHTMLContentConverter(unittest.TestCase):
 
         self.assertXmlEqual(got, want)
 
+    def testRemoveScript(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"> <head><script type="text/javascript">(function() { var a=window;function e(b){this.t={};this.tick=function(c,h,d){d=d?d:(new Date).getTime();this.t[c]=[d,h]};this.tick("start",null,b)}var f=new e;a.jstiming={Timer:e,load:f};try{a.jstiming.pt=a.gtbExternal&&a.gtbExternal.pageT()||a.external&&a.external.pageT}catch(g){};a.tickAboveFold=function(b){b=b;var c=0;if(b.offsetParent){do c+=b.offsetTop;while(b=b.offsetParent)}b=c;b<=750&&a.jstiming.load.tick("aft")};var i=false;function j(){if(!i){i=true;a.jstiming.load.tick("firstScrollTime")}}a.addEventListener?a.addEventListener("scroll",j,false):a.attachEvent("onscroll",j); })();</script></head> <body> </body></html>').tidy()
+
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body/></html>'
+
+        self.assertXmlEqual(got, want)
+
 class HTMLContentConverter:
     """
     Class to convert html documents to the giellatekno xml format
@@ -1161,7 +1168,7 @@ class HTMLContentConverter:
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, bs4.ProcessingInstruction ))]
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, bs4.Declaration ))]
 
-        remove_tags = ['style', 'o:p', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
+        remove_tags = ['script', 'style', 'o:p', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
 
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
