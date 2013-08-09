@@ -1215,7 +1215,8 @@ class HTMLContentConverter:
 
                 logfile.write('\n')
 
-            logfile.write(html)
+            # html is unicode, encode it as utf8 before writing it
+            logfile.write(html.encode('utf8'))
             logfile.close()
             raise ConversionException("Invalid html, log is found in " + self.orig + '.log')
 
@@ -1238,7 +1239,7 @@ class HTMLContentConverter:
 
                 logfile.write('\n')
 
-            logfile.write(html)
+            logfile.write(html.encode('utf8'))
             logfile.close()
             raise ConversionException('transformation failed' + self.orig + '.log')
 
