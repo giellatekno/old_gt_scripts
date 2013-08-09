@@ -1121,6 +1121,20 @@ class TestHTMLContentConverter(unittest.TestCase):
 
         self.assertXmlEqual(got, want)
 
+    def testRemoveComment(self):
+        got = HTMLContentConverter('with-o:p.html', '<html><body><b><!--Hey, buddy. Want to buy a used parser?--></b></body></html>').tidy()
+
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><body><b></b></body></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testRemoveStyle(self):
+        got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"> <head>  <style id="page-skin-1" type="text/css">   <!--------------------------------------------------->  </style> </head> <body> </body></html>').tidy()
+
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body/></html>'
+
+        self.assertXmlEqual(got, want)
+
 class HTMLContentConverter:
     """
     Class to convert html documents to the giellatekno xml format
@@ -1147,7 +1161,7 @@ class HTMLContentConverter:
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, bs4.ProcessingInstruction ))]
         [item.extract() for item in soup.findAll(text = lambda text:isinstance(text, bs4.Declaration ))]
 
-        remove_tags = ['o:p', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
+        remove_tags = ['style', 'o:p', 'st1:country-region', 'v:shapetype', 'v:shape', 'st1:metricconverter', 'area', 'object', 'meta', 'fb:like', 'fb:comments', 'g:plusone']
 
         for remove_tag in remove_tags:
             removes = soup.findAll(remove_tag)
