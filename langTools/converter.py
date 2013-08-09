@@ -40,7 +40,7 @@ from pyth.plugins.xhtml.writer import XHTMLWriter
 from copy import deepcopy
 import decimal
 import distutils.dep_util
-
+import tidylib
 import decode
 import ngram
 import errormarkup
@@ -221,7 +221,7 @@ class Converter:
                 logfile.write('\n')
 
             logfile.close()
-            raise ConversionException("Check the search and replace expression at the end of this file")
+            raise ConversionException("Check the syntax in: " + self.getXsl())
 
         dtd = etree.DTD(os.path.join(os.getenv('GTHOME'), 'gt/dtd/corpus.dtd'))
 
@@ -237,7 +237,7 @@ class Converter:
             logfile.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
             logfile.close()
 
-            raise ConversionException("Not valid XML")
+            raise ConversionException("Not valid XML. More info in the log file: " + self.getOrig() + u".log")
 
         if 'correct.' in self.orig:
             try:
@@ -1061,21 +1061,21 @@ class TestHTMLContentConverter(unittest.TestCase):
     def testRemoveFblike(self):
         got = HTMLContentConverter('with-fb:like.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><fb:like send="true" show_faces="false" action="recommend"></fb:like></body></html>').tidy()
 
-        want = '<html xmlns="http://www.w3.org/1999/xhtml"><body></body></html>'
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/></head><body></body></html>'
 
         self.assertXmlEqual(got, want)
 
     def testRemoveFbcomments(self):
         got = HTMLContentConverter('with-fb:comments.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><fb:comments href="http://www.nord-salten.no/no/nyheter/samisk/hellmocuhppa.4032" num_posts="2" width="750"></fb:comments></body></html>').tidy()
 
-        want = '<html xmlns="http://www.w3.org/1999/xhtml"><body></body></html>'
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/></head><body></body></html>'
 
         self.assertXmlEqual(got, want)
 
     def testRemoveGplusone(self):
         got = HTMLContentConverter('with-g:plusone.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><g:plusone size="standard" count="true"></g:plusone></body></html>').tidy()
 
-        want = '<html xmlns="http://www.w3.org/1999/xhtml"><body></body></html>'
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/></head><body></body></html>'
 
         self.assertXmlEqual(got, want)
 
@@ -1124,21 +1124,28 @@ class TestHTMLContentConverter(unittest.TestCase):
     def testRemoveComment(self):
         got = HTMLContentConverter('with-o:p.html', '<html><body><b><!--Hey, buddy. Want to buy a used parser?--></b></body></html>').tidy()
 
-        want = '<html xmlns="http://www.w3.org/1999/xhtml"><body><b></b></body></html>'
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/></head><body></body></html>'
 
         self.assertXmlEqual(got, want)
 
     def testRemoveStyle(self):
         got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"> <head>  <style id="page-skin-1" type="text/css">   <!--------------------------------------------------->  </style> </head> <body> </body></html>').tidy()
 
-        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body/></html>'
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/></head><body/></html>'
 
         self.assertXmlEqual(got, want)
 
     def testRemoveScript(self):
         got = HTMLContentConverter('with-o:p.html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"> <head><script type="text/javascript">(function() { var a=window;function e(b){this.t={};this.tick=function(c,h,d){d=d?d:(new Date).getTime();this.t[c]=[d,h]};this.tick("start",null,b)}var f=new e;a.jstiming={Timer:e,load:f};try{a.jstiming.pt=a.gtbExternal&&a.gtbExternal.pageT()||a.external&&a.external.pageT}catch(g){};a.tickAboveFold=function(b){b=b;var c=0;if(b.offsetParent){do c+=b.offsetTop;while(b=b.offsetParent)}b=c;b<=750&&a.jstiming.load.tick("aft")};var i=false;function j(){if(!i){i=true;a.jstiming.load.tick("firstScrollTime")}}a.addEventListener?a.addEventListener("scroll",j,false):a.attachEvent("onscroll",j); })();</script></head> <body> </body></html>').tidy()
 
-        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head/><body/></html>'
+        want = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/></head><body/></html>'
+
+        self.assertXmlEqual(got, want)
+
+    def testAddPAroundText(self):
+        got = HTMLContentConverter('withoutp.html', '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Final//EN"><html><head><meta http-equiv="Content-type" content="text/html; charset=utf-8"><title>– Den utdøende stammes frykt</title><link rel="stylesheet" type="text/css" href="ssh1.css" /></head><body><h3>VI</h3>... Stockfleth<a href=#[1]>[1]</a> saa<p>Dette høres<h3>VII</h3>... Finnerne<p>Der</body></html>').tidy()
+
+        want = '<?xml version="1.0"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>– Den utdøende stammes frykt</title>  <link rel="stylesheet" type="text/css" href="ssh1.css" /></head><body>  <h3>VI</h3>  <p>... Stockfleth<a href="#[1]">[1]</a> saa</p>  <p>Dette høres</p>  <h3>VII</h3>  <p>... Finnerne</p>  <p>Der</p></body></html>'
 
         self.assertXmlEqual(got, want)
 
@@ -1178,8 +1185,34 @@ class HTMLContentConverter:
         if not ("xmlns", "http://www.w3.org/1999/xhtml") in soup.html.attrs:
             soup.html["xmlns"] = "http://www.w3.org/1999/xhtml"
 
+        soup = soup.prettify().replace('&shy;', u'­').replace('&nbsp;', ' ').replace('&aelig;', u'æ').replace('&eacute;', u'é')
+
+        tidyOption = { "indent": "auto",
+                      "indent-spaces": 2,
+                      "wrap": 72,
+                      "markup": "yes",
+                      "output-xml": "yes",
+                      "add-xml-decl": "yes",
+                      "input-xml": "no",
+                      "show-warnings": "no",
+                      "numeric-entities": "yes",
+                      "quote-marks": "yes",
+                      "quote-nbsp": "yes",
+                      "quote-ampersand": "yes",
+                      "break-before-br": "no",
+                      "uppercase-tags": "no",
+                      "uppercase-attributes": "no",
+                      "char-encoding": "utf8",
+                      "enclose-block-text": "yes",
+                      "new-empty-tags": "ms,mb,nf,mu",
+                      "new-inline-tags": "dato,note,idiv,o:p,pb,v:shapetype,v:stroke,v:formulas,v:f,v:path,v:shape,v:imagedata,o:lock,st1:country-region,st1:place,st1:metricconverter,g:plusone,fb:like,fb:comments",
+                      "new-blocklevel-tags": "label,nav,article,header,figcaption,time,aside,figure,footer"
+                      }
+
+        tidiedHtml, errors = tidylib.tidy_document(soup, tidyOption)
+
         #sys.stderr.write(str(lineno()) + ' ' +  soup.prettify())
-        return soup.prettify().replace('&shy;', u'­').replace('&nbsp;', ' ').replace('&aelig;', u'æ').replace('&eacute;', u'é')
+        return tidiedHtml
 
     def convert2intermediate(self):
         """
