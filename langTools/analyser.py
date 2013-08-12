@@ -162,7 +162,8 @@ class Analyser:
 
         subp = subprocess.Popen(disambiguationAnalysisCommand,
                                 stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE)
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
         (output, error) = subp.communicate(self.lookup2cg())
         outfile = open(self.disambiguationAnalysisName, "w")
 
@@ -173,6 +174,7 @@ class Analyser:
 
         outfile.write(output)
         outfile.close()
+        self.checkError(self.disambiguationAnalysisName, error)
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
@@ -196,8 +198,18 @@ class Analyser:
         dependencyAnalysisCommand.append(self.disambiguationAnalysisName)
         dependencyAnalysisCommand.append("-O")
         dependencyAnalysisCommand.append(self.dependencyAnalysisName)
-        subprocess.call(dependencyAnalysisCommand)
+        subp = subprocess.Popen(dependencyAnalysisCommand,
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
+        (output, error) = subp.communicate()
+        self.checkError(self.dependencyAnalysisName, error)
 
+    def checkError(self, filename, error):
+        if len(error) > 0:
+            print >>sys.stderr
+            print >>sys.stderr, filename
+            print >>sys.stderr, error
     def analyse(self):
         self.disambiguationAnalysis()
         self.dependencyAnalysis()
