@@ -268,14 +268,21 @@ class Converter:
 
     def writeComplete(self):
         if distutils.dep_util.newer_group(self.dependencies, self.getConvertedName()):
-            if not os.path.isdir(os.path.dirname(self.getConvertedName())):
-                os.makedirs(os.path.dirname(self.getConvertedName()))
+            self.makedirs()
 
             complete = self.makeComplete()
 
             converted = open(self.getConvertedName(), 'w')
             converted.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
             converted.close()
+
+    def makedirs(self):
+        """Make the converted directory
+        """
+        try:
+            os.makedirs(os.path.dirname(self.getConvertedName()))
+        except OSError:
+            pass
 
     def getOrig(self):
         return self.orig
@@ -846,7 +853,7 @@ class PDFConverter:
             logfile.write(error)
             logfile.write('\n')
             logfile.close()
-            raise ConversionException('Could not extract text from pdf')
+            raise ConversionException("Could not extract text from pdf. More info in the log file: " + self.filename + u".log")
 
         self.text = unicode(output, encoding='utf8')
         self.replaceLigatures()
