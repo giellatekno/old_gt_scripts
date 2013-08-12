@@ -68,8 +68,6 @@ class Analyser:
     def calculateFilenames(self, xmlFile):
         """Set the names of the analysis files
         """
-
-
         basename = xmlFile[:-4]
 
         self.xmlFile = xmlFile
@@ -86,10 +84,7 @@ class Analyser:
         """
         ccatCommand = ['ccat', '-a', '-l', self._lang, self.xmlFile]
 
-        outfile = open(self.ccatName, "w")
-        subprocess.call(ccatCommand,
-                        stdout = outfile)
-        outfile.close()
+        return subprocess.check_output(ccatCommand)
 
     def preprocess(self):
         """Runs preprocess on the ccat output.
@@ -104,15 +99,12 @@ class Analyser:
             preProcessCommand.append('--abbr=' + abbrFile)
             preProcessCommand.append('--corr=' + corrFile)
 
-        infile = open(self.ccatName)
-        outfile = open(self.preprocessName, "w")
-        subprocess.call(preProcessCommand,
-                        stdin = infile,
-                        stdout = outfile)
-        infile.close()
-        outfile.close()
+        subp = subprocess.Popen(preProcessCommand,
+                        stdin = subprocess.PIPE,
+                        stdout = subprocess.PIPE)
+        (output, error) = subp.communicate(self.ccat())
 
-        os.unlink(self.ccatName)
+        return output
 
     def lookup(self):
         """Runs lookup on the preprocess output
@@ -130,15 +122,12 @@ class Analyser:
                                    'langs/' + self._lang + '/src/analyser-gt-desc.xfst')
             lookupCommand.append(fstFile)
 
-        infile = open(self.preprocessName)
-        outfile = open(self.lookupName, "w")
-        subprocess.call(lookupCommand,
-                        stdin = infile,
-                        stdout = outfile)
-        infile.close()
-        outfile.close()
+        subp = subprocess.Popen(lookupCommand,
+                        stdin = subprocess.PIPE,
+                        stdout = subprocess.PIPE)
+        (output, error) = subp.communicate(self.preprocess())
 
-        os.unlink(self.preprocessName)
+        return output
 
     def lookup2cg(self):
         """Runs the lookup on the lookup output
@@ -146,15 +135,13 @@ class Analyser:
         """
         lookup2cgCommand = ['lookup2cg']
 
-        infile = open(self.lookupName)
-        outfile = open(self.lookup2cgName, "w")
-        subprocess.call(lookup2cgCommand,
-                        stdin = infile,
-                        stdout = outfile)
-        infile.close()
-        outfile.close()
+        subp = subprocess.Popen(lookup2cgCommand,
+                        stdin = subprocess.PIPE,
+                        stdout = subprocess.PIPE)
+        (output, error) = subp.communicate(self.lookup())
 
-        os.unlink(self.lookupName)
+        return output
+
 
     def disambiguationAnalysis(self):
         """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
@@ -173,7 +160,10 @@ class Analyser:
                                               self._lang + '/src/syntax/disambiguation.cg3')
             disambiguationAnalysisCommand.append(disambiguationFile)
 
-        infile = open(self.lookup2cgName)
+        subp = subprocess.Popen(disambiguationAnalysisCommand,
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE)
+        (output, error) = subp.communicate(self.lookup2cg())
         outfile = open(self.disambiguationAnalysisName, "w")
 
         # Leave a clue for the AnalysisConcatenator
@@ -181,12 +171,8 @@ class Analyser:
         # won't try to analyse clean text
         outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
 
-        outfile.write(subprocess.check_output(disambiguationAnalysisCommand,
-                        stdin = infile))
-        infile.close()
+        outfile.write(output)
         outfile.close()
-
-        os.unlink(self.lookup2cgName)
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
@@ -206,26 +192,15 @@ class Analyser:
                                           'gt/smi/src/smi-dep.rle')
             dependencyAnalysisCommand.append(dependencyFile)
 
-        infile = open(self.disambiguationAnalysisName)
-        outfile = open(self.dependencyAnalysisName, "w")
-        subprocess.call(dependencyAnalysisCommand,
-                        stdin = infile,
-                        stdout = outfile)
-        infile.close()
-        outfile.close()
+        dependencyAnalysisCommand.append("-I")
+        dependencyAnalysisCommand.append(self.disambiguationAnalysisName)
+        dependencyAnalysisCommand.append("-O")
+        dependencyAnalysisCommand.append(self.dependencyAnalysisName)
+        subprocess.call(dependencyAnalysisCommand)
 
     def analyse(self):
-        self.ccat()
-	if os.path.isfile(self.ccatName):
-            self.preprocess()
-	    if os.path.isfile(self.preprocessName):
-                self.lookup()
-	        if os.path.isfile(self.lookupName):
-                    self.lookup2cg()
-	            if os.path.isfile(self.lookup2cgName):
-                        self.disambiguationAnalysis()
-	                if os.path.isfile(self.disambiguationAnalysisName):
-                            self.dependencyAnalysis()
+        self.disambiguationAnalysis()
+        self.dependencyAnalysis()
 
 class AnalysisConcatenator:
     def __init__(self, xmlFiles):
