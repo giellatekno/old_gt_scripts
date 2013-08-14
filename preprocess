@@ -353,28 +353,23 @@ sub process_word {
     # the variable storing dot and the possible some other punct.
     my $rest_punct;
 
-    test_corr(\$word, $words_aref, $tokens_aref);
+    # Store the punctuation at the end of the string to a variable
+    if ($word =~ s/([+=%:$SINGLE_PUNCT\§]+)$//o) {
+        $end_punct = $1;
+        verbose ("process_word/end_punct", $end_punct, __LINE__);
+        verbose ("process_word/end_punct/word", $word, __LINE__);
+    }
+
+    my $word1 = test_corr($word, $words_aref, $tokens_aref);
 
     # Test for multiword expression.
-    if ( $idioms_short{$word}) {
-        test_idiom(\$word, $words_aref, $next_aref, $MULTIWORD_SIZE);
+    if ( $idioms_short{$word1}) {
+        test_idiom(\$word1, $words_aref, $next_aref, $MULTIWORD_SIZE);
     }
 
-    my ($word2, $end_num) = split_numbers_from_words($word);
+    my ($word2, $end_num) = split_numbers_from_words($word1);
 
     $word2 = store_leading_punctuation($word2, $tokens_aref);
-
-    # Store the punctuation at the end of the string to a variable
-    if ($word2 =~ s/([+=%:$SINGLE_PUNCT\§]+)$//o) {
-        $end_punct = $1;
-        if($corr) {
-            if ($corr_short{$word2}) {
-                test_corr(\$word2, $words_aref, $tokens_aref);
-            }
-        }
-        verbose ("process_word/end_punct", $end_punct, __LINE__);
-        verbose ("process_word/end_punct/word", $word2, __LINE__);
-    }
 
     test_punctuation($word2, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct);
 
@@ -713,28 +708,30 @@ sub is_word_abbreviation {
 # If a word is in the typos-list, it is replaced by the correct reading.
 
 sub test_corr {
-    my ($word_ref, $words_aref, $next_aref, $tokens_aref) = @_;
+    my ($word, $words_aref, $next_aref, $tokens_aref) = @_;
 
-# Correct the word, if corrections is defined
+    # Correct the word, if corrections is defined
     if ($corr ) {
-        if ($corr_short{$$word_ref}) {
+        if ($corr_short{$word}) {
 
+            verbose("test_corr", $word, __LINE__);
             # If the word is single part.
-            if (my $correct = $corrections{$$word_ref}) {
+            if (my $correct = $corrections{$word}) {
                 my @parts = split (/ /o, $correct);
                 if (scalar @parts > 1) {
                     if ( $idioms{$correct}) {
-                        $$word_ref = $correct;
+                        $word = $correct;
                         verbose ("test_corr/split_words", "$correct", __LINE__);
                     } else {
-                        $$word_ref = pop @parts;
+                        $word = pop @parts;
                         add_array($tokens_aref, \@parts);
                         verbose ("test_corr/split_words", "$correct", __LINE__);
                     }
                 } else {
-                    $$word_ref = $correct;
+                    $word = $correct;
                 }
-                return 0;
+                verbose("test_corr", "«" . $word . "»", __LINE__);
+                return $word;
             }
 
             my $next;
@@ -742,14 +739,14 @@ sub test_corr {
             my $ucidiom;
 
             if( $words_aref->[0]{word} ) {
-                $idiom = $$word_ref . $words_aref->[0]{space} . $words_aref->[0]{word};
-                $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+                $idiom = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
+                $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
             } elsif ($next_aref->[0]{word}) {
-                $idiom = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word};
-                $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+                $idiom = $word . $next_aref->[0]{space} . $next_aref->[0]{word};
+                $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
                 $next=1;
             } else {
-                return 0;
+                return $word;
             }
 
             my $size=2;
@@ -762,7 +759,9 @@ sub test_corr {
                 my $end_punct = $1;
 
                 # If the expressions contains punctuation in the middle, return.
-                return if ($idiom2 =~ /[^\w\s\d\.\-]/);
+                if ($idiom2 =~ /[^\w\s\d\.\-]/) {
+                    return $word;
+                }
 
                 # Test if the formed multiword expression exists in the
                 # idiom list. Test also lower case version.
@@ -773,15 +772,15 @@ sub test_corr {
                     verbose ("test_corr/correction", "$correct", __LINE__);
                     CHECK_IDIOM : {
                         if ( $idioms{$correct}) {
-                            $$word_ref = $correct;
-                            $$word_ref .= $end_punct;
+                            $word = $correct;
+                            $word .= $end_punct;
                             verbose ("test_corr/idiom", "$correct", __LINE__);
                             last CHECK_IDIOM
                             }
                         my @parts = split (/ /o, $correct);
                         if (scalar @parts > 1) {
-                            $$word_ref = pop @parts;
-                            $$word_ref .= $end_punct;
+                            $word = pop @parts;
+                            $word .= $end_punct;
                             add_array($tokens_aref, \@parts);
                             verbose ("test_corr/split_words", "$correct", __LINE__);
                         }
@@ -795,7 +794,7 @@ sub test_corr {
                         splice (@{$words_aref}, 0, $i+1);
                     }
 
-                    return 1;
+                    return $word;
                 }
                 $i++;
                 if($words_aref->[$i]) {
@@ -804,11 +803,12 @@ sub test_corr {
                     $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
                     $next=1;
                 } else {
-                    return 0;
+                    return $word;
                 }
             }
         }
     }
+    return $word;
 }
 
 
