@@ -350,8 +350,6 @@ sub process_word {
     # variable for storing all the punctuation at the end of the word.
     # except dot (for abbreviations) and some other punct. if needed
     my $end_punct = "";
-    # the variable storing dot and the possible some other punct.
-    my $rest_punct;
 
     # Store the punctuation at the end of the string to a variable
     if ($word =~ s/([+=%:$SINGLE_PUNCT\§]+)$//o) {
@@ -369,9 +367,9 @@ sub process_word {
 
     my ($word2, $end_num) = split_numbers_from_words($word1);
 
-    $word2 = store_leading_punctuation($word2, $tokens_aref);
+    my $word3 = store_leading_punctuation($word2, $tokens_aref);
 
-    test_punctuation($word2, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct);
+    test_punctuation($word3, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref);
 
     my @ep = split(//, $end_punct);
     unshift(@ep, $end_num);
@@ -467,7 +465,7 @@ sub check_if_word_is_abbr {
 }
 
 sub test_punctuation {
-    my ($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref, $rest_punct) = @_;
+    my ($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref) = @_;
 
     verbose ("test_punctuation", $word, __LINE__);
     TEST: {
@@ -507,7 +505,7 @@ sub test_punctuation {
                 # of the punctuation is removed and stored as separate tokens.
                 # This operation is for taking the dot out.
                 if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
-                    $rest_punct =  $1;
+                    my $rest_punct =  $1;
                     verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
                     if($corr) {
                         if ($corrections{$word}) {
