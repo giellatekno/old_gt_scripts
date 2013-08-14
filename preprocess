@@ -576,6 +576,7 @@ sub process_word2 {
             process_word ($word, $w_token, \@words, \@next_words, \@tokens);
         } else {
             # Otherwise it is processed like numeral.
+            verbose("else numerical", $word , __LINE__);
             process_numeral ($word, $w_token, \@words, \@next_words, \@tokens);
         }
     } # end of PROCESS_WORD
