@@ -583,6 +583,12 @@ sub process_word2 {
     return @tokens;
 }
 
+sub is_abbreviation {
+    my ($abbr, $class) = @_;
+
+    return (($abbrs{$abbr} && $abbrs{$abbr} eq $class) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $class));
+}
+
 sub test_abbr {
     my ($word, $w_token, $next_word, $tokens_aref) = @_;
 
@@ -592,11 +598,11 @@ sub test_abbr {
     $abbr =~ s/\.$//;
     # Transitive abbreviations are never followed
     # by sentence boundary.
-    if (($abbrs{$abbr} && $abbrs{$abbr} eq $TRAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $TRAB)) {
+    if (is_abbreviation($abbr, $TRAB)) {
         verbose("TRAB", $abbr, __LINE__);
         add_token($tokens_aref, $w_token, $word);
         return 1;
-    } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $TRNUMAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $TRNUMAB)) {
+    } elsif (is_abbreviation($abbr, $TRNUMAB)) {
         # There is CLB after TRNUMAB only for the capital+small combinations
         # and all small-initial strings that consist of more than one letter.
         # For all other strings (one small letter, one or several capital letters, number) we
@@ -607,7 +613,7 @@ sub test_abbr {
             add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
-    } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $ITRAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $ITRAB)) {
+    } elsif (is_abbreviation($abbr, $ITRAB)) {
         verbose("ITRAB", $abbr, __LINE__);
         # There is a sentence boundary if intransitive abbreviation
         # is NOT followed by a small alphabetic char or punctuation,
@@ -619,7 +625,7 @@ sub test_abbr {
             add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
-    } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $NUMNOAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $NUMNOAB)) {
+    } elsif (is_abbreviation($abbr, $NUMNOAB)) {
         verbose("NUMNOAB", $abbr, __LINE__);
         # The expected behaviour of $NUMNOAB is shown in $GTHOME/tools/abbrtester/abbrtester.py
         if ($next_word) {
@@ -640,7 +646,7 @@ sub test_abbr {
         return 1;
     }
 
-    if (($abbrs{$abbr} && $abbrs{$abbr} eq $NOAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $NOAB)) {
+    if (is_abbreviation($abbr, $NOAB)) {
         # if next_word isn't defined, then we are at the end of a sentence
         # -> this is not an abbr
         # if next word is defined, and not uppercase
