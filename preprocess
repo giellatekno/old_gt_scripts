@@ -589,77 +589,103 @@ sub is_abbreviation {
     return (($abbrs{$abbr} && $abbrs{$abbr} eq $class) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $class));
 }
 
+sub add_TRAB {
+    my ($tokens_aref, $w_token, $word) = @_;
+
+    # Transitive abbreviations are never followed
+    # by sentence boundary.
+    verbose("TRAB", $word, __LINE__);
+    add_token($tokens_aref, $w_token, $word);
+}
+
+sub add_TRNUMAB {
+    my ($tokens_aref, $w_token, $word, $next_word) = @_;
+
+    # There is CLB after TRNUMAB only for the capital+small combinations
+    # and all small-initial strings that consist of more than one letter.
+    # For all other strings (one small letter, one or several capital letters, number) we
+    # want no CLB after TRNUMAB.
+    verbose("TRNUMAB", $word, __LINE__);
+    add_token ($tokens_aref, $w_token, $word);
+    if (!$next_word or ($next_word && $next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o)) {
+        add_new_token ($tokens_aref, $sentence_break);
+    }
+}
+
+sub add_ITRAB {
+    my ($tokens_aref, $w_token, $word, $next_word) = @_;
+    verbose("ITRAB", $word, __LINE__);
+    # There is a sentence boundary if intransitive abbreviation
+    # is NOT followed by a small alphabetic char or punctuation,
+    # or if it is the last word
+
+    add_token ($tokens_aref, $w_token, $word);
+    if (!$next_word or ($next_word && $next_word !~ /^[\p{Ll}\pP]/o)) {
+        verbose("ITRAB", $next_word, __LINE__);
+        add_new_token ($tokens_aref, $sentence_break);
+    }
+}
+
+sub add_NUMNOAB {
+    my ($tokens_aref, $w_token, $word, $next_word) = @_;
+
+    verbose("NUMNOAB", $word, __LINE__);
+    # The expected behaviour of $NUMNOAB is shown in $GTHOME/tools/abbrtester/abbrtester.py
+    if ($next_word) {
+        if ($next_word =~ /^\p{Lu}/) {
+            $word =~ s/\.$//;
+            add_token ($tokens_aref, $w_token, $word);
+            add_new_token ($tokens_aref, $sentence_break);
+        } elsif ($next_word =~ /^\d/) {
+            add_token ($tokens_aref, $w_token, $word);
+        } elsif ($next_word =~ /^\p{Ll}/) {
+            add_token ($tokens_aref, $w_token, $word);
+        }
+    } else {
+        $word =~ s/\.//;
+        add_token ($tokens_aref, $w_token, $word);
+        add_new_token ($tokens_aref, $sentence_break);
+    }
+}
+
+sub add_NOAB {
+    my ($tokens_aref, $w_token, $word, $next_word) = @_;
+
+    # if next_word isn't defined, then we are at the end of a sentence
+    # -> this is not an abbr
+    # if next word is defined, and not uppercase
+    # -> this is not an abbr
+    verbose("NOAB", $word, __LINE__);
+    if (!$next_word || ($next_word && $next_word !~ /^[\p{Ll}\pP]/o)) {
+        $word =~ s/\.$//;
+        add_token($tokens_aref, $w_token, $word);
+        add_new_token ($tokens_aref, $sentence_break);
+    } else {
+        add_token($tokens_aref, $w_token, $word);
+    }
+}
+
 sub is_word_abbreviation {
     my ($word, $w_token, $next_word, $tokens_aref) = @_;
 
     my $abbr = $word;
+    $abbr =~ s/\.$//;
 
     verbose("is_word_abbreviation", $abbr, __LINE__);
-    $abbr =~ s/\.$//;
-    # Transitive abbreviations are never followed
-    # by sentence boundary.
     if (is_abbreviation($abbr, $TRAB)) {
-        verbose("TRAB", $abbr, __LINE__);
-        add_token($tokens_aref, $w_token, $word);
+        add_TRAB($tokens_aref, $w_token, $word);
         return 1;
     } elsif (is_abbreviation($abbr, $TRNUMAB)) {
-        # There is CLB after TRNUMAB only for the capital+small combinations
-        # and all small-initial strings that consist of more than one letter.
-        # For all other strings (one small letter, one or several capital letters, number) we
-        # want no CLB after TRNUMAB.
-        verbose("TRNUMAB", $abbr, __LINE__);
-        add_token ($tokens_aref, $w_token, $word);
-        if (!$next_word or ($next_word && $next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o)) {
-            add_new_token ($tokens_aref, $sentence_break);
-        }
+        add_TRNUMAB($tokens_aref, $w_token, $word, $next_word);
         return 1;
     } elsif (is_abbreviation($abbr, $ITRAB)) {
-        verbose("ITRAB", $abbr, __LINE__);
-        # There is a sentence boundary if intransitive abbreviation
-        # is NOT followed by a small alphabetic char or punctuation,
-        # or if it is the last word
-
-        add_token ($tokens_aref, $w_token, $word);
-        if (!$next_word or ($next_word && $next_word !~ /^[\p{Ll}\pP]/o)) {
-            verbose("ITRAB", $next_word, __LINE__);
-            add_new_token ($tokens_aref, $sentence_break);
-        }
+        add_ITRAB($tokens_aref, $w_token, $word, $next_word);
         return 1;
     } elsif (is_abbreviation($abbr, $NUMNOAB)) {
-        verbose("NUMNOAB", $abbr, __LINE__);
-        # The expected behaviour of $NUMNOAB is shown in $GTHOME/tools/abbrtester/abbrtester.py
-        if ($next_word) {
-            if ($next_word =~ /^\p{Lu}/) {
-                $word =~ s/\.$//;
-                add_token ($tokens_aref, $w_token, $word);
-                add_new_token ($tokens_aref, $sentence_break);
-            } elsif ($next_word =~ /^\d/) {
-                add_token ($tokens_aref, $w_token, $word);
-            } elsif ($next_word =~ /^\p{Ll}/) {
-                add_token ($tokens_aref, $w_token, $word);
-            }
-        } else {
-            $word =~ s/\.//;
-            add_token ($tokens_aref, $w_token, $word);
-            add_new_token ($tokens_aref, $sentence_break);
-        }
+        add_NUMNOAB($tokens_aref, $w_token, $word, $next_word);
         return 1;
-    }
-
-    if (is_abbreviation($abbr, $NOAB)) {
-        # if next_word isn't defined, then we are at the end of a sentence
-        # -> this is not an abbr
-        # if next word is defined, and not uppercase
-        # -> this is not an abbr
-        verbose("NOAB", $abbr, __LINE__);
-        if (!$next_word || ($next_word && $next_word !~ /^[\p{Ll}\pP]/o)) {
-            $word =~ s/\.$//;
-            add_token($tokens_aref, $w_token, $word);
-            add_new_token ($tokens_aref, $sentence_break);
-        } else {
-            add_token($tokens_aref, $w_token, $word);
-        }
-
+    } elsif (is_abbreviation($abbr, $NOAB)) {
+        add_NOAB($tokens_aref, $w_token, $word, $next_word);
         return 1;
     }
     return 0;
