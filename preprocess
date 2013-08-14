@@ -333,7 +333,7 @@ sub process_words {
             }
         }
 
-        @tokens = process_word2($word, $w_token, \@tokens);
+        @tokens = handle_leading_punctuation($word, $w_token, \@tokens);
 
         if ($sentences) {
             print_sentence(\@tokens);
@@ -521,49 +521,57 @@ sub test_punctuation {
     } # end of block TEST
 }
 
-sub process_word2 {
+sub concatenate_three_or_more_leading_dots {
+    my ($first_word, $middle_punct, $second_word, $word, $w_token, $words_aref, $next_words_aref, $tokens_aref) = @_;
+
+    verbose("process_word, punctuation", $word , __LINE__);
+    if ($first_word) {
+        if ($first_word =~ /^[\W]?[^\W\d]+/) {
+            verbose("if word with dots", $first_word , __LINE__);
+            process_word ($first_word, $w_token, $words_aref, $next_words_aref, $tokens_aref);
+        } else {
+            verbose("if numeral with dots", $first_word , __LINE__);
+            process_numeral ($first_word, $w_token, $words_aref, $next_words_aref, $tokens_aref);
+        }
+    }
+    my $subpunct = substr($middle_punct, 0, 3);
+    add_new_token ($tokens_aref, $subpunct);
+    if ($second_word) {
+        my %w = ('word' => $second_word);
+        if ($second_word =~ /^[\W]?[^\W\d]+/) {
+            verbose("if word with dots", $second_word , __LINE__);
+            process_word ($second_word, \%w, $words_aref, $next_words_aref, $tokens_aref);
+        } else {
+            verbose("if numeral with dots", $second_word , __LINE__);
+            process_numeral ($second_word, \%w, $words_aref, $next_words_aref, $tokens_aref);
+        }
+    }
+}
+
+sub handle_two_or_less_leading_dots {
+    my ($word, $tokens_aref) = @_;
+    # store punctuation from the front of the expression
+    # to the tokens array. (todo: check variable $CONTAIN_PUNCT)
+    if ($word =~ s/^([$SINGLE_PUNCT\.]+)//o) {
+        verbose("if front punct ", $word , __LINE__);
+        my @punct = split(//, $1);
+        add_array($tokens_aref, \@punct);
+    }
+
+    return $word;
+}
+
+sub handle_leading_punctuation {
     my ($word, $w_token, $tokens_aref) = @_;
 
     my @tokens = @$tokens_aref;
 
-    verbose("process_word2", $word , __LINE__);
+    verbose("handle_leading_punctuation", $word , __LINE__);
     # Fix some punctuation, like ...voxende and ----whatelse
     if ($word =~ /^(.*?)((:?\.){3,}|(:?\-){3,})(.*)$/) {
-        verbose("process_word, punctuation", $word , __LINE__);
-        my $first_word = $1;
-        my $middle_punct = $2;
-        my $second_word = $5;
-        if ($first_word) {
-            if ($first_word =~ /^[\W]?[^\W\d]+/) {
-                verbose("if word with dots", $first_word , __LINE__);
-                process_word ($first_word, $w_token, \@words, \@next_words, \@tokens);
-            } else {
-                verbose("if numeral with dots", $first_word , __LINE__);
-                process_numeral ($first_word, $w_token, \@words, \@next_words, \@tokens);
-            }
-        }
-        my $subpunct = substr($middle_punct, 0, 3);
-        add_new_token (\@tokens, $subpunct);
-        if ($second_word) {
-            my %w = ('word' => $second_word);
-            if ($second_word =~ /^[\W]?[^\W\d]+/) {
-                verbose("if word with dots", $second_word , __LINE__);
-                process_word ($second_word, \%w, \@words, \@next_words, \@tokens);
-            } else {
-                verbose("if numeral with dots", $second_word , __LINE__);
-                process_numeral ($second_word, \%w, \@words, \@next_words, \@tokens);
-            }
-        }
+        concatenate_three_or_more_leading_dots  ($1, $2, $5, $word, $w_token, \@words, \@next_words, \@tokens);
     } else {
-
-        # store punctuation from the front of the expression
-        # to the tokens array. (todo: check variable $CONTAIN_PUNCT)
-        if ($word =~ s/^([$SINGLE_PUNCT\.]+)//o) {
-            verbose("if front punct ", $word , __LINE__);
-            my @punct = split(//, $1);
-            add_array(\@tokens, \@punct);
-        }
-
+        $word = handle_two_or_less_leading_dots($word, \@tokens);
         if ($word) {
             if ($word =~ /^[\W]?\pL+/) {
                 # Examine the type of the string. If the expression contains
@@ -579,7 +587,7 @@ sub process_word2 {
             }
         }
     }
-    
+
     return @tokens;
 }
 
