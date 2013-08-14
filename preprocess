@@ -374,12 +374,7 @@ sub process_word {
         }
     }
 
-    # Store the punctuation at the front of the string to tokens array.
-    if ($word =~ s/^([*+=%:\p{Pd}$other]+)//o) {
-        my @punct = split(//, $1);
-        add_array($tokens_aref, \@punct);
-        verbose ("process_word/front_punct", $1, __LINE__);
-    }
+    $word = store_leading_punctuation($word, $tokens_aref);
 
     # Store the punctuation at the end of the string to a variable
     if ($word =~ s/([+=%:$SINGLE_PUNCT\§]+)$//o) {
@@ -398,6 +393,19 @@ sub process_word {
     my @ep = split(//, $end_punct);
     unshift(@ep, $end_num);
     add_array($tokens_aref, \@ep);
+}
+
+sub store_leading_punctuation {
+    my ($word, $tokens_aref) = @_;
+
+    # Store the punctuation at the front of the string to tokens array.
+    if ($word =~ s/^([*+=%:\p{Pd}$other]+)//o) {
+        my @punct = split(//, $1);
+        add_array($tokens_aref, \@punct);
+        verbose ("process_word/front_punct", $1, __LINE__);
+    }
+
+    return $word;
 }
 
 sub check_if_word_is_abbr {
