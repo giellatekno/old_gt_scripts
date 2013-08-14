@@ -409,8 +409,8 @@ sub check_if_word_is_abbr {
     my $abbr = $word;
     $abbr =~ s/\.$//;
     if ($abbrs{$abbr} || $abbrs{lc($abbr)}) {
-        verbose ("process_word/go_to_test_abbr", $abbr, __LINE__);
-        test_abbr($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
+        verbose ("process_word/go_to_is_word_abbreviation", $abbr, __LINE__);
+        is_word_abbreviation($word, $w_token, $words_aref->[0]{word}, $tokens_aref);
 
         # This really is an abbr
         $is_abbr = 1;
@@ -589,12 +589,12 @@ sub is_abbreviation {
     return (($abbrs{$abbr} && $abbrs{$abbr} eq $class) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $class));
 }
 
-sub test_abbr {
+sub is_word_abbreviation {
     my ($word, $w_token, $next_word, $tokens_aref) = @_;
 
     my $abbr = $word;
 
-    verbose("test_abbr", $abbr, __LINE__);
+    verbose("is_word_abbreviation", $abbr, __LINE__);
     $abbr =~ s/\.$//;
     # Transitive abbreviations are never followed
     # by sentence boundary.
@@ -997,16 +997,16 @@ sub process_numeral {
         # Process first the abbreviation or word
         # that is attached to the numeral
         if ($end_word) {
-            verbose ("process_numeral/test_abbr", $end_word, __LINE__);
+            verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
             my $abbr = $end_word;
             if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
-                verbose ("process_numeral/test_abbr", $abbr, __LINE__);
-                test_abbr($end_word, $w_token, $words_aref->[0], $tokens_aref);
+                verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
+                is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
                 last NUM_TEST;
             }
             # Case with 3.b.
             #elsif ( $end_word =~ /^\p{Lc}\.$/) {
-            #    verbose ("process_numeral/test_abbr", $abbr, __LINE__);
+            #    verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
             #    push (@{$tokens_aref}, $end_word);
             #    if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
             #        push (@{$tokens_aref}, ".");
@@ -1014,7 +1014,7 @@ sub process_numeral {
             #    last NUM_TEST;
             #}
             else {
-                verbose ("process_numeral/test_abbr", $abbr, __LINE__);
+                verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
                 process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
                 last NUM_TEST;
             }
