@@ -403,6 +403,7 @@ sub process_word {
 sub check_if_word_is_abbr {
     my ($word, $w_token, $words_aref, $tokens_aref) = @_;
 
+    verbose("check_if_word_is_abbr", $word, __LINE__);
     my $is_abbr = 0;
 
     my $abbr = $word;
@@ -468,6 +469,7 @@ sub test_punctuation {
         # ? or !, the word ends the sentence in any case, so the word can
         # be treated as a token.
         if ($end_punct =~ /[¶\?\!\.]/) {
+            verbose ("end_punct", $word, __LINE__);
             if($corr) {
                 if ($corr_short{$word}) {
                     test_corr(\$word, $words_aref, $tokens_aref);
@@ -490,8 +492,8 @@ sub test_punctuation {
                         my %w = ('word' => $2);
                         unshift (@{$words_aref}, \%w);
 
-                        process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
                         verbose ("process_word/contain_punct", "$word", __LINE__);
+                        process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
                         return 1;
                     }
                 }
@@ -524,7 +526,7 @@ sub process_word2 {
 
     my @tokens = @$tokens_aref;
 
-    verbose("process_word", $word , __LINE__);
+    verbose("process_word2", $word , __LINE__);
     PROCESS_WORD: {
         # Fix some punctuation, like ...voxende and ----whatelse
         if ($word =~ /^(.*?)((:?\.){3,}|(:?\-){3,})(.*)$/) {
@@ -591,6 +593,7 @@ sub test_abbr {
     # Transitive abbreviations are never followed
     # by sentence boundary.
     if (($abbrs{$abbr} && $abbrs{$abbr} eq $TRAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $TRAB)) {
+        verbose("TRAB", $abbr, __LINE__);
         add_token($tokens_aref, $w_token, $word);
         return 1;
     } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $TRNUMAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $TRNUMAB)) {
@@ -598,13 +601,14 @@ sub test_abbr {
         # and all small-initial strings that consist of more than one letter.
         # For all other strings (one small letter, one or several capital letters, number) we
         # want no CLB after TRNUMAB.
-
+        verbose("TRNUMAB", $abbr, __LINE__);
         add_token ($tokens_aref, $w_token, $word);
         if (!$next_word or ($next_word && $next_word =~ /^\p{Lu}/ && $next_word !~ /^(\p{Lu}|[IVXCDLM]+)$/o)) {
             add_new_token ($tokens_aref, $sentence_break);
         }
         return 1;
     } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $ITRAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $ITRAB)) {
+        verbose("ITRAB", $abbr, __LINE__);
         # There is a sentence boundary if intransitive abbreviation
         # is NOT followed by a small alphabetic char or punctuation,
         # or if it is the last word
@@ -616,6 +620,7 @@ sub test_abbr {
         }
         return 1;
     } elsif (($abbrs{$abbr} && $abbrs{$abbr} eq $NUMNOAB) || ($abbrs{lc($abbr)} && $abbrs{lc($abbr)} eq $NUMNOAB)) {
+        verbose("NUMNOAB", $abbr, __LINE__);
         # The expected behaviour of $NUMNOAB is shown in $GTHOME/tools/abbrtester/abbrtester.py
         if ($next_word) {
             if ($next_word =~ /^\p{Lu}/) {
@@ -640,6 +645,7 @@ sub test_abbr {
         # -> this is not an abbr
         # if next word is defined, and not uppercase
         # -> this is not an abbr
+        verbose("NOAB", $abbr, __LINE__);
         if (!$next_word || ($next_word && $next_word !~ /^[\p{Ll}\pP]/o)) {
             $word =~ s/\.$//;
             add_token($tokens_aref, $w_token, $word);
@@ -1150,6 +1156,7 @@ sub print_sentence {
 sub print_tokens{
     my ($tokens_aref) = @_;
 
+    verbose("print_tokens", "", __LINE__);
     for my $t (@$tokens_aref) {
         if ($space && $t->{space}) {
             print $ltag, $t->{space}, $rtag, "\n";
