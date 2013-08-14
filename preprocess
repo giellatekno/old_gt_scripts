@@ -527,36 +527,34 @@ sub process_word2 {
     my @tokens = @$tokens_aref;
 
     verbose("process_word2", $word , __LINE__);
-    PROCESS_WORD: {
-        # Fix some punctuation, like ...voxende and ----whatelse
-        if ($word =~ /^(.*?)((:?\.){3,}|(:?\-){3,})(.*)$/) {
-            verbose("process_word, punctuation", $word , __LINE__);
-            my $first_word = $1;
-            my $middle_punct = $2;
-            my $second_word = $5;
-            if ($first_word) {
-                if ($first_word =~ /^[\W]?[^\W\d]+/) {
-                    verbose("if word with dots", $first_word , __LINE__);
-                    process_word ($first_word, $w_token, \@words, \@next_words, \@tokens);
-                } else {
-                    verbose("if numeral with dots", $first_word , __LINE__);
-                    process_numeral ($first_word, $w_token, \@words, \@next_words, \@tokens);
-                }
+    # Fix some punctuation, like ...voxende and ----whatelse
+    if ($word =~ /^(.*?)((:?\.){3,}|(:?\-){3,})(.*)$/) {
+        verbose("process_word, punctuation", $word , __LINE__);
+        my $first_word = $1;
+        my $middle_punct = $2;
+        my $second_word = $5;
+        if ($first_word) {
+            if ($first_word =~ /^[\W]?[^\W\d]+/) {
+                verbose("if word with dots", $first_word , __LINE__);
+                process_word ($first_word, $w_token, \@words, \@next_words, \@tokens);
+            } else {
+                verbose("if numeral with dots", $first_word , __LINE__);
+                process_numeral ($first_word, $w_token, \@words, \@next_words, \@tokens);
             }
-            my $subpunct = substr($middle_punct, 0, 3);
-            add_new_token (\@tokens, $subpunct);
-            if ($second_word) {
-                my %w = ('word' => $second_word);
-                if ($second_word =~ /^[\W]?[^\W\d]+/) {
-                    verbose("if word with dots", $second_word , __LINE__);
-                    process_word ($second_word, \%w, \@words, \@next_words, \@tokens);
-                } else {
-                    verbose("if numeral with dots", $second_word , __LINE__);
-                    process_numeral ($second_word, \%w, \@words, \@next_words, \@tokens);
-                }
-            }
-            last PROCESS_WORD;
         }
+        my $subpunct = substr($middle_punct, 0, 3);
+        add_new_token (\@tokens, $subpunct);
+        if ($second_word) {
+            my %w = ('word' => $second_word);
+            if ($second_word =~ /^[\W]?[^\W\d]+/) {
+                verbose("if word with dots", $second_word , __LINE__);
+                process_word ($second_word, \%w, \@words, \@next_words, \@tokens);
+            } else {
+                verbose("if numeral with dots", $second_word , __LINE__);
+                process_numeral ($second_word, \%w, \@words, \@next_words, \@tokens);
+            }
+        }
+    } else {
 
         # store punctuation from the front of the expression
         # to the tokens array. (todo: check variable $CONTAIN_PUNCT)
@@ -564,23 +562,24 @@ sub process_word2 {
             verbose("if front punct ", $word , __LINE__);
             my @punct = split(//, $1);
             add_array(\@tokens, \@punct);
-            last PROCESS_WORD if (!$word);
         }
 
-        if ($word =~ /^[\W]?\pL+/) {
-            # Examine the type of the string. If the expression contains
-            # alphabetical characters optionally preceded by one punctuation
-            # character, it is a word.
+        if ($word) {
+            if ($word =~ /^[\W]?\pL+/) {
+                # Examine the type of the string. If the expression contains
+                # alphabetical characters optionally preceded by one punctuation
+                # character, it is a word.
 
-            verbose("if word", $word , __LINE__);
-            process_word ($word, $w_token, \@words, \@next_words, \@tokens);
-        } else {
-            # Otherwise it is processed like numeral.
-            verbose("else numerical", $word , __LINE__);
-            process_numeral ($word, $w_token, \@words, \@next_words, \@tokens);
+                verbose("if word", $word , __LINE__);
+                process_word ($word, $w_token, \@words, \@next_words, \@tokens);
+            } else {
+                # Otherwise it is processed like numeral.
+                verbose("else numerical", $word , __LINE__);
+                process_numeral ($word, $w_token, \@words, \@next_words, \@tokens);
+            }
         }
-    } # end of PROCESS_WORD
-
+    }
+    
     return @tokens;
 }
 
