@@ -28,11 +28,13 @@ import difflib
 import doctest
 from lxml import etree
 from lxml import doctestcompare
-import typosfile
-sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
-import ngram
-
 import unittest
+import datetime
+import time
+
+sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+import typosfile
+import ngram
 
 class CorpusXMLFile:
     """
@@ -500,7 +502,6 @@ class SentenceDivider:
         """
 
         # make regex for two or more space characters
-        import re
         spaces = re.compile(' +')
 
         s = etree.Element("s")
@@ -1454,8 +1455,6 @@ class TmxGoldstandardTester:
         """
         Get the date and time, 20111209-1234. Used in a testrun element
         """
-        import datetime
-        import time
         d = datetime.datetime.fromtimestamp(time.time())
 
         return d.strftime("%Y%m%d-%H%M")

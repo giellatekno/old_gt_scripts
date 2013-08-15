@@ -41,6 +41,7 @@ from copy import deepcopy
 import decimal
 import distutils.dep_util
 import tidylib
+
 import decode
 import ngram
 import errormarkup

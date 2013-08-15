@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
+import unittest
+import sys
 
 ctypes = [
 
@@ -197,7 +199,6 @@ ctypes = [
 
 limits = { 0: 1, 1: 1, 2: 3, 3: 3, 4: 3, 5: 3, 6: 1, 7: 1, 8: 3}
 
-import unittest
 
 class TestEncodingGuesser(unittest.TestCase):
     def testEncodingGuesser(self):
@@ -413,6 +414,5 @@ class EncodingGuesser:
         return text.encode('utf8')
 
 if __name__ == '__main__':
-    import sys
     eg = EncodingGuesser()
     print eg.guessFileEncoding(sys.argv[1])
