@@ -28,7 +28,7 @@ import lxml.doctestcompare as doctestcompare
 
 class TestErrorMarkup(unittest.TestCase):
     def setUp(self):
-        self.em = ErrorMarkup()
+        self.em = ErrorMarkup('testfilename')
 
     def assertXmlEqual(self, got, want):
         """Check if two stringified xml snippets are equal
