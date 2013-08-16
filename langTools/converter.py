@@ -27,7 +27,6 @@ import inspect
 import doctest
 import lxml.etree as etree
 import lxml.doctestcompare as doctestcompare
-import chardet
 import re
 import codecs
 import io
