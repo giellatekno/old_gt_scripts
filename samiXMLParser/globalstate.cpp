@@ -24,6 +24,7 @@ GlobalState::GlobalState()
     errorFilters["errorort"] = false;
     errorFilters["errorortreal"] = false;
     errorFilters["errorsyn"] = false;
-    
+    errorFilters["errorlang"] = false;
+
     sLang = "";
 }

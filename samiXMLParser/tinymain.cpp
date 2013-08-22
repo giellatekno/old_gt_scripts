@@ -89,10 +89,20 @@ int main( int argc, char *argv[] )
             gs.errorFilters["errormorphsyn"] = true;
         }
 
+        else if (strcmp(argv[i], "-foreign") == 0) {
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errorlang"] = true;
+        }
+
+        else if (strcmp(argv[i], "-noforeign") == 0) {
+            gs.bErrorFiltering = true;
+            gs.errorFilters["errorlang"] = true;
+        }
+
         else if (strcmp(argv[i], "-c") == 0) {
             gs.bPrintOnlyCorr = true;
         }
-        
+
         else if (strcmp(argv[i], "-typos") == 0) {
             gs.bPrintTypos = true;
         }
@@ -104,7 +114,7 @@ int main( int argc, char *argv[] )
         else if (strcmp(argv[i], "-f") == 0) {
             gs.bPrintFilename = true;
         }
-        
+
         else if (strcmp(argv[i], "--add-id") == 0) {
             gs.bAddID = true;
         }
@@ -137,7 +147,7 @@ int main( int argc, char *argv[] )
         }
     }
 
- 
+
 }
 
 void TraverseDir(DIR* dirp, string path, GlobalState gs) {
@@ -151,7 +161,7 @@ void TraverseDir(DIR* dirp, string path, GlobalState gs) {
             strcmp(direntp->d_name, "..") == 0)
                 continue;
 
-        
+
 
         if (direntp->d_type == DT_DIR) {
             fullpath += direntp->d_name;
@@ -194,6 +204,8 @@ void PrintHelp()
     cout << "\t-ortreal  Only print ortoghraphic, real-word (¢/<errorortreal..>)\n\t\t\tcorrections\n";
     cout << "\t-morphsyn Only print morphosyntactic (£/<errormorphsyn..>) corrections\n";
     cout << "\t-syn\t  Only print syntactic (¥/<errorsyn..>) corrections\n";
+    cout << "\t-foreign\t  Only print foreign (¥/<errorlang..>) corrections\n";
+    cout << "\t-noforeign\t  Don't print anything from foreign (¥/<errorlang..>) corrections\n";
     cout << "\t-lex\t  Only print lexical (€/<errorlex..>) corrections\n\n";
 
     cout << "Error markup printing options:\n";
