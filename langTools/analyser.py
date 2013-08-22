@@ -321,6 +321,8 @@ class AnalysisConcatenator:
         self.basenames = xmlFiles
         self.disFiles = {}
         self.depFiles = {}
+        self.disoldFiles = {}
+        self.depoldFiles = {}
 
     def concatenateAnalysedFiles(self):
         """
@@ -345,7 +347,7 @@ class AnalysisConcatenator:
             fromFile.close()
             os.unlink(filename)
 
-    def getToFile(self, filename):
+    def getToFile(self, prefix, filename):
         """
         @brief Gets the prefix of the filename. Opens a file object with the files prefix.
 
@@ -366,18 +368,21 @@ class AnalysisConcatenator:
                 self.depFiles[prefix]
             except KeyError:
                 self.depFiles[prefix] = open(prefix + ".dep", "w")
-        if filename[-7:] == ".disold":
-            try:
-                self.disFiles[prefix]
-            except KeyError:
-                self.disFiles[prefix] = open(prefix + ".disold", "w")
-
-            return self.disFiles[prefix]
-
-        elif filename[-4:] == ".depold":
-            try:
-                self.depFiles[prefix]
-            except KeyError:
-                self.depFiles[prefix] = open(prefix + ".depold", "w")
 
             return self.depFiles[prefix]
+
+        if filename[-7:] == ".disold":
+            try:
+                self.disoldFiles[prefix]
+            except KeyError:
+                self.disoldFiles[prefix] = open(prefix + ".disold", "w")
+
+            return self.disoldFiles[prefix]
+
+        elif filename[-7:] == ".depold":
+            try:
+                self.depoldFiles[prefix]
+            except KeyError:
+                self.depoldFiles[prefix] = open(prefix + ".depold", "w")
+
+            return self.depoldFiles[prefix]
