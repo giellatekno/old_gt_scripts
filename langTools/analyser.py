@@ -153,7 +153,7 @@ class Analyser:
 
         if self._lang == "sme":
             disambiguationFile = os.path.join(os.getenv('GTHOME'), 'gt/' +
-                                              self._lang + '/src/' + self._lang + '-dis.rle')
+                                              self._lang + '/src/Old' + self._lang + '-dis.rle')
             disambiguationAnalysisCommand.append(disambiguationFile)
         else:
             disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
