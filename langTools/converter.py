@@ -638,6 +638,7 @@ class PlaintextConverter:
         bilde1 = re.compile(r'.*@*bilde(\s\d)*:', re.IGNORECASE)
         ingress = re.compile(r'@*ingres+:', re.IGNORECASE)
         logo = re.compile(r'@*logo:', re.IGNORECASE)
+        moretags = re.compile(r'((@|LED)*tekst:|@*stikk:|@foto:|@fotobyline:|@bildetitt:)', re.IGNORECASE)
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
             if bilde1.match(line):
@@ -658,17 +659,9 @@ class PlaintextConverter:
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tekst:') or line.startswith('TEKST:') or line.startswith('@stikk:') or line.startswith('@foto') or line.startswith('Stikk') or line.startswith('tekst:') or line.startswith('@LEDtekst:') or line.startswith('@bildetitt:'):
+            elif moretags.match(line):
                 p = etree.Element('p')
-                line = line.replace('@tekst:', '')
-                line = line.replace('@stikk:', '')
-                line = line.replace('Stikk:', '')
-                line = line.replace('TEKST:', '')
-                line = line.replace('@LEDtekst:', '')
-                line = line.replace('tekst:', '')
-                line = line.replace('@fotobyline:', '')
-                line = line.replace('@foto:', '')
-                line = line.replace('@bildetitt:', '')
+                line = moretags.sub('', line)
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
