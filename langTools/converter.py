@@ -635,29 +635,15 @@ class PlaintextConverter:
         body = etree.Element('body')
         ptext = ''
 
-        bilde1 = re.compile(r'BILDE(\s\d)*:(.*)')
-        bilde2 = re.compile(r'.*@bilde:(.*)')
+        bilde1 = re.compile(r'.*@*bilde(\s\d)*:', re.IGNORECASE)
         ingress = re.compile(r'@*ingres+:', re.IGNORECASE)
         logo = re.compile(r'@*logo:', re.IGNORECASE)
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
-            if line.startswith('@bilde:') or line.startswith('Bilde:'):
+            if bilde1.match(line):
                 p = etree.Element('p')
-                line = line.replace('@bilde:', '').strip()
-                line = line.replace('Bilde:', '').strip()
+                line = bilde1.sub('', line)
                 p.text = line
-                body.append(p)
-                ptext = ''
-            elif bilde1.match(line):
-                m = bilde1.match(line)
-                p = etree.Element('p')
-                p.text = m.group(2).strip()
-                body.append(p)
-                ptext = ''
-            elif bilde2.match(line):
-                m = bilde2.match(line)
-                p = etree.Element('p')
-                p.text = m.group(1).strip()
                 body.append(p)
                 ptext = ''
             elif line.startswith('@bold:'):
