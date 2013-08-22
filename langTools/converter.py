@@ -634,6 +634,37 @@ class PlaintextConverter:
 
         return content
 
+    def makeElement(self, eName, text, attributes = {}):
+        """
+        @brief Makes an xml element containing the given name, text and attributes. Adds a hyph element if necessary.
+
+        :param eName: Name of the xml element
+        :type el: string
+
+        :param text: The text the xml should contain
+        :type text: string
+
+        :param attributes: The attributes the element should have
+        :type attributes: dict
+
+        :returns: lxml.etree.Element
+        """
+        el = etree.Element(eName)
+        for key in attributes:
+            el.set(key, attributes[key])
+
+        hyphParts = text.split('<hyph/>')
+        if len(hyphParts) > 1:
+            el.text = hyphParts[0]
+            for hyphPart in hyphParts[1:]:
+                h = etree.Element('hyph')
+                h.tail = hyphPart
+                el.append(h)
+        else:
+            el.text = text
+
+        return el
+
     def convert2intermediate(self):
         document = etree.Element('document')
 
@@ -648,109 +679,35 @@ class PlaintextConverter:
 
         for line in content:
             if newstags.match(line):
-                line = newstags.sub('', line)
-                p = etree.Element('p')
-                hyphParts = line.split('<hyph/>')
-                if len(hyphParts) > 1:
-                    p.text = hyphParts[0]
-                    for hyphPart in hyphParts[1:]:
-                        h = etree.Element('hyph')
-                        h.tail = hyphPart
-                        p.append(h)
-                else:
-                    p.text = line.strip()
-                body.append(p)
+                line = newstags.sub('', line).strip()
+                body.append(self.makeElement('p', line))
                 ptext = ''
             elif line.startswith('@bold:'):
-                line = line.replace('@bold:', '')
-                em = etree.Element('em', type = "bold")
-                hyphParts = line.split('<hyph/>')
-                if len(hyphParts) > 1:
-                    em.text = hyphParts[0]
-                    for hyphPart in hyphParts[1:]:
-                        h = etree.Element('hyph')
-                        h.tail = hyphPart
-                        em.append(h)
-                else:
-                    em.text = line.strip()
+                line = line.replace('@bold:', '').strip()
                 p = etree.Element('p')
-                p.append(em)
+                p.append(self.makeElement('em', line, {'type': 'bold'}))
                 body.append(p)
                 ptext = ''
             elif line.startswith('@kursiv:'):
-                line = line.replace('@kursiv:', '')
-                em = etree.Element('em', type = "italic")
-                hyphParts = line.split('<hyph/>')
-                if len(hyphParts) > 1:
-                    em.text = hyphParts[0]
-                    for hyphPart in hyphParts[1:]:
-                        h = etree.Element('hyph')
-                        h.tail = hyphPart
-                        em.append(h)
-                else:
-                    em.text = line.strip()
+                line = line.replace('@kursiv:', '').strip()
                 p = etree.Element('p')
-                p.append(em)
+                p.append(self.makeElement('em', line, {'type': 'italic'}))
                 body.append(p)
                 ptext = ''
             elif line.startswith(u'  '):
-                p = etree.Element('p')
-                line = line.strip()
-                hyphParts = line.split('<hyph/>')
-                if len(hyphParts) > 1:
-                    p.text = hyphParts[0]
-                    for hyphPart in hyphParts[1:]:
-                        h = etree.Element('hyph')
-                        h.tail = hyphPart
-                        p.append(h)
-                else:
-                    p.text = line.strip()
-                body.append(p)
+                body.append(self.makeElement('p', line.strip()))
                 ptext = ''
             elif headertitletags.match(line):
-                line = headertitletags.sub('', line)
+                line = headertitletags.sub('', line).strip()
                 if header.find("title") is None:
                     title = etree.Element('title')
-                    line = line.strip()
-                    hyphParts = line.split('<hyph/>')
-                    if len(hyphParts) > 1:
-                        title.text = hyphParts[0]
-                        for hyphPart in hyphParts[1:]:
-                            h = etree.Element('hyph')
-                            h.tail = hyphPart
-                            title.append(h)
-                    else:
-                        title.text = line.strip()
-                    title.text = line.strip()
-                    header.append(title)
+                    header.append(self.makeElement('title', line))
                 else:
-                    p = etree.Element('p', type="title")
-                    line = line.strip()
-                    hyphParts = line.split('<hyph/>')
-                    if len(hyphParts) > 1:
-                        p.text = hyphParts[0]
-                        for hyphPart in hyphParts[1:]:
-                            h = etree.Element('hyph')
-                            h.tail = hyphPart
-                            p.append(h)
-                    else:
-                        p.text = line.strip()
-                    body.append(p)
+                    body.append(self.makeElement('p', line, {'type': 'title'}))
                 ptext = ''
             elif titletags.match(line):
-                p = etree.Element('p', type="title")
-                line = titletags.sub('', line)
-                hyphParts = line.split('<hyph/>')
-                if len(hyphParts) > 1:
-                    p.text = hyphParts[0]
-                    for hyphPart in hyphParts[1:]:
-                        h = etree.Element('hyph')
-                        h.tail = hyphPart
-                        p.append(h)
-                else:
-                    p.text = line.strip()
-
-                body.append(p)
+                line = titletags.sub('', line).strip()
+                body.append(self.makeElement('p', line, {'type': 'title'}))
                 ptext = ''
             elif line.startswith('@byline:') or line.startswith('Byline:'):
                 person = etree.Element('person')
@@ -768,17 +725,7 @@ class PlaintextConverter:
             elif line == '\n' and ptext != '':
                 if ptext.strip() != '':
                     try:
-                        p = etree.Element('p')
-                        hyphParts = ptext.split('<hyph/>')
-                        if len(hyphParts) > 1:
-                            p.text = hyphParts[0]
-                            for hyphPart in hyphParts[1:]:
-                                h = etree.Element('hyph')
-                                h.tail = hyphPart
-                                p.append(h)
-                        else:
-                            p.text = ptext.strip()
-                        body.append(p)
+                        body.append(self.makeElement('p', ptext.strip()))
                         ptext = ''
                     except ValueError:
                         raise ConversionException("Invalid utf8 «" + ptext.strip().encode('utf-8') + "»")
@@ -788,17 +735,7 @@ class PlaintextConverter:
                 ptext = ptext + line.replace('\n', ' ')
 
         if ptext != '':
-            p = etree.Element('p')
-            hyphParts = ptext.split('<hyph/>')
-            if len(hyphParts) > 1:
-                p.text = hyphParts[0]
-                for hyphPart in hyphParts[1:]:
-                    h = etree.Element('hyph')
-                    h.tail = hyphPart
-                    p.append(h)
-            else:
-                p.text = ptext.strip()
-            body.append(p)
+            body.append(self.makeElement('p', ptext.strip()))
 
         document.append(header)
         document.append(body)
