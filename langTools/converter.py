@@ -637,7 +637,8 @@ class PlaintextConverter:
 
         bilde1 = re.compile(r'BILDE(\s\d)*:(.*)')
         bilde2 = re.compile(r'.*@bilde:(.*)')
-        ingress = re.compile(r'@*[Ii]ngres+:')
+        ingress = re.compile(r'@*ingres+:', re.IGNORECASE)
+        logo = re.compile(r'@*logo:', re.IGNORECASE)
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
             if line.startswith('@bilde:') or line.startswith('Bilde:'):
@@ -679,10 +680,9 @@ class PlaintextConverter:
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('LOGO:') or line.startswith('@logo:'):
+            elif logo.match(line):
                 p = etree.Element('p')
-                line = line.replace('LOGO:', '')
-                line = line.replace('@logo:', '')
+                line = logo.sub('', line)
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
