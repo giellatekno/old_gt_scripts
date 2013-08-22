@@ -637,7 +637,8 @@ class PlaintextConverter:
 
         newstags = re.compile(r'(@*logo:|@*ingres+:|.*@*bilde(\s\d)*:|(@|LED)*tekst:|@*stikk:|@foto:|@fotobyline:|@bildetitt:)', re.IGNORECASE)
         titletags = re.compile(r'@m.titt:@ingress:|Mellomtittel:|@*(stikk|under)titt:|@ttt:|@*[utm]*[:\.]*tit+:', re.IGNORECASE)
-        # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
+        headertitletags = re.compile(r'@tittel:|@titt:|TITT:|Tittel:|@LEDtitt:')
+
         for line in content:
             if newstags.match(line):
                 p = etree.Element('p')
@@ -661,16 +662,11 @@ class PlaintextConverter:
                 ptext = ''
             elif line.startswith(u'  '):
                 p = etree.Element('p')
-                p.text = line.strip() #.replace(u'  ', '')
+                p.text = line.strip()
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@tittel:') or line.startswith('TITT') or line.startswith('@titt:') or line.startswith('Tittel:') or line.startswith('@LEDtitt:'):
-                line = line.replace('@tittel:', '')
-                line = line.replace('@titt:', '')
-                line = line.replace('TITT:', '')
-                line = line.replace('Tittel:', '')
-                line = line.replace('@LEDtitt:', '')
-
+            elif headertitletags.match(line):
+                line = headertitletags.sub('', line)
                 if header.find("title") is None:
                     title = etree.Element('title')
                     title.text = line.strip()
