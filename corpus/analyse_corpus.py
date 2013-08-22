@@ -31,7 +31,6 @@ from distutils.dep_util import newer_group
 
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import analyser
-import analysisconcatenator
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
