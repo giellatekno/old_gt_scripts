@@ -128,7 +128,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                         paraContent.append(pText->Value());
                         paraContent.append(" ");
                     }
-                } else {
+                } else if (!(string(pParent->Parent()->Value()) == "errorlang" and gs.bSkipError)) {
                     if (gs.bPrintTypos) {
                         if (!gs.bErrorFiltering || (gs.bErrorFiltering && gs.errorFilters[pParent->Parent()->Value()])) {
                             string errortext = GetExtErrorString(pParent->Parent());

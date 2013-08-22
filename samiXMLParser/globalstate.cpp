@@ -13,6 +13,7 @@ GlobalState::GlobalState()
     bPrintList = false;
     bPrintTable = false;
     bPrintOnlyCorr = false;
+    bSkipError = false;
     bPrintTypos = false;
     bPrintSpeller = false;
     bPrintFilename = false;

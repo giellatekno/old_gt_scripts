@@ -95,6 +95,7 @@ int main( int argc, char *argv[] )
         }
 
         else if (strcmp(argv[i], "-noforeign") == 0) {
+            gs.bSkipError = true;
             gs.bErrorFiltering = true;
             gs.errorFilters["errorlang"] = true;
         }

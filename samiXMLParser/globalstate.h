@@ -21,6 +21,7 @@ public:
     bool bPrintList;
     bool bPrintTable;
     bool bPrintOnlyCorr;
+    bool bSkipError;
     bool bPrintTypos;
     bool bPrintSpeller;
     bool bPrintFilename;
