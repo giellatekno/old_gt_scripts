@@ -28,7 +28,7 @@ import lxml.etree as etree
 
 class Analyser:
     def __init__(self, lang, xmlFile):
-        self._lang = lang
+        self.lang = lang
         self.eTree = etree.parse(xmlFile)
         self.calculateFilenames(xmlFile)
 
@@ -71,18 +71,16 @@ class Analyser:
         basename = xmlFile[:-4]
 
         self.xmlFile = xmlFile
-        self.ccatName = basename + '.ccat'
-        self.preprocessName = basename + '.preprocess'
-        self.lookupName = basename + '.lookup'
-        self.lookup2cgName = basename + '.lookup2cg'
         self.disambiguationAnalysisName = basename + '.dis'
+        self.disambiguationAnalysisNameOld = basename + '.disold'
         self.dependencyAnalysisName = basename + '.dep'
+        self.dependencyAnalysisNameOld = basename + '.depold'
 
     def ccat(self):
         """Runs ccat on the input file
         Returns the output of ccat
         """
-        ccatCommand = ['ccat', '-a', '-l', self._lang, self.xmlFile]
+        ccatCommand = ['ccat', '-a', '-l', self.lang, self.xmlFile]
 
         return subprocess.check_output(ccatCommand)
 
@@ -92,7 +90,7 @@ class Analyser:
         """
         preProcessCommand = ['preprocess']
 
-        if self._lang == 'sme':
+        if self.lang == 'sme':
 
             abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
             corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
@@ -112,14 +110,14 @@ class Analyser:
         """
         lookupCommand = ['lookup', '-q', '-flags', 'mbTT']
 
-        if self._lang == 'sme':
+        if self.lang == 'sme':
 
-            fstFile = os.path.join(os.getenv('GTHOME'), 'gt/' + self._lang +
-                                   '/bin/' + self._lang + '.fst')
+            fstFile = os.path.join(os.getenv('GTHOME'), 'gt/' + self.lang +
+                                   '/bin/' + self.lang + '.fst')
             lookupCommand.append(fstFile)
         else:
             fstFile = os.path.join(os.getenv('GTHOME'),
-                                   'langs/' + self._lang + '/src/analyser-gt-desc.xfst')
+                                   'langs/' + self.lang + '/src/analyser-gt-desc.xfst')
             lookupCommand.append(fstFile)
 
         subp = subprocess.Popen(lookupCommand,
@@ -143,29 +141,23 @@ class Analyser:
         return output
 
 
-    def disambiguationAnalysis(self):
-        """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
-        analysis
-        The output is stored in a .dis file
-        """
-
+    def disambiguationAnalysisOldSme(self, lookup2cg):
+        disambiguationFile = os.path.join(os.getenv('GTHOME'), 'gt/' +
+                                          self.lang + '/src/Old' + self.lang + '-dis.rle')
         disambiguationAnalysisCommand = ['vislcg3', '-g']
-
-        if self._lang == "sme":
-            disambiguationFile = os.path.join(os.getenv('GTHOME'), 'gt/' +
-                                              self._lang + '/src/Old' + self._lang + '-dis.rle')
-            disambiguationAnalysisCommand.append(disambiguationFile)
-        else:
-            disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
-                                              self._lang + '/src/syntax/disambiguation.cg3')
-            disambiguationAnalysisCommand.append(disambiguationFile)
+        try:
+            f = open(disambiguationFile)
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+        disambiguationAnalysisCommand.append(disambiguationFile)
 
         subp = subprocess.Popen(disambiguationAnalysisCommand,
                                 stdin = subprocess.PIPE,
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.lookup2cg())
-        outfile = open(self.disambiguationAnalysisName, "w")
+        (output, error) = subp.communicate(lookup2cg)
+        outfile = open(self.disambiguationAnalysisNameOld, "w")
 
         # Leave a clue for the AnalysisConcatenator
         # Will go unchanged through dependencyAnalysis as vislcg3
@@ -174,30 +166,137 @@ class Analyser:
 
         outfile.write(output)
         outfile.close()
-        self.checkError(self.disambiguationAnalysisName, error)
+
+    def disambiguationAnalysisSme(self, lookup2cg):
+        try:
+            f = open(os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'))
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+
+        subp = subprocess.Popen(
+            [
+                'vislcg3',
+                '-g',
+                os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'),
+            ],
+            stdin = subprocess.PIPE,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE
+        )
+
+        (disoutput, diserror) = subp.communicate(lookup2cg)
+        self.checkError(self.disambiguationAnalysisName, diserror)
+        try:
+            f = open(os.path.join(os.getenv('GTHOME'), 'gt/sme/src/smi-syn.rle'))
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+
+        subp = subprocess.Popen(
+            [
+                'vislcg3',
+                '-g',
+                os.path.join(os.getenv('GTHOME'), 'gt/sme/src/smi-syn.rle')
+            ],
+            stdin = subprocess.PIPE,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE
+        )
+
+        (synoutput, synerror) = subp.communicate(disoutput)
+        self.checkError(self.disambiguationAnalysisName, synerror)
+        outfile = open(self.disambiguationAnalysisName, "w")
+
+        # Leave a clue for the AnalysisConcatenator
+        # Will go unchanged through dependencyAnalysis as vislcg3
+        # won't try to analyse clean text
+        outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
+
+        outfile.write(synoutput)
+        outfile.close()
+
+    def disambiguationAnalysis(self):
+        """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
+        analysis
+        The output is stored in a .dis file
+        """
+
+        lookup2cg = self.lookup2cg()
+
+        if self.lang == "sme":
+            self.disambiguationAnalysisOldSme(lookup2cg)
+            self.disambiguationAnalysisSme(lookup2cg)
+        else:
+            disambiguationAnalysisCommand = ['vislcg3', '-g']
+            disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
+                                              self.lang + '/src/syntax/disambiguation.cg3')
+            try:
+                f = open(disambiguationFile)
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
+
+            disambiguationAnalysisCommand.append(disambiguationFile)
+
+            subp = subprocess.Popen(disambiguationAnalysisCommand,
+                                    stdin = subprocess.PIPE,
+                                    stdout = subprocess.PIPE,
+                                    stderr = subprocess.PIPE)
+            (output, error) = subp.communicate(lookup2cg)
+            outfile = open(self.disambiguationAnalysisName, "w")
+
+            # Leave a clue for the AnalysisConcatenator
+            # Will go unchanged through dependencyAnalysis as vislcg3
+            # won't try to analyse clean text
+            outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
+
+            outfile.write(output)
+            outfile.close()
+            self.checkError(self.disambiguationAnalysisName, error)
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
         Produces output in a .dep file
         """
+        if self.lang == "sme":
+            dependencyAnalysisCommand = ['vislcg3']
+            dependencyAnalysisCommand.append("-I")
+            dependencyAnalysisCommand.append(self.disambiguationAnalysisNameOld)
+            dependencyAnalysisCommand.append("-O")
+            dependencyAnalysisCommand.append(self.dependencyAnalysisNameOld)
+            dependencyAnalysisCommand.append('-g')
+            try:
+                f = open(os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                raise
 
-        dependencyAnalysisCommand = ['vislcg3', '-g']
+            dependencyAnalysisCommand.append(
+                os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
 
-        if self._lang == 'sme':
-            dependencyFile = os.path.join(os.getenv('GTHOME'),
-                                          'gt/smi/src/smi-dep.rle')
-            dependencyAnalysisCommand.append(dependencyFile)
+            subp = subprocess.Popen(dependencyAnalysisCommand,
+                                    stdin = subprocess.PIPE,
+                                    stdout = subprocess.PIPE,
+                                    stderr = subprocess.PIPE)
+            (output, error) = subp.communicate()
+            dependencyAnalysisCommand = []
 
-        else:
 
-            dependencyFile = os.path.join( os.getenv('GTHOME'),
-                                          'gt/smi/src/smi-dep.rle')
-            dependencyAnalysisCommand.append(dependencyFile)
-
+        dependencyAnalysisCommand = ['vislcg3']
         dependencyAnalysisCommand.append("-I")
         dependencyAnalysisCommand.append(self.disambiguationAnalysisName)
         dependencyAnalysisCommand.append("-O")
         dependencyAnalysisCommand.append(self.dependencyAnalysisName)
+        dependencyAnalysisCommand.append('-g')
+        try:
+            f = open(os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+        dependencyAnalysisCommand.append(
+            os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
+
         subp = subprocess.Popen(dependencyAnalysisCommand,
                                 stdin = subprocess.PIPE,
                                 stdout = subprocess.PIPE,
@@ -230,6 +329,8 @@ class AnalysisConcatenator:
         for xmlFile in self.basenames:
             self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dis"))
             self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dep"))
+            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".disold"))
+            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".depold"))
 
 
     def concatenateAnalysedFile(self, filename):
@@ -240,11 +341,11 @@ class AnalysisConcatenator:
         """
         if os.path.isfile(filename):
             fromFile = open(filename)
-            self.getToFile(fromFile.readline(), filename[-4:]).write(fromFile.read())
+            self.getToFile(fromFile.readline(), filename).write(fromFile.read())
             fromFile.close()
             os.unlink(filename)
 
-    def getToFile(self, prefix, extension):
+    def getToFile(self, filename):
         """
         @brief Gets the prefix of the filename. Opens a file object with the files prefix.
 
@@ -252,7 +353,7 @@ class AnalysisConcatenator:
         """
 
         prefix = prefix.strip()
-        if extension == ".dis":
+        if filename[-4:] == ".dis":
             try:
                 self.disFiles[prefix]
             except KeyError:
@@ -260,10 +361,23 @@ class AnalysisConcatenator:
 
             return self.disFiles[prefix]
 
-        else:
+        elif filename[-4:] == ".dep":
             try:
                 self.depFiles[prefix]
             except KeyError:
                 self.depFiles[prefix] = open(prefix + ".dep", "w")
+        if filename[-7:] == ".disold":
+            try:
+                self.disFiles[prefix]
+            except KeyError:
+                self.disFiles[prefix] = open(prefix + ".disold", "w")
+
+            return self.disFiles[prefix]
+
+        elif filename[-4:] == ".depold":
+            try:
+                self.depFiles[prefix]
+            except KeyError:
+                self.depFiles[prefix] = open(prefix + ".depold", "w")
 
             return self.depFiles[prefix]
