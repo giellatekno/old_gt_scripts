@@ -34,8 +34,8 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
         int t = pParent->Type();
         string tag;
         bool parabElementLang;
-        
-        
+
+
         switch ( t )
         {
         case TiXmlNode::DOCUMENT:
@@ -50,7 +50,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                 paraContent = "";
                 SetbElementLang(pParent);
                 SetParaAttributes(pParent->ToElement());
-                
+
                 if (gs.bAddID &&
                     (bElementLang && IsInSomePara())) {
                     DumpTag(pParent->ToElement());
@@ -62,9 +62,9 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
             } else if (tag.substr(0,5) == "error") {
                 errorDepth++;
                 bOutsideError = false;
-                
+
                 bool hasText = false;
-                
+
                 for (pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
                 {
                     if (pChild->Type() == TiXmlNode::TEXT) {
@@ -94,7 +94,7 @@ void DivvunParser::RecurseTree(TiXmlNode* pParent)
                         paraContent.append(GetCorrString(pParent));
                     }
                 }
-    
+
             } else if (tag == "document") {
                 docLang = GetAttribValue(pParent->ToElement(), "xml:lang");
                 if (gs.bAddID) {
@@ -227,7 +227,7 @@ string DivvunParser::GetAttribValue(TiXmlElement *pElement, string attrName)
             }
             pAttrib=pAttrib->Next();
         }
-        
+
     }
     return result;
 }
@@ -252,21 +252,21 @@ void DivvunParser::DumpTag(TiXmlElement* pElement)
 string DivvunParser::GetErrorString(TiXmlNode* pParent)
 {
     string errortext;
-    
+
     TiXmlNode* pChild = pParent->FirstChild();
-    
+
     if (pChild->Type() == TiXmlNode::TEXT) {
         errortext.append(pChild->ToText()->Value());
         errortext.append(" ");
     }
-    
+
     return errortext;
 }
 
 string DivvunParser::GetExtErrorString(TiXmlNode* pParent)
 {
     string errortext;
-    
+
     for (TiXmlNode* pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
     {
         if (pChild->Type() == TiXmlNode::TEXT) {
@@ -277,7 +277,7 @@ string DivvunParser::GetExtErrorString(TiXmlNode* pParent)
             errortext.append(" ");
         }
     }
-    
+
     return errortext;
 }
 
@@ -288,12 +288,12 @@ string DivvunParser::FormatTypos(string errortext, string corrtext, string attri
     result.append(errortext.substr(0, errortext.length() - 1));
     result.append("\t");
     result.append(corrtext.substr(0, corrtext.length() - 1));
-    
+
     if (!attribstext.empty()) {
         result.append("\t#");
         result.append(attribstext);
     }
-    
+
     if (gs.bPrintFilename) {
         if (attribstext.empty()) {
             result.append("\t#");
@@ -303,9 +303,9 @@ string DivvunParser::FormatTypos(string errortext, string corrtext, string attri
         result.append("file: ");
         result.append(fileName);
     }
-    
+
     result.append("\n");
-    
+
     return result;
 }
 
@@ -321,7 +321,7 @@ string DivvunParser::GetCorrString(TiXmlNode *pParent) {
 string DivvunParser::GetAttrString(TiXmlNode* pParent)
 {
     string result;
-    
+
     TiXmlAttribute* pAttrib=pParent->ToElement()->FirstAttribute();
     bool firstattr = true;
 
@@ -339,7 +339,7 @@ string DivvunParser::GetAttrString(TiXmlNode* pParent)
         }
         pAttrib = pAttrib->Next();
     }
-    
+
     return result;
 }
 

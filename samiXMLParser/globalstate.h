@@ -9,7 +9,7 @@ using namespace std;
 class GlobalState {
 public:
     GlobalState();
-    
+
     bool bInPara;
     bool bInTitle;
     bool bInList;
@@ -25,7 +25,7 @@ public:
     bool bPrintSpeller;
     bool bPrintFilename;
     bool bAddID;
-    
+
     map<string, bool> errorFilters;
     string sLang;
 };

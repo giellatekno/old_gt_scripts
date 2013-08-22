@@ -12,7 +12,7 @@ public:
     DivvunParser(string inFile, GlobalState inGs);
     void ProcessFile();
     void RecurseTree(TiXmlNode *pParent);
-    
+
 private:
     string GetErrorString(TiXmlNode *pParent);
     string GetExtErrorString(TiXmlNode *pParent);
@@ -25,7 +25,7 @@ private:
     void SetbElementLang(TiXmlNode *pParent);
     void SetParaAttributes(TiXmlElement *element);
     bool IsInSomePara();
-    
+
     GlobalState gs;
     string pFile;
     string docLang;
