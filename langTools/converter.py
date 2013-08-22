@@ -636,32 +636,12 @@ class PlaintextConverter:
         ptext = ''
 
         newstags = re.compile(r'(@*logo:|@*ingres+:|.*@*bilde(\s\d)*:|(@|LED)*tekst:|@*stikk:|@foto:|@fotobyline:|@bildetitt:)', re.IGNORECASE)
+        titletags = re.compile(r'@m.titt:@ingress:|@m\.titt:|M:TITT:|@mtitt:|m\.titt:|Mellomtittel:|@stikktitt:|@utitt:|@u.titt:|@undertitt:|undertitt:|@ttitt:|@ttt:|@tit:|@Titt:|titt:', re.IGNORECASE)
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
             if newstags.match(line):
                 p = etree.Element('p')
                 line = newstags.sub('', line)
-                p.text = line.strip()
-                body.append(p)
-                ptext = ''
-            elif line.startswith('@m.titt:') or line.startswith('M:TITT:') or line.startswith('@mtitt:') or line.startswith('m.titt:') or line.startswith('Mellomtittel:') or line.startswith('@stikktitt:') or line.startswith('@utitt:') or line.startswith('@u.titt:') or line.startswith('@undertitt:') or line.startswith('undertitt:') or line.startswith('@ttitt:') or line.startswith('@ttt:') or line.startswith('@tit:') or line.startswith('@Titt:') or line.startswith('titt:'):
-                p = etree.Element('p', type="title")
-                line = line.replace('@m.titt:@ingress:', '')
-                line = line.replace('@m.titt:', '')
-                line = line.replace('@mtitt:', '')
-                line = line.replace('m.titt:', '')
-                line = line.replace('M:TITT:', '')
-                line = line.replace('Mellomtittel:', '')
-                line = line.replace('@stikktitt:', '')
-                line = line.replace('@utitt:', '')
-                line = line.replace('@u.titt:', '')
-                line = line.replace('@undertitt:', '')
-                line = line.replace('undertitt:', '')
-                line = line.replace('@ttitt:', '')
-                line = line.replace('@ttt:', '')
-                line = line.replace('@tit:', '')
-                line = line.replace('@Titt:', '')
-                line = line.replace('titt:', '')
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
@@ -699,6 +679,12 @@ class PlaintextConverter:
                     p = etree.Element('p', type="title")
                     p.text = line.strip()
                     body.append(p)
+            elif titletags.match(line):
+                p = etree.Element('p', type="title")
+                line = titletags.sub('', line)
+                p.text = line.strip()
+                body.append(p)
+                ptext = ''
             elif line.startswith('@byline:') or line.startswith('Byline:'):
                 person = etree.Element('person')
 
