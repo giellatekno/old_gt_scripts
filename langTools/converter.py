@@ -636,7 +636,7 @@ class PlaintextConverter:
         ptext = ''
 
         newstags = re.compile(r'(@*logo:|@*ingres+:|.*@*bilde(\s\d)*:|(@|LED)*tekst:|@*stikk:|@foto:|@fotobyline:|@bildetitt:)', re.IGNORECASE)
-        titletags = re.compile(r'@m.titt:@ingress:|@m\.titt:|M:TITT:|@mtitt:|m\.titt:|Mellomtittel:|@stikktitt:|@utitt:|@u.titt:|@undertitt:|undertitt:|@ttitt:|@ttt:|@tit:|@Titt:|titt:', re.IGNORECASE)
+        titletags = re.compile(r'@m.titt:@ingress:|Mellomtittel:|@*(stikk|under)titt:|@ttt:|@*[utm]*[:\.]*tit+:', re.IGNORECASE)
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
             if newstags.match(line):
