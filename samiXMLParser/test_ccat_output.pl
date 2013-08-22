@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 use Test::More 'no_plan';
 use Test::Exception;
 use Test::File;
@@ -480,7 +481,7 @@ my %simple_errors = (
 
 my %nested_errors = (
 # <p type="text">
-#     men 
+#     men
 #     <errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">
 #         skoledagene er så
 #         <errorort correct="vanskelig" errtype="nosilent" pos="adj">
@@ -524,12 +525,12 @@ my %nested_errors = (
         "-S -lex" => "men\nskoledagene\ner\nså\nvanskerlig\nå\nkomme\nigjennom,\n",
         "-a -S" => "men\nskoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj\nå\nkomme\nigjennom,\n",
     },
-    
+
 # <p>
 #     <errormorphsyn cat="pl3prs" const="fin" correct="šadde ollu áššit" errtype="tense" orig="sg3prs" pos="verb">
 #         <errorort correct="šattai" errtype="conc" pos="verb">
 #             šaddai
-#         </errorort> 
+#         </errorort>
 #         ollu áššit
 #     </errormorphsyn>
 # </p>
@@ -571,7 +572,7 @@ my %nested_errors = (
     },
 # <p>
 #     <errormorphsyn cat="gensg" const="nump" correct="guokte gándda" errtype="case" orig="nompl" pos="n">
-#         guokte 
+#         guokte
 #         <error correct="gánddat">
 #             ganddat
 #         </error>
@@ -615,7 +616,7 @@ my %nested_errors = (
     },
 # <p>
 #     <errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">
-#         leat 
+#         leat
 #         <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">
 #             okta máná
 #         </errormorphsyn>
@@ -658,11 +659,11 @@ my %nested_errors = (
         "-a -S" => "leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n",
     },
 # <p>
-#     livččii 
+#     livččii
 #     <errorort correct="makkárge" errtype="á" pos="adv">
 #         makkarge
-#     </errorort> 
-#     politihkka, muhto rahpasit baicca muitalivčče 
+#     </errorort>
+#     politihkka, muhto rahpasit baicca muitalivčče
 #     <errorlex correct="man soga">
 #         <errorort correct="makkár" errtype="á" pos="interr">
 #             makkar
@@ -687,8 +688,8 @@ my %nested_errors = (
         "-morphsyn" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
         "-syn" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n",
         "-lex" => "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar man soga sii ¶\n",
-        "-typos" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\nmakkár soga\tman soga\n", 
-        "-f -typos" => "makkarge\tmakkárge\t#errtype=á,pos=adv, file: p-with-errorort-inside-errorlex.xml\nmakkar\tmakkár\t#errtype=á,pos=interr, file: p-with-errorort-inside-errorlex.xml\nmakkár soga\tman soga\t#file: p-with-errorort-inside-errorlex.xml\n", 
+        "-typos" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\nmakkár soga\tman soga\n",
+        "-f -typos" => "makkarge\tmakkárge\t#errtype=á,pos=adv, file: p-with-errorort-inside-errorlex.xml\nmakkar\tmakkár\t#errtype=á,pos=interr, file: p-with-errorort-inside-errorlex.xml\nmakkár soga\tman soga\t#file: p-with-errorort-inside-errorlex.xml\n",
         "-typos -C" => "",
         "-typos -ort" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n",
         "-typos -ort -C" => "makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n",
@@ -696,8 +697,8 @@ my %nested_errors = (
         "-typos -morphsyn" => "",
         "-typos -syn" => "",
         "-typos -lex" => "makkár soga\tman soga\n",
-        "-S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nmakkár soga\tman soga\nsii\n", 
-        "-f -S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv, file: p-with-errorort-inside-errorlex.xml\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr, file: p-with-errorort-inside-errorlex.xml\nmakkár soga\tman soga\t#file: p-with-errorort-inside-errorlex.xml\nsii\n", 
+        "-S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nmakkár soga\tman soga\nsii\n",
+        "-f -S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv, file: p-with-errorort-inside-errorlex.xml\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr, file: p-with-errorort-inside-errorlex.xml\nmakkár soga\tman soga\t#file: p-with-errorort-inside-errorlex.xml\nsii\n",
         "-S -C" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
         "-S -ort" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n",
         "-S -ort -C" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n",
@@ -705,7 +706,7 @@ my %nested_errors = (
         "-S -morphsyn" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
         "-S -syn" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nsoga\nsii\n",
         "-S -lex" => "livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\nmakkár soga\tman soga\nsii\n",
-        "-a -S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nmakkár soga\tman soga\nsii\n", 
+        "-a -S" => "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nmakkár soga\tman soga\nsii\n",
     },
 # <p>
 #     <errorlex correct="gulahallanolbmot">
@@ -730,8 +731,8 @@ my %nested_errors = (
         "-morphsyn" => "gulahallan olbmožat ¶\n",
         "-syn" => "gulahallan olbmožat ¶\n",
         "-lex" => "gulahallanolbmot gulahallan olbmožat ¶\n",
-        "-typos" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
-        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-typos" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
+        "-f -typos" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n",
         "-typos -C" => "",
         "-typos -ort" => "",
         "-typos -ort -C" => "",
@@ -739,8 +740,8 @@ my %nested_errors = (
         "-typos -morphsyn" => "",
         "-typos -syn" => "",
         "-typos -lex" => "gulahallanolbmožat\tgulahallanolbmot\n",
-        "-S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n", 
-        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n", 
+        "-S" => "gulahallanolbmožat\tgulahallanolbmot\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun\n",
+        "-f -S" => "gulahallanolbmožat\tgulahallanolbmot\t#file: p-with-errorortreal-inside-errorlex.xml\ngulahallan olbmožat\tgulahallanolbmožat\t#errtype=cmp,pos=noun, file: p-with-errorortreal-inside-errorlex.xml\n",
         "-S -C" => "gulahallan\nolbmožat\n",
         "-S -ort" => "gulahallan\nolbmožat\n",
         "-S -ort -C" => "gulahallan\nolbmožat\n",
@@ -755,7 +756,7 @@ my %nested_errors = (
 #         <errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun">
 #             <errorort correct="čoggen" errtype="mono" pos="verb">
 #                 čoaggen
-#             </errorort> 
+#             </errorort>
 #             ollu jokŋat
 #         </errormorphsyn>
 #         ja sarridat
@@ -801,7 +802,7 @@ my %nested_errors = (
 #     <errormorphsyn cat="pl3prs" const="fin" correct="Bearpmehat sirrejit" errtype="agr" orig="sg3prs" pos="verb">
 #         <errorort correct="Bearpmehat" errtype="svow" pos="noun">
 #             Bearpmahat
-#         </errorort> 
+#         </errorort>
 #         <errorlex correct="sirre" errtype="w" origpos="v" pos="verb">
 #             earuha
 #         </errorlex>
@@ -855,12 +856,12 @@ if (!system('make')) {
                 my $ccat = `$command`;
                 is($ccat, $simple_errors{$name}{$option}, "testing option «" . $option . "» on file «" . $name . "»");
             }
-            print "\n\n"; 
+            print "\n\n";
         } else {
             die "Testing file «$name» doesn't exist.\nPlease create it to be able to complete this test.";
         }
     }
-    
+
     print "###\n###\n###\tNested errors to plain text\n###\n###\n";
     for my $name (keys %nested_errors) {
         if (-e $name) {
