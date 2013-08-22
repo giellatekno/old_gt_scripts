@@ -635,33 +635,12 @@ class PlaintextConverter:
         body = etree.Element('body')
         ptext = ''
 
-        bilde1 = re.compile(r'.*@*bilde(\s\d)*:', re.IGNORECASE)
-        ingress = re.compile(r'@*ingres+:', re.IGNORECASE)
-        logo = re.compile(r'@*logo:', re.IGNORECASE)
-        moretags = re.compile(r'((@|LED)*tekst:|@*stikk:|@foto:|@fotobyline:|@bildetitt:)', re.IGNORECASE)
+        newstags = re.compile(r'(@*logo:|@*ingres+:|.*@*bilde(\s\d)*:|(@|LED)*tekst:|@*stikk:|@foto:|@fotobyline:|@bildetitt:)', re.IGNORECASE)
         # pstarters = ['@bilde:', '@ingress:', 'LOGO:', '@tekst:', 'TEKST:', '@stikk:', '@foto', u'  ']
         for line in content:
-            if bilde1.match(line):
+            if newstags.match(line):
                 p = etree.Element('p')
-                line = bilde1.sub('', line)
-                p.text = line
-                body.append(p)
-                ptext = ''
-            elif ingress.match(line):
-                p = etree.Element('p')
-                line = ingress.sub('', line)
-                p.text = line.strip()
-                body.append(p)
-                ptext = ''
-            elif logo.match(line):
-                p = etree.Element('p')
-                line = logo.sub('', line)
-                p.text = line.strip()
-                body.append(p)
-                ptext = ''
-            elif moretags.match(line):
-                p = etree.Element('p')
-                line = moretags.sub('', line)
+                line = newstags.sub('', line)
                 p.text = line.strip()
                 body.append(p)
                 ptext = ''
