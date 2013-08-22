@@ -646,20 +646,6 @@ class PlaintextConverter:
                 p.text = line
                 body.append(p)
                 ptext = ''
-            elif line.startswith('@bold:'):
-                em = etree.Element('em', type = "bold")
-                em.text = line.replace('@bold:', '')
-                p = etree.Element('p')
-                p.append(em)
-                body.append(p)
-                ptext = ''
-            elif line.startswith('@kursiv:'):
-                em = etree.Element('em', type = "italic")
-                em.text = line.replace('@kursiv:', '')
-                p = etree.Element('p')
-                p.append(em)
-                body.append(p)
-                ptext = ''
             elif ingress.match(line):
                 p = etree.Element('p')
                 line = ingress.sub('', line)
@@ -705,6 +691,20 @@ class PlaintextConverter:
                 line = line.replace('@Titt:', '')
                 line = line.replace('titt:', '')
                 p.text = line.strip()
+                body.append(p)
+                ptext = ''
+            elif line.startswith('@bold:'):
+                em = etree.Element('em', type = "bold")
+                em.text = line.replace('@bold:', '')
+                p = etree.Element('p')
+                p.append(em)
+                body.append(p)
+                ptext = ''
+            elif line.startswith('@kursiv:'):
+                em = etree.Element('em', type = "italic")
+                em.text = line.replace('@kursiv:', '')
+                p = etree.Element('p')
+                p.append(em)
                 body.append(p)
                 ptext = ''
             elif line.startswith(u'  '):
