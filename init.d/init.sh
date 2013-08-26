@@ -152,7 +152,7 @@ export PERL5LIB
 
 # If we are on the XServe or victorio, then set GTBOUND:
 HOSTN=$(hostname)
-if [ "$HOSTN" = "divvun.no" ] ; then
+if [ "$HOSTN" = "giellatekno.uit.no" ] ; then
     export GTBOUND=/Network/Servers/divvun.no/Users/hoavda/Public/corp/boundcorpus
 elif [ "$HOSTN" = "victorio.uit.no" ] ; then
     export GTBOUND=/home/apache_corpus/boundcorpus
