@@ -9,9 +9,9 @@
 # to output the number of disambiguation rules, too, use the parameter '-t'
 # parametized for language (sme as default)
 # input sentence either coming from the pipe or at the end in quotation marks
-# parametrized for processing step: -s=pos, -s=dis, -s=dep
+# parametrized for processing step: -s=pos, -s=dis, -s=dep, -s=syn
 
-if [ `hostname` == 'victorio.uit.no' ]
+if [ `hostname` == 'victorio-old.uit.no' ]
 then
     LOOKUP=/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup
     HLOOKUP='/usr/local/bin/hfst-optimized-lookup'
@@ -136,6 +136,8 @@ fi
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
 dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
 dep_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle $t"
+syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/sme/src/smi-syn.rle $t"
+
 
 # processing step
 case $s in
@@ -146,6 +148,10 @@ case $s in
     dis)
 	echo "... disambiguating ..."
 	echo $(echo $dis_cmd) | sh
+	;;
+    syn)
+	echo "... syntax parsing ..."
+	echo $(echo $syn_cmd) | sh
 	;;
     dep)
 	echo "... dependency parsing ..."
