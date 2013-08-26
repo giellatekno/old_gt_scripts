@@ -154,7 +154,7 @@ export PERL5LIB
 HOSTN=$(hostname)
 if [ "$HOSTN" = "giellatekno.uit.no" ] ; then
     export GTBOUND="/Users/hoavda/Public/corp/boundcorpus"
-elif [ "$HOSTN" = "victorio.uit.no" ] ; then
+elif [ "$HOSTN" = "gtsvn.uit.no" ] ; then
     export GTBOUND=/home/apache_corpus/boundcorpus
 fi
 
