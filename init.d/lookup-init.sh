@@ -24,6 +24,12 @@ alias    usmeNorm='$LOOKUP $GTHOME/gt/sme/bin/sme-norm.fst'
 
 alias       drsme='$LOOKUP $GTHOME/gt/sme/bin/isme-GG.restr.fst'
 
+# adhoc naming of reference to sme in newinfra
+alias dsmenew='$LOOKUP $GTHOME/langs/sme/src/generator-gt-desc.xfst'
+alias usmenew='$LOOKUP $GTHOME/langs/sme/src/analyser-gt-desc.xfst'
+alias dsmeNormnew='$LOOKUP $GTHOME/langs/sme/src/generator-gt-norm.xfst'
+alias usmeNormnew='$LOOKUP $GTHOME/langs/sme/src/analyser-gt-norm.xfst'
+
 # These to be rebuilt in new infra:
 # alias  dsmaRestrN='$LOOKUP $GTHOME/gt/sma/bin/isma-NO.restr.fst'
 # alias dsmaRestrS='$LOOKUP $GTHOME/gt/sma/bin/isma-SO.restr.fst'
@@ -506,6 +512,21 @@ alias myvdept="sent-proc.sh -l=myv -s=dep -t"
 alias myvdis="sent-proc.sh -l=myv -s=dis"
 alias myvdist="sent-proc.sh -l=myv -s=dis -t"
 
+alias nobdep="sent-proc.sh -l=nob -s=dep"
+alias nobdept="sent-proc.sh -l=nob -s=dep -t"
+alias nobdis="sent-proc.sh -l=nob -s=dis"
+alias nobdist="sent-proc.sh -l=nob -s=dis -t"
+
+alias rondep="sent-proc.sh -l=ron -s=dep"
+alias rondept="sent-proc.sh -l=ron -s=dep -t"
+alias rondis="sent-proc.sh -l=ron -s=dis"
+alias rondist="sent-proc.sh -l=ron -s=dis -t"
+
+alias sjedep="sent-proc.sh -l=sje -s=dep"
+alias sjedept="sent-proc.sh -l=sje -s=dep -t"
+alias sjedis="sent-proc.sh -l=sje -s=dis"
+alias sjedist="sent-proc.sh -l=sje -s=dis -t"
+
 alias smadep="sent-proc.sh -l=sma -s=dep"
 alias smadept="sent-proc.sh -l=sma -s=dep -t"
 alias smadis="sent-proc.sh -l=sma -s=dis"
@@ -515,11 +536,18 @@ alias smedep="sent-proc.sh -s=dep"
 alias smedept="sent-proc.sh -s=dep -t"
 alias smedis="sent-proc.sh -s=dis"
 alias smedist="sent-proc.sh -s=dis -t"
+alias smesyn="sent-proc.sh -s=syn"
+alias smesynt="sent-proc.sh -s=syn -t"
 
 alias smjdep="sent-proc.sh -l=smj -s=dep"
 alias smjdept="sent-proc.sh -l=smj -s=dep -t"
 alias smjdis="sent-proc.sh -l=smj -s=dis"
 alias smjdist="sent-proc.sh -l=smj -s=dis -t"
+
+alias smsdep="sent-proc.sh -l=sms -s=dep"
+alias smsdept="sent-proc.sh -l=sms -s=dep -t"
+alias smsdis="sent-proc.sh -l=sms -s=dis"
+alias smsdist="sent-proc.sh -l=sms -s=dis -t"
 
 alias somdep="sent-proc.sh -l=som -s=dep"
 alias somdept="sent-proc.sh -l=som -s=dep -t"
