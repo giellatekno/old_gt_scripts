@@ -21,7 +21,6 @@ $/ = "";
 # Read while not eol
 INPUT:
     while(<>) {
-
         chomp;
         my %lines;
         @lines{split(/\n/, $_)} = ();
@@ -45,7 +44,8 @@ INPUT:
             }
 
             #remove word boundaries
-            $hyph =~ tr/\#//;
+            $hyph =~ s/\#//;
+            $hyph =~ s/>//;
 
             # take the upper case and lower case forms.
             my $uc = ucfirst($hyph);
