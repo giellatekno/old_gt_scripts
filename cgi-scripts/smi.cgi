@@ -95,7 +95,7 @@ if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 my @candidates;
 my $document;
 my $page;
-my $form_action="http://sami-cgi-bin.uit.no/cgi-bin/smi/smi.cgi";
+my $form_action="http://gtweb.uit.no/cgi-bin/smi/smi.cgi";
 my $body;
 my $giellatekno_logo;
 

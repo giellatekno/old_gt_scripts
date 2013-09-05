@@ -367,7 +367,7 @@ sub print_multiple_upload {
 		
 		<h1>Fill in the filenames and languages</h1>
 		
-		<form  ACTION="http://sami-cgi-bin.uit.no/cgi-bin/smi/upload2.cgi"
+		<form  ACTION="http://gtweb.uit.no/cgi-bin/smi/upload2.cgi"
 		METHOD="post" ENCTYPE="multipart/form-data">
 		
 END_H
