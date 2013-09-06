@@ -3,7 +3,7 @@
 use utf8;
 
 # Show custom text to remote viewer
-CGI::Alert::custom_browser_text <<'-END-';
+CGI::Alert::custom_browser_text <<END;
 Content-type: text/html
 
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -13,7 +13,7 @@ Content-type: text/html
 <p>[MSG]</p>
 <p><a href="http://www.giellatekno.uit.no/">Back</a> </p>
 <p><a href="http://giellatekno.uit.no/">giellatekno.uit.no</a></p>
--END-
+END
 
 @EXPORT = qw(&init_variables);
 
@@ -39,7 +39,8 @@ sub init_variables {
 		      Pron => 1,
 		      Num => 1);
 
-	
+	if (!$lang) { $lang=''; }
+
 	$wordlimit = 450 ;       # adjust as appropriate; prevent large-scale use
 	
 	# System-Specific directories
