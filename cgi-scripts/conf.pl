@@ -3,7 +3,7 @@
 use utf8;
 
 # Show custom text to remote viewer
-CGI::Alert::custom_browser_text <<END;
+CGI::Alert::custom_browser_text <<'-END-';
 Content-type: text/html
 
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -13,7 +13,7 @@ Content-type: text/html
 <p>[MSG]</p>
 <p><a href="http://www.giellatekno.uit.no/">Back</a> </p>
 <p><a href="http://giellatekno.uit.no/">giellatekno.uit.no</a></p>
-END
+-END-
 
 @EXPORT = qw(&init_variables);
 
@@ -202,7 +202,8 @@ sub init_variables {
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
     $generate = "tr ' ' '\n' | $gen_lookup";
     $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
-    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl";
+#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
+    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
     $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
     my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
 
