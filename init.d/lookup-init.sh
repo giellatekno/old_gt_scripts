@@ -472,10 +472,25 @@ alias ogeo='$HLOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
 
 # Direct sentence analysis:
 
+alias bladep="sent-proc.sh -l=bla -s=dep"
+alias bladept="sent-proc.sh -l=bla -s=dep -t"
+alias bladis="sent-proc.sh -l=bla -s=dis"
+alias bladist="sent-proc.sh -l=bla -s=dis -t"
+
+alias ciwdep="sent-proc.sh -l=ciw -s=dep"
+alias ciwdept="sent-proc.sh -l=ciw -s=dep -t"
+alias ciwdis="sent-proc.sh -l=ciw -s=dis"
+alias ciwdist="sent-proc.sh -l=ciw -s=dis -t"
+
 alias cordep="sent-proc.sh -l=cor -s=dep"
 alias cordept="sent-proc.sh -l=cor -s=dep -t"
 alias cordis="sent-proc.sh -l=cor -s=dis"
 alias cordist="sent-proc.sh -l=cor -s=dis -t"
+
+alias crkdep="sent-proc.sh -l=crk -s=dep"
+alias crkdept="sent-proc.sh -l=crk -s=dep -t"
+alias crkdis="sent-proc.sh -l=crk -s=dis"
+alias crkdist="sent-proc.sh -l=crk -s=dis -t"
 
 alias faodep="sent-proc.sh -l=fao -s=dep"
 alias faodept="sent-proc.sh -l=fao -s=dep -t"
@@ -492,35 +507,85 @@ alias fkvdept="sent-proc.sh -l=fkv -s=dep -t"
 alias fkvdis="sent-proc.sh -l=fkv -s=dis"
 alias fkvdist="sent-proc.sh -l=fkv -s=dis -t"
 
+alias ipkdep="sent-proc.sh -l=ipk -s=dep"
+alias ipkdept="sent-proc.sh -l=ipk -s=dep -t"
+alias ipkdis="sent-proc.sh -l=ipk -s=dis"
+alias ipkdist="sent-proc.sh -l=ipk -s=dis -t"
+
+alias izhdep="sent-proc.sh -l=izh -s=dep"
+alias izhdept="sent-proc.sh -l=izh -s=dep -t"
+alias izhdis="sent-proc.sh -l=izh -s=dis"
+alias izhdist="sent-proc.sh -l=izh -s=dis -t"
+
 alias kaldep="sent-proc.sh -l=kal -s=dep"
 alias kaldept="sent-proc.sh -l=kal -s=dep -t"
 alias kaldis="sent-proc.sh -l=kal -s=dis"
 alias kaldist="sent-proc.sh -l=kal -s=dis -t"
 
-alias kphdep="sent-proc.sh -l=kph -s=dep"
-alias kphdept="sent-proc.sh -l=kph -s=dep -t"
-alias kphdis="sent-proc.sh -l=kph -s=dis"
-alias kphdist="sent-proc.sh -l=kph -s=dis -t"
+alias kcadep="sent-proc.sh -l=kca -s=dep"
+alias kcadept="sent-proc.sh -l=kca -s=dep -t"
+alias kcadis="sent-proc.sh -l=kca -s=dis"
+alias kcadist="sent-proc.sh -l=kca -s=dis -t"
+
+alias kpvdep="sent-proc.sh  -l=kpv -s=dep"
+alias kpvdept="sent-proc.sh -l=kpv -s=dep -t"
+alias kpvdis="sent-proc.sh  -l=kpv -s=dis"
+alias kpvdist="sent-proc.sh -l=kpv -s=dis -t"
+
+alias livdep="sent-proc.sh -l=liv -s=dep"
+alias livdept="sent-proc.sh -l=liv -s=dep -t"
+alias livdis="sent-proc.sh -l=liv -s=dis"
+alias livdist="sent-proc.sh -l=liv -s=dis -t"
+
+alias mdfdep="sent-proc.sh -l=mdf -s=dep"
+alias mdfdept="sent-proc.sh -l=mdf -s=dep -t"
+alias mdfdis="sent-proc.sh -l=mdf -s=dis"
+alias mdfdist="sent-proc.sh -l=mdf -s=dis -t"
 
 alias mhrdep="sent-proc.sh -l=mhr -s=dep"
 alias mhrdept="sent-proc.sh -l=mhr -s=dep -t"
 alias mhrdis="sent-proc.sh -l=mhr -s=dis"
 alias mhrdist="sent-proc.sh -l=mhr -s=dis -t"
 
+alias mrjdep="sent-proc.sh -l=mrj -s=dep"
+alias mrjdept="sent-proc.sh -l=mrj -s=dep -t"
+alias mrjdis="sent-proc.sh -l=mrj -s=dis"
+alias mrjdist="sent-proc.sh -l=mrj -s=dis -t"
+
 alias myvdep="sent-proc.sh -l=myv -s=dep"
 alias myvdept="sent-proc.sh -l=myv -s=dep -t"
 alias myvdis="sent-proc.sh -l=myv -s=dis"
 alias myvdist="sent-proc.sh -l=myv -s=dis -t"
+
+alias ndldep="sent-proc.sh -l=ndl -s=dep"
+alias ndldept="sent-proc.sh -l=ndl -s=dep -t"
+alias ndldis="sent-proc.sh -l=ndl -s=dis"
+alias ndldist="sent-proc.sh -l=ndl -s=dis -t"
+
+alias niodep="sent-proc.sh -l=nio -s=dep"
+alias niodept="sent-proc.sh -l=nio -s=dep -t"
+alias niodis="sent-proc.sh -l=nio -s=dis"
+alias niodist="sent-proc.sh -l=nio -s=dis -t"
 
 alias nobdep="sent-proc.sh -l=nob -s=dep"
 alias nobdept="sent-proc.sh -l=nob -s=dep -t"
 alias nobdis="sent-proc.sh -l=nob -s=dis"
 alias nobdist="sent-proc.sh -l=nob -s=dis -t"
 
+alias olodep="sent-proc.sh -l=olo -s=dep"
+alias olodept="sent-proc.sh -l=olo -s=dep -t"
+alias olodis="sent-proc.sh -l=olo -s=dis"
+alias olodist="sent-proc.sh -l=olo -s=dis -t"
+
 alias rondep="sent-proc.sh -l=ron -s=dep"
 alias rondept="sent-proc.sh -l=ron -s=dep -t"
 alias rondis="sent-proc.sh -l=ron -s=dis"
 alias rondist="sent-proc.sh -l=ron -s=dis -t"
+
+alias sjddep="sent-proc.sh -l=sjd -s=dep"
+alias sjddept="sent-proc.sh -l=sjd -s=dep -t"
+alias sjddis="sent-proc.sh -l=sjd -s=dis"
+alias sjddist="sent-proc.sh -l=sjd -s=dis -t"
 
 alias sjedep="sent-proc.sh -l=sje -s=dep"
 alias sjedept="sent-proc.sh -l=sje -s=dep -t"
@@ -544,6 +609,11 @@ alias smjdept="sent-proc.sh -l=smj -s=dep -t"
 alias smjdis="sent-proc.sh -l=smj -s=dis"
 alias smjdist="sent-proc.sh -l=smj -s=dis -t"
 
+alias smndep="sent-proc.sh -l=smn -s=dep"
+alias smndept="sent-proc.sh -l=smn -s=dep -t"
+alias smndis="sent-proc.sh -l=smn -s=dis"
+alias smndist="sent-proc.sh -l=smn -s=dis -t"
+
 alias smsdep="sent-proc.sh -l=sms -s=dep"
 alias smsdept="sent-proc.sh -l=sms -s=dep -t"
 alias smsdis="sent-proc.sh -l=sms -s=dis"
@@ -553,4 +623,29 @@ alias somdep="sent-proc.sh -l=som -s=dep"
 alias somdept="sent-proc.sh -l=som -s=dep -t"
 alias somdis="sent-proc.sh -l=som -s=dis"
 alias somdist="sent-proc.sh -l=som -s=dis -t"
+
+alias udmdep="sent-proc.sh -l=udm -s=dep"
+alias udmdept="sent-proc.sh -l=udm -s=dep -t"
+alias udmdis="sent-proc.sh -l=udm -s=dis"
+alias udmdist="sent-proc.sh -l=udm -s=dis -t"
+
+alias vepdep="sent-proc.sh -l=vep -s=dep"
+alias vepdept="sent-proc.sh -l=vep -s=dep -t"
+alias vepdis="sent-proc.sh -l=vep -s=dis"
+alias vepdist="sent-proc.sh -l=vep -s=dis -t"
+
+alias vrodep="sent-proc.sh -l=vro -s=dep"
+alias vrodept="sent-proc.sh -l=vro -s=dep -t"
+alias vrodis="sent-proc.sh -l=vro -s=dis"
+alias vrodist="sent-proc.sh -l=vro -s=dis -t"
+
+alias yrkdep="sent-proc.sh -l=yrk -s=dep"
+alias yrkdept="sent-proc.sh -l=yrk -s=dep -t"
+alias yrkdis="sent-proc.sh -l=yrk -s=dis"
+alias yrkdist="sent-proc.sh -l=yrk -s=dis -t"
+
+alias zuldep="sent-proc.sh -l=zul -s=dep"
+alias zuldept="sent-proc.sh -l=zul -s=dep -t"
+alias zuldis="sent-proc.sh -l=zul -s=dis"
+alias zuldist="sent-proc.sh -l=zul -s=dis -t"
 
