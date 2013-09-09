@@ -58,6 +58,8 @@ alias dmyv='$LOOKUP $GTHOME/langs/myv/src/generator-gt-desc.xfst'
 alias dnio='$LOOKUP $GTHOME/langs/nio/src/generator-gt-desc.xfst'
 alias dnob='$LOOKUP $GTHOME/langs/nob/src/generator-gt-desc.xfst'
 alias dolo='$LOOKUP $GTHOME/langs/olo/src/generator-gt-desc.xfst'
+alias dron='$LOOKUP $GTHOME/langs/ron/src/generator-gt-desc.xfst'
+alias drus='$LOOKUP $GTHOME/langs/rus/src/generator-gt-desc.xfst'
 alias dsjd='$LOOKUP $GTHOME/langs/sjd/src/generator-gt-desc.xfst'
 alias dsje='$LOOKUP $GTHOME/langs/sje/src/generator-gt-desc.xfst'
 alias dsma='$LOOKUP $GTHOME/langs/sma/src/generator-gt-desc.xfst'
@@ -91,6 +93,8 @@ alias umyv='$LOOKUP $GTHOME/langs/myv/src/analyser-gt-desc.xfst'
 alias unio='$LOOKUP $GTHOME/langs/nio/src/analyser-gt-desc.xfst'
 alias unob='$LOOKUP $GTHOME/langs/nob/src/analyser-gt-desc.xfst'
 alias uolo='$LOOKUP $GTHOME/langs/olo/src/analyser-gt-desc.xfst'
+alias uron='$LOOKUP $GTHOME/langs/ron/src/analyser-gt-desc.xfst'
+alias urus='$LOOKUP $GTHOME/langs/rus/src/analyser-gt-desc.xfst'
 alias usjd='$LOOKUP $GTHOME/langs/sjd/src/analyser-gt-desc.xfst'
 alias usje='$LOOKUP $GTHOME/langs/sje/src/analyser-gt-desc.xfst'
 alias usma='$LOOKUP $GTHOME/langs/sma/src/analyser-gt-desc.xfst'
@@ -200,7 +204,6 @@ alias   deus='$LOOKUP $GTHOME/st/eus/bin/ieus.fst'
 alias   diku='$LOOKUP $GTHOME/st/iku/bin/iiku.fst'
 alias   dnno='$LOOKUP $GTHOME/st/nno/bin/inno.fst'
 alias   dnon='$LOOKUP $GTHOME/st/non/bin/inon.fst'
-alias   drus='$LOOKUP $GTHOME/st/rus/bin/irus.fst'
 
 alias   uamh='$LOOKUP $GTHOME/st/amh/bin/amh.fst'
 alias   ubxr='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
@@ -211,7 +214,6 @@ alias   ueus='$LOOKUP $GTHOME/st/eus/bin/eus.fst'
 alias   uiku='$LOOKUP $GTHOME/st/iku/bin/iku.fst'
 alias   unno='$LOOKUP $GTHOME/st/nno/bin/nno.fst'
 alias   unon='$LOOKUP $GTHOME/st/non/bin/non.fst'
-alias   urus='$LOOKUP $GTHOME/st/rus/bin/rus.fst'
 
 
 alias   дбхр='$LOOKUP $GTHOME/st/bxr/bin/ibxr.fst'
@@ -284,6 +286,8 @@ alias hdmyv='$HLOOKUP $GTHOME/langs/myv/src/generator-gt-desc.hfst'
 alias hdnio='$HLOOKUP $GTHOME/langs/nio/src/generator-gt-desc.hfst'
 alias hdnob='$HLOOKUP $GTHOME/langs/nob/src/generator-gt-desc.hfst'
 alias hdolo='$HLOOKUP $GTHOME/langs/olo/src/generator-gt-desc.hfst'
+alias hdron='$HLOOKUP $GTHOME/langs/ron/src/generator-gt-desc.hfst'
+alias hdrus='$HLOOKUP $GTHOME/langs/rus/src/generator-gt-desc.hfst'
 alias hdsjd='$HLOOKUP $GTHOME/langs/sjd/src/generator-gt-desc.hfst'
 alias hdsje='$HLOOKUP $GTHOME/langs/sje/src/generator-gt-desc.hfst'
 alias hdsma='$HLOOKUP $GTHOME/langs/sma/src/generator-gt-desc.hfst'
@@ -316,6 +320,8 @@ alias humyv='$HLOOKUP $GTHOME/langs/myv/src/analyser-gt-desc.hfst'
 alias hunio='$HLOOKUP $GTHOME/langs/nio/src/analyser-gt-desc.hfst'
 alias hunob='$HLOOKUP $GTHOME/langs/nob/src/analyser-gt-desc.hfst'
 alias huolo='$HLOOKUP $GTHOME/langs/olo/src/analyser-gt-desc.hfst'
+alias huron='$HLOOKUP $GTHOME/langs/ron/src/analyser-gt-desc.hfst'
+alias hurus='$HLOOKUP $GTHOME/langs/rus/src/analyser-gt-desc.hfst'
 alias husjd='$HLOOKUP $GTHOME/langs/sjd/src/analyser-gt-desc.hfst'
 alias husje='$HLOOKUP $GTHOME/langs/sje/src/analyser-gt-desc.hfst'
 alias husma='$HLOOKUP $GTHOME/langs/sma/src/analyser-gt-desc.hfst'
@@ -581,6 +587,11 @@ alias rondep="sent-proc.sh -l=ron -s=dep"
 alias rondept="sent-proc.sh -l=ron -s=dep -t"
 alias rondis="sent-proc.sh -l=ron -s=dis"
 alias rondist="sent-proc.sh -l=ron -s=dis -t"
+
+alias rusdep="sent-proc.sh -l=rus -s=dep"
+alias rusdept="sent-proc.sh -l=rus -s=dep -t"
+alias rusdis="sent-proc.sh -l=rus -s=dis"
+alias rusdist="sent-proc.sh -l=rus -s=dis -t"
 
 alias sjddep="sent-proc.sh -l=sjd -s=dep"
 alias sjddept="sent-proc.sh -l=sjd -s=dep -t"
