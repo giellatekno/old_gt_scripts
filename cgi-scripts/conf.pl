@@ -182,15 +182,16 @@ sub init_variables {
 	}
 	else { $preprocess = "$bindir/preprocess"; }
 
-
 	if ($action eq "paradigm") {
     	$analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
-    } else {
+    } elsif ($action eq "analyze" && $lang eq "sme") {
+	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+    } elsif ( $action eq "analyze" ) {
 	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
     }
+    
+    
     $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
-
-#	if ($lang eq "fin") { $analyze = $hfstanalyze; }
 
 	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
 	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
