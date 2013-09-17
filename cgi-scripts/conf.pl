@@ -80,9 +80,11 @@ sub init_variables {
 	my $orth_fst = "$fstdir/orth-$lang.fst";
 	my $tok_fst = "$fstdir/tok.fst";
         my $fstflags = "-flags mbTT -utf8";
-	#    my $dis_rle = "$fstdir/$lang-dis.rle"; # text file
+        my $dis_rle = "$fstdir/$lang-dis.rle";  # text file
 	my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
+	my $syn_rle = "$fstdir/smi-syn.rle";    # all-Saami syn file
 	my $dep_bin = "$fstdir/$lang-dep.bin";  # binary file
+	my $dep_rle = "$fstdir/$lang-dep.rle";  # text
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
@@ -182,6 +184,10 @@ sub init_variables {
 	}
 	else { $preprocess = "$bindir/preprocess"; }
 
+#	if ($lang eq "sme" && $action eq "analyze" ) {
+#	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+#	}
+
 	if ($action eq "paradigm") {
     	$analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
     } elsif ($action eq "analyze" && $lang eq "sme") {
@@ -193,10 +199,18 @@ sub init_variables {
     
     $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
-	$disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8"; 
-	$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
+	if ($lang eq "sme") {
+	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8"; 
+	}
+	else { $disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8";  }
+
+	if ($lang eq "sme") {
+	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
+	}
+	else { $dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; }
+
 # for the next debug, this is the variable-free version of $disamb:
-# with xfst:
+# with xfst: (todo: change to gtweb paths)
 # $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/sme.fst | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
 # with hfst:
 # $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/hfst-lookup  /opt/smi/sme/bin/sme.hfstol | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
