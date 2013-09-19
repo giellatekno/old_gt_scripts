@@ -7,8 +7,8 @@ HOSTNAME=`hostname`
 if [ $HOSTNAME == 'victorio.uit.no' ]
 then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags  mbTT -utf8'
 #then export LOOKUP='/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -q -flags  mbTT -utf8'
-else export LOOKUP='lookup -flags mbTT'
-#else export LOOKUP='lookup -q -flags mbTT'
+#else export LOOKUP='lookup -flags mbTT' # we try with quiet mode
+else export LOOKUP='lookup -q -flags mbTT'
 fi
 
 export HLOOKUP='hfst-lookup -q'
