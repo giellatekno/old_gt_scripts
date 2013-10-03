@@ -13,5 +13,8 @@
 # 5. save the now sorted original file
 # 6. repeat for every block of lines you need to sort
 #
+# Usage:
+#
+# sort-lexc.sh < INFILE.lexc > OUTFILE.lexc
 
-sed 's/^ *//' | sed 's/^\(\!\{1,\}\)\(.*\)/\2QQQQQ\1/' | sort -f | sed 's/\(.*\)QQQQQ\(.*\)/\2\1/'
+sed 's/^ *//' | sed 's/^\(\!\{1,\}\)\(.*\)/\2QQQQQ\1/' | LC_ALL='C' sort -f | sed 's/\(.*\)QQQQQ\(.*\)/\2\1/'
