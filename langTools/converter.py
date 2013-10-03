@@ -309,26 +309,44 @@ class Converter:
     def fixLangGenreXsl(self):
         """Set the mainlang and genre variables in the xsl file, if possible
         """
-        xsltree = etree.parse(self.getXsl())
-        root = xsltree.getroot()
-        origname = self.getOrig().replace(self.getCorpusdir(), '')
-        if origname.startswith('/orig'):
-            parts = origname[1:].split('/')
+        try:
+            xsltree = etree.parse(self.getXsl())
 
-            lang = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'].replace("'", "")
+            root = xsltree.getroot()
+            origname = self.getOrig().replace(self.getCorpusdir(), '')
+            if origname.startswith('/orig'):
+                parts = origname[1:].split('/')
 
-            if lang == "":
-                lang = parts[1]
-                root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'] = "'" + lang + "'"
+                lang = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'].replace("'", "")
 
-            genre = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'].replace("'", "")
+                if lang == "":
+                    lang = parts[1]
+                    root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='mainlang']").attrib['select'] = "'" + lang + "'"
 
-            if genre == "" or genre not in ['admin', 'bible', 'facta', 'ficti', 'news']:
-                if parts[2] in ['admin', 'bible', 'facta', 'ficti', 'news']:
-                    genre = parts[parts.index('orig') + 2]
-                    root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'] = "'" + genre + "'"
+                genre = root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'].replace("'", "")
 
-            xsltree.write(self.getXsl(), encoding="utf-8", xml_declaration = True)
+                if genre == "" or genre not in ['admin', 'bible', 'facta', 'ficti', 'news']:
+                    if parts[2] in ['admin', 'bible', 'facta', 'ficti', 'news']:
+                        genre = parts[parts.index('orig') + 2]
+                        root.find("{http://www.w3.org/1999/XSL/Transform}variable[@name='genre']").attrib['select'] = "'" + genre + "'"
+
+                xsltree.write(self.getXsl(), encoding="utf-8", xml_declaration = True)
+        except etree.XMLSyntaxError as e:
+            logfile = open(self.orig + '.log', 'w')
+
+            for entry in e.error_log:
+                logfile.write('\n')
+                logfile.write(str(entry.line))
+                logfile.write(':')
+                logfile.write(str(entry.column))
+                logfile.write(" ")
+
+                try:
+                    logfile.write(entry.message)
+                except ValueError:
+                    logfile.write(entry.message.encode('latin1'))
+
+                logfile.write('\n')
 
     def setConvertedName(self):
         """Set the name of the converted file
