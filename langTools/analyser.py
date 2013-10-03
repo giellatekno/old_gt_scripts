@@ -24,6 +24,7 @@ import os
 import sys
 import subprocess
 import re
+import datetime
 import lxml.etree as etree
 
 class Analyser:
@@ -314,7 +315,7 @@ class Analyser:
         self.dependencyAnalysis()
 
 class AnalysisConcatenator:
-    def __init__(self, xmlFiles):
+    def __init__(self, goalDir, xmlFiles):
         """
         @brief Receives a list of filenames that has been analysed
         """
@@ -323,6 +324,8 @@ class AnalysisConcatenator:
         self.depFiles = {}
         self.disoldFiles = {}
         self.depoldFiles = {}
+        self.goalDir = os.path.join(goalDir, datetime.date.today().isoformat())
+        os.makedirs(self.goalDir)
 
     def concatenateAnalysedFiles(self):
         """
@@ -354,7 +357,7 @@ class AnalysisConcatenator:
         :returns: File object belonging to the prefix of the filename
         """
 
-        prefix = prefix.strip()
+        prefix = os.path.join(self.goalDir, prefix.strip())
         if filename[-4:] == ".dis":
             try:
                 self.disFiles[prefix]
