@@ -35,6 +35,7 @@ import analyser
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
     parser.add_argument('--lang', help = "lang which should be analysed")
+    parser.add_argument('--analysisdir', help='directory where the analysed files are place')
     parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
 
     args = parser.parse_args()
@@ -43,10 +44,59 @@ def parse_options():
 def worker(inTuple):
     (lang, xmlFile) = inTuple
     ana = analyser.Analyser(lang, xmlFile)
+
     ana.analyse()
+
+def sanityCheck(lang):
+    """Look for programs and files that are needed to do the analysis.
+    If they don't exist, quit the program
+    """
+    for program in ['ccat', 'preprocess', 'lookup2cg', 'lookup', 'vislcg3']:
+        if which(program) is False:
+            sys.stderr.write(program, " isn't found in path\n")
+            sys.exit(2)
+
+    if lang == 'sme':
+        for file in [os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt'),
+                        os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt'),
+                        os.path.join(os.getenv('GTHOME'), 'gt/' + lang +
+                                '/bin/' + lang + '.fst'),
+                        os.path.join(os.getenv('GTHOME'), 'gt/' + lang + '/src/Old' + lang + '-dis.rle'),
+                        os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'),
+                        os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle')]:
+            if os.path.isfile(file) is False:
+                sys.stderr.write(file)
+                sys.stderr.write(" doesn't exist\n")
+                sys.stderr.write("Run make GTLANG=sme in ")
+                sys.stderr.write(os.path.join(os.getenv('GTHOME'), 'gt'))
+                sys.stderr.write('\n')
+                sys.exit(2)
+    else:
+        for file in [os.path.join(os.getenv('GTHOME'),
+                                'langs/' + lang + '/src/analyser-gt-desc.xfst'),
+                    os.path.join(os.getenv('GTHOME'), 'langs/' +
+                                            lang + '/src/syntax/disambiguation.cg3'),
+                    os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle')]:
+            if os.path.isfile(file) is False:
+                sys.stderr.write(file)
+                sys.stderr.write(" doesn't exist\n")
+                sys.stderr.write("Run make in")
+                sys.stderr.write(os.path.join(os.getenv('GTHOME'), 'langs/' + lang ))
+                sys.stderr.write('\n')
+                sys.exit(2)
+
+def which(name):
+        """Get the output of the unix command which.
+        Return false if empty, true if non-empty
+        """
+        if subprocess.check_output(['which', name]) == '':
+            return False
+        else:
+            return True
 
 if __name__ == '__main__':
     args = parse_options()
+    sanityCheck(args.lang)
     xmlFiles = []
     for cdir in args.converted_dir:
         for root, dirs, files in os.walk(cdir): # Walk directory tree
@@ -60,5 +110,5 @@ if __name__ == '__main__':
     pool.close() # no more tasks
     pool.join()  # wrap up current tasks
 
-    ac = analyser.AnalysisConcatenator(xmlFiles)
+    ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles)
     ac.concatenateAnalysedFiles()
