@@ -1,5 +1,5 @@
 #!/bin/ksh
-#$Id: svn_wrapper 6837 2011-04-11 11:20:59Z bannima $
+#$Id: svn_wrapper 7144 2011-05-20 12:10:41Z bannima $
 ##############################################################################
 #
 # Wrapper for Subversion client that sets up an 'svn' keyring and launches
@@ -348,13 +348,13 @@ done
 if [ $GNU_XARGS -eq 1 ]; then
     i=1
     while [ $i -le $# ]; do
-	eval printf \"%s\\0\" \"\$$i\"
+	eval printf \"%s\\0\" \"\$\{$i\}\"
 	((i+=1))
     done > $TMPFILE
 else
     i=1
     while [ $i -le $# ]; do
-	eval echo \$$i
+	eval echo \$\{$i\}
 	((i+=1))
     done | sed -e "s/'/\\\\'/g" -e "s/^/'/" -e "s/$/'/" > $TMPFILE
 fi
