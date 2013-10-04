@@ -25,9 +25,9 @@
 CALL=$(basename $0)
 OS_PLATFORM=$(uname -s)
 HOST=$(uname -n)
-KRTOOL=/opt/CollabNet_Subversion/bin/keyring_tool
-GKD=/usr/bin/gnome-keyring-daemon
-SVN=/opt/CollabNet_Subversion/bin/svn
+KRTOOL=keyring_tool
+GKD=gnome-keyring-daemon
+SVN=svn
 [ -z "$HOME" ] && HOME=~
 SVN_DIR=$HOME/.subversion
 SVN_CONFIG=$SVN_DIR/config
@@ -42,7 +42,6 @@ trap 'rm -f $TMPFILE; exit' INT HUP TERM
 AWK=/bin/gawk
 [ -x /bin/nawk ] && AWK=/bin/nawk
 
-export LD_LIBRARY_PATH=/usr/lib:/opt/CollabNet_Subversion/lib
 SVN_WRAPPER_DEBUG=${SVN_WRAPPER_DEBUG:=0}
 
 #
@@ -50,7 +49,7 @@ SVN_WRAPPER_DEBUG=${SVN_WRAPPER_DEBUG:=0}
 # so use gxargs if at all possible on Solaris, otherwise
 # svn will not be able to grab stdin when it needs to
 #
-XARGS=/usr/bin/xargs
+XARGS=xargs
 if [ $OS_PLATFORM = SunOS ]; then
     if [ -x /opt/csw/bin/gxargs ]; then
 	XARGS=/opt/csw/bin/gxargs
