@@ -465,61 +465,56 @@ sub test_punctuation {
     my ($word, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref) = @_;
 
     verbose ("test_punctuation", $word, __LINE__);
-    TEST: {
-        # If the punctuation at the end contains a sentence delimiter
-        # ? or !, the word ends the sentence in any case, so the word can
-        # be treated as a token.
-        if ($end_punct =~ /[¶\?\!\.]/) {
-            verbose ("end_punct", $word, __LINE__);
-            if($corr) {
-                if ($corr_short{$word}) {
-                    test_corr(\$word, $words_aref, $tokens_aref);
+    # If the punctuation at the end contains a sentence delimiter
+    # ? or !, the word ends the sentence in any case, so the word can
+    # be treated as a token.
+    if ($end_punct =~ /[¶\?\!\.]/) {
+        verbose ("end_punct", $word, __LINE__);
+        if($corr) {
+            if ($corr_short{$word}) {
+                test_corr(\$word, $words_aref, $tokens_aref);
+            }
+        }
+        add_token($tokens_aref, $w_token, $word);
+    } elsif ($word) {
+        # The word is checked for abbreviation and sentence boundary.
+        if (!check_if_word_is_abbr($word, $w_token, $words_aref, $tokens_aref)) {
+            # Cut the word into tokens if there is punctuation in the middle.
+            # e.g. gielddat/guovllut
+            # Check for expressions in $CONTAIN_PUNCT -variable.
+            verbose ("process_word/not_abbr", "$word", __LINE__);
+            if (($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
+                if ($word !~ /$CONTAIN_PUNCT/o) {
+                    $word = $1;
+                    my %w = ('word' => $2);
+                    unshift (@{$words_aref}, \%w);
+
+                    verbose ("process_word/contain_punct", "$word", __LINE__);
+                    process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
+                    return 1;
                 }
             }
-            add_token($tokens_aref, $w_token, $word);
-            last TEST;
-        }
-
-        # The word is checked for abbreviation and sentence boundary.
-        if ($word) {
-            if (!check_if_word_is_abbr($word, $w_token, $words_aref, $tokens_aref)) {
-                # Cut the word into tokens if there is punctuation in the middle.
-                # e.g. gielddat/guovllut
-                # Check for expressions in $CONTAIN_PUNCT -variable.
-                verbose ("process_word/not_abbr", "$word", __LINE__);
-                if (($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
-                    if ($word !~ /$CONTAIN_PUNCT/o) {
-                        $word = $1;
-                        my %w = ('word' => $2);
-                        unshift (@{$words_aref}, \%w);
-
-                        verbose ("process_word/contain_punct", "$word", __LINE__);
-                        process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
-                        return 1;
+            # If the word was not an abbreviation, the rest
+            # of the punctuation is removed and stored as separate tokens.
+            # This operation is for taking the dot out.
+            if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
+                my $rest_punct =  $1;
+                verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
+                if($corr) {
+                    if ($corrections{$word}) {
+                        test_corr(\$word, $words_aref, $tokens_aref);
                     }
                 }
-                # If the word was not an abbreviation, the rest
-                # of the punctuation is removed and stored as separate tokens.
-                # This operation is for taking the dot out.
-                if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
-                    my $rest_punct =  $1;
-                    verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
-                    if($corr) {
-                        if ($corrections{$word}) {
-                            test_corr(\$word, $words_aref, $tokens_aref);
-                        }
-                    }
-                    add_token($tokens_aref, $w_token, $word);
+                add_token($tokens_aref, $w_token, $word);
 
-                    my @rest = split ("", $rest_punct);
-                    add_array($tokens_aref, \@rest);
+                my @rest = split ("", $rest_punct);
+                add_array($tokens_aref, \@rest);
 
-                    last TEST;
-                }
+            } else {
                 add_token($tokens_aref, $w_token, $word);
             }
         }
-    } # end of block TEST
+    }
 }
 
 sub concatenate_three_or_more_leading_dots {
