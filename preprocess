@@ -978,8 +978,7 @@ sub process_numeral {
                 }
             } else {
 
-            DOT_TEST: {
-                last DOT_TEST if ($word !~ /\.$/);
+            unless ($word !~ /\.$/) {
                 (my $nopunct = $word) =~ s/\.$//;
 
                 # If the number contains other than digits or is a year,
@@ -988,30 +987,20 @@ sub process_numeral {
                 if($nopunct =~ /[§\d\pP\pL]/ &&
                     ((!($words_aref->[0]{word}) || $words_aref->[0]{word} =~ /^[\p{Lu}]/o))){
                     $word = $nopunct;
+                    $end_punct = compute_endpunct($end_punct);
+                $rest_punct = compute_restpunct($word, $rest_punct);
                 } elsif ($word =~ /^\d{1,3}\.$/ ) {
-                    # Otherwise dot is considered to be an ordinal.
-                    if ($words_aref->[0]{word} !~ /^[\p{Lu}]/o) {
-                        last DOT_TEST;
+                    if ($words_aref->[0]{word} =~ /^[\p{Lu}]/o) {
+                        $end_punct = compute_endpunct($end_punct);
+                        $rest_punct = compute_restpunct($word, $rest_punct);
                     }
                 } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses°]/o) {
                     $word = $nopunct;
-                } else {
-                    last DOT_TEST;
+                    $end_punct = compute_endpunct($end_punct);
+                    $rest_punct = compute_restpunct($word, $rest_punct);
                 }
 
-                if ($end_punct) {
-                    $end_punct = "." . $end_punct;
-                } else {
-                    $end_punct = ".";
-                }
-                verbose ("process_numeral/ending dot", $word, __LINE__);
-
-                # Clean the rest of the token:
-                # cases like 123). where dot is preceded by punctuation.
-                if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
-                    $rest_punct =  $1;
-                }
-            } # end of DOT_TEST
+            }
 
             verbose ("process_numeral", $word, __LINE__);
 
@@ -1041,6 +1030,32 @@ sub process_numeral {
     }
 }
 
+sub compute_endpunct
+{
+    my ($end_punct) = @_;
+
+    if ($end_punct) {
+        $end_punct = "." . $end_punct;
+    } else {
+        $end_punct = ".";
+    }
+
+    return $end_punct
+}
+
+sub compute_restpunct
+{
+    my ($word, $rest_punct) = @_;
+
+    # Clean the rest of the token:
+    # cases like 123). where dot is preceded by punctuation.
+    if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
+        $rest_punct =  $1;
+    }
+
+    return $rest_punct;
+
+}
 sub find_endpunct
 {
     my ($end_punct, $word) = @_;
