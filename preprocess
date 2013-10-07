@@ -754,7 +754,7 @@ sub test_corr {
 
                     # If the expressions contains punctuation in the middle, return.
                     if ($idiom2 =~ /[^\w\s\d\.\-]/) {
-                        return $word;
+                        last;
                     } elsif ($corrections{$idiom2} || $corrections{lc($idiom2)} || $corrections{($ucidiom2)}) {
                         # Test if the formed multiword expression exists in the
                         # idiom list. Test also lower case version.
@@ -770,18 +770,21 @@ sub test_corr {
                             splice (@{$words_aref}, 0, $i+1);
                         }
 
-                        return $word;
-                    }
-                    $i++;
-                    if($words_aref->[$i]) {
-                        $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
-                    } elsif(! $next && $next_aref->[0]) {
-                        $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
-                        $next=1;
+                        last;
                     } else {
-                        return $word;
+                        $i++;
+                        if($words_aref->[$i]) {
+                            $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
+                        } elsif(! $next && $next_aref->[0]) {
+                            $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
+                            $next=1;
+                        } else {
+                            last;
+                        }
                     }
                 }
+
+                return $word;
             }
         }
     }
