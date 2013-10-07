@@ -921,36 +921,29 @@ sub process_numeral {
     my $end_word;
 
     if ($split_strings) {
-        SPLIT_NUMERAL : {
-            # Check if the word is an inflected numeral. 12s, etc.
-            if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)(\.)?$/o ) {
-                verbose ("process_numeral/inflected", $word, __LINE__);
+        # Check if the word is an inflected numeral. 12s, etc.
+        if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)(\.)?$/o ) {
+            verbose ("process_numeral/inflected", $word, __LINE__);
 
-                if ( $num{$3} ) {
-                    last SPLIT_NUMERAL;
+            if (! $2 && ! $num{$3}) {
+                verbose ("add_token", "$1", __LINE__);
+                add_token($tokens_aref, $w_token, $1);
+                my %w = ('word' => $3);
+                process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
+
+                if ($end_punct) {
+                    if ($4) { $end_punct = $4 . $end_punct; }
+                } else {
+                    $end_punct = $4;
                 }
 
-                if (! $2 ) {
-                    verbose ("add_token", "$1", __LINE__);
-                    add_token($tokens_aref, $w_token, $1);
-                    my %w = ('word' => $3);
-                    process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
-
-                    if ($end_punct) {
-                        if ($4) { $end_punct = $4 . $end_punct; }
-                    } else {
-                        $end_punct = $4;
-                    }
-
-                    if ($end_punct) {
-                        my @ep = split(//, $end_punct);
-                        verbose ("add_array", "@ep", __LINE__);
-                        add_array($tokens_aref, \@ep);
-                    }
-
-                    return;
+                if ($end_punct) {
+                    my @ep = split(//, $end_punct);
+                    verbose ("add_array", "@ep", __LINE__);
+                    add_array($tokens_aref, \@ep);
                 }
-                last SPLIT_NUMERAL;
+
+                return;
             }
         }
         # Check if there is an abbreviation or a word attached to
