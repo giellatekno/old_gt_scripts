@@ -743,51 +743,59 @@ sub test_corr {
                     return $word;
                 }
 
-                my $size=2;
-                my $i=1;
-                while ($i <= $size) {
+                $word = loop_correction($word, $idiom, $ucidiom, $tokens_aref, $next, $words_aref, $next_aref);
 
-                    # Remove the punctuation at the end of the expression.
-                    (my $idiom2 = $idiom) =~ s/([^\w]*)$//;
-                    (my $ucidiom2 = $ucidiom) =~ s/([^\w]*)$//;
-                    my $end_punct = $1;
-
-                    # If the expressions contains punctuation in the middle, return.
-                    if ($idiom2 =~ /[^\w\s\d\.\-]/) {
-                        last;
-                    } elsif ($corrections{$idiom2} || $corrections{lc($idiom2)} || $corrections{($ucidiom2)}) {
-                        # Test if the formed multiword expression exists in the
-                        # idiom list. Test also lower case version.
-                        my $correct = $corrections{$idiom};
-                        verbose ("test_corr/correction", "$correct", __LINE__);
-                        $word = check_idiom($correct, $word, $end_punct, $tokens_aref);
-
-                        # Remove the parts of the multiword expression from
-                        # the word array.
-                        if($next) {
-                            splice (@{$next_aref}, 0, $i+1);
-                        } else {
-                            splice (@{$words_aref}, 0, $i+1);
-                        }
-
-                        last;
-                    } else {
-                        $i++;
-                        if($words_aref->[$i]) {
-                            $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
-                        } elsif(! $next && $next_aref->[0]) {
-                            $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
-                            $next=1;
-                        } else {
-                            last;
-                        }
-                    }
-                }
-
-                return $word;
             }
         }
     }
+    return $word;
+}
+
+sub loop_correction
+{
+    my ($word, $idiom, $ucidiom, $tokens_aref, $next, $words_aref, $next_aref) = @_;
+
+    my $size=2;
+    my $i=1;
+    while ($i <= $size) {
+
+        # Remove the punctuation at the end of the expression.
+        (my $idiom2 = $idiom) =~ s/([^\w]*)$//;
+        (my $ucidiom2 = $ucidiom) =~ s/([^\w]*)$//;
+        my $end_punct = $1;
+
+        # If the expressions contains punctuation in the middle, return.
+        if ($idiom2 =~ /[^\w\s\d\.\-]/) {
+            last;
+        } elsif ($corrections{$idiom2} || $corrections{lc($idiom2)} || $corrections{($ucidiom2)}) {
+            # Test if the formed multiword expression exists in the
+            # idiom list. Test also lower case version.
+            my $correct = $corrections{$idiom};
+            verbose ("test_corr/correction", "$correct", __LINE__);
+            $word = check_idiom($correct, $word, $end_punct, $tokens_aref);
+
+            # Remove the parts of the multiword expression from
+            # the word array.
+            if($next) {
+                splice (@{$next_aref}, 0, $i+1);
+            } else {
+                splice (@{$words_aref}, 0, $i+1);
+            }
+
+            last;
+        } else {
+            $i++;
+            if($words_aref->[$i]) {
+                $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
+            } elsif(! $next && $next_aref->[0]) {
+                $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
+                $next=1;
+            } else {
+                last;
+            }
+        }
+    }
+
     return $word;
 }
 
