@@ -712,39 +712,54 @@ sub test_corr {
             verbose("test_corr", $word, __LINE__);
             # If the word is single part.
             if (my $correct = $corrections{$word}) {
-                my @parts = split (/ /o, $correct);
-                if (scalar @parts > 1) {
-                    if ( $idioms{$correct}) {
-                        $word = $correct;
-                        verbose ("test_corr/split_words", "$correct", __LINE__);
-                    } else {
-                        $word = pop @parts;
-                        add_array($tokens_aref, \@parts);
-                        verbose ("test_corr/split_words", "$correct", __LINE__);
-                    }
-                } else {
-                    $word = $correct;
-                }
-                verbose("test_corr", "«" . $word . "»", __LINE__);
+                $word = single_part($correct, $word, $tokens_aref);
             } else {
-
-                my $next;
-                my $idiom;
-                my $ucidiom;
-
-                if( $words_aref->[0]{word} ) {
-                    $idiom = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
-                    $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
-                } elsif ($next_aref->[0]{word}) {
-                    $idiom = $word . $next_aref->[0]{space} . $next_aref->[0]{word};
-                    $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
-                    $next=1;
-                }
-                $word = loop_correction($word, $idiom, $ucidiom, $tokens_aref, $next, $words_aref, $next_aref);
+                $word = define_word($word, $tokens_aref, $words_aref, $next_aref);
             }
         }
     }
     return $word;
+}
+
+sub single_part
+{
+    my ($correct, $word, $tokens_aref) = @_;
+
+    my @parts = split (/ /o, $correct);
+    if (scalar @parts > 1) {
+        if ( $idioms{$correct}) {
+            $word = $correct;
+            verbose ("test_corr/split_words", "$correct", __LINE__);
+        } else {
+            $word = pop @parts;
+            add_array($tokens_aref, \@parts);
+            verbose ("test_corr/split_words", "$correct", __LINE__);
+        }
+    } else {
+        $word = $correct;
+    }
+
+    return $word;
+}
+
+sub define_word
+{
+    my ($word, $tokens_aref, $words_aref, $next_aref) = @_;
+
+    my $next;
+    my $idiom;
+    my $ucidiom;
+
+    if( $words_aref->[0]{word} ) {
+        $idiom = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
+        $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+    } elsif ($next_aref->[0]{word}) {
+        $idiom = $word . $next_aref->[0]{space} . $next_aref->[0]{word};
+        $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+        $next=1;
+    }
+
+    return loop_correction($word, $idiom, $ucidiom, $tokens_aref, $next, $words_aref, $next_aref);
 }
 
 sub loop_correction
