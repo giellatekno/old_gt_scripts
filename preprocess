@@ -58,7 +58,6 @@ my $rtag = ">";
 my $sentences=0;
 my $no_utf8=0;
 my $preserve_newline=0;
-my $split_strings=1;
 
 GetOptions ("abbr=s" => \$abbr_file,
             "corr=s" => \$corr,
@@ -380,12 +379,10 @@ sub split_numbers_from_words {
     my ($word) = @_;
 
     my $end_num;
-    if ($split_strings) {
-        if ($word =~ /\.?(\d+\.?)$/){
-            $word =~ s/(\d+\.?)$//;
-            $end_num = $1;
-            verbose ("process_word/end_num", $end_num, __LINE__);
-        }
+    if ($word =~ /\.?(\d+\.?)$/){
+        $word =~ s/(\d+\.?)$//;
+        $end_num = $1;
+        verbose ("process_word/end_num", $end_num, __LINE__);
     }
 
     return ($word, $end_num);
@@ -490,7 +487,7 @@ sub test_punctuation {
                 # e.g. gielddat/guovllut
                 # Check for expressions in $CONTAIN_PUNCT -variable.
                 verbose ("process_word/not_abbr", "$word", __LINE__);
-                if (($split_strings && $word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
+                if (($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
                     if ($word !~ /$CONTAIN_PUNCT/o) {
                         $word = $1;
                         my %w = ('word' => $2);
