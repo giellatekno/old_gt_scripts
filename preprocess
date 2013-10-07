@@ -978,29 +978,7 @@ sub process_numeral {
                 }
             } else {
 
-            unless ($word !~ /\.$/) {
-                (my $nopunct = $word) =~ s/\.$//;
-
-                # If the number contains other than digits or is a year,
-                # and the next word does not exist or does not start uppercase, then
-                # the ending dot is removed.
-                if($nopunct =~ /[§\d\pP\pL]/ &&
-                    ((!($words_aref->[0]{word}) || $words_aref->[0]{word} =~ /^[\p{Lu}]/o))){
-                    $word = $nopunct;
-                    $end_punct = compute_endpunct($end_punct);
-                $rest_punct = compute_restpunct($word, $rest_punct);
-                } elsif ($word =~ /^\d{1,3}\.$/ ) {
-                    if ($words_aref->[0]{word} =~ /^[\p{Lu}]/o) {
-                        $end_punct = compute_endpunct($end_punct);
-                        $rest_punct = compute_restpunct($word, $rest_punct);
-                    }
-                } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses°]/o) {
-                    $word = $nopunct;
-                    $end_punct = compute_endpunct($end_punct);
-                    $rest_punct = compute_restpunct($word, $rest_punct);
-                }
-
-            }
+            ($word, $end_punct, $rest_punct) = dot_test($word, $end_punct, $rest_punct, $words_aref);
 
             verbose ("process_numeral", $word, __LINE__);
 
@@ -1028,6 +1006,37 @@ sub process_numeral {
             add_array($tokens_aref, \@ep);
         }
     }
+}
+
+sub dot_test
+{
+    my ($word, $end_punct, $rest_punct, $words_aref) = @_;
+
+    unless ($word !~ /\.$/) {
+        (my $nopunct = $word) =~ s/\.$//;
+
+        # If the number contains other than digits or is a year,
+        # and the next word does not exist or does not start uppercase, then
+        # the ending dot is removed.
+        if($nopunct =~ /[§\d\pP\pL]/ &&
+            ((!($words_aref->[0]{word}) || $words_aref->[0]{word} =~ /^[\p{Lu}]/o))){
+            $word = $nopunct;
+            $end_punct = compute_endpunct($end_punct);
+        $rest_punct = compute_restpunct($word, $rest_punct);
+        } elsif ($word =~ /^\d{1,3}\.$/ ) {
+            if ($words_aref->[0]{word} =~ /^[\p{Lu}]/o) {
+                $end_punct = compute_endpunct($end_punct);
+                $rest_punct = compute_restpunct($word, $rest_punct);
+            }
+        } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses°]/o) {
+            $word = $nopunct;
+            $end_punct = compute_endpunct($end_punct);
+            $rest_punct = compute_restpunct($word, $rest_punct);
+        }
+
+    }
+
+    return ($word, $end_punct, $rest_punct);
 }
 
 sub compute_endpunct
