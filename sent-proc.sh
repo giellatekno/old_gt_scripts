@@ -135,8 +135,8 @@ fi
 
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
 dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
-dep_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle $t"
 syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/sme/src/smi-syn.rle $t"
+dep_cmd=$syn_cmd" | vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle $t"
 
 
 # processing step
