@@ -954,57 +954,63 @@ sub process_numeral {
         unshift (@$words_aref, \%w);
     } else {
 
-
         verbose ("process_numeral", $word, __LINE__);
         my $rest_punct;
 
-        # Check for ending dot, it is a separate token if
-        # the following word starts with capital letter.
-        # If there is an abbreviation with numeral, don't do checking.
-        # Otherwise the dot belongs to the expression.
+        compute_end_and_restpunct($end_punct, $rest_punct, $word, $end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
+    }
+}
 
-            # Process first the abbreviation or word
-            # that is attached to the numeral
-            if ($end_word) {
-                verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
-                my $abbr = $end_word;
-                if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
-                    verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
-                    is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
-                }
-                else {
-                    verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
-                    process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
-                }
-            } else {
+sub compute_end_and_restpunct
+{
+    my ($end_punct, $rest_punct, $word, $end_word, $w_token, $words_aref, $next_aref, $tokens_aref) = @_;
 
-            ($word, $end_punct, $rest_punct) = dot_test($word, $end_punct, $rest_punct, $words_aref);
+    # Check for ending dot, it is a separate token if
+    # the following word starts with capital letter.
+    # If there is an abbreviation with numeral, don't do checking.
+    # Otherwise the dot belongs to the expression.
 
-            verbose ("process_numeral", $word, __LINE__);
+    # Process first the abbreviation or word
+    # that is attached to the numeral
+    if ($end_word) {
+        verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
+        my $abbr = $end_word;
+        if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
+            verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
+            is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
+        }
+        else {
+            verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
+            process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
+        }
+    } else {
 
-            # Push everything to the tokens array.
-            verbose ("add_token", "$word", __LINE__);
-            add_token($tokens_aref, $w_token, $word);
+        ($word, $end_punct, $rest_punct) = dot_test($word, $end_punct, $rest_punct, $words_aref);
 
-            if ($end_word) {
-                verbose ("add_token", "$end_word", __LINE__);
-                add_token($tokens_aref, $w_token, $end_word);
-            }
+        verbose ("process_numeral", $word, __LINE__);
 
+        # Push everything to the tokens array.
+        verbose ("add_token", "$word", __LINE__);
+        add_token($tokens_aref, $w_token, $word);
+
+        if ($end_word) {
+            verbose ("add_token", "$end_word", __LINE__);
+            add_token($tokens_aref, $w_token, $end_word);
         }
 
+    }
 
-        if ($rest_punct) {
-            my @rp = split(//, $rest_punct);
-            verbose ("add_array", "$word", __LINE__);
-            add_array($tokens_aref, \@rp);
-        }
 
-        if ($end_punct) {
-            my @ep = split(//, $end_punct);
-            verbose ("add_array", "$word", __LINE__);
-            add_array($tokens_aref, \@ep);
-        }
+    if ($rest_punct) {
+        my @rp = split(//, $rest_punct);
+        verbose ("add_array", "$word", __LINE__);
+        add_array($tokens_aref, \@rp);
+    }
+
+    if ($end_punct) {
+        my @ep = split(//, $end_punct);
+        verbose ("add_array", "$word", __LINE__);
+        add_array($tokens_aref, \@ep);
     }
 }
 
