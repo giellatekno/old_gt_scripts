@@ -726,79 +726,61 @@ sub test_corr {
                     $word = $correct;
                 }
                 verbose("test_corr", "«" . $word . "»", __LINE__);
-                return $word;
-            }
-
-            my $next;
-            my $idiom;
-            my $ucidiom;
-
-            if( $words_aref->[0]{word} ) {
-                $idiom = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
-                $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
-            } elsif ($next_aref->[0]{word}) {
-                $idiom = $word . $next_aref->[0]{space} . $next_aref->[0]{word};
-                $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
-                $next=1;
             } else {
-                return $word;
-            }
 
-            my $size=2;
-            my $i=1;
-            while ($i <= $size) {
+                my $next;
+                my $idiom;
+                my $ucidiom;
 
-                # Remove the punctuation at the end of the expression.
-                (my $idiom2 = $idiom) =~ s/([^\w]*)$//;
-                (my $ucidiom2 = $ucidiom) =~ s/([^\w]*)$//;
-                my $end_punct = $1;
-
-                # If the expressions contains punctuation in the middle, return.
-                if ($idiom2 =~ /[^\w\s\d\.\-]/) {
-                    return $word;
-                }
-
-                # Test if the formed multiword expression exists in the
-                # idiom list. Test also lower case version.
-                verbose ("test_corr", $idiom, __LINE__);
-
-                if ($corrections{$idiom2} || $corrections{lc($idiom2)} || $corrections{($ucidiom2)}) {
-                    my $correct = $corrections{$idiom};
-                    verbose ("test_corr/correction", "$correct", __LINE__);
-                    CHECK_IDIOM : {
-                        if ( $idioms{$correct}) {
-                            $word = $correct;
-                            $word .= $end_punct;
-                            verbose ("test_corr/idiom", "$correct", __LINE__);
-                            last CHECK_IDIOM
-                            }
-                        my @parts = split (/ /o, $correct);
-                        if (scalar @parts > 1) {
-                            $word = pop @parts;
-                            $word .= $end_punct;
-                            add_array($tokens_aref, \@parts);
-                            verbose ("test_corr/split_words", "$correct", __LINE__);
-                        }
-                    } # end of block CHECK_IDIOM
-
-                    # Remove the parts of the multiword expression from
-                    # the word array.
-                    if($next) {
-                        splice (@{$next_aref}, 0, $i+1);
-                    } else {
-                        splice (@{$words_aref}, 0, $i+1);
-                    }
-
-                    return $word;
-                }
-                $i++;
-                if($words_aref->[$i]) {
-                    $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
-                } elsif(! $next && $next_aref->[0]) {
-                    $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
+                if( $words_aref->[0]{word} ) {
+                    $idiom = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
+                    $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+                } elsif ($next_aref->[0]{word}) {
+                    $idiom = $word . $next_aref->[0]{space} . $next_aref->[0]{word};
+                    $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
                     $next=1;
                 } else {
                     return $word;
+                }
+
+                my $size=2;
+                my $i=1;
+                while ($i <= $size) {
+
+                    # Remove the punctuation at the end of the expression.
+                    (my $idiom2 = $idiom) =~ s/([^\w]*)$//;
+                    (my $ucidiom2 = $ucidiom) =~ s/([^\w]*)$//;
+                    my $end_punct = $1;
+
+                    # If the expressions contains punctuation in the middle, return.
+                    if ($idiom2 =~ /[^\w\s\d\.\-]/) {
+                        return $word;
+                    } elsif ($corrections{$idiom2} || $corrections{lc($idiom2)} || $corrections{($ucidiom2)}) {
+                        # Test if the formed multiword expression exists in the
+                        # idiom list. Test also lower case version.
+                        my $correct = $corrections{$idiom};
+                        verbose ("test_corr/correction", "$correct", __LINE__);
+                        $word = check_idiom($correct, $word, $end_punct, $tokens_aref);
+
+                        # Remove the parts of the multiword expression from
+                        # the word array.
+                        if($next) {
+                            splice (@{$next_aref}, 0, $i+1);
+                        } else {
+                            splice (@{$words_aref}, 0, $i+1);
+                        }
+
+                        return $word;
+                    }
+                    $i++;
+                    if($words_aref->[$i]) {
+                        $idiom = $idiom .  $words_aref->[$i]{space} . $words_aref->[$i]{word};
+                    } elsif(! $next && $next_aref->[0]) {
+                        $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
+                        $next=1;
+                    } else {
+                        return $word;
+                    }
                 }
             }
         }
@@ -806,11 +788,29 @@ sub test_corr {
     return $word;
 }
 
+sub check_idiom
+{
+    my ($correct, $word, $end_punct, $tokens_aref) = @_;
+    if ( $idioms{$correct}) {
+        $word = $correct;
+        $word .= $end_punct;
+        verbose ("test_corr/idiom", "$correct", __LINE__);
+    } else {
+        my @parts = split (/ /o, $correct);
+        if (scalar @parts > 1) {
+            $word = pop @parts;
+            $word .= $end_punct;
+            add_array($tokens_aref, \@parts);
+            verbose ("test_corr/split_words", "$correct", __LINE__);
+        }
+    }
+
+    return $word;
+}
 
 # If the word starts an multiword expression, it is replaced
 # with the expression. The other parts are
 # removed from the words array.
-
 sub test_idiom {
     my ($word_ref, $words_aref, $next_aref, $size) = @_;
 
