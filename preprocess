@@ -920,47 +920,45 @@ sub process_numeral {
 
     my $end_word;
 
-    if ($split_strings) {
-        # Check if the word is an inflected numeral. 12s, etc.
-        if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)(\.)?$/o && ! $2 && ! $num{$3}) {
-            verbose ("add_token", "$1", __LINE__);
-            add_token($tokens_aref, $w_token, $1);
-            my %w = ('word' => $3);
-            process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
+    # Check if the word is an inflected numeral. 12s, etc.
+    if  ( $word =~ /^(\d+)([\:\'\-]?)([\pL]+)(\.)?$/o && ! $2 && ! $num{$3}) {
+        verbose ("add_token", "$1", __LINE__);
+        add_token($tokens_aref, $w_token, $1);
+        my %w = ('word' => $3);
+        process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
 
-            if ($end_punct) {
-                if ($4) { $end_punct = $4 . $end_punct; }
-            } else {
-                $end_punct = $4;
-            }
-
-            if ($end_punct) {
-                my @ep = split(//, $end_punct);
-                verbose ("add_array", "@ep", __LINE__);
-                add_array($tokens_aref, \@ep);
-            }
-
-            return;
+        if ($end_punct) {
+            if ($4) { $end_punct = $4 . $end_punct; }
+        } else {
+            $end_punct = $4;
         }
 
-        # Check if there is an abbreviation or a word attached to
-        # numeral. E.g. 6.b. ...ovdal. This introduces problems with some
-        # mispellings with headings, like 1.6.Vuonain
-        if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) {
-            $word =~ s/([^\W\d]+\.?)$//;
-            verbose ("process_numeral/end_word", $1, __LINE__);
-
-            process_numeral($word, $w_token, $words_aref, $next_aref, $tokens_aref);
-            my $new_word = "";
-            if ($end_punct) {
-                $new_word = $1 . $end_punct;
-            } else {
-                $new_word = $1;
-            }
-            my %w = ('word' => $new_word);
-            unshift (@$words_aref, \%w);
-            return;
+        if ($end_punct) {
+            my @ep = split(//, $end_punct);
+            verbose ("add_array", "@ep", __LINE__);
+            add_array($tokens_aref, \@ep);
         }
+
+        return;
+    }
+
+    # Check if there is an abbreviation or a word attached to
+    # numeral. E.g. 6.b. ...ovdal. This introduces problems with some
+    # mispellings with headings, like 1.6.Vuonain
+    if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) {
+        $word =~ s/([^\W\d]+\.?)$//;
+        verbose ("process_numeral/end_word", $1, __LINE__);
+
+        process_numeral($word, $w_token, $words_aref, $next_aref, $tokens_aref);
+        my $new_word = "";
+        if ($end_punct) {
+            $new_word = $1 . $end_punct;
+        } else {
+            $new_word = $1;
+        }
+        my %w = ('word' => $new_word);
+        unshift (@$words_aref, \%w);
+        return;
     }
 
 
