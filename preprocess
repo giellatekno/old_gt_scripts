@@ -899,16 +899,7 @@ sub process_numeral {
         }
     }
 
-    # Search for numeral expressions with spaces.
     ($word, $words_aref) = combine($word, $words_aref);
-
-    # Combine percent sign to the numeral when separate.
-    # covers cases like: 50 %
-    if (($word =~ /\d$/) && ($words_aref->[0]{word} && $words_aref->[0]{word} =~ /^\%/)) {
-        $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
-        verbose ("process_numeral/combine", $word, __LINE__);
-        shift @{$words_aref};
-    }
 
     my $end_punct;
     ($end_punct, $word) = find_endpunct($end_punct, $word);
@@ -1102,6 +1093,21 @@ sub find_endpunct
     return ($end_punct, $word);
 }
 
+# Combine percent sign to the numeral when separate.
+# covers cases like: 50 %
+sub combine_numeral_and_percent
+{
+    my ($word, $words_aref) = @_;
+
+    if (($word =~ /\d$/) && ($words_aref->[0]{word} && $words_aref->[0]{word} =~ /^\%/)) {
+        $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
+        verbose ("process_numeral/combine", $word, __LINE__);
+        shift @{$words_aref};
+    }
+
+    return ($word, $words_aref);
+}
+
 sub combine_date_expression
 {
     my ($word, $words_aref) = @_;
@@ -1168,6 +1174,7 @@ sub combine_punctuation_with_numeral
     return ($word, $words_aref);
 }
 
+# Search for numeral expressions with spaces.
 sub combine
 {
     my ($word, $words_aref) = @_;
@@ -1175,6 +1182,7 @@ sub combine
     ($word, $words_aref) = combine_date_expression($word, $words_aref);
     ($word, $words_aref) = combine_date_ranges($word, $words_aref);
     ($word, $words_aref) = combine_punctuation_with_numeral($word, $words_aref);
+    ($word, $words_aref) = combine_numeral_and_percent($word, $words_aref);
 
     return ($word, $words_aref);
 }
