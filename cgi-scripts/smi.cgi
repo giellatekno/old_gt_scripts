@@ -741,7 +741,7 @@ sub printinitialhtmlcodes {
 		my @tmp;
 
 		# Print the radiobuttons for the available tools
-		for my $l ( @tools) {
+		for my $l (@tools) {
 			next if ( ! $lang_actions{$l});
 			my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'action',value=> $l},$labels{$l});
 			if ($tool eq $l ) { $input->set_att('checked', 1); }

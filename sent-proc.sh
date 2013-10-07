@@ -146,15 +146,15 @@ case $s in
 	echo $(echo $pos_cmd) | sh
 	;;
     dis)
-	echo "... disambiguating ..."
+	echo "... pos disambiguating ..."
 	echo $(echo $dis_cmd) | sh
 	;;
     syn)
-	echo "... syntax parsing ..."
+	echo "... syntax analysis ..."
 	echo $(echo $syn_cmd) | sh
 	;;
     dep)
-	echo "... dependency parsing ..."
+	echo "... inserting dependency relations ..."
 	echo $(echo $dep_cmd) | sh
 	;;
 esac
