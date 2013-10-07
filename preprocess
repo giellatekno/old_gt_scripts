@@ -964,7 +964,7 @@ sub process_numeral {
             unshift (@$words_aref, \%w);
             return;
         }
-    } # end of SPLIT_NUMERAL
+    }
 
 
     verbose ("process_numeral", $word, __LINE__);
@@ -987,15 +987,6 @@ sub process_numeral {
                 is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
                 last NUM_TEST;
             }
-            # Case with 3.b.
-            #elsif ( $end_word =~ /^\p{Lc}\.$/) {
-            #    verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
-            #    push (@{$tokens_aref}, $end_word);
-            #    if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
-            #        push (@{$tokens_aref}, ".");
-            #    }
-            #    last NUM_TEST;
-            #}
             else {
                 verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
                 process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
