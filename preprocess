@@ -958,8 +958,6 @@ sub process_numeral {
         verbose ("process_numeral", $word, __LINE__);
         my $rest_punct;
 
-        NUM_TEST: {
-
         # Check for ending dot, it is a separate token if
         # the following word starts with capital letter.
         # If there is an abbreviation with numeral, don't do checking.
@@ -973,14 +971,12 @@ sub process_numeral {
                 if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
                     verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
                     is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
-                    last NUM_TEST;
                 }
                 else {
                     verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
                     process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
-                    last NUM_TEST;
                 }
-            }
+            } else {
 
             DOT_TEST: {
                 last DOT_TEST if ($word !~ /\.$/);
@@ -1037,7 +1033,8 @@ sub process_numeral {
                 add_token($tokens_aref, $w_token, $end_word);
             }
 
-        } #end of NUM_TEST
+        }
+
 
         if ($rest_punct) {
             my @rp = split(//, $rest_punct);
