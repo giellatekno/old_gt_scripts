@@ -323,7 +323,7 @@ sub process_words {
                 }
             }
 
-            @tokens = handle_leading_punctuation($word, $w_token, \@tokens);
+            @tokens = handle_leading_punctuation($word, $w_token);
 
         }
 
@@ -557,9 +557,9 @@ sub handle_two_or_less_leading_dots {
 }
 
 sub handle_leading_punctuation {
-    my ($word, $w_token, $tokens_aref) = @_;
+    my ($word, $w_token) = @_;
 
-    my @tokens = @$tokens_aref;
+    my @tokens;
 
     verbose("handle_leading_punctuation", $word , __LINE__);
     # Fix some punctuation, like ...voxende and ----whatelse
