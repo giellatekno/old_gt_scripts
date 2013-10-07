@@ -739,12 +739,8 @@ sub test_corr {
                     $idiom = $word . $next_aref->[0]{space} . $next_aref->[0]{word};
                     $ucidiom = ucfirst($word) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
                     $next=1;
-                } else {
-                    return $word;
                 }
-
                 $word = loop_correction($word, $idiom, $ucidiom, $tokens_aref, $next, $words_aref, $next_aref);
-
             }
         }
     }
