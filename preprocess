@@ -483,18 +483,16 @@ sub test_punctuation {
             # e.g. gielddat/guovllut
             # Check for expressions in $CONTAIN_PUNCT -variable.
             verbose ("process_word/not_abbr", "$word", __LINE__);
-            if (($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/) || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) {
-                if ($word !~ /$CONTAIN_PUNCT/o) {
+            if (($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/ || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) && $word !~ /$CONTAIN_PUNCT/o) {
                     $word = $1;
                     my %w = ('word' => $2);
                     unshift (@{$words_aref}, \%w);
 
                     verbose ("process_word/contain_punct", "$word", __LINE__);
                     process_word($1, $w_token, $words_aref, $next_aref, $tokens_aref);
-                    return 1;
-                }
+            } else {
+                remove_dot($word, $corr, $words_aref, $tokens_aref, $w_token);
             }
-            remove_dot($word, $corr, $words_aref, $tokens_aref, $w_token);
         }
     }
 }
