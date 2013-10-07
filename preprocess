@@ -899,7 +899,7 @@ sub process_numeral {
         }
     }
 
-    ($word, $words_aref) = combine($word, $words_aref);
+    ($word, $words_aref) = fix_numeral_expressions_containing_spaces($word, $words_aref);
 
     my $end_punct;
     ($end_punct, $word) = find_endpunct($end_punct, $word);
@@ -1175,7 +1175,7 @@ sub combine_punctuation_with_numeral
 }
 
 # Search for numeral expressions with spaces.
-sub combine
+sub fix_numeral_expressions_containing_spaces
 {
     my ($word, $words_aref) = @_;
 
