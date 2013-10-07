@@ -290,49 +290,42 @@ sub process_words {
 
         # Move forward if the word is nothing special.
         # This is for making preprocessing faster.
-        if ($word =~ /^[^\W\d\s\n]*$/) {
-            if((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word}) {
-                verbose("no correction, no idiom", $word , __LINE__);
-                add_token(\@tokens, $w_token, $word);
-                if ($sentences) {
-                    print_sentence(\@tokens);
-                } else {
-                    print_tokens(\@tokens);
-                }
+        if ($word =~ /^[^\W\d\s\n]*$/ && ((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word})) {
+            verbose("no correction, no idiom", $word , __LINE__);
+            add_token(\@tokens, $w_token, $word);
 
-                next;
-            }
-        }
-
-        # Process "word1- og word2" strings.
-        if ($word =~ /\w+\p{Pd}$/) {
-            if (@words) {
-                my $next_w = $words[0]{word};
-                if ($connecting{$next_w}) {
-                    $word .= $words[0]{space} . $next_w;
-                    shift @words;
-                    verbose("connecting", $word , __LINE__);
-                    if ($words[0] && (! $xml || $words[0]{word} !~ /^</)) {
-                        $word .= $words[0]{space} . $words[0]{word};
+        } else {
+            # Process "word1- og word2" strings.
+            if ($word =~ /\w+\p{Pd}$/) {
+                if (@words) {
+                    my $next_w = $words[0]{word};
+                    if ($connecting{$next_w}) {
+                        $word .= $words[0]{space} . $next_w;
                         shift @words;
-                    } elsif (@next_words && (! $xml || $next_words[0]{word} !~ /^</)) {
-                        $word .= $next_words[0]{space} . $next_words[0]{word};
+                        verbose("connecting", $word , __LINE__);
+                        if ($words[0] && (! $xml || $words[0]{word} !~ /^</)) {
+                            $word .= $words[0]{space} . $words[0]{word};
+                            shift @words;
+                        } elsif (@next_words && (! $xml || $next_words[0]{word} !~ /^</)) {
+                            $word .= $next_words[0]{space} . $next_words[0]{word};
+                            shift @next_words;
+                        }
+                    }
+                } elsif(@next_words) {
+                    verbose("connecting", $word , __LINE__);
+                    my $connect = $next_words[0]{word};
+                    if ($connecting{$connect} && $next_words[1]) {
+                        $word .= $next_words[0]{space} . $connect;
+                        $word .= $next_words[1]{word} . $next_words[1]{word};
+                        shift @next_words;
                         shift @next_words;
                     }
                 }
-            } elsif(@next_words) {
-                verbose("connecting", $word , __LINE__);
-                my $connect = $next_words[0]{word};
-                if ($connecting{$connect} && $next_words[1]) {
-                    $word .= $next_words[0]{space} . $connect;
-                    $word .= $next_words[1]{word} . $next_words[1]{word};
-                    shift @next_words;
-                    shift @next_words;
-                }
             }
-        }
 
-        @tokens = handle_leading_punctuation($word, $w_token, \@tokens);
+            @tokens = handle_leading_punctuation($word, $w_token, \@tokens);
+
+        }
 
         if ($sentences) {
             print_sentence(\@tokens);
