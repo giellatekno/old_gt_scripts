@@ -494,27 +494,35 @@ sub test_punctuation {
                     return 1;
                 }
             }
-            # If the word was not an abbreviation, the rest
-            # of the punctuation is removed and stored as separate tokens.
-            # This operation is for taking the dot out.
-            if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
-                my $rest_punct =  $1;
-                verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
-                if($corr) {
-                    if ($corrections{$word}) {
-                        test_corr(\$word, $words_aref, $tokens_aref);
-                    }
-                }
-                add_token($tokens_aref, $w_token, $word);
-
-                my @rest = split ("", $rest_punct);
-                add_array($tokens_aref, \@rest);
-
-            } else {
-                add_token($tokens_aref, $w_token, $word);
-            }
+            remove_dot($word, $corr, $words_aref, $tokens_aref, $w_token);
         }
     }
+}
+
+# If the word was not an abbreviation, the rest
+# of the punctuation is removed and stored as separate tokens.
+# This operation is for taking the dot out.
+sub remove_dot
+{
+    my ($word, $corr, $words_aref, $tokens_aref, $w_token) = @_;
+
+    if ($word =~ s/([$SINGLE_PUNCT\.:]+)$//o) {
+        my $rest_punct =  $1;
+        verbose ("process_word/rest_punct", "$word $rest_punct", __LINE__);
+        if($corr) {
+            if ($corrections{$word}) {
+                test_corr(\$word, $words_aref, $tokens_aref);
+            }
+        }
+        add_token($tokens_aref, $w_token, $word);
+
+        my @rest = split ("", $rest_punct);
+        add_array($tokens_aref, \@rest);
+
+    } else {
+        add_token($tokens_aref, $w_token, $word);
+    }
+
 }
 
 sub concatenate_three_or_more_leading_dots {
