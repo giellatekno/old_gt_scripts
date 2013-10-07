@@ -936,13 +936,10 @@ sub process_numeral {
             add_array($tokens_aref, \@ep);
         }
 
-        return;
-    }
-
+    } elsif ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) {
     # Check if there is an abbreviation or a word attached to
     # numeral. E.g. 6.b. ...ovdal. This introduces problems with some
     # mispellings with headings, like 1.6.Vuonain
-    if ($word =~ /\.([^\W\d]+\.?)$/ && $word !~ /$CONTAIN_PUNCT/o) {
         $word =~ s/([^\W\d]+\.?)$//;
         verbose ("process_numeral/end_word", $1, __LINE__);
 
@@ -955,106 +952,105 @@ sub process_numeral {
         }
         my %w = ('word' => $new_word);
         unshift (@$words_aref, \%w);
-        return;
-    }
+    } else {
 
-
-    verbose ("process_numeral", $word, __LINE__);
-    my $rest_punct;
-
-    NUM_TEST: {
-
-    # Check for ending dot, it is a separate token if
-    # the following word starts with capital letter.
-    # If there is an abbreviation with numeral, don't do checking.
-    # Otherwise the dot belongs to the expression.
-
-        # Process first the abbreviation or word
-        # that is attached to the numeral
-        if ($end_word) {
-            verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
-            my $abbr = $end_word;
-            if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
-                verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
-                is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
-                last NUM_TEST;
-            }
-            else {
-                verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
-                process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
-                last NUM_TEST;
-            }
-        }
-
-        DOT_TEST: {
-            last DOT_TEST if ($word !~ /\.$/);
-            (my $nopunct = $word) =~ s/\.$//;
-            # Try to spot dates and other experssions 31.10.
-            # preserve ending dot and and find sentence boundary
-            #if ($word =~ /^(\d{1,2}\.){2,}$/) {
-            #        verbose ("process_numeral/test_date", $word, __LINE__);
-            #      if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
-            #          $end_punct = "." . $end_punct;
-            #      }
-            #      last DOT_TEST;
-            # }
-
-            # If the number contains other than digits or is a year,
-            # and the next word does not exist or does not start uppercase, then
-            # the ending dot is removed.
-            if($nopunct =~ /[§\d\pP\pL]/ &&
-                ((!($words_aref->[0]{word}) || $words_aref->[0]{word} =~ /^[\p{Lu}]/o))){
-                $word = $nopunct;
-            } elsif ($word =~ /^\d{1,3}\.$/ ) {
-                # Otherwise dot is considered to be an ordinal.
-                if ($words_aref->[0]{word} !~ /^[\p{Lu}]/o) {
-                    last DOT_TEST;
-                }
-            } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses°]/o) {
-                $word = $nopunct;
-            } else {
-                last DOT_TEST;
-            }
-
-            if ($end_punct) {
-                $end_punct = "." . $end_punct;
-            } else {
-                $end_punct = ".";
-            }
-            verbose ("process_numeral/ending dot", $word, __LINE__);
-
-            # Clean the rest of the token:
-            # cases like 123). where dot is preceded by punctuation.
-            if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
-                $rest_punct =  $1;
-            }
-        } # end of DOT_TEST
 
         verbose ("process_numeral", $word, __LINE__);
+        my $rest_punct;
 
-        # Push everything to the tokens array.
-        verbose ("add_token", "$word", __LINE__);
-        add_token($tokens_aref, $w_token, $word);
+        NUM_TEST: {
 
-        if ($end_word) {
-            verbose ("add_token", "$end_word", __LINE__);
-            add_token($tokens_aref, $w_token, $end_word);
+        # Check for ending dot, it is a separate token if
+        # the following word starts with capital letter.
+        # If there is an abbreviation with numeral, don't do checking.
+        # Otherwise the dot belongs to the expression.
+
+            # Process first the abbreviation or word
+            # that is attached to the numeral
+            if ($end_word) {
+                verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
+                my $abbr = $end_word;
+                if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
+                    verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
+                    is_word_abbreviation($end_word, $w_token, $words_aref->[0], $tokens_aref);
+                    last NUM_TEST;
+                }
+                else {
+                    verbose ("process_numeral/is_word_abbreviation", $abbr, __LINE__);
+                    process_word ($end_word, $w_token, $words_aref, $next_aref, $tokens_aref);
+                    last NUM_TEST;
+                }
+            }
+
+            DOT_TEST: {
+                last DOT_TEST if ($word !~ /\.$/);
+                (my $nopunct = $word) =~ s/\.$//;
+                # Try to spot dates and other experssions 31.10.
+                # preserve ending dot and and find sentence boundary
+                #if ($word =~ /^(\d{1,2}\.){2,}$/) {
+                #        verbose ("process_numeral/test_date", $word, __LINE__);
+                #      if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
+                #          $end_punct = "." . $end_punct;
+                #      }
+                #      last DOT_TEST;
+                # }
+
+                # If the number contains other than digits or is a year,
+                # and the next word does not exist or does not start uppercase, then
+                # the ending dot is removed.
+                if($nopunct =~ /[§\d\pP\pL]/ &&
+                    ((!($words_aref->[0]{word}) || $words_aref->[0]{word} =~ /^[\p{Lu}]/o))){
+                    $word = $nopunct;
+                } elsif ($word =~ /^\d{1,3}\.$/ ) {
+                    # Otherwise dot is considered to be an ordinal.
+                    if ($words_aref->[0]{word} !~ /^[\p{Lu}]/o) {
+                        last DOT_TEST;
+                    }
+                } elsif ($nopunct =~ /[§\d\pP\pL]/ && $words_aref->[0]{word} =~ /^[$parentheses°]/o) {
+                    $word = $nopunct;
+                } else {
+                    last DOT_TEST;
+                }
+
+                if ($end_punct) {
+                    $end_punct = "." . $end_punct;
+                } else {
+                    $end_punct = ".";
+                }
+                verbose ("process_numeral/ending dot", $word, __LINE__);
+
+                # Clean the rest of the token:
+                # cases like 123). where dot is preceded by punctuation.
+                if ($word =~ s/([$SINGLE_PUNCT:]+)$//o) {
+                    $rest_punct =  $1;
+                }
+            } # end of DOT_TEST
+
+            verbose ("process_numeral", $word, __LINE__);
+
+            # Push everything to the tokens array.
+            verbose ("add_token", "$word", __LINE__);
+            add_token($tokens_aref, $w_token, $word);
+
+            if ($end_word) {
+                verbose ("add_token", "$end_word", __LINE__);
+                add_token($tokens_aref, $w_token, $end_word);
+            }
+
+        } #end of NUM_TEST
+
+        if ($rest_punct) {
+            my @rp = split(//, $rest_punct);
+            verbose ("add_array", "$word", __LINE__);
+            add_array($tokens_aref, \@rp);
         }
 
-    } #end of NUM_TEST
-
-    if ($rest_punct) {
-        my @rp = split(//, $rest_punct);
-        verbose ("add_array", "$word", __LINE__);
-        add_array($tokens_aref, \@rp);
+        if ($end_punct) {
+            my @ep = split(//, $end_punct);
+            verbose ("add_array", "$word", __LINE__);
+            add_array($tokens_aref, \@ep);
+        }
     }
-
-    if ($end_punct) {
-        my @ep = split(//, $end_punct);
-        verbose ("add_array", "$word", __LINE__);
-        add_array($tokens_aref, \@ep);
-    }
-
 }
 
 sub find_endpunct
