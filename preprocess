@@ -913,19 +913,8 @@ sub process_numeral {
         shift @{$words_aref};
     }
 
-    # Clean first the end of the token, where punctuation follows
-    # the numeral or an ordinal and does not belong to the expression.
-    # cases like: 123! and 123.), 123). 10,-.
-    # problem: 123.? and 123 is an ordinal.
     my $end_punct;
-    if ($word =~ s/([$SINGLE_PUNCT:]+\.?)$//o){
-        $end_punct = $1;
-    }
-
-    if ($word =~ /([$SINGLE_PUNCT:\p{Pd}\%]+\.?)$/o){
-        $word =~ s/(\.?)$//;
-        $end_punct = $1;
-    }
+    ($end_punct, $word) = find_endpunct($end_punct, $word);
 
     verbose ("process_numeral", $word, __LINE__);
 
@@ -1090,6 +1079,26 @@ sub process_numeral {
         add_array($tokens_aref, \@ep);
     }
 
+}
+
+sub find_endpunct
+{
+    my ($end_punct, $word) = @_;
+
+        # Clean first the end of the token, where punctuation follows
+    # the numeral or an ordinal and does not belong to the expression.
+    # cases like: 123! and 123.), 123). 10,-.
+    # problem: 123.? and 123 is an ordinal.
+    if ($word =~ s/([$SINGLE_PUNCT:]+\.?)$//o){
+        $end_punct = $1;
+    }
+
+    if ($word =~ /([$SINGLE_PUNCT:\p{Pd}\%]+\.?)$/o){
+        $word =~ s/(\.?)$//;
+        $end_punct = $1;
+    }
+
+    return ($end_punct, $word);
 }
 
 sub combine_date_expression
