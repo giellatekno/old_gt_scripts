@@ -981,15 +981,6 @@ sub process_numeral {
             DOT_TEST: {
                 last DOT_TEST if ($word !~ /\.$/);
                 (my $nopunct = $word) =~ s/\.$//;
-                # Try to spot dates and other experssions 31.10.
-                # preserve ending dot and and find sentence boundary
-                #if ($word =~ /^(\d{1,2}\.){2,}$/) {
-                #        verbose ("process_numeral/test_date", $word, __LINE__);
-                #      if ($words_aref->[0] =~ /^[\p{Lu}]/o) {
-                #          $end_punct = "." . $end_punct;
-                #      }
-                #      last DOT_TEST;
-                # }
 
                 # If the number contains other than digits or is a year,
                 # and the next word does not exist or does not start uppercase, then
