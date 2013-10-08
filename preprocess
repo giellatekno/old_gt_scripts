@@ -275,34 +275,34 @@ sub process_words {
             if (! $no_xml_out) {
                 print $w_token->{xml}, "\n";
             }
-            next;
-        }
-
-        my $word = $w_token->{word};
-
-        if (! $word) {
-            $word = "";
-        }
-
-        verbose("NEW", $word , __LINE__);
-        # An array for storing the tokens, each token in its own slot.
-        my @tokens;
-
-        # Move forward if the word is nothing special.
-        # This is for making preprocessing faster.
-        if ($word =~ /^[^\W\d\s\n]*$/ && ((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word})) {
-            verbose("no correction, no idiom", $word , __LINE__);
-            add_token(\@tokens, $w_token, $word);
-
+            
         } else {
-            $word = process_word1_hyphen_and_word2_string($word);
-            @tokens = handle_leading_punctuation($word, $w_token);
-        }
 
-        if ($sentences) {
-            print_sentence(\@tokens);
-        } else {
-            print_tokens(\@tokens);
+            my $word = $w_token->{word};
+
+            if ($word) {
+
+                verbose("NEW", $word , __LINE__);
+                # An array for storing the tokens, each token in its own slot.
+                my @tokens;
+
+                # Move forward if the word is nothing special.
+                # This is for making preprocessing faster.
+                if ($word =~ /^[^\W\d\s\n]*$/ && ((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word})) {
+                    verbose("no correction, no idiom", $word , __LINE__);
+                    add_token(\@tokens, $w_token, $word);
+
+                } else {
+                    $word = process_word1_hyphen_and_word2_string($word);
+                    @tokens = handle_leading_punctuation($word, $w_token);
+                }
+
+                if ($sentences) {
+                    print_sentence(\@tokens);
+                } else {
+                    print_tokens(\@tokens);
+                }
+            }
         }
     }
 }
