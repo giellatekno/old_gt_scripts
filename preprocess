@@ -295,36 +295,8 @@ sub process_words {
             add_token(\@tokens, $w_token, $word);
 
         } else {
-            # Process "word1- og word2" strings.
-            if ($word =~ /\w+\p{Pd}$/) {
-                if (@words) {
-                    my $next_w = $words[0]{word};
-                    if ($connecting{$next_w}) {
-                        $word .= $words[0]{space} . $next_w;
-                        shift @words;
-                        verbose("connecting", $word , __LINE__);
-                        if ($words[0] && (! $xml || $words[0]{word} !~ /^</)) {
-                            $word .= $words[0]{space} . $words[0]{word};
-                            shift @words;
-                        } elsif (@next_words && (! $xml || $next_words[0]{word} !~ /^</)) {
-                            $word .= $next_words[0]{space} . $next_words[0]{word};
-                            shift @next_words;
-                        }
-                    }
-                } elsif(@next_words) {
-                    verbose("connecting", $word , __LINE__);
-                    my $connect = $next_words[0]{word};
-                    if ($connecting{$connect} && $next_words[1]) {
-                        $word .= $next_words[0]{space} . $connect;
-                        $word .= $next_words[1]{word} . $next_words[1]{word};
-                        shift @next_words;
-                        shift @next_words;
-                    }
-                }
-            }
-
+            $word = process_word1_hyphen_and_word2_string($word);
             @tokens = handle_leading_punctuation($word, $w_token);
-
         }
 
         if ($sentences) {
@@ -333,6 +305,41 @@ sub process_words {
             print_tokens(\@tokens);
         }
     }
+}
+
+# Process "word1- og word2" strings.
+sub process_word1_hyphen_and_word2_string
+{
+    my ($word) = @_;
+
+    if ($word =~ /\w+\p{Pd}$/) {
+        if (@words) {
+            my $next_w = $words[0]{word};
+            if ($connecting{$next_w}) {
+                $word .= $words[0]{space} . $next_w;
+                shift @words;
+                verbose("connecting", $word , __LINE__);
+                if ($words[0] && (! $xml || $words[0]{word} !~ /^</)) {
+                    $word .= $words[0]{space} . $words[0]{word};
+                    shift @words;
+                } elsif (@next_words && (! $xml || $next_words[0]{word} !~ /^</)) {
+                    $word .= $next_words[0]{space} . $next_words[0]{word};
+                    shift @next_words;
+                }
+            }
+        } elsif(@next_words) {
+            verbose("connecting", $word , __LINE__);
+            my $connect = $next_words[0]{word};
+            if ($connecting{$connect} && $next_words[1]) {
+                $word .= $next_words[0]{space} . $connect;
+                $word .= $next_words[1]{word} . $next_words[1]{word};
+                shift @next_words;
+                shift @next_words;
+            }
+        }
+    }
+
+    return $word;
 }
 
 sub process_word {
