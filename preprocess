@@ -387,7 +387,7 @@ sub process_word {
 
     my $word3 = store_leading_punctuation($word2, $tokens_aref);
 
-    test_punctuation($word3, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref);
+    $end_punct = test_punctuation($word3, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref);
 
     my @ep = split(//, $end_punct);
     unshift(@ep, $end_num);
@@ -506,7 +506,8 @@ sub test_punctuation {
             verbose ("process_word/not_abbr", "$word", __LINE__);
             if (($word =~ /^(\pL+\.)([\p{pD}\pL]+.*)$/ || $word =~ /([\pL\p{Pd}]+)([^\pL0-9\. \:\-\`]+[\p{pD}\pL]+.*)$/) && $word !~ /$CONTAIN_PUNCT/o) {
                     $word = $1;
-                    my %w = ('word' => $2);
+                    my %w = ('word' => $2 . $end_punct);
+                    $end_punct = "";
                     unshift (@{$words_aref}, \%w);
 
                     verbose ("process_word/contain_punct", "$word", __LINE__);
@@ -516,6 +517,8 @@ sub test_punctuation {
             }
         }
     }
+
+    return $end_punct;
 }
 
 # If the word was not an abbreviation, the rest
