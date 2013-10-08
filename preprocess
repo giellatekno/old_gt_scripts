@@ -196,7 +196,15 @@ sub process_line
             while($next_line =~ s/^(\s*)([^\s]+)//) {
                 my $word = $2;
                 my $spacechar = $1;
-                push_word($word, $spacechar);
+                # Assume that a word containing a dot followed by a hyphen or parenthesis is
+                # an abbreviation followed by another word. Split this word
+                # into two words, inserting a space after each of them
+                if ($word =~ /(.*\D)\.([-\)])(.*)/) {
+                    push_word($1 . '.', " ");
+                    push_word($2 .$3, " ");
+                } else {
+                    push_word($word, $spacechar);
+                }
             }
         }
 
