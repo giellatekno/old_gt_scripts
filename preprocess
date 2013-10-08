@@ -130,81 +130,80 @@ sub process_lines {
     while (<>) {
         chomp;
 
-        if (/^\s*$/ && !eof) {
-            next;
-        }
+        if (!(/^\s*$/ && !eof)) {
 
-        s/^\s*//;
+            s/^\s*//;
 
-        # Process the <hyph> tag.
-        if (! $use_hyph_tag) {
-            if ($hyph) {
-                s/\<hyph\>/-/g;
-            } else {
-                s/\<hyph\>//g;
+            # Process the <hyph> tag.
+            if (! $use_hyph_tag) {
+                if ($hyph) {
+                    s/\<hyph\>/-/g;
+                } else {
+                    s/\<hyph\>//g;
+                }
             }
-        }
 
-        # Process always the previous line, unless first line.
-        if(!$line && ! @words) {
-            $line = $_;
-            if (!eof) {
-                next;
-            } else {
+            # Process always the previous line, unless first line.
+            if(!$line && ! @words) {
+                $line = $_;
+                if (!eof) {
+                    next;
+                } else {
+                    $next_line = undef;
+                }
+            } elsif(eof && ! $_) {
                 $next_line = undef;
+            } else {
+                $next_line = $_;
             }
-        } elsif(eof && ! $_) {
-            $next_line = undef;
-        } else {
-            $next_line = $_;
-        }
 
-        # If no XML-processing, split line to tokens.
-        if(! $xml) {
-            if (! @words) {
-                while($line =~ s/^(\s*)([^\s]+)//) {
-                    my $word = $2;
-                    my $spacechar = $1;
-                    # Assume that a word containing a dot followed by a hyphen or parenthesis is
-                    # an abbreviation followed by another word. Split this word
-                    # into two words, inserting a space after each of them
-                    if ($word =~ /(.*\D)\.([-\)])(.*)/) {
-                        push_word($1 . '.', " ");
-                        push_word($2 .$3, " ");
-                    } else {
+            # If no XML-processing, split line to tokens.
+            if(! $xml) {
+                if (! @words) {
+                    while($line =~ s/^(\s*)([^\s]+)//) {
+                        my $word = $2;
+                        my $spacechar = $1;
+                        # Assume that a word containing a dot followed by a hyphen or parenthesis is
+                        # an abbreviation followed by another word. Split this word
+                        # into two words, inserting a space after each of them
+                        if ($word =~ /(.*\D)\.([-\)])(.*)/) {
+                            push_word($1 . '.', " ");
+                            push_word($2 .$3, " ");
+                        } else {
+                            push_word($word, $spacechar);
+                        }
+                    }
+                    $line = undef;
+                }
+
+                if ($next_line) {
+                    while($next_line =~ s/^(\s*)([^\s]+)//) {
+                        my $word = $2;
+                        my $spacechar = $1;
                         push_word($word, $spacechar);
                     }
                 }
-                $line = undef;
-            }
 
-            if ($next_line) {
-                while($next_line =~ s/^(\s*)([^\s]+)//) {
-                    my $word = $2;
-                    my $spacechar = $1;
-                    push_word($word, $spacechar);
+                $next_line = undef;
+            } else {
+                # If the xml-tags are included in the preprocessor output they are
+                # left untouched and just added to the tokens array.
+                # The xml-markup without space, like in <italics>word</italics>
+                # is taken into account.
+
+                if (!@words) {
+                    xml_tags($line, \@words);
                 }
+                xml_tags($next_line, \@next_words)
             }
 
-            $next_line = undef;
-        } else {
-            # If the xml-tags are included in the preprocessor output they are
-            # left untouched and just added to the tokens array.
-            # The xml-markup without space, like in <italics>word</italics>
-            # is taken into account.
-
-            if (!@words) {
-                xml_tags($line, \@words);
+            if ($preserve_newline) {
+                $words[-1]{space} .= "\n";
             }
-            xml_tags($next_line, \@next_words)
-        }
+            process_words();
 
-        if ($preserve_newline) {
-            $words[-1]{space} .= "\n";
+            @words = @next_words;
         }
-        process_words();
-
-        @words = @next_words;
     }
 
     process_words();
