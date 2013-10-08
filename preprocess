@@ -156,28 +156,33 @@ sub loop_on_input {
             if(!$line && ! @words && !eof) {
                 $line = $_;
             } else {
-                if (!$line && ! @words && eof) {
-                    $line = $_;
-                    $next_line = undef;
-                } elsif(eof && ! $_) {
-                    $next_line = undef;
-                } else {
-                    $next_line = $_;
-                }
-
-                process_line();
-
-                if ($preserve_newline) {
-                    $words[-1]{space} .= "\n";
-                }
-                process_words();
-
-                @words = @next_words;
+                process_lines();
             }
         }
     }
 
     process_words();
+}
+
+sub process_lines
+{
+    if (!$line && ! @words && eof) {
+        $line = $_;
+        $next_line = undef;
+    } elsif(eof && ! $_) {
+        $next_line = undef;
+    } else {
+        $next_line = $_;
+    }
+
+    process_line();
+
+    if ($preserve_newline) {
+        $words[-1]{space} .= "\n";
+    }
+    process_words();
+
+    @words = @next_words;
 }
 
 sub process_line
