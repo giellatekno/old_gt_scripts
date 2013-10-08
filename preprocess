@@ -131,10 +131,10 @@ sub preprocess_lines
     read_corr (\%corrections, \%corr_short);
 
     # Read one line at a time but keep track of the next line.
-    process_lines();
+    loop_on_input();
 }
 
-sub process_lines {
+sub loop_on_input {
 
     while (<>) {
         chomp;
