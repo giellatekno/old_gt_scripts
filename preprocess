@@ -139,6 +139,10 @@ sub loop_on_input {
     while (<>) {
         chomp;
 
+        if (/^$/) {
+            $_ = "¶";
+        }
+
         if (!(/^\s*$/ && !eof)) {
 
             s/^\s*//;
