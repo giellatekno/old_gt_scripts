@@ -144,27 +144,27 @@ sub process_lines {
             }
 
             # Process always the previous line, unless first line.
-            if(!$line && ! @words) {
+            if(!$line && ! @words && !eof) {
                 $line = $_;
-                if (!eof) {
-                    next;
-                } else {
-                    $next_line = undef;
-                }
-            } elsif(eof && ! $_) {
-                $next_line = undef;
             } else {
-                $next_line = $_;
+                if (!$line && ! @words && eof) {
+                    $line = $_;
+                    $next_line = undef;
+                } elsif(eof && ! $_) {
+                    $next_line = undef;
+                } else {
+                    $next_line = $_;
+                }
+
+                process_line();
+
+                if ($preserve_newline) {
+                    $words[-1]{space} .= "\n";
+                }
+                process_words();
+
+                @words = @next_words;
             }
-
-            process_line();
-
-            if ($preserve_newline) {
-                $words[-1]{space} .= "\n";
-            }
-            process_words();
-
-            @words = @next_words;
         }
     }
 
