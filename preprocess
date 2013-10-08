@@ -384,7 +384,7 @@ sub process_word {
 
     # Test for multiword expression.
     if ( $idioms_short{$word1}) {
-        test_idiom(\$word1, $words_aref, $next_aref, $MULTIWORD_SIZE);
+        test_idiom(\$word1, $words_aref, $next_aref, $MULTIWORD_SIZE, $end_punct);
     }
 
     my ($word2, $end_num) = split_numbers_from_words($word1);
@@ -865,7 +865,7 @@ sub check_idiom
 # with the expression. The other parts are
 # removed from the words array.
 sub test_idiom {
-    my ($word_ref, $words_aref, $next_aref, $size) = @_;
+    my ($word_ref, $words_aref, $next_aref, $size, $end_punct) = @_;
 
     # Test for multiword expressions by growing the token
     # one word at a time
@@ -875,7 +875,7 @@ sub test_idiom {
     my $idiom;
     my $ucidiom;
 
-    verbose("test_idiom", "hmmmm", __LINE__);
+    verbose("test_idiom", "", __LINE__);
     if ($words_aref->[0]{word} or $next_aref->[0]{word}) {
         if( $words_aref->[0]{word} ) {
             if ($words_aref->[0]{space}) {
@@ -890,51 +890,55 @@ sub test_idiom {
             $ucidiom = ucfirst($$word_ref) . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
             $next=1;
         }
-        while ($i <= $size) {
 
-            # Remove the punctuation at the end of the expression.
-            (my $idiom2 = $idiom) =~ s/[^\w]*$//;
-            (my $ucidiom2 = $ucidiom) =~ s/[^\w]*$//;
+        # Only test for multi word expression if end_punct is emtpy
+        if ($end_punct eq "") {
+            while ($i <= $size) {
 
-            # If the expressions contains punctuation in the middle, return.
-            return if ($idiom2 =~ /[^\w\s\d\.\-]/);
+                # Remove the punctuation at the end of the expression.
+                (my $idiom2 = $idiom) =~ s/[^\w]*$//;
+                (my $ucidiom2 = $ucidiom) =~ s/[^\w]*$//;
 
-            # Test if the formed multiword expression exists in the
-            # idiom list. Test also lower case version.
+                # If the expressions contains punctuation in the middle, return.
+                return if ($idiom2 =~ /[^\w\s\d\.\-]/);
 
-            verbose ("test_idiom", $idiom, __LINE__);
+                # Test if the formed multiword expression exists in the
+                # idiom list. Test also lower case version.
 
-            if ($idioms{$idiom2} || $idioms{lc($idiom2)} || $idioms{($ucidiom2)}) {
-                for (my $j=0; $j <= $i; $j++) {
-                    # Construct the new multiword processing unit.
-                    # Remove the parts of the multiword expression from
-                    # the word array.
-                    if($next) {
-                        $$word_ref = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word};
-                        shift @{$next_aref};
-                    } else {
-                        if ($words_aref->[0]{space}) {
-                            $$word_ref = $$word_ref . $words_aref->[0]{space};
+                verbose ("test_idiom", $idiom, __LINE__);
+
+                if ($idioms{$idiom2} || $idioms{lc($idiom2)} || $idioms{($ucidiom2)}) {
+                    for (my $j=0; $j <= $i; $j++) {
+                        # Construct the new multiword processing unit.
+                        # Remove the parts of the multiword expression from
+                        # the word array.
+                        if($next) {
+                            $$word_ref = $$word_ref . $next_aref->[0]{space} . $next_aref->[0]{word};
+                            shift @{$next_aref};
+                        } else {
+                            if ($words_aref->[0]{space}) {
+                                $$word_ref = $$word_ref . $words_aref->[0]{space};
+                            }
+                            if ($words_aref->[0]{word}) {
+                                $$word_ref = $$word_ref . $words_aref->[0]{word};
+                            }
+                            shift @{$words_aref};
                         }
-                        if ($words_aref->[0]{word}) {
-                            $$word_ref = $$word_ref . $words_aref->[0]{word};
-                        }
-                        shift @{$words_aref};
                     }
+                    return 1;
                 }
-                return 1;
-            }
 
-            $i++;
-            if($words_aref->[$i]) {
-                $idiom = $idiom . $words_aref->[$i]{space} . $words_aref->[$i]{word};
-                $ucidiom = $ucidiom . $words_aref->[$i]{space} . ucfirst($words_aref->[$i]{word});
-            } elsif(! $next && $next_aref->[0]{word} && $next_aref->[0]{space}) {
-                $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
-                $ucidiom = $ucidiom . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
-                $next=1;
-            } else {
-                return 0;
+                $i++;
+                if($words_aref->[$i]) {
+                    $idiom = $idiom . $words_aref->[$i]{space} . $words_aref->[$i]{word};
+                    $ucidiom = $ucidiom . $words_aref->[$i]{space} . ucfirst($words_aref->[$i]{word});
+                } elsif(! $next && $next_aref->[0]{word} && $next_aref->[0]{space}) {
+                    $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
+                    $ucidiom = $ucidiom . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
+                    $next=1;
+                } else {
+                    return 0;
+                }
             }
         }
     } else {
