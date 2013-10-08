@@ -168,6 +168,7 @@ sub process_lines
 {
     my ($this_line) = @_;
 
+    verbose("process_lines", $this_line, __LINE__);
     if (!$line && ! @words && eof) {
         $line = $this_line;
         $next_line = undef;
@@ -218,6 +219,7 @@ sub line2words
 {
     my ($this_line) = @_;
 
+    verbose("line2words", $this_line, __LINE__);
     while($this_line =~ s/^(\s*)([^\s]+)//) {
         my $word = $2;
         my $spacechar = $1;
@@ -302,7 +304,7 @@ sub process_words {
 
             if ($word) {
 
-                verbose("NEW", $word , __LINE__);
+                verbose("process_words", $word , __LINE__);
                 # An array for storing the tokens, each token in its own slot.
                 my @tokens;
 
@@ -328,6 +330,7 @@ sub process_word1_hyphen_and_word2_string
 {
     my ($word) = @_;
 
+    verbose("process_word1_hyphen_and_word2_string", $word, __LINE__);
     if ($word =~ /\w+\p{Pd}$/) {
         if (@words) {
             my $next_w = $words[0]{word};
@@ -344,9 +347,9 @@ sub process_word1_hyphen_and_word2_string
                 }
             }
         } elsif(@next_words) {
-            verbose("connecting", $word , __LINE__);
             my $connect = $next_words[0]{word};
             if ($connecting{$connect} && $next_words[1]) {
+                verbose("connecting", $word , __LINE__);
                 $word .= $next_words[0]{space} . $connect;
                 $word .= $next_words[1]{word} . $next_words[1]{word};
                 shift @next_words;
@@ -765,6 +768,7 @@ sub define_word
 {
     my ($word, $tokens_aref, $words_aref, $next_aref) = @_;
 
+    verbose("define_word", $word, __LINE__);
     my $next;
     my $idiom;
     my $ucidiom;
@@ -785,6 +789,7 @@ sub loop_correction
 {
     my ($word, $idiom, $ucidiom, $tokens_aref, $next, $words_aref, $next_aref) = @_;
 
+    verbose("loop_correction", $word, __LINE__);
     my $size=2;
     my $i=1;
     while ($i <= $size) {
@@ -863,6 +868,7 @@ sub test_idiom {
     my $idiom;
     my $ucidiom;
 
+    verbose("test_idiom", "hmmmm", __LINE__);
     if ($words_aref->[0]{word} or $next_aref->[0]{word}) {
         if( $words_aref->[0]{word} ) {
             if ($words_aref->[0]{space}) {
@@ -969,6 +975,7 @@ sub word_or_abbr_attached_to_numeral
 {
     my ($word, $w_token, $words_aref, $next_aref, $tokens_aref, $end_punct) = @_;
 
+    verbose("word_or_abbr_attached_to_numeral", $word, __LINE__);
     $word =~ s/([^\W\d]+\.?)$//;
 
     process_numeral($word, $w_token, $words_aref, $next_aref, $tokens_aref);
@@ -985,8 +992,9 @@ sub word_or_abbr_attached_to_numeral
 # Check if the word is an inflected numeral. 12s, etc.
 sub word_as_inflected_numeral
 {
-    my ($tokens_aref, , $word, $w_token, $words_aref, $next_aref, $end_punct) = @_;
+    my ($tokens_aref, $word, $w_token, $words_aref, $next_aref, $end_punct) = @_;
 
+    verbose("word_as_inflected_numeral", $word, __LINE__);
     add_token($tokens_aref, $w_token, $1);
     my %w = ('word' => $3);
     process_word ($3, \%w, $words_aref, $next_aref, $tokens_aref);
@@ -999,7 +1007,6 @@ sub word_as_inflected_numeral
 
     if ($end_punct) {
         my @ep = split(//, $end_punct);
-        verbose ("add_array", "@ep", __LINE__);
         add_array($tokens_aref, \@ep);
     }
 }
@@ -1061,6 +1068,7 @@ sub dot_test
 {
     my ($word, $end_punct, $rest_punct, $words_aref) = @_;
 
+    verbose("dot_test", $word, __LINE__);
     unless ($word !~ /\.$/) {
         (my $nopunct = $word) =~ s/\.$//;
 
@@ -1153,6 +1161,7 @@ sub combine_date_expression
 {
     my ($word, $words_aref) = @_;
 
+    verbose("combine_date_expression", $word, __LINE__);
     # Consider date expressions first.
     # at the moment covers years: 1984-2000, 1984- 2000 etc.
     if ($word =~ /^\d{4}\p{Pd}?$/o) {
@@ -1175,6 +1184,7 @@ sub combine_date_ranges
 {
     my ($word, $words_aref) = @_;
 
+    verbose("combine_date_ranges", $word, __LINE__);
     # Look for date ranges, e.g. 2. - 3. mars
     # First check that all variables that are accessed are initialized
     if ($word && $words_aref->[0]{word} && $words_aref->[1]{word}) {
@@ -1202,6 +1212,7 @@ sub combine_punctuation_with_numeral
 {
     my ($word, $words_aref) = @_;
 
+    verbose("combine_punctuation_with_numeral", $word, __LINE__);
     # Combine punctuation with numeral if followed by other numeral.
     # cases like 123- 456 and 123 -456 and 123 456 and 123 - 456
     # 10 000,- and math expressions like 2 * 4 = 8
