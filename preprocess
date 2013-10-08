@@ -55,7 +55,6 @@ my $connect;
 my $space=0;
 my $ltag = "<";
 my $rtag = ">";
-my $sentences=0;
 my $no_utf8=0;
 my $preserve_newline=0;
 
@@ -275,7 +274,7 @@ sub process_words {
             if (! $no_xml_out) {
                 print $w_token->{xml}, "\n";
             }
-            
+
         } else {
 
             my $word = $w_token->{word};
@@ -297,11 +296,7 @@ sub process_words {
                     @tokens = handle_leading_punctuation($word, $w_token);
                 }
 
-                if ($sentences) {
-                    print_sentence(\@tokens);
-                } else {
-                    print_tokens(\@tokens);
-                }
+                print_tokens(\@tokens);
             }
         }
     }
@@ -1251,30 +1246,6 @@ sub print_token{
         print $ltag, $w_token->{space}, $rtag, "\n";
     }
     print $w_token->{word}, "\n";
-}
-
-# Combine tokens to spaces and add newline after each sentence break.
-sub print_sentence {
-    my $tokens_aref = shift @_;
-
-    my $sentend=0;
-    my $break = quotemeta($sentence_break);
-
-    for my $t (@$tokens_aref) {
-        if (! $sentend && $t->{space}) {
-            print $t->{space};
-        }
-        next if ($t->{word} =~ /^$/);
-        if ($t->{word} =~ /^$break$/) {
-            my $n_word = $t->{word};
-            if ($sentence_break ne ".") {
-                $n_word =~ s/$sentence_break//g;
-            }
-            print "$n_word\n\n";
-        } else {
-            print $t->{word};
-        }
-    }
 }
 
 # Print the list of tokens.
