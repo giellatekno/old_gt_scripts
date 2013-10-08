@@ -156,7 +156,7 @@ sub loop_on_input {
             if(!$line && ! @words && !eof) {
                 $line = $_;
             } else {
-                process_lines();
+                process_lines($_);
             }
         }
     }
@@ -166,13 +166,15 @@ sub loop_on_input {
 
 sub process_lines
 {
+    my ($this_line) = @_;
+
     if (!$line && ! @words && eof) {
-        $line = $_;
+        $line = $this_line;
         $next_line = undef;
-    } elsif(eof && ! $_) {
+    } elsif(eof && ! $this_line) {
         $next_line = undef;
     } else {
-        $next_line = $_;
+        $next_line = $this_line;
     }
 
     process_line();
@@ -392,6 +394,7 @@ sub process_word {
 sub split_numbers_from_words {
     my ($word) = @_;
 
+    verbose("split_numbers_from_words", $word, __LINE__);
     my $end_num;
     if ($word =~ /\.?(\d+\.?)$/){
         $word =~ s/(\d+\.?)$//;
@@ -405,6 +408,7 @@ sub split_numbers_from_words {
 sub store_leading_punctuation {
     my ($word, $tokens_aref) = @_;
 
+    verbose("store_leading_punctuation", $word, __LINE__);
     # Store the punctuation at the front of the string to tokens array.
     if ($word =~ s/^([*+=%:\p{Pd}$other]+)//o) {
         my @punct = split(//, $1);
