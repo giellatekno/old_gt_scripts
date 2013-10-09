@@ -72,15 +72,15 @@ while (<LEX>) {
     }
 }
 
-while (<LEX>) {    
+while (<LEX>) {
     chomp;
 
     if (/^LEXICON/) {
         print ABB "$_\n";
         next;
     }
-    
-    # Replace the incoming line ($_) 
+
+    # Replace the incoming line ($_)
     # with the first group of the string ($1)
     # Assign the result to $abbr
     # The group ($1) consists of:
@@ -114,7 +114,7 @@ my %paradigms;
 my $gen_lookup;
 if (! $noparadigm) {
     generate_taglist($paradigmfile,$tagfile,\%paradigms);
-    $gen_lookup="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null"; 
+    $gen_lookup="lookup -flags mbTT -utf8 \"$fst\" 2>/dev/null";
 }
 
 
@@ -133,7 +133,7 @@ for my $file (@lex_file_names) {
     while (<LEX>) {
         chomp;
         if (! /^\!/) { #discard comments
-            
+
             if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+\+MWE)+).*?[\s|:].*/$1/) {
                 $abbr =~ s/%//g;
                 $abbr =~ s/\^//g;
@@ -141,8 +141,8 @@ for my $file (@lex_file_names) {
                 $abbr =~ s/[987]$//g;
 
                 my @idioms;
-                if (! $pos || $noparadigm) { 
-                    print ABB "$abbr\n"; 
+                if (! $pos || $noparadigm) {
+                    print ABB "$abbr\n";
                 }
                 else {
                     my @all_a;
@@ -161,7 +161,7 @@ for my $file (@lex_file_names) {
                         push (@all_a, $all);
                     }
                     for my $a (@all_a) {
-                        call_gen(\@idioms,$a); 
+                        call_gen(\@idioms,$a);
                     }
 
                     if (! @idioms) {
@@ -183,7 +183,7 @@ for my $file (@lex_file_names) {
 
 if( ! $noparadigm) {
     print ABB "\nLEXICON NUM\n";
-    
+
     my $all;
     my %num_suffix;
     for my $n (@numbers) {
@@ -191,20 +191,20 @@ if( ! $noparadigm) {
             my $string = "$n+$a";
             $all .= $string . "\n";
         }
-        my $generated = `echo \"$all\" | $gen_lookup`;        
+        my $generated = `echo \"$all\" | $gen_lookup`;
         my @analyses = split(/\n+/, $generated);
-        
-        for my $a (@analyses) { 
+
+        for my $a (@analyses) {
             next if ($a =~ /\+\?/);
             next if ($a =~ /[\:\-]/);
             my ($word, $analysis) = split(/\t/, $a);
             next if (! $analysis);
-            
+
             next if ($analysis =~ /^\s*$/);
-            
+
             $analysis =~ s/$n//g;
             $analysis =~ s/1//g;
-            $num_suffix{$analysis} = 1; 
+            $num_suffix{$analysis} = 1;
         }
     }
     for my $idiom (keys %num_suffix) {
