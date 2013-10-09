@@ -387,29 +387,12 @@ sub process_word {
         test_idiom(\$word1, $words_aref, $next_aref, $MULTIWORD_SIZE, $end_punct);
     }
 
-    my ($word2, $end_num) = split_numbers_from_words($word1);
+    my $word2 = store_leading_punctuation($word1, $tokens_aref);
 
-    my $word3 = store_leading_punctuation($word2, $tokens_aref);
-
-    $end_punct = test_punctuation($word3, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref);
+    $end_punct = test_punctuation($word2, $end_punct, $words_aref, $tokens_aref, $w_token, $next_aref);
 
     my @ep = split(//, $end_punct);
-    unshift(@ep, $end_num);
     add_array($tokens_aref, \@ep);
-}
-
-sub split_numbers_from_words {
-    my ($word) = @_;
-
-    verbose("split_numbers_from_words", $word, __LINE__);
-    my $end_num;
-    if ($word =~ /\.?(\d+\.?)$/){
-        $word =~ s/(\d+\.?)$//;
-        $end_num = $1;
-        verbose ("process_word/end_num", $end_num, __LINE__);
-    }
-
-    return ($word, $end_num);
 }
 
 sub store_leading_punctuation {
