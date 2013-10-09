@@ -314,7 +314,8 @@ sub process_words {
 
                 # Move forward if the word is nothing special.
                 # This is for making preprocessing faster.
-                if ($word =~ /^[^\W\d\s\n]*$/ && ((! $corr || ! $corr_short{$word}) && ! $idioms_short{$word})) {
+
+                if ($word =~ /^[^\W\d\s\n]*$/ && ((! $corr || ! $corr_short{$word}) && ! ($idioms_short{$word} || $idioms_short{lc($word)}))) {
                     verbose("no correction, no idiom", $word , __LINE__);
                     add_token(\@tokens, $w_token, $word);
 
@@ -383,7 +384,7 @@ sub process_word {
     my $word1 = test_corr($word, $words_aref, $tokens_aref);
 
     # Test for multiword expression.
-    if ( $idioms_short{$word1}) {
+    if ($idioms_short{$word1} || $idioms_short{lc($word1)}) {
         test_idiom(\$word1, $words_aref, $next_aref, $MULTIWORD_SIZE, $end_punct);
     }
 
