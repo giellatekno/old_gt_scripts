@@ -134,7 +134,7 @@ for my $file (@lex_file_names) {
         chomp;
         if (! /^\!/) { #discard comments
 
-            if ((my $abbr = $_) =~ s/^([\w\.\-^]+(% [\w\.\-^]+\+MWE)+).*?[\s|:].*/$1/) {
+            if ((my $abbr = $_) =~ s/^([\w\.\-^]+((% [\w\.\-^]+)+\+MWE)+).*?[\s|:].*/$1/) {
                 $abbr =~ s/%//g;
                 $abbr =~ s/\^//g;
                 $abbr =~ s/0//g;
