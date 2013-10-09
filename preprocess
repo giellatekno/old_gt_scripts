@@ -130,10 +130,10 @@ sub preprocess_lines
     read_abbr (\%abbrs, \%idioms, \%idioms_short, \%num, \%regex);
     read_corr (\%corrections, \%corr_short);
 
-    # Read one line at a time but keep track of the next line.
     loop_on_input();
 }
 
+# Read one line at a time but keep track of the next line.
 sub loop_on_input {
 
     while (<>) {
@@ -161,6 +161,9 @@ sub loop_on_input {
                 $line = $_;
             } else {
                 process_lines($_);
+                process_words();
+
+                @words = @next_words;
             }
         }
     }
@@ -187,9 +190,6 @@ sub process_lines
     if ($preserve_newline) {
         $words[-1]{space} .= "\n";
     }
-    process_words();
-
-    @words = @next_words;
 }
 
 sub process_line
