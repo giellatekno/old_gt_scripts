@@ -270,11 +270,13 @@ class Converter:
         if distutils.dep_util.newer_group(self.dependencies, self.getConvertedName()):
             self.makedirs()
 
-            complete = self.makeComplete()
+            if ('goldstandard' in self.orig and '.correct.' in self.orig) \
+            or 'goldstandard' not in self.orig:
+                complete = self.makeComplete()
 
-            converted = open(self.getConvertedName(), 'w')
-            converted.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
-            converted.close()
+                converted = open(self.getConvertedName(), 'w')
+                converted.write(etree.tostring(complete, encoding = 'utf8', pretty_print = 'True'))
+                converted.close()
 
     def makedirs(self):
         """Make the converted directory
