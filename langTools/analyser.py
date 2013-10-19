@@ -145,7 +145,7 @@ class Analyser:
     def disambiguationAnalysisOldSme(self, lookup2cg):
         disambiguationFile = os.path.join(os.getenv('GTHOME'), 'gt/' +
                                           self.lang + '/src/Old' + self.lang + '-dis.rle')
-        disambiguationAnalysisCommand = ['vislcg3', '-g']
+        disambiguationAnalysisCommand = ['vislcg3', '-t', '-g']
         try:
             f = open(disambiguationFile)
         except:
@@ -178,6 +178,7 @@ class Analyser:
         subp = subprocess.Popen(
             [
                 'vislcg3',
+                '-t',
                 '-g',
                 os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'),
             ],
@@ -197,6 +198,7 @@ class Analyser:
         subp = subprocess.Popen(
             [
                 'vislcg3',
+                '-t',
                 '-g',
                 os.path.join(os.getenv('GTHOME'), 'gt/sme/src/smi-syn.rle')
             ],
@@ -229,7 +231,7 @@ class Analyser:
             self.disambiguationAnalysisOldSme(lookup2cg)
             self.disambiguationAnalysisSme(lookup2cg)
         else:
-            disambiguationAnalysisCommand = ['vislcg3', '-g']
+            disambiguationAnalysisCommand = ['vislcg3', '-t', '-g']
             disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
                                               self.lang + '/src/syntax/disambiguation.cg3')
             try:
@@ -261,7 +263,7 @@ class Analyser:
         Produces output in a .dep file
         """
         if self.lang == "sme":
-            dependencyAnalysisCommand = ['vislcg3']
+            dependencyAnalysisCommand = ['vislcg3', '-t']
             dependencyAnalysisCommand.append("-I")
             dependencyAnalysisCommand.append(self.disambiguationAnalysisNameOld)
             dependencyAnalysisCommand.append("-O")
@@ -284,7 +286,7 @@ class Analyser:
             dependencyAnalysisCommand = []
 
 
-        dependencyAnalysisCommand = ['vislcg3']
+        dependencyAnalysisCommand = ['vislcg3', '-t']
         dependencyAnalysisCommand.append("-I")
         dependencyAnalysisCommand.append(self.disambiguationAnalysisName)
         dependencyAnalysisCommand.append("-O")
