@@ -44,7 +44,9 @@ alias dest='$LOOKUP $GTHOME/langs/est/src/generator-gt-desc.xfst'
 alias dfao='$LOOKUP $GTHOME/langs/fao/src/generator-gt-desc.xfst'
 alias dfin='$LOOKUP $GTHOME/langs/fin/src/generator-gt-desc.xfst'
 alias dfkv='$LOOKUP $GTHOME/langs/fkv/src/generator-gt-desc.xfst'
+alias dhdn='$LOOKUP $GTHOME/langs/hdn/src/generator-gt-desc.xfst'
 alias dipk='$LOOKUP $GTHOME/langs/ipk/src/generator-gt-desc.xfst'
+alias dhdn='$LOOKUP $GTHOME/langs/hdn/src/generator-gt-desc.xfst'
 alias dizh='$LOOKUP $GTHOME/langs/izh/src/generator-gt-desc.xfst'
 alias dkal='$LOOKUP $GTHOME/langs/kal/src/generator-gt-desc.xfst'
 alias dkca='$LOOKUP $GTHOME/langs/kca/src/generator-gt-desc.xfst'
@@ -80,6 +82,7 @@ alias ufao='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.xfst'
 alias ufin='$LOOKUP $GTHOME/langs/fin/src/analyser-gt-desc.xfst'
 alias ufkv='$LOOKUP $GTHOME/langs/fkv/src/analyser-gt-desc.xfst'
 alias uipk='$LOOKUP $GTHOME/langs/ipk/src/analyser-gt-desc.xfst'
+alias uhdn='$LOOKUP $GTHOME/langs/hdn/src/analyser-gt-desc.xfst'
 alias uizh='$LOOKUP $GTHOME/langs/izh/src/analyser-gt-desc.xfst'
 alias ukal='$LOOKUP $GTHOME/langs/kal/src/analyser-gt-desc.xfst'
 alias ukca='$LOOKUP $GTHOME/langs/kca/src/analyser-gt-desc.xfst'
@@ -517,6 +520,11 @@ alias ipkdep="sent-proc.sh -l=ipk -s=dep"
 alias ipkdept="sent-proc.sh -l=ipk -s=dep -t"
 alias ipkdis="sent-proc.sh -l=ipk -s=dis"
 alias ipkdist="sent-proc.sh -l=ipk -s=dis -t"
+
+alias hdndep="sent-proc.sh -l=hdn -s=dep"
+alias hdndept="sent-proc.sh -l=hdn -s=dep -t"
+alias hdndis="sent-proc.sh -l=hdn -s=dis"
+alias hdndist="sent-proc.sh -l=hdn -s=dis -t"
 
 alias izhdep="sent-proc.sh -l=izh -s=dep"
 alias izhdept="sent-proc.sh -l=izh -s=dep -t"
