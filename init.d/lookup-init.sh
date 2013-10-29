@@ -139,6 +139,7 @@ alias друс='$LOOKUP $GTHOME/langs/rus/src/generator-gt-desc.xfst'
 
 # Languages in newinfra, Normative variants:
 
+alias dchpNorm='$LOOKUP $GTHOME/langs/chp/src/generator-gt-norm.xfst'
 alias dciwNorm='$LOOKUP $GTHOME/langs/ciw/src/generator-gt-norm.xfst'
 alias dcorNorm='$LOOKUP $GTHOME/langs/cor/src/generator-gt-norm.xfst'
 alias destNorm='$LOOKUP $GTHOME/langs/est/src/generator-gt-norm.xfst'
@@ -166,6 +167,7 @@ alias dvroNorm='$LOOKUP $GTHOME/langs/vro/src/generator-gt-norm.xfst'
 alias dyrkNorm='$LOOKUP $GTHOME/langs/yrk/src/generator-gt-norm.xfst'
 alias dzulNorm='$LOOKUP $GTHOME/langs/zul/src/generator-gt-norm.xfst'
 
+alias uchpNorm='$LOOKUP $GTHOME/langs/chp/src/analyser-gt-norm.xfst'
 alias uciwNorm='$LOOKUP $GTHOME/langs/ciw/src/analyser-gt-norm.xfst'
 alias ucorNorm='$LOOKUP $GTHOME/langs/cor/src/analyser-gt-norm.xfst'
 alias uestNorm='$LOOKUP $GTHOME/langs/est/src/analyser-gt-norm.xfst'
