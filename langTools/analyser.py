@@ -101,7 +101,7 @@ class Analyser:
         subp = subprocess.Popen(preProcessCommand,
                         stdin = subprocess.PIPE,
                         stdout = subprocess.PIPE)
-        (output, error) = subp.communicate(self.ccat())
+        (output, error) = subp.communicate(self.ccat().replace('\\', ''))
 
         return output
 
