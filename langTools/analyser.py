@@ -55,6 +55,14 @@ class Analyser:
         else:
             return 'none'
 
+    def getOcr(self):
+        """
+        @brief Check if the ocr element exists
+
+        :returns: the ocr element or None
+        """
+        return self.eTree.getroot().find(".//ocr")
+
     def getTranslatedfrom(self):
         """
         @brief Get the translated_from value from the xml file
@@ -314,8 +322,11 @@ class Analyser:
             print >>sys.stderr, error
 
     def analyse(self):
-        self.disambiguationAnalysis()
-        self.dependencyAnalysis()
+        '''Analyse a file if it is not ocr'ed
+        '''
+        if self.getOcr() is not None:
+            self.disambiguationAnalysis()
+            self.dependencyAnalysis()
 
 class AnalysisConcatenator:
     def __init__(self, goalDir, xmlFiles):
