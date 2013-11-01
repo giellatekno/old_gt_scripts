@@ -324,7 +324,7 @@ class Analyser:
     def analyse(self):
         '''Analyse a file if it is not ocr'ed
         '''
-        if self.getOcr() is not None:
+        if self.getOcr() is None:
             self.disambiguationAnalysis()
             self.dependencyAnalysis()
 
