@@ -339,7 +339,10 @@ class AnalysisConcatenator:
         self.disoldFiles = {}
         self.depoldFiles = {}
         self.goalDir = os.path.join(goalDir, datetime.date.today().isoformat())
-        os.makedirs(self.goalDir)
+        try:
+            os.makedirs(self.goalDir)
+        except OSError:
+            pass
 
     def concatenateAnalysedFiles(self):
         """
