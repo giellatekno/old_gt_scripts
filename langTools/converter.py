@@ -632,8 +632,8 @@ class PlaintextConverter:
         except:
             content = codecs.open(self.orig, encoding = 'latin1').read()
 
-        content = content.replace(u'  ', '\n\n')
-        content = content.replace(u'–<\!q>', u'– ')
+        content = content.replace(u'ÊÊ', '\n\n')
+        content = content.replace(u'<\!q>', u' ')
         content = content.replace('\x0d', '\x0a')
         content = content.replace('<*B>', '')
         content = content.replace('<*P>', '')

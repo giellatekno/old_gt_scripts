@@ -1,4 +1,4 @@
-@bilde:NSR PRESIDEANTAEVTTOHAS? Berit Ranveig Nilssen 
+@bilde:NSR PRESIDEANTAEVTTOHAS? Berit Ranveig Nilssen
 
 @bilde:NSR PRESIDEANTAEVTTOHAS? Ragnhild Nystad
 
@@ -9,7 +9,7 @@
 
 @tittel:Gii boahtá Nystø maŋis?
 
-@ingress:Ragnhild Nystad, Aili Keskitalo. 
+@ingress:Ragnhild Nystad, Aili Keskitalo.
 
 @byline:Elle Merete Utsi
 
@@ -18,18 +18,18 @@
 @m.titt:Čeahpes jođiheaddji
 @tekst:Muhto Ragnhild Nystad ii leat áidna nissonolmmoš NSR:s gii lea dahkan buori barggu.
 
-  Son lea ge maiddái dáláš sámediggepresideantta sivjjot ja dáidá nu oalle presideantaskuvlla juo vázzán.
+ÊÊSon lea ge maiddái dáláš sámediggepresideantta sivjjot ja dáidá nu oalle presideantaskuvlla juo vázzán.
 
-@m.titt:Báhkkaseamos kándidáhtta?   
-@tekst:NSR:s lea maiddái goalmmát nissonolmmoš.   Unjárgalaš Berit Ranveig.   –<\!q>Ferten ruovttus.   
+@m.titt:Báhkkaseamos kándidáhtta?
+@tekst:NSR:s lea maiddái goalmmát nissonolmmoš. ÊÊUnjárgalaš Berit Ranveig. ÊÊĐ<\!q>Ferten ruovttus.
 
 @m.titt:Bargiidbellodagas vejolašvuohta
-@tekst:Dattetge eai noga.   Bargiidbellodaga nubbi. 
+@tekst:Dattetge eai noga. ÊÊBargiidbellodaga nubbi.
 
 @m.titt:Bb-nissonat
-@tekst:Bargiidbellodaga sámepolitihkalaš.   –<\!q>Mun doarjjun nissonolbmo presideantaevttohassan.    Bargiidbellodaga nubbi vejolaš.
+@tekst:Bargiidbellodaga sámepolitihkalaš. ÊÊĐ<\!q>Mun doarjjun nissonolbmo presideantaevttohassan.  ÊÊBargiidbellodaga nubbi vejolaš.
 
 @m.titt:Du válljejupmi
-@tekst:Guhtemušat dáin šaddet.  
-@stikk:–<\!q>Vašálaččat geavahit fuones koansttaid
+@tekst:Guhtemušat dáin šaddet.
+@stikk:Đ<\!q>Vašálaččat geavahit fuones koansttaid
 @foto:Kirkenytt govva
