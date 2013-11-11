@@ -186,7 +186,6 @@ class Analyser:
         subp = subprocess.Popen(
             [
                 'vislcg3',
-                '-t',
                 '-g',
                 os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'),
             ],
@@ -206,7 +205,6 @@ class Analyser:
         subp = subprocess.Popen(
             [
                 'vislcg3',
-                '-t',
                 '-g',
                 os.path.join(os.getenv('GTHOME'), 'gt/sme/src/smi-syn.rle')
             ],
