@@ -28,8 +28,9 @@ import datetime
 import lxml.etree as etree
 
 class Analyser:
-    def __init__(self, lang, xmlFile):
+    def __init__(self, lang, xmlFile, old=False):
         self.lang = lang
+        self.old = old
         self.eTree = etree.parse(xmlFile)
         self.calculateFilenames(xmlFile)
 
@@ -80,10 +81,12 @@ class Analyser:
         basename = xmlFile[:-4]
 
         self.xmlFile = xmlFile
+        if self.old:
+            self.disambiguationAnalysisNameOld = basename + '.disold'
+            self.dependencyAnalysisNameOld = basename + '.depold'
+
         self.disambiguationAnalysisName = basename + '.dis'
-        self.disambiguationAnalysisNameOld = basename + '.disold'
         self.dependencyAnalysisName = basename + '.dep'
-        self.dependencyAnalysisNameOld = basename + '.depold'
 
     def ccat(self):
         """Runs ccat on the input file
@@ -233,8 +236,10 @@ class Analyser:
 
         lookup2cg = self.lookup2cg()
 
-        if self.lang == "sme":
+        if self.lang == "sme" and self.old:
             self.disambiguationAnalysisOldSme(lookup2cg)
+
+        if self.lang == "sme":
             self.disambiguationAnalysisSme(lookup2cg)
         else:
             disambiguationAnalysisCommand = ['vislcg3', '-g']
@@ -268,7 +273,7 @@ class Analyser:
         """Runs vislcg3 on the .dis file.
         Produces output in a .dep file
         """
-        if self.lang == "sme":
+        if self.lang == "sme" and self.old:
             dependencyAnalysisCommand = ['vislcg3']
             dependencyAnalysisCommand.append("-I")
             dependencyAnalysisCommand.append(self.disambiguationAnalysisNameOld)
@@ -327,15 +332,17 @@ class Analyser:
             self.dependencyAnalysis()
 
 class AnalysisConcatenator:
-    def __init__(self, goalDir, xmlFiles):
+    def __init__(self, goalDir, xmlFiles, old=False):
         """
         @brief Receives a list of filenames that has been analysed
         """
         self.basenames = xmlFiles
+        self.old = old
+        if old:
+            self.disoldFiles = {}
+            self.depoldFiles = {}
         self.disFiles = {}
         self.depFiles = {}
-        self.disoldFiles = {}
-        self.depoldFiles = {}
         self.goalDir = os.path.join(goalDir, datetime.date.today().isoformat())
         try:
             os.makedirs(self.goalDir)
@@ -349,8 +356,9 @@ class AnalysisConcatenator:
         for xmlFile in self.basenames:
             self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dis"))
             self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dep"))
-            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".disold"))
-            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".depold"))
+            if self.old:
+                self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".disold"))
+                self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".depold"))
 
 
     def concatenateAnalysedFile(self, filename):

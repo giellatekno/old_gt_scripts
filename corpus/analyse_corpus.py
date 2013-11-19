@@ -36,14 +36,15 @@ def parse_options():
     parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
     parser.add_argument('--lang', help = "lang which should be analysed")
     parser.add_argument('--analysisdir', help='directory where the analysed files are place')
+    parser.add_argument('--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
     parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
 
     args = parser.parse_args()
     return args
 
 def worker(inTuple):
-    (lang, xmlFile) = inTuple
-    ana = analyser.Analyser(lang, xmlFile)
+    (lang, xmlFile, old) = inTuple
+    ana = analyser.Analyser(lang, xmlFile, old)
 
     ana.analyse()
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
         for root, dirs, files in os.walk(cdir): # Walk directory tree
             for f in files:
                 if args.lang in root and f.endswith('.xml'):
-                    xmlFiles.append((args.lang, os.path.join(root, f)))
+                    xmlFiles.append((args.lang, os.path.join(root, f), args.old))
 
     poolSize = multiprocessing.cpu_count() * 2
     pool = multiprocessing.Pool(processes=poolSize,)
@@ -110,5 +111,5 @@ if __name__ == '__main__':
     pool.close() # no more tasks
     pool.join()  # wrap up current tasks
 
-    ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles)
+    ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles, args.old)
     ac.concatenateAnalysedFiles()
