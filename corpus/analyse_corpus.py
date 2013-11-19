@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#   This file contains a program to convert corpus files with a
+#   This is a program to convert corpus files with a
 #   make like function
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -34,9 +34,9 @@ import analyser
 
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
-    parser.add_argument('--lang', help = "lang which should be analysed")
-    parser.add_argument('--analysisdir', help='directory where the analysed files are place')
-    parser.add_argument('--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
+    parser.add_argument('-l', '--lang', help = "lang which should be analysed")
+    parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are place')
+    parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
     parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
 
     args = parser.parse_args()
