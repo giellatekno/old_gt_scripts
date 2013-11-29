@@ -166,18 +166,13 @@ class Line:
 	def parseLine(self, line):
 		contlexre = re.compile(r'(?P<contlex>\S+)\s*;')
 		self.line['contlex'] = contlexre.search(line).group('contlex')
-		line = line.replace(self.line['contlex'], '')
+		line = contlexre.sub('', line)
 
-		upperlower = re.compile(r'((?P<upper>\S+)*:(?P<lower>\S+)*)')
+		m = line.find(":")
 
-		m = upperlower.search(line)
-
-		if m:
-			if m.group('upper'):
-				self.line['upper'] = m.group('upper')
-
-			if m.group('lower'):
-				self.line['lower'] = m.group('lower')
+		if m != -1:
+			self.line['upper'] = line[:m].strip()
+			self.line['lower'] = line[m + 1:].strip()
 
 		else:
 			print('no m', line)
