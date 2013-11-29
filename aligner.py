@@ -60,7 +60,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserUpperLower(self):
 		input = '''        +N+SgNomCmp:e%^DISIMP    R              ;'''
-		expectedResult = {'upper': '+N+SgNomCmp', 'lower': 'e%^DISIMP', 'contlex': 'R'}
+		expectedResult = {'upper': '+N+SgNomCmp', 'lower': 'e%^DISIMP', 'contlex': 'R', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -68,7 +68,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserNoLower(self):
 		input = '''               +N+Sg:             N_ODD_SG       ;'''
-		expectedResult = {'upper': '+N+Sg', 'lower': '', 'contlex': 'N_ODD_SG'}
+		expectedResult = {'upper': '+N+Sg', 'lower': '', 'contlex': 'N_ODD_SG', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -76,7 +76,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserNoUpperNoLower(self):
 		input = ''' N_ODD_ESS;''';
-		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_ESS'}
+		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_ESS', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -84,7 +84,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserEmptyUpperLower(self):
 		input = ''' : N_ODD_E;''';
-		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_E'}
+		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_E', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -157,11 +157,12 @@ class Lines:
 		return s.getvalue()
 
 class Line:
-	def __init__(self, upper = '', lower = '', contlex = ''):
+	def __init__(self, upper = '', lower = '', contlex = '', therest = ''):
 		self.line = {}
 		self.line['upper'] = upper
 		self.line['lower'] = lower
 		self.line['contlex'] = contlex
+		self.line['comment'] = therest
 
 	def parseLine(self, line):
 		contlexre = re.compile(r'(?P<contlex>\S+)\s*;')
