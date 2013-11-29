@@ -92,6 +92,7 @@ class TestLine(unittest.TestCase):
 
 import re
 import io
+import argparse
 
 class Lines:
 	def __init__(self):
@@ -180,3 +181,22 @@ class Line:
 
 		else:
 			print('no m', line)
+
+def parse_options():
+	parser = argparse.ArgumentParser(description = 'Align rules given in lexc files')
+	parser.add_argument('lexcfile', help = 'lexc file where rules should be aligned')
+
+	args = parser.parse_args()
+	return args
+
+if __name__ == '__main__':
+	args = parse_options()
+	f = open(args.lexcfile)
+
+	lines = Lines()
+	lines.parseLines(f.read().split('\n'))
+	f.close()
+
+	f = open(args.lexcfile, 'w')
+	f.write(lines.printLines())
+	f.close()
