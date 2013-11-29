@@ -34,6 +34,7 @@ LEXICON DAKTERE
  +N+SgGenCmp:e%>%^DISIMPn R              ;
  +N+PlGenCmp:%>%^DISIMPi  R              ;
  +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
++A+Comp+Attr:%>abpa      ATTRCONT    ;  ! båajasabpa,   *båajoesabpa
   ! Test data:
 !!€gt-norm: daktere # Odd-syllable test
 '''
@@ -49,11 +50,14 @@ LEXICON DAKTERE
          +N+SgGenCmp:e%>%^DISIMPn R              ;
          +N+PlGenCmp:%>%^DISIMPi  R              ;
  +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
+        +A+Comp+Attr:%>abpa       ATTRCONT       ; ! båajasabpa,   *båajoesabpa
 ! Test data:
 !!€gt-norm: daktere # Odd-syllable test
 
 '''
 		self.maxDiff = None
+		print(expectedResult)
+		print(l.printLines())
 		self.assertEqual(expectedResult, l.printLines())
 
 class TestLine(unittest.TestCase):
@@ -85,6 +89,14 @@ class TestLine(unittest.TestCase):
 	def testLineParserEmptyUpperLower(self):
 		input = ''' : N_ODD_E;''';
 		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_E', 'comment': ''}
+
+		aligner = Line()
+		aligner.parseLine(input)
+		self.assertEqual(aligner.line, expectedResult)
+
+	def testLineParserWithComment(self):
+		input = ''' +A+Comp+Attr:%>abpa      ATTRCONT    ;  ! båajasabpa,   *båajoesabpa'''
+		expectedResult = {'upper': '+A+Comp+Attr', 'lower': '%>abpa', 'contlex': 'ATTRCONT', 'comment': '! båajasabpa,   *båajoesabpa'}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -149,10 +161,15 @@ class Lines:
 
 				for i in range(0, post):
 					s.write(' ')
-				s.write (';\n')
+				s.write (';')
+
+				if l.line['comment'] != '':
+					s.write(' ')
+					s.write(l.line['comment'])
 			else:
 				s.write(l)
-				s.write('\n')
+
+			s.write('\n')
 
 		return s.getvalue()
 
@@ -165,8 +182,10 @@ class Line:
 		self.line['comment'] = therest
 
 	def parseLine(self, line):
-		contlexre = re.compile(r'(?P<contlex>\S+)\s*;')
+		contlexre = re.compile(r'(?P<contlex>\S+)\s*;\s*(?P<comment>.*)')
 		self.line['contlex'] = contlexre.search(line).group('contlex')
+		self.line['comment'] = contlexre.search(line).group('comment').strip()
+
 		line = contlexre.sub('', line)
 
 		m = line.find(":")
@@ -174,9 +193,6 @@ class Line:
 		if m != -1:
 			self.line['upper'] = line[:m].strip()
 			self.line['lower'] = line[m + 1:].strip()
-
-		else:
-			print('no m', line)
 
 def parse_options():
 	parser = argparse.ArgumentParser(description = 'Align rules given in lexc files')
