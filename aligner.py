@@ -25,27 +25,35 @@ class TestLines(unittest.TestCase):
 		self.assertEqual(longest, l.longest)
 
 	def testOutput(self):
-		input = ''' +N+Sg:             N_ODD_SG       ;
+		input = '''
+LEXICON DAKTERE
+ +N+Sg:             N_ODD_SG       ;
  +N+Pl:             N_ODD_PL       ;
  +N:             N_ODD_ESS      ;
  +N+SgNomCmp:e%^DISIMP    R              ;
  +N+SgGenCmp:e%>%^DISIMPn R              ;
  +N+PlGenCmp:%>%^DISIMPi  R              ;
  +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
+  ! Test data:
+!!€gt-norm: daktere # Odd-syllable test
 '''
 		l = Lines()
 		l.parseLines(input.split('\n'))
 
-		expectedResult = '''               +N+Sg:             N_ODD_SG       ;
+		expectedResult = '''
+LEXICON DAKTERE
+               +N+Sg:             N_ODD_SG       ;
                +N+Pl:             N_ODD_PL       ;
                   +N:             N_ODD_ESS      ;
          +N+SgNomCmp:e%^DISIMP    R              ;
          +N+SgGenCmp:e%>%^DISIMPn R              ;
          +N+PlGenCmp:%>%^DISIMPi  R              ;
  +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
+! Test data:
+!!€gt-norm: daktere # Odd-syllable test
+
 '''
 		self.maxDiff = None
-	
 		self.assertEqual(expectedResult, l.printLines())
 
 class TestLine(unittest.TestCase):
@@ -94,12 +102,23 @@ class Lines:
 		self.lines = []
 
 	def parseLines(self, lines):
+		commentre = re.compile(r'^\s*!')
 		for line in lines:
-			if len(line) > 0:
+
+			commentmatch = commentre.match(line)
+			if commentmatch:
+				self.lines.append(commentre.sub('!', line))
+				continue
+
+			contlexre = re.compile(r'(?P<contlex>\S+)\s*;')
+			contlexmatch = contlexre.search(line)
+			if contlexmatch:
 				l = Line()
 				l.parseLine(line)
 				self.lines.append(l)
 				self.findLongest(l)
+			else:
+				self.lines.append(line)
 
 	def findLongest(self, l):
 		for name in ['upper', 'lower', 'contlex']:
@@ -110,25 +129,29 @@ class Lines:
 		s = io.StringIO()
 
 		for l in self.lines:
-			pre = self.longest['upper'] - len(l.line['upper']) + 1
-			for i in range(0, pre):
-				s.write(' ')
-			s.write(l.line['upper'])
+			if isinstance(l, Line):
+				pre = self.longest['upper'] - len(l.line['upper']) + 1
+				for i in range(0, pre):
+					s.write(' ')
+				s.write(l.line['upper'])
 
-			s.write(':')
+				s.write(':')
 
-			s.write(l.line['lower'])
-			post = self.longest['lower'] - len(l.line['lower']) + 1
-			for i in range(0, post):
-				s.write(' ')
+				s.write(l.line['lower'])
+				post = self.longest['lower'] - len(l.line['lower']) + 1
+				for i in range(0, post):
+					s.write(' ')
 
-			s.write(l.line['contlex'])
+				s.write(l.line['contlex'])
 
-			post = self.longest['contlex'] - len(l.line['contlex']) + 1
+				post = self.longest['contlex'] - len(l.line['contlex']) + 1
 
-			for i in range(0, post):
-				s.write(' ')
-			s.write (';\n')
+				for i in range(0, post):
+					s.write(' ')
+				s.write (';\n')
+			else:
+				s.write(l)
+				s.write('\n')
 
 		return s.getvalue()
 
