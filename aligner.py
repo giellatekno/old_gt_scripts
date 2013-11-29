@@ -25,40 +25,35 @@ class TestLines(unittest.TestCase):
 		self.assertEqual(longest, l.longest)
 
 	def testOutput(self):
-		input = '''
-LEXICON DAKTERE
- +N+Sg:             N_ODD_SG       ;
- +N+Pl:             N_ODD_PL       ;
- +N:             N_ODD_ESS      ;
- +N+SgNomCmp:e%^DISIMP    R              ;
- +N+SgGenCmp:e%>%^DISIMPn R              ;
- +N+PlGenCmp:%>%^DISIMPi  R              ;
- +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
-+A+Comp+Attr:%>abpa      ATTRCONT    ;  ! båajasabpa,   *båajoesabpa
-  ! Test data:
-!!€gt-norm: daktere # Odd-syllable test
-'''
+		input = ['LEXICON DAKTERE\n',
+		   ' +N+Sg:             N_ODD_SG       ;\n',
+		   ' +N+Pl:             N_ODD_PL       ;\n',
+		   ' +N:             N_ODD_ESS      ;\n',
+		   ' +N+SgNomCmp:e%^DISIMP    R              ;\n',
+		   ' +N+SgGenCmp:e%>%^DISIMPn R              ;\n',
+		   ' +N+PlGenCmp:%>%^DISIMPi  R              ;\n',
+		   ' +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;\n',
+		   '+A+Comp+Attr:%>abpa      ATTRCONT    ;  ! båajasabpa,   *båajoesabpa\n',
+		   '  ! Test data:\n',
+		   '!!€gt-norm: daktere # Odd-syllable test\n']
 		l = Lines()
-		l.parseLines(input.split('\n'))
+		l.parseLines(input)
 
-		expectedResult = '''
-LEXICON DAKTERE
-               +N+Sg:             N_ODD_SG       ;
-               +N+Pl:             N_ODD_PL       ;
-                  +N:             N_ODD_ESS      ;
-         +N+SgNomCmp:e%^DISIMP    R              ;
-         +N+SgGenCmp:e%>%^DISIMPn R              ;
-         +N+PlGenCmp:%>%^DISIMPi  R              ;
- +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
-        +A+Comp+Attr:%>abpa       ATTRCONT       ; ! båajasabpa,   *båajoesabpa
-! Test data:
-!!€gt-norm: daktere # Odd-syllable test
-
-'''
+		expectedResult = ['LEXICON DAKTERE\n',
+					'               +N+Sg:             N_ODD_SG       ;\n',
+					'               +N+Pl:             N_ODD_PL       ;\n',
+					'                  +N:             N_ODD_ESS      ;\n',
+					'         +N+SgNomCmp:e%^DISIMP    R              ;\n',
+					'         +N+SgGenCmp:e%>%^DISIMPn R              ;\n',
+					'         +N+PlGenCmp:%>%^DISIMPi  R              ;\n',
+					' +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;\n',
+					'        +A+Comp+Attr:%>abpa       ATTRCONT       ; ! båajasabpa,   *båajoesabpa\n',
+					'! Test data:\n',
+					'!!€gt-norm: daktere # Odd-syllable test\n']
 		self.maxDiff = None
 		print(expectedResult)
-		print(l.printLines())
-		self.assertEqual(expectedResult, l.printLines())
+		print(l.adjustLines())
+		self.assertEqual(expectedResult, l.adjustLines())
 
 class TestLine(unittest.TestCase):
 
@@ -138,11 +133,13 @@ class Lines:
 			if self.longest[name] < len(l.line[name]):
 				self.longest[name] = len(l.line[name])
 
-	def printLines(self):
-		s = io.StringIO()
+	def adjustLines(self):
+		newlines = []
 
 		for l in self.lines:
 			if isinstance(l, Line):
+				s = io.StringIO()
+
 				pre = self.longest['upper'] - len(l.line['upper']) + 1
 				for i in range(0, pre):
 					s.write(' ')
@@ -166,12 +163,13 @@ class Lines:
 				if l.line['comment'] != '':
 					s.write(' ')
 					s.write(l.line['comment'])
+
+				s.write('\n')
+				newlines.append(s.getvalue())
 			else:
-				s.write(l)
+				newlines.append(l)
 
-			s.write('\n')
-
-		return s.getvalue()
+		return newlines
 
 class Line:
 	def __init__(self, upper = '', lower = '', contlex = '', therest = ''):
@@ -205,10 +203,23 @@ if __name__ == '__main__':
 	args = parse_options()
 	f = open(args.lexcfile)
 
+	newlines = []
+	readlines = []
+	for l in f.readlines():
+		if l.startswith('LEXICON '):
+			lines = Lines()
+			lines.parseLines(readlines)
+			newlines += lines.adjustLines()
+			readlines = []
+
+		readlines.append(l)
+
 	lines = Lines()
-	lines.parseLines(f.read().split('\n'))
+	lines.parseLines(readlines)
+	newlines += lines.adjustLines()
+
 	f.close()
 
 	f = open(args.lexcfile, 'w')
-	f.write(lines.printLines())
+	f.writelines(newlines)
 	f.close()
