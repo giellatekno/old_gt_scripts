@@ -24,6 +24,15 @@ class TestLines(unittest.TestCase):
 
 		self.assertEqual(longest, l.longest)
 
+	def testOutputWithEmptyUpperLower(self):
+		input = [' FINAL1         ;\n']
+		expectedResult = [' FINAL1 ;\n']
+
+		l = Lines()
+		l.parseLines(input)
+
+		self.assertEqual(expectedResult, l.adjustLines())
+
 	def testOutput(self):
 		input = ['LEXICON DAKTERE\n',
 		   ' +N+Sg:             N_ODD_SG       ;\n',
@@ -140,16 +149,19 @@ class Lines:
 			if isinstance(l, Line):
 				s = io.StringIO()
 
-				pre = self.longest['upper'] - len(l.line['upper']) + 1
-				for i in range(0, pre):
-					s.write(' ')
-				s.write(l.line['upper'])
+				if not (l.line['upper'] == '' and l.line['lower'] == ''):
+					pre = self.longest['upper'] - len(l.line['upper']) + 1
+					for i in range(0, pre):
+						s.write(' ')
+					s.write(l.line['upper'])
 
-				s.write(':')
+					s.write(':')
 
-				s.write(l.line['lower'])
-				post = self.longest['lower'] - len(l.line['lower']) + 1
-				for i in range(0, post):
+					s.write(l.line['lower'])
+					post = self.longest['lower'] - len(l.line['lower']) + 1
+					for i in range(0, post):
+						s.write(' ')
+				else:
 					s.write(' ')
 
 				s.write(l.line['contlex'])
