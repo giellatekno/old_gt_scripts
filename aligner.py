@@ -12,6 +12,7 @@ class TestLines(unittest.TestCase):
  +N+SgGenCmp:e%>%^DISIMPn R              ;
  +N+PlGenCmp:%>%^DISIMPi  R              ;
  +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;
+   +A:%>X7 NomVadj "good A" ;
 '''
 
 		l = Lines()
@@ -21,6 +22,7 @@ class TestLines(unittest.TestCase):
 		longest['upper'] = 19
 		longest['lower'] = 12
 		longest['contlex'] = 14
+		longest['translation'] = 8
 
 		self.assertEqual(longest, l.longest)
 
@@ -58,20 +60,22 @@ class TestLines(unittest.TestCase):
 		   ' +N+PlGenCmp:%>%^DISIMPi  R              ;\n',
 		   ' +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;\n',
 		   '+A+Comp+Attr:%>abpa      ATTRCONT    ;  ! båajasabpa,   *båajoesabpa\n',
+		   '   +A:%>X7 NomVadj "good A" ;',
 		   '  ! Test data:\n',
 		   '!!€gt-norm: daktere # Odd-syllable test\n']
 		l = Lines()
 		l.parseLines(input)
 
 		expectedResult = ['LEXICON DAKTERE\n',
-					'               +N+Sg:             N_ODD_SG       ;\n',
-					'               +N+Pl:             N_ODD_PL       ;\n',
-					'                  +N:             N_ODD_ESS      ;\n',
-					'         +N+SgNomCmp:e%^DISIMP    R              ;\n',
-					'         +N+SgGenCmp:e%>%^DISIMPn R              ;\n',
-					'         +N+PlGenCmp:%>%^DISIMPi  R              ;\n',
-					' +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE ;\n',
-					'        +A+Comp+Attr:%>abpa       ATTRCONT       ; ! båajasabpa,   *båajoesabpa\n',
+					'               +N+Sg:             N_ODD_SG                ;\n',
+					'               +N+Pl:             N_ODD_PL                ;\n',
+					'                  +N:             N_ODD_ESS               ;\n',
+					'         +N+SgNomCmp:e%^DISIMP    R                       ;\n',
+					'         +N+SgGenCmp:e%>%^DISIMPn R                       ;\n',
+					'         +N+PlGenCmp:%>%^DISIMPi  R                       ;\n',
+					' +N+Der1+Der/Dimin+N:%»adtj       GIERIEHTSADTJE          ;\n',
+					'        +A+Comp+Attr:%>abpa       ATTRCONT                ; ! båajasabpa,   *båajoesabpa\n',
+					'                  +A:%>X7         NomVadj        "good A" ;\n',
 					'! Test data:\n',
 					'!!€gt-norm: daktere # Odd-syllable test\n']
 		self.maxDiff = None
@@ -83,7 +87,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserUpperLower(self):
 		input = '''        +N+SgNomCmp:e%^DISIMP    R              ;'''
-		expectedResult = {'upper': '+N+SgNomCmp', 'lower': 'e%^DISIMP', 'contlex': 'R', 'comment': ''}
+		expectedResult = {'upper': '+N+SgNomCmp', 'lower': 'e%^DISIMP', 'contlex': 'R', 'translation': '', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -91,7 +95,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserNoLower(self):
 		input = '''               +N+Sg:             N_ODD_SG       ;'''
-		expectedResult = {'upper': '+N+Sg', 'lower': '', 'contlex': 'N_ODD_SG', 'comment': ''}
+		expectedResult = {'upper': '+N+Sg', 'lower': '', 'contlex': 'N_ODD_SG', 'translation': '', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -99,7 +103,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserNoUpperNoLower(self):
 		input = ''' N_ODD_ESS;''';
-		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_ESS', 'comment': ''}
+		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_ESS', 'translation': '', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -107,7 +111,7 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserEmptyUpperLower(self):
 		input = ''' : N_ODD_E;''';
-		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_E', 'comment': ''}
+		expectedResult = {'upper': '', 'lower': '', 'contlex': 'N_ODD_E', 'translation': '', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -115,7 +119,15 @@ class TestLine(unittest.TestCase):
 
 	def testLineParserWithComment(self):
 		input = ''' +A+Comp+Attr:%>abpa      ATTRCONT    ;  ! båajasabpa,   *båajoesabpa'''
-		expectedResult = {'upper': '+A+Comp+Attr', 'lower': '%>abpa', 'contlex': 'ATTRCONT', 'comment': '! båajasabpa,   *båajoesabpa'}
+		expectedResult = {'upper': '+A+Comp+Attr', 'lower': '%>abpa', 'contlex': 'ATTRCONT', 'translation': '', 'comment': '! båajasabpa,   *båajoesabpa'}
+
+		aligner = Line()
+		aligner.parseLine(input)
+		self.assertEqual(aligner.line, expectedResult)
+
+	def testLineParserWithComment(self):
+		input = '''  +A:%>X7 NomVadj "good A" ;'''
+		expectedResult = {'upper': '+A', 'lower': '%>X7', 'contlex': 'NomVadj', 'translation': '"good A"', 'comment': ''}
 
 		aligner = Line()
 		aligner.parseLine(input)
@@ -131,6 +143,7 @@ class Lines:
 		self.longest['upper'] = 0
 		self.longest['lower'] = 0
 		self.longest['contlex'] = 0
+		self.longest['translation'] = 0
 		self.lines = []
 
 	def parseLines(self, lines):
@@ -153,7 +166,7 @@ class Lines:
 				self.lines.append(line)
 
 	def findLongest(self, l):
-		for name in ['upper', 'lower', 'contlex']:
+		for name in ['upper', 'lower', 'translation', 'contlex']:
 			if self.longest[name] < len(l.line[name]):
 				self.longest[name] = len(l.line[name])
 
@@ -185,6 +198,14 @@ class Lines:
 
 				for i in range(0, post):
 					s.write(' ')
+
+				s.write(l.line['translation'])
+
+				if self.longest['translation'] > 0:
+					post = self.longest['translation'] - len(l.line['translation']) + 1
+					for i in range(0, post):
+						s.write(' ')
+
 				s.write (';')
 
 				if l.line['comment'] != '':
@@ -199,16 +220,21 @@ class Lines:
 		return newlines
 
 class Line:
-	def __init__(self, upper = '', lower = '', contlex = '', therest = ''):
+	def __init__(self, upper = '', lower = '', contlex = '', translation = '', comment = ''):
 		self.line = {}
 		self.line['upper'] = upper
 		self.line['lower'] = lower
 		self.line['contlex'] = contlex
-		self.line['comment'] = therest
+		self.line['translation'] = translation
+		self.line['comment'] = comment
 
 	def parseLine(self, line):
-		contlexre = re.compile(r'(?P<contlex>\S+)\s*;\s*(?P<comment>.*)')
+		contlexre = re.compile(r'(?P<contlex>\S+)(?P<translation>\s+".+")*\s*;\s*(?P<comment>.*)')
+		m = contlexre.search(line)
+
 		self.line['contlex'] = contlexre.search(line).group('contlex')
+		if m.group('translation'):
+			self.line['translation'] = contlexre.search(line).group('translation').strip()
 		self.line['comment'] = contlexre.search(line).group('comment').strip()
 
 		line = contlexre.sub('', line)
