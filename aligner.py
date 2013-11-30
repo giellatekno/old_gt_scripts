@@ -35,6 +35,19 @@ class TestLines(unittest.TestCase):
 
 		self.assertEqual(expectedResult, l.adjustLines())
 
+	def testOutputWithLexiconAndSemicolon(self):
+		input = ['LEXICON GOAHTI-NE  !!= * __@CODE@__ Bisyll. V-Nouns; Nominative Sg. and Essive\n',
+			' NomV ;\n',
+			' EssV ;\n']
+
+		expectedResult = ['LEXICON GOAHTI-NE  !!= * __@CODE@__ Bisyll. V-Nouns; Nominative Sg. and Essive\n',
+			'   NomV ;\n',
+			'   EssV ;\n']
+
+		l = Lines()
+		l.parseLines(input)
+		self.assertEqual(expectedResult, l.adjustLines())
+
 	def testOutput(self):
 		input = ['LEXICON DAKTERE\n',
 		   ' +N+Sg:             N_ODD_SG       ;\n',
@@ -131,7 +144,7 @@ class Lines:
 
 			contlexre = re.compile(r'(?P<contlex>\S+)\s*;')
 			contlexmatch = contlexre.search(line)
-			if contlexmatch:
+			if contlexmatch and not line.startswith('LEXICON '):
 				l = Line()
 				l.parseLine(line)
 				self.lines.append(l)
