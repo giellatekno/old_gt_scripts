@@ -23,7 +23,7 @@ sub init_variables {
 	$giellatekno_href="http://giellatekno.uit.no/";
 	$projectlogo = "http://giellatekno.uit.no/images/project.png";
 	$unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
-
+	$analyze = "";
 	my %page_languages = (sme => 1,
 			      sma => 1,
 			      eng => 1,
@@ -83,6 +83,7 @@ sub init_variables {
         my $dis_rle = "$fstdir/$lang-dis.rle";  # text file
 	my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
 	my $syn_rle = "$fstdir/smi-syn.rle";    # all-Saami syn file
+	my $func_rle = "$fstdir/$lang-syn.rle";    # syn file
 	my $dep_bin = "$fstdir/$lang-dep.bin";  # binary file
 	my $dep_rle = "$fstdir/$lang-dep.rle";  # text
 	my $translate_script;
@@ -202,11 +203,17 @@ sub init_variables {
 	if ($lang eq "sme") {
 	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8"; 
 	}
+	if ($lang eq "fao") {
+	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $func_rle -C UTF-8"; 
+	}
 	else { $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8";  }
 #	else { $disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8";  }
 
 	if ($lang eq "sme") {
 	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
+	}
+	if ($lang eq "fao") {
+	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $func_rle -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
 	}
 	else { $dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; }
 
