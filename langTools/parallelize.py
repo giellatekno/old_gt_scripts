@@ -534,8 +534,11 @@ class Parallelize:
         tmpfile = CorpusXMLFile(os.path.abspath(origfile1), lang2)
         self.origfiles.append(tmpfile)
 
-        tmpfile = CorpusXMLFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
-        self.origfiles.append(tmpfile)
+        if self.origfiles[0].getParallelFilename() is not None:
+            tmpfile = CorpusXMLFile(self.origfiles[0].getParallelFilename(), self.origfiles[0].getLang())
+            self.origfiles.append(tmpfile)
+        else:
+            raise IOError(origfile1 + " doesn't have a parallel file in " + lang2)
 
         if self.isTranslatedFromLang2():
             self.reshuffleFiles()
