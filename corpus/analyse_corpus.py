@@ -32,16 +32,6 @@ from distutils.dep_util import newer_group
 sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import analyser
 
-def parse_options():
-    parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
-    parser.add_argument('-l', '--lang', help = "lang which should be analysed")
-    parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are place')
-    parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
-    parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
-
-    args = parser.parse_args()
-    return args
-
 def worker(inTuple):
     (lang, xmlFile, old) = inTuple
     ana = analyser.Analyser(lang, xmlFile, old)
@@ -94,6 +84,16 @@ def which(name):
             return False
         else:
             return True
+
+def parse_options():
+    parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
+    parser.add_argument('-l', '--lang', help = "lang which should be analysed")
+    parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are place')
+    parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
+    parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
+
+    args = parser.parse_args()
+    return args
 
 if __name__ == '__main__':
     args = parse_options()
