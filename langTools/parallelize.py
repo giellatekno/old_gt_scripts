@@ -262,7 +262,7 @@ class TestSentenceDivider(unittest.TestCase):
         self.sentenceDivider.docLang = 'sme'
         p = etree.XML('<p>Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áilluhačča? máksá Finnmárkkuopmodat. § 10 Áššit meahcceeatnamiid</p>')
         got = self.sentenceDivider.processOneParagraph(p)
-        want = etree.XML('<p><s id="0">Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áillohačča ?</s><s id="1">máksá Finnmárkkuopmodat .</s><s id="2">§ 10 Áššit meahcceeatnamiid </s></p>')
+        want = etree.XML('<p><s id="0">Jápmá go sámi kultuvra veahážiid mielde go nuorat ovdal guldalit Britney Spears go Áilluhačča ?</s><s id="1">máksá Finnmárkkuopmodat .</s><s id="2">§ 10 Áššit meahcceeatnamiid </s></p>')
         self.assertXmlEqual(got, want)
 
         p = etree.XML('<p>Stuora oassi Romssa universitehta doaimmain lea juohkit dieđuid sámi, norgga ja riikkaidgaskasaš dutkanbirrasiidda, sámi ja norgga eiseválddiide, ja sámi servodagaide (geahča mielddus A <em type="italic"><span type="quote">“Romssa universitehta ja guoskevaš institušuvnnaid sámi dutkan ja oahpahus”</span></em>  álggahusa ).</p>')
