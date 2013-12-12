@@ -86,10 +86,11 @@ def which(name):
             return True
 
 def parse_options():
-    parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language.')
+    parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language using multiple parallel processes.')
     parser.add_argument('-l', '--lang', help = "lang which should be analysed")
-    parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are place')
-    parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
+    parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are placed')
+    parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_false")
+    parser.add_argument('--debug', help="use this for debugging the analysis process. When this argument is used files will be analysed one by one.", action="store_true")
     parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
 
     args = parser.parse_args()
@@ -105,11 +106,18 @@ if __name__ == '__main__':
                 if args.lang in root and f.endswith('.xml'):
                     xmlFiles.append((args.lang, os.path.join(root, f), args.old))
 
-    poolSize = multiprocessing.cpu_count() * 2
-    pool = multiprocessing.Pool(processes=poolSize,)
-    poolOutputs = pool.map(worker, xmlFiles)
-    pool.close() # no more tasks
-    pool.join()  # wrap up current tasks
+
+    if args.debug is False:
+        poolSize = multiprocessing.cpu_count() * 2
+        pool = multiprocessing.Pool(processes=poolSize,)
+        poolOutputs = pool.map(worker, xmlFiles)
+        pool.close() # no more tasks
+        pool.join()  # wrap up current tasks
+
+    else:
+        for xmlTuple in xmlFiles:
+            print >> sys.stderr, "Analysing", xmlTuple[1]
+            worker(xmlTuple)
 
     ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles, args.old)
     ac.concatenateAnalysedFiles()
