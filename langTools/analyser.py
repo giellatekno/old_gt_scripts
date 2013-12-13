@@ -179,55 +179,6 @@ class Analyser:
         outfile.write(output)
         outfile.close()
 
-    def disambiguationAnalysisSme(self, lookup2cg):
-        try:
-            f = open(os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'))
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
-
-        subp = subprocess.Popen(
-            [
-                'vislcg3',
-                '-g',
-                os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'),
-            ],
-            stdin = subprocess.PIPE,
-            stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE
-        )
-
-        (disoutput, diserror) = subp.communicate(lookup2cg)
-        self.checkError(self.disambiguationAnalysisName, diserror)
-        try:
-            f = open(os.path.join(os.getenv('GTHOME'), 'gt/sme/src/smi-syn.rle'))
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
-
-        subp = subprocess.Popen(
-            [
-                'vislcg3',
-                '-g',
-                os.path.join(os.getenv('GTHOME'), 'gt/sme/src/smi-syn.rle')
-            ],
-            stdin = subprocess.PIPE,
-            stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE
-        )
-
-        (synoutput, synerror) = subp.communicate(disoutput)
-        self.checkError(self.disambiguationAnalysisName, synerror)
-        outfile = open(self.disambiguationAnalysisName, "w")
-
-        # Leave a clue for the AnalysisConcatenator
-        # Will go unchanged through dependencyAnalysis as vislcg3
-        # won't try to analyse clean text
-        outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
-
-        outfile.write(synoutput)
-        outfile.close()
-
     def disambiguationAnalysis(self):
         """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
         analysis
@@ -239,35 +190,32 @@ class Analyser:
         if self.lang == "sme" and self.old:
             self.disambiguationAnalysisOldSme(lookup2cg)
 
-        if self.lang == "sme":
-            self.disambiguationAnalysisSme(lookup2cg)
-        else:
-            disambiguationAnalysisCommand = ['vislcg3', '-g']
-            disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
-                                              self.lang + '/src/syntax/disambiguation.cg3')
-            try:
-                f = open(disambiguationFile)
-            except:
-                print "Unexpected error:", sys.exc_info()[0]
-                raise
+        disambiguationAnalysisCommand = ['vislcg3', '-g']
+        disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
+                                          self.lang + '/src/syntax/disambiguation.cg3')
+        try:
+            f = open(disambiguationFile)
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
 
-            disambiguationAnalysisCommand.append(disambiguationFile)
+        disambiguationAnalysisCommand.append(disambiguationFile)
 
-            subp = subprocess.Popen(disambiguationAnalysisCommand,
-                                    stdin = subprocess.PIPE,
-                                    stdout = subprocess.PIPE,
-                                    stderr = subprocess.PIPE)
-            (output, error) = subp.communicate(lookup2cg)
-            outfile = open(self.disambiguationAnalysisName, "w")
+        subp = subprocess.Popen(disambiguationAnalysisCommand,
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(lookup2cg)
+        outfile = open(self.disambiguationAnalysisName, "w")
 
-            # Leave a clue for the AnalysisConcatenator
-            # Will go unchanged through dependencyAnalysis as vislcg3
-            # won't try to analyse clean text
-            outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
+        # Leave a clue for the AnalysisConcatenator
+        # Will go unchanged through dependencyAnalysis as vislcg3
+        # won't try to analyse clean text
+        outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
 
-            outfile.write(output)
-            outfile.close()
-            self.checkError(self.disambiguationAnalysisName, error)
+        outfile.write(output)
+        outfile.close()
+        self.checkError(self.disambiguationAnalysisName, error)
 
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
