@@ -14,23 +14,28 @@ module load autoconf/2.69
 module load automake/1.13.1
 cd $GTHOME
 svn up
+
 cd $GTHOME/gt
 make GTLANG=sme
 make GTLANG=sme abbr
-cd $GTHOME/langs/sma
-./autogen.sh
-./configure
-make
-cd $GTFREE
-svn up
-make clean
-make_corpus.py orig
-cd $GTBOUND
-svn up
-make clean
-make_corpus.py orig
 
-for lang in sma sme
+for lang in sma smj
+do
+	cd $GTHOME/langs/$lang
+	./autogen.sh
+	./configure
+	make
+done
+
+for corpus in $GTFREE $GTBOUND
+do
+	cd $corpus
+	svn up
+	make clean
+	make_corpus.py orig
+done
+
+for lang in sma sme smj
 do
 	ccatter.py $HOME/ccats/ $lang $GTFREE/converted/$lang $GTBOUND/converted/$lang
 	time analyse_corpus.py --lang $lang --analysisdir $HOME/analysed $GTFREE/converted/$lang $GTBOUND/converted/$lang 2> $HOME/$lang.log
