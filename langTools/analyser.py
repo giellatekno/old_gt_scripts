@@ -217,6 +217,31 @@ class Analyser:
         outfile.close()
         self.checkError(self.disambiguationAnalysisName, error)
 
+    def functionAnalysis(self):
+        """Runs vislcg3 on the dis file
+        Return the output of this process
+        """
+        functionAnalysisCommand = [
+            'vislcg3',
+            '-g',
+            os.path.join(
+                os.getenv('GTHOME'),
+                'gtcore/langs-templates/smi/src/syntax/functions.cg3'),
+            '-I',
+            self.disambiguationAnalysisName
+            ]
+
+        subp = subprocess.Popen(
+            functionAnalysisCommand,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+            )
+        (output, error) = subp.communicate()
+        self.checkError('functionAnalysis', error)
+
+        return output
+
     def dependencyAnalysis(self):
         """Runs vislcg3 on the .dis file.
         Produces output in a .dep file
@@ -246,8 +271,6 @@ class Analyser:
 
 
         dependencyAnalysisCommand = ['vislcg3']
-        dependencyAnalysisCommand.append("-I")
-        dependencyAnalysisCommand.append(self.disambiguationAnalysisName)
         dependencyAnalysisCommand.append("-O")
         dependencyAnalysisCommand.append(self.dependencyAnalysisName)
         dependencyAnalysisCommand.append('-g')
@@ -263,7 +286,7 @@ class Analyser:
                                 stdin = subprocess.PIPE,
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
-        (output, error) = subp.communicate()
+        (output, error) = subp.communicate(self.functionAnalysis())
         self.checkError(self.dependencyAnalysisName, error)
 
     def checkError(self, filename, error):
