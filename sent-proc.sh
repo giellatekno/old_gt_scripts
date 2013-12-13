@@ -11,14 +11,8 @@
 # input sentence either coming from the pipe or at the end in quotation marks
 # parametrized for processing step: -s=pos, -s=dis, -s=dep, -s=syn
 
-if [ `hostname` == 'victorio-old.uit.no' ]
-then
-    LOOKUP=/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup
-    HLOOKUP='/usr/local/bin/hfst-optimized-lookup'
-else
-    LOOKUP=`which lookup`
-    HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
-fi
+LOOKUP=`which lookup`
+HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
 
 # -l=sme|sma|fao|etc. => default=sme
 fl=$(echo "$@" | grep '\-l\=')
@@ -96,6 +90,7 @@ print_help() {
     echo "-l language code: sme North Saami (default), sma South Saami, etc."
     echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"
     echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"
+    echo "   processing step: syn assigning syntactic functions via vislcg3"
     echo "   processing step: dep dependency parsing with vislcg3"
     echo "-t print traces of the disambiguation or parsing step"
     echo "-h print this text"
@@ -133,10 +128,12 @@ else
     fi
 fi
 
+sdPATH='langs-templates/smi/src/syntax'
+
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
 dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
-syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/gt/sme/src/smi-syn.rle $t"
-dep_cmd=$syn_cmd" | vislcg3 -g $GTHOME/gt/smi/src/smi-dep.rle $t"
+syn_cmd=$dis_cmd" | vislcg3 -g $GTCORE/$sdPATH/functions.cg3 $t"  #$GTHOME/gt/sme/src/smi-syn.rle
+dep_cmd=$syn_cmd" | vislcg3 -g $GTCORE/$sdPATH/dependency.cg3 $t" #$GTHOME/gt/smi/src/smi-dep.rle
 
 
 # processing step
