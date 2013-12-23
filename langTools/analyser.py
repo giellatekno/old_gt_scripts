@@ -275,12 +275,17 @@ class Analyser:
         dependencyAnalysisCommand.append(self.dependencyAnalysisName)
         dependencyAnalysisCommand.append('-g')
         try:
-            f = open(os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
+            f = open(
+                os.path.join(
+                    os.getenv('GTHOME'),
+                    'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
         except:
             print "Unexpected error:", sys.exc_info()[0]
             raise
         dependencyAnalysisCommand.append(
-            os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
+            os.path.join(
+                os.getenv('GTHOME'),
+                'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
 
         subp = subprocess.Popen(dependencyAnalysisCommand,
                                 stdin = subprocess.PIPE,
