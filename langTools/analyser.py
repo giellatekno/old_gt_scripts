@@ -102,11 +102,14 @@ class Analyser:
         """
         preProcessCommand = ['preprocess']
 
-        if self.lang == 'sme':
-
-            abbrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt')
-            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
+        if self.lang in ['sma', 'sme', 'smj'] :
+            abbrFile = os.path.join(
+                os.environ['GTHOME'],
+                'langs/', self.lang, '/src/abbr.txt')
             preProcessCommand.append('--abbr=' + abbrFile)
+
+        if self.lang == 'sme':
+            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
             preProcessCommand.append('--corr=' + corrFile)
 
         subp = subprocess.Popen(preProcessCommand,
