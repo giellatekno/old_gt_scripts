@@ -131,7 +131,7 @@ fi
 
 
 
-sdPATH='langs-templates/smi/src/syntax'
+sdPATH='gtdshared/smi/src/syntax'
 
 
 
