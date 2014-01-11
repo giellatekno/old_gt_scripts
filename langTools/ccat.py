@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
 import inspect
@@ -715,6 +714,14 @@ class TestCcat(unittest.TestCase):
         self.x.processFile()
 
         self.assertEqual(self.x.outfile.getvalue(), '')
+
+    def testTyposErrordepth3(self):
+        self.x = XMLPrinter('p.xml', typos=True)
+        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid ja sarridiid" errtype="case" orig="nompl" pos="noun"><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn>ja sarridat</errormorphsyn></p></body></document>'))
+        self.x.outfile = StringIO.StringIO()
+        self.x.processFile()
+
+        self.assertEqual(self.x.outfile.getvalue(), 'čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n')
 
 if __name__ == '__main__':
     unittest.main()
