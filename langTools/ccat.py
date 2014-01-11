@@ -101,9 +101,7 @@ class XMLPrinter:
 
         if not self.errorFiltering:
             for child in element:
-                errorString = self.errorNotInline(child)
-                if errorString != '':
-                    textlist.append(errorString)
+                self.collectNotInlineErrors(child, textlist)
 
         if not self.typos:
             if element.tail != None and element.tail.strip() != '':
@@ -327,10 +325,9 @@ class TestCcat(unittest.TestCase):
 
     def testMultiErrorlexNotInline(self):
         inputError = etree.fromstring('<errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>')
-
-
-
         textlist = []
+
+        self.x = XMLPrinter('p.xml', typos=True)
         self.x.collectNotInlineErrors(inputError, textlist)
 
         self.assertEqual('\n'.join(textlist), u'makkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr')
@@ -388,7 +385,7 @@ class TestCcat(unittest.TestCase):
 
         self.x.outfile = StringIO.StringIO()
         self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsii\n")
+        self.assertEqual(self.x.outfile.getvalue(), "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n")
 
     def testPWithErrorCorrection(self):
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
