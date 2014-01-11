@@ -827,7 +827,7 @@ my %nested_errors = (
         "-typos -syn" => "",
         "-typos -lex" => "",
         "-S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\nollu\njokŋat\nja\nsarridat\n",
-        "-f -S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun, file: p-with-errorort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun, file: p-with-errorort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoaggen\tčoggen\t#errtype=mono,pos=verb, file: p-with-errorort-inside-errormorphsyn-inside-errormorphsyn.xml\nollu\njokŋat\nja\n\sarridat\n",
+        "-f -S" => "čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun, file: p-with-errorort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun, file: p-with-errorort-inside-errormorphsyn-inside-errormorphsyn.xml\nčoaggen\tčoggen\t#errtype=mono,pos=verb, file: p-with-errorort-inside-errormorphsyn-inside-errormorphsyn.xml\nollu\njokŋat\nja\nsarridat\n",
         "-S -C" => "čoaggen\nollu\njokŋat\nja\nsarridat\n",
         "-S -ort" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\nollu\njokŋat\nja\nsarridat\n",
         "-S -ort -C" => "čoaggen\tčoggen\t#errtype=mono,pos=verb\nollu\njokŋat\nja\nsarridat\n",
@@ -916,7 +916,7 @@ for my $name (keys %nested_errors) {
 
 my $result = `$ENV{'GTHOME'}/gt/script/corpus/ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | grep .svn-base | head -1`;
 is($result, '', "Check that svn internal files aren't among the files ccat tries to open");
-$result = `$ENV{'GTHOME'}/gt/script/corpus/ccat -l nob -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob/facta/ | egrep \.xml\$ | head -1`;
+$result = `$ENV{'GTHOME'}/gt/script/corpus/ccat -f -typos -ort -C -r $ENV{'GTFREE'}/stable/goldstandard/converted/sme/facta/ | egrep \.xml\$ | head -1`;
 isnt($result, '', "Check that we find some files");
 $result = `$ENV{'GTHOME'}/gt/script/corpus/ccat -l nob -S -r $ENV{'GTFREE'}/stable/goldstandard/converted/nob | grep XSLtemplate | head -1`;
 is($result, '', "Check metadata info isn't included in");
