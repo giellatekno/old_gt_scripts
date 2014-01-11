@@ -99,8 +99,8 @@ class XMLPrinter:
         if errorString != '':
             textlist.append(errorString)
 
-        if not self.errorFiltering:
-            for child in element:
+        for child in element:
+            if self.visitErrorNotInline(child):
                 self.collectNotInlineErrors(child, textlist)
 
         if not self.typos:
@@ -316,7 +316,7 @@ class TestCcat(unittest.TestCase):
     def testMultiErrormorphsynNotInlineWithFilename(self):
         inputError = etree.fromstring('<errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">skoledagene er så<errorort correct="vanskelig" errtype="nosilent" pos="adj">vanskerlig</errorort></errormorphsyn>')
 
-        self.x.printFilename=True
+        self.x = XMLPrinter('p.xml', oneWordPerLine=True, printFilename=True)
 
         textlist = []
         self.x.collectNotInlineErrors(inputError, textlist)
@@ -719,6 +719,14 @@ class TestCcat(unittest.TestCase):
         self.x.processFile()
 
         self.assertEqual(self.x.outfile.getvalue(), 'čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n')
+
+    def testTyposErrormorphsynTwice(self):
+        self.x = XMLPrinter('p.xml', typos=True, errormorphsyn=True)
+        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p><errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn></p></body></document>'))
+        self.x.outfile = StringIO.StringIO()
+        self.x.processFile()
+
+        self.assertEqual(self.x.outfile.getvalue(), 'leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n')
 
 if __name__ == '__main__':
     unittest.main()
