@@ -36,23 +36,44 @@ class Analyser(object):
         self.xp = ccat.XMLPrinter(lang=lang, allP=True)
         self.xp.setOutfile(cStringIO.StringIO())
 
+    def exitOnError(self, filename):
+        error = False
+
+        if filename is None:
+            print >>sys.stderr, 'abbrFile is not defined'
+            error = True
+        elif not os.path.exists(filename):
+            print >>sys.stderr, 'abbrFile does not exist'
+            error = True
+
+        if error:
+            sys.exit(4)
+
     def setAnalysisFiles(self,
                          abbrFile=None,
-                         corrFile=None,
                          fstFile=None,
                          disambiguationAnalysisFile=None,
                          functionAnalysisFile=None,
                          dependencyAnalysisFile=None):
+        if self.lang in ['sma', 'sme', 'smj']:
+            self.exitOnError(abbrFile)
+        self.exitOnError(fstFile)
+        self.exitOnError(disambiguationAnalysisFile)
+        self.exitOnError(functionAnalysisFile)
+        self.exitOnError(dependencyAnalysisFile)
+
         self.abbrFile = abbrFile
-        self.corrFile = corrFile
         self.fstFile = fstFile
         self.disambiguationAnalysisFile = disambiguationAnalysisFile
         self.functionAnalysisFile = functionAnalysisFile
         self.dependencyAnalysisFile = dependencyAnalysisFile
 
+    def setCorrFile(self, corrFile):
+        self.exitOnError(corrFile)
+        self.corrFile = corrFile
 
     def makedirs(self):
-        u"""Make the converted directory
+        u"""Make the analysed directory
         """
         try:
             os.makedirs(os.path.dirname(self.analysisXmlFile))
