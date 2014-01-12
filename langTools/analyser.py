@@ -31,6 +31,7 @@ class Analyser:
     def __init__(self, lang, xmlFile, old=False):
         self.lang = lang
         self.old = old
+        self.xmlFile = xmlFile
         self.eTree = etree.parse(xmlFile)
         self.calculateFilenames(xmlFile)
 
