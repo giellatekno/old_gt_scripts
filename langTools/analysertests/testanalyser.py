@@ -64,6 +64,47 @@ class TestAnalyser(unittest.TestCase):
 
         self.assertEqual(got, want.encode('utf8'))
 
+    def testSmeDisambiguationXml(self):
+        """Check if the xml is what it is supposed to be
+        """
+        a = analyser.Analyser('sme', 'smefile.xml')
+        got = a.getDisambiguationXml()
+        want = '''<document xml:lang="sme" id="no_id">
+  <header>
+    <title>Internáhtta sosiálalaš giliguovddážin</title>
+    <genre code="facta"/>
+    <author>
+      <person firstname="Abba" lastname="Abbamar" sex="m" born="1900" nationality="nor"/>
+    </author>
+    <translator>
+      <person firstname="Ibba" lastname="Ibbamar" sex="unknown" born="" nationality=""/>
+    </translator>
+    <translated_from xml:lang="nob"/>
+    <year>2005</year>
+    <publChannel>
+      <publication>
+        <publisher>Almmuheaddji OS</publisher>
+      </publication>
+    </publChannel>
+    <wordcount>10</wordcount>
+    <availability>
+      <free/>
+    </availability>
+    <submitter name="Børre Gaup" email="boerre.gaup@samediggi.no"/>
+    <multilingual>
+      <language xml:lang="nob"/>
+    </multilingual>
+    <origFileName>aarseth_s.htm</origFileName>
+    <metadata>
+      <uncomplete/>
+    </metadata>
+    <version>XSLtemplate  1.9 ; file-specific xsl  $Revision: 1.3 $; common.xsl  $Revision$; </version>
+  </header>
+  <body><disambiguation>"&lt;Muhto&gt;"\n\t"muhto" CC &lt;sme&gt; @CVP \n"&lt;gaskkohagaid&gt;"\n\t"gaskkohagaid" Adv &lt;sme&gt; \n"&lt;,&gt;"\n\t"," CLB \n"&lt;ja&gt;"\n\t"ja" CC &lt;sme&gt; @CNP \n"&lt;erenoamážit&gt;"\n\t"erenoamážit" Adv &lt;sme&gt; \n"&lt;dalle_go&gt;"\n\t"dalle_go" MWE CS &lt;sme&gt; @CVP \n"&lt;lei&gt;"\n\t"leat" V &lt;sme&gt; IV Ind Prt Sg3 @+FMAINV \n"&lt;buolaš&gt;"\n\t"buolaš" Sem/Wthr N &lt;sme&gt; Sg Nom \n"&lt;,&gt;"\n\t"," CLB \n"&lt;de&gt;"\n\t"de" Adv &lt;sme&gt; \n"&lt;aggregáhta&gt;"\n\t"aggregáhta" N &lt;sme&gt; Sg Nom \n"&lt;billánii&gt;"\n\t"billánit" V &lt;sme&gt; IV Ind Prt Sg3 @+FMAINV \n"&lt;.&gt;"\n\t"." CLB \n\n"&lt;¶&gt;"\n\t"¶" CLB \n\n</disambiguation></body></document>'''
+        self.maxDiff = None
+        self.assertEqual(etree.tostring(got, encoding='unicode'), want)
+
+
 def main():
     unittest.main()
 

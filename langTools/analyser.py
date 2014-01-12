@@ -204,6 +204,17 @@ class Analyser:
 
         return output
 
+    def getDisambiguationXml(self):
+        disambiguation = etree.Element('disambiguation')
+        disambiguation.text = self.disambiguationAnalysis().decode('utf8')
+        body = etree.Element('body')
+        body.append(disambiguation)
+
+        oldbody = self.eTree.find('.//body')
+        oldbody.getparent().replace(oldbody, body)
+
+        return self.eTree
+
     def functionAnalysis(self):
         """Runs vislcg3 on the dis file
         Return the output of this process
