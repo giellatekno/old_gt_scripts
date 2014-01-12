@@ -32,8 +32,17 @@ class Analyser:
         self.lang = lang
         self.old = old
         self.xmlFile = xmlFile
+        self.analysisXmlFile = self.xmlFile.replace('converted/', 'analysed/')
         self.eTree = etree.parse(xmlFile)
         self.calculateFilenames(xmlFile)
+
+    def makedirs(self):
+        """Make the converted directory
+        """
+        try:
+            os.makedirs(os.path.dirname(self.analysisXmlFile))
+        except OSError:
+            pass
 
     def getLang(self):
         """
@@ -289,8 +298,12 @@ class Analyser:
         '''Analyse a file if it is not ocr'ed
         '''
         if self.getOcr() is None:
-            self.disambiguationAnalysis()
             self.dependencyAnalysis()
+            self.makedirs()
+            self.getAnalysisXml().write(
+                self.analysisXmlFile,
+                encoding='utf8',
+                xml_declaration=True)
 
 class AnalysisConcatenator:
     def __init__(self, goalDir, xmlFiles, old=False):
