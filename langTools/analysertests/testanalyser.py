@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -30,58 +30,58 @@ import analyser
 
 class TestAnalyser(unittest.TestCase):
     def assertXmlEqual(self, got, want):
-        """Check if two stringified xml snippets are equal
+        u"""Check if two stringified xml snippets are equal
         """
         checker = doctestcompare.LXMLOutputChecker()
         if not checker.check_output(want, got, 0):
-            message = checker.output_difference(doctest.Example("", want), got, 0).encode('utf-8')
+            message = checker.output_difference(doctest.Example(u"", want), got, 0).encode(u'utf-8')
             raise AssertionError(message)
 
     def testSmeCcatOutput(self):
-        """Test if the ccat output is what we expect it to be
+        u"""Test if the ccat output is what we expect it to be
         """
-        a = analyser.Analyser('sme', 'smefile.xml')
+        a = analyser.Analyser(u'sme', u'smefile.xml')
         got = a.ccat()
-        want = '''Muhto gaskkohagaid, ja erenoamážit dalle go lei buolaš, de aggregáhta billánii. ¶\n'''
+        want = u'''Muhto gaskkohagaid, ja erenoamážit dalle go lei buolaš, de aggregáhta billánii. ¶\n'''
 
-        self.assertEqual(got, want.encode('utf8'))
+        self.assertEqual(got, want.encode(u'utf8'))
 
     def testSmePreprocessOutput(self):
-        """Test if the preprocess output is what we expect it to be
+        u"""Test if the preprocess output is what we expect it to be
         """
-        a = analyser.Analyser('sme', 'smefile.xml')
+        a = analyser.Analyser(u'sme', u'smefile.xml')
         got = a.preprocess()
-        want = '''Muhto\ngaskkohagaid\n,\nja\nerenoamážit\ndalle go\nlei\nbuolaš\n,\nde\naggregáhta\nbillánii\n.\n¶\n'''
+        want = u'''Muhto\ngaskkohagaid\n,\nja\nerenoamážit\ndalle go\nlei\nbuolaš\n,\nde\naggregáhta\nbillánii\n.\n¶\n'''
 
-        self.assertEqual(got, want.encode('utf8'))
+        self.assertEqual(got, want.encode(u'utf8'))
 
     def testSmeDisambiguationOutput(self):
-        """Check if disambiguation analysis gives the expected output
+        u"""Check if disambiguation analysis gives the expected output
         """
-        a = analyser.Analyser('sme', 'smefile.xml')
+        a = analyser.Analyser(u'sme', u'smefile.xml')
         a.disambiguationAnalysis()
         got = a.getDisambiguation()
-        want = '"<Muhto>"\n\t"muhto" CC <sme> @CVP \n"<gaskkohagaid>"\n\t"gaskkohagaid" Adv <sme> \n"<,>"\n\t"," CLB \n"<ja>"\n\t"ja" CC <sme> @CNP \n"<erenoamážit>"\n\t"erenoamážit" Adv <sme> \n"<dalle_go>"\n\t"dalle_go" MWE CS <sme> @CVP \n"<lei>"\n\t"leat" V <sme> IV Ind Prt Sg3 @+FMAINV \n"<buolaš>"\n\t"buolaš" Sem/Wthr N <sme> Sg Nom \n"<,>"\n\t"," CLB \n"<de>"\n\t"de" Adv <sme> \n"<aggregáhta>"\n\t"aggregáhta" N <sme> Sg Nom \n"<billánii>"\n\t"billánit" V <sme> IV Ind Prt Sg3 @+FMAINV \n"<.>"\n\t"." CLB \n\n"<¶>"\n\t"¶" CLB \n\n'
+        want = u'"<Muhto>"\n\t"muhto" CC <sme> @CVP \n"<gaskkohagaid>"\n\t"gaskkohagaid" Adv <sme> \n"<,>"\n\t"," CLB \n"<ja>"\n\t"ja" CC <sme> @CNP \n"<erenoamážit>"\n\t"erenoamážit" Adv <sme> \n"<dalle_go>"\n\t"dalle_go" MWE CS <sme> @CVP \n"<lei>"\n\t"leat" V <sme> IV Ind Prt Sg3 @+FMAINV \n"<buolaš>"\n\t"buolaš" Sem/Wthr N <sme> Sg Nom \n"<,>"\n\t"," CLB \n"<de>"\n\t"de" Adv <sme> \n"<aggregáhta>"\n\t"aggregáhta" N <sme> Sg Nom \n"<billánii>"\n\t"billánit" V <sme> IV Ind Prt Sg3 @+FMAINV \n"<.>"\n\t"." CLB \n\n"<¶>"\n\t"¶" CLB \n\n'
 
-        self.assertEqual(got, want.encode('utf8'))
+        self.assertEqual(got, want.encode(u'utf8'))
 
     def testSmeDependencyOutput(self):
-        """Check if disambiguation analysis gives the expected output
+        u"""Check if disambiguation analysis gives the expected output
         """
-        a = analyser.Analyser('sme', 'smefile.xml')
+        a = analyser.Analyser(u'sme', u'smefile.xml')
         a.dependencyAnalysis()
         got = a.getDependency()
-        want = '"<Muhto>"\n\t"muhto" CC @CVP #1->1 \n"<gaskkohagaid>"\n\t"gaskkohagaid" Adv @ADVL> #2->12 \n"<,>"\n\t"," CLB #3->4 \n"<ja>"\n\t"ja" CC @CNP #4->2 \n"<erenoamážit>"\n\t"erenoamážit" Adv @ADVL> #5->12 \n"<dalle_go>"\n\t"dalle_go" CS @CVP #6->7 \n"<lei>"\n\t"leat" V IV Ind Prt Sg3 @FS-ADVL> #7->12 \n"<buolaš>"\n\t"buolaš" N Sg Nom @<SPRED #8->7 \n"<,>"\n\t"," CLB #9->6 \n"<de>"\n\t"de" Adv @ADVL> #10->12 \n"<aggregáhta>"\n\t"aggregáhta" N Sg Nom @SUBJ> #11->12 \n"<billánii>"\n\t"billánit" V IV Ind Prt Sg3 @FS-ADVL> #12->0 \n"<.>"\n\t"." CLB #13->12 \n\n"<¶>"\n\t"¶" CLB #1->1 \n\n'
+        want = u'"<Muhto>"\n\t"muhto" CC @CVP #1->1 \n"<gaskkohagaid>"\n\t"gaskkohagaid" Adv @ADVL> #2->12 \n"<,>"\n\t"," CLB #3->4 \n"<ja>"\n\t"ja" CC @CNP #4->2 \n"<erenoamážit>"\n\t"erenoamážit" Adv @ADVL> #5->12 \n"<dalle_go>"\n\t"dalle_go" CS @CVP #6->7 \n"<lei>"\n\t"leat" V IV Ind Prt Sg3 @FS-ADVL> #7->12 \n"<buolaš>"\n\t"buolaš" N Sg Nom @<SPRED #8->7 \n"<,>"\n\t"," CLB #9->6 \n"<de>"\n\t"de" Adv @ADVL> #10->12 \n"<aggregáhta>"\n\t"aggregáhta" N Sg Nom @SUBJ> #11->12 \n"<billánii>"\n\t"billánit" V IV Ind Prt Sg3 @FS-ADVL> #12->0 \n"<.>"\n\t"." CLB #13->12 \n\n"<¶>"\n\t"¶" CLB #1->1 \n\n'
 
-        self.assertEqual(got, want.encode('utf8'))
+        self.assertEqual(got, want.encode(u'utf8'))
 
     def testAnalysisXml(self):
-        """Check if the xml is what it is supposed to be
+        u"""Check if the xml is what it is supposed to be
         """
-        a = analyser.Analyser('sme', 'smefile.xml')
+        a = analyser.Analyser(u'sme', u'smefile.xml')
         a.dependencyAnalysis()
         got = a.getAnalysisXml()
-        want = '''<document xml:lang="sme" id="no_id">
+        want = u'''<document xml:lang="sme" id="no_id">
   <header>
     <title>Internáhtta sosiálalaš giliguovddážin</title>
     <genre code="facta"/>
@@ -114,10 +114,10 @@ class TestAnalyser(unittest.TestCase):
   </header>
   <body><disambiguation>"&lt;Muhto&gt;"\n\t"muhto" CC &lt;sme&gt; @CVP \n"&lt;gaskkohagaid&gt;"\n\t"gaskkohagaid" Adv &lt;sme&gt; \n"&lt;,&gt;"\n\t"," CLB \n"&lt;ja&gt;"\n\t"ja" CC &lt;sme&gt; @CNP \n"&lt;erenoamážit&gt;"\n\t"erenoamážit" Adv &lt;sme&gt; \n"&lt;dalle_go&gt;"\n\t"dalle_go" MWE CS &lt;sme&gt; @CVP \n"&lt;lei&gt;"\n\t"leat" V &lt;sme&gt; IV Ind Prt Sg3 @+FMAINV \n"&lt;buolaš&gt;"\n\t"buolaš" Sem/Wthr N &lt;sme&gt; Sg Nom \n"&lt;,&gt;"\n\t"," CLB \n"&lt;de&gt;"\n\t"de" Adv &lt;sme&gt; \n"&lt;aggregáhta&gt;"\n\t"aggregáhta" N &lt;sme&gt; Sg Nom \n"&lt;billánii&gt;"\n\t"billánit" V &lt;sme&gt; IV Ind Prt Sg3 @+FMAINV \n"&lt;.&gt;"\n\t"." CLB \n\n"&lt;¶&gt;"\n\t"¶" CLB \n\n</disambiguation><dependency>"&lt;Muhto&gt;"\n\t"muhto" CC @CVP #1-&gt;1 \n"&lt;gaskkohagaid&gt;"\n\t"gaskkohagaid" Adv @ADVL&gt; #2-&gt;12 \n"&lt;,&gt;"\n\t"," CLB #3-&gt;4 \n"&lt;ja&gt;"\n\t"ja" CC @CNP #4-&gt;2 \n"&lt;erenoamážit&gt;"\n\t"erenoamážit" Adv @ADVL&gt; #5-&gt;12 \n"&lt;dalle_go&gt;"\n\t"dalle_go" CS @CVP #6-&gt;7 \n"&lt;lei&gt;"\n\t"leat" V IV Ind Prt Sg3 @FS-ADVL&gt; #7-&gt;12 \n"&lt;buolaš&gt;"\n\t"buolaš" N Sg Nom @&lt;SPRED #8-&gt;7 \n"&lt;,&gt;"\n\t"," CLB #9-&gt;6 \n"&lt;de&gt;"\n\t"de" Adv @ADVL&gt; #10-&gt;12 \n"&lt;aggregáhta&gt;"\n\t"aggregáhta" N Sg Nom @SUBJ&gt; #11-&gt;12 \n"&lt;billánii&gt;"\n\t"billánit" V IV Ind Prt Sg3 @FS-ADVL&gt; #12-&gt;0 \n"&lt;.&gt;"\n\t"." CLB #13-&gt;12 \n\n"&lt;¶&gt;"\n\t"¶" CLB #1-&gt;1 \n\n</dependency></body></document>'''
         self.maxDiff = None
-        self.assertEqual(etree.tostring(got, encoding='unicode'), want)
+        self.assertEqual(etree.tostring(got, encoding=u'unicode'), want)
 
 def main():
     unittest.main()
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
     main()

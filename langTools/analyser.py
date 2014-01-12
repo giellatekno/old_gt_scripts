@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -26,18 +25,19 @@ import subprocess
 import re
 import datetime
 import lxml.etree as etree
+from io import open
 
-class Analyser:
+class Analyser(object):
     def __init__(self, lang, xmlFile, old=False):
         self.lang = lang
         self.old = old
         self.xmlFile = xmlFile
-        self.analysisXmlFile = self.xmlFile.replace('converted/', 'analysed/')
+        self.analysisXmlFile = self.xmlFile.replace(u'converted/', u'analysed/')
         self.eTree = etree.parse(xmlFile)
         self.calculateFilenames(xmlFile)
 
     def makedirs(self):
-        """Make the converted directory
+        u"""Make the converted directory
         """
         try:
             os.makedirs(os.path.dirname(self.analysisXmlFile))
@@ -45,79 +45,79 @@ class Analyser:
             pass
 
     def getLang(self):
-        """
+        u"""
         @brief Get the mainlang from the xml file
 
         :returns: the language as set in the xml file
         """
-        if self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang'] is not None:
-            return self.eTree.getroot().attrib['{http://www.w3.org/XML/1998/namespace}lang']
+        if self.eTree.getroot().attrib[u'{http://www.w3.org/XML/1998/namespace}lang'] is not None:
+            return self.eTree.getroot().attrib[u'{http://www.w3.org/XML/1998/namespace}lang']
         else:
-            return 'none'
+            return u'none'
 
     def getGenre(self):
-        """
+        u"""
         @brief Get the genre from the xml file
 
         :returns: the genre as set in the xml file
         """
-        if self.eTree.getroot().find(".//genre") is not None:
-            return self.eTree.getroot().find(".//genre").attrib["code"]
+        if self.eTree.getroot().find(u".//genre") is not None:
+            return self.eTree.getroot().find(u".//genre").attrib[u"code"]
         else:
-            return 'none'
+            return u'none'
 
     def getOcr(self):
-        """
+        u"""
         @brief Check if the ocr element exists
 
         :returns: the ocr element or None
         """
-        return self.eTree.getroot().find(".//ocr")
+        return self.eTree.getroot().find(u".//ocr")
 
     def getTranslatedfrom(self):
-        """
+        u"""
         @brief Get the translated_from value from the xml file
 
         :returns: the value of translated_from as set in the xml file
         """
-        if self.eTree.getroot().find(".//translated_from") is not None:
-            return self.eTree.getroot().find(".//translated_from").attrib["{http://www.w3.org/XML/1998/namespace}lang"]
+        if self.eTree.getroot().find(u".//translated_from") is not None:
+            return self.eTree.getroot().find(u".//translated_from").attrib[u"{http://www.w3.org/XML/1998/namespace}lang"]
         else:
-            return 'none'
+            return u'none'
 
     def calculateFilenames(self, xmlFile):
-        """Set the names of the analysis files
+        u"""Set the names of the analysis files
         """
-        self.dependencyAnalysisName = xmlFile.replace('/converted/', '/analysed')
+        self.dependencyAnalysisName = xmlFile.replace(u'/converted/', u'/analysed')
 
     def ccat(self):
-        """Runs ccat on the input file
+        u"""Runs ccat on the input file
         Returns the output of ccat
         """
-        ccatCommand = ['ccat', '-a', '-l', self.lang, self.xmlFile]
+        ccatCommand = [u'ccat', u'-a', u'-l', self.lang, self.xmlFile]
 
         return subprocess.check_output(ccatCommand)
 
     def preprocess(self):
-        """Runs preprocess on the ccat output.
+        u"""Runs preprocess on the ccat output.
         Returns the output of preprocess
         """
-        preProcessCommand = ['preprocess']
+        preProcessCommand = [u'preprocess']
 
-        if self.lang in ['sma', 'sme', 'smj'] :
+        if self.lang in [u'sma', u'sme', u'smj'] :
             abbrFile = os.path.join(
-                os.environ['GTHOME'],
-                'langs/' + self.lang + '/src/syntax/abbr.txt')
+                os.environ[u'GTHOME'],
+                u'langs/' + self.lang + u'/src/syntax/abbr.txt')
             if not os.path.exists(abbrFile):
-                raise IOError((-1, abbrFile + ' does not exist'))
+                raise IOError((-1, abbrFile + u' does not exist'))
 
-            preProcessCommand.append('--abbr=' + abbrFile)
+            preProcessCommand.append(u'--abbr=' + abbrFile)
 
-        if self.lang == 'sme':
-            corrFile = os.path.join(os.environ['GTHOME'], 'langs/' + self.lang + '/src/syntax/corr.txt')
+        if self.lang == u'sme':
+            corrFile = os.path.join(os.environ[u'GTHOME'], u'langs/' + self.lang + u'/src/syntax/corr.txt')
             if not os.path.exists(corrFile):
-                raise IOError((-1, corrFile + ' does not exist'))
-            preProcessCommand.append('--corr=' + corrFile)
+                raise IOError((-1, corrFile + u' does not exist'))
+            preProcessCommand.append(u'--corr=' + corrFile)
 
         subp = subprocess.Popen(preProcessCommand,
                         stdin = subprocess.PIPE,
@@ -127,16 +127,16 @@ class Analyser:
         return output
 
     def lookup(self):
-        """Runs lookup on the preprocess output
+        u"""Runs lookup on the preprocess output
         Returns the output of preprocess
         """
-        lookupCommand = ['lookup', '-q', '-flags', 'mbTT']
-        fstFile = os.path.join(os.getenv('GTHOME'),
-                               'langs/' +
+        lookupCommand = [u'lookup', u'-q', u'-flags', u'mbTT']
+        fstFile = os.path.join(os.getenv(u'GTHOME'),
+                               u'langs/' +
                                self.lang +
-                               '/src/analyser-gt-desc.xfst')
+                               u'/src/analyser-gt-desc.xfst')
         if not os.path.exists(fstFile):
-            raise IOError((-1, fstFile + ' does not exist'))
+            raise IOError((-1, fstFile + u' does not exist'))
         lookupCommand.append(fstFile)
 
         subp = subprocess.Popen(lookupCommand,
@@ -147,10 +147,10 @@ class Analyser:
         return output
 
     def lookup2cg(self):
-        """Runs the lookup on the lookup output
+        u"""Runs the lookup on the lookup output
         Returns the output of lookup2cg
         """
-        lookup2cgCommand = ['lookup2cg']
+        lookup2cgCommand = [u'lookup2cg']
 
         subp = subprocess.Popen(lookup2cgCommand,
                         stdin = subprocess.PIPE,
@@ -161,13 +161,13 @@ class Analyser:
 
 
     def disambiguationAnalysisOldSme(self, lookup2cg):
-        disambiguationFile = os.path.join(os.getenv('GTHOME'), 'gt/' +
-                                          self.lang + '/src/Old' + self.lang + '-dis.rle')
-        disambiguationAnalysisCommand = ['vislcg3', '-g']
+        disambiguationFile = os.path.join(os.getenv(u'GTHOME'), u'gt/' +
+                                          self.lang + u'/src/Old' + self.lang + u'-dis.rle')
+        disambiguationAnalysisCommand = [u'vislcg3', u'-g']
         try:
             f = open(disambiguationFile)
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            print u"Unexpected error:", sys.exc_info()[0]
             raise
         disambiguationAnalysisCommand.append(disambiguationFile)
 
@@ -176,30 +176,30 @@ class Analyser:
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
         (output, error) = subp.communicate(lookup2cg)
-        outfile = open(self.disambiguationAnalysisNameOld, "w")
+        outfile = open(self.disambiguationAnalysisNameOld, u"w")
 
         # Leave a clue for the AnalysisConcatenator
         # Will go unchanged through dependencyAnalysis as vislcg3
         # won't try to analyse clean text
-        outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
+        outfile.write(self.getLang() + u'_' + self.getTranslatedfrom() + u'_' + self.getGenre() + u'\n')
 
         outfile.write(output)
         outfile.close()
 
     def disambiguationAnalysis(self):
-        """Runs vislcg3 on the lookup2cg output, which produces a disambiguation
+        u"""Runs vislcg3 on the lookup2cg output, which produces a disambiguation
         analysis
         The output is stored in a .dis file
         """
 
         lookup2cg = self.lookup2cg()
 
-        if self.lang == "sme" and self.old:
+        if self.lang == u"sme" and self.old:
             self.disambiguationAnalysisOldSme(lookup2cg)
 
-        disambiguationAnalysisCommand = ['vislcg3', '-g']
-        disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
-                                          self.lang + '/src/syntax/disambiguation.cg3')
+        disambiguationAnalysisCommand = [u'vislcg3', u'-g']
+        disambiguationFile = os.path.join(os.getenv(u'GTHOME'), u'langs/' +
+                                          self.lang + u'/src/syntax/disambiguation.cg3')
         f = open(disambiguationFile)
         f.close()
 
@@ -215,28 +215,28 @@ class Analyser:
         return self.disambiguation
 
     def getDisambiguationXml(self):
-        disambiguation = etree.Element('disambiguation')
-        disambiguation.text = self.disambiguationAnalysis().decode('utf8')
-        body = etree.Element('body')
+        disambiguation = etree.Element(u'disambiguation')
+        disambiguation.text = self.disambiguationAnalysis().decode(u'utf8')
+        body = etree.Element(u'body')
         body.append(disambiguation)
 
-        oldbody = self.eTree.find('.//body')
+        oldbody = self.eTree.find(u'.//body')
         oldbody.getparent().replace(oldbody, body)
 
         return self.eTree
 
     def functionAnalysis(self):
-        """Runs vislcg3 on the dis file
+        u"""Runs vislcg3 on the dis file
         Return the output of this process
         """
         self.disambiguationAnalysis()
 
         functionAnalysisCommand = [
-            'vislcg3',
-            '-g',
+            u'vislcg3',
+            u'-g',
             os.path.join(
-                os.getenv('GTHOME'),
-                'gtcore/langs-templates/smi/src/syntax/functions.cg3'),
+                os.getenv(u'GTHOME'),
+                u'gtcore/langs-templates/smi/src/syntax/functions.cg3'),
             ]
 
         subp = subprocess.Popen(
@@ -247,20 +247,20 @@ class Analyser:
             )
         (output, error) = subp.communicate(self.getDisambiguation())
 
-        self.checkError('functionAnalysis', error)
+        self.checkError(u'functionAnalysis', error)
 
         return output
 
     def dependencyAnalysis(self):
-        """Runs vislcg3 on the .dis file.
+        u"""Runs vislcg3 on the .dis file.
         Produces output in a .dep file
         """
-        dependencyAnalysisCommand = ['vislcg3']
-        dependencyAnalysisCommand.append('-g')
+        dependencyAnalysisCommand = [u'vislcg3']
+        dependencyAnalysisCommand.append(u'-g')
         dependencyAnalysisCommand.append(
             os.path.join(
-                os.getenv('GTHOME'),
-                'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
+                os.getenv(u'GTHOME'),
+                u'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
 
         subp = subprocess.Popen(dependencyAnalysisCommand,
                                 stdin = subprocess.PIPE,
@@ -273,41 +273,41 @@ class Analyser:
         return self.dependency
 
     def getAnalysisXml(self):
-        body = etree.Element('body')
+        body = etree.Element(u'body')
 
-        disambiguation = etree.Element('disambiguation')
-        disambiguation.text = self.getDisambiguation().decode('utf8')
+        disambiguation = etree.Element(u'disambiguation')
+        disambiguation.text = self.getDisambiguation().decode(u'utf8')
         body.append(disambiguation)
 
-        dependency = etree.Element('dependency')
-        dependency.text = self.getDependency().decode('utf8')
+        dependency = etree.Element(u'dependency')
+        dependency.text = self.getDependency().decode(u'utf8')
         body.append(dependency)
 
-        oldbody = self.eTree.find('.//body')
+        oldbody = self.eTree.find(u'.//body')
         oldbody.getparent().replace(oldbody, body)
 
         return self.eTree
 
     def checkError(self, filename, error):
         if len(error) > 0:
-            print(file=sys.stderr)
-            print(filename, file=sys.stderr)
-            print(error, file=sys.stderr)
+            print >>sys.stderr
+            print >>sys.stderr, filename
+            print >>sys.stderr, error
 
     def analyse(self):
-        '''Analyse a file if it is not ocr'ed
+        u'''Analyse a file if it is not ocr'ed
         '''
         if self.getOcr() is None:
             self.dependencyAnalysis()
             self.makedirs()
             self.getAnalysisXml().write(
                 self.analysisXmlFile,
-                encoding='utf8',
+                encoding=u'utf8',
                 xml_declaration=True)
 
-class AnalysisConcatenator:
+class AnalysisConcatenator(object):
     def __init__(self, goalDir, xmlFiles, old=False):
-        """
+        u"""
         @brief Receives a list of filenames that has been analysed
         """
         self.basenames = xmlFiles
@@ -324,19 +324,19 @@ class AnalysisConcatenator:
             pass
 
     def concatenateAnalysedFiles(self):
-        """
+        u"""
         @brief Concatenates analysed files according to origlang, translated_from_lang and genre
         """
         for xmlFile in self.basenames:
-            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dis"))
-            self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".dep"))
+            self.concatenateAnalysedFile(xmlFile[1].replace(u".xml", u".dis"))
+            self.concatenateAnalysedFile(xmlFile[1].replace(u".xml", u".dep"))
             if self.old:
-                self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".disold"))
-                self.concatenateAnalysedFile(xmlFile[1].replace(".xml", ".depold"))
+                self.concatenateAnalysedFile(xmlFile[1].replace(u".xml", u".disold"))
+                self.concatenateAnalysedFile(xmlFile[1].replace(u".xml", u".depold"))
 
 
     def concatenateAnalysedFile(self, filename):
-        """
+        u"""
         @brief Adds the content of the given file to file it belongs to
 
         :returns: ...
@@ -348,41 +348,41 @@ class AnalysisConcatenator:
             os.unlink(filename)
 
     def getToFile(self, prefix, filename):
-        """
+        u"""
         @brief Gets the prefix of the filename. Opens a file object with the files prefix.
 
         :returns: File object belonging to the prefix of the filename
         """
 
         prefix = os.path.join(self.goalDir, prefix.strip())
-        if filename[-4:] == ".dis":
+        if filename[-4:] == u".dis":
             try:
                 self.disFiles[prefix]
             except KeyError:
-                self.disFiles[prefix] = open(prefix + ".dis", "w")
+                self.disFiles[prefix] = open(prefix + u".dis", u"w")
 
             return self.disFiles[prefix]
 
-        elif filename[-4:] == ".dep":
+        elif filename[-4:] == u".dep":
             try:
                 self.depFiles[prefix]
             except KeyError:
-                self.depFiles[prefix] = open(prefix + ".dep", "w")
+                self.depFiles[prefix] = open(prefix + u".dep", u"w")
 
             return self.depFiles[prefix]
 
-        if filename[-7:] == ".disold":
+        if filename[-7:] == u".disold":
             try:
                 self.disoldFiles[prefix]
             except KeyError:
-                self.disoldFiles[prefix] = open(prefix + ".disold", "w")
+                self.disoldFiles[prefix] = open(prefix + u".disold", u"w")
 
             return self.disoldFiles[prefix]
 
-        elif filename[-7:] == ".depold":
+        elif filename[-7:] == u".depold":
             try:
                 self.depoldFiles[prefix]
             except KeyError:
-                self.depoldFiles[prefix] = open(prefix + ".depold", "w")
+                self.depoldFiles[prefix] = open(prefix + u".depold", u"w")
 
             return self.depoldFiles[prefix]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -29,7 +29,7 @@ import multiprocessing
 import time
 from distutils.dep_util import newer_group
 
-sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
+sys.path.append(os.getenv(u'GTHOME') + u'/gt/script/langTools')
 import analyser
 
 def worker(inTuple):
@@ -39,42 +39,42 @@ def worker(inTuple):
     ana.analyse()
 
 def sanityCheck(lang):
-    """Look for programs and files that are needed to do the analysis.
+    u"""Look for programs and files that are needed to do the analysis.
     If they don't exist, quit the program
     """
-    for program in ['ccat', 'preprocess', 'lookup2cg', 'lookup', 'vislcg3']:
+    for program in [u'ccat', u'preprocess', u'lookup2cg', u'lookup', u'vislcg3']:
         if which(program) is False:
-            sys.stderr.write(program, " isn't found in path\n")
+            sys.stderr.write(program, u" isn't found in path\n")
             sys.exit(2)
 
 def which(name):
-        """Get the output of the unix command which.
+        u"""Get the output of the unix command which.
         Return false if empty, true if non-empty
         """
-        if subprocess.check_output(['which', name]) == '':
+        if subprocess.check_output([u'which', name]) == u'':
             return False
         else:
             return True
 
 def parse_options():
-    parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language using multiple parallel processes.')
-    parser.add_argument('-l', '--lang', help = "lang which should be analysed")
+    parser = argparse.ArgumentParser(description = u'Analyse files found in the given directories for the given language using multiple parallel processes.')
+    parser.add_argument(u'-l', u'--lang', help = u"lang which should be analysed")
     #parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are placed')
-    parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
-    parser.add_argument('--debug', help="use this for debugging the analysis process. When this argument is used files will be analysed one by one.", action="store_true")
-    parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
+    parser.add_argument(u'-o', u'--old', help=u'When using this sme texts are analysed using the old disambiguation grammars', action=u"store_true")
+    parser.add_argument(u'--debug', help=u"use this for debugging the analysis process. When this argument is used files will be analysed one by one.", action=u"store_true")
+    parser.add_argument(u'converted_dir', nargs=u'+', help = u"director(y|ies) where the converted files exist")
 
     args = parser.parse_args()
     return args
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
     args = parse_options()
     sanityCheck(args.lang)
     xmlFiles = []
     for cdir in args.converted_dir:
         for root, dirs, files in os.walk(cdir): # Walk directory tree
             for f in files:
-                if args.lang in root and f.endswith('.xml'):
+                if args.lang in root and f.endswith(u'.xml'):
                     xmlFiles.append((args.lang, os.path.join(root, f), args.old))
 
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     else:
         for xmlTuple in xmlFiles:
-            print("Analysing", xmlTuple[1], file=sys.stderr)
+            print >>sys.stderr, u"Analysing", xmlTuple[1]
             worker(xmlTuple)
 
     #ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles, args.old)
