@@ -26,6 +26,8 @@ import re
 import datetime
 import lxml.etree as etree
 from io import open
+import StringIO
+import ccat
 
 class Analyser(object):
     def __init__(self, lang, xmlFile, old=False):
@@ -94,9 +96,11 @@ class Analyser(object):
         u"""Runs ccat on the input file
         Returns the output of ccat
         """
-        ccatCommand = [u'ccat', u'-a', u'-l', self.lang, self.xmlFile]
+        xp = ccat.XMLPrinter(self.xmlFile, lang=self.lang, allP=True)
+        xp.outfile = StringIO.StringIO()
+        xp.processFile()
 
-        return subprocess.check_output(ccatCommand)
+        return xp.outfile.getvalue()
 
     def preprocess(self):
         u"""Runs preprocess on the ccat output.
