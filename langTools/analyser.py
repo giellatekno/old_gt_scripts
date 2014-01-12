@@ -113,7 +113,7 @@ class Analyser:
         subp = subprocess.Popen(preProcessCommand,
                         stdin = subprocess.PIPE,
                         stdout = subprocess.PIPE)
-        (output, error) = subp.communicate(self.ccat().replace('\\', ''))
+        (output, error) = subp.communicate(self.ccat())
 
         return output
 
@@ -158,7 +158,7 @@ class Analyser:
         try:
             f = open(disambiguationFile)
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print("Unexpected error:", sys.exc_info()[0])
             raise
         disambiguationAnalysisCommand.append(disambiguationFile)
 
@@ -192,6 +192,7 @@ class Analyser:
         disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
                                           self.lang + '/src/syntax/disambiguation.cg3')
         f = open(disambiguationFile)
+        f.close()
 
         disambiguationAnalysisCommand.append(disambiguationFile)
 
@@ -242,7 +243,7 @@ class Analyser:
             try:
                 f = open(os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
             except:
-                print "Unexpected error:", sys.exc_info()[0]
+                print("Unexpected error:", sys.exc_info()[0])
                 raise
 
             dependencyAnalysisCommand.append(
@@ -266,7 +267,7 @@ class Analyser:
                     os.getenv('GTHOME'),
                     'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print("Unexpected error:", sys.exc_info()[0])
             raise
         dependencyAnalysisCommand.append(
             os.path.join(
@@ -282,9 +283,9 @@ class Analyser:
 
     def checkError(self, filename, error):
         if len(error) > 0:
-            print >>sys.stderr
-            print >>sys.stderr, filename
-            print >>sys.stderr, error
+            print(file=sys.stderr)
+            print(filename, file=sys.stderr)
+            print(error, file=sys.stderr)
 
     def analyse(self):
         '''Analyse a file if it is not ocr'ed
