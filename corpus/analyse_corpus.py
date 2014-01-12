@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -47,35 +47,6 @@ def sanityCheck(lang):
             sys.stderr.write(program, " isn't found in path\n")
             sys.exit(2)
 
-    if lang == 'sme':
-        for file in [os.path.join(os.environ['GTHOME'], 'gt/sme/bin/abbr.txt'),
-                        os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt'),
-                        os.path.join(os.getenv('GTHOME'), 'gt/' + lang +
-                                '/bin/' + lang + '.fst'),
-                        os.path.join(os.getenv('GTHOME'), 'gt/' + lang + '/src/Old' + lang + '-dis.rle'),
-                        os.path.join(os.getenv('GTHOME'), 'gt/sme/src/sme-dis.rle'),
-                        os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle')]:
-            if os.path.isfile(file) is False:
-                sys.stderr.write(file)
-                sys.stderr.write(" doesn't exist\n")
-                sys.stderr.write("Run make GTLANG=sme in ")
-                sys.stderr.write(os.path.join(os.getenv('GTHOME'), 'gt'))
-                sys.stderr.write('\n')
-                sys.exit(2)
-    else:
-        for file in [os.path.join(os.getenv('GTHOME'),
-                                'langs/' + lang + '/src/analyser-gt-desc.xfst'),
-                    os.path.join(os.getenv('GTHOME'), 'langs/' +
-                                            lang + '/src/syntax/disambiguation.cg3'),
-                    os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle')]:
-            if os.path.isfile(file) is False:
-                sys.stderr.write(file)
-                sys.stderr.write(" doesn't exist\n")
-                sys.stderr.write("Run make in")
-                sys.stderr.write(os.path.join(os.getenv('GTHOME'), 'langs/' + lang ))
-                sys.stderr.write('\n')
-                sys.exit(2)
-
 def which(name):
         """Get the output of the unix command which.
         Return false if empty, true if non-empty
@@ -88,7 +59,7 @@ def which(name):
 def parse_options():
     parser = argparse.ArgumentParser(description = 'Analyse files found in the given directories for the given language using multiple parallel processes.')
     parser.add_argument('-l', '--lang', help = "lang which should be analysed")
-    parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are placed')
+    #parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are placed')
     parser.add_argument('-o', '--old', help='When using this sme texts are analysed using the old disambiguation grammars', action="store_true")
     parser.add_argument('--debug', help="use this for debugging the analysis process. When this argument is used files will be analysed one by one.", action="store_true")
     parser.add_argument('converted_dir', nargs='+', help = "director(y|ies) where the converted files exist")
@@ -116,8 +87,8 @@ if __name__ == '__main__':
 
     else:
         for xmlTuple in xmlFiles:
-            print >> sys.stderr, "Analysing", xmlTuple[1]
+            print("Analysing", xmlTuple[1], file=sys.stderr)
             worker(xmlTuple)
 
-    ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles, args.old)
-    ac.concatenateAnalysedFiles()
+    #ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles, args.old)
+    #ac.concatenateAnalysedFiles()
