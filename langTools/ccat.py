@@ -15,7 +15,6 @@ import sys
 
 class XMLPrinter:
     def __init__(self,
-                 filename,
                  lang=None,
                  allP=False,
                  title=False,
@@ -33,10 +32,6 @@ class XMLPrinter:
                  typos=False,
                  printFilename=False,
                  oneWordPerLine=False):
-
-        if os.path.exists(filename):
-            self.eTree = etree.parse(filename)
-        self.filename = filename
 
         self.p = True
         self.allP = allP
@@ -253,62 +248,62 @@ class XMLPrinter:
                 (element.tag == 'errorlang' and self.noforeign)
             )
 
-    def processFile(self):
+    def processFile(self, filename):
+        if os.path.exists(filename):
+            self.eTree = etree.parse(filename)
+        self.filename = filename
+
         for p in self.eTree.findall('.//p'):
             if self.visitThisNode(p):
                 self.collectPlainP(p, self.getLang())
 
 class TestCcat(unittest.TestCase):
-    def setUp(self):
-        self.x = XMLPrinter('barabbas/p.xml')
-
     def testSingleErrorInline(self):
+        x = XMLPrinter()
         inputError = etree.fromstring('<errorortreal correct="fiskeleting" errtype="nosplit" pos="noun">fiske leting</errorortreal>')
 
-
-
         textlist = []
-        self.x.collectInlineErrors(inputError, textlist, 'nob')
+        x.collectInlineErrors(inputError, textlist, 'nob')
 
         self.assertEqual('\n'.join(textlist), 'fiskeleting')
 
     def testSingleErrorNotInline(self):
+        x = XMLPrinter()
         inputError = etree.fromstring('<errorortreal correct="fiskeleting" errtype="nosplit" pos="noun">fiske leting</errorortreal>')
 
-
-
         textlist = []
-        self.x.collectNotInlineErrors(inputError, textlist)
+        x.collectNotInlineErrors(inputError, textlist)
 
         self.assertEqual('\n'.join(textlist), 'fiske leting\tfiskeleting\t#errtype=nosplit,pos=noun')
 
     def testSingleErrorNotInlineWithFilename(self):
+        x = XMLPrinter(printFilename=True)
         inputError = etree.fromstring('<errorortreal correct="fiskeleting" errtype="nosplit" pos="noun">fiske leting</errorortreal>')
 
-        self.x.printFilename=True
+        x.filename = 'p.xml'
 
         textlist = []
-        self.x.collectNotInlineErrors(inputError, textlist)
+        x.collectNotInlineErrors(inputError, textlist)
 
         self.assertEqual('\n'.join(textlist), 'fiske leting\tfiskeleting\t#errtype=nosplit,pos=noun, file: p.xml')
 
     def testSingleErrorNotInlineWithFilenameWithoutAttributes(self):
+        x = XMLPrinter(printFilename=True)
         inputError = etree.fromstring('<errorortreal correct="fiskeleting">fiske leting</errorortreal>')
 
-        self.x.printFilename=True
+        x.filename = 'p.xml'
 
         textlist = []
-        self.x.collectNotInlineErrors(inputError, textlist)
+        x.collectNotInlineErrors(inputError, textlist)
 
         self.assertEqual('\n'.join(textlist), 'fiske leting\tfiskeleting\t#file: p.xml')
 
     def testMultiErrorInLine(self):
+        x = XMLPrinter(printFilename=True)
+
         inputError = etree.fromstring('<errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">skoledagene er så<errorort correct="vanskelig" errtype="nosilent" pos="adj">vanskerlig</errorort></errormorphsyn>')
-
-        self.x.printFilename=True
-
         textlist = []
-        self.x.collectInlineErrors(inputError, textlist, 'nob')
+        x.collectInlineErrors(inputError, textlist, 'nob')
 
         self.assertEqual('\n'.join(textlist),
                          u'skoledagene er så vanskelige')
@@ -316,10 +311,11 @@ class TestCcat(unittest.TestCase):
     def testMultiErrormorphsynNotInlineWithFilename(self):
         inputError = etree.fromstring('<errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">skoledagene er så<errorort correct="vanskelig" errtype="nosilent" pos="adj">vanskerlig</errorort></errormorphsyn>')
 
-        self.x = XMLPrinter('p.xml', oneWordPerLine=True, printFilename=True)
+        x = XMLPrinter(oneWordPerLine=True, printFilename=True)
+        x.filename = 'p.xml'
 
         textlist = []
-        self.x.collectNotInlineErrors(inputError, textlist)
+        x.collectNotInlineErrors(inputError, textlist)
 
         self.assertEqual('\n'.join(textlist), u'skoledagene er så vanskelig\tskoledagene er så vanskelige\t#cat=x,const=spred,errtype=agr,orig=x,pos=adj, file: p.xml\nvanskerlig\tvanskelig\t#errtype=nosilent,pos=adj, file: p.xml')
 
@@ -327,170 +323,169 @@ class TestCcat(unittest.TestCase):
         inputError = etree.fromstring('<errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>')
         textlist = []
 
-        self.x = XMLPrinter('p.xml', typos=True)
-        self.x.collectNotInlineErrors(inputError, textlist)
+        x = XMLPrinter(typos=True)
+        x.collectNotInlineErrors(inputError, textlist)
 
         self.assertEqual('\n'.join(textlist), u'makkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr')
 
     def testP(self):
+        x = XMLPrinter()
+        x.outfile = StringIO.StringIO()
         inputP = etree.fromstring('<p>Et stykke av Norge som er lite kjent - Litt om Norge i mellomkrigstiden</p>')
 
-
-
-        self.x.outfile = StringIO.StringIO()
-
-        self.x.collectPlainP(inputP, 'nob')
-        self.assertEqual(self.x.outfile.getvalue(), 'Et stykke av Norge som er lite kjent - Litt om Norge i mellomkrigstiden ¶\n')
+        x.collectPlainP(inputP, 'nob')
+        self.assertEqual(x.outfile.getvalue(), 'Et stykke av Norge som er lite kjent - Litt om Norge i mellomkrigstiden ¶\n')
 
     def testPWithSpan(self):
+        x = XMLPrinter()
+        x.outfile = StringIO.StringIO()
+
         inputP = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="dan">"Fornuftigt Madstel"</span>.</p>')
 
-
-
-        self.x.outfile = StringIO.StringIO()
-
-        self.x.collectPlainP(inputP, 'nob')
-        self.assertEqual(self.x.outfile.getvalue(), 'I 1864 ga han ut boka "Fornuftigt Madstel" . ¶\n')
+        x.collectPlainP(inputP, 'nob')
+        self.assertEqual(x.outfile.getvalue(), 'I 1864 ga han ut boka "Fornuftigt Madstel" . ¶\n')
 
     def testPWithError(self):
+        x = XMLPrinter()
+        x.outfile = StringIO.StringIO()
+
         inputP = etree.fromstring('<p><errormorphsyn cat="pl3prs" const="fin" correct="Bearpmehat sirrejit" errtype="agr" orig="sg3prs" pos="verb"><errorort correct="Bearpmehat" errtype="svow" pos="noun">Bearpmahat</errorort> <errorlex correct="sirre" errtype="w" origpos="v" pos="verb">earuha</errorlex></errormorphsyn> uskki ja loaiddu.</p>')
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "Bearpmahat earuha uskki ja loaiddu. ¶\n")
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "Bearpmahat earuha uskki ja loaiddu. ¶\n")
 
     def testPOneWordPerLine(self):
         inputP = etree.fromstring('<p>Et stykke av Norge som er lite kjent - Litt om Norge i mellomkrigstiden</p>')
 
-        self.x = XMLPrinter('barabbas/p.xml', oneWordPerLine=True)
+        x = XMLPrinter(oneWordPerLine=True)
 
-        self.x.outfile = StringIO.StringIO()
+        x.outfile = StringIO.StringIO()
 
-        self.x.collectPlainP(inputP, 'nob')
-        self.assertEqual(self.x.outfile.getvalue(), 'Et\nstykke\nav\nNorge\nsom\ner\nlite\nkjent\n-\nLitt\nom\nNorge\ni\nmellomkrigstiden\n')
+        x.collectPlainP(inputP, 'nob')
+        self.assertEqual(x.outfile.getvalue(), 'Et\nstykke\nav\nNorge\nsom\ner\nlite\nkjent\n-\nLitt\nom\nNorge\ni\nmellomkrigstiden\n')
 
     def testPWithSpanOneWordPerLine(self):
         inputP = etree.fromstring('<p>I 1864 ga han ut boka <span type="quote" xml:lang="dan">"Fornuftigt Madstel"</span>.</p>')
 
-        self.x = XMLPrinter('barabbas/p.xml', oneWordPerLine=True)
-        self.x.outfile = StringIO.StringIO()
+        x = XMLPrinter(oneWordPerLine=True)
+        x.outfile = StringIO.StringIO()
 
-        self.x.collectPlainP(inputP, 'nob')
-        self.assertEqual(self.x.outfile.getvalue(), 'I\n1864\nga\nhan\nut\nboka\n\"Fornuftigt\nMadstel\"\n.\n')
+        x.collectPlainP(inputP, 'nob')
+        self.assertEqual(x.outfile.getvalue(), 'I\n1864\nga\nhan\nut\nboka\n\"Fornuftigt\nMadstel\"\n.\n')
 
     def testPWithErrorOneWordPerLine(self):
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
 
-        self.x = XMLPrinter('barabbas/p.xml', oneWordPerLine=True)
+        x = XMLPrinter(oneWordPerLine=True)
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n")
+        x.outfile = StringIO.StringIO()
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n")
 
     def testPWithErrorCorrection(self):
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
 
-        self.x = XMLPrinter('barabbas/p.xml', correction=True)
+        x = XMLPrinter(correction=True)
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii makkárge politihkka, muhto rahpasit baicca muitalivčče man soga sii ¶\n")
+        x.outfile = StringIO.StringIO()
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "livččii makkárge politihkka, muhto rahpasit baicca muitalivčče man soga sii ¶\n")
 
     def testPWithErrorfilteringErrorlex(self):
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
 
-        self.x = XMLPrinter('barabbas/p.xml', errorlex=True)
+        x = XMLPrinter(errorlex=True)
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče man soga sii ¶\n")
+        x.outfile = StringIO.StringIO()
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče man soga sii ¶\n")
 
     def testPWithErrorfilteringErrormorphsyn(self):
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
 
-        self.x = XMLPrinter('barabbas/p.xml', errormorphsyn=True)
+        x = XMLPrinter(errormorphsyn=True)
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n")
+        x.outfile = StringIO.StringIO()
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n")
 
     def testPWithErrorfilteringErrorort(self):
-        self.x = XMLPrinter('barabbas/p.xml', errorort=True)
+        x = XMLPrinter(errorort=True)
 
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
 
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii makkárge politihkka, muhto rahpasit baicca muitalivčče makkár soga sii ¶\n")
+        x.outfile = StringIO.StringIO()
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "livččii makkárge politihkka, muhto rahpasit baicca muitalivčče makkár soga sii ¶\n")
 
     def testPWithErrorfilteringErrorortreal(self):
-        self.x = XMLPrinter('barabbas/p.xml', errorortreal=True)
+        x = XMLPrinter(errorortreal=True)
 
         inputP = etree.fromstring('<p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort> soga</errorlex>sii</p>')
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.collectPlainP(inputP, 'sme')
-        self.assertEqual(self.x.outfile.getvalue(), "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n")
+        x.outfile = StringIO.StringIO()
+        x.collectPlainP(inputP, 'sme')
+        self.assertEqual(x.outfile.getvalue(), "livččii makkarge politihkka, muhto rahpasit baicca muitalivčče makkar soga sii ¶\n")
 
     def testVisitThisPDefault(self):
-
+        x = XMLPrinter()
 
         for types in [' type="title"',
                       ' type="listitem"',
                       ' type="tablecell"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertFalse(self.x.visitThisNode(inputXML))
+            self.assertFalse(x.visitThisNode(inputXML))
 
         for types in ['',
                       ' type="text"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertTrue(self.x.visitThisNode(inputXML))
+            self.assertTrue(x.visitThisNode(inputXML))
 
     def testVisitThisPTitleSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', title=True)
+        x = XMLPrinter(title=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="listitem"',
                       ' type="tablecell"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertFalse(self.x.visitThisNode(inputXML))
+            self.assertFalse(x.visitThisNode(inputXML))
 
         for types in [' type="title"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertTrue(self.x.visitThisNode(inputXML))
+            self.assertTrue(x.visitThisNode(inputXML))
 
     def testVisitThisPListitemSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', listitem=True)
+        x = XMLPrinter(listitem=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="title"',
                       ' type="tablecell"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertFalse(self.x.visitThisNode(inputXML))
+            self.assertFalse(x.visitThisNode(inputXML))
 
         for types in [' type="listitem"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertTrue(self.x.visitThisNode(inputXML))
+            self.assertTrue(x.visitThisNode(inputXML))
 
     def testVisitThisPTablecellSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', table=True)
+        x = XMLPrinter(table=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="title"',
                       ' type="listitem"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertFalse(self.x.visitThisNode(inputXML))
+            self.assertFalse(x.visitThisNode(inputXML))
 
         for types in [' type="tablecell"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertTrue(self.x.visitThisNode(inputXML))
+            self.assertTrue(x.visitThisNode(inputXML))
 
     def testVisitThisPAllpSet(self):
-        self.x.allP=True
+        x = XMLPrinter(allP=True)
 
         for types in ['',
                       ' type="text"',
@@ -498,235 +493,235 @@ class TestCcat(unittest.TestCase):
                       ' type="listitem"',
                       ' type="tablecell"']:
             inputXML = etree.fromstring('<p' + types + '>ášŧŋđžčøåæ</p>')
-            self.assertTrue(self.x.visitThisNode(inputXML))
+            self.assertTrue(x.visitThisNode(inputXML))
 
     def testProcessFileDefault(self):
+        x = XMLPrinter()
+
         for types in [' type="title"',
                       ' type="listitem"',
                       ' type="tablecell"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
 
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), '')
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), '')
 
         for types in ['',
                       ' type="text"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
 
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
 
     def testProcessFileTitleSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', title=True)
+        x = XMLPrinter(title=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="listitem"',
                       ' type="tablecell"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
 
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), '')
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), '')
 
         for types in [' type="title"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
 
     def testProcessFileListitemSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', listitem=True)
+        x = XMLPrinter(listitem=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="title"',
                       ' type="tablecell"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), '')
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), '')
 
         for types in [' type="listitem"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
 
     def testProcessFileTablecellSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', table=True)
+        x = XMLPrinter(table=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="title"',
                       ' type="listitem"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), '')
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), '')
 
         for types in [' type="tablecell"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
 
     def testProcessFileAllpSet(self):
-        self.x = XMLPrinter('barabbas/p.xml', allP=True)
+        x = XMLPrinter(allP=True)
 
         for types in ['',
                       ' type="text"',
                       ' type="title"',
                       ' type="listitem"',
                       ' type="tablecell"']:
-            self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
-            self.x.outfile = StringIO.StringIO()
-            self.x.processFile()
-            self.assertEqual(self.x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
+            x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p' + types + '>ášŧŋđžčøåæ</p></body></document>'))
+            x.outfile = StringIO.StringIO()
+            x.processFile('barabbas/p.xml')
+            self.assertEqual(x.outfile.getvalue(), 'ášŧŋđžčøåæ ¶\n')
 
     def testProcessFileOneWordPerLineErrorlex(self):
-        self.x = XMLPrinter('barabbas/p.xml',
-                            oneWordPerLine=True,
+        x = XMLPrinter(     oneWordPerLine=True,
                             errorlex=True)
 
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nsii\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'livččii\nmakkarge\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkár soga\tman soga\nsii\n')
 
     def testProcessFileOneWordPerLineErrorort(self):
-        self.x = XMLPrinter('barabbas/p.xml',
-                            oneWordPerLine=True,
+        x = XMLPrinter(     oneWordPerLine=True,
                             errorort=True)
 
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'livččii\nmakkarge\tmakkárge\t#errtype=á,pos=adv\npolitihkka,\nmuhto\nrahpasit\nbaicca\nmuitalivčče\nmakkar\tmakkár\t#errtype=á,pos=interr\nsoga\nsii\n')
 
     def testProcessFileTypos(self):
-        self.x = XMLPrinter('barabbas/p.xml', typos=True)
+        x = XMLPrinter(typos=True)
 
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkár soga\tman soga\nmakkar\tmakkár\t#errtype=á,pos=interr\n')
 
     def testProcessFileTyposErrorlex(self):
-        self.x = XMLPrinter('barabbas/p.xml',
-                            typos=True,
+        x = XMLPrinter(     typos=True,
                             errorlex=True)
 
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'makkár soga\tman soga\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'makkár soga\tman soga\n')
 
     def testProcessFileTyposErrorort(self):
-        self.x = XMLPrinter('barabbas/p.xml',
-                            typos=True,
+        x = XMLPrinter(     typos=True,
                             oneWordPerLine=True,
                             errorort=True)
 
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"><body><p>livččii <errorort correct="makkárge" errtype="á" pos="adv">makkarge</errorort> politihkka, muhto rahpasit baicca muitalivčče <errorlex correct="man soga"><errorort correct="makkár" errtype="á" pos="interr">makkar</errorort>soga</errorlex>sii</p></body></document>'))
+        x.outfile = StringIO.StringIO()
 
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n')
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'makkarge\tmakkárge\t#errtype=á,pos=adv\nmakkar\tmakkár\t#errtype=á,pos=interr\n')
 
     def testGetLang(self):
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"/>'))
+        x = XMLPrinter()
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="sme"/>'))
 
-        self.assertEqual(self.x.getLang(),  'sme')
+        self.assertEqual(x.getLang(),  'sme')
 
     def testGetElementLanguageSameAsParent(self):
-        element = etree.fromstring('<p/>')
+        x = XMLPrinter()
 
-        self.assertEqual(self.x.getElementLanguage(element, 'sme'), 'sme')
+        element = etree.fromstring('<p/>')
+        self.assertEqual(x.getElementLanguage(element, 'sme'), 'sme')
 
     def testGetElementLanguageDifferentFromParent(self):
-        element = etree.fromstring('<p xml:lang="nob"/>')
+        x = XMLPrinter()
 
-        self.assertEqual(self.x.getElementLanguage(element, 'sme'), 'nob')
+        element = etree.fromstring('<p xml:lang="nob"/>')
+        self.assertEqual(x.getElementLanguage(element, 'sme'), 'nob')
 
     def testProcessFileLanguageNob(self):
-        self.x = XMLPrinter('barabbas/p.xml',
-                       lang='nob')
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>nob1 <span type="quote" xml:lang="dan">dan1</span>nob2</p></body></document>'))
+        x = XMLPrinter(lang='nob')
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>nob1 <span type="quote" xml:lang="dan">dan1</span>nob2</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'nob1 nob2 ¶\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'nob1 nob2 ¶\n')
 
     def testProcessFileLanguageDan(self):
-        self.x = XMLPrinter('barabbas/p.xml',
-                       lang='dan')
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>nob1 <span type="quote" xml:lang="dan">dan1</span>nob2</p></body></document>'))
+        x = XMLPrinter(lang='dan')
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>nob1 <span type="quote" xml:lang="dan">dan1</span>nob2</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'dan1 ¶\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'dan1 ¶\n')
 
     def testProcessTwoParagraphs(self):
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>nob1</p><p>nob2</p></body></document>'))
+        x = XMLPrinter()
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>nob1</p><p>nob2</p></body></document>'))
 
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
-        self.assertEqual(self.x.outfile.getvalue(), 'nob1 ¶\nnob2 ¶\n')
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
+        self.assertEqual(x.outfile.getvalue(), 'nob1 ¶\nnob2 ¶\n')
 
     def testProcessMinusLSme(self):
-        self.x = XMLPrinter('p.xml', lang='sme')
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p type="text">men <errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">skoledagene er så<errorort correct="vanskelig" errtype="nosilent" pos="adj">vanskerlig</errorort></errormorphsyn>å komme igjennom,</p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
+        x = XMLPrinter(lang='sme')
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p type="text">men <errormorphsyn cat="x" const="spred" correct="skoledagene er så vanskelige" errtype="agr" orig="x" pos="adj">skoledagene er så<errorort correct="vanskelig" errtype="nosilent" pos="adj">vanskerlig</errorort></errormorphsyn>å komme igjennom,</p></body></document>'))
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
 
-        self.assertEqual(self.x.outfile.getvalue(), '')
+        self.assertEqual(x.outfile.getvalue(), '')
 
     def testForeign(self):
-        self.x = XMLPrinter('p.xml', errorlang=True)
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>Vijmak bierjjedak!<errorlang correct="nor">Pjuh</errorlang>vijmak de bierjjedak<errorort correct="sjattaj" errorinfo="vowlat,á-a">sjattáj</errorort>.</p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
+        x = XMLPrinter(errorlang=True)
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>Vijmak bierjjedak!<errorlang correct="nor">Pjuh</errorlang>vijmak de bierjjedak<errorort correct="sjattaj" errorinfo="vowlat,á-a">sjattáj</errorort>.</p></body></document>'))
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
 
-        self.assertEqual(self.x.outfile.getvalue(), 'Vijmak bierjjedak! nor vijmak de bierjjedak sjattáj . ¶\n')
+        self.assertEqual(x.outfile.getvalue(), 'Vijmak bierjjedak! nor vijmak de bierjjedak sjattáj . ¶\n')
 
     def testNoForeign(self):
-        self.x = XMLPrinter('p.xml', noforeign=True)
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>Vijmak bierjjedak!<errorlang correct="nor">Pjuh</errorlang>vijmak de bierjjedak<errorort correct="sjattaj" errorinfo="vowlat,á-a">sjattáj</errorort>.</p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
+        x = XMLPrinter(noforeign=True)
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>Vijmak bierjjedak!<errorlang correct="nor">Pjuh</errorlang>vijmak de bierjjedak<errorort correct="sjattaj" errorinfo="vowlat,á-a">sjattáj</errorort>.</p></body></document>'))
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
 
-        self.assertEqual(self.x.outfile.getvalue(), 'Vijmak bierjjedak! vijmak de bierjjedak sjattáj . ¶\n')
+        self.assertEqual(x.outfile.getvalue(), 'Vijmak bierjjedak! vijmak de bierjjedak sjattáj . ¶\n')
 
     def testNoForeignTypos(self):
-        self.x = XMLPrinter('p.xml', noforeign=True, typos=True)
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>Vijmak bierjjedak!<errorlang correct="nor">Pjuh</errorlang>vijmak de bierjjedak<errorort correct="sjattaj" errorinfo="vowlat,á-a">sjattáj</errorort>.</p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
+        x = XMLPrinter(noforeign=True, typos=True)
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p>Vijmak bierjjedak!<errorlang correct="nor">Pjuh</errorlang>vijmak de bierjjedak<errorort correct="sjattaj" errorinfo="vowlat,á-a">sjattáj</errorort>.</p></body></document>'))
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
 
-        self.assertEqual(self.x.outfile.getvalue(), '')
+        self.assertEqual(x.outfile.getvalue(), '')
 
     def testTyposErrordepth3(self):
-        self.x = XMLPrinter('p.xml', typos=True)
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid ja sarridiid" errtype="case" orig="nompl" pos="noun"><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn>ja sarridat</errormorphsyn></p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
+        x = XMLPrinter(typos=True)
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid ja sarridiid" errtype="case" orig="nompl" pos="noun"><errormorphsyn cat="genpl" const="obj" correct="čoggen ollu joŋaid" errtype="case" orig="nompl" pos="noun"><errorort correct="čoggen" errtype="mono" pos="verb">čoaggen</errorort> ollu jokŋat</errormorphsyn>ja sarridat</errormorphsyn></p></body></document>'))
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
 
-        self.assertEqual(self.x.outfile.getvalue(), 'čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n')
+        self.assertEqual(x.outfile.getvalue(), 'čoggen ollu joŋaid ja sarridat\tčoggen ollu joŋaid ja sarridiid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoggen ollu jokŋat\tčoggen ollu joŋaid\t#cat=genpl,const=obj,errtype=case,orig=nompl,pos=noun\nčoaggen\tčoggen\t#errtype=mono,pos=verb\n')
 
     def testTyposErrormorphsynTwice(self):
-        self.x = XMLPrinter('p.xml', typos=True, errormorphsyn=True)
-        self.x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p><errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn></p></body></document>'))
-        self.x.outfile = StringIO.StringIO()
-        self.x.processFile()
+        x = XMLPrinter(typos=True, errormorphsyn=True)
+        x.eTree = etree.parse(io.BytesIO('<document id="no_id" xml:lang="nob"><body><p><errormorphsyn cat="sg3prs" const="v" correct="lea okta mánná" errtype="agr" orig="pl3prs" pos="v">leat <errormorphsyn cat="nomsg" const="spred" correct="okta mánná" errtype="case" orig="gensg" pos="n">okta máná</errormorphsyn></errormorphsyn></p></body></document>'))
+        x.outfile = StringIO.StringIO()
+        x.processFile('barabbas/p.xml')
 
-        self.assertEqual(self.x.outfile.getvalue(), 'leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n')
+        self.assertEqual(x.outfile.getvalue(), 'leat okta mánná\tlea okta mánná\t#cat=sg3prs,const=v,errtype=agr,orig=pl3prs,pos=v\nokta máná\tokta mánná\t#cat=nomsg,const=spred,errtype=case,orig=gensg,pos=n\n')
 
 if __name__ == '__main__':
     unittest.main()
