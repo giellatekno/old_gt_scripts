@@ -29,6 +29,17 @@ import os
 import analyser
 
 class TestAnalyser(unittest.TestCase):
+    def setUp(self):
+        self.a = analyser.Analyser(u'sme')
+        self.a.xmlFile = u'smefile.xml'
+        self.a.setAnalysisFiles(
+            abbrFile='abbr.txt',
+            corrFile='corr.txt',
+            fstFile='analyser.xfst',
+            disambiguationAnalysisFile='disambiguation.cg3',
+            functionAnalysisFile='functions.cg3',
+            dependencyAnalysisFile='dependency.cg3')
+
     def assertXmlEqual(self, got, want):
         u"""Check if two stringified xml snippets are equal
         """
@@ -40,8 +51,7 @@ class TestAnalyser(unittest.TestCase):
     def testSmeCcatOutput(self):
         u"""Test if the ccat output is what we expect it to be
         """
-        a = analyser.Analyser(u'sme', u'smefile.xml')
-        got = a.ccat()
+        got = self.a.ccat()
         want = u'''Muhto gaskkohagaid, ja erenoamážit dalle go lei buolaš, de aggregáhta billánii. ¶\n'''
 
         self.assertEqual(got, want.encode(u'utf8'))
@@ -49,8 +59,7 @@ class TestAnalyser(unittest.TestCase):
     def testSmePreprocessOutput(self):
         u"""Test if the preprocess output is what we expect it to be
         """
-        a = analyser.Analyser(u'sme', u'smefile.xml')
-        got = a.preprocess()
+        got = self.a.preprocess()
         want = u'''Muhto\ngaskkohagaid\n,\nja\nerenoamážit\ndalle go\nlei\nbuolaš\n,\nde\naggregáhta\nbillánii\n.\n¶\n'''
 
         self.assertEqual(got, want.encode(u'utf8'))
@@ -58,9 +67,8 @@ class TestAnalyser(unittest.TestCase):
     def testSmeDisambiguationOutput(self):
         u"""Check if disambiguation analysis gives the expected output
         """
-        a = analyser.Analyser(u'sme', u'smefile.xml')
-        a.disambiguationAnalysis()
-        got = a.getDisambiguation()
+        self.a.disambiguationAnalysis()
+        got = self.a.getDisambiguation()
         want = u'"<Muhto>"\n\t"muhto" CC <sme> @CVP \n"<gaskkohagaid>"\n\t"gaskkohagaid" Adv <sme> \n"<,>"\n\t"," CLB \n"<ja>"\n\t"ja" CC <sme> @CNP \n"<erenoamážit>"\n\t"erenoamážit" Adv <sme> \n"<dalle_go>"\n\t"dalle_go" MWE CS <sme> @CVP \n"<lei>"\n\t"leat" V <sme> IV Ind Prt Sg3 @+FMAINV \n"<buolaš>"\n\t"buolaš" Sem/Wthr N <sme> Sg Nom \n"<,>"\n\t"," CLB \n"<de>"\n\t"de" Adv <sme> \n"<aggregáhta>"\n\t"aggregáhta" N <sme> Sg Nom \n"<billánii>"\n\t"billánit" V <sme> IV Ind Prt Sg3 @+FMAINV \n"<.>"\n\t"." CLB \n\n"<¶>"\n\t"¶" CLB \n\n'
 
         self.assertEqual(got, want.encode(u'utf8'))
@@ -68,9 +76,8 @@ class TestAnalyser(unittest.TestCase):
     def testSmeDependencyOutput(self):
         u"""Check if disambiguation analysis gives the expected output
         """
-        a = analyser.Analyser(u'sme', u'smefile.xml')
-        a.dependencyAnalysis()
-        got = a.getDependency()
+        self.a.dependencyAnalysis()
+        got = self.a.getDependency()
         want = u'"<Muhto>"\n\t"muhto" CC @CVP #1->1 \n"<gaskkohagaid>"\n\t"gaskkohagaid" Adv @ADVL> #2->12 \n"<,>"\n\t"," CLB #3->4 \n"<ja>"\n\t"ja" CC @CNP #4->2 \n"<erenoamážit>"\n\t"erenoamážit" Adv @ADVL> #5->12 \n"<dalle_go>"\n\t"dalle_go" CS @CVP #6->7 \n"<lei>"\n\t"leat" V IV Ind Prt Sg3 @FS-ADVL> #7->12 \n"<buolaš>"\n\t"buolaš" N Sg Nom @<SPRED #8->7 \n"<,>"\n\t"," CLB #9->6 \n"<de>"\n\t"de" Adv @ADVL> #10->12 \n"<aggregáhta>"\n\t"aggregáhta" N Sg Nom @SUBJ> #11->12 \n"<billánii>"\n\t"billánit" V IV Ind Prt Sg3 @FS-ADVL> #12->0 \n"<.>"\n\t"." CLB #13->12 \n\n"<¶>"\n\t"¶" CLB #1->1 \n\n'
 
         self.assertEqual(got, want.encode(u'utf8'))
@@ -78,9 +85,9 @@ class TestAnalyser(unittest.TestCase):
     def testAnalysisXml(self):
         u"""Check if the xml is what it is supposed to be
         """
-        a = analyser.Analyser(u'sme', u'smefile.xml')
-        a.dependencyAnalysis()
-        got = a.getAnalysisXml()
+        self.a.eTree = etree.parse(self.a.xmlFile)
+        self.a.dependencyAnalysis()
+        got = self.a.getAnalysisXml()
         want = u'''<document xml:lang="sme" id="no_id">
   <header>
     <title>Internáhtta sosiálalaš giliguovddážin</title>

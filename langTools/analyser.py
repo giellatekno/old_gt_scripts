@@ -26,17 +26,30 @@ import re
 import datetime
 import lxml.etree as etree
 from io import open
-import StringIO
+import cStringIO
 import ccat
 
 class Analyser(object):
-    def __init__(self, lang, xmlFile, old=False):
+    def __init__(self, lang, old=False):
         self.lang = lang
         self.old = old
-        self.xmlFile = xmlFile
-        self.analysisXmlFile = self.xmlFile.replace(u'converted/', u'analysed/')
-        self.eTree = etree.parse(xmlFile)
-        self.calculateFilenames(xmlFile)
+        self.xp = ccat.XMLPrinter(lang=lang, allP=True)
+        self.xp.setOutfile(cStringIO.StringIO())
+
+    def setAnalysisFiles(self,
+                         abbrFile=None,
+                         corrFile=None,
+                         fstFile=None,
+                         disambiguationAnalysisFile=None,
+                         functionAnalysisFile=None,
+                         dependencyAnalysisFile=None):
+        self.abbrFile = abbrFile
+        self.corrFile = corrFile
+        self.fstFile = fstFile
+        self.disambiguationAnalysisFile = disambiguationAnalysisFile
+        self.functionAnalysisFile = functionAnalysisFile
+        self.dependencyAnalysisFile = dependencyAnalysisFile
+
 
     def makedirs(self):
         u"""Make the converted directory
@@ -96,11 +109,9 @@ class Analyser(object):
         u"""Runs ccat on the input file
         Returns the output of ccat
         """
-        xp = ccat.XMLPrinter(self.xmlFile, lang=self.lang, allP=True)
-        xp.outfile = StringIO.StringIO()
-        xp.processFile()
+        self.xp.processFile(self.xmlFile)
 
-        return xp.outfile.getvalue()
+        return self.xp.outfile.getvalue()
 
     def preprocess(self):
         u"""Runs preprocess on the ccat output.
@@ -108,20 +119,11 @@ class Analyser(object):
         """
         preProcessCommand = [u'preprocess']
 
-        if self.lang in [u'sma', u'sme', u'smj'] :
-            abbrFile = os.path.join(
-                os.environ[u'GTHOME'],
-                u'langs/' + self.lang + u'/src/syntax/abbr.txt')
-            if not os.path.exists(abbrFile):
-                raise IOError((-1, abbrFile + u' does not exist'))
+        if self.abbrFile is not None:
+            preProcessCommand.append(u'--abbr=' + self.abbrFile)
 
-            preProcessCommand.append(u'--abbr=' + abbrFile)
-
-        if self.lang == u'sme':
-            corrFile = os.path.join(os.environ[u'GTHOME'], u'langs/' + self.lang + u'/src/syntax/corr.txt')
-            if not os.path.exists(corrFile):
-                raise IOError((-1, corrFile + u' does not exist'))
-            preProcessCommand.append(u'--corr=' + corrFile)
+        if self.corrFile is not None:
+            preProcessCommand.append(u'--corr=' + self.corrFile)
 
         subp = subprocess.Popen(preProcessCommand,
                         stdin = subprocess.PIPE,
@@ -134,14 +136,11 @@ class Analyser(object):
         u"""Runs lookup on the preprocess output
         Returns the output of preprocess
         """
-        lookupCommand = [u'lookup', u'-q', u'-flags', u'mbTT']
-        fstFile = os.path.join(os.getenv(u'GTHOME'),
-                               u'langs/' +
-                               self.lang +
-                               u'/src/analyser-gt-desc.xfst')
-        if not os.path.exists(fstFile):
-            raise IOError((-1, fstFile + u' does not exist'))
-        lookupCommand.append(fstFile)
+        lookupCommand = [u'lookup',
+                         u'-q',
+                         u'-flags',
+                         u'mbTT',
+                         self.fstFile]
 
         subp = subprocess.Popen(lookupCommand,
                         stdin = subprocess.PIPE,
@@ -201,13 +200,9 @@ class Analyser(object):
         if self.lang == u"sme" and self.old:
             self.disambiguationAnalysisOldSme(lookup2cg)
 
-        disambiguationAnalysisCommand = [u'vislcg3', u'-g']
-        disambiguationFile = os.path.join(os.getenv(u'GTHOME'), u'langs/' +
-                                          self.lang + u'/src/syntax/disambiguation.cg3')
-        f = open(disambiguationFile)
-        f.close()
-
-        disambiguationAnalysisCommand.append(disambiguationFile)
+        disambiguationAnalysisCommand = [u'vislcg3',
+                                         u'-g',
+                                         self.disambiguationAnalysisFile]
 
         subp = subprocess.Popen(disambiguationAnalysisCommand,
                                 stdin = subprocess.PIPE,
@@ -235,20 +230,14 @@ class Analyser(object):
         """
         self.disambiguationAnalysis()
 
-        functionAnalysisCommand = [
-            u'vislcg3',
-            u'-g',
-            os.path.join(
-                os.getenv(u'GTHOME'),
-                u'gtcore/langs-templates/smi/src/syntax/functions.cg3'),
-            ]
+        functionAnalysisCommand = [u'vislcg3',
+                                   u'-g',
+                                   self.functionAnalysisFile]
 
-        subp = subprocess.Popen(
-            functionAnalysisCommand,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-            )
+        subp = subprocess.Popen(functionAnalysisCommand,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
         (output, error) = subp.communicate(self.getDisambiguation())
 
         self.checkError(u'functionAnalysis', error)
@@ -259,19 +248,17 @@ class Analyser(object):
         u"""Runs vislcg3 on the .dis file.
         Produces output in a .dep file
         """
-        dependencyAnalysisCommand = [u'vislcg3']
-        dependencyAnalysisCommand.append(u'-g')
-        dependencyAnalysisCommand.append(
-            os.path.join(
-                os.getenv(u'GTHOME'),
-                u'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
+        dependencyAnalysisCommand = [u'vislcg3',
+                                     u'-g',
+                                     self.dependencyAnalysisFile]
 
         subp = subprocess.Popen(dependencyAnalysisCommand,
                                 stdin = subprocess.PIPE,
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
         (self.dependency, error) = subp.communicate(self.functionAnalysis())
-        self.checkError(self.dependencyAnalysisName, error)
+
+        self.checkError(self.dependencyAnalysisFile, error)
 
     def getDependency(self):
         return self.dependency
@@ -298,9 +285,14 @@ class Analyser(object):
             print >>sys.stderr, filename
             print >>sys.stderr, error
 
-    def analyse(self):
+    def analyse(self, xmlFile):
         u'''Analyse a file if it is not ocr'ed
         '''
+        self.xmlFile = xmlFile
+        self.analysisXmlFile = self.xmlFile.replace(u'converted/', u'analysed/')
+        self.eTree = etree.parse(xmlFile)
+        self.calculateFilenames(xmlFile)
+
         if self.getOcr() is None:
             self.dependencyAnalysis()
             self.makedirs()
