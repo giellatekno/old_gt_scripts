@@ -33,12 +33,11 @@ sys.path.append(os.getenv(u'GTHOME') + u'/gt/script/langTools')
 import analyser
 
 def worker(inTuple):
-    (lang, xmlFile, old) = inTuple
-    ana = analyser.Analyser(lang, xmlFile, old)
+    (ana, xmlFile) = inTuple
 
-    ana.analyse()
+    ana.analyse(xmlFile)
 
-def sanityCheck(lang):
+def sanityCheck():
     u"""Look for programs and files that are needed to do the analysis.
     If they don't exist, quit the program
     """
@@ -46,39 +45,6 @@ def sanityCheck(lang):
         if which(program) is False:
             sys.stderr.write(program, u" isn't found in path\n")
             sys.exit(2)
-
-    for analysisFile in [
-        os.path.join(os.getenv(u'GTHOME'),
-                     u'langs/' +
-                     lang +
-                     u'/src/analyser-gt-desc.xfst'),
-        os.path.join(os.getenv(u'GTHOME'),
-                     u'langs/' +
-                     lang +
-                     u'/src/syntax/disambiguation.cg3'),
-        os.path.join(os.getenv(u'GTHOME'),
-                     u'langs/' +
-                     lang +
-                     '/src/syntax/abbr.txt'),
-        os.path.join(os.getenv(u'GTHOME'),
-                    u'gtcore/gtdshared/smi/src/syntax/functions.cg3'),
-        os.path.join(os.getenv(u'GTHOME'),
-                    u'gtcore/gtdshared/smi/src/syntax/dependency.cg3')]:
-            if not os.path.exists(analysisFile):
-                print >>sys.stderr, analysisFile, 'does not exist'
-                sys.exit(3)
-
-    if lang == 'sme':
-        if not os.path.exists(os.path.join(os.getenv(u'GTHOME'),
-                     u'langs/' +
-                     lang +
-                     '/src/syntax/corr.txt')):
-            print >>sys.stderr, os.path.join(os.getenv(u'GTHOME'),
-                     u'langs/' +
-                     lang +
-                     '/src/syntax/corr.txt'), 'does not exist'
-            sys.exit(4)
-
 
 def which(name):
         u"""Get the output of the unix command which.
@@ -102,13 +68,45 @@ def parse_options():
 
 if __name__ == u'__main__':
     args = parse_options()
-    sanityCheck(args.lang)
+    sanityCheck()
+
+    ana = analyser.Analyser(args.lang, args.old)
+    ana.setAnalysisFiles(
+        abbrFile=\
+            os.path.join(os.getenv(u'GTHOME'),
+                          u'langs/' +
+                          args.lang +
+                          '/src/syntax/abbr.txt'),
+        fstFile=\
+            os.path.join(os.getenv(u'GTHOME'),
+                         u'langs/' +
+                         args.lang +
+                         u'/src/analyser-gt-desc.xfst'),
+        disambiguationAnalysisFile=\
+            os.path.join(os.getenv(u'GTHOME'),
+                         u'langs/' +
+                         args.lang +
+                         u'/src/syntax/disambiguation.cg3'),
+        functionAnalysisFile=\
+            os.path.join(os.getenv(u'GTHOME'),
+                         u'gtcore/gtdshared/smi/src/syntax/functions.cg3'),
+        dependencyAnalysisFile=\
+            os.path.join(
+                os.getenv(u'GTHOME'),
+                u'gtcore/gtdshared/smi/src/syntax/dependency.cg3'))
+
+    if args.lang == u'sme':
+        ana.setCorrFile(os.path.join(os.getenv(u'GTHOME'),
+                                     u'langs/' +
+                                     args.lang +
+                                     '/src/syntax/corr.txt'))
+
     xmlFiles = []
     for cdir in args.converted_dir:
         for root, dirs, files in os.walk(cdir): # Walk directory tree
             for f in files:
                 if args.lang in root and f.endswith(u'.xml'):
-                    xmlFiles.append((args.lang, os.path.join(root, f), args.old))
+                    xmlFiles.append((ana, os.path.join(root, f)))
 
 
     if args.debug is False:
