@@ -42,7 +42,7 @@ def sanityCheck(lang):
     u"""Look for programs and files that are needed to do the analysis.
     If they don't exist, quit the program
     """
-    for program in [u'ccat', u'preprocess', u'lookup2cg', u'lookup', u'vislcg3']:
+    for program in [u'preprocess', u'lookup2cg', u'lookup', u'vislcg3']:
         if which(program) is False:
             sys.stderr.write(program, u" isn't found in path\n")
             sys.exit(2)
