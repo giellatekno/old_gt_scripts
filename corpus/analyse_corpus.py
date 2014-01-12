@@ -47,6 +47,39 @@ def sanityCheck(lang):
             sys.stderr.write(program, u" isn't found in path\n")
             sys.exit(2)
 
+    for analysisFile in [
+        os.path.join(os.getenv(u'GTHOME'),
+                     u'langs/' +
+                     lang +
+                     u'/src/analyser-gt-desc.xfst'),
+        os.path.join(os.getenv(u'GTHOME'),
+                     u'langs/' +
+                     lang +
+                     u'/src/syntax/disambiguation.cg3'),
+        os.path.join(os.getenv(u'GTHOME'),
+                     u'langs/' +
+                     lang +
+                     '/src/syntax/abbr.txt'),
+        os.path.join(os.getenv(u'GTHOME'),
+                    u'gtcore/gtdshared/smi/src/syntax/functions.cg3'),
+        os.path.join(os.getenv(u'GTHOME'),
+                    u'gtcore/gtdshared/smi/src/syntax/dependency.cg3')]:
+            if not os.path.exists(analysisFile):
+                print >>sys.stderr, analysisFile, 'does not exist'
+                sys.exit(3)
+
+    if lang == 'sme':
+        if not os.path.exists(os.path.join(os.getenv(u'GTHOME'),
+                     u'langs/' +
+                     lang +
+                     '/src/syntax/corr.txt')):
+            print >>sys.stderr, os.path.join(os.getenv(u'GTHOME'),
+                     u'langs/' +
+                     lang +
+                     '/src/syntax/corr.txt'), 'does not exist'
+            sys.exit(4)
+
+
 def which(name):
         u"""Get the output of the unix command which.
         Return false if empty, true if non-empty
