@@ -98,11 +98,16 @@ class Analyser:
         if self.lang in ['sma', 'sme', 'smj'] :
             abbrFile = os.path.join(
                 os.environ['GTHOME'],
-                'langs/', self.lang, '/src/abbr.txt')
+                'langs/' + self.lang + '/src/syntax/abbr.txt')
+            if not os.path.exists(abbrFile):
+                raise IOError((-1, abbrFile + ' does not exist'))
+
             preProcessCommand.append('--abbr=' + abbrFile)
 
         if self.lang == 'sme':
-            corrFile = os.path.join(os.environ['GTHOME'], 'gt/sme/bin/corr.txt')
+            corrFile = os.path.join(os.environ['GTHOME'], 'langs/' + self.lang + '/src/syntax/corr.txt')
+            if not os.path.exists(corrFile):
+                raise IOError((-1, corrFile + ' does not exist'))
             preProcessCommand.append('--corr=' + corrFile)
 
         subp = subprocess.Popen(preProcessCommand,
@@ -117,16 +122,13 @@ class Analyser:
         Returns the output of preprocess
         """
         lookupCommand = ['lookup', '-q', '-flags', 'mbTT']
-
-        if self.lang == 'sme':
-
-            fstFile = os.path.join(os.getenv('GTHOME'), 'gt/' + self.lang +
-                                   '/bin/' + self.lang + '.fst')
-            lookupCommand.append(fstFile)
-        else:
-            fstFile = os.path.join(os.getenv('GTHOME'),
-                                   'langs/' + self.lang + '/src/analyser-gt-desc.xfst')
-            lookupCommand.append(fstFile)
+        fstFile = os.path.join(os.getenv('GTHOME'),
+                               'langs/' +
+                               self.lang +
+                               '/src/analyser-gt-desc.xfst')
+        if not os.path.exists(fstFile):
+            raise IOError((-1, fstFile + ' does not exist'))
+        lookupCommand.append(fstFile)
 
         subp = subprocess.Popen(lookupCommand,
                         stdin = subprocess.PIPE,
@@ -189,11 +191,7 @@ class Analyser:
         disambiguationAnalysisCommand = ['vislcg3', '-g']
         disambiguationFile = os.path.join(os.getenv('GTHOME'), 'langs/' +
                                           self.lang + '/src/syntax/disambiguation.cg3')
-        try:
-            f = open(disambiguationFile)
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
+        f = open(disambiguationFile)
 
         disambiguationAnalysisCommand.append(disambiguationFile)
 
@@ -202,16 +200,8 @@ class Analyser:
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
         (output, error) = subp.communicate(lookup2cg)
-        outfile = open(self.disambiguationAnalysisName, "w")
 
-        # Leave a clue for the AnalysisConcatenator
-        # Will go unchanged through dependencyAnalysis as vislcg3
-        # won't try to analyse clean text
-        outfile.write(self.getLang() + '_' + self.getTranslatedfrom() + '_' + self.getGenre() + '\n')
-
-        outfile.write(output)
-        outfile.close()
-        self.checkError(self.disambiguationAnalysisName, error)
+        return output
 
     def functionAnalysis(self):
         """Runs vislcg3 on the dis file
