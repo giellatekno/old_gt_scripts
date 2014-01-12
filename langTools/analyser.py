@@ -44,10 +44,10 @@ class Analyser(object):
         error = False
 
         if filename is None:
-            print >>sys.stderr, 'abbrFile is not defined'
+            print >>sys.stderr, filename, 'is not defined'
             error = True
         elif not os.path.exists(filename):
-            print >>sys.stderr, 'abbrFile does not exist'
+            print >>sys.stderr, filename, 'does not exist'
             error = True
 
         if error:
