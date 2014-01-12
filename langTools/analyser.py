@@ -200,9 +200,10 @@ class Analyser:
                                 stdin = subprocess.PIPE,
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(lookup2cg)
+        (self.disambiguation, error) = subp.communicate(lookup2cg)
 
-        return output
+    def getDisambiguation(self):
+        return self.disambiguation
 
     def getDisambiguationXml(self):
         disambiguation = etree.Element('disambiguation')
@@ -219,14 +220,14 @@ class Analyser:
         """Runs vislcg3 on the dis file
         Return the output of this process
         """
+        self.disambiguationAnalysis()
+
         functionAnalysisCommand = [
             'vislcg3',
             '-g',
             os.path.join(
                 os.getenv('GTHOME'),
                 'gtcore/langs-templates/smi/src/syntax/functions.cg3'),
-            '-I',
-            self.disambiguationAnalysisName
             ]
 
         subp = subprocess.Popen(
@@ -235,7 +236,8 @@ class Analyser:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
             )
-        (output, error) = subp.communicate()
+        (output, error) = subp.communicate(self.getDisambiguation())
+
         self.checkError('functionAnalysis', error)
 
         return output
@@ -244,42 +246,8 @@ class Analyser:
         """Runs vislcg3 on the .dis file.
         Produces output in a .dep file
         """
-        if self.lang == "sme" and self.old:
-            dependencyAnalysisCommand = ['vislcg3']
-            dependencyAnalysisCommand.append("-I")
-            dependencyAnalysisCommand.append(self.disambiguationAnalysisNameOld)
-            dependencyAnalysisCommand.append("-O")
-            dependencyAnalysisCommand.append(self.dependencyAnalysisNameOld)
-            dependencyAnalysisCommand.append('-g')
-            try:
-                f = open(os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                raise
-
-            dependencyAnalysisCommand.append(
-                os.path.join( os.getenv('GTHOME'), 'gt/smi/src/smi-dep.rle'))
-
-            subp = subprocess.Popen(dependencyAnalysisCommand,
-                                    stdin = subprocess.PIPE,
-                                    stdout = subprocess.PIPE,
-                                    stderr = subprocess.PIPE)
-            (output, error) = subp.communicate()
-            dependencyAnalysisCommand = []
-
-
         dependencyAnalysisCommand = ['vislcg3']
-        dependencyAnalysisCommand.append("-O")
-        dependencyAnalysisCommand.append(self.dependencyAnalysisName)
         dependencyAnalysisCommand.append('-g')
-        try:
-            f = open(
-                os.path.join(
-                    os.getenv('GTHOME'),
-                    'gtcore/langs-templates/smi/src/syntax/dependency.cg3'))
-        except:
-            print("Unexpected error:", sys.exc_info()[0])
-            raise
         dependencyAnalysisCommand.append(
             os.path.join(
                 os.getenv('GTHOME'),
@@ -289,8 +257,27 @@ class Analyser:
                                 stdin = subprocess.PIPE,
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.functionAnalysis())
+        (self.dependency, error) = subp.communicate(self.functionAnalysis())
         self.checkError(self.dependencyAnalysisName, error)
+
+    def getDependency(self):
+        return self.dependency
+
+    def getAnalysisXml(self):
+        body = etree.Element('body')
+
+        disambiguation = etree.Element('disambiguation')
+        disambiguation.text = self.getDisambiguation().decode('utf8')
+        body.append(disambiguation)
+
+        dependency = etree.Element('dependency')
+        dependency.text = self.getDependency().decode('utf8')
+        body.append(dependency)
+
+        oldbody = self.eTree.find('.//body')
+        oldbody.getparent().replace(oldbody, body)
+
+        return self.eTree
 
     def checkError(self, filename, error):
         if len(error) > 0:
