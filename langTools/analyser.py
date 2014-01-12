@@ -22,19 +22,23 @@
 import os
 import sys
 import subprocess
+import multiprocessing
 import re
 import datetime
 import lxml.etree as etree
 from io import open
-import cStringIO
+import StringIO
 import ccat
+
+def unwrap_self_analyse(arg, **kwarg):
+    return Analyser.analyse(*arg, **kwarg)
 
 class Analyser(object):
     def __init__(self, lang, old=False):
         self.lang = lang
         self.old = old
         self.xp = ccat.XMLPrinter(lang=lang, allP=True)
-        self.xp.setOutfile(cStringIO.StringIO())
+        self.xp.setOutfile(StringIO.StringIO())
 
     def exitOnError(self, filename):
         error = False
@@ -71,6 +75,14 @@ class Analyser(object):
     def setCorrFile(self, corrFile):
         self.exitOnError(corrFile)
         self.corrFile = corrFile
+
+    def collectFiles(self, convertedDir):
+        self.xmlFiles = []
+        for cdir in convertedDir:
+            for root, dirs, files in os.walk(cdir): # Walk directory tree
+                for f in files:
+                    if self.lang in root and f.endswith(u'.xml'):
+                        self.xmlFiles.append(os.path.join(root, f))
 
     def makedirs(self):
         u"""Make the analysed directory
@@ -321,6 +333,21 @@ class Analyser(object):
                 self.analysisXmlFile,
                 encoding=u'utf8',
                 xml_declaration=True)
+
+    def analyseInParallel(self):
+        poolSize = multiprocessing.cpu_count() * 2
+        pool = multiprocessing.Pool(processes=poolSize,)
+        poolOutputs = pool.map(
+            unwrap_self_analyse,
+            zip([self]*len(self.xmlFiles), self.xmlFiles))
+        pool.close() # no more tasks
+        pool.join()  # wrap up current tasks
+
+    def analyseSerially(self):
+        for xmlFile in self.xmlFiles:
+            print >>sys.stderr, u'Analysing', xmlFile
+            self.analyse(xmlFile)
+
 
 class AnalysisConcatenator(object):
     def __init__(self, goalDir, xmlFiles, old=False):

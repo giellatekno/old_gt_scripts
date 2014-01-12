@@ -32,11 +32,6 @@ from distutils.dep_util import newer_group
 sys.path.append(os.getenv(u'GTHOME') + u'/gt/script/langTools')
 import analyser
 
-def worker(inTuple):
-    (ana, xmlFile) = inTuple
-
-    ana.analyse(xmlFile)
-
 def sanityCheck():
     u"""Look for programs and files that are needed to do the analysis.
     If they don't exist, quit the program
@@ -101,25 +96,11 @@ if __name__ == u'__main__':
                                      args.lang +
                                      '/src/syntax/corr.txt'))
 
-    xmlFiles = []
-    for cdir in args.converted_dir:
-        for root, dirs, files in os.walk(cdir): # Walk directory tree
-            for f in files:
-                if args.lang in root and f.endswith(u'.xml'):
-                    xmlFiles.append((ana, os.path.join(root, f)))
-
-
+    ana.collectFiles(args.converted_dir)
     if args.debug is False:
-        poolSize = multiprocessing.cpu_count() * 2
-        pool = multiprocessing.Pool(processes=poolSize,)
-        poolOutputs = pool.map(worker, xmlFiles)
-        pool.close() # no more tasks
-        pool.join()  # wrap up current tasks
-
+        ana.analyseInParallel()
     else:
-        for xmlTuple in xmlFiles:
-            print >>sys.stderr, u"Analysing", xmlTuple[1]
-            worker(xmlTuple)
+        ana.analyseSerially()
 
     #ac = analyser.AnalysisConcatenator(args.analysisdir, xmlFiles, args.old)
     #ac.concatenateAnalysedFiles()
