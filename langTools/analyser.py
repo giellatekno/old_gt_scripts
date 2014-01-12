@@ -78,15 +78,7 @@ class Analyser:
     def calculateFilenames(self, xmlFile):
         """Set the names of the analysis files
         """
-        basename = xmlFile[:-4]
-
-        self.xmlFile = xmlFile
-        if self.old:
-            self.disambiguationAnalysisNameOld = basename + '.disold'
-            self.dependencyAnalysisNameOld = basename + '.depold'
-
-        self.disambiguationAnalysisName = basename + '.dis'
-        self.dependencyAnalysisName = basename + '.dep'
+        self.dependencyAnalysisName = xmlFile.replace('/converted/', '/analysed')
 
     def ccat(self):
         """Runs ccat on the input file
