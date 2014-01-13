@@ -161,9 +161,11 @@ class Analyser(object):
             preProcessCommand.append(u'--corr=' + self.corrFile)
 
         subp = subprocess.Popen(preProcessCommand,
-                        stdin = subprocess.PIPE,
-                        stdout = subprocess.PIPE)
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
         (output, error) = subp.communicate(self.ccat())
+        self.checkError(preProcessCommand, error)
 
         return output
 
@@ -178,9 +180,11 @@ class Analyser(object):
                          self.fstFile]
 
         subp = subprocess.Popen(lookupCommand,
-                        stdin = subprocess.PIPE,
-                        stdout = subprocess.PIPE)
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
         (output, error) = subp.communicate(self.preprocess())
+        self.checkError(lookupCommand, error)
 
         return output
 
@@ -191,9 +195,11 @@ class Analyser(object):
         lookup2cgCommand = [u'lookup2cg']
 
         subp = subprocess.Popen(lookup2cgCommand,
-                        stdin = subprocess.PIPE,
-                        stdout = subprocess.PIPE)
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
         (output, error) = subp.communicate(self.lookup())
+        self.checkError(lookup2cgCommand, error)
 
         return output
 
@@ -244,6 +250,7 @@ class Analyser(object):
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
         (self.disambiguation, error) = subp.communicate(lookup2cg)
+        self.checkError(disambiguationAnalysisCommand, error)
 
     def getDisambiguation(self):
         return self.disambiguation
@@ -274,8 +281,7 @@ class Analyser(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         (output, error) = subp.communicate(self.getDisambiguation())
-
-        self.checkError(u'functionAnalysis', error)
+        self.checkError(functionAnalysisCommand, error)
 
         return output
 
@@ -292,7 +298,6 @@ class Analyser(object):
                                 stdout = subprocess.PIPE,
                                 stderr = subprocess.PIPE)
         (self.dependency, error) = subp.communicate(self.functionAnalysis())
-
         self.checkError(self.dependencyAnalysisFile, error)
 
     def getDependency(self):
@@ -314,10 +319,10 @@ class Analyser(object):
 
         return self.eTree
 
-    def checkError(self, filename, error):
-        if len(error) > 0:
-            print >>sys.stderr
-            print >>sys.stderr, filename
+    def checkError(self, command, error):
+        if error is not None and len(error) > 0:
+            print >>sys.stderr, self.xmlFile
+            print >>sys.stderr, command
             print >>sys.stderr, error
 
     def analyse(self, xmlFile):
