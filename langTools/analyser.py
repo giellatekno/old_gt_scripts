@@ -148,6 +148,18 @@ class Analyser(object):
 
         return self.xp.outfile.getvalue()
 
+    def runExternalCommand(self, command, input):
+        '''Run the command with input using subprocess
+        '''
+        subp = subprocess.Popen(command,
+                                stdin = subprocess.PIPE,
+                                stdout = subprocess.PIPE,
+                                stderr = subprocess.PIPE)
+        (output, error) = subp.communicate(input)
+        self.checkError(command, error)
+
+        return output
+
     def preprocess(self):
         u"""Runs preprocess on the ccat output.
         Returns the output of preprocess
@@ -160,33 +172,16 @@ class Analyser(object):
         if self.lang == 'sme' and self.corrFile is not None:
             preProcessCommand.append(u'--corr=' + self.corrFile)
 
-        subp = subprocess.Popen(preProcessCommand,
-                                stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE,
-                                stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.ccat())
-        self.checkError(preProcessCommand, error)
-
-        return output
+        return self.runExternalCommand(preProcessCommand, self.ccat())
 
     def lookup(self):
         u"""Runs lookup on the preprocess output
         Returns the output of preprocess
         """
-        lookupCommand = [u'lookup',
-                         u'-q',
-                         u'-flags',
-                         u'mbTT',
-                         self.fstFile]
+        lookupCommand = [u'lookup', u'-q', u'-flags', u'mbTT', self.fstFile]
 
-        subp = subprocess.Popen(lookupCommand,
-                                stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE,
-                                stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.preprocess())
-        self.checkError(lookupCommand, error)
+        return self.runExternalCommand(lookupCommand, self.preprocess())
 
-        return output
 
     def lookup2cg(self):
         u"""Runs the lookup on the lookup output
@@ -194,63 +189,39 @@ class Analyser(object):
         """
         lookup2cgCommand = [u'lookup2cg']
 
-        subp = subprocess.Popen(lookup2cgCommand,
-                                stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE,
-                                stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(self.lookup())
-        self.checkError(lookup2cgCommand, error)
-
-        return output
-
-
-    def disambiguationAnalysisOldSme(self, lookup2cg):
-        disambiguationFile = os.path.join(os.getenv(u'GTHOME'), u'gt/' +
-                                          self.lang + u'/src/Old' + self.lang + u'-dis.rle')
-        disambiguationAnalysisCommand = [u'vislcg3', u'-g']
-        try:
-            f = open(disambiguationFile)
-        except:
-            print u"Unexpected error:", sys.exc_info()[0]
-            raise
-        disambiguationAnalysisCommand.append(disambiguationFile)
-
-        subp = subprocess.Popen(disambiguationAnalysisCommand,
-                                stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE,
-                                stderr = subprocess.PIPE)
-        (output, error) = subp.communicate(lookup2cg)
-        outfile = open(self.disambiguationAnalysisNameOld, u"w")
-
-        # Leave a clue for the AnalysisConcatenator
-        # Will go unchanged through dependencyAnalysis as vislcg3
-        # won't try to analyse clean text
-        outfile.write(self.getLang() + u'_' + self.getTranslatedfrom() + u'_' + self.getGenre() + u'\n')
-
-        outfile.write(output)
-        outfile.close()
+        return self.runExternalCommand(lookup2cgCommand, self.lookup())
 
     def disambiguationAnalysis(self):
         u"""Runs vislcg3 on the lookup2cg output, which produces a disambiguation
         analysis
         The output is stored in a .dis file
         """
+        disAnalysisCommand = \
+            [u'vislcg3', u'-g', self.disambiguationAnalysisFile]
 
-        lookup2cg = self.lookup2cg()
+        self.disambiguation = \
+            self.runExternalCommand(disAnalysisCommand, self.lookup2cg())
 
-        if self.lang == u"sme" and self.old:
-            self.disambiguationAnalysisOldSme(lookup2cg)
+    def functionAnalysis(self):
+        u"""Runs vislcg3 on the dis file
+        Return the output of this process
+        """
+        self.disambiguationAnalysis()
 
-        disambiguationAnalysisCommand = [u'vislcg3',
-                                         u'-g',
-                                         self.disambiguationAnalysisFile]
+        functionAnalysisCommand = \
+            [u'vislcg3', u'-g', self.functionAnalysisFile]
 
-        subp = subprocess.Popen(disambiguationAnalysisCommand,
-                                stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE,
-                                stderr = subprocess.PIPE)
-        (self.disambiguation, error) = subp.communicate(lookup2cg)
-        self.checkError(disambiguationAnalysisCommand, error)
+        return self.runExternalCommand(functionAnalysisCommand, self.getDisambiguation())
+
+    def dependencyAnalysis(self):
+        u"""Runs vislcg3 on the .dis file.
+        Produces output in a .dep file
+        """
+        depAnalysisCommand = \
+            [u'vislcg3', u'-g', self.dependencyAnalysisFile]
+
+        self.dependency = \
+            self.runExternalCommand(depAnalysisCommand, self.functionAnalysis())
 
     def getDisambiguation(self):
         return self.disambiguation
@@ -265,40 +236,6 @@ class Analyser(object):
         oldbody.getparent().replace(oldbody, body)
 
         return self.eTree
-
-    def functionAnalysis(self):
-        u"""Runs vislcg3 on the dis file
-        Return the output of this process
-        """
-        self.disambiguationAnalysis()
-
-        functionAnalysisCommand = [u'vislcg3',
-                                   u'-g',
-                                   self.functionAnalysisFile]
-
-        subp = subprocess.Popen(functionAnalysisCommand,
-                                stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        (output, error) = subp.communicate(self.getDisambiguation())
-        self.checkError(functionAnalysisCommand, error)
-
-        return output
-
-    def dependencyAnalysis(self):
-        u"""Runs vislcg3 on the .dis file.
-        Produces output in a .dep file
-        """
-        dependencyAnalysisCommand = [u'vislcg3',
-                                     u'-g',
-                                     self.dependencyAnalysisFile]
-
-        subp = subprocess.Popen(dependencyAnalysisCommand,
-                                stdin = subprocess.PIPE,
-                                stdout = subprocess.PIPE,
-                                stderr = subprocess.PIPE)
-        (self.dependency, error) = subp.communicate(self.functionAnalysis())
-        self.checkError(self.dependencyAnalysisFile, error)
 
     def getDependency(self):
         return self.dependency
