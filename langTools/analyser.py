@@ -157,7 +157,7 @@ class Analyser(object):
         if self.abbrFile is not None:
             preProcessCommand.append(u'--abbr=' + self.abbrFile)
 
-        if self.corrFile is not None:
+        if self.lang == 'sme' and self.corrFile is not None:
             preProcessCommand.append(u'--corr=' + self.corrFile)
 
         subp = subprocess.Popen(preProcessCommand,
