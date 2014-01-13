@@ -40,45 +40,29 @@ def parse_options():
 if __name__ == '__main__':
     args = parse_options()
 
+    c = ccat.XMLPrinter(lang=args.lang,
+                        allP=args.allP,
+                        title=args.title,
+                        listitem=args.list,
+                        table=args.table,
+                        correction=args.corrections,
+                        error=args.error,
+                        errorort=args.errorort,
+                        errorortreal=args.errorortreal,
+                        errormorphsyn=args.errormorphsyn,
+                        errorsyn=args.errorsyn,
+                        errorlex=args.errorlex,
+                        errorlang=args.errorlang,
+                        noforeign=args.noforeign,
+                        typos=args.typos,
+                        printFilename=args.printFilename,
+                        oneWordPerLine=args.oneWordPerLine)
+
     for target in args.targets:
         if os.path.isfile(target):
-            c = ccat.XMLPrinter(lang=args.lang,
-                                allP=args.allP,
-                                title=args.title,
-                                listitem=args.list,
-                                table=args.table,
-                                correction=args.corrections,
-                                error=args.error,
-                                errorort=args.errorort,
-                                errorortreal=args.errorortreal,
-                                errormorphsyn=args.errormorphsyn,
-                                errorsyn=args.errorsyn,
-                                errorlex=args.errorlex,
-                                errorlang=args.errorlang,
-                                noforeign=args.noforeign,
-                                typos=args.typos,
-                                printFilename=args.printFilename,
-                                oneWordPerLine=args.oneWordPerLine)
             c.processFile(target)
         elif os.path.isdir(target):
             for root, dirs, files in os.walk(target):
                 for f in files:
-                    c = ccat.XMLPrinter(lang=args.lang,
-                                        allP=args.allP,
-                                        title=args.title,
-                                        listitem=args.list,
-                                        table=args.table,
-                                        correction=args.corrections,
-                                        error=args.error,
-                                        errorort=args.errorort,
-                                        errorortreal=args.errorortreal,
-                                        errormorphsyn=args.errormorphsyn,
-                                        errorsyn=args.errorsyn,
-                                        errorlex=args.errorlex,
-                                        errorlang=args.errorlang,
-                                        noforeign=args.noforeign,
-                                        typos=args.typos,
-                                        printFilename=args.printFilename,
-                                        oneWordPerLine=args.oneWordPerLine)
                     c.processFile(os.path.join(root,f))
 
