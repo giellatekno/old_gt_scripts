@@ -76,9 +76,11 @@ class Analyser(object):
         self.exitOnError(corrFile)
         self.corrFile = corrFile
 
-    def collectFiles(self, convertedDir):
+    def collectFiles(self, convertedDirs):
+        '''convertedDirs is a list of directories containing converted xml files
+        '''
         self.xmlFiles = []
-        for cdir in convertedDir:
+        for cdir in convertedDirs:
             for root, dirs, files in os.walk(cdir): # Walk directory tree
                 for f in files:
                     if self.lang in root and f.endswith(u'.xml'):

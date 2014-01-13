@@ -56,7 +56,7 @@ def parse_options():
     #parser.add_argument('-a', '--analysisdir', help='directory where the analysed files are placed')
     parser.add_argument(u'-o', u'--old', help=u'When using this sme texts are analysed using the old disambiguation grammars', action=u"store_true")
     parser.add_argument(u'--debug', help=u"use this for debugging the analysis process. When this argument is used files will be analysed one by one.", action=u"store_true")
-    parser.add_argument(u'converted_dir', nargs=u'+', help = u"director(y|ies) where the converted files exist")
+    parser.add_argument(u'converted_dirs', nargs=u'+', help = u"director(y|ies) where the converted files exist")
 
     args = parser.parse_args()
     return args
@@ -96,7 +96,7 @@ if __name__ == u'__main__':
                                      args.lang +
                                      '/src/syntax/corr.txt'))
 
-    ana.collectFiles(args.converted_dir)
+    ana.collectFiles(args.converted_dirs)
     if args.debug is False:
         ana.analyseInParallel()
     else:
