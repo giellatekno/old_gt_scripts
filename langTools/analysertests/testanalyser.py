@@ -34,11 +34,11 @@ class TestAnalyser(unittest.TestCase):
         self.a.xmlFile = u'smefile.xml'
         self.a.setAnalysisFiles(
             abbrFile='abbr.txt',
-            corrFile='corr.txt',
             fstFile='analyser.xfst',
             disambiguationAnalysisFile='disambiguation.cg3',
             functionAnalysisFile='functions.cg3',
             dependencyAnalysisFile='dependency.cg3')
+        self.a.setCorrFile(corrFile='corr.txt')
 
     def assertXmlEqual(self, got, want):
         u"""Check if two stringified xml snippets are equal
