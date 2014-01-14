@@ -24,6 +24,8 @@ ft=$(echo "$@" | grep '\-t')
 
 fh=$(echo "$@" | grep '\-h')
 
+
+
 # lang
 if [ ! -z "$fl" ]
 then
@@ -59,13 +61,35 @@ else
     lg="st"
 fi
 
-# abbr
-if  [  -f $GTHOME/$lg/$l/bin/abbr.txt ]
+#abbr
+# if sme then gt/sme/bin/abbr.txt
+# if newinfra then $GTHOME/$lg/$l/tools/preprocess/abbr.txt
+# if st then st/$l/bin/abbr.txt
+# if no abbr in these places then abbr=""
+
+
+if  [  -f $GTHOME/gt/sme/bin/abbr.txt ]
 then
-    abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"
+    abbr="--abbr=$GTHOME/gt/sme/bin/abbr.txt"        # <--- special case for sme
+elif [  -f $GTHOME/$lg/$l/tools/preprocess/abbr.txt ]
+then
+    abbr="--abbr=$GTHOME/$lg/$l/tools/preprocess/abbr.txt"  # <--- ny infra
+elif [  -f $GTHOME/$lg/$l/bin/abbr.txt ]
+then
+    abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- left-overs i gamal infra (st)
 else
     abbr=""
 fi
+
+
+# old, delete:
+# abbr
+#if  [  -f $GTHOME/$lg/$l/bin/abbr.txt ]
+#then
+#    abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"
+#else
+#    abbr=""
+#fi
 
 # New infra or not
 if [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == hdn ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]] 
