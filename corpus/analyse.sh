@@ -27,22 +27,23 @@ do
 		cd $corpus
 		svn up orig/$lang
 		make_corpus.py orig/$lang
-		time analyse_corpus.py --lang $lang converted/$lang 2> $HOME/$lang.log
+		time analyse_corpus.py --lang $lang converted/$lang
 	done
 done
 
-for lang in sma sme smj
-do
-	#ccatter.py $HOME/ccats/ $lang $GTFREE/converted/$lang $GTBOUND/converted/$lang
-done
+#for lang in sma sme smj
+#do
+#	#ccatter.py $HOME/ccats/ $lang $GTFREE/converted/$lang $GTBOUND/converted/$lang
+#done
 
 
 # rsync -az $HOME/ccats boerre@divvun.no:/Users/hoavda/Public/corp/.
 for xmltype in converted analysed
 do
-	ssh boerre@divvun.no "rm -rf /Users/hoavda/Public/corp/boundcorpus/$xmltype"
-	rsync -az $GTFREE/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/freecorpus/.
+	ssh boerre@divvun.no "rm -rvf /Users/hoavda/Public/corp/freecorpus/$xmltype"
+	rsync -vaz $GTFREE/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/freecorpus/.
 
-	ssh boerre@divvun.no "rm -rf /Users/hoavda/Public/corp/freecorpus/$xmltype"
-	rsync -az $GTBOUND/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/boundcorpus/.
+	ssh boerre@divvun.no "rm -rfv /Users/hoavda/Public/corp/boundcorpus/$xmltype"
+	rsync -vaz $GTBOUND/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/boundcorpus/.
 done
+
