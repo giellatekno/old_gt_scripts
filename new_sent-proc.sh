@@ -49,9 +49,9 @@ echo "_pre abbr  ${abbr}"
 
 
 usage() {
-    echo "USAGE: 1. sent-proc.sh [-t] [-l LANG] [-s PROCESSING_STEP] \"INPUT_TEXT\""  1>&2;
+    echo "USAGE: 1. $0 [-t] [-l LANG] [-s PROCESSING_STEP] \"INPUT_TEXT\""  1>&2;
     echo "                       or"  1>&2;
-    echo "       2. cat FILE or echo \"INPUT_TEXT\" | sent-proc.sh [-t] [-l LANG] [-s PROCESSING_STEP] "  1>&2;
+    echo "       2. cat FILE or echo \"INPUT_TEXT\" | $0 [-t] [-l LANG] [-s PROCESSING_STEP] "  1>&2;
     echo "-l language code: sme North Saami (default), sma South Saami, etc."  1>&2;
     echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"  1>&2;
     echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"  1>&2;
@@ -61,8 +61,6 @@ usage() {
     echo "-h print this text"  1>&2;
     exit 1;
 } 
-
-#usage() { echo "Usage: $0 [-l <sme|sma|...>][-s <pos|dis|syn|dep>][-t][-h]" 1>&2; exit 1; }
 
 while getopts ":l:s:h:t" o; do
     case "${o}" in
@@ -121,13 +119,16 @@ echo "post_ t  ${t}"
 echo "post_ lg  ${lg}"
 echo "post_ abbr  ${abbr}"
 
+current_path="$GTHOME/$lg/$l"
+echo "current_path  $current_path"
+
 # New infra or not (_cip_: not quite true, compare long_lang_list with lll_2)
 if [[ "${lll_2[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
-    MORPH="$LOOKUP $GTHOME/$lg/$l/src/analyser-gt-desc.xfst"
-    DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.cg3"
+    MORPH="$LOOKUP $current_path/src/analyser-gt-desc.xfst"
+    DIS="$current_path/src/syntax/disambiguation.cg3"
 else
-    MORPH="$LOOKUP -q -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
-    DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
+    MORPH="$LOOKUP -q -flags mbTT -utf8 $current_path/bin/$l.fst"
+    DIS="$current_path/src/$l-dis.rle"
 fi
 
 
