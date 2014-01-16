@@ -133,6 +133,26 @@ fi
 
 
 
+# path to the shared syntax
+SD_PATH='gtdshared/smi/src/syntax'
+
+# define commands
+# common pos_cmd
+pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
+
+if [[ $l == fao ]]; then
+    dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguation.cg3 $t"
+    syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/functions.cg3 $t"
+else
+    dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
+    syn_cmd=$dis_cmd" | vislcg3 -g $GTCORE/$sdPATH/functions.cg3 $t"
+fi
+
+# common dep_cmd
+dep_cmd=$syn_cmd" | vislcg3 -g $GTCORE/$sdPATH/dependency.cg3 $t"
+
+
+
 
 # Notes for further development:
 # ==============================
