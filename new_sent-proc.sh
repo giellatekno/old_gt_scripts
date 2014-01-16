@@ -133,9 +133,14 @@ else
     DIS="$current_path/src/$l-dis.rle"
 fi
 
-#sentence=$(cat -)
-
-sentence=${@:${#@}}
+#get the input
+# no parameters after command => expect the input from cat, echo and pipe
+if [[ $# -eq 0 ]]; then
+#tput cup 0 0
+    sentence=$(cat -)
+else
+    sentence=${@:${#@}}
+fi
 
 # path to the shared syntax
 SD_PATH='gtdshared/smi/src/syntax'
