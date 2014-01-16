@@ -107,9 +107,14 @@ echo "post_ t  ${t}"
 echo "post_ lg  ${lg}"
 echo "post_ abbr  ${abbr}"
 
-
-
-
+# New infra or not (_cip_: not quite true, compare long_lang_list with lll_2)
+if [[ "${lll_2[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
+    MORPH="$LOOKUP $GTHOME/$lg/$l/src/analyser-gt-desc.xfst"
+    DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.cg3"
+else
+    MORPH="$LOOKUP -q -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
+    DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
+fi
 
 
 # Notes for further development:
