@@ -48,7 +48,21 @@ echo "_pre lg  ${lg}"
 echo "_pre abbr  ${abbr}"
 
 
-usage() { echo "Usage: $0 [-l <sme|sma|...>][-s <pos|dis|syn|dep>][-t][-h]" 1>&2; exit 1; }
+usage() {
+    echo "USAGE: 1. sent-proc.sh [-t] [-l LANG] [-s PROCESSING_STEP] \"INPUT_TEXT\""  1>&2;
+    echo "                       or"  1>&2;
+    echo "       2. cat FILE or echo \"INPUT_TEXT\" | sent-proc.sh [-t] [-l LANG] [-s PROCESSING_STEP] "  1>&2;
+    echo "-l language code: sme North Saami (default), sma South Saami, etc."  1>&2;
+    echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"  1>&2;
+    echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"  1>&2;
+    echo "   processing step: syn assigning syntactic functions via vislcg3"  1>&2;
+    echo "   processing step: dep dependency parsing with vislcg3"  1>&2;
+    echo "-t print traces of the disambiguation or parsing step"  1>&2;
+    echo "-h print this text"  1>&2;
+    exit 1;
+} 
+
+#usage() { echo "Usage: $0 [-l <sme|sma|...>][-s <pos|dis|syn|dep>][-t][-h]" 1>&2; exit 1; }
 
 while getopts ":l:s:h:t" o; do
     case "${o}" in
@@ -115,6 +129,8 @@ else
     MORPH="$LOOKUP -q -flags mbTT -utf8 $GTHOME/$lg/$l/bin/$l.fst"
     DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
 fi
+
+
 
 
 # Notes for further development:
