@@ -131,7 +131,9 @@ else
     DIS="$current_path/src/$l-dis.rle"
 fi
 
+#sentence=$(cat -)
 
+sentence=${@:${#@}}
 
 # path to the shared syntax
 SD_PATH='gtdshared/smi/src/syntax'
@@ -145,12 +147,32 @@ if [[ $l == fao ]]; then
     syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/functions.cg3 $t"
 else
     dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
-    syn_cmd=$dis_cmd" | vislcg3 -g $GTCORE/$sdPATH/functions.cg3 $t"
+    syn_cmd=$dis_cmd" | vislcg3 -g $GTCORE/$SD_PATH/functions.cg3 $t"
 fi
 
 # common dep_cmd
-dep_cmd=$syn_cmd" | vislcg3 -g $GTCORE/$sdPATH/dependency.cg3 $t"
+dep_cmd=$syn_cmd" | vislcg3 -g $GTCORE/$SD_PATH/dependency.cg3 $t"
 
+
+# processing step
+case $s in
+    pos) 
+	echo "... pos tagging ..."
+	echo $(echo $pos_cmd) | sh
+	;;
+    dis)
+	echo "... pos disambiguating ..."
+	echo $(echo $dis_cmd) | sh
+	;;
+    syn)
+	echo "... syntax analysis ..."
+	echo $(echo $syn_cmd) | sh
+	;;
+    dep)
+	echo "... inserting dependency relations ..."
+	echo $(echo $dep_cmd) | sh
+	;;
+esac
 
 
 
