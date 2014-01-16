@@ -143,8 +143,8 @@ else
 fi
 
 # mask round brackets
-sentence="${sentence/(/\(}"
-sentence="${sentence/)/\)}"
+sentence="${sentence//(/\(}"
+sentence="${sentence//)/\)}"
 
 # path to the shared syntax
 SD_PATH='gtdshared/smi/src/syntax'
