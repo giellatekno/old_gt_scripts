@@ -11,6 +11,7 @@
 # input sentence either coming from the pipe or at the end in quotation marks
 # parametrized for processing step: -s pos, -s dis, -s syn, -s dep
 
+debug='false'
 LOOKUP=`which lookup`
 HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
 
@@ -41,12 +42,14 @@ lll_2=(est fao fin fkv hdn ipk izh kal
        sms som tat tlh tuv udm vep vro
        yrk zul)
 
-echo "_pre l  ${l}"
-echo "_pre s  ${s}"
-echo "_pre t  ${t}"
-echo "_pre lg  ${lg}"
-echo "_pre abbr  ${abbr}"
 
+if [[ "$debug" == "true" ]] ; then
+    echo "_pre l  ${l}"
+    echo "_pre s  ${s}"
+    echo "_pre t  ${t}"
+    echo "_pre lg  ${lg}"
+    echo "_pre abbr  ${abbr}"
+fi
 
 usage() {
     echo "USAGE: 1. $0 [-t] [-l LANG] [-s PROCESSING_STEP] \"INPUT_TEXT\""  1>&2;
@@ -85,11 +88,9 @@ shift $((OPTIND-1))
 
 # language parameter test and abbr file assignment
 if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
-    echo "lang $l is in list $long_lang_list"
     lg='langs'
     if [  -f $GTHOME/$lg/$l/tools/preprocess/abbr.txt ]; then
        abbr="--abbr=$GTHOME/$lg/$l/tools/preprocess/abbr.txt"  # <--- new infra
-       echo "abbr $abbr"
     else
        abbr=''
        echo "Warning: no abbr file found \n $GTHOME/$lg/$l/tools/preprocess/abbr.txt \n ...... preprocessing without it!" 1>&2;
@@ -98,7 +99,6 @@ elif [[ "$l" == "sme" ]]; then
     lg='gt'
     if [  -f $GTHOME/$lg/$l/bin/abbr.txt ]; then
        abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- sme exception
-       echo "abbr $abbr"
     else
        echo "Error: no abbr file found \n $GTHOME/$lg/$l/bin/abbr.txt \n ...... please generate it!" 1>&2; exit 1; 
     fi 
@@ -106,21 +106,23 @@ else
     lg='st'
     if [  -f $GTHOME/$lg/$l/bin/abbr.txt ]; then
        abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- leftovers in the old infra (st)
-       echo "abbr $abbr"
     else
        abbr=''
        echo "Warning: no abbr file found \n $GTHOME/$lg/$l/bin/abbr.txt \n ...... preprocessing without it!" 1>&2; 
     fi
 fi
 
-echo "post_ l  ${l}"
-echo "post_ s  ${s}"
-echo "post_ t  ${t}"
-echo "post_ lg  ${lg}"
-echo "post_ abbr  ${abbr}"
-
 current_path="$GTHOME/$lg/$l"
-echo "current_path  $current_path"
+
+if [[ "$debug" == "true" ]] ; then
+    echo "post_ l  ${l}"
+    echo "post_ s  ${s}"
+    echo "post_ t  ${t}"
+    echo "post_ lg  ${lg}"
+    echo "post_ abbr  ${abbr}"
+    echo "current_path  $current_path"
+fi
+
 
 # New infra or not (_cip_: not quite true, compare long_lang_list with lll_2)
 if [[ "${lll_2[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
