@@ -34,6 +34,13 @@ long_lang_list=(bla ciw cor crk est fao fin fkv
                 sjd sje sma smj smn sms som tat
                 tlh tuv udm vep vro yrk zul)
 
+#long_lang_list without (bla ciw cor crk): this should be changed because of doubling!
+lll_2=(est fao fin fkv hdn ipk izh kal
+       kca kpv liv mdf mhr mrj myv ndl
+       nio nob olo sjd sje sma smj smn
+       sms som tat tlh tuv udm vep vro
+       yrk zul)
+
 echo "_pre l  ${l}"
 echo "_pre s  ${s}"
 echo "_pre t  ${t}"
