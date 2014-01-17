@@ -96,7 +96,7 @@ prepend_path()
 
 # setup the Giellatekno path. We assume that the Giellatekno directory exists.
 if [ -z "$PATH" ]; then
-  PATH=~/.local/bin:$GTHOME/gt/script:/bin:/sbin:/usr/bin:/usr/sbin
+  PATH=$GTHOME/gt/script:/bin:/sbin:/usr/bin:/usr/sbin
 else
   # If MacPorts is installed, make sure it is also available in the environment.
   # This is especially important on the XServe.
@@ -112,6 +112,7 @@ else
   # This way locally installed programs will appear before system instaled ones
 
   PATH=/usr/local/bin:$PATH
+  prepend_path PATH $HOME/.local/bin
   prepend_path PATH $HOME/bin
   prepend_path PATH $GTHOME/gt/script
   prepend_path PATH $GTHOME/gt/script/corpus
