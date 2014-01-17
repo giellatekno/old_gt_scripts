@@ -29,11 +29,18 @@ lg='gt'
 abbr='$GTHOME/gt/sme/bin/abbr.txt'
 
 #long_lang_list
-long_lang_list=(bla ciw cor crk est fao fin fkv
+long_lang_list=(bxr chp ciw cor crk est fao fin fkv
                 hdn ipk izh kal kca kpv liv mdf
-                mhr mrj myv ndl nio nob olo ron
-                sjd sje sma smj smn sms som tat
-                tlh tuv udm vep vro yrk zul)
+                mhr mrj myv ndl nio nob olo ron rus
+                sjd sje sma smj smn sms som tat tku
+                tuv udm vep vro yrk)
+
+#startup_lang_list
+startup_lang_list=(amh bla evn sel sto tlh zul)
+
+#experiment_lang_list
+experiment_lang_list=(deu eng)
+
 
 #long_lang_list without (bla ciw cor crk): this should be changed because of doubling!
 lll_2=(est fao fin fkv hdn ipk izh kal
