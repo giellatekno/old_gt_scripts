@@ -27,7 +27,7 @@ do
 		cd $corpus
 		svn up orig/$lang
 		make_corpus.py orig/$lang
-		time analyse_corpus.py --lang $lang converted/$lang
+		time analyse_corpus $lang converted/$lang
 	done
 done
 
