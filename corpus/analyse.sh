@@ -40,10 +40,10 @@ done
 # rsync -az $HOME/ccats boerre@divvun.no:/Users/hoavda/Public/corp/.
 for xmltype in converted analysed
 do
-	ssh boerre@divvun.no "rm -rvf /Users/hoavda/Public/corp/freecorpus/$xmltype"
-	rsync -vaz $GTFREE/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/freecorpus/.
+	ssh boerre@divvun.no "rm -rf /Users/hoavda/Public/corp/freecorpus/$xmltype"
+	rsync -az $GTFREE/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/freecorpus/.
 
-	ssh boerre@divvun.no "rm -rfv /Users/hoavda/Public/corp/boundcorpus/$xmltype"
-	rsync -vaz $GTBOUND/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/boundcorpus/.
+	ssh boerre@divvun.no "rm -rf /Users/hoavda/Public/corp/boundcorpus/$xmltype"
+	rsync -az $GTBOUND/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/boundcorpus/.
 done
 
