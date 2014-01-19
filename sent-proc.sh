@@ -100,14 +100,19 @@ if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
        abbr="--abbr=$GTHOME/$lg/$l/tools/preprocess/abbr.txt"  # <--- new infra
     else
        abbr=''
-       echo "Warning: no abbr file found \n $GTHOME/$lg/$l/tools/preprocess/abbr.txt \n ...... preprocessing without it!" 1>&2;
+       echo "Warning: no abbr file found" 1>&2;
+       echo "  $GTHOME/$lg/$l/tools/preprocess/abbr.txt" 1>&2;
+       echo "............. preprocessing without it!" 1>&2;
     fi 
 elif [[ "$l" == "sme" ]]; then
     lg='gt'
     if [  -f $GTHOME/$lg/$l/bin/abbr.txt ]; then
        abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- sme exception
     else
-       echo "Error: no abbr file found \n $GTHOME/$lg/$l/bin/abbr.txt \n ...... please generate it!" 1>&2; exit 1; 
+       echo "Error: no abbr file found" 1>&2; 
+       echo "  $GTHOME/$lg/$l/bin/abbr.txt" 1>&2;
+       echo "............. please generate it!" 1>&2;
+       exit 1;
     fi 
 else
     lg='st'
@@ -115,7 +120,9 @@ else
        abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- leftovers in the old infra (st)
     else
        abbr=''
-       echo "Warning: no abbr file found \n $GTHOME/$lg/$l/bin/abbr.txt \n ...... preprocessing without it!" 1>&2; 
+       echo "Warning: no abbr file found" 1>&2; 
+       echo "  $GTHOME/$lg/$l/bin/abbr.txt" 1>&2; 
+       echo "............. preprocessing without it!" 1>&2; 
     fi
 fi
 
