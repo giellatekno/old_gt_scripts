@@ -15,7 +15,7 @@ module load automake/1.13.1
 cd $GTHOME
 svn up
 
-for lang in sma sme smj
+for lang in sma sme
 do
 	cd $GTHOME/langs/$lang
 	./autogen.sh
