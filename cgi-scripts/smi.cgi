@@ -16,7 +16,7 @@ use CGI::Minimal;
 #$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
 #$CGI::POST_MAX        = 1_024 * 1_024; 
-use CGI::Alert ('ciprian', 'http_die');
+use CGI::Alert ('ciprian.gerstenberger@uit.no', 'http_die');
 
 # Use project's utility functions.
 use langTools::Util;
@@ -52,7 +52,7 @@ require "conf.pl";
 our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,%avail_pos, %lang_actions, $translate,$placenames);
+our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,$lat2syll,$syll2lat,%avail_pos, %lang_actions, $translate,$placenames);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
@@ -131,7 +131,7 @@ if(! $xml_out) {
 
 # Process input XML
 if ($xml_in) {
-	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency" || $action eq "hyphenate" || $action eq "transcribe" || $action eq "convert" ) {
+	if ($action eq "analyze" || $action eq "disamb" || $action eq "dependency" || $action eq "hyphenate" || $action eq "transcribe" || $action eq "convert" || $action eq "lat2syll" || $action eq "syll2lat" ) {
 		$text = xml2preprocess($text);
 	}
 	if ($action eq "generate" || $action eq "paradigm") { $text = xml2words($text); }
@@ -196,6 +196,8 @@ elsif ($action eq "analyze") { $result = `echo $text | $analyze | $coloring_a`; 
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
 elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
 elsif ($action eq "convert") { $result = `echo $text | $convert`; }
+elsif ($action eq "lat2syll") { $result = `echo $text | $lat2syll`; }
+elsif ($action eq "syll2lat") { $result = `echo $text | $syll2lat`; }
 elsif ($action eq "placenames") { $result = `echo $text | $placenames`; }
 else { 
 if (!$xml_out)  { print "<p>No action given</p>"; }
@@ -221,6 +223,8 @@ if (! $xml_out) {
 	elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
 	elsif ($action eq "transcribe") { $output = hyph2html($result,1); }
 	elsif ($action eq "convert") { $output = hyph2html($result,1); }
+	elsif ($action eq "lat2syll") { $output = hyph2html($result,1); }
+	elsif ($action eq "syll2lat") { $output = hyph2html($result,1); }
 	elsif ($action eq "placenames") { $output = dis2html($result,1); }
 
     # PARADIGM OUTPUT
@@ -300,6 +304,8 @@ else {
 	elsif ($action eq "transcribe") { $output = hyph2xml($result); }
 	elsif ($action eq "placenames") { $output = hyph2xml($result); }
 	elsif ($action eq "convert") { $output = hyph2xml($result); }
+	elsif ($action eq "lat2syll") { $output = hyph2xml($result); }
+	elsif ($action eq "syll2lat") { $output = hyph2xml($result); }
 	elsif ($action eq "analyze") { $output = analyzer2xml($result); }
 	else { $output = dis2xml($result); }
 print $output;
@@ -566,7 +572,7 @@ sub printinitialhtmlcodes {
 	my ($tool,$texts,$body) = @_;
 
 	my $tmp_tool = $tool;
-	if ($tool =~ /hyphenate|transcribe|convert|disamb|dependency/) { $tmp_tool = "analyze"; }
+	if ($tool =~ /hyphenate|transcribe|convert|lat2syll|syll2lat|disamb|dependency/) { $tmp_tool = "analyze"; }
 #	print FH "TOOL $tool $tmp_tool\n";
 
 	# Read the texts from the XML-file.
@@ -706,10 +712,10 @@ sub printinitialhtmlcodes {
 
 	} # end of GENERATOR
 
-	##### analyze/hyphenate/transcribe/convert/disambiguate/dependency
+	##### analyze/hyphenate/transcribe/convert/lat2syll/syll2lat/disambiguate/dependency
 	else {
 		# Get the texts for selection menu
-		my @tools = qw(analyze disamb dependency hyphenate convert transcribe);
+		my @tools = qw(analyze disamb dependency hyphenate convert lat2syll syll2lat transcribe);
 		my %labels;
 
 		for my $t (@tools) {
@@ -741,7 +747,7 @@ sub printinitialhtmlcodes {
 		my @tmp;
 
 		# Print the radiobuttons for the available tools
-		for my $l (@tools) {
+		for my $l ( @tools) {
 			next if ( ! $lang_actions{$l});
 			my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'action',value=> $l},$labels{$l});
 			if ($tool eq $l ) { $input->set_att('checked', 1); }
@@ -779,7 +785,7 @@ sub printinitialhtmlcodes {
 		$td->paste('last_child', $tr);
 		$tr->paste('last_child', $table);
 			
-		} # end of analyze/hyphenate/transcribe/convert/disambiguate/dependency
+		} # end of analyze/hyphenate/transcribe/convert/lat2syll/syll2lat/disambiguate/dependency
 
 	# Submit and reset texts
 	my $submit_text = $texts->first_child_text("input[\@type='submit']");

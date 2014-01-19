@@ -78,6 +78,8 @@ sub init_variables {
 	my $num_fst = "$fstdir/$lang-num.fst";
 	my $phon_fst = "$fstdir/phon-$lang.fst";
 	my $orth_fst = "$fstdir/orth-$lang.fst";
+	my $lat2syll_fst = "$fstdir/latin2syllabics.xfst";
+	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
 	my $tok_fst = "$fstdir/tok.fst";
         my $fstflags = "-flags mbTT -utf8";
         my $dis_rle = "$fstdir/$lang-dis.rle";  # text file
@@ -111,6 +113,8 @@ sub init_variables {
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
+	if (-f $lat2syll_fst) { $lang_actions{lat2syll} = 1; }
+	if (-f $syll2lat_fst) { $lang_actions{syll2lat} = 1; }
 
 	# Find out which of the translated languages are available for this lang.
 	my @translated_langs = qw(dan nob);
@@ -167,7 +171,13 @@ sub init_variables {
 	}
 
 	if ($action eq "convert" && ! -f $orth_fst) {
-		http_die '--no-alert','404 Not Found',"orth-$lang.fst: Orthographic representatoin is not supported";
+		http_die '--no-alert','404 Not Found',"orth-$lang.fst: Orthographic representation is not supported";
+	}
+	if ($action eq "lat2syll" && ! -f $lat2syll_fst) {
+		http_die '--no-alert','404 Not Found',"latin2syllabics.xfst: Conversion to syllabics is not supported";
+	}
+	if ($action eq "syll2lat" && ! -f $syll2lat_fst) {
+		http_die '--no-alert','404 Not Found',"syllabics2latin.xfst: Conversion from syllabics is not supported";
 	}
 	if ($action eq "paradigm" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
@@ -235,6 +245,8 @@ sub init_variables {
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
     $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
+    $lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
+    $syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
 
     # File where the language is stored.
 	$langfile="$commondir/cgi-$plang.xml";
