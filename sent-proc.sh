@@ -41,15 +41,6 @@ startup_lang_list=(amh bla evn sel sto tlh zul)
 #experiment_lang_list
 experiment_lang_list=(deu eng)
 
-
-#long_lang_list without (bla ciw cor crk): this should be changed because of doubling!
-lll_2=(est fao fin fkv hdn ipk izh kal
-       kca kpv liv mdf mhr mrj myv ndl
-       nio nob olo sjd sje sma smj smn
-       sms som tat tlh tuv udm vep vro
-       yrk zul)
-
-
 if [[ "$debug" == "true" ]] ; then
     echo "_pre l  ${l}"
     echo "_pre s  ${s}"
@@ -138,8 +129,7 @@ if [[ "$debug" == "true" ]] ; then
 fi
 
 
-# New infra or not (_cip_: not quite true, compare long_lang_list with lll_2)
-if [[ "${lll_2[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
+if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
     MORPH="$LOOKUP $current_path/src/analyser-gt-desc.xfst"
     DIS="$current_path/src/syntax/disambiguation.cg3"
 else
