@@ -16,8 +16,6 @@ cd $GTHOME
 svn up
 
 cd $GTHOME/gtcore
-./autogen.sh
-./configure
 make
 
 for lang in sma sme
