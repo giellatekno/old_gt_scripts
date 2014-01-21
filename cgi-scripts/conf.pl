@@ -82,12 +82,12 @@ sub init_variables {
 	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
 	my $tok_fst = "$fstdir/tok.fst";
         my $fstflags = "-flags mbTT -utf8";
-        my $dis_rle = "$fstdir/$lang-dis.rle";  # text file
-	my $dis_bin = "$fstdir/$lang-dis.bin";  # binary file
-	my $syn_rle = "$fstdir/smi-syn.rle";    # all-Saami syn file
-	my $func_rle = "$fstdir/$lang-syn.rle";    # syn file
-	my $dep_bin = "$fstdir/$lang-dep.bin";  # binary file
-	my $dep_rle = "$fstdir/$lang-dep.rle";  # text
+        my $dis_rle = "$fstdir/disambiguation.cg3";  # text file
+	my $dis_bin = "$fstdir/disambiguation.bin";  # binary file
+	my $syn_rle = "$fstdir/functions.cg3";    # all-Saami syn file
+	my $func_rle = "$fstdir/functions.cg3";    # syn file
+	my $dep_bin = "$fstdir/dependency.bin";  # binary file
+	my $dep_rle = "$fstdir/dependency.cg3";  # text
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
