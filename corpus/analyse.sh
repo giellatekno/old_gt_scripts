@@ -15,6 +15,11 @@ module load automake/1.13.1
 cd $GTHOME
 svn up
 
+cd $GTHOME/gtcore
+./autogen.sh
+./configure
+make
+
 for lang in sma sme
 do
 	cd $GTHOME/langs/$lang
