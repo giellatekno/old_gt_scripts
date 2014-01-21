@@ -31,7 +31,7 @@ do
 	do
 		cd $corpus
 		svn up orig/$lang
-		make_corpus.py orig/$lang
+		convert2xml orig/$lang
 		time analyse_corpus $lang converted/$lang
 	done
 done
