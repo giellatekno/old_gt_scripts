@@ -45,10 +45,8 @@ sub init_variables {
 	
 	# System-Specific directories
 	# The directory where utilities like 'lookup' are stored
-	#my $utilitydir = "/opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin"; # for oldinfra
 	my $utilitydir = "/usr/local/bin"; # for newinfra
 	# The directory for vislcg and lookup2cg
-	#my $bindir = "/opt/sami/cg/bin/"; # old infra
 	my $bindir = "/usr/local/bin"; # new infra
 	# The directory for hfst tools
         my $hfstutilitydir = "/usr/local/bin";
@@ -85,9 +83,8 @@ sub init_variables {
         my $dis_rle = "$fstdir/disambiguation.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguation.bin";  # binary file
 	my $syn_rle = "$fstdir/functions.cg3";    # all-Saami syn file
-	my $func_rle = "$fstdir/functions.cg3";    # syn file
-	my $dep_bin = "$fstdir/dependency.bin";  # binary file
 	my $dep_rle = "$fstdir/dependency.cg3";  # text
+	my $dep_bin = "$fstdir/dependency.bin";  # binary file
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
@@ -107,9 +104,10 @@ sub init_variables {
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
 #	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
-#	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
-	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
-	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
+	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
+#	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
+	if (-f $dep_rle) { $lang_actions{dependency} = 1; } # text file
+#	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
@@ -152,13 +150,16 @@ sub init_variables {
 	if ($action eq "hfstanalyze" && ! -f $hfst) { 
 		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
 	}
-#	if ($action eq "disamb" && ! -f $dis_rle) { 
-#		http_die '--no-alert','404 Not Found',"$lang-dis.rle: Disambiguation is not supported";
-	if ($action eq "disamb" && ! -f $dis_bin) { 
-		http_die '--no-alert','404 Not Found',"$lang-dis.bin: Disambiguation is not supported";
+	if ($action eq "disamb" && ! -f $dis_rle) { 
+		http_die '--no-alert','404 Not Found',"The file disambiguation.cg3 is not found: Disambiguation is not supported";
+#	if ($action eq "disamb" && ! -f $dis_bin) { 
+#		http_die '--no-alert','404 Not Found',"disambiguation.cg3: Disambiguation is not supported";
 	}
-	if ($action eq "dependency" && ! -f $dep_bin) { 
-		http_die '--no-alert','404 Not Found',"$lang-dep.bin: Dependency analysis is not supported";
+	if ($action eq "disamb" && ! -f $syn_rle) { 
+		http_die '--no-alert','404 Not Found',"The file functions.cg3 is not found: Syntactic function analysis is not supported";
+	}
+	if ($action eq "dependency" && ! -f $dep_rle) { 
+		http_die '--no-alert','404 Not Found',"The file dependency.cg3 is not found: Dependency analysis is not supported";
 	}
 	if ($action eq "generate" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Generation is not supported";
@@ -210,28 +211,18 @@ sub init_variables {
     
     $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
-	if ($lang eq "sme") {
-	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8"; 
+# if ... (4 languages with syn_rle) ... else the rest
+	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")) {
+	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8"; 
+	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8 | $bindir/vislcg3 -g $dep_rle -C UTF-8"; 
 	}
-	if ($lang eq "fao") {
-	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $func_rle -C UTF-8"; 
-	}
-	else { $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8";  }
-#	else { $disamb = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8";  }
+	else { 
+		$disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8";  
+		$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $dep_rle -C UTF-8"; }
 
-	if ($lang eq "sme") {
-	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
-	}
-	if ($lang eq "fao") {
-	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $func_rle -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; 
-	}
-	else { $dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin -C UTF-8 | $bindir/vislcg3 -g $dep_bin -C UTF-8"; }
+# for the next debug, this is the variable-free version of $dependency:
+# /usr/local/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/sme.fst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 -C UTF-8
 
-# for the next debug, this is the variable-free version of $disamb:
-# with xfst: (todo: change to gtweb paths)
-# $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /opt/sami/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/sme.fst | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
-# with hfst:
-# $disamb = /opt/sami/cg/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/hfst-lookup  /opt/smi/sme/bin/sme.hfstol | /opt/sami/cg/bin/lookup2cg | /opt/sami/cg/bin/vislcg3 -g /opt/smi/sme/bin/sme-dis.bin -C UTF-8
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
     $generate = "tr ' ' '\n' | $gen_lookup";
