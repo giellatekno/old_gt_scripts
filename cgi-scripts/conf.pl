@@ -66,19 +66,19 @@ sub init_variables {
 	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
-	my $fst = "$fstdir/$lang.fst";
-	my $fst_without_semtags = "$fstdir/$lang-site.fst";
-    my $hfst = "$fstdir/$lang.hfstol";
-	my $gen_fst = "$fstdir/i$lang.fst";
-	my $gen_norm_fst = "$fstdir/i$lang-norm.fst";
+	my $fst = "$fstdir/analyser-disamb-gt-desc.xfst";
+	my $fst_without_semtags = "$fstdir/analyser-gt-desc.xfst";
+#    my $hfst = "$fstdir/$lang.hfstol";
+	my $gen_fst = "$fstdir/generator-gt-desc.xfst";
+	my $gen_norm_fst = "$fstdir/generator-gt-norm.xfst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
-	my $hyphrules_fst = "$fstdir/hyphrules-$lang.fst";
-	my $num_fst = "$fstdir/$lang-num.fst";
-	my $phon_fst = "$fstdir/phon-$lang.fst";
-	my $orth_fst = "$fstdir/orth-$lang.fst";
+	my $hyphrules_fst = "$fstdir/hyphenation.xfst";
+	my $num_fst = "$fstdir/transcriptor-numbers2text-desc.xfst";
+	my $phon_fst = "$fstdir/text2ipa.xfst";
+	my $orth_fst = "$fstdir/oldorthography2norm.xfst";
 	my $lat2syll_fst = "$fstdir/latin2syllabics.xfst";
 	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
-	my $tok_fst = "$fstdir/tok.fst";
+	my $tok_fst = "$fstdir/tok.fst"; # not in use
         my $fstflags = "-flags mbTT -utf8";
         my $dis_rle = "$fstdir/disambiguation.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguation.bin";  # binary file
@@ -143,7 +143,7 @@ sub init_variables {
 	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
 	else { $gen_norm_fst = $gen_fst; }
 
-	if ($action eq "analyze" && ! -f $fst) { 
+	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
 	}
 # testing
@@ -205,7 +205,7 @@ sub init_variables {
     } elsif ($action eq "analyze" && $lang eq "sme") {
 	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
     } elsif ( $action eq "analyze" ) {
-	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst";
+	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
     }
     
     
