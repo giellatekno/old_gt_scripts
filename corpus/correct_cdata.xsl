@@ -40,13 +40,13 @@
       <xsl:if test="true()">
 	<xsl:message terminate="no">
 	  <xsl:value-of select="concat('-----------------------------------------', $nl)"/>
-	  <xsl:value-of select="concat('location ', $relative_path, $nl)"/>
+	  <xsl:value-of select="concat('location ', $current_location, $nl)"/>
 	  <xsl:value-of select="concat('processing file ', $current_file, $nl)"/>
 	  <xsl:value-of select="'-----------------------------------------'"/>
 	</xsl:message>
       </xsl:if>
 
-      <xsl:result-document href="{$outDir}/{$relative_path}/{$file_name}.{$of}" format="{$of}">
+      <xsl:result-document href="{$outDir}/{$current_location}/{$file_name}.{$of}" format="{$of}">
 	<!--xsl:copy-of copy-namespaces="no" select=".//disambiguation"/-->
 	<document>
 	  <xsl:copy-of select="./document/@*"/>
