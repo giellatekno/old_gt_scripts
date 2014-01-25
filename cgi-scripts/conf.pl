@@ -102,7 +102,7 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
-	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
+#	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
 #	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
 #	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
@@ -147,9 +147,9 @@ sub init_variables {
 		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
 	}
 # testing
-	if ($action eq "hfstanalyze" && ! -f $hfst) { 
-		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
-	}
+#	if ($action eq "hfstanalyze" && ! -f $hfst) { 
+#		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
+#	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
 		http_die '--no-alert','404 Not Found',"The file disambiguation.cg3 is not found: Disambiguation is not supported";
 #	if ($action eq "disamb" && ! -f $dis_bin) { 
@@ -209,7 +209,7 @@ sub init_variables {
     }
     
     
-    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
+#    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
 # if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")) {
