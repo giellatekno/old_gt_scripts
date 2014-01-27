@@ -45,7 +45,7 @@
   <xsl:variable name="fDir" select="concat($pre_path,'freecorpus/analysed/','current_lang','/',.)"/>
   
   <xsl:template match="/" name="main">
-    
+    <!-- search all combinations of corpus type, lang, and domain -->
     <xsl:variable name="ntuples">
       <xsl:variable name="tmp">
 	<nt>
@@ -128,6 +128,7 @@
       </nt>
     </xsl:variable>
     
+    <!-- collect file paths and add the translation info from the meta-file -->
     <xsl:variable name="group_output">
       <xsl:variable name="files">
 	<files>
@@ -142,13 +143,6 @@
 	    <xsl:variable name="cd" select="(tokenize(., '_'))[3]"/>
 	    
 	    <xsl:variable name="cp" select="concat($inDir,'/',$ct,'/analysed/',$cl,'/',$cd)"/>
-	    
-	    <!--xsl:variable name="tFrom">
-		<xsl:for-each select="for $f in collection(concat($cp,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
-		<translated_from xml:lang="nob"/>
-		<xsl:copy-of select="."/>
-		</xsl:for-each>
-		</xsl:variable-->
 	    
 	    <xsl:for-each select="for $f in collection(concat($cp,'?recurse=yes;select=*.xml;on-error=warning')) return $f">
 	      <xsl:variable name="current_file" select="(tokenize(document-uri(.), '/'))[last()]"/>
@@ -171,6 +165,7 @@
 	</files>
       </xsl:variable>
 
+      <!-- sort the files by current lang -->
       <xsl:variable name="lg">
 	<groups>
 	  <xsl:for-each-group select="$files//f" group-by="@cl">
@@ -183,7 +178,7 @@
 	  </xsl:for-each-group>
 	</groups>
       </xsl:variable>
-      
+      <!-- sort the files by current domain -->
       <xsl:variable name="dlg">
 	<gf>
 	  <xsl:for-each select="$lg/groups/group">
@@ -200,7 +195,7 @@
 	  </xsl:for-each>
 	</gf>
       </xsl:variable>
-      
+      <!-- sort the files by translation -->
       <tdlg>
 	<xsl:for-each select="$dlg/gf/group">
 	  <xsl:variable name="lang" select="./@lang"/>
@@ -217,7 +212,7 @@
 	</xsl:for-each>
       </tdlg>
     </xsl:variable>
-    
+    <!-- output the data according to the file groups in parallel: both for dis and for dep -->
     <xsl:for-each select="('dis','dep')">
       <xsl:variable name="current_format" select="."/>
       <xsl:for-each select="$group_output/tdlg/group">
@@ -231,10 +226,13 @@
 	</xsl:result-document>
       </xsl:for-each>
     </xsl:for-each>
-    
-    <xsl:result-document href="_output_tuples.xml" format="xml">
-      <xsl:copy-of select="$group_output"/>
-    </xsl:result-document>
+
+    <!-- debugging -->
+    <xsl:if test="$debug">
+      <xsl:result-document href="_output_tuples.xml" format="xml">
+	<xsl:copy-of select="$group_output"/>
+      </xsl:result-document>
+    </xsl:if>
     
   </xsl:template>
   
