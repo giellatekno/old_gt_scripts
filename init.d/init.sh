@@ -103,6 +103,7 @@ else
   if [ -d /opt/local ]; then
     prepend_path PATH /opt/local/sbin
     prepend_path PATH /opt/local/bin
+    prepend_path PATH /opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin
     export MANPATH=/opt/local/share/man:${MANPATH}
     export INFOPATH=/opt/local/share/info:${INFOPATH}
     export CPATH=/opt/local/include:/usr/local/include:/usr/include:${CPATH}
@@ -113,6 +114,7 @@ else
 
   PATH=/usr/local/bin:$PATH
   prepend_path PATH $HOME/.local/bin
+  prepend_path PATH $HOME/Library/Python/2.7/bin
   prepend_path PATH $HOME/bin
   prepend_path PATH $GTHOME/gt/script
   prepend_path PATH $GTHOME/gt/script/corpus
