@@ -31,8 +31,8 @@ from lxml import doctestcompare
 import unittest
 import datetime
 import time
+import argparse
 
-sys.path.append(os.getenv('GTHOME') + '/gt/script/langTools')
 import typosfile
 import ngram
 
@@ -1349,85 +1349,85 @@ class TmxTestDataWriter():
             print "I/O error({0}): {1}".format(errno, strerror)
             sys.exit(1)
 
-class TestTmxTestDataWriter(unittest.TestCase):
-    """
-    A class to test TmxTestDataWriter
-    """
-    def setUp(self):
-        self.writer = TmxTestDataWriter("testfilename")
+#class TestTmxTestDataWriter(unittest.TestCase):
+    #"""
+    #A class to test TmxTestDataWriter
+    #"""
+    #def setUp(self):
+        #self.writer = TmxTestDataWriter("testfilename")
 
-    def assertXmlEqual(self, got, want):
-        """
-        Check if two xml snippets are equal
-        """
-        string_got = etree.tostring(got, pretty_print = True)
-        string_want = etree.tostring(want, pretty_print = True)
+    #def assertXmlEqual(self, got, want):
+        #"""
+        #Check if two xml snippets are equal
+        #"""
+        #string_got = etree.tostring(got, pretty_print = True)
+        #string_want = etree.tostring(want, pretty_print = True)
 
-        checker = doctestcompare.LXMLOutputChecker()
-        if not checker.check_output(string_want, string_got, 0):
-            message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
-            raise AssertionError(message)
+        #checker = doctestcompare.LXMLOutputChecker()
+        #if not checker.check_output(string_want, string_got, 0):
+            #message = checker.output_difference(doctest.Example("", string_want), string_got, 0).encode('utf-8')
+            #raise AssertionError(message)
 
-    def testGetFilename(self):
-        self.assertEqual(self.writer.getFilename(), "testfilename")
+    #def testGetFilename(self):
+        #self.assertEqual(self.writer.getFilename(), "testfilename")
 
-    def testMakeFileElement(self):
-        wantElement = etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
-        gotElement = self.writer.makeFileElement("abc", "634", "84")
+    #def testMakeFileElement(self):
+        #wantElement = etree.XML('<file name="abc" gspairs="634" diffpairs="84"/>')
+        #gotElement = self.writer.makeFileElement("abc", "634", "84")
 
-        self.assertXmlEqual(gotElement, wantElement)
+        #self.assertXmlEqual(gotElement, wantElement)
 
-    def testMakeTestrunElement(self):
-        wantElement = etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
-        gotElement = self.writer.makeTestrunElement("20111208-1234")
-        fileElement = self.writer.makeFileElement("abc", "634", "84")
-        gotElement.append(fileElement)
+    #def testMakeTestrunElement(self):
+        #wantElement = etree.XML('<testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun>')
+        #gotElement = self.writer.makeTestrunElement("20111208-1234")
+        #fileElement = self.writer.makeFileElement("abc", "634", "84")
+        #gotElement.append(fileElement)
 
-        self.assertXmlEqual(gotElement, wantElement)
+        #self.assertXmlEqual(gotElement, wantElement)
 
-    def testMakeParagstestingElement(self):
-        wantElement = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
-        gotElement = self.writer.makeParagstestingElement()
-        testrunElement = self.writer.makeTestrunElement("20111208-1234")
-        fileElement = self.writer.makeFileElement("abc", "634", "84")
-        testrunElement.append(fileElement)
-        gotElement.append(testrunElement)
+    #def testMakeParagstestingElement(self):
+        #wantElement = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+        #gotElement = self.writer.makeParagstestingElement()
+        #testrunElement = self.writer.makeTestrunElement("20111208-1234")
+        #fileElement = self.writer.makeFileElement("abc", "634", "84")
+        #testrunElement.append(fileElement)
+        #gotElement.append(testrunElement)
 
-        self.assertXmlEqual(gotElement, wantElement)
+        #self.assertXmlEqual(gotElement, wantElement)
 
-    def testInsertTestrunElement(self):
-        wantElement = etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+    #def testInsertTestrunElement(self):
+        #wantElement = etree.XML('<paragstesting><testrun datetime="20111208-2345"><file name="abc" gspairs="634" diffpairs="84"/></testrun><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
 
-        gotElement = self.writer.makeParagstestingElement()
-        self.writer.setParagsTestingElement(gotElement)
-        testrunElement = self.writer.makeTestrunElement("20111208-1234")
-        fileElement = self.writer.makeFileElement("abc", "634", "84")
-        testrunElement.append(fileElement)
-        gotElement.append(testrunElement)
+        #gotElement = self.writer.makeParagstestingElement()
+        #self.writer.setParagsTestingElement(gotElement)
+        #testrunElement = self.writer.makeTestrunElement("20111208-1234")
+        #fileElement = self.writer.makeFileElement("abc", "634", "84")
+        #testrunElement.append(fileElement)
+        #gotElement.append(testrunElement)
 
-        testrunElement = self.writer.makeTestrunElement("20111208-2345")
-        fileElement = self.writer.makeFileElement("abc", "634", "84")
-        testrunElement.append(fileElement)
+        #testrunElement = self.writer.makeTestrunElement("20111208-2345")
+        #fileElement = self.writer.makeFileElement("abc", "634", "84")
+        #testrunElement.append(fileElement)
 
-        self.writer.insertTestrunElement(testrunElement)
+        #self.writer.insertTestrunElement(testrunElement)
 
-        self.assertXmlEqual(gotElement, wantElement)
+        #self.assertXmlEqual(gotElement, wantElement)
 
-    def testWriteParagstestingData(self):
-        want = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
+    #def testWriteParagstestingData(self):
+        #want = etree.XML('<paragstesting><testrun datetime="20111208-1234"><file name="abc" gspairs="634" diffpairs="84"/></testrun></paragstesting>')
 
-        gotElement = self.writer.makeParagstestingElement()
-        self.writer.setParagsTestingElement(gotElement)
-        testrunElement = self.writer.makeTestrunElement("20111208-1234")
-        fileElement = self.writer.makeFileElement("abc", "634", "84")
-        testrunElement.append(fileElement)
-        gotElement.append(testrunElement)
+        #gotElement = self.writer.makeParagstestingElement()
+        #self.writer.setParagsTestingElement(gotElement)
+        #testrunElement = self.writer.makeTestrunElement("20111208-1234")
+        #fileElement = self.writer.makeFileElement("abc", "634", "84")
+        #testrunElement.append(fileElement)
+        #gotElement.append(testrunElement)
 
 
-        self.writer.writeParagstestingData()
-        got = etree.parse(self.writer.filename)
+        #self.writer.writeParagstestingData()
+        #got = etree.parse(self.writer.filename)
 
-        self.assertXmlEqual(got, want)
+        #self.assertXmlEqual(got, want)
 
 class TmxGoldstandardTester:
     """
@@ -1636,9 +1636,42 @@ class Toktmx2Tmx:
             files = output.split('\n')
             return files[:-1]
 
-if __name__ == '__main__':
-    #, TestTmxTestDataWriter
-    for test in [TestSentenceDivider, TestCorpusXMLFile, TestParallelize, TestTmx, TestTca2ToTmx, TestTmxComparator]:
-        testSuite = unittest.TestSuite()
-        testSuite.addTest(unittest.makeSuite(test))
-        unittest.TextTestRunner().run(testSuite)
+
+def parse_options():
+    parser = argparse.ArgumentParser(description = 'Sentence align two files. Input is the document containing the main language, and language to parallelize it with.')
+    parser.add_argument('input_file', help = "The input file")
+    parser.add_argument('-p', '--parallel_language', dest = 'parallel_language', help = "The language to parallelize the input document with", required = True)
+
+    args = parser.parse_args()
+    return args
+
+
+def main():
+    args = parse_options()
+
+    try:
+        parallelizer = Parallelize(args.input_file, args.parallel_language)
+    except IOError as e:
+        print e.message
+        sys.exit(1)
+
+    print "Aligning", args.input_file, "and its parallel file"
+    print "Adding sentence structure that tca2 needs ..."
+    if parallelizer.dividePIntoSentences() == 0:
+        print "Aligning files ..."
+        if parallelizer.parallelizeFiles() == 0:
+            tmx = Tca2ToTmx(parallelizer.getFilelist())
+
+            oPath, oFile = os.path.split(tmx.getOutfileName())
+            oRelPath = oPath.replace(os.getcwd()+'/', '', 1)
+            try:
+                os.makedirs(oRelPath)
+            except OSError, e:
+                if e.errno != errno.EEXIST:
+                    raise
+            print "Generating the tmx file", tmx.getOutfileName()
+            tmx.writeTmxFile(tmx.getOutfileName())
+
+
+if __name__ == "__main__":
+    main()
