@@ -523,4 +523,22 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:ul[contains(@class,'article-tools')]"/>
 <xsl:template match="html:ul[contains(@class,'byline')]"/>
 <xsl:template match="html:span[contains(@class,'K-NOTE-FOTNOTE')]"/>
+
+<!-- Exceptions for Nordsalten avis -->
+<xsl:template match="html:div[contains(@id,'topUserMenu')]"/>
+<xsl:template match="html:div[contains(@id,'rightAds')]"/>
+<xsl:template match="html:div[contains(@id,'menu')]"/>
+<xsl:template match="html:div[contains(@id,'aa')]"/>
+<xsl:template match="html:div[contains(@class,'ad')]"/>
+<xsl:template match="html:div[contains(@class,'meta')]"/>
+<xsl:template match="html:div[contains(@class,'authors')]"/>
+<xsl:template match="html:div[contains(@class,'articleImageRig')]"/>
+<xsl:template match="html:div[contains(@id,'sidebar')]"/>
+<xsl:template match="html:div[contains(@id,'footer')]"/>
+<xsl:template match="html:div[contains(@class,'btm_menu')]"/>
+<xsl:template match="html:div[contains(@class,'expandable')]"/>
+<xsl:template match="html:div[contains(@id,'chatBox')]"/>
+<xsl:template match="html:div[contains(@id,'sendReminder')]"/>
+
 </xsl:stylesheet>
+
