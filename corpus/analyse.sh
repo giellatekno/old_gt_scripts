@@ -31,6 +31,10 @@ do
 		svn up orig/$lang
 		convert2xml orig/$lang
 		time analyse_corpus $lang converted/$lang
+		xsls=`find orig/$lang -name \*.xsl|wc -l`
+		cxmls=`find converted/$lang -name \*.xml|wc -l`
+		axmls=`find analysed/$lang -name \*.xml|wc -l`
+		echo "$lang xsls $xsls cxml $cxmls axml $axmls $corpus"
 	done
 done
 
