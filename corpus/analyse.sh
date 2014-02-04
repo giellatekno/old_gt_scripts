@@ -25,6 +25,7 @@ do
 	for corpus in $GTFREE $GTBOUND
 	do
 		cd $corpus
+		rm -rf converted analysed
 		convert2xml orig/$lang
 		time analyse_corpus $lang converted/$lang
 		xsls=`find orig/$lang -name \*.xsl|wc -l`
