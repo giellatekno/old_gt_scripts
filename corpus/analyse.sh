@@ -34,19 +34,16 @@ do
 	done
 done
 
-#for lang in sma sme smj
-#do
-#	#ccatter.py $HOME/ccats/ $lang $GTFREE/converted/$lang $GTBOUND/converted/$lang
-#done
+DATE=`date +%Y-%m-%d`
 
-
-# rsync -az $HOME/ccats boerre@divvun.no:/Users/hoavda/Public/corp/.
 for xmltype in converted analysed
 do
-	ssh boerre@divvun.no "rm -rf /Users/hoavda/Public/corp/freecorpus/$xmltype"
-	rsync -az $GTFREE/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/freecorpus/.
+	DIRECTORY=/Users/hoavda/Public/corp/freecorpus/$xmltype/$DATE
+	ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
+	rsync -az $GTFREE/$xmltype/ boerre@divvun.no:$DIRECTORY
 
-	ssh boerre@divvun.no "rm -rf /Users/hoavda/Public/corp/boundcorpus/$xmltype"
-	rsync -az $GTBOUND/$xmltype boerre@divvun.no:/Users/hoavda/Public/corp/boundcorpus/.
+	DIRECTORY=/Users/hoavda/Public/corp/boundcorpus/$xmltype/$DATE
+	ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
+	rsync -az $GTBOUND/$xmltype/ boerre@divvun.no:$DIRECTORY
 done
 
