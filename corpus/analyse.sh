@@ -13,22 +13,18 @@ source $HOME/.bash_profile
 module load autoconf/2.69
 module load automake/1.13.1
 cd $GTHOME
-svn up
 
 cd $GTHOME/gtcore
 make
 
-for lang in sma sme
+for lang in sma sme smj
 do
 	cd $GTHOME/langs/$lang
-	./autogen.sh
-	./configure
 	make
 
 	for corpus in $GTFREE $GTBOUND
 	do
 		cd $corpus
-		svn up orig/$lang
 		convert2xml orig/$lang
 		time analyse_corpus $lang converted/$lang
 		xsls=`find orig/$lang -name \*.xsl|wc -l`
