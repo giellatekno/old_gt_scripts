@@ -23,8 +23,15 @@ make
 for lang in sma sme smj
 do
     # build fst needed for analysis
-    cd $GTHOME/langs/$lang
-    make
+    if [ "$lang" == "sme" ]
+    then
+        cd $GTHOME/gt
+        make GTLANG=sme
+        make GTLANG=sme abbr
+    else
+        cd $GTHOME/langs/$lang
+        make
+    fi
 
     for corpus in $GTFREE $GTBOUND
     do
