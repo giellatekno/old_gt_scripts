@@ -22,53 +22,53 @@ make
 
 for lang in sma sme smj
 do
-	# build fst needed for analysis
-	cd $GTHOME/langs/$lang
-	make
+    # build fst needed for analysis
+    cd $GTHOME/langs/$lang
+    make
 
-	for corpus in $GTFREE $GTBOUND
-	do
-		cd $corpus
-		# remove old converted and analysed files, making sure
-		# old crap is not included, only new crap
-		rm -rf converted analysed
+    for corpus in $GTFREE $GTBOUND
+    do
+        cd $corpus
+        # remove old converted and analysed files, making sure
+        # old crap is not included, only new crap
+        rm -rf converted analysed
 
-		# convert original files to xml
-		time convert2xml orig/$lang
+        # convert original files to xml
+        time convert2xml orig/$lang
 
-		# analyse the newly converted files
-		time analyse_corpus $lang converted/$lang
+        # analyse the newly converted files
+        time analyse_corpus $lang converted/$lang
 
-		# count how many files are potentially convertible
-		xsls=`find orig/$lang -name \*.xsl|wc -l`
+        # count how many files are potentially convertible
+        xsls=`find orig/$lang -name \*.xsl|wc -l`
 
-		# count how many files that really got converted
-		cxmls=`find converted/$lang -name \*.xml|wc -l`
+        # count how many files that really got converted
+        cxmls=`find converted/$lang -name \*.xml|wc -l`
 
-		# count how many files that really got analysed
-		axmls=`find analysed/$lang -name \*.xml|wc -l`
+        # count how many files that really got analysed
+        axmls=`find analysed/$lang -name \*.xml|wc -l`
 
-		# print the facts
-		echo "$lang xsls $xsls cxml $cxmls axml $axmls $corpus"
-	done
+        # print the facts
+        echo "$lang xsls $xsls cxml $cxmls axml $axmls $corpus"
+    done
 done
 
 DATE=`date +%Y-%m-%d`
 
 for xmltype in converted analysed
 do
-	# The directory on divvun.no that files should be synced to
-	DIRECTORY=/Users/hoavda/Public/corp/freecorpus/$xmltype/$DATE
-	# Make sure the directory exists in divvun.no
-	ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
-	# sync the file to freecorpus
-	rsync -az $GTFREE/$xmltype/ boerre@divvun.no:$DIRECTORY
+    # The directory on divvun.no that files should be synced to
+    DIRECTORY=/Users/hoavda/Public/corp/freecorpus/$xmltype/$DATE
+    # Make sure the directory exists in divvun.no
+    ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
+    # sync the file to freecorpus
+    rsync -az $GTFREE/$xmltype/ boerre@divvun.no:$DIRECTORY
 
-	# The directory on divvun.no that files should be synced to
-	DIRECTORY=/Users/hoavda/Public/corp/boundcorpus/$xmltype/$DATE
-	# Make sure the directory exists in divvun.no
-	ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
-	# sync the file to boundcorpus
-	rsync -az $GTBOUND/$xmltype/ boerre@divvun.no:$DIRECTORY
+    # The directory on divvun.no that files should be synced to
+    DIRECTORY=/Users/hoavda/Public/corp/boundcorpus/$xmltype/$DATE
+    # Make sure the directory exists in divvun.no
+    ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
+    # sync the file to boundcorpus
+    rsync -az $GTBOUND/$xmltype/ boerre@divvun.no:$DIRECTORY
 done
 
