@@ -38,7 +38,7 @@ do
         cd $corpus
         # remove old converted and analysed files, making sure
         # old crap is not included, only new crap
-        rm -rf converted analysed
+        rm -rf converted/$lang analysed/$lang
 
         # convert original files to xml
         time convert2xml orig/$lang
