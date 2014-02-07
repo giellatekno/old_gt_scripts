@@ -1,7 +1,7 @@
 #!/bin/sh -l
 
 #
-# This script is specific for the analysis that is done stallo
+# This script is specific for the analysis that is done on stallo
 #
 
 #PBS -lwalltime=7:00:00
@@ -59,20 +59,17 @@ done
 
 DATE=`date +%Y-%m-%d`
 
-for xmltype in analysed
-do
-    # The directory on divvun.no that files should be synced to
-    DIRECTORY=/Users/hoavda/Public/corp/freecorpus/$xmltype/$DATE
-    # Make sure the directory exists in divvun.no
-    ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
-    # sync the file to freecorpus
-    rsync -az $GTFREE/$xmltype/ boerre@divvun.no:$DIRECTORY
+# The directory on divvun.no that files should be synced to
+DIRECTORY=/Users/hoavda/Public/corp/freecorpus/analysed/$DATE
+# Make sure the directory exists in divvun.no
+ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
+# sync the file to freecorpus
+rsync -az $GTFREE/analysed/ boerre@divvun.no:$DIRECTORY
 
-    # The directory on divvun.no that files should be synced to
-    DIRECTORY=/Users/hoavda/Public/corp/boundcorpus/$xmltype/$DATE
-    # Make sure the directory exists in divvun.no
-    ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
-    # sync the file to boundcorpus
-    rsync -az $GTBOUND/$xmltype/ boerre@divvun.no:$DIRECTORY
-done
+# The directory on divvun.no that files should be synced to
+DIRECTORY=/Users/hoavda/Public/corp/boundcorpus/analysed/$DATE
+# Make sure the directory exists in divvun.no
+ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
+# sync the file to boundcorpus
+rsync -az $GTBOUND/analysed/ boerre@divvun.no:$DIRECTORY
 
