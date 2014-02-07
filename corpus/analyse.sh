@@ -36,12 +36,9 @@ do
     for corpus in $GTFREE $GTBOUND
     do
         cd $corpus
-        # remove old converted and analysed files, making sure
-        # old crap is not included, only new crap
-        rm -rf converted/$lang analysed/$lang
-
-        # convert original files to xml
-        time convert2xml orig/$lang
+        # remove old analysed files, making sure
+        # old analysed files are not included, only new ones
+        rm -rf analysed/$lang
 
         # analyse the newly converted files
         time analyse_corpus $lang converted/$lang
@@ -62,7 +59,7 @@ done
 
 DATE=`date +%Y-%m-%d`
 
-for xmltype in converted analysed
+for xmltype in analysed
 do
     # The directory on divvun.no that files should be synced to
     DIRECTORY=/Users/hoavda/Public/corp/freecorpus/$xmltype/$DATE
