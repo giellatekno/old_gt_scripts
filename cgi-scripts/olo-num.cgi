@@ -3,9 +3,9 @@
 
 ########################################################################
 #
-#sms-lookup.pl
+#olo-lookup.pl
 #
-# resides:  Web Folder:cgi-bin:smi:sms-lookup.cgi
+# resides:  Web Folder:cgi-bin:smi:olo-lookup.cgi
 #
 #       called from FORM on skjema.html page; output HTML
 #
@@ -28,8 +28,8 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where sms-num.fst is stored
-$smsfstdir = "/opt/smi/sms/bin" ;
+# The directory where olo-num.fst is stored
+$olofstdir = "/opt/smi/olo/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -159,12 +159,12 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses sms-num.fst)
+#         (which has some flags set, and which accesses olo-num.fst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $smsfstdir/sms-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $olofstdir/olo-num.fst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
