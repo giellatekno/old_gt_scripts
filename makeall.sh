@@ -74,10 +74,6 @@ echo " -------------------------------------------------------------------------
 cd ../sms && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
 echo " -------------------------------------------------------------------------------------- som, Somali "
 cd ../som && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
-echo " -------------------------------------------------------------------------------------- tlh, Klingon "
-cd ../tlh && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
-echo " -------------------------------------------------------------------------------------- tuv, Turkana "
-cd ../tuv && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
 echo " -------------------------------------------------------------------------------------- udm, Udmurt "
 cd ../udm && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
 echo " -------------------------------------------------------------------------------------- vep, Veps "
@@ -207,6 +203,12 @@ nice time make
 #cd $GTHOME/words/dicts/swefit
 #nice time make
 
+
+
+# echo " -------------------------------------------------------------------------------------- tlh, Klingon "
+# cd ../tlh && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
+# echo " -------------------------------------------------------------------------------------- tuv, Turkana "
+# cd ../tuv && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst && nice time make 
 
 
 popd
