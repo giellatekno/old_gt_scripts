@@ -38,18 +38,21 @@ def parse_options():
 def print_file(element_type, file_, ccatFiles, ccatDir):
     if element_type == 'disambiguation':
         c = ccat.XMLPrinter(disambiguation=True)
+        suffix = '.dis'
     else:
         c = ccat.XMLPrinter(dependency=True)
+        suffix = '.dep'
 
     c.parse_file(file_)
     ccatFileName = os.path.join(
         ccatDir, '_'.join([c.get_lang(), c.get_genre(),
-                           c.get_translatedfrom()]) + element_type)
+                           c.get_translatedfrom()]) + suffix)
     try:
         ccatFiles[ccatFileName]
     except KeyError:
         ccatFiles[ccatFileName] = open(ccatFileName, 'w')
     finally:
+        ccatFiles[ccatFileName].write(file_ + '\n\n')
         ccatFiles[ccatFileName].write(c.process_file().getvalue())
 
 
