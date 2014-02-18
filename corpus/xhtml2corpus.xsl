@@ -476,6 +476,7 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:cite"/>
 <!-- Don't convert the following lists found on ministery pages (the @id is unique):   -->
 <!-- (add more matches/@ids as needed, but make sure you are specific enough)          -->
+<xsl:template match="html:p[contains(@class,'WebPartReadMoreParagraph')]"/>
 <xsl:template match="html:ul[contains(@id,'AreaTopPrintMeny')]"/>  <!-- font size etc. -->
 <xsl:template match="html:ul[contains(@id,'AreaTopLanguageNav')]"/> <!-- language menu -->
 <xsl:template match="html:ul[contains(@class,'QuickNav')]"/>
@@ -499,7 +500,6 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:div[contains(@id,'AreaLeftNav')]"/>     <!-- navigation menu -->
 <xsl:template match="html:div[contains(@id,'PageFooter')]"/>      <!--     page footer -->
 <xsl:template match="html:div[contains(@id,'blog-pager')]"/>
-<xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/> <!-- page footer in sami parliament pages -->
 <xsl:template match="html:div[contains(@id,'NAVheaderContainer')]"/>
 <xsl:template match="html:div[contains(@id,'NAVbreadcrumbContainer')]"/>
 <xsl:template match="html:div[contains(@id,'NAVsubmenuContainer')]"/>
@@ -539,6 +539,10 @@ If it is a container it has one or more of the these tags:
 <xsl:template match="html:div[contains(@class,'expandable')]"/>
 <xsl:template match="html:div[contains(@id,'chatBox')]"/>
 <xsl:template match="html:div[contains(@id,'sendReminder')]"/>
+
+<!-- Exceptions for sami parliament pages -->
+<xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_divNavigasjon')]"/>
+<xsl:template match="html:div[contains(@id,'ctl00_MidtSone_ucArtikkel_ctl00_ctl00_ctl01_divRessurser')]"/>
 
 </xsl:stylesheet>
 
