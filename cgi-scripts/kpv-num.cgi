@@ -3,9 +3,9 @@
 
 ########################################################################
 #
-#kom-lookup.pl
+#kpv-lookup.pl
 #
-# resides:  Web Folder:cgi-bin:smi:kom-lookup.cgi
+# resides:  Web Folder:cgi-bin:smi:kpv-lookup.cgi
 #
 #       called from FORM on skjema.html page; output HTML
 #
@@ -28,8 +28,8 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where kom-num.fst is stored
-$komfstdir = "/opt/smi/kom/bin" ;
+# The directory where kpv-num.fst is stored
+$kpvfstdir = "/opt/smi/kpv/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -159,13 +159,13 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses kom-num.fst)
+#         (which has some flags set, and which accesses kpv-num.fst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $komfstdir/kom-num.fst` ;
-# $utilitydir/lookup -flags mbL" => "LTT -d $komfstdir/kom-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $kpvfstdir/kpv-num.fst` ;
+# $utilitydir/lookup -flags mbL" => "LTT -d $kpvfstdir/kpv-num.fst` ;
 # testing line two here, lauri's advice.
 #back with line one
 
