@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where sjd-num.fst is stored
+# The directory where transcriptor-numbers2text-desc.xfst is stored
 $sjdfstdir = "/opt/smi/sjd/bin" ;
 
 
@@ -159,13 +159,13 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses sjd-num.fst)
+#         (which has some flags set, and which accesses transcriptor-numbers2text-desc.xfst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $sjdfstdir/sjd-num.fst` ;
-# $utilitydir/lookup -flags mbL" => "LTT -d $sjdfstdir/sjd-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $sjdfstdir/transcriptor-numbers2text-desc.xfst` ;
+# $utilitydir/lookup -flags mbL" => "LTT -d $sjdfstdir/transcriptor-numbers2text-desc.xfst` ;
 # testing line two here, lauri's advice.
 #back with line one
 

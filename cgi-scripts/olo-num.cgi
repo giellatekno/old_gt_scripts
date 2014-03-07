@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where olo-num.fst is stored
+# The directory where transcriptor-numbers2text-desc.xfst is stored
 $olofstdir = "/opt/smi/olo/bin" ;
 
 
@@ -159,12 +159,12 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses olo-num.fst)
+#         (which has some flags set, and which accesses transcriptor-numbers2text-desc.xfst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $olofstdir/olo-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $olofstdir/transcriptor-numbers2text-desc.xfst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display

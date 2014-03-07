@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where sme-num.fst is stored
+# The directory where transcriptor-numbers2text-desc.xfst is stored
 $smefstdir = "/opt/smi/sme/bin" ;
 
 
@@ -159,13 +159,13 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses sme-num.fst)
+#         (which has some flags set, and which accesses transcriptor-numbers2text-desc.xfst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/sme-num.fst` ;
-# $utilitydir/lookup -flags mbL" => "LTT -d $smefstdir/sme-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/transcriptor-numbers2text-desc.xfst` ;
+# $utilitydir/lookup -flags mbL" => "LTT -d $smefstdir/transcriptor-numbers2text-desc.xfst` ;
 # testing line two here, lauri's advice.
 #back with line one
 
