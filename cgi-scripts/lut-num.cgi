@@ -3,9 +3,9 @@
 
 ########################################################################
 #
-#slh-lookup.pl
+#lut-lookup.pl
 #
-# resides:  Web Folder:cgi-bin:smi:slh-lookup.cgi
+# resides:  Web Folder:cgi-bin:smi:lut-lookup.cgi
 #
 #       called from FORM on skjema.html page; output HTML
 #
@@ -29,7 +29,7 @@
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
 # The directory where transcriptor-numbers2text-desc.xfst is stored
-$slhfstdir = "/opt/smi/slh/bin" ;
+$lutfstdir = "/opt/smi/lut/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $slhfstdir/transcriptor-numbers2text-desc.xfst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -utf8 -d $lutfstdir/transcriptor-numbers2text-desc.xfst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
