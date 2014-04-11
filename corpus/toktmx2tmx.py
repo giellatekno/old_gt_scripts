@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-#   This program converts toktmx files to tmx files useful for e.g. 
+#   This program converts toktmx files to tmx files useful for e.g.
 #   Autshumato ITE
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import sys
 import argparse
 import lxml.etree
 
-sys.path.append(os.environ['GTHOME'] + '/gt/script/langTools')
+sys.path.append(os.environ['GTHOME'] + '/tools/CorpusTools/corpustools')
 import parallelize
 
 def parse_options():
@@ -34,7 +34,8 @@ def parse_options():
     Parse the command line. No arguments expected.
     """
     parser = argparse.ArgumentParser(description = 'Run this script to generate tmx files for use in e.g. Autshumato ITE. It depends on toktmx files to exist in $GTFREE/prestable/toktmx.')
-    
+    parser.add_argument('dirname',
+                        help="Directory where the toktmx files exist")
     args = parser.parse_args()
     return args
 
@@ -42,11 +43,10 @@ def main():
     args = parse_options()
 
     toktmx2tmx = parallelize.Toktmx2Tmx()
-    for dirname in ['nob2sme', 'sme2nob']:
-        for filename in toktmx2tmx.findToktmxFiles(dirname):
-            toktmx2tmx.readToktmxFile(filename)
-            toktmx2tmx.cleanToktmx()
-            toktmx2tmx.writeCleanedupTmx()
-    
+    for filename in toktmx2tmx.find_toktmx_files(args.dirname):
+        toktmx2tmx.read_toktmx_file(filename)
+        toktmx2tmx.clean_toktmx()
+        toktmx2tmx.write_cleanedup_tmx()
+
 if __name__ == '__main__':
     main()
