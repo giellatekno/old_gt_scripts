@@ -3,7 +3,7 @@
 # Version : $Id$
 ############################################################################
 #    Copyright (C) 2006 by Børre Gaup   #
-#    boerre@skolelinux.no   #
+#    borre.gaup@uit.no   #
 #                                                                          #
 #    This program is free software; you can redistribute it and#or modify  #
 #    it under the terms of the GNU General Public License as published by  #
@@ -27,10 +27,10 @@ Usage:
 
 rename_sami.py dir1 [dir2 dir3 ...]
 
-This script renames files and directories that has got problematic characters 
+This script renames files and directories that has got problematic characters
 to ascii characters.
 
-The script takes one or more directories as arguments, and renames all 
+The script takes one or more directories as arguments, and renames all
 directories and files that has got any of the characters listed in the function
 ChangeProblematicName.
 
@@ -79,17 +79,17 @@ def RenameProblemTree(ProblemTree):
 	for root, dirs, files in os.walk(ProblemTree, topdown=False):
 		if 'Library' in dirs:
 			dirs.remove('Library') # Don't visit Library directories
-			
+
 		for mydir in dirs:
 			newdir = ChangeProblematicName(mydir)
 			if newdir != mydir:
 			        print "in dirs ", root + '/' + mydir, '-->', root + '/' + newdir
 				os.rename(root + '/' + mydir, root + '/' + newdir)
-		
+
 	for root, dirs, files in os.walk(ProblemTree):
 		if 'Library' in dirs:
 			dirs.remove('Library') # Don't visit Library directories
-		
+
                 for file in files:
 			newfile = ChangeProblematicName(file)
 			if newfile != file:
@@ -100,7 +100,7 @@ def RenameProblemTree(ProblemTree):
 def main():
 	if len(sys.argv) == 1:
 		print __doc__
-	else:	
+	else:
 		args = sys.argv[1:]
 		for arg in args:
 			if arg[len(arg) - 1] == '/':

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# HfstTester.py 1.9999.1 - Copyright (c) 2011 
+# HfstTester.py 1.9999.1 - Copyright (c) 2011
 # Brendan Molloy <brendan@bbqsrc.net>
-# Børre Gaup <boerre@skolelinux.no>
+# Børre Gaup <borre.gaup@uit.no>
 # Licensed under Creative Commons Zero (CC0)
 
 # Taken from and synced with:
@@ -23,7 +23,7 @@ except:
 	try:
 		from ordereddict import OrderedDict
 	except:
-		raise ImportError("OrderedDict missing.\nPlease do `sudo easy_install ordereddict`.")		
+		raise ImportError("OrderedDict missing.\nPlease do `sudo easy_install ordereddict`.")
 try:
 	import yaml
 except:
@@ -36,27 +36,27 @@ import os, traceback
 def string_to_list(data):
 	if isinstance(data, (str, unicode)): return [data]
 	else: return data
-	
+
 def invert_dict(input):
 		tmp = OrderedDict()
 		for key, val in input.iteritems():
 			for v in string_to_list(val):
 				tmp.setdefault(v, set()).add(key)
-		return tmp 
+		return tmp
 
 def colourise(string, opt=None):
 	def red(s="", r="\033[m"):
-		return "\033[1;31m%s%s" % (s, r) 
+		return "\033[1;31m%s%s" % (s, r)
 	def green(s="", r="\033[m"):
-		return "\033[0;32m%s%s" % (s, r) 
+		return "\033[0;32m%s%s" % (s, r)
 	def orange(s="", r="\033[m"):
-		return "\033[0;33m%s%s" % (s, r) 
+		return "\033[0;33m%s%s" % (s, r)
 	def yellow(s="", r="\033[m"):
-		return "\033[1;33m%s%s" % (s, r) 
+		return "\033[1;33m%s%s" % (s, r)
 	def blue(s="", r="\033[m"):
-		return "\033[0;34m%s%s" % (s, r) 
+		return "\033[0;34m%s%s" % (s, r)
 	def light_blue(s="", r="\033[m"):
-		return "\033[0;36m%s%s" % (s, r) 
+		return "\033[0;36m%s%s" % (s, r)
 	def reset(s=""):
 		return "\033[m%s" % s
 
@@ -68,7 +68,7 @@ def colourise(string, opt=None):
 		x = x.replace("[PASS]", green("[PASS]"))
 		x = x.replace("[FAIL]", red("[FAIL]"))
 		return x
-	
+
 	elif opt == 1:
 		return light_blue(string)
 
@@ -172,7 +172,7 @@ class HfstTester(object):
 				print colourise("[FAIL] %s" % out)
 			else:
 				print colourise("[PASS] %s" % out)
-			
+
 	def __init__(self):
 		self.fails = 0
 		self.passes = 0
@@ -186,7 +186,7 @@ class HfstTester(object):
 
 	def parse_args(self):
 		argparser = argparse.ArgumentParser(
-			description="""Test morphological transducers for consistency. 
+			description="""Test morphological transducers for consistency.
 			`hfst-lookup` (or Xerox' `lookup` with argument -x) must be
 			available on the PATH.""",
 			epilog="Will run all tests in the test_file by default.")
@@ -213,7 +213,7 @@ class HfstTester(object):
 			dest="hide_pass", action="store_true",
 			help="Suppresses failures to make finding passes easier")
 		argparser.add_argument("-S", "--section", default=["hfst"],
-			dest="section", nargs=1, required=False, 
+			dest="section", nargs=1, required=False,
 			help="The section to be used for testing (default is `hfst`)")
 		argparser.add_argument("-t", "--test",
 			dest="test", nargs=1, required=False,
@@ -229,11 +229,11 @@ class HfstTester(object):
 	def load_config(self):
 		global colourise
 		f = yaml.load(open(self.args.test_file[0]), OrderedDictYAMLLoader)
-		
+
 		section = self.args.section[0]
 		if not section in f["Config"]:
 			raise AttributeError("'%s' not found in Config of test file." % section)
-		
+
 		self.program = f["Config"][section].get("App", "hfst-lookup")
 		if not whereis(self.program):
 			raise IOError("Cannot find `%s`. Check $PATH." % self.program)
@@ -243,14 +243,14 @@ class HfstTester(object):
 
 		self.gen = f["Config"][section].get("Gen", None)
 		self.morph = f["Config"][section].get("Morph", None)
-	
+
 		if self.gen == self.morph == None:
 			raise AttributeError("One of Gen or Morph must be configured.")
 
 		for i in (self.gen, self.morph):
 			if i and not os.path.isfile(i):
 				raise IOError("File %s does not exist." % i)
-		
+
 		self.tests = f["Tests"]
 		for test in self.tests:
 			for key, val in self.tests[test].iteritems():
@@ -263,21 +263,21 @@ class HfstTester(object):
 			self.out = HfstTester.CompactOutput
 		else:
 			self.out = HfstTester.NormalOutput
-		
+
 		# Assume that the command line input is utf-8, convert it to unicode
 		if self.args.test:
 			self.args.test[0] = self.args.test[0].decode('utf-8')
-		
+
 	def run_tests(self, input=None):
 		if self.args.surface == self.args.lexical == False:
 			self.args.surface = self.args.lexical = True
-		
+
 
 		if(input != None):
 			self.parse_fsts(self.tests[input[0]])
 			if self.args.lexical: self.run_test(input[0], True)
 			if self.args.surface: self.run_test(input[0], False)
-		
+
 		else:
 			tests = {}
 			for t in self.tests:
@@ -286,7 +286,7 @@ class HfstTester(object):
 			for t in self.tests:
 				if self.args.lexical: self.run_test(t, True)
 				if self.args.surface: self.run_test(t, False)
-		
+
 		if self.args.verbose:
 			self.out.final_result(self)
 
@@ -302,13 +302,13 @@ class HfstTester(object):
 			app.stdin.write(args.encode('utf-8'))
 			res = app.communicate()[0].decode('utf-8').split('\n\n')
 			self.results[d] = self.parse_fst_output(res)
-		
+
 		gen = Process(target=parser, args=(self, "gen", self.gen, tests))
 		gen.daemon = True
 		gen.start()
 		if self.args.verbose:
 			print("Generating...")
-		
+
 		morph = Process(target=parser, args=(self, "morph", self.morph, invtests))
 		morph.daemon = True
 		morph.start()
@@ -320,7 +320,7 @@ class HfstTester(object):
 
 		if self.args.verbose:
 			print("Done!")
-		
+
 	def run_test(self, input, is_lexical):
 		if is_lexical:
 			desc = "Lexical/Generation"
@@ -339,7 +339,7 @@ class HfstTester(object):
 
 		c = len(self.count)
 		self.count.append({"Pass":0, "Fail":0})
-		
+
 		title = "Test %d: %s (%s)" % (c, input, desc)
 		self.out.title(title)
 
@@ -355,19 +355,19 @@ class HfstTester(object):
 			for form in expected_results:
 				if not form in actual_results:
 					invalid.add(form.encode('utf-8'))
-			
+
 			for form in actual_results:
 				if not form in expected_results:
 					missing.add(form.encode('utf-8'))
-		
+
 			for form in actual_results:
 				if not form in (invalid | missing):
 					passed = True
 					success.add(form.encode('utf-8'))
 					self.count[c]["Pass"] += 1
 					if not self.args.hide_pass:
-						self.out.success(test, form)				
-			
+						self.out.success(test, form)
+
 			if not self.args.hide_fail:
 				if len(invalid) > 0:
 					self.out.failure(test.encode('utf-8'), "Invalid test item", invalid)
@@ -377,10 +377,10 @@ class HfstTester(object):
 					self.count[c]["Fail"] += len(missing)
 
 		self.out.result(title, c, self.count[c])
-		
+
 		self.passes += self.count[c]["Pass"]
 		self.fails += self.count[c]["Fail"]
-	
+
 	def parse_fst_output(self, fst):
 		parsed = {}
 		for item in fst:

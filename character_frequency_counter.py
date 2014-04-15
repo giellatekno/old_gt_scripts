@@ -3,7 +3,7 @@
 # show the frequency of characters in a string
 # Python24 and higher by HAB
 # Fetched from http://www.daniweb.com/code/snippet506.html
-# Modified by boerre@skolelinux.no to read utf8 input, and 
+# Modified by borre.gaup@uit.no to read utf8 input, and
 # to read data from either stdin or a file
 
 import sys
@@ -17,11 +17,11 @@ else:
 for line in infile:
     line = unicode(line, 'utf8')
     # create a character:frequency dictionary
-    
+
     for char in line.lower():
 	cf_dic[char] = cf_dic.get(char, 0) + 1
-    
- 
+
+
 print "Characters sorted by frequency:"
 # convert cf_dic to list of (k, v) tuples with cf_dic.items()
 # flip tuple elements to (v, k) using list comprehension

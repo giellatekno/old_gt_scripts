@@ -1,14 +1,14 @@
 #!/bin/bash
 # $Id$
-# This script is written by Børre Gaup <boerre@skolelinux.no> and
+# This script is written by Børre Gaup <borre.gaup@uit.no> and
 # Tomi Pieski <tomi.pieski@hum.uit.no>
 # It is licensed under the GPL, version 2 or later.
 #
-# Shell script for exporting giellatekno www-pages from cvs 
+# Shell script for exporting giellatekno www-pages from cvs
 # to the official www-directory
 #
 # To get cvs ssh working without password prompting:
-# Stand in the home directory of your own machine, and write: 
+# Stand in the home directory of your own machine, and write:
 # ssh-keygen -t rsa
 # <just type enter to all questions>
 # chmod 0644 $HOME/.ssh/id_rsa.pub
@@ -40,7 +40,7 @@ update_trunk()
 # This function takes two arguments:
 # The first is where it should work
 # The second is where it should send the built files
-# 
+#
 # This function validates and builds a forrest site, and then sends
 # the built files to the correct location
 
@@ -48,7 +48,7 @@ build_and_copy_site()
 {
 	BUILDDIR=$1
 	SVNADDRESS=$2
-	
+
 	cd $BUILDDIR
 	# Build the site, at the same time checking the docs
 	forrest clean
@@ -78,9 +78,9 @@ if [ $# -ne $EXPECTED_ARGS ]
 then
   echo "Usage: `basename $0` <dir of forrest tree> <ssh destination>"
   exit $E_BADARGS
-else 
+else
     update_trunk
     build_and_copy_site $1 $2
 fi
-    
+
 echo "Done updating giellatekno:-)!"
