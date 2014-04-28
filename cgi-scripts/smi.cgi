@@ -599,7 +599,7 @@ sub printinitialhtmlcodes {
 	$p->paste('last_child', $body);
 	# Header and main titles are the same for all tools
 	print_header($title,$body);
-	my $form = XML::Twig::Elt->new(form => {action=>$form_action,method=>'get',target=>'top',name=>'form3'});
+	my $form = XML::Twig::Elt->new(form => {action=>$form_action,method=>'get',target=>'_self',name=>'form3'});
 
 	my $table = XML::Twig::Elt->new(table => {border=> 0,cellspacing=> 1,cellpadding=> 2});
 	my $tr = XML::Twig::Elt->new("tr");
