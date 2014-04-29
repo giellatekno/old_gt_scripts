@@ -2,7 +2,7 @@
 use strict;
 use Getopt::Long;
 use Data::Dumper;
-
+use Switch;
 use utf8;
 
 # lookup2cg
@@ -233,22 +233,49 @@ sub format_compound {
 	    $substring = substr($last_word,0,$i);
 	}
 
-	# This is the problem with Bug 1746: the substring of the word form
-	# doesn't match the refword, i.e., the baseform.
-	# The whole string is returned unchanged.
-	# I need an accurate description in order to make some string changes
-	# This is reverse linguistic engineering.
+	#trigger Mázecabaret compounds
+	my $substring_trigger;
+
 	if ($$refword =~ m/.*\Q$substring\E/) {
-		# If the compound boundary is found, 
-		# replace the last word by its base form, and insert a # mark in front of
-		# it, in order to mark the result as a compound.
-		my $orig = $$refbase;
-		$$refbase = $$refword;
-		$$refbase =~ s/(^.*)\Q$substring\E.*$/$1\#$last_word/;
-		if ($orig =~ m/^\p{isLower}/) {
-			$$refbase = lcfirst($$refbase);
-		}
+	  # If the compound boundary is found, 
+	  # replace the last word by its base form, and insert a # mark in front of
+	  # it, in order to mark the result as a compound.
+	  my $orig = $$refbase;
+	  $$refbase = $$refword;
+	  $$refbase =~ s/(^.*)\Q$substring\E.*$/$1\#$last_word/;
+	  if ($orig =~ m/^\p{isLower}/) {
+	    $$refbase = lcfirst($$refbase);
+	  }
+	  $substring_trigger = 'head_initial';
 	}
+
+	if (!$substring_trigger)  {
+	  #last_word don't match the refword: Mázecabaret vs. Máze#kabarea issue 
+	  
+	  (my $lemma_initial, my $lemma_rest) = $substring =~ /^(\w)(.*)$/;
+	  my $wordform_initial;
+	  
+	  switch($lemma_initial){
+	    case "k" { $wordform_initial='c'; }
+	    case "b" { $wordform_initial='p'; }
+	    case "d" { $wordform_initial='t'; }
+	    case "g" { $wordform_initial='k'; }
+	    #else { print "previous case not true" }
+	  }
+	  
+	  my $wf_substring = $wordform_initial+$lemma_rest;
+	  
+	  if ($refword =~ m/.*\Q$wf_substring\E/) {
+	    my $orig = $$refbase;
+	    
+	    $$refbase =~ s/(^[^\+]+).*$/$1\#$last_word/;
+	    
+	    if ($orig =~ m/^\p{isLower}/) {
+	      $$refbase = lcfirst($$refbase);
+	    }
+	  }
+	}
+
 	if ($second_last_word) {
 		my $i=4;
 		my $substring = substr($second_last_word,0,$i);
