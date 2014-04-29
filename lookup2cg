@@ -270,6 +270,14 @@ sub format_compound {
 	    
 	    $$refbase =~ s/(^[^\+]+).*$/$1\#$last_word/;
 	    
+	    # coping with geassi vs. geasse issue
+	    my $first_l_part = lc($1);
+	    my $first_wf_part = lc(substr($$refword, 0, length($first_l_part)));
+	    
+	    if ($first_l_part ne $first_wf_part) {
+	      $$refbase = $first_wf_part.'#'.$last_word;
+	    }
+
 	    if ($orig =~ m/^\p{isLower}/) {
 	      $$refbase = lcfirst($$refbase);
 	    }
