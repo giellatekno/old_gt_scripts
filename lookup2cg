@@ -220,6 +220,7 @@ sub format_compound {
 		}
 	}
 	my $i=4;
+	# this is the problem with Bug 1746: the substring
 	my $substring = substr($last_word,0,$i);
 	
 	while ($i > 1) {
@@ -232,6 +233,11 @@ sub format_compound {
 	    $substring = substr($last_word,0,$i);
 	}
 
+	# This is the problem with Bug 1746: the substring of the word form
+	# doesn't match the refword, i.e., the baseform.
+	# The whole string is returned unchanged.
+	# I need an accurate description in order to make some string changes
+	# This is reverse linguistic engineering.
 	if ($$refword =~ m/.*\Q$substring\E/) {
 		# If the compound boundary is found, 
 		# replace the last word by its base form, and insert a # mark in front of
