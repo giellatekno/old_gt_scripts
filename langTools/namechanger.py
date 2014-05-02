@@ -60,37 +60,33 @@ class TestNameChanger(unittest.TestCase):
     def testOwnNameWithOnlyAscii(self):
         want = 'youllneverwalkalone'
 
-        oldname = 'haha'
-        newname = 'YoullNeverWalkAlone'
-        nc = NameChanger(oldname, newname)
+        oldname = 'YoullNeverWalkAlone'
+        nc = NameChanger(oldname)
 
         self.assertEqual(nc.newname, want)
 
     def testOwnNameWithOnlyAsciiAndSpace(self):
         want = 'youll_never_walk_alone'
 
-        oldname = 'haha'
-        newname = 'Youll Never Walk Alone'
-        nc = NameChanger(oldname, newname)
+        oldname = 'Youll Never Walk Alone'
+        nc = NameChanger(oldname)
 
         self.assertEqual(nc.newname, want)
 
     def testOwnNameWithAsciiAndSpaceAndApostrophe(self):
         want = 'you_ll_never_walk_alone'
 
-        oldname = 'haha'
-        newname = "You'll Never Walk Alone"
-        nc = NameChanger(oldname, newname)
+        oldname = "You'll Never Walk Alone"
+        nc = NameChanger(oldname)
 
         self.assertEqual(nc.newname, want)
 
     def testOwnNameWithNonAscii(self):
-        want = 'saddago_beaivi_vai_idja'
+        want = 'saddago_beaivi_vai_idja/saddago_beaivi_vai_idja'
 
-        oldname = 'haha'
-        newname = u'Šaddágo beaivi vai idja'
-        klass = newname.encode('utf8')
-        nc = NameChanger(oldname.encode('utf8'), klass)
+        oldname = u'Šaddágo beaivi vai idja/Šaddágo beaivi vai idja'
+        klass = oldname
+        nc = NameChanger(klass)
 
         self.assertEqual(nc.newname, want)
 
@@ -100,24 +96,20 @@ class NameChanger:
     Will also take care of changing info in meta data of parallel files.
     """
 
-    def __init__(self, oldname, newname = None):
+    def __init__(self, oldname):
         """Find the directory the oldname is in.
         self.oldname is the basename of oldname.
         self.newname is the basename of oldname, in lowercase and
         with some characters replaced.
         """
-        self.dirname = os.path.dirname(oldname)
-        self.oldname = os.path.basename(oldname)
+        self.oldname = oldname
 
-        if newname is not None:
-            self.newname = self.changeToAscii(newname.decode('utf8'))
-        else:
-            self.newname = self.changeToAscii(self.oldname)
+        self.newname = self.changeToAscii(self.oldname)
 
     def changeToAscii(self, oldname):
         """Downcase all chars in oldname, replace some chars
         """
-        chars = {u'á':u'a', u'š':u's', u'ŧ':u't', u'ŋ':u'n', u'đ':u'd', u'ž':u'z', u'č':u'c', u'å':u'a', u'ø':u'o', u'æ':u'a', u'ö':u'o', u'ä':u'a', u'ï':u'i', u'+':'_', u' ': u'_', u'(': u'_', u')': u'_', u"'": u'_', u'–': u'-', u'?': u'_'}
+        chars = {u'á':u'a', u'š':u's', u'ŧ':u't', u'ŋ':u'n', u'đ':u'd', u'ž':u'z', u'č':u'c', u'å':u'a', u'ø':u'o', u'æ':u'a', u'ö':u'o', u'ä':u'a', u'ï':u'i', u'+':'_', u' ': u'_', u'(': u'_', u')': u'_', u"'": u'_', u'–': u'-', u'?': u'_', u',': u'_', u'!': u'_'}
 
         newname = oldname.lower()
 
@@ -126,23 +118,17 @@ class NameChanger:
             for utf8key in utf8keys:
                 if utf8key in newname:
                     newname = newname.replace(utf8key, value)
+                while '__' in newname:
+                    newname = newname.replace('__', '_')
 
         return newname
 
     def moveFile(self, fromname, toname):
         """Change name of file from fromname to toname"""
-        if os.path.exists(fromname):
-            subp = subprocess.Popen(['svn', 'mv', fromname, toname], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-            (output, error) = subp.communicate()
-
-            if subp.returncode != 0:
-                print >>sys.stderr, 'Could not move', fromname, 'to', toname
-                print >>sys.stderr, output
-                print >>sys.stderr, error
-            else:
-                sys.stdout.write('.')
-
-        pass
+        if not os.path.exists(os.path.dirname(nc.newname)):
+                os.makedirs(os.path.dirname(nc.newname))
+        if nc.newname != nc.oldname:
+            subprocess.call(['git', 'mv', nc.oldname, nc.newname])
 
     def changeName(self):
         """Change the name of the original file and it's metadata file
@@ -265,7 +251,7 @@ class NameChanger:
         pass
 
 if __name__ == "__main__":
-    nc = NameChanger(os.path.abspath(sys.argv[1]).decode('utf8'))
-    print nc.dirname
-    print nc.oldname
-    print nc.newname
+    for root, dirs, files in os.walk(sys.argv[1]):
+        for file_ in files:
+            nc = NameChanger(os.path.join(root, file_).decode('utf8'))
+            nc.MoveFile(nc.oldname, nc.newname)
