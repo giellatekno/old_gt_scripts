@@ -2,7 +2,7 @@
 use strict;
 use Getopt::Long;
 use Data::Dumper;
-use Switch;
+#use Switch;
 use utf8;
 
 # lookup2cg
@@ -255,13 +255,27 @@ sub format_compound {
 	  (my $lemma_initial, my $lemma_rest) = $substring =~ /^(\w)(.*)$/;
 	  my $wordform_initial;
 	  
-	  switch($lemma_initial){
-	    case "k" { $wordform_initial='c'; }
-	    case "b" { $wordform_initial='p'; }
-	    case "d" { $wordform_initial='t'; }
-	    case "g" { $wordform_initial='k'; }
-	    #else { print "previous case not true" }
+	  if ($lemma_initial eq 'k') {
+	    $wordform_initial='c';
+	  } elsif ($lemma_initial eq 'b') {
+	    $wordform_initial='p';
+	  } elsif ($lemma_initial eq 'd') {
+	    $wordform_initial='t';
+	  } elsif ($lemma_initial eq 'g') {
+	    $wordform_initial='k';
 	  }
+	    # else {
+	    #	    print STDERR "Nothing to map\n";
+	    #	  }
+	    
+	  #commented out due to installation problems with Trond's configuration
+	  #switch($lemma_initial){
+	  #  case "k" { $wordform_initial='c'; }
+	  #  case "b" { $wordform_initial='p'; }
+	  #  case "d" { $wordform_initial='t'; }
+	  #  case "g" { $wordform_initial='k'; }
+	  #  #else { print "previous case not true" }
+	  #}
 	  
 	  my $wf_substring = $wordform_initial+$lemma_rest;
 	  
