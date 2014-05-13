@@ -351,7 +351,7 @@ sub process_word1_hyphen_and_word2_string
                     shift @next_words;
                 }
             }
-        } elsif(@next_words) {
+        } elsif(@next_words && $next_words[0]{word}) {
             my $connect = $next_words[0]{word};
             if ($connecting{$connect} && $next_words[1]) {
                 verbose("connecting", $word , __LINE__);
