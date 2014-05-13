@@ -337,7 +337,7 @@ sub process_word1_hyphen_and_word2_string
 
     verbose("process_word1_hyphen_and_word2_string", $word, __LINE__);
     if ($word =~ /\w+\p{Pd}$/) {
-        if (@words) {
+        if (@words && $words[0]{word}) {
             my $next_w = $words[0]{word};
             if ($connecting{$next_w}) {
                 $word .= $words[0]{space} . $next_w;
@@ -914,8 +914,14 @@ sub test_idiom {
 
                 $i++;
                 if($words_aref->[$i]) {
-                    $idiom = $idiom . $words_aref->[$i]{space} . $words_aref->[$i]{word};
-                    $ucidiom = $ucidiom . $words_aref->[$i]{space} . ucfirst($words_aref->[$i]{word});
+                    if ($words_aref->[$i]{space}) {
+                        $idiom = $idiom . $words_aref->[$i]{space};
+                        $ucidiom = $ucidiom . $words_aref->[$i]{space};
+                    }
+                    if ($words_aref->[$i]{word}) {
+                        $idiom = $idiom . $words_aref->[$i]{word};
+                        $ucidiom = $ucidiom . ucfirst($words_aref->[$i]{word});
+                    }
                 } elsif(! $next && $next_aref->[0]{word} && $next_aref->[0]{space}) {
                     $idiom = $idiom . $next_aref->[0]{space} . $next_aref->[0]{word};
                     $ucidiom = $ucidiom . $next_aref->[0]{space} . ucfirst($next_aref->[0]{word});
