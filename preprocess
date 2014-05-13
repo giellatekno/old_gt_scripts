@@ -1170,7 +1170,7 @@ sub combine_date_expression
     # Consider date expressions first.
     # at the moment covers years: 1984-2000, 1984- 2000 etc.
     if ($word =~ /^\d{4}\p{Pd}?$/o) {
-        while ($words_aref->[0] && $words_aref->[0]{word} =~ /^(?:\p{Pd}|\p{Pd}?(?:\d{4}|\d{2}))\.?$/o) {
+        while ($words_aref->[0] && $words_aref->[0]{word} && $words_aref->[0]{word} =~ /^(?:\p{Pd}|\p{Pd}?(?:\d{4}|\d{2}))\.?$/o) {
             if ($word =~ /\-/ || $words_aref->[0]{word} =~ /\-/) {
                 $word = $word . $words_aref->[0]{space} . $words_aref->[0]{word};
                 verbose ("process_numeral/combine date", $word, __LINE__);
