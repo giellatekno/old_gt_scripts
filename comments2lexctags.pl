@@ -127,7 +127,7 @@ sub process_comments {
 	
 
 	if ($comments =~ /SUB/) {
-		push @tags_use, "+Use/Sub";
+		push @tags_use, "+Err/Sub";
 	}
 	if ($comments =~ /MARG/) {
 		push @tags_use, "+Use/Marg";
