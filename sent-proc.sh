@@ -11,6 +11,7 @@
 # input sentence either coming from the pipe or at the end in quotation marks
 # parametrized for processing step: -s pos, -s dis, -s syn, -s dep
 
+# change to 'true' to debug paths of analysis tools
 debug='false'
 LOOKUP=`which lookup`
 HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
@@ -41,7 +42,7 @@ startup_lang_list=(amh bla evn sel sto tlh zul)
 #experiment_lang_list
 experiment_lang_list=(deu eng)
 
-if [[ "$debug" == "true" ]] ; then
+if [[ "$debug" == "xtruex" ]] ; then
     echo "_pre l  ${l}"
     echo "_pre s  ${s}"
     echo "_pre t  ${t}"
@@ -119,7 +120,7 @@ fi
 
 current_path="$GTHOME/$lg/$l"
 
-if [[ "$debug" == "true" ]] ; then
+if [[ "$debug" == "xtruex" ]] ; then
     echo "post_ l  ${l}"
     echo "post_ s  ${s}"
     echo "post_ t  ${t}"
@@ -176,14 +177,23 @@ case $s in
 	echo $(echo $pos_cmd) | sh
 	;;
     dis)
+	if [[ "$debug" == "true" ]] ; then
+	    echo "$dis_cmd" 
+	fi
 	echo "... pos disambiguating ..."
 	echo $(echo $dis_cmd) | sh
 	;;
     syn)
+	if [[ "$debug" == "true" ]] ; then
+	    echo "$syn_cmd" 
+	fi
 	echo "... syntax analysis ..."
 	echo $(echo $syn_cmd) | sh
 	;;
     dep)
+	if [[ "$debug" == "true" ]] ; then
+	    echo "$dep_cmd" 
+	fi
 	echo "... inserting dependency relations ..."
 	echo $(echo $dep_cmd) | sh
 	;;
