@@ -42,7 +42,7 @@ startup_lang_list=(amh bla evn sel sto tlh zul)
 #experiment_lang_list
 experiment_lang_list=(deu eng)
 
-if [[ "$debug" == "xtruex" ]] ; then
+if [[ "$debug" == "true" ]] ; then
     echo "_pre l  ${l}"
     echo "_pre s  ${s}"
     echo "_pre t  ${t}"
@@ -120,7 +120,7 @@ fi
 
 current_path="$GTHOME/$lg/$l"
 
-if [[ "$debug" == "xtruex" ]] ; then
+if [[ "$debug" == "true" ]] ; then
     echo "post_ l  ${l}"
     echo "post_ s  ${s}"
     echo "post_ t  ${t}"
@@ -158,7 +158,7 @@ SD_PATH='gtdshared/smi/src/syntax'
 # common pos_cmd
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
 
-if [[ $l == fao ]]; then
+if [ $l == fao ] || [ $l == crk ]; then
     dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguation.cg3 $t"
     syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/functions.cg3 $t"
 else
