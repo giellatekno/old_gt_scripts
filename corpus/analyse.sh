@@ -4,7 +4,7 @@
 # This script is specific for the analysis that is done on stallo
 #
 
-#PBS -lwalltime=9:00:00
+#PBS -lwalltime=7:00:00
 #PBS -lnodes=1
 #PBS -q express
 #PBS -A uit-sami-001
