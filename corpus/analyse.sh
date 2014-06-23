@@ -38,12 +38,9 @@ do
         cd $corpus
         # remove old analysed files, making sure
         # old analysed files are not included, only new ones
-        rm -rf converted/$lang analysed/$lang
+        rm -rf analysed/$lang
 
-        # convert original files to xml
-        time convert2xml --debug orig/$lang
-
-        # analyse the newly converted files
+        # analyse the converted files
         time analyse_corpus $lang converted/$lang
 
         # count how many files are potentially convertible
