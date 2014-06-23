@@ -349,8 +349,8 @@ alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 # HFST aliases
 
 # sme
-alias hdsme='$HLOOKUP $GTHOME/gt/sme/bin/isme.hfstol'
-alias husme='$HLOOKUP $GTHOME/gt/sme/bin/sme.hfstol'
+alias hdsme='$HLOOKUP $GTHOME/langs/sme/src/generator-gt-desc.hfst'
+alias husme='$HLOOKUP $GTHOME/langs/sme/src/analyser-gt-desc.hfst'
 
 
 alias hdamh='$HLOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.hfst'
