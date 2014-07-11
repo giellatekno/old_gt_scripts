@@ -191,9 +191,6 @@ sub init_variables {
 	if (-f "$fstdir/abbr.txt") {
 		$preprocess = "$bindir/preprocess --abbr=$fstdir/abbr.txt";
 	}
-	if ($lang eq "cor") {
-	    $preprocess = "$utilitydir/tokenize $tok_fst";
-	}
 	else { $preprocess = "$bindir/preprocess"; }
 
 #	if ($lang eq "sme" && $action eq "analyze" ) {
