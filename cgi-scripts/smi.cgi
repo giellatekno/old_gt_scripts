@@ -38,6 +38,7 @@ require "conf.pl";
 # reviewed and modified 12 april 2002, Trond Trosterud
 # reviewed and modified 2006,2007 Saara Huhmarniemi
 # modified 2012 Heli Uibo, Sjur Moshagen
+# modified 2013, 2014 Ciprian Gerstenberger
 #
 # $Id$
 ########################################################################
@@ -49,7 +50,8 @@ require "conf.pl";
 # information from HTML form and generating new HTML pages.
 
 # Variables retrieved from the query.
-our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
+#our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
+our ($text,$pos,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
 our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,$lat2syll,$syll2lat,%avail_pos, %lang_actions, $translate,$placenames);
@@ -62,7 +64,7 @@ my $query = CGI::Minimal->new;
 
 $text = $query->param('text');
 $pos = $query->param('pos');
-$charset = $query->param('charset');
+#$charset = $query->param('charset');
 $lang = $query->param('lang');
 $plang = $query->param('plang');
 
@@ -142,9 +144,10 @@ if ($xml_in) {
   }
 }
 
-if($charset eq "latin1") {
-  $text = Unicode::String::latin1( $text);
-}
+# no charset radio buttons
+#if($charset eq "latin1") {
+#  $text = Unicode::String::latin1( $text);
+#}
 
 # Convert html-entity to unicode
 decode_entities( $text );
@@ -791,15 +794,15 @@ sub printinitialhtmlcodes {
   $input->paste('last_child', $td);
   $input = XML::Twig::Elt->new(input=>{type=> 'reset',value=> $reset_text});
   $input->paste('last_child', $td);
+  #disable utf8 and latin1 radio buttons 
+  #my $input_utf8 = XML::Twig::Elt->new(input=> {type=> 'radio',name=> 'charset',value=>'utf-8'},'utf-8');
+  #my $input_l1 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'charset',value=> 'latin-1'},'latin-1');
   
-  my $input_utf8 = XML::Twig::Elt->new(input=> {type=> 'radio',name=> 'charset',value=>'utf-8'},'utf-8');
-  my $input_l1 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'charset',value=> 'latin-1'},'latin-1');
+  #if ($charset eq "latin-1") { $input_l1->set_att('checked'=>1); }
+  #else { $input_utf8->set_att('checked'=>1); }
   
-  if ($charset eq "latin-1") { $input_l1->set_att('checked'=>1); }
-  else { $input_utf8->set_att('checked'=>1); }
-  
-  $input_utf8->paste('last_child',$td);
-  $input_l1->paste('last_child',$td);
+  #$input_utf8->paste('last_child',$td);
+  #$input_l1->paste('last_child',$td);
   $td->paste('last_child', $tr);
   
   $tr->paste('last_child', $table);
