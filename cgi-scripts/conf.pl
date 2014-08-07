@@ -144,7 +144,7 @@ sub init_variables {
 	else { $gen_norm_fst = $gen_fst; }
 
 	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
-		http_die '--no-alert','404 Not Found',"$lang.fst: Analysis is not supported";
+		http_die '--no-alert','404 Not Found',"analyser-gt-desc.xfst is not in the $lang/bin folder";
 	}
 # testing
 #	if ($action eq "hfstanalyze" && ! -f $hfst) { 
