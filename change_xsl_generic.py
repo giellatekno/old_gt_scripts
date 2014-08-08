@@ -22,7 +22,7 @@ change_variables = {}
 
 # read in the variable-value pairs, add them in the dict
 for index in range(1, len(sys.argv) - 1, 2):
-	change_variables[sys.argv[index]] = sys.argv[index + 1]
+	change_variables[sys.argv[index]] = sys.argv[index + 1].decode('utf8')
 
 xsl_filename = sys.argv[len(sys.argv) - 1]
 if (xsl_filename.rfind('.xsl') > 0):
