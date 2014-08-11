@@ -34,8 +34,6 @@ cd $GTHOME/langs/nob && pwd && nice ./autogen.sh -l && nice ./configure --with-h
 echo " -------------------------------------------------------------------------------------- olo, Olonetsian "
 cd $GTHOME/langs/olo && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --enable-spellers && nice time make  HFST_LEXC_FLAGS=-F && sudo make install  
 echo " -------------------------------------------------------------------------------------- ron, Rumanian "
-cd $GTHOME/langs/ron && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --enable-spellers && nice time make  HFST_LEXC_FLAGS=-F && sudo make install  
-echo " -------------------------------------------------------------------------------------- rus, Russian "
 cd $GTHOME/langs/rus && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --enable-spellers && nice time make  HFST_LEXC_FLAGS=-F && sudo make install  
 echo " -------------------------------------------------------------------------------------- sjd, Kildin Saami "
 cd $GTHOME/langs/sjd && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --enable-spellers && nice time make  HFST_LEXC_FLAGS=-F && sudo make install  
