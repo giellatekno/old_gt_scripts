@@ -39,7 +39,7 @@ xdocs = 'src/documentation/content/xdocs'
 for root, dirs, files in os.walk(xdocs, followlinks=True):
     for f in files:
         if f.endswith('.jspwiki'):
-            url = 'http://localhost:8888' + root.replace(xdocs, '') + '/' + f.replace('jspwiki', 'xml')
+            url = 'http://localhost:8888' + root.replace(xdocs, '') + '/' + f.replace('jspwiki', 'html')
 
             print url,
             try:
