@@ -17,33 +17,36 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this file. If not, see <http://www.gnu.org/licenses/>.
 #
-#   Copyright 2013 Børre Gaup <borre.gaup@uit.no>
+#   Copyright 2013-2014 Børre Gaup <borre.gaup@uit.no>
 #
+
+'''This is a script to test if .jspwiki files are valid.
+
+Usage:
+Start forrest in the directory that you'd like to test,
+e.g. $GTHOME/xtdoc/gtuit, in one terminal.
+
+In a second terminal, go to the same directory and run this program.
+'''
 
 import os
 import sys
 import urllib2
 import time
 
-gtuit = 'src/documentation/content/xdocs'
-#gthome = os.getenv('GTHOME')
-#gtuit = os.path.join(gthome, realpath)
+xdocs = 'src/documentation/content/xdocs'
 
-print gtuit
-
-for root, dirs, files in os.walk(gtuit, followlinks=True):
+for root, dirs, files in os.walk(xdocs, followlinks=True):
     for f in files:
-        if f.endswith('.jspwiki') and not '/words/' in root:
-            url = 'http://localhost:8888/' + root.replace(gtuit, '') + '/' + f.replace('jspwiki', 'xml')
-            print os.path.join(root, f)
-            #print url
+        if f.endswith('.jspwiki'):
+            url = 'http://localhost:8888' + root.replace(xdocs, '') + '/' + f.replace('jspwiki', 'xml')
 
+            print url,
             try:
                 t0 = time.time()
                 response = urllib2.urlopen(url)
                 html = response.read()
-                # do something
-                response.close()  # best practice to close the file
+                response.close()
                 print time.time() - t0
             except urllib2.HTTPError:
-                print "\t!!!whoops!!!", url
+                print "\t!!!whoops!!!", os.path.join(root, f)
