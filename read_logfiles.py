@@ -11,6 +11,7 @@ import os
 import getopt
 import glob
 import gzip
+import datetime
 
 import GeoIP
 from logsparser.lognormalizer import LogNormalizer
@@ -129,6 +130,8 @@ class DivvunApacheLogParser:
         for key in self.our_targets.keys():
             self.found_lists[key] = []
         self.report_file = open(self.outfile, 'w')
+        self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
+        self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
     def write_header(self):
         self.report_file.write('''<?xml version="1.0" encoding="UTF-8"?>\n''')
@@ -154,7 +157,11 @@ class DivvunApacheLogParser:
         self.report_file.write('<section>\n')
         self.report_file.write('<title>Summary of downloads</title>\n')
         self.report_file.write('<p>All of the Divvun tools have been downloaded ')
-        self.report_file.write(str(total_found) + ' times</p>\n')
+        self.report_file.write(str(total_found) + ' times between <em id="mindate">')
+        self.report_file.write(str(self.mindate))
+        self.report_file.write('</em> and <em id="maxdate">')
+        self.report_file.write(str(self.maxdate))
+        self.report_file.write('</em></p>\n')
         self.report_file.write('<ul>\n')
         for target in self.our_targets.keys():
             self.report_file.write('<li>' + self.our_targets[target] +
@@ -240,6 +247,12 @@ class DivvunApacheLogParser:
         self.report_file.write('</section>\n')
 
     def is_bot(self, line):
+        """Check if the line contains one of the bots in self.bots
+        Tried to implement this check as a regex, but runtime
+        on a 100 000 line test access log went up to 18 seconds
+        from about 2.5 seconds with this implementation on my
+        test machine.
+        """
         for bot in self.bots:
             if bot in line:
                 return True
@@ -271,6 +284,10 @@ class DivvunApacheLogParser:
                                  'body': line}
                             normalizer.normalize(l)
                             self.found_lists[target].append(l)
+                            if l['date'] < self.mindate:
+                                self.mindate = l['date']
+                            if l['date'] > self.maxdate:
+                                self.maxdate = l['date']
                             pass
 
     def generate_report(self):
