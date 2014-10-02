@@ -18,6 +18,7 @@ import GeoIP
 from logsparser.lognormalizer import LogNormalizer
 normalizer = LogNormalizer('/usr/share/logsparser/normalizers')
 
+
 class DivvunApacheLogParser:
     def __init__(self, args):
         """
@@ -148,7 +149,8 @@ class DivvunApacheLogParser:
 
     def write_header(self):
         header = etree.Element('header')
-        etree.SubElement(header, 'title').text = u'Download log for the Divvun tools'
+        title = etree.SubElement(header, 'title')
+        title.text = u'Download log for the Divvun tools'
 
         return header
 
@@ -165,11 +167,13 @@ class DivvunApacheLogParser:
     def total_found(self):
         '''Sum up the number of lines found
         '''
-        return sum([len(self.found_lists[key]) for key in self.found_lists.keys()])
+        return sum([len(
+            self.found_lists[key]) for key in self.found_lists.keys()])
 
     def make_p(self):
         p = etree.Element('p')
-        p.text = u'All of the Divvun tools have been downloaded ' + str(self.total_found()) + u' times between '
+        p.text = u'All of the Divvun tools have been downloaded ' + \
+            str(self.total_found()) + u' times between '
 
         em_min = etree.SubElement(p, 'em')
         em_min.set('id', 'mindate')
@@ -187,7 +191,9 @@ class DivvunApacheLogParser:
         for target in self.our_targets.keys():
             li = etree.Element('li')
             ul.append(li)
-            li.text = self.our_targets[target] + ' has been downloaded ' + str(len(self.found_lists[target])) + ' times'
+            li.text = self.our_targets[target] + \
+                ' has been downloaded ' + \
+                str(len(self.found_lists[target])) + ' times'
 
         return ul
 
@@ -308,36 +314,39 @@ class DivvunApacheLogParser:
 
         return False
 
+    def get_infile(self, filename):
+        if filename[-3:] == '.gz':
+            return gzip.open(filename)
+        else:
+            return open(filename)
+
+    def set_date(self, date):
+        if date < self.mindate:
+            self.mindate = date
+        if date > self.maxdate:
+            self.maxdate = date
+
+    def gather_lines(self, filename):
+        for line in self.get_infile(filename):
+            if self.is_bot(line) is False and ' 200 ' in line:
+                for target in self.our_targets.keys():
+                    if target in line:
+                        l = {'raw': line,
+                             'body': line}
+                        normalizer.normalize(l)
+                        self.found_lists[target].append(l)
+                        self.set_date(l['date'])
+                        break
+
     def find_lines(self):
         """
         Go through all the access log files in a given directory. Pick out
         the lines that has one our download goals, which has been fully fetched
         and which hasn't been downloaded by a bot.
         """
-        lines = 1
         for access_file in glob.glob(
                 os.path.join(self.log_directory, '*access*')):
-            sys.stderr.write('Now handling  ' + access_file + '\n')
-            if access_file[-3:] == '.gz':
-                infile = gzip.open(access_file)
-            else:
-                infile = open(access_file)
-            for line in infile:
-                if lines % 100000 == 0:
-                    print lines
-                lines += 1
-                if self.is_bot(line) is False and ' 200 ' in line:
-                    for target in self.our_targets.keys():
-                        if target in line:
-                            l = {'raw': line,
-                                 'body': line}
-                            normalizer.normalize(l)
-                            self.found_lists[target].append(l)
-                            if l['date'] < self.mindate:
-                                self.mindate = l['date']
-                            if l['date'] > self.maxdate:
-                                self.maxdate = l['date']
-                            pass
+            self.gather_lines(access_file)
 
     def generate_report(self):
         self.report_file.append(self.write_header())
@@ -348,15 +357,14 @@ class DivvunApacheLogParser:
             encoding=u'utf-8',
             pretty_print=True,
             xml_declaration=True,
-            doctype='<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">'))
+            doctype='<!DOCTYPE document PUBLIC \
+            "-//APACHE//DTD Documentation V2.0//EN" \
+            "http://forrest.apache.org/dtd/document-v20.dtd">'))
 
     def debug_input(self):
-        debugfile = open('debugfile', 'w')
-        numLines = 0
-        for key in self.found_lists.keys():
-            [debugfile.write(line['raw']) for line in self.found_lists[key]]
-
-        debugfile.close()
+        with open('debugfile', 'w') as debugfile:
+            for key in self.found_lists.keys():
+                [debugfile.write(line['raw']) for line in self.found_lists[key]]
 
 
 def main():
