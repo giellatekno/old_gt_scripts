@@ -3,7 +3,8 @@
 """
 File   iptocountry.py
 
-Version 0.0.2  Jan. 15, 2009  Packaged the functionality in to a class (Børre Gaup <borre.gaup@samediggi.no>)
+Version 0.0.2  Jan. 15, 2009  Packaged the functionality in to
+a class (Børre Gaup <borre.gaup@uit.no>)
 Version 0.0.1  Oct. 19, 2008  Basic function.
 
 Author Ernesto P. Adorio, Ph.D.
@@ -11,7 +12,7 @@ Author Ernesto P. Adorio, Ph.D.
        Clark Field, Pampanga
 
 E-mail ernesto.adorio@gmail.com
-       
+
 Desc   Given a list of numeric address, get the domain name
        and country.
 
@@ -26,74 +27,67 @@ import pickle
 import os
 
 
+class IPToCountry:
+    def __init__(self):
+        #simple pickled dictionary really!
+        self.COUNTRYDBASE = os.path.expanduser('~') + "/.ipcountrycodes"
+        self.countrycodes_dict = {}
+        if os.path.exists(self.COUNTRYDBASE):
+            f = open(self.COUNTRYDBASE, "r")
+            self.countrycodes_dict = pickle.load(f)
+            f.close()
 
-class ipToCountry:
-	def __init__(self):
-		self.COUNTRYDBASE = os.path.expanduser('~') + "/.ipcountrycodes"  #simple pickled dictionary really!
-		self.countrycodesDict =  {}
-		if os.path.exists(self.COUNTRYDBASE):
-			f = open(self.COUNTRYDBASE,"r")
-			self.countrycodesDict =  pickle.load(f)
-			f.close()
+    def __del__(self):
+        """
+        Writes back the countrycodes dictionary.
+        """
+        f = open(self.COUNTRYDBASE, "wb")
+        pickle.dump(self.countrycodes_dict, f)
+        f.close()
 
-			
-	
-		
-	def __del__(self):
-		"""
-		Writes back the countrycodes dictionary.
-		"""
-		f = open(self.COUNTRYDBASE,"wb")
-		pickle.dump(self.countrycodesDict, f)
-		f.close()
-		
+    def get_countrycode(self, ip_address):
+        """
+        Returns a countrycode for the IP (numeric) address.
 
-	def getCountrycode(self, IPAddress):
-		"""
-		Returns a countrycode for the IP (numeric) address.
-		
-		Warning:
-			Assumes your are on a Linux server with a whois server.
-			Otherwise, function will simply return None for all arguments.
-		"""
-		if IPAddress in self.countrycodesDict:
-			#print "@@@dbg:[%s] already in dictionary!" % IPAddress
-			return self.countrycodesDict[IPAddress]
-			
-		status, output = commands.getstatusoutput("whois -h whois.lacnic.net %s " %IPAddress)
-		try:
-			if status== 0:
-				print output
-				startpos = output.find("country")
-				if startpos == -1:
-					startpos = output.find("Country")
-				if startpos >= 0:		    
-					#print "@@@dbg: startpos= ", startpos
-					endpos   = startpos + output[startpos:].find("\n")
-					#print "@@@dbg: endpos = ", startpos+endpos 
-					line = output[startpos: endpos]
-					#print "@@@dbg: line = ", line
-					country = line.split()[1]
-					self.countrycodesDict[IPAddress] = country
-				else:
-					country = "N/A"
-			else:
-				country = "N/A"
-		
-		except:
-			country = "N/A"
-		return country
+        Warning:
+            Assumes your are on a Linux server with a whois server.
+            Otherwise, function will simply return None for all arguments.
+        """
+        if ip_address in self.countrycodes_dict:
+            return self.countrycodes_dict[ip_address]
+
+        status, output = commands.getstatusoutput(
+            "whois -h whois.lacnic.net %s " % ip_address)
+        try:
+            if status == 0:
+                startpos = output.find("country")
+                if startpos == -1:
+                    startpos = output.find("Country")
+                if startpos >= 0:
+                    endpos = startpos + output[startpos:].find("\n")
+                    line = output[startpos: endpos]
+                    country = line.split()[1]
+                    self.countrycodes_dict[ip_address] = country
+                else:
+                    country = "N/A"
+            else:
+                country = "N/A"
+
+        except:
+            country = "N/A"
+        return country
+
 
 def main():
-	# Here is how to use it.
-	# First instantiate the class.
-	iptoC = ipToCountry()
+    # Here is how to use it.
+    # First instantiate the class.
+    iptoC = IPToCountry()
 
-	# Do your querying...
-	for ip in ["122.2.172.47","209.131.36.158", "129.242.4.42", "82.147.49.206" ]:
-		print iptoC.getCountrycode(ip)
+    # Do your querying...
+    for ip in ["122.2.172.47", "209.131.36.158", "129.242.4.42",
+               "82.147.49.206"]:
+        print iptoC.get_countrycode(ip)
 
-            
 
 if __name__ == "__main__":
-	main()
+    main()
