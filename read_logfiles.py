@@ -13,7 +13,8 @@ import glob
 import gzip
 
 import GeoIP
-
+from logsparser.lognormalizer import LogNormalizer
+normalizer = LogNormalizer('/usr/share/logsparser/normalizers')
 
 class DivvunApacheLogParser:
     def __init__(self, args):
@@ -104,76 +105,146 @@ class DivvunApacheLogParser:
             'discobot',
             'LexxeBot',
             'Search17Bot',
-            'FDM 3.x']
-        self.found_lists = []
-        for i in range(0, len(self.our_targets.keys())):
-            self.found_lists.append([])
+            'FDM 3.x',
+            'AhrefsBot',
+            'SiteExplorer',
+            'SEOkicks',
+            'LinksCrawler',
+            'heritrix',
+            'BUbiNG',
+            'PycURL',
+            'SeznamBot',
+            'SemrushBot',
+            'Xenu Link Sleuth',
+            'integromedb',
+            'FatRat',
+            'MJ12bot',
+            'GSLFbot',
+            'Download Master',
+            'PuxaRapido',
+            'Browserlet',
+            'Purebot'
+            ]
+        self.found_lists = {}
+        for key in self.our_targets.keys():
+            self.found_lists[key] = []
         self.report_file = open(self.outfile, 'w')
 
     def write_header(self):
-        self.report_file.write('!!!Download log for the Divvun tools\n\n')
+        self.report_file.write('''<?xml version="1.0" encoding="UTF-8"?>\n''')
+        self.report_file.write('''<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN"\n''')
+        self.report_file.write('''"http://forrest.apache.org/dtd/document-v20.dtd">\n''')
+        self.report_file.write('''<document xml:lang="en">\n''')
+        self.report_file.write('''<header>\n''')
+        self.report_file.write('<title>Download log for the Divvun tools</title>\n')
+        self.report_file.write('''</header>\n''')
+        self.report_file.write('''<body>\n''')
+
+    def write_footer(self):
+        self.report_file.write('''</body>\n''')
+        self.report_file.write('''</document>\n''')
 
     def write_summary(self):
         """
         Return how many lines we have
         """
         total_found = 0
-        for found_list in self.found_lists:
-            total_found = total_found + len(found_list)
-        self.report_file.write('!!Summary of downloads\n\n')
-        self.report_file.write('All of the Divvun tools have been downloaded ')
-        self.report_file.write(str(total_found) + ' times\n\n')
-        for x, target in enumerate(self.our_targets.keys()):
-            self.report_file.write('* ' + self.our_targets[target] +
+        for key in self.found_lists.keys():
+            total_found = total_found + len(self.found_lists[key])
+        self.report_file.write('<section>\n')
+        self.report_file.write('<title>Summary of downloads</title>\n')
+        self.report_file.write('<p>All of the Divvun tools have been downloaded ')
+        self.report_file.write(str(total_found) + ' times</p>\n')
+        self.report_file.write('<ul>\n')
+        for target in self.our_targets.keys():
+            self.report_file.write('<li>' + self.our_targets[target] +
                                    ' has been downloaded ' +
-                                   str(len(self.found_lists[x])) + ' times\n')
+                                   str(len(self.found_lists[target])) + ' times</li>\n')
+        self.report_file.write('</ul>\n')
+        self.report_file.write('</section>\n')
         return total_found
 
     def write_by_year(self):
-        self.report_file.write('\n!!Downloads sorted by year\n')
-        for x, target in enumerate(self.our_targets.keys()):
+        self.report_file.write('<section>\n')
+        self.report_file.write('<title>Downloads sorted by year</title>\n')
+        for target in self.our_targets.keys():
             year_dict = {}
-            for found_line in self.found_lists[x]:
-                year = self.get_year(found_line)
+            for found_line in self.found_lists[target]:
+                year = found_line['date'].year
                 if year in year_dict:
                     year_dict[year] = year_dict[year] + 1
                 else:
                     year_dict[year] = 1
-            self.report_file.write('\n!' + self.our_targets[target] + '\n')
-            self.report_file.write('|| Year || Count\n')
-            for year, count in year_dict.items():
-                self.report_file.write('|' + year + ' | ' + str(count) + '\n')
+            self.report_file.write('<section>\n')
+            self.report_file.write('<title>' + self.our_targets[target] + '</title>\n')
+            self.report_file.write('<table>\n')
+            self.report_file.write('<tr><th>Year</th><th>Count</th></tr>\n')
+            for year in sorted(year_dict,
+                                      key=year_dict.get,
+                                      reverse=True):
+                self.report_file.write('<tr><td>' + str(year) + '</td><td>' + str(year_dict[year]) + '</td></tr>\n')
+            self.report_file.write('</table>\n')
+            self.report_file.write('</section>\n')
+        self.report_file.write('</section>\n')
+
+    def write_by_useragent(self):
+        self.report_file.write('<section>\n')
+        self.report_file.write('<title>Downloads sorted by useragent</title>\n')
+        for target in self.our_targets.keys():
+            year_dict = {}
+            for found_line in self.found_lists[target]:
+                year = found_line['useragent']
+                if year in year_dict:
+                    year_dict[year] = year_dict[year] + 1
+                else:
+                    year_dict[year] = 1
+            self.report_file.write('<section>\n')
+            self.report_file.write('<title>' + self.our_targets[target] + '</title>\n')
+            self.report_file.write('<table>\n')
+            self.report_file.write('<tr><th>Useragent string</th><th>Count</th></tr>\n')
+            for year in sorted(year_dict,
+                               key=year_dict.get,
+                               reverse=True):
+                self.report_file.write('<tr><td>' + str(year) + '</td><td>' + str(year_dict[year]) + '</td></tr>\n')
+            self.report_file.write('</table>\n')
+            self.report_file.write('</section>\n')
+        self.report_file.write('</section>\n')
 
     def write_by_country(self):
         locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
-        self.report_file.write('\n!!Downloads sorted by country\n')
-        for x, target in enumerate(self.our_targets.keys()):
+        self.report_file.write('<section>\n')
+        self.report_file.write('<title>Downloads sorted by country</title>\n')
+        for target in self.our_targets.keys():
             counted_countries = {}
-            for found_line in self.found_lists[x]:
+            for found_line in self.found_lists[target]:
                 country = locator.country_name_by_addr(
-                    found_line.split()[0])
-                if country in counted_countries:
-                    counted_countries[country] = counted_countries[country] + 1
+                    found_line['source_ip'])
+                if country is not None:
+                    if country in counted_countries:
+                        counted_countries[country] = counted_countries[country] + 1
+                    else:
+                        counted_countries[country] = 1
                 else:
-                    counted_countries[country] = 1
-            self.report_file.write('\n!' + self.our_targets[target] + '\n')
-            self.report_file.write('|| Country || Count\n')
+                    print 'no country', found_line['raw']
 
+            self.report_file.write('<section>\n')
+            self.report_file.write('<title>' + self.our_targets[target] + '</title>\n')
+            self.report_file.write('<table>\n')
+            self.report_file.write('<tr><th>Country</th><th>Count</th></tr>\n')
             for country in sorted(counted_countries,
                                   key=counted_countries.get, reverse=True):
-                self.report_file.write('|' + country + ' | ' +
-                                       str(counted_countries[country]) + '\n')
+                self.report_file.write('<tr><td>' + country + '</td><td>' +
+                                       str(counted_countries[country]) + '</td></tr>\n')
+            self.report_file.write('</table>\n')
+            self.report_file.write('</section>\n')
+        self.report_file.write('</section>\n')
 
-    def get_year(self, line):
-        """
-        The date is inside a [] pair and has the format:
-        [day/month/year:hours:minutes:seconds timezone]
-        """
-        time_start = line.find('[') + 1
-        time_end = line.find(']') - 1
-        time_string = line[time_start:time_end].split()[0]
-        cal_date = time_string.split(':')[0]
-        return cal_date.split('/')[2]
+    def is_bot(self, line):
+        for bot in self.bots:
+            if bot in line:
+                return True
+
+        return False
 
     def find_lines(self):
         """
@@ -181,6 +252,7 @@ class DivvunApacheLogParser:
         the lines that has one our download goals, which has been fully fetched
         and which hasn't been downloaded by a bot.
         """
+        lines = 1
         for access_file in glob.glob(
                 os.path.join(self.log_directory, '*access*')):
             sys.stderr.write('Now handling  ' + access_file + '\n')
@@ -189,33 +261,33 @@ class DivvunApacheLogParser:
             else:
                 infile = open(access_file)
             for line in infile:
-                bot_flag = False
-                for bot in self.bots:
-                    if line.find(bot) > 0:
-                        bot_flag = True
-                        pass
-                if bot_flag is False:
-                    for x, target in enumerate(self.our_targets.keys()):
-                        if (line.find(target) != -1 and
-                                line.find(' 200 ') != -1):
-                            self.found_lists[x].append(line)
+                if lines % 100000 == 0:
+                    print lines
+                lines += 1
+                if self.is_bot(line) is False and ' 200 ' in line:
+                    for target in self.our_targets.keys():
+                        if target in line:
+                            l = {'raw': line,
+                                 'body': line}
+                            normalizer.normalize(l)
+                            self.found_lists[target].append(l)
                             pass
-                else:
-                    pass
 
     def generate_report(self):
         self.write_header()
         total_lines = self.write_summary()
         self.write_by_year()
         self.write_by_country()
+        self.write_by_useragent()
+        self.write_footer()
         self.debug_input(total_lines)
 
     def debug_input(self, total_found):
         debugfile = open('debugfile', 'w')
         numLines = 0
-        for found_list in self.found_lists:
-            for line in found_list:
-                debugfile.write(line)
+        for key in self.found_lists.keys():
+            for line in self.found_lists[key]:
+                debugfile.write(line['raw'])
                 numLines = numLines + 1
         debugfile.write('Number of lines' + str(numLines) + '\n')
         debugfile.write('TotalFound reported: ' + str(total_found) + '\n')
