@@ -326,17 +326,21 @@ class DivvunApacheLogParser:
         if date > self.maxdate:
             self.maxdate = date
 
+    def is_target(self, line):
+        for target in self.our_targets.keys():
+            if target in line:
+                return target
+
     def gather_lines(self, filename):
         for line in self.get_infile(filename):
-            if self.is_bot(line) is False and ' 200 ' in line:
-                for target in self.our_targets.keys():
-                    if target in line:
-                        l = {'raw': line,
-                             'body': line}
-                        normalizer.normalize(l)
-                        self.found_lists[target].append(l)
-                        self.set_date(l['date'])
-                        break
+            target = self.is_target(line)
+            if (target is not None and self.is_bot(line) is False and
+                    ' 200 ' in line):
+                l = {'raw': line,
+                     'body': line}
+                normalizer.normalize(l)
+                self.found_lists[target].append(l)
+                self.set_date(l['date'])
 
     def find_lines(self):
         """
