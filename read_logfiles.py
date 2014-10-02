@@ -147,11 +147,8 @@ class DivvunApacheLogParser:
             self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
     def write_header(self):
-        title = etree.Element('title')
-        title.text = u'Download log for the Divvun tools'
-
         header = etree.Element('header')
-        header.append(title)
+        etree.SubElement(header, 'title').text = u'Download log for the Divvun tools'
 
         return header
 
@@ -165,47 +162,42 @@ class DivvunApacheLogParser:
 
         return body
 
-    def write_summary(self):
-        """
-        Return how many lines we have
-        """
-        section = etree.Element('section')
+    def total_found(self):
+        '''Sum up the number of lines found
+        '''
+        return sum([len(self.found_lists[key]) for key in self.found_lists.keys()])
 
-        title = etree.Element('title')
-        section.append(title)
-
-        title.text = u'Summary of downloads'
-        section.append(title)
-
+    def make_p(self):
         p = etree.Element('p')
-        section.append(p)
+        p.text = u'All of the Divvun tools have been downloaded ' + str(self.total_found()) + u' times between '
 
-        total_found = 0
-        for key in self.found_lists.keys():
-            total_found += len(self.found_lists[key])
-
-        p.text = u'All of the Divvun tools have been downloaded ' + str(total_found) + u' times between '
-
-        em_min = etree.Element('em')
-        p.append(em_min)
-
+        em_min = etree.SubElement(p, 'em')
         em_min.set('id', 'mindate')
         em_min.text = str(self.mindate)
         em_min.tail = u' and '
 
-        em_max = etree.Element('em')
-        p.append(em_max)
-
+        em_max = etree.SubElement(p, 'em')
         em_max.set('id', 'maxdate')
         em_max.text = str(self.maxdate)
 
-        ul = etree.Element('ul')
-        section.append(ul)
+        return p
 
+    def make_ul(self):
+        ul = etree.Element('ul')
         for target in self.our_targets.keys():
             li = etree.Element('li')
             ul.append(li)
             li.text = self.our_targets[target] + ' has been downloaded ' + str(len(self.found_lists[target])) + ' times'
+
+        return ul
+
+    def write_summary(self):
+        """
+        Return how many lines we have
+        """
+        section = self.make_section('Summary of downloads')
+        section.append(self.make_p())
+        section.append(self.make_ul())
 
         return section
 
@@ -357,14 +349,13 @@ class DivvunApacheLogParser:
             pretty_print=True,
             xml_declaration=True,
             doctype='<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">'))
-        self.debug_input()
 
     def debug_input(self):
         debugfile = open('debugfile', 'w')
         numLines = 0
         for key in self.found_lists.keys():
-            for line in self.found_lists[key]:
-                debugfile.write(line['raw'])
+            [debugfile.write(line['raw']) for line in self.found_lists[key]]
+
         debugfile.close()
 
 
@@ -390,6 +381,7 @@ def main():
     divvun_parser = DivvunApacheLogParser(args)
     divvun_parser.find_lines()
     divvun_parser.generate_report()
+    divvun_parser.debug_input()
 
 
 if __name__ == "__main__":
