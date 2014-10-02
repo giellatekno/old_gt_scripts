@@ -12,7 +12,7 @@ import getopt
 import glob
 import gzip
 
-import iptocountry
+import GeoIP
 
 
 class DivvunApacheLogParser:
@@ -109,7 +109,6 @@ class DivvunApacheLogParser:
         for i in range(0, len(self.our_targets.keys())):
             self.found_lists.append([])
         self.report_file = open(self.outfile, 'w')
-        self.ip_to_country = iptocountry.IPToCountry()
 
     def write_header(self):
         self.report_file.write('!!!Download log for the Divvun tools\n\n')
@@ -136,8 +135,6 @@ class DivvunApacheLogParser:
             year_dict = {}
             for found_line in self.found_lists[x]:
                 year = self.get_year(found_line)
-                sys.stderr.write('Year found: ' + year + ' ' +
-                                 found_line + '\n')
                 if year in year_dict:
                     year_dict[year] = year_dict[year] + 1
                 else:
@@ -148,12 +145,13 @@ class DivvunApacheLogParser:
                 self.report_file.write('|' + year + ' | ' + str(count) + '\n')
 
     def write_by_country(self):
+        locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
         self.report_file.write('\n!!Downloads sorted by country\n')
         for x, target in enumerate(self.our_targets.keys()):
             counted_countries = {}
             for found_line in self.found_lists[x]:
-                country = self.ip_to_country.get_countrycode(
-                    found_line.split()[0]).upper()
+                country = locator.country_name_by_addr(
+                    found_line.split()[0])
                 if country in counted_countries:
                     counted_countries[country] = counted_countries[country] + 1
                 else:
