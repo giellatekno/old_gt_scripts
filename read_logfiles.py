@@ -12,6 +12,7 @@ import getopt
 import glob
 import gzip
 import datetime
+import lxml.etree as etree
 
 import GeoIP
 from logsparser.lognormalizer import LogNormalizer
@@ -127,9 +128,29 @@ class DivvunApacheLogParser:
         self.found_lists = {}
         for key in self.our_targets.keys():
             self.found_lists[key] = []
+        self.get_max_and_min_date()
         self.report_file = open(self.outfile, 'w')
-        self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
-        self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
+
+    def get_max_and_min_date(self):
+        try:
+            doc = etree.parse(self.outfile)
+            mindate = doc.find('//em[@id="mindate"]')
+            if mindate is not None:
+                self.mindate = datetime.datetime.strptime(mindate.text, '%Y-%m-%d %I:%M:%S')
+            else:
+                self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
+
+            maxdate = doc.find('//em[@id="maxdate"]')
+            if maxdate is not None:
+                self.maxdate = datetime.datetime.strptime(maxdate.text, '%Y-%m-%d %H:%M:%S')
+            else:
+                self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
+        except IOError:
+            self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
+            self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
+
+
+        print self.mindate, self.maxdate
 
     def write_header(self):
         self.report_file.write('''<?xml version="1.0" encoding="UTF-8"?>\n''')
