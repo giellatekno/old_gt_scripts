@@ -132,28 +132,19 @@ class DivvunApacheLogParser:
         self.report_file = etree.Element('document')
 
     def get_max_and_min_date(self):
+        '''Set max and min date
+        If the date is not found in the xml file, if the xml file does not
+        exist or if the file is empty, set default values.
+        '''
         try:
             doc = etree.parse(self.outfile)
-            mindate = doc.find('//em[@id="mindate"]')
-            if mindate is not None:
-                self.mindate = datetime.datetime.strptime(mindate.text, '%Y-%m-%d %H:%M:%S')
-            else:
-                self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
-
-            maxdate = doc.find('//em[@id="maxdate"]')
-            if maxdate is not None:
-                self.maxdate = datetime.datetime.strptime(maxdate.text, '%Y-%m-%d %H:%M:%S')
-            else:
-                self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
-        except IOError:
+            self.mindate = datetime.datetime.strptime(
+                doc.find('//em[@id="mindate"]').text, '%Y-%m-%d %H:%M:%S')
+            self.maxdate = datetime.datetime.strptime(
+                doc.find('//em[@id="maxdate"]').text,  '%Y-%m-%d %H:%M:%S')
+        except (IOError, etree.XMLSyntaxError, AttributeError):
             self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
             self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
-        except etree.XMLSyntaxError:
-            self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
-            self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
-
-
-        print self.mindate, self.maxdate
 
     def write_header(self):
         title = etree.Element('title')
@@ -219,64 +210,56 @@ class DivvunApacheLogParser:
         return section
 
     def write_by_year(self):
-        section = etree.Element('section')
-
-        title = etree.Element('title')
-        section.append(title)
-
-        title.text = 'Downloads sorted by year'
+        section = self.make_section('Downloads sorted by year')
 
         for target in self.our_targets.keys():
+            subsection = self.make_section(str(self.our_targets[target]))
+
+            table = etree.Element('table')
+            table.append(self.make_table_row(['Year', 'Count'], 'th'))
+
             year_dict = {}
             for found_line in self.found_lists[target]:
                 year = found_line['date'].year
                 if year in year_dict:
-                    year_dict[year] = year_dict[year] + 1
+                    year_dict[year] += 1
                 else:
                     year_dict[year] = 1
-            subsection = etree.Element('section')
 
-            title = etree.Element('title')
-            subsection.append(title)
-            title.text = str(self.our_targets[target])
-
-            table = etree.Element('table')
+            self.make_table_body(table, year_dict)
             subsection.append(table)
-
-            tr1 = etree.Element('tr')
-            table.append(tr1)
-
-            for text in ['Year', 'Count']:
-                th = etree.Element('th')
-                tr1.append(th)
-
-                th.text = text
-
-            for year in sorted(year_dict,
-                               key=year_dict.get,
-                               reverse=True):
-                tr = etree.Element('tr')
-                table.append(tr)
-
-                for text in [str(year), year_dict[year]]:
-                    td = etree.Element('td')
-                    tr.append(td)
-
-                    td.text = str(text)
-
             section.append(subsection)
 
         return section
 
-    def write_by_useragent(self):
+    def make_table_body(self, table, dict_):
+        for year in sorted(dict_,
+                           key=dict_.get,
+                           reverse=True):
+            table.append(self.make_table_row([str(year), dict_[year]], 'td'))
+
+    def make_section(self, text):
         section = etree.Element('section')
+        etree.SubElement(section, 'title').text = text
 
-        title = etree.Element('title')
-        section.append(title)
+        return section
 
-        title.text = 'Downloads sorted by useragent'
+    def make_table_row(self, text_list, element):
+        tr = etree.Element('tr')
+        for text in text_list:
+            etree.SubElement(tr, element).text = str(text)
+
+        return tr
+
+    def write_by_useragent(self):
+        section = self.make_section('Downloads sorted by useragent')
 
         for target in self.our_targets.keys():
+            subsection = self.make_section(str(self.our_targets[target]))
+
+            table = etree.Element('table')
+            table.append(self.make_table_row(['Useragent', 'Count'], 'th'))
+
             year_dict = {}
             for found_line in self.found_lists[target]:
                 year = found_line['useragent']
@@ -284,49 +267,23 @@ class DivvunApacheLogParser:
                     year_dict[year] = year_dict[year] + 1
                 else:
                     year_dict[year] = 1
-            subsection = etree.Element('section')
 
-            title = etree.Element('title')
-            subsection.append(title)
-            title.text = str(self.our_targets[target])
-
-            table = etree.Element('table')
+            self.make_table_body(table, year_dict)
             subsection.append(table)
-
-            tr1 = etree.Element('tr')
-            table.append(tr1)
-
-            for text in ['Useragent', 'Count']:
-                th = etree.Element('th')
-                tr1.append(th)
-
-                th.text = text
-
-            for year in sorted(year_dict,
-                               key=year_dict.get,
-                               reverse=True):
-                tr = etree.Element('tr')
-                table.append(tr)
-
-                for text in [str(year), year_dict[year]]:
-                    td = etree.Element('td')
-                    tr.append(td)
-
-                    td.text = str(text)
             section.append(subsection)
 
         return section
 
     def write_by_country(self):
-        section = etree.Element('section')
-
-        title = etree.Element('title')
-        section.append(title)
-
-        title.text = 'Downloads sorted by country'
+        section = self.make_section('Downloads sorted by country')
 
         locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
         for target in self.our_targets.keys():
+            subsection = self.make_section(str(self.our_targets[target]))
+
+            table = etree.Element('table')
+            table.append(self.make_table_row(['Country', 'Count'], 'th'))
+
             counted_countries = {}
             for found_line in self.found_lists[target]:
                 country = locator.country_name_by_addr(
@@ -336,39 +293,12 @@ class DivvunApacheLogParser:
                     country = 'Unknown'
 
                 if country in counted_countries:
-                    counted_countries[country] = counted_countries[country] + 1
+                    counted_countries[country] += 1
                 else:
                     counted_countries[country] = 1
 
-            subsection = etree.Element('section')
-
-            title = etree.Element('title')
-            subsection.append(title)
-            title.text = str(self.our_targets[target])
-
-            table = etree.Element('table')
+            self.make_table_body(table, counted_countries)
             subsection.append(table)
-
-            tr1 = etree.Element('tr')
-            table.append(tr1)
-
-            for text in ['Country', 'Count']:
-                th = etree.Element('th')
-                tr1.append(th)
-
-                th.text = text
-
-            for country in sorted(counted_countries,
-                                  key=counted_countries.get, reverse=True):
-                tr = etree.Element('tr')
-                table.append(tr)
-
-                for text in [country, counted_countries[country]]:
-                    td = etree.Element('td')
-                    tr.append(td)
-
-                    td.text = str(text)
-
             section.append(subsection)
 
         return section
