@@ -129,14 +129,14 @@ class DivvunApacheLogParser:
         for key in self.our_targets.keys():
             self.found_lists[key] = []
         self.get_max_and_min_date()
-        self.report_file = open(self.outfile, 'w')
+        self.report_file = etree.Element('document')
 
     def get_max_and_min_date(self):
         try:
             doc = etree.parse(self.outfile)
             mindate = doc.find('//em[@id="mindate"]')
             if mindate is not None:
-                self.mindate = datetime.datetime.strptime(mindate.text, '%Y-%m-%d %I:%M:%S')
+                self.mindate = datetime.datetime.strptime(mindate.text, '%Y-%m-%d %H:%M:%S')
             else:
                 self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
 
@@ -148,51 +148,84 @@ class DivvunApacheLogParser:
         except IOError:
             self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
             self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
+        except etree.XMLSyntaxError:
+            self.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
+            self.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
 
         print self.mindate, self.maxdate
 
     def write_header(self):
-        self.report_file.write('''<?xml version="1.0" encoding="UTF-8"?>\n''')
-        self.report_file.write('''<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN"\n''')
-        self.report_file.write('''"http://forrest.apache.org/dtd/document-v20.dtd">\n''')
-        self.report_file.write('''<document xml:lang="en">\n''')
-        self.report_file.write('''<header>\n''')
-        self.report_file.write('<title>Download log for the Divvun tools</title>\n')
-        self.report_file.write('''</header>\n''')
-        self.report_file.write('''<body>\n''')
+        title = etree.Element('title')
+        title.text = u'Download log for the Divvun tools'
 
-    def write_footer(self):
-        self.report_file.write('''</body>\n''')
-        self.report_file.write('''</document>\n''')
+        header = etree.Element('header')
+        header.append(title)
+
+        return header
+
+    def write_body(self):
+        body = etree.Element('body')
+
+        body.append(self.write_summary())
+        body.append(self.write_by_country())
+        body.append(self.write_by_year())
+        body.append(self.write_by_useragent())
+
+        return body
 
     def write_summary(self):
         """
         Return how many lines we have
         """
+        section = etree.Element('section')
+
+        title = etree.Element('title')
+        section.append(title)
+
+        title.text = u'Summary of downloads'
+        section.append(title)
+
+        p = etree.Element('p')
+        section.append(p)
+
         total_found = 0
         for key in self.found_lists.keys():
-            total_found = total_found + len(self.found_lists[key])
-        self.report_file.write('<section>\n')
-        self.report_file.write('<title>Summary of downloads</title>\n')
-        self.report_file.write('<p>All of the Divvun tools have been downloaded ')
-        self.report_file.write(str(total_found) + ' times between <em id="mindate">')
-        self.report_file.write(str(self.mindate))
-        self.report_file.write('</em> and <em id="maxdate">')
-        self.report_file.write(str(self.maxdate))
-        self.report_file.write('</em></p>\n')
-        self.report_file.write('<ul>\n')
+            total_found += len(self.found_lists[key])
+
+        p.text = u'All of the Divvun tools have been downloaded ' + str(total_found) + u' times between '
+
+        em_min = etree.Element('em')
+        p.append(em_min)
+
+        em_min.set('id', 'mindate')
+        em_min.text = str(self.mindate)
+        em_min.tail = u' and '
+
+        em_max = etree.Element('em')
+        p.append(em_max)
+
+        em_max.set('id', 'maxdate')
+        em_max.text = str(self.maxdate)
+
+        ul = etree.Element('ul')
+        section.append(ul)
+
         for target in self.our_targets.keys():
-            self.report_file.write('<li>' + self.our_targets[target] +
-                                   ' has been downloaded ' +
-                                   str(len(self.found_lists[target])) + ' times</li>\n')
-        self.report_file.write('</ul>\n')
-        self.report_file.write('</section>\n')
-        return total_found
+            li = etree.Element('li')
+            ul.append(li)
+            li.text = self.our_targets[target] + ' has been downloaded ' + str(len(self.found_lists[target])) + ' times'
+
+        return section
 
     def write_by_year(self):
-        self.report_file.write('<section>\n')
-        self.report_file.write('<title>Downloads sorted by year</title>\n')
+        section = etree.Element('section')
+
+        title = etree.Element('title')
+        section.append(title)
+
+        title.text = 'Downloads sorted by year'
+
         for target in self.our_targets.keys():
             year_dict = {}
             for found_line in self.found_lists[target]:
@@ -201,21 +234,48 @@ class DivvunApacheLogParser:
                     year_dict[year] = year_dict[year] + 1
                 else:
                     year_dict[year] = 1
-            self.report_file.write('<section>\n')
-            self.report_file.write('<title>' + self.our_targets[target] + '</title>\n')
-            self.report_file.write('<table>\n')
-            self.report_file.write('<tr><th>Year</th><th>Count</th></tr>\n')
+            subsection = etree.Element('section')
+
+            title = etree.Element('title')
+            subsection.append(title)
+            title.text = str(self.our_targets[target])
+
+            table = etree.Element('table')
+            subsection.append(table)
+
+            tr1 = etree.Element('tr')
+            table.append(tr1)
+
+            for text in ['Year', 'Count']:
+                th = etree.Element('th')
+                tr1.append(th)
+
+                th.text = text
+
             for year in sorted(year_dict,
-                                      key=year_dict.get,
-                                      reverse=True):
-                self.report_file.write('<tr><td>' + str(year) + '</td><td>' + str(year_dict[year]) + '</td></tr>\n')
-            self.report_file.write('</table>\n')
-            self.report_file.write('</section>\n')
-        self.report_file.write('</section>\n')
+                               key=year_dict.get,
+                               reverse=True):
+                tr = etree.Element('tr')
+                table.append(tr)
+
+                for text in [str(year), year_dict[year]]:
+                    td = etree.Element('td')
+                    tr.append(td)
+
+                    td.text = str(text)
+
+            section.append(subsection)
+
+        return section
 
     def write_by_useragent(self):
-        self.report_file.write('<section>\n')
-        self.report_file.write('<title>Downloads sorted by useragent</title>\n')
+        section = etree.Element('section')
+
+        title = etree.Element('title')
+        section.append(title)
+
+        title.text = 'Downloads sorted by useragent'
+
         for target in self.our_targets.keys():
             year_dict = {}
             for found_line in self.found_lists[target]:
@@ -224,46 +284,94 @@ class DivvunApacheLogParser:
                     year_dict[year] = year_dict[year] + 1
                 else:
                     year_dict[year] = 1
-            self.report_file.write('<section>\n')
-            self.report_file.write('<title>' + self.our_targets[target] + '</title>\n')
-            self.report_file.write('<table>\n')
-            self.report_file.write('<tr><th>Useragent string</th><th>Count</th></tr>\n')
+            subsection = etree.Element('section')
+
+            title = etree.Element('title')
+            subsection.append(title)
+            title.text = str(self.our_targets[target])
+
+            table = etree.Element('table')
+            subsection.append(table)
+
+            tr1 = etree.Element('tr')
+            table.append(tr1)
+
+            for text in ['Useragent', 'Count']:
+                th = etree.Element('th')
+                tr1.append(th)
+
+                th.text = text
+
             for year in sorted(year_dict,
                                key=year_dict.get,
                                reverse=True):
-                self.report_file.write('<tr><td>' + str(year) + '</td><td>' + str(year_dict[year]) + '</td></tr>\n')
-            self.report_file.write('</table>\n')
-            self.report_file.write('</section>\n')
-        self.report_file.write('</section>\n')
+                tr = etree.Element('tr')
+                table.append(tr)
+
+                for text in [str(year), year_dict[year]]:
+                    td = etree.Element('td')
+                    tr.append(td)
+
+                    td.text = str(text)
+            section.append(subsection)
+
+        return section
 
     def write_by_country(self):
+        section = etree.Element('section')
+
+        title = etree.Element('title')
+        section.append(title)
+
+        title.text = 'Downloads sorted by country'
+
         locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
-        self.report_file.write('<section>\n')
-        self.report_file.write('<title>Downloads sorted by country</title>\n')
         for target in self.our_targets.keys():
             counted_countries = {}
             for found_line in self.found_lists[target]:
                 country = locator.country_name_by_addr(
                     found_line['source_ip'])
-                if country is not None:
-                    if country in counted_countries:
-                        counted_countries[country] = counted_countries[country] + 1
-                    else:
-                        counted_countries[country] = 1
-                else:
-                    print 'no country', found_line['raw']
 
-            self.report_file.write('<section>\n')
-            self.report_file.write('<title>' + self.our_targets[target] + '</title>\n')
-            self.report_file.write('<table>\n')
-            self.report_file.write('<tr><th>Country</th><th>Count</th></tr>\n')
+                if country is None:
+                    country = 'Unknown'
+
+                if country in counted_countries:
+                    counted_countries[country] = counted_countries[country] + 1
+                else:
+                    counted_countries[country] = 1
+
+            subsection = etree.Element('section')
+
+            title = etree.Element('title')
+            subsection.append(title)
+            title.text = str(self.our_targets[target])
+
+            table = etree.Element('table')
+            subsection.append(table)
+
+            tr1 = etree.Element('tr')
+            table.append(tr1)
+
+            for text in ['Country', 'Count']:
+                th = etree.Element('th')
+                tr1.append(th)
+
+                th.text = text
+
             for country in sorted(counted_countries,
                                   key=counted_countries.get, reverse=True):
-                self.report_file.write('<tr><td>' + country + '</td><td>' +
-                                       str(counted_countries[country]) + '</td></tr>\n')
-            self.report_file.write('</table>\n')
-            self.report_file.write('</section>\n')
-        self.report_file.write('</section>\n')
+                tr = etree.Element('tr')
+                table.append(tr)
+
+                for text in [country, counted_countries[country]]:
+                    td = etree.Element('td')
+                    tr.append(td)
+
+                    td.text = str(text)
+
+            section.append(subsection)
+
+        return section
 
     def is_bot(self, line):
         """Check if the line contains one of the bots in self.bots
@@ -310,23 +418,23 @@ class DivvunApacheLogParser:
                             pass
 
     def generate_report(self):
-        self.write_header()
-        total_lines = self.write_summary()
-        self.write_by_year()
-        self.write_by_country()
-        self.write_by_useragent()
-        self.write_footer()
-        self.debug_input(total_lines)
+        self.report_file.append(self.write_header())
+        self.report_file.append(self.write_body())
+        o = open(self.outfile, 'w')
+        o.write(etree.tostring(
+            self.report_file,
+            encoding=u'utf-8',
+            pretty_print=True,
+            xml_declaration=True,
+            doctype='<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">'))
+        self.debug_input()
 
-    def debug_input(self, total_found):
+    def debug_input(self):
         debugfile = open('debugfile', 'w')
         numLines = 0
         for key in self.found_lists.keys():
             for line in self.found_lists[key]:
                 debugfile.write(line['raw'])
-                numLines = numLines + 1
-        debugfile.write('Number of lines' + str(numLines) + '\n')
-        debugfile.write('TotalFound reported: ' + str(total_found) + '\n')
         debugfile.close()
 
 
