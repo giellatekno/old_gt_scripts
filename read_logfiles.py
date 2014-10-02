@@ -28,8 +28,6 @@ class DivvunApacheLogParser:
         self.bots: List over known bots
         self.found_lists: List of lines that fill the criteria lined out
         further down
-        self.ip_to_country: instance of the class that maps ip numbers to
-        countries
         """
         self.log_directory, self.outfile = args
         self.our_targets = {
