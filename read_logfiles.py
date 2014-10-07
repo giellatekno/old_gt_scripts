@@ -264,9 +264,9 @@ class DivvunLogHandler(object):
                 encoding=u'utf-8',
                 pretty_print=True,
                 xml_declaration=True,
-                doctype='<!DOCTYPE document PUBLIC \
-                "-//APACHE//DTD Documentation V2.0//EN" \
-                "http://forrest.apache.org/dtd/document-v20.dtd">'))
+                doctype=r'''<!DOCTYPE document PUBLIC
+"-//APACHE//DTD Documentation V2.0//EN"
+"http://forrest.apache.org/dtd/document-v20.dtd">'''))
         else:
             print 'No need to write new report'
 
@@ -293,7 +293,7 @@ class DivvunLogHandler(object):
         return sum([len(
             self.logparser.found_lists[key]) for key in
             self.logparser.found_lists.keys()]) + \
-                sum([self.totals[key] for key in self.totals.keys()])
+            sum([self.totals[key] for key in self.totals.keys()])
 
     def make_p(self):
         p = etree.Element('p')
@@ -341,7 +341,8 @@ class DivvunLogHandler(object):
         section = self.make_section('Downloads sorted by year')
 
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]),  target_=target)
+            subsection = self.make_section(str(self.our_targets[target]),
+                                           target_=target)
 
             table = etree.Element('table')
             table.append(self.make_table_row(['Year', 'Count'], 'th'))
@@ -416,7 +417,8 @@ class DivvunLogHandler(object):
         section = self.make_section('Downloads sorted by useragent')
 
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]),  target_=target)
+            subsection = self.make_section(str(self.our_targets[target]),
+                                           target_=target)
 
             table = etree.Element('table')
             table.append(self.make_table_row(['Useragent', 'Count'], 'th'))
@@ -440,7 +442,8 @@ class DivvunLogHandler(object):
 
         locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]),  target_=target)
+            subsection = self.make_section(str(self.our_targets[target]),
+                                           target_=target)
 
             table = etree.Element('table')
             table.append(self.make_table_row(['Country', 'Count'], 'th'))
