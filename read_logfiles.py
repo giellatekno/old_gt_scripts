@@ -264,9 +264,9 @@ class DivvunLogHandler(object):
                 encoding=u'utf-8',
                 pretty_print=True,
                 xml_declaration=True,
-                doctype=r'''<!DOCTYPE document PUBLIC
-"-//APACHE//DTD Documentation V2.0//EN"
-"http://forrest.apache.org/dtd/document-v20.dtd">'''))
+                doctype='<!DOCTYPE document PUBLIC \
+"-//APACHE//DTD Documentation V2.0//EN" \
+"http://forrest.apache.org/dtd/document-v20.dtd">'))
         else:
             print 'No need to write new report'
 
