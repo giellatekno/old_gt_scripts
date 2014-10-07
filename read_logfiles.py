@@ -32,6 +32,7 @@ class DivvunApacheLogParser:
         for target in our_targets:
             self.found_lists[target] = []
         self.log_directory = log_directory
+        self.found_newlines = False
         self.bots = [
             'Yanga WorldSearch',
             'Yahoo! Slurp',
@@ -155,6 +156,8 @@ class DivvunApacheLogParser:
                 return target
 
     def parse_apachelog(self, filename):
+        old_mindate = self.mindate
+        old_maxdate = self.maxdate
         for line in self.get_infile(filename):
             target = self.is_target(line)
             if (target is not None and self.is_bot(line) is False and
@@ -162,8 +165,10 @@ class DivvunApacheLogParser:
                 l = {'raw': line,
                      'body': line}
                 normalizer.normalize(l)
-                self.found_lists[target].append(l)
-                self.set_date(l['date'])
+                if l['date'] < old_mindate or l['date'] > old_maxdate:
+                    self.found_newlines = True
+                    self.found_lists[target].append(l)
+                    self.set_date(l['date'])
 
     def parse_apachelogs(self):
         """
@@ -196,8 +201,11 @@ class DivvunLogHandler(object):
             'smi.zip': 'Hunspell/Generic'}
         self.report_file = etree.Element('document')
         self.logparser = DivvunApacheLogParser(log_directory,
-                                          self.our_targets.keys())
+                                               self.our_targets.keys())
         self.get_max_and_min_date()
+        self.totals = {}
+        for target in self.our_targets.keys():
+            self.totals[target] = 0
 
     def get_max_and_min_date(self):
         '''Set max and min date
@@ -209,23 +217,26 @@ class DivvunLogHandler(object):
             self.logparser.set_mindate(datetime.datetime.strptime(
                 doc.find('//em[@id="mindate"]').text, '%Y-%m-%d %H:%M:%S'))
             self.logparser.set_maxdate(datetime.datetime.strptime(
-                doc.find('//em[@id="maxdate"]').text,  '%Y-%m-%d %H:%M:%S'))
+                doc.find('//em[@id="maxdate"]').text, '%Y-%m-%d %H:%M:%S'))
         except (IOError, etree.XMLSyntaxError, AttributeError):
             self.logparser.set_mindate(datetime.datetime(2100, 1, 1, 0, 0, 0))
             self.logparser.set_maxdate(datetime.datetime(2000, 1, 1, 0, 0, 0))
 
     def generate_report(self):
-        self.report_file.append(self.write_header())
-        self.report_file.append(self.write_body())
-        o = open(self.outfile, 'w')
-        o.write(etree.tostring(
-            self.report_file,
-            encoding=u'utf-8',
-            pretty_print=True,
-            xml_declaration=True,
-            doctype='<!DOCTYPE document PUBLIC \
-            "-//APACHE//DTD Documentation V2.0//EN" \
-            "http://forrest.apache.org/dtd/document-v20.dtd">'))
+        if self.logparser.found_newlines:
+            self.report_file.append(self.write_header())
+            self.report_file.append(self.write_body())
+            o = open(self.outfile, 'w')
+            o.write(etree.tostring(
+                self.report_file,
+                encoding=u'utf-8',
+                pretty_print=True,
+                xml_declaration=True,
+                doctype='<!DOCTYPE document PUBLIC \
+                "-//APACHE//DTD Documentation V2.0//EN" \
+                "http://forrest.apache.org/dtd/document-v20.dtd">'))
+        else:
+            print 'No need to write new report'
 
     def write_header(self):
         header = etree.Element('header')
@@ -249,7 +260,8 @@ class DivvunLogHandler(object):
         '''
         return sum([len(
             self.logparser.found_lists[key]) for key in
-            self.logparser.found_lists.keys()])
+            self.logparser.found_lists.keys()]) + \
+                sum([self.totals[key] for key in self.totals.keys()])
 
     def make_p(self):
         p = etree.Element('p')
@@ -274,7 +286,7 @@ class DivvunLogHandler(object):
             ul.append(li)
             li.text = self.our_targets[target] + \
                 ' has been downloaded ' + \
-                str(len(self.logparser.found_lists[target])) + ' times'
+                str(len(self.logparser.found_lists[target]) + self.totals[target]) + ' times'
 
         return ul
 
@@ -292,39 +304,72 @@ class DivvunLogHandler(object):
         section = self.make_section('Downloads sorted by year')
 
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]))
+            subsection = self.make_section(str(self.our_targets[target]),  target_=target)
 
             table = etree.Element('table')
             table.append(self.make_table_row(['Year', 'Count'], 'th'))
 
-            year_dict = {}
+            year_dict = self.get_focus_dict(target, 'year')
             for found_line in self.logparser.found_lists[target]:
-                year = found_line['date'].year
+                year = str(found_line['date'].year)
                 if year in year_dict:
                     year_dict[year] += 1
                 else:
                     year_dict[year] = 1
 
-            self.make_table_body(table, year_dict)
+            self.make_table_body(table, year_dict, 'year')
             subsection.append(table)
             section.append(subsection)
 
         return section
 
-    def make_table_body(self, table, dict_):
+    def get_totals(self):
+        try:
+            doc = etree.parse(self.outfile)
+
+            for target in self.totals.keys():
+                tr_elements = doc.xpath('.//section[@class="' + target +
+                                        '"]/table/tr[@class="country"]')
+                for tr_element in tr_elements:
+                    self.totals[target] += int(tr_element[1].text)
+
+        except IOError:
+            pass
+
+    def get_focus_dict(self, target, focus):
+        focus_dict = {}
+
+        try:
+            doc = etree.parse(self.outfile)
+            tr_elements = doc.xpath('.//section[@class="' + target +
+                                    '"]/table/tr[@class="' + focus + '"]')
+            for tr_element in tr_elements:
+                focus_dict[tr_element[0].text] = int(tr_element[1].text)
+
+        except IOError:
+            pass
+
+        return focus_dict
+
+    def make_table_body(self, table, dict_, class_):
         for year in sorted(dict_,
                            key=dict_.get,
                            reverse=True):
-            table.append(self.make_table_row([str(year), dict_[year]], 'td'))
+            table.append(self.make_table_row([str(year), dict_[year]], 'td',
+                                             class_))
 
-    def make_section(self, text):
+    def make_section(self, text, target_=None):
         section = etree.Element('section')
+        if target_ is not None:
+            section.set("class", target_)
         etree.SubElement(section, 'title').text = text
 
         return section
 
-    def make_table_row(self, text_list, element):
+    def make_table_row(self, text_list, element, class_=None):
         tr = etree.Element('tr')
+        if class_ is not None:
+            tr.set("class", class_)
         for text in text_list:
             etree.SubElement(tr, element).text = str(text)
 
@@ -334,20 +379,20 @@ class DivvunLogHandler(object):
         section = self.make_section('Downloads sorted by useragent')
 
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]))
+            subsection = self.make_section(str(self.our_targets[target]),  target_=target)
 
             table = etree.Element('table')
             table.append(self.make_table_row(['Useragent', 'Count'], 'th'))
 
-            year_dict = {}
+            useragent_dict = self.get_focus_dict(target, 'useragent')
             for found_line in self.logparser.found_lists[target]:
-                year = found_line['useragent']
-                if year in year_dict:
-                    year_dict[year] = year_dict[year] + 1
+                useragent = found_line['useragent']
+                if useragent in useragent_dict:
+                    useragent_dict[useragent] = useragent_dict[useragent] + 1
                 else:
-                    year_dict[year] = 1
+                    useragent_dict[useragent] = 1
 
-            self.make_table_body(table, year_dict)
+            self.make_table_body(table, useragent_dict, 'useragent')
             subsection.append(table)
             section.append(subsection)
 
@@ -358,12 +403,12 @@ class DivvunLogHandler(object):
 
         locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]))
+            subsection = self.make_section(str(self.our_targets[target]),  target_=target)
 
             table = etree.Element('table')
             table.append(self.make_table_row(['Country', 'Count'], 'th'))
 
-            counted_countries = {}
+            counted_countries = self.get_focus_dict(target, 'country')
             for found_line in self.logparser.found_lists[target]:
                 country = locator.country_name_by_addr(
                     found_line['source_ip'])
@@ -376,7 +421,7 @@ class DivvunLogHandler(object):
                 else:
                     counted_countries[country] = 1
 
-            self.make_table_body(table, counted_countries)
+            self.make_table_body(table, counted_countries, 'country')
             subsection.append(table)
             section.append(subsection)
 
@@ -384,6 +429,7 @@ class DivvunLogHandler(object):
 
     def parse_apachelogs(self):
         self.get_max_and_min_date()
+        self.get_totals()
         self.logparser.parse_apachelogs()
 
     def debug_input(self):
