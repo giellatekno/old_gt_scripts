@@ -313,12 +313,17 @@ class DivvunLogHandler(object):
 
     def make_ul(self):
         ul = etree.Element('ul')
-        for target in self.our_targets.keys():
+        for target in self.totals.keys():
+            self.totals[target] += len(self.logparser.found_lists[target])
+
+        for target in sorted(self.totals,
+                             key=self.totals.get,
+                             reverse=True):
             li = etree.Element('li')
             ul.append(li)
             li.text = self.our_targets[target] + \
                 ' has been downloaded ' + \
-                str(len(self.logparser.found_lists[target]) + self.totals[target]) + ' times'
+                str(self.totals[target]) + ' times'
 
         return ul
 
