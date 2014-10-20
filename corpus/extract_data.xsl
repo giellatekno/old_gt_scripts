@@ -30,7 +30,7 @@
               encoding="UTF-8"/>
 
   <xsl:param name="inDir" select="'aGandhi'"/>
-  <xsl:param name="outDir" select="'_test-data4korp'"/>
+  <xsl:param name="outDir" select="'data4korp'"/>
   <xsl:variable name="debug" select="false()"/>
   <xsl:variable name="nl" select="'&#xa;'"/>
   <xsl:variable name="sr" select="'\*'"/>
@@ -61,9 +61,9 @@
 	</document>
       </xsl:result-document>
 
-      <xsl:result-document href="{$outDir}/{$current_location}/{$file_name}.dis" format="dis">
+      <!--xsl:result-document href="{$outDir}/{$current_location}/{$file_name}.dis" format="dis">
 	<xsl:value-of  disable-output-escaping="yes" select=".//disambiguation"/>
-      </xsl:result-document>
+      </xsl:result-document-->
       
       <xsl:result-document href="{$outDir}/{$current_location}/{$file_name}.dep" format="dep">
 	<xsl:value-of  disable-output-escaping="yes" select=".//dependency"/>

@@ -52,9 +52,9 @@
 	  <xsl:copy-of select="./document/@*"/>
 	  <xsl:copy-of copy-namespaces="no" select=".//header"/>
 	  <body>
-	    <disambiguation>
+	    <!--disambiguation>
 	      <xsl:value-of  disable-output-escaping="yes" select="concat($nl, '&lt;![CDATA[', .//disambiguation,']]&gt;', $nl)"/>
-	    </disambiguation>
+	    </disambiguation-->
 	    <dependency>
 	      <xsl:value-of  disable-output-escaping="yes" select="concat($nl, '&lt;![CDATA[',.//dependency,']]&gt;', $nl)"/>
 	    </dependency>
