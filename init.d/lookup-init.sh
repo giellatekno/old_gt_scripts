@@ -713,6 +713,11 @@ alias chrdept="sent-proc.sh -l chr -s dep -t"
 alias chrdis="sent-proc.sh -l chr -s dis"
 alias chrdist="sent-proc.sh -l chr -s dis -t"
 
+alias estdep="sent-proc.sh -l est -s dep"
+alias estdept="sent-proc.sh -l est -s dep -t"
+alias estdis="sent-proc.sh -l est -s dis"
+alias estdist="sent-proc.sh -l est -s dis -t"
+
 alias evndep="sent-proc.sh -l evn -s dep"
 alias evndept="sent-proc.sh -l evn -s dep -t"
 alias evndis="sent-proc.sh -l evn -s dis"
