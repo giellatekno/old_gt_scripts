@@ -12,7 +12,7 @@
 # parametrized for processing step: -s pos, -s dis, -s syn, -s dep
 
 # change to 'true' to debug paths of analysis tools
-debug='false'
+debug='true'
 LOOKUP=`which lookup`
 HLOOKUP='/opt/local/bin/hfst-optimized-lookup'
 
@@ -23,17 +23,17 @@ s='pos'
 # -t => default: no trace
 t=''
 
-# lang group => default: gt (because of default: sme)
-lg='gt'
+# lang group => default: langs (because of default sme, which is now in the infrastructure)
+lg='langs'
 
 #abbr file => default: sme-path (because of default: sme)
-abbr='$GTHOME/gt/sme/bin/abbr.txt'
+abbr='$GTHOME/$lg/$l/bin/abbr.txt'
 
 #long_lang_list
 long_lang_list=(bxr chp ciw cor crk est fao fin fkv
                 hdn ipk izh kal kca kpv liv mdf
                 mhr mrj myv ndl nio nob olo ron rus
-                sjd sje sma smj smn sms som tat tku
+                sjd sje sma sme smj smn sms som tat tku
                 tuv udm vep vro yrk)
 
 #startup_lang_list
@@ -96,16 +96,17 @@ if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
        echo "  $GTHOME/$lg/$l/tools/preprocess/abbr.txt" 1>&2;
        echo "............. preprocessing without it!" 1>&2;
     fi 
-elif [[ "$l" == "sme" ]]; then
-    lg='gt'
-    if [  -f $GTHOME/$lg/$l/bin/abbr.txt ]; then
-       abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- sme exception
-    else
-       echo "Error: no abbr file found" 1>&2; 
-       echo "  $GTHOME/$lg/$l/bin/abbr.txt" 1>&2;
-       echo "............. please generate it!" 1>&2;
-       exit 1;
-    fi 
+# commented this branch due to the sme moved to the langs in newinfra
+# elif [[ "$l" == "sme" ]]; then
+#     lg='gt'
+#     if [  -f $GTHOME/$lg/$l/bin/abbr.txt ]; then
+#        abbr="--abbr=$GTHOME/$lg/$l/bin/abbr.txt"  # <--- sme exception
+#     else
+#        echo "Error: no abbr file found" 1>&2; 
+#        echo "  $GTHOME/$lg/$l/bin/abbr.txt" 1>&2;
+#        echo "............. please generate it!" 1>&2;
+#        exit 1;
+#     fi 
 else
     lg='st'
     if [  -f $GTHOME/$lg/$l/bin/abbr.txt ]; then
@@ -131,7 +132,7 @@ fi
 
 
 if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
-    MORPH="$LOOKUP $current_path/src/analyser-gt-desc.xfst"
+    MORPH="$LOOKUP $current_path/src/analyser-disamb-gt-desc.xfst"
     DIS="$current_path/src/syntax/disambiguation.cg3"
 else
     MORPH="$LOOKUP -q -flags mbTT -utf8 $current_path/bin/$l.fst"
