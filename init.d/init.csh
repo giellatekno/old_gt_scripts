@@ -41,11 +41,12 @@ source $GTHOME/gt/script/init.d/lookup-init.csh
 alias svnup "pushd $GTHOME && svn up && popd ; \
     test -n \"$GTBIG\"  && test -x $GTBIG  && pushd $GTBIG  && svn up && popd ; \
     test -n \"$GTFREE\" && test -x $GTFREE && pushd $GTFREE && svn up && popd ; \
+    test -n \"$GTHOME/art/\" && test -x $GTHOME/art/ && pushd $GTHOME/art/ && svn up && popd ; \
     test -n \"$GTPRIV\" && test -x $GTPRIV && pushd $GTPRIV && svn up && popd"
 
 # Standardised aliases for Giellatekno work:
-alias victorio 'ssh victorio.uit.no'
-alias vic 'ssh victorio.uit.no'
+alias victorio 'ssh lene@victorio.uit.no'
+alias vic 'ssh lene@victorio.uit.no'
 alias g5 'ssh divvun.no'
 alias xs 'ssh divvun.no'
 

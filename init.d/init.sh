@@ -43,7 +43,7 @@ export GTCORE=$GTHOME/gtcore
 . $GTHOME/gt/script/init.d/lookup-init.sh
 
 # Alias for svn update
-alias svnup="svn up $GTHOME $GTBIG $GTFREE $GTPRIV"
+alias svnup="svn up $GTHOME $GTBIG $GTFREE $GTPRIV $GTHOME/art"
 
 # Sorting Cyrillic lists
 
@@ -63,7 +63,7 @@ alias f8="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headl
 alias f9="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true -Djetty.port=8889\""
 alias f7="forrest run -Dforrest.jvmargs=\"-Dfile.encoding=utf-8 -Djava.awt.headless=true -Djetty.port=8887\""
 
-alias  saxonXQ="java -Xmx2048m net.sf.saxon.Query"
+alias saxonXQ="java -Xmx2048m net.sf.saxon.Query"
 alias saxonXSL="java -Xmx2048m net.sf.saxon.Transform"
 alias xquery="saxonXQ"
 alias xslt2="saxonXSL"
