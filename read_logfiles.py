@@ -223,7 +223,8 @@ class DivvunLogHandler(object):
     def __init__(self, log_directory, outfile):
         self.outfile = outfile
         self.our_targets = {
-            'DivvunInstaller.exe': 'MSOffice/Windows',
+            'DivvunInstaller.exe': 'MSOffice/Windows XP/7',
+            'msofficedivvuntools.msi': 'MSOffice/Windows 7/8',
             'sami-proofing-tools.dmg': 'MSOffice/Mac',
             'indesign-divvuntools.dmg': 'InDesign/Mac',
             'smi-pack.zip': 'OpenOffice.org, pre 3.0',
