@@ -14,9 +14,13 @@ import shutil
 import time
 import re
 import argparse
+import fileinput
+
 from lxml import etree
 
 def revert_files(vcs, files):
+    '''Revert the files in the list files
+    '''
     if vcs == "svn":
         subp = subprocess.Popen(["svn", "revert"] + files, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
@@ -34,6 +38,13 @@ class Translate_XML:
     """
 
     def __init__(self, sitehome, lang, vcs):
+        '''sitehome -- the home of the forrest site
+        lang -- the language that the site should be translated to
+        vcs -- the version control system
+
+        Revert the files to that are about to be translated to their
+        original state, then parse them and expand the xincludes
+        '''
         self.lang = lang
         self.sitehome = sitehome
         self.vcs = vcs
@@ -55,9 +66,13 @@ class Translate_XML:
         self.dth = etree.parse(os.path.join(self.sitehome, "src/documentation/skins/common/xslt/html/document-to-html.xsl"))
 
     def __del__(self):
+        '''Revert the files mentioned in the list
+        '''
         revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "../sd/src/documentation/skins/common/xslt/html/document-to-html.xsl", "../sd/src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
 
     def parse_translations(self):
+        '''Parse the translation files
+        '''
         tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
         self.tabst = {}
         for child in tabs_translation.getroot():
@@ -129,14 +144,12 @@ class StaticSiteBuilder:
 
     def __init__(self, builddir, destination, vcs):
         """
-            site: The directory where the forrest site is
+            builddir: The directory where the forrest site is
             destination: where the built site is copied (using ssh)
+            vcs: version control system, either svn or git
 
-            builddir: tells where the forrest should begin its crawl
-            make a directory, built, where generated sites are stored
-            logfile: print all errors into this one
-            take a backup of the original forrest.properties file
-            lang_specific_file: keeps trace of which files are localized
+            Revert files that might be changed
+            Clean up the build directory of the forrest site
         """
         print "Setting up..."
         if builddir.endswith('/'):
@@ -170,7 +183,7 @@ class StaticSiteBuilder:
         self.lang_specific_files = []
 
     def __del__(self):
-        """Move the backup to the original file_type
+        """Revert files that might be changed
         Close the logfile
         """
         os.chdir(self.builddir)
@@ -178,12 +191,17 @@ class StaticSiteBuilder:
         self.logfile.close()
 
     def set_font_path(self):
-        import fileinput
+        '''Set the font path for needed by the pdf files.
+        This is hardcoded to
+        /Users/sd/trunk/xtdoc/sd/src/documentation/resources/fonts/config.xml
+        '''
         for line in fileinput.FileInput(os.path.join(self.builddir, "src/documentation/resources/schema/symbols-project-v10.ent"), inplace=1):
             line = line.replace("/Users/sd/trunk/xtdoc/sd", self.builddir).strip()
             print line
 
     def validate(self):
+        '''Run forrest validate
+        '''
         print "Validating..."
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "validate"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -224,18 +242,6 @@ class StaticSiteBuilder:
         if subp.returncode != 0:
             print >>sys.stderr, "Linking errors detected when building", lang
 
-        #commands = [u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&iexcl;/á/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;Œ/Č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;&lsquo;/đ/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Auml;/č/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Aring;&iexcl;/š/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&yen;/å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&hellip;/Å/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&curren;/ä/g'", u"find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/ with google//g'"]
-
-        #if lang != "en":
-            #commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/Search/" + trans.commont["Search"] + "/g'")
-            #for key, value in trans.commont.items():
-                #try:
-                    #if key != "Search":
-                        #commands.append("find build/site -name \*.html | LC_ALL=C xargs perl -p -i -e 's/" + key + "/" + value + "/g'")
-                #except TypeError:
-                    #continue
-        #for command in commands:
-            #os.system(command.encode('utf-8'))
         print "Done building "
 
     def setlang(self, lang):
