@@ -18,126 +18,6 @@ import fileinput
 
 from lxml import etree
 
-def revert_files(vcs, files):
-    '''Revert the files in the list files
-    '''
-    if vcs == "svn":
-        subp = subprocess.Popen(["svn", "revert"] + files, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (output, error) = subp.communicate()
-
-        if subp.returncode != 0:
-            print >>sys.stderr, "Could not revert files"
-            self.logfile.writelines(output)
-            self.logfile.writelines(error)
-    if vcs == "git":
-        subp = subprocess.call(["git", "checkout"] + files)
-
-class Translate_XML:
-    """Load site.xml and tabs.xml and their translation files.
-    Translate the tags
-    """
-
-    def __init__(self, sitehome, lang, vcs):
-        '''sitehome -- the home of the forrest site
-        lang -- the language that the site should be translated to
-        vcs -- the version control system
-
-        Revert the files to that are about to be translated to their
-        original state, then parse them and expand the xincludes
-        '''
-        self.lang = lang
-        self.sitehome = sitehome
-        self.vcs = vcs
-
-        os.chdir(self.sitehome)
-        revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "../sd/src/documentation/skins/common/xslt/html/document-to-html.xsl", "../sd/src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
-
-        self.site = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"))
-        try:
-            self.site.xinclude()
-        except etree.XIncludeError:
-            print "xinclude in site.xml failed for site", sitehome
-        self.tabs = etree.parse(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"))
-        try:
-            self.tabs.xinclude()
-        except etree.XIncludeError:
-            print "xinclude in tabs.xml failed for site", sitehome
-
-        self.dth = etree.parse(os.path.join(self.sitehome, "src/documentation/skins/common/xslt/html/document-to-html.xsl"))
-
-    def __del__(self):
-        '''Revert the files mentioned in the list
-        '''
-        revert_files(self.vcs, ["src/documentation/content/xdocs/site.xml", "src/documentation/content/xdocs/tabs.xml", "../sd/src/documentation/skins/common/xslt/html/document-to-html.xsl", "../sd/src/documentation/skins/sdpelt/xslt/html/site-to-xhtml.xsl"])
-
-    def parse_translations(self):
-        '''Parse the translation files
-        '''
-        tabs_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/tabs_" + self.lang + ".xml"))
-        self.tabst = {}
-        for child in tabs_translation.getroot():
-            self.tabst[child.get("key")] = child.text
-
-        menu_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/menu_" + self.lang + ".xml"))
-        self.menut = {}
-        for child in menu_translation.getroot():
-            self.menut[child.get("key")] = child.text
-
-        if self.lang != "en":
-            self.commont = {}
-            common_translation = etree.parse(os.path.join(self.sitehome, "src/documentation/translations/ContractsMessages_" + self.lang + ".xml"))
-            for child in common_translation.getroot():
-                self.commont[child.get("key")] = child.text
-
-    def translate(self):
-        """Translate site.xml and tabs.xml to self.lang
-        """
-        print 'Translating', self.lang, '...'
-        for el in self.site.getroot().iter():
-            try:
-                el.attrib["label"]
-            except KeyError:
-                continue
-            else:
-                try:
-                    self.menut[el.attrib["label"]]
-                except KeyError:
-                    pass
-                else:
-                    el.attrib["label"] = self.menut[el.attrib["label"]]
-
-        outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/site.xml"), "w")
-        outfile.write(etree.tostring(self.site.getroot()))
-        outfile.close()
-
-        for el in self.tabs.getroot().iter():
-            try:
-                el.attrib["label"]
-            except KeyError:
-                continue
-            else:
-                try:
-                    self.tabst[el.attrib["label"]]
-                except KeyError:
-                    pass
-                else:
-                    el.attrib["label"] = self.tabst[el.attrib["label"]]
-
-        outfile = open(os.path.join(self.sitehome, "src/documentation/content/xdocs/tabs.xml"), "w")
-        outfile.write(etree.tostring(self.tabs.getroot()))
-        outfile.close()
-
-        if self.lang != "en":
-            for el in self.dth.getroot().iter():
-                #print "dth", el.tag
-                if el.tag == "{http://apache.org/cocoon/i18n/2.1}text":
-                    #print "Old", el.text
-                    el.text = self.commont[el.text]
-                    #print "New", el.text
-            outfile = open(os.path.join(self.sitehome,"src/documentation/skins/common/xslt/html/document-to-html.xsl"), "w")
-            outfile.write(etree.tostring(self.dth.getroot()))
-            outfile.close()
-
 class StaticSiteBuilder:
     """This class is used to build a static version of the divvun site.
     """
@@ -162,7 +42,7 @@ class StaticSiteBuilder:
 
 
         os.chdir(self.builddir)
-        revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
+        self.revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
 
         subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
@@ -187,8 +67,22 @@ class StaticSiteBuilder:
         Close the logfile
         """
         os.chdir(self.builddir)
-        revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
+        self.revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
         self.logfile.close()
+
+    def revert_files(vcs, files):
+        '''Revert the files in the list files
+        '''
+        if vcs == "svn":
+            subp = subprocess.Popen(["svn", "revert"] + files, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (output, error) = subp.communicate()
+
+            if subp.returncode != 0:
+                print >>sys.stderr, "Could not revert files"
+                self.logfile.writelines(output)
+                self.logfile.writelines(error)
+        if vcs == "git":
+            subp = subprocess.call(["git", "checkout"] + files)
 
     def set_font_path(self):
         '''Set the font path for needed by the pdf files.
@@ -231,10 +125,6 @@ class StaticSiteBuilder:
             print >>sys.stderr, "forrest clean failed"
             self.logfile.writelines(output)
             self.logfile.writelines(error)
-
-        trans = Translate_XML( self.builddir, lang, self.vcs)
-        trans.parse_translations()
-        trans.translate()
 
         print "Building", lang, "..."
         subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
