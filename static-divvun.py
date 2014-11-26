@@ -70,7 +70,7 @@ class StaticSiteBuilder:
         self.revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
         self.logfile.close()
 
-    def revert_files(vcs, files):
+    def revert_files(self, vcs, files):
         '''Revert the files in the list files
         '''
         if vcs == "svn":
