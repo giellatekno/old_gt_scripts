@@ -664,7 +664,7 @@ alias hsmjsme='$HLOOKUP $GTHOME/words/dicts/smesmj/bin/smjsme.hfst.ol'
 alias hswefit='$HLOOKUP $GTHOME/kvensk/swefit/bin/swefit.hfst.ol'
 
 # Other transducers
-alias ogeo='$HLOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.hfst.ol'
+alias ugeo='$LOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.fst'
 
 
 # Direct sentence analysis:
