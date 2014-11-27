@@ -121,6 +121,7 @@ alias usjd='$LOOKUP $GTHOME/langs/sjd/src/analyser-gt-desc.xfst'
 alias usje='$LOOKUP $GTHOME/langs/sje/src/analyser-gt-desc.xfst'
 alias usma='$LOOKUP $GTHOME/langs/sma/src/analyser-gt-desc.xfst'
 alias usme='$LOOKUP $GTHOME/langs/sme/src/analyser-gt-desc.xfst'
+alias usmedis='$LOOKUP $GTHOME/langs/sme/src/analyser-disamb-gt-desc.xfst'
 alias usmj='$LOOKUP $GTHOME/langs/smj/src/analyser-gt-desc.xfst'
 alias usmn='$LOOKUP $GTHOME/langs/smn/src/analyser-gt-desc.xfst'
 alias usms='$LOOKUP $GTHOME/langs/sms/src/analyser-gt-desc.xfst'
@@ -338,11 +339,6 @@ alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 
 
 # HFST aliases
-
-# sme
-alias hdsme='$HLOOKUP $GTHOME/langs/sme/src/generator-gt-desc.hfstol'
-alias husme='$HLOOKUP $GTHOME/langs/sme/src/analyser-gt-desc.hfstol'
-
 
 alias hdamh='$HLOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.hfstol'
 alias hdbla='$HLOOKUP $GTHOME/startup-langs/bla/src/generator-gt-desc.hfstol'
