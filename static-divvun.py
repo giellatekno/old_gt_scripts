@@ -217,14 +217,14 @@ class StaticSiteBuilder:
 
                     fullname = os.path.join(root, file_)
                     if file_.endswith('.html'):
-                        self.add_lang_info(fullname, lang)
+                        self.add_lang_info(fullname, lang, builddir)
                     shutil.copy(
                         os.path.join(root, file_),
                         os.path.join(goal_dir, newname))
 
             shutil.move(builddir, os.path.join(builtdir, lang))
 
-    def add_lang_info(self, filename, lang):
+    def add_lang_info(self, filename, lang, builddir):
         trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien",
                    "se": "Davvisámegillii", "smj": "Julevsábmáj",
                    "sv": "På svenska", "en": "In English"}
@@ -235,7 +235,7 @@ class StaticSiteBuilder:
                 for trlang, value in trlangs.items():
                     if trlang != lang:
                         line += '<li><a href="/' + trlang + '/'
-                        line += filename.replace('./build/site/en/', '')
+                        line += filename.replace(builddir, '')
                         line += '">' + value + '</a>\n</li>\n'
                     else:
                         line += '<li>' + value + '</li>\n'
