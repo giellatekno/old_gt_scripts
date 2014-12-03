@@ -12,15 +12,13 @@ import os
 import sys
 import shutil
 import time
-import re
 import argparse
 import fileinput
 import glob
 
-import lxml.etree as etree
 
 class StaticSiteBuilder:
-    """This class is used to build a static version of the divvun site.
+    """This class is used to build a multilingual static version of the divvun site.
     """
 
     def __init__(self, builddir, destination, vcs, langs):
@@ -42,12 +40,18 @@ class StaticSiteBuilder:
         self.vcs = vcs
         self.langs = langs
 
-
-        self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
+        self.logfile = open(
+            os.path.join(self.builddir,
+                         "buildlog" + time.strftime("%Y-%m-%d-%H-%M",
+                                                    time.localtime())), 'w')
         os.chdir(self.builddir)
-        self.revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
+        self.revert_files(self.vcs,
+                          ["forrest.properties",
+                           "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
 
-        subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp = subprocess.Popen(["forrest", "clean"],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
@@ -58,7 +62,7 @@ class StaticSiteBuilder:
         self.set_font_path()
 
         if os.path.isdir(os.path.join(self.builddir, "built")):
-           shutil.rmtree(os.path.join(self.builddir, "built"))
+            shutil.rmtree(os.path.join(self.builddir, "built"))
 
         os.mkdir(os.path.join(self.builddir, "built"))
         self.lang_specific_files = []
@@ -68,14 +72,18 @@ class StaticSiteBuilder:
         Close the logfile
         """
         os.chdir(self.builddir)
-        self.revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
+        self.revert_files(self.vcs,
+                          ["forrest.properties",
+                           "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
         self.logfile.close()
 
     def revert_files(self, vcs, files):
         '''Revert the files in the list files
         '''
         if vcs == "svn":
-            subp = subprocess.Popen(["svn", "revert"] + files, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subp = subprocess.Popen(["svn", "revert"] + files,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
             (output, error) = subp.communicate()
 
             if subp.returncode != 0:
@@ -90,8 +98,12 @@ class StaticSiteBuilder:
         This is hardcoded to
         /Users/sd/trunk/xtdoc/sd/src/documentation/resources/fonts/config.xml
         '''
-        for line in fileinput.FileInput(os.path.join(self.builddir, "src/documentation/resources/schema/symbols-project-v10.ent"), inplace=1):
-            line = line.replace("/Users/sd/trunk/xtdoc/sd", self.builddir).strip()
+        for line in fileinput.FileInput(
+            os.path.join(self.builddir,
+                         "src/documentation/resources/schema/symbols-project-v10.ent"),
+                inplace=1):
+            line = line.replace("/Users/sd/trunk/xtdoc/sd",
+                                self.builddir).strip()
             print line
 
     def validate(self):
@@ -99,7 +111,8 @@ class StaticSiteBuilder:
         '''
         print "Validating..."
         os.chdir(self.builddir)
-        subp = subprocess.Popen(["forrest", "validate"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp = subprocess.Popen(["forrest", "validate"],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
@@ -118,9 +131,12 @@ class StaticSiteBuilder:
         respectively.
         If we aren't able to rename the built site, exit program
         """
-        os.environ['LC_ALL'] = "C" # This ensures that the build directory is build/site/en
+        # This ensures that the build directory is build/site/en
+        os.environ['LC_ALL'] = "C"
+
         os.chdir(self.builddir)
-        subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp = subprocess.Popen(["forrest", "clean"],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
@@ -129,7 +145,8 @@ class StaticSiteBuilder:
             self.logfile.writelines(error)
 
         print "Building", lang, "..."
-        subp = subprocess.Popen(["forrest", "site"], stdout=self.logfile, stderr=self.logfile)
+        subp = subprocess.Popen(["forrest", "site"],
+                                stdout=self.logfile, stderr=self.logfile)
         subp.wait()
         if subp.returncode != 0:
             print >>sys.stderr, "Linking errors detected when building", lang
@@ -142,25 +159,28 @@ class StaticSiteBuilder:
         Exit if an IOError occurs
         """
         try:
-            inproperties = open(os.path.join(self.builddir, "forrest.properties"), 'r')
-        except IOError:
-            print >>sys.stderr, e
-            self.logfile.write("Problems when reading content in forrest.properties")
+            inproperties = open(
+                os.path.join(self.builddir, "forrest.properties"), 'r')
+        except IOError as e:
+            print >>sys.stderr, str(e)
+            self.logfile.write("Problems when writing content to ")
+            self.logfile.write("forrest.properties\n")
             self.logfile.write("IOError\n")
             self.logfile.write(str(e) + "\n")
-            raise SystemExit(2)
+
         incontent = inproperties.readlines()
         inproperties.close()
 
         try:
-            outproperties = open(os.path.join(self.builddir, "forrest.properties"), 'w')
-        except IOError:
-            print >>sys.stderr, e
-            self.logfile.write("Problems when writing content to forrest.properties")
+            outproperties = open(
+                os.path.join(self.builddir, "forrest.properties"), 'w')
+        except IOError as e:
+            print >>sys.stderr, str(e)
+            self.logfile.write("Problems when writing content to ")
+            self.logfile.write("forrest.properties\n")
             self.logfile.write("IOError\n")
             self.logfile.write(str(e) + "\n")
             raise SystemExit(2)
-
 
         for line in incontent:
             if "jvmargs" in line:
@@ -198,19 +218,25 @@ class StaticSiteBuilder:
                     fullname = os.path.join(root, file_)
                     if file_.endswith('.html'):
                         self.add_lang_info(fullname, lang)
-                    shutil.copy(os.path.join(root, file_), os.path.join(goal_dir, newname))
+                    shutil.copy(
+                        os.path.join(root, file_),
+                        os.path.join(goal_dir, newname))
 
             shutil.move(builddir, os.path.join(builtdir, lang))
 
     def add_lang_info(self, filename, lang):
-        trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Julevsábmáj", "sv": "På svenska" , "en": "In English"}
+        trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien",
+                   "se": "Davvisámegillii", "smj": "Julevsábmáj",
+                   "sv": "På svenska", "en": "In English"}
 
         for line in fileinput.FileInput(filename, inplace=1):
             if line.find('id="content"') > -1:
                 line += '<div id="lang-choice">\n<ul>\n'
                 for trlang, value in trlangs.items():
                     if trlang != lang:
-                        line += '<li><a href="/' + trlang + '/' + filename.replace('./build/site/en/', '') + '">' + value + '</a>\n</li>\n'
+                        line += '<li><a href="/' + trlang + '/'
+                        line += filename.replace('./build/site/en/', '')
+                        line += '">' + value + '</a>\n</li>\n'
                     else:
                         line += '<li>' + value + '</li>\n'
                 line += '</ul>\n</div>\n'
@@ -228,14 +254,24 @@ class StaticSiteBuilder:
         """Copy the entire site to self.destination
         """
         builtdir = os.path.join(self.builddir, "built/")
-        os.system("rsync -qavz -e ssh " + builtdir + " " + self.destination + '.')
+        os.system("rsync -qavz -e ssh " + builtdir + " " +
+                  self.destination + '.')
+
 
 def parse_options():
-    parser = argparse.ArgumentParser(description = 'This script builds a multilingual forrest site.')
-    parser.add_argument('--destination', '-d', help = "an ssh destination", required = True)
-    parser.add_argument('--vcs', '-c', help = "the version control system", default = 'svn')
-    parser.add_argument('--sitehome', '-s', help = "where the forrest site lives", required = True)
-    parser.add_argument('langs', help = "list of languages", nargs = '+')
+    parser = argparse.ArgumentParser(
+        description='This script builds a multilingual forrest site.')
+    parser.add_argument('--destination', '-d',
+                        help="an ssh destination",
+                        required=True)
+    parser.add_argument('--vcs', '-c',
+                        help="the version control system",
+                        default='svn')
+    parser.add_argument('--sitehome', '-s',
+                        help="where the forrest site lives",
+                        required=True)
+    parser.add_argument('langs', help="list of languages",
+                        nargs='+')
 
     args = parser.parse_args()
     return args
@@ -244,7 +280,8 @@ def parse_options():
 def main():
     args = parse_options()
 
-    builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs, args.langs)
+    builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs,
+                                args.langs)
     builder.validate()
     builder.build_all_langs()
     builder.copy_to_site()
