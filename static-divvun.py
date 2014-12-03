@@ -15,14 +15,15 @@ import time
 import re
 import argparse
 import fileinput
+import glob
 
-from lxml import etree
+import lxml.etree as etree
 
 class StaticSiteBuilder:
     """This class is used to build a static version of the divvun site.
     """
 
-    def __init__(self, builddir, destination, vcs):
+    def __init__(self, builddir, destination, vcs, langs):
         """
             builddir: The directory where the forrest site is
             destination: where the built site is copied (using ssh)
@@ -39,8 +40,10 @@ class StaticSiteBuilder:
             destination = destination + '/'
         self.destination = destination
         self.vcs = vcs
+        self.langs = langs
 
 
+        self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
         os.chdir(self.builddir)
         self.revert_files(self.vcs, ["forrest.properties", "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
 
@@ -58,8 +61,6 @@ class StaticSiteBuilder:
            shutil.rmtree(os.path.join(self.builddir, "built"))
 
         os.mkdir(os.path.join(self.builddir, "built"))
-        self.logfile = open(os.path.join(self.builddir, "buildlog" + time.strftime("%Y-%m-%d-%H-%M", time.localtime())), 'w')
-        os.environ['LC_ALL'] = "C"
         self.lang_specific_files = []
 
     def __del__(self):
@@ -117,6 +118,7 @@ class StaticSiteBuilder:
         respectively.
         If we aren't able to rename the built site, exit program
         """
+        os.environ['LC_ALL'] = "C" # This ensures that the build directory is build/site/en
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "clean"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
@@ -170,80 +172,61 @@ class StaticSiteBuilder:
 
         outproperties.close()
 
-    def rename_site_files(self, lang = ""):
+    def rename_site_files(self, lang):
         """Search for files ending with html and pdf in the build site. Give all
         these files the ending '.lang'. Move them to the 'built' dir
         """
 
-        builddir = os.path.join(self.builddir, "build/site")
+        builddir = os.path.join(self.builddir, "build/site/en")
         builtdir = os.path.join(self.builddir, "built")
 
-        # Copy the site to builtdir/lang
-        if lang != "":
-            langdir = os.path.join(builtdir, lang)
-            os.mkdir(langdir)
-
-            tree = os.walk(os.path.join(builddir))
-
-            for leafs in tree:
-                for directory in leafs[1]:
-                    os.mkdir(langdir + leafs[0][len(builddir):] + "/" + directory)
-                    try:
-                        os.mkdir(builtdir + leafs[0][len(builddir):] + "/" + directory)
-                    except OSError:
-                        continue
-                files = leafs[2]
-                for htmlpdf_file in files:
-                    if htmlpdf_file.endswith(".html"):
-                        #print leafs[0], htmlpdf_file
-                        self.add_lang_info(os.path.join(leafs[0], htmlpdf_file), lang)
-                        #shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0], htmlpdf_file + "." + lang))
-                        os.unlink(os.path.join(leafs[0], htmlpdf_file))
-                    elif htmlpdf_file.endswith(".pdf"):
-                        shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, builtdir),htmlpdf_file + "." + lang))
-                        shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file + "." + lang))
-                    else:
-                        shutil.copy(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, builtdir),htmlpdf_file))
-                        shutil.move(os.path.join(leafs[0], htmlpdf_file), os.path.join(leafs[0].replace(builddir, langdir),htmlpdf_file))
+        if len(self.langs) == 1:
+            for item in glob.glob(builddir + '/*'):
+                shutil.move(item, builtdir)
         else:
-            os.chdir(builddir)
-            os.system("mv * " + builtdir)
+            for root, dirs, files in os.walk(builddir):
+                goal_dir = root.replace("build/site/en", "built")
 
-        # Copy the site with renamed files to builtdir
-        #shutil.copy(builddir, builtdir)
+                if not os.path.exists(goal_dir):
+                    os.mkdir(goal_dir)
+
+                for file_ in files:
+                    newname = file_
+                    if file_.endswith('.html') or file_.endswith('.pdf'):
+                        newname = file_ + '.' + lang
+
+                    fullname = os.path.join(root, file_)
+                    if file_.endswith('.html'):
+                        self.add_lang_info(fullname, lang)
+                    shutil.copy(os.path.join(root, file_), os.path.join(goal_dir, newname))
+
+            shutil.move(builddir, os.path.join(builtdir, lang))
 
     def add_lang_info(self, filename, lang):
         trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien", "se": "Davvisámegillii", "smj": "Julevsábmáj", "sv": "På svenska" , "en": "In English"}
-        #print 'filename', filename
-        #print 'path', self.builddir + "/build/site"
-        the_rest = filename[len(self.builddir + "/build/site"):]
-        #print 'the_rest', the_rest
-        infile = open(filename)
-        outfile1 = open(self.builddir + "/built" + the_rest + "." + lang, "w")
-        outfile2 = open(self.builddir + "/built/" + lang + the_rest, "w")
 
-        filebuf = infile.readlines()
-        for line in filebuf:
+        for line in fileinput.FileInput(filename, inplace=1):
             if line.find('id="content"') > -1:
                 line += '<div id="lang-choice">\n<ul>\n'
                 for trlang, value in trlangs.items():
                     if trlang != lang:
-                        line += '<li><a href="/' + trlang + the_rest + '">' + value + '</a>\n</li>\n'
+                        line += '<li><a href="/' + trlang + '/' + filename.replace('./build/site/en/', '') + '">' + value + '</a>\n</li>\n'
                     else:
                         line += '<li>' + value + '</li>\n'
                 line += '</ul>\n</div>\n'
-                #print 'the line became', line
-            outfile1.write(line)
-            outfile2.write(line)
+            print line.rstrip()
 
-        infile.close()
-        outfile1.close()
-        outfile2.close()
+    def build_all_langs(self):
+        '''Build all the langs
+        '''
+        for lang in self.langs:
+            self.setlang(lang)
+            self.buildsite(lang)
+            self.rename_site_files(lang)
 
     def copy_to_site(self):
         """Copy the entire site to self.destination
         """
-
         builtdir = os.path.join(self.builddir, "built/")
         os.system("rsync -qavz -e ssh " + builtdir + " " + self.destination + '.')
 
@@ -261,17 +244,11 @@ def parse_options():
 def main():
     args = parse_options()
 
-    builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs)
+    builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs, args.langs)
     builder.validate()
-
-    for lang in args.langs:
-        builder.setlang(lang)
-        builder.buildsite(lang)
-        if len(args.langs) == 1:
-            builder.rename_site_files()
-        else:
-            builder.rename_site_files(lang)
+    builder.build_all_langs()
     builder.copy_to_site()
+
 
 if __name__ == "__main__":
     main()
