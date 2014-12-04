@@ -50,14 +50,11 @@ class StaticSiteBuilder:
                            "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
 
         subp = subprocess.Popen(["forrest", "clean"],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        (output, error) = subp.communicate()
+                                stdout=self.logfile, stderr=self.logfile)
+        subp.wait()
 
         if subp.returncode != 0:
-                print >>sys.stderr, "forrest clean failed"
-                self.logfile.writelines(output)
-                self.logfile.writelines(error)
+            print >>sys.stderr, "forrest clean failed"
 
         self.set_font_path()
 
@@ -81,15 +78,13 @@ class StaticSiteBuilder:
         '''Revert the files in the list files
         '''
         if vcs == "svn":
-            subp = subprocess.Popen(["svn", "revert"] + files,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-            (output, error) = subp.communicate()
+            subp = subprocess.Popen(
+                ["svn", "revert"] + files,
+                stdout=self.logfile, stderr=self.logfile)
+            subp.wait()
 
             if subp.returncode != 0:
                 print >>sys.stderr, "Could not revert files"
-                self.logfile.writelines(output)
-                self.logfile.writelines(error)
         if vcs == "git":
             subp = subprocess.call(["git", "checkout"] + files)
 
@@ -112,8 +107,8 @@ class StaticSiteBuilder:
         print "Validating..."
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "validate"],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (output, error) = subp.communicate()
+                                stdout=self.logfile, stderr=self.logfile)
+        subp.wait()
 
         if subp.returncode != 0:
             if "Could not validate document" in error:
@@ -136,13 +131,11 @@ class StaticSiteBuilder:
 
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "clean"],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (output, error) = subp.communicate()
+                                stdout=self.logfile, stderr=self.logfile)
+        subp.wait()
 
         if subp.returncode != 0:
             print >>sys.stderr, "forrest clean failed"
-            self.logfile.writelines(output)
-            self.logfile.writelines(error)
 
         print "Building", lang, "..."
         subp = subprocess.Popen(["forrest", "site"],
@@ -254,8 +247,10 @@ class StaticSiteBuilder:
         """Copy the entire site to self.destination
         """
         builtdir = os.path.join(self.builddir, "built/")
-        os.system("rsync -avz -e ssh " + builtdir + " " +
-                  self.destination + '.')
+        subp = subprocess.Popen(
+            ["rsync", "-avz", "-e", "ssh", builtdir, self.destination],
+            stdout=self.logfile, stderr=self.logfile)
+        subp.wait()
 
 
 def parse_options():
