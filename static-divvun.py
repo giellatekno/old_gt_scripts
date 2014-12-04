@@ -254,7 +254,7 @@ class StaticSiteBuilder:
         """Copy the entire site to self.destination
         """
         builtdir = os.path.join(self.builddir, "built/")
-        os.system("rsync -qavz -e ssh " + builtdir + " " +
+        os.system("rsync -avz -e ssh " + builtdir + " " +
                   self.destination + '.')
 
 
