@@ -210,8 +210,8 @@ class Forrest2Bootstrap(object):
         unwanted = {
             'div': {
                 'id': ['branding-tagline-name', 'branding-tagline-tagline',
-                       'publishedStrip', 'level2tabs', 'roundbottom'],
-                'class': ['searchbox', 'breadtrail']
+                       'publishedStrip', 'level2tabs', 'roundbottom', 'logos'],
+                'class': ['searchbox', 'breadtrail', 'trail']
                 },
             }
 
