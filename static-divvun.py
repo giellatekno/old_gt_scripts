@@ -55,7 +55,6 @@ class StaticSiteBuilder:
             shutil.rmtree(os.path.join(self.builddir, "built"))
 
         os.mkdir(os.path.join(self.builddir, "built"))
-        self.lang_specific_files = []
 
     def __del__(self):
         """Close the logfile
@@ -79,6 +78,14 @@ class StaticSiteBuilder:
 
                 raise SystemExit(subp.returncode)
 
+    def set_forrest_lang(self, lang):
+        for line in fileinput.FileInput(
+            os.path.join(self.builddir, "forrest.properties"),
+                inplace=1):
+            if 'forrest.jvmargs' in line:
+                line = 'forrest.jvmargs=-Djava.awt.headless=true -Dfile.encoding=utf-8 -Duser.language=' + lang
+            print line.rstrip()
+
     def buildsite(self, lang):
         """Builds a site in the specified language
         Clean up the build files
@@ -91,17 +98,9 @@ class StaticSiteBuilder:
         os.environ['LC_ALL'] = "C"
 
         os.chdir(self.builddir)
-        subp = subprocess.Popen(["forrest", "clean"],
-                                stdout=self.logfile, stderr=self.logfile)
-        subp.wait()
-
-        if subp.returncode != 0:
-            print >>sys.stderr, "forrest clean failed"
-
+        self.set_forrest_lang(lang)
         print "Building", lang, "..."
-        subp = subprocess.Popen(
-            ["forrest", "site",
-             '-Dforrest.jvmargs="-Dfile.encoding=utf-8 -Djava.awt.headless=true  -Duser.language=' + lang + '"'],
+        subp = subprocess.Popen(["forrest", "site"],
                                 stdout=self.logfile, stderr=self.logfile)
         subp.wait()
         if subp.returncode != 0:
@@ -110,7 +109,7 @@ class StaticSiteBuilder:
         print "Done building "
 
     def tobootstrap(self, lang):
-        builddir = os.path.join(self.builddir, "build/site", lang)
+        builddir = os.path.join(self.builddir, "build/site/en")
 
         for root, dirs, files in os.walk(builddir):
             for f in files:
@@ -123,7 +122,7 @@ class StaticSiteBuilder:
         these files the ending '.lang'. Move them to the 'built' dir
         """
 
-        builddir = os.path.join(self.builddir, "build/site", lang)
+        builddir = os.path.join(self.builddir, "build/site/en")
         builtdir = os.path.join(self.builddir, "built")
 
         if len(self.langs) == 1:
@@ -131,7 +130,7 @@ class StaticSiteBuilder:
                 shutil.move(item, builtdir)
         else:
             for root, dirs, files in os.walk(builddir):
-                goal_dir = root.replace("build/site", lang, "built")
+                goal_dir = root.replace("build/site/en", "built")
 
                 if not os.path.exists(goal_dir):
                     os.mkdir(goal_dir)
@@ -172,21 +171,22 @@ class Forrest2Bootstrap(object):
     '''
     def __init__(self, f):
         self.f = f
-        self.namespace = {'xhtml': 'http://www.w3.org/1999/xhtml'}
-        self.tree = etree.parse(f)
+        self.namespace = {'html': 'http://www.w3.org/1999/xhtml'}
+        parser = etree.HTMLParser()
+        self.tree = etree.parse(f, parser)
 
     def getroot(self):
         return self.tree.getroot()
 
     def getelement(self, tag):
         return self.getroot().find(
-            './/xhtml:' + tag, namespaces=self.namespace)
+            './/' + tag, namespaces=self.namespace)
 
     def handle_head(self):
         head = self.getelement('head')
 
         for element in head:
-            if element.tag != '{http://www.w3.org/1999/xhtml}title':
+            if element.tag != 'title':
                 element.getparent().remove(element)
 
 
@@ -210,15 +210,15 @@ class Forrest2Bootstrap(object):
         unwanted = {
             'div': {
                 'id': ['branding-tagline-name', 'branding-tagline-tagline',
-                       'level2tabs', 'roundbottom'],
-                'class': ['searchbox']
+                       'publishedStrip', 'level2tabs', 'roundbottom'],
+                'class': ['searchbox', 'breadtrail']
                 },
             }
 
         for tag, attribs in unwanted.items():
             for key, values in attribs.items():
                 for value in values:
-                    elements = body.xpath('.//xhtml:' + tag +
+                    elements = body.xpath('.//' + tag +
                                   '[@' + key + '="' + value + '"]',
                                   namespaces=self.namespace)
 
@@ -243,29 +243,34 @@ class Forrest2Bootstrap(object):
     def set_bootstrap_classes(self):
         body = self.getelement('body')
 
-        container = body.find('.//xhtml:div[@id="container"]',
+        container = body.find('.//div[@id="main"]',
                               namespaces=self.namespace)
         container.set('class', 'container-fluid')
 
 
-        header = body.find('.//xhtml:div[@id="header"]',
+        header = body.find('.//div[@class="header"]',
                            namespaces=self.namespace)
-        header.set('class', 'col-sm-12')
+        header.set('class', 'header col-sm-12')
         header.insert(0, self.nav_main_hook2navbar())
 
         self.menu2accordion()
-        leftbar = body.find('.//xhtml:div[@id="leftbar"]',
+        leftbar = body.find('.//div[@id="menu"]',
                             namespaces=self.namespace)
         leftbar.set('class', 'col-sm-4')
 
-        content = body.find('.//xhtml:div[@id="content"]',
+        content = body.find('.//div[@id="content"]',
                             namespaces=self.namespace)
         content.set('class', 'col-sm-8')
 
-        for img in content.xpath('.//xhtml:img',
+        for img in content.xpath('.//img',
                                  namespaces=self.namespace):
             if img.get('class') != 'icon':
                 img.set('class', 'img-responsive')
+
+        for table in content.xpath('.//table',
+                                 namespaces=self.namespace):
+            if table.get('class') == 'invisible':
+                table.attrib.pop('class')
 
     def nav_main_hook2navbar(self):
         body = self.getelement('body')
@@ -283,7 +288,7 @@ class Forrest2Bootstrap(object):
 
         huff = etree.Element('div')
         huff.set('id', 'huff')
-        for i in body.xpath('.//xhtml:img[@class="logoImage"]',
+        for i in body.xpath('.//img[@class="logoImage"]',
                             namespaces=self.namespace):
             i.set('height', '30')
             huff.append(i)
@@ -318,7 +323,7 @@ class Forrest2Bootstrap(object):
     def get_forrest_tabs(self):
         body = self.getelement('body')
 
-        nav_main = body.find('.//xhtml:ul[@id="nav-main"]',
+        nav_main = body.find('.//ul[@id="tabs"]',
                               namespaces=self.namespace)
         nav_main.attrib.pop('id')
         nav_main.set('class', 'nav navbar-nav')
@@ -347,17 +352,31 @@ class Forrest2Bootstrap(object):
             ul class menuitemgroup -> omsluttes av div class panel-body, fjern klassen
         '''
         body = self.getelement('body')
-        menu = body.find('.//xhtml:div[@id="nav-section"]/xhtml:ul',
+        menu = body.find('.//div[@id="menu"]',
                               namespaces=self.namespace)
-
         menu.set('class', 'nav nav-sidebar')
+        menu.attrib.pop('id')
+        menu.tag = 'ul'
+        menu_parent = menu.getparent()
+        menu_index = menu_parent.index(menu)
+
+
+        new_menu = etree.Element('div')
+        new_menu.set('id', 'menu')
+        new_menu.append(menu)
+
+        menu_parent.insert(menu_index, new_menu)
 
         for element in menu.iter():
             c = element.get('class')
-            if c == 'pagegroup' or c == 'pagegroupselected':
+            if c == 'menutitle':
+                element.tag = 'li'
                 self.pagegroup2panelgroup(element)
             elif c == 'menuitem':
                 element.attrib.pop('class')
+                element.tag = 'li'
+            elif c == 'menupage':
+                element.tag = 'li'
             elif (c == 'menuitemgroup' or c == 'selectedmenuitemgroup'):
                 self.menuitemgroup2panelcollapse(element)
 
@@ -366,9 +385,10 @@ class Forrest2Bootstrap(object):
     def set_in(self, menu):
         '''Open all the collapsed menu items that contain the active document
         '''
-        collapse = menu.xpath('.//div[@class="accordion-collapse collapse"]')
+        collapse = menu.xpath('.//div[@class="accordion-collapse collapse"]',
+                              namespaces=self.namespace)
         for c in collapse:
-            menupage = c.find('.//xhtml:li[@class="menupage"]',
+            menupage = c.find('.//li[@class="menupage"]',
                                  namespaces=self.namespace)
             if menupage is not None:
                 c.set('class', 'accordion-collapse collapse in')
@@ -377,6 +397,8 @@ class Forrest2Bootstrap(object):
         id = element.get('id').replace('.', '_')
         element.attrib.pop('class')
         element.attrib.pop('id')
+        #element.attrib.pop('style')
+        element.tag = 'ul'
         parent = element.getparent()
         index = parent.index(element)
 
@@ -394,8 +416,9 @@ class Forrest2Bootstrap(object):
     def pagegroup2panelgroup(self, element):
         id = element.get('id').replace('.', '_')
         element.attrib.pop('id')
+        element.attrib.pop('onclick')
 
-        self.span2panelhead(element[0], id)
+        element.insert(0, self.panelhead(element, id))
 
         element.tag = 'div'
         element.set('class', 'accordion accordion-default')
@@ -410,25 +433,23 @@ class Forrest2Bootstrap(object):
 
         element_parent.insert(index, panelgroup)
 
-    def span2panelhead(self, span, id):
-        span_parent = span.getparent()
-        index = span_parent.index(span)
-
-        span.tag = 'a'
-        span.attrib.pop('onclick')
-        span.set('data-toggle', 'collapse')
-        span.set('data-parent', '#' + id)
-        span.set('href', '#' + id.replace('Title', ''))
+    def panelhead(self, element, id):
+        a = etree.Element('a')
+        a.set('data-toggle', 'collapse')
+        a.set('data-parent', '#' + id)
+        a.set('href', '#' + id.replace('Title', ''))
+        a.text = element.text
+        element.text = None
 
         h4 = etree.Element('h4')
         h4.set('class', 'accordion-title')
-        h4.append(span)
+        h4.append(a)
 
         panel_heading = etree.Element('div')
         panel_heading.set('class', 'accordion-heading')
         panel_heading.append(h4)
 
-        span_parent.insert(index, panel_heading)
+        return panel_heading
 
     def add_lang_info(self, lang, langs, builddir):
         body = self.getelement('body')
@@ -482,7 +503,8 @@ class Forrest2Bootstrap(object):
         self.handle_body()
         self.add_lang_info(lang, langs, builddir)
         with open(self.f, 'w') as huff:
-            huff.write(etree.tostring(self.tree, encoding='UTF-8', pretty_print=True))
+            huff.write(etree.tostring(self.tree, encoding='utf8',
+                                      pretty_print=True, method='html'))
 
 
 def parse_options():
