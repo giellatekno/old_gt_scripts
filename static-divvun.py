@@ -417,6 +417,10 @@ class Forrest2Bootstrap(object):
         id = element.get('id').replace('.', '_')
         element.attrib.pop('id')
         element.attrib.pop('onclick')
+        try:
+            element.attrib.pop('style')
+        except KeyError:
+            pass
 
         element.insert(0, self.panelhead(element, id))
 
@@ -495,8 +499,6 @@ class Forrest2Bootstrap(object):
                 dropdown_menu.append(li)
 
         return right_menu
-
-
 
     def convert(self, lang, langs, builddir):
         self.handle_head()
