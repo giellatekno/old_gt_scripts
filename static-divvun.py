@@ -256,11 +256,11 @@ class Forrest2Bootstrap(object):
         self.menu2accordion()
         leftbar = body.find('.//div[@id="menu"]',
                             namespaces=self.namespace)
-        leftbar.set('class', 'col-sm-4')
+        leftbar.set('class', 'col-sm-3')
 
         content = body.find('.//div[@id="content"]',
                             namespaces=self.namespace)
-        content.set('class', 'col-sm-8')
+        content.set('class', 'col-sm-9')
 
         for img in content.xpath('.//img',
                                  namespaces=self.namespace):
@@ -271,6 +271,30 @@ class Forrest2Bootstrap(object):
                                  namespaces=self.namespace):
             if table.get('class') == 'invisible':
                 table.attrib.pop('class')
+
+        self.fix_footer()
+
+    def fix_footer(self):
+        body = self.getelement('body')
+
+        grouplogo = body.find('.//div[@class="grouplogo"]')
+        grouplogo.set('class', 'col-sm-3')
+        grouplogo.find('.//img').set('height', '150')
+
+
+        footer = body.find('.//div[@id="footer"]')
+        footer.set('class', 'col-sm-9')
+
+        footer_parent = footer.getparent()
+        footer_index = footer_parent.index(footer)
+
+        new_footer = etree.Element('div')
+        new_footer.set('class', 'row')
+
+        new_footer.append(grouplogo)
+        new_footer.append(footer)
+
+        footer_parent.insert(footer_index, new_footer)
 
     def nav_main_hook2navbar(self):
         body = self.getelement('body')
@@ -286,22 +310,12 @@ class Forrest2Bootstrap(object):
             span.set('class', 'icon-bar')
             button.append(span)
 
-        huff = etree.Element('div')
-        huff.set('id', 'huff')
-        for i in body.xpath('.//img[@class="logoImage"]',
-                            namespaces=self.namespace):
-            i.set('height', '30')
-            huff.append(i)
-
-        a_brand = etree.Element('a')
-        a_brand.set('class', 'navbar-brand')
-        a_brand.set('href', '/index.html')
-        a_brand.append(huff)
-
-        navbar_header = etree.Element('div')
+        navbar_header = body.find('.//div[@class="projectlogo"]')
         navbar_header.set('class', 'navbar-header')
         navbar_header.append(button)
-        navbar_header.append(a_brand)
+
+        navbar_header.find('./a').set('class', 'navbar-brand')
+        navbar_header.find('.//img').set('height', '30')
 
         menu_div = etree.Element('div')
         menu_div.set('id', 'myNavbar')
