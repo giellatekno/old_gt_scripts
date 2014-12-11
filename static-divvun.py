@@ -21,7 +21,7 @@ class StaticSiteBuilder:
     """This class is used to build a multilingual static version of the divvun site.
     """
 
-    def __init__(self, builddir, destination, vcs, langs):
+    def __init__(self, builddir, destination, langs):
         """
             builddir: The directory where the forrest site is
             destination: where the built site is copied (using ssh)
@@ -37,7 +37,6 @@ class StaticSiteBuilder:
         if not destination.endswith('/'):
             destination = destination + '/'
         self.destination = destination
-        self.vcs = vcs
         self.langs = langs
 
         self.logfile = open(
@@ -45,18 +44,12 @@ class StaticSiteBuilder:
                          "buildlog" + time.strftime("%Y-%m-%d-%H-%M",
                                                     time.localtime())), 'w')
         os.chdir(self.builddir)
-        self.revert_files(self.vcs,
-                          ["forrest.properties",
-                           "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
-
         subp = subprocess.Popen(["forrest", "clean"],
                                 stdout=self.logfile, stderr=self.logfile)
         subp.wait()
 
         if subp.returncode != 0:
             print >>sys.stderr, "forrest clean failed"
-
-        self.set_font_path()
 
         if os.path.isdir(os.path.join(self.builddir, "built")):
             shutil.rmtree(os.path.join(self.builddir, "built"))
@@ -65,41 +58,9 @@ class StaticSiteBuilder:
         self.lang_specific_files = []
 
     def __del__(self):
-        """Revert files that might be changed
-        Close the logfile
+        """Close the logfile
         """
-        os.chdir(self.builddir)
-        self.revert_files(self.vcs,
-                          ["forrest.properties",
-                           "../sd/src/documentation/resources/schema/symbols-project-v10.ent"])
         self.logfile.close()
-
-    def revert_files(self, vcs, files):
-        '''Revert the files in the list files
-        '''
-        if vcs == "svn":
-            subp = subprocess.Popen(
-                ["svn", "revert"] + files,
-                stdout=self.logfile, stderr=self.logfile)
-            subp.wait()
-
-            if subp.returncode != 0:
-                print >>sys.stderr, "Could not revert files"
-        if vcs == "git":
-            subp = subprocess.call(["git", "checkout"] + files)
-
-    def set_font_path(self):
-        '''Set the font path for needed by the pdf files.
-        This is hardcoded to
-        /Users/sd/trunk/xtdoc/sd/src/documentation/resources/fonts/config.xml
-        '''
-        for line in fileinput.FileInput(
-            os.path.join(self.builddir,
-                         "src/documentation/resources/schema/symbols-project-v10.ent"),
-                inplace=1):
-            line = line.replace("/Users/sd/trunk/xtdoc/sd",
-                                self.builddir).strip()
-            print line
 
     def validate(self):
         '''Run forrest validate
@@ -138,7 +99,9 @@ class StaticSiteBuilder:
             print >>sys.stderr, "forrest clean failed"
 
         print "Building", lang, "..."
-        subp = subprocess.Popen(["forrest", "site"],
+        subp = subprocess.Popen(
+            ["forrest", "site",
+             '-Dforrest.jvmargs="-Dfile.encoding=utf-8 -Djava.awt.headless=true  -Duser.language=' + lang + '"'],
                                 stdout=self.logfile, stderr=self.logfile)
         subp.wait()
         if subp.returncode != 0:
@@ -146,51 +109,21 @@ class StaticSiteBuilder:
 
         print "Done building "
 
-    def setlang(self, lang):
-        """Set the language in the file forrest.properties
-        Forrest uses this to build language specific sites
-        Exit if an IOError occurs
-        """
-        try:
-            inproperties = open(
-                os.path.join(self.builddir, "forrest.properties"), 'r')
-        except IOError as e:
-            print >>sys.stderr, str(e)
-            self.logfile.write("Problems when writing content to ")
-            self.logfile.write("forrest.properties\n")
-            self.logfile.write("IOError\n")
-            self.logfile.write(str(e) + "\n")
+    def tobootstrap(self, lang):
+        builddir = os.path.join(self.builddir, "build/site", lang)
 
-        incontent = inproperties.readlines()
-        inproperties.close()
-
-        try:
-            outproperties = open(
-                os.path.join(self.builddir, "forrest.properties"), 'w')
-        except IOError as e:
-            print >>sys.stderr, str(e)
-            self.logfile.write("Problems when writing content to ")
-            self.logfile.write("forrest.properties\n")
-            self.logfile.write("IOError\n")
-            self.logfile.write(str(e) + "\n")
-            raise SystemExit(2)
-
-        for line in incontent:
-            if "jvmargs" in line:
-                line = line[:-1] + " -Duser.language=" + lang + "\n"
-                if line[0] == "#":
-                    line = line[1:]
-
-            outproperties.write(line)
-
-        outproperties.close()
+        for root, dirs, files in os.walk(builddir):
+            for f in files:
+                if f.endswith('.html'):
+                    f2b = Forrest2Bootstrap(os.path.join(root, f))
+                    f2b.convert(lang, self.langs, builddir)
 
     def rename_site_files(self, lang):
         """Search for files ending with html and pdf in the build site. Give all
         these files the ending '.lang'. Move them to the 'built' dir
         """
 
-        builddir = os.path.join(self.builddir, "build/site/en")
+        builddir = os.path.join(self.builddir, "build/site", lang)
         builtdir = os.path.join(self.builddir, "built")
 
         if len(self.langs) == 1:
@@ -198,7 +131,7 @@ class StaticSiteBuilder:
                 shutil.move(item, builtdir)
         else:
             for root, dirs, files in os.walk(builddir):
-                goal_dir = root.replace("build/site/en", "built")
+                goal_dir = root.replace("build/site", lang, "built")
 
                 if not os.path.exists(goal_dir):
                     os.mkdir(goal_dir)
@@ -209,38 +142,18 @@ class StaticSiteBuilder:
                         newname = file_ + '.' + lang
 
                     fullname = os.path.join(root, file_)
-                    if file_.endswith('.html'):
-                        self.add_lang_info(fullname, lang, builddir)
                     shutil.copy(
                         os.path.join(root, file_),
                         os.path.join(goal_dir, newname))
 
             shutil.move(builddir, os.path.join(builtdir, lang))
 
-    def add_lang_info(self, filename, lang, builddir):
-        trlangs = {"fi": "Suomeksi", "no": "På norsk", "sma": "Åarjelsaemien",
-                   "se": "Davvisámegillii", "smj": "Julevsábmáj",
-                   "sv": "På svenska", "en": "In English"}
-
-        for line in fileinput.FileInput(filename, inplace=1):
-            if line.find('id="content"') > -1:
-                line += '<div id="lang-choice">\n<ul>\n'
-                for trlang, value in trlangs.items():
-                    if trlang != lang:
-                        line += '<li><a href="/' + trlang + '/'
-                        line += filename.replace(builddir, '')
-                        line += '">' + value + '</a>\n</li>\n'
-                    else:
-                        line += '<li>' + value + '</li>\n'
-                line += '</ul>\n</div>\n'
-            print line.rstrip()
-
     def build_all_langs(self):
         '''Build all the langs
         '''
         for lang in self.langs:
-            self.setlang(lang)
             self.buildsite(lang)
+            self.tobootstrap(lang)
             self.rename_site_files(lang)
 
     def copy_to_site(self):
@@ -296,17 +209,21 @@ class Forrest2Bootstrap(object):
 
         unwanted = {
             'div': {
-                'id': ['branding-tagline-name', 'branding-tagline-tagline'],
+                'id': ['branding-tagline-name', 'branding-tagline-tagline',
+                       'level2tabs', 'roundbottom'],
+                'class': ['searchbox']
                 },
             }
 
         for tag, attribs in unwanted.items():
             for key, values in attribs.items():
                 for value in values:
-                    e = body.find('.//xhtml:' + tag +
+                    elements = body.xpath('.//xhtml:' + tag +
                                   '[@' + key + '="' + value + '"]',
                                   namespaces=self.namespace)
-                    e.getparent().remove(e)
+
+                    for e in elements:
+                        e.getparent().remove(e)
 
 
     def add_bootstrap_body(self):
@@ -329,14 +246,14 @@ class Forrest2Bootstrap(object):
         container = body.find('.//xhtml:div[@id="container"]',
                               namespaces=self.namespace)
         container.set('class', 'container-fluid')
-        container.insert(0, self.nav_main_hook2navbar())
 
-        self.menu2accordion()
 
         header = body.find('.//xhtml:div[@id="header"]',
                            namespaces=self.namespace)
         header.set('class', 'col-sm-12')
+        header.insert(0, self.nav_main_hook2navbar())
 
+        self.menu2accordion()
         leftbar = body.find('.//xhtml:div[@id="leftbar"]',
                             namespaces=self.namespace)
         leftbar.set('class', 'col-sm-4')
@@ -345,6 +262,10 @@ class Forrest2Bootstrap(object):
                             namespaces=self.namespace)
         content.set('class', 'col-sm-8')
 
+        for img in content.xpath('.//xhtml:img',
+                                 namespaces=self.namespace):
+            if img.get('class') != 'icon':
+                img.set('class', 'img-responsive')
 
     def nav_main_hook2navbar(self):
         body = self.getelement('body')
@@ -443,14 +364,14 @@ class Forrest2Bootstrap(object):
         self.set_in(menu)
 
     def set_in(self, menu):
-        collapse = menu.xpath('.//div[@class="panel-collapse collapse"]')
+        '''Open all the collapsed menu items that contain the active document
+        '''
+        collapse = menu.xpath('.//div[@class="accordion-collapse collapse"]')
         for c in collapse:
             menupage = c.find('.//xhtml:li[@class="menupage"]',
                                  namespaces=self.namespace)
             if menupage is not None:
-                c.set('class', 'panel-collapse collapse in')
-
-
+                c.set('class', 'accordion-collapse collapse in')
 
     def menuitemgroup2panelcollapse(self, element):
         id = element.get('id').replace('.', '_')
@@ -460,22 +381,15 @@ class Forrest2Bootstrap(object):
         index = parent.index(element)
 
         panelbody = etree.Element('div')
-        panelbody.set('class', 'panel-body')
+        panelbody.set('class', 'accordion-body')
         panelbody.append(element)
 
         panelcollapse = etree.Element('div')
-        panelcollapse.set('class', 'panel-collapse collapse')
+        panelcollapse.set('class', 'accordion-collapse collapse')
         panelcollapse.set('id', id)
         panelcollapse.append(panelbody)
 
         parent.insert(index, panelcollapse)
-
-    def convert(self):
-        self.handle_head()
-        self.handle_body()
-
-        with open(self.f + '.bg', 'w') as huff:
-            huff.write(etree.tostring(self.tree, encoding='UTF-8', pretty_print=True))
 
     def pagegroup2panelgroup(self, element):
         id = element.get('id').replace('.', '_')
@@ -484,13 +398,13 @@ class Forrest2Bootstrap(object):
         self.span2panelhead(element[0], id)
 
         element.tag = 'div'
-        element.set('class', 'panel panel-default')
+        element.set('class', 'accordion accordion-default')
 
         element_parent = element.getparent()
         index = element_parent.index(element)
 
         panelgroup = etree.Element('div')
-        panelgroup.set('class', 'panel-group')
+        panelgroup.set('class', 'accordion-group')
         panelgroup.set('id', id)
         panelgroup.append(element)
 
@@ -507,14 +421,68 @@ class Forrest2Bootstrap(object):
         span.set('href', '#' + id.replace('Title', ''))
 
         h4 = etree.Element('h4')
-        h4.set('class', 'panel-title')
+        h4.set('class', 'accordion-title')
         h4.append(span)
 
         panel_heading = etree.Element('div')
-        panel_heading.set('class', 'panel-heading')
+        panel_heading.set('class', 'accordion-heading')
         panel_heading.append(h4)
 
         span_parent.insert(index, panel_heading)
+
+    def add_lang_info(self, lang, langs, builddir):
+        body = self.getelement('body')
+        my_nav_bar = body.find('.//div[@id="myNavbar"]',
+                           namespaces=self.namespace)
+        my_nav_bar.append(self.make_lang_menu(lang, langs, builddir))
+
+    def make_lang_menu(self, this_lang, langs, builddir):
+        trlangs = {u"fi": u"Suomeksi", u"no": u"På norsk", u"sma": u"Åarjelsaemien",
+                   u"se": u"Davvisámegillii", u"smj": u"Julevsábmáj",
+                   u"sv": u"På svenska", u"en": u"In English"}
+
+        right_menu = etree.Element('ul')
+        right_menu.set('class', 'nav navbar-nav navbar-right')
+
+        dropdown = etree.Element('li')
+        dropdown.set('class', 'dropdown')
+        right_menu.append(dropdown)
+
+        dropdown_toggle = etree.Element('a')
+        dropdown_toggle.set('class', 'dropdown-toggle')
+        dropdown_toggle.set('data-toggle', 'dropdown')
+        dropdown_toggle.set('href', '#')
+        dropdown_toggle.text = u"Change language"
+        dropdown.append(dropdown_toggle)
+
+        span = etree.Element('span')
+        span.set('class', 'caret')
+        dropdown_toggle.append(span)
+
+        dropdown_menu = etree.Element('ul')
+        dropdown_menu.set('class', 'dropdown-menu')
+        dropdown.append(dropdown_menu)
+
+        for lang in langs:
+            if lang != this_lang:
+                li = etree.Element('li')
+                a = etree.Element('a')
+                filename = '/' + lang + '/' + self.f.replace(builddir, '')
+                a.set('href', filename)
+                a.text = trlangs[lang]
+                li.append(a)
+                dropdown_menu.append(li)
+
+        return right_menu
+
+
+
+    def convert(self, lang, langs, builddir):
+        self.handle_head()
+        self.handle_body()
+        self.add_lang_info(lang, langs, builddir)
+        with open(self.f, 'w') as huff:
+            huff.write(etree.tostring(self.tree, encoding='UTF-8', pretty_print=True))
 
 
 def parse_options():
@@ -523,9 +491,6 @@ def parse_options():
     parser.add_argument('--destination', '-d',
                         help="an ssh destination",
                         required=True)
-    parser.add_argument('--vcs', '-c',
-                        help="the version control system",
-                        default='svn')
     parser.add_argument('--sitehome', '-s',
                         help="where the forrest site lives",
                         required=True)
@@ -539,8 +504,7 @@ def parse_options():
 def main():
     args = parse_options()
 
-    builder = StaticSiteBuilder(args.sitehome, args.destination, args.vcs,
-                                args.langs)
+    builder = StaticSiteBuilder(args.sitehome, args.destination, args.langs)
     builder.validate()
     builder.build_all_langs()
     builder.copy_to_site()
