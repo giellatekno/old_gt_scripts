@@ -506,7 +506,7 @@ class Forrest2Bootstrap(object):
             if lang != this_lang:
                 li = etree.Element('li')
                 a = etree.Element('a')
-                filename = '/' + lang + '/' + self.f.replace(builddir, '')
+                filename = '/' + lang + self.f.replace(builddir, '')
                 a.set('href', filename)
                 a.text = trlangs[lang]
                 li.append(a)
