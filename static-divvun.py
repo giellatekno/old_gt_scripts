@@ -245,7 +245,12 @@ class Forrest2Bootstrap(object):
 
         container = body.find('.//div[@id="main"]',
                               namespaces=self.namespace)
-        container.set('class', 'container-fluid')
+        try:
+            container.set('class', 'container-fluid')
+        except AttributeError as e:
+            print >>sys.stderr, str(e)
+            print >>sys.stderr, self.f
+            sys.exit(2)
 
 
         header = body.find('.//div[@class="header"]',
