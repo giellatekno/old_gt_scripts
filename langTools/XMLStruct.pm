@@ -493,7 +493,9 @@ sub gen2html {
         if ($analysis) {
             $td = XML::Twig::Elt->new('td');
             ( $colored_analysis = $analysis ) =~
-              s/(\+)/<font color=\"grey\">$1<\/font>/g;
+	      #s/(\+)/<font color=\"grey\">$1<\/font>/g;
+	      # replace '+' by whitespace character, as agreed upon with Lene and Trond 
+              s/(\+)/ /g;
             $td->set_text($colored_analysis);
             $td->paste( 'last_child', $tr );
         }
