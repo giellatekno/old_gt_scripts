@@ -485,7 +485,7 @@ sub gen2html {
 
         $td   = XML::Twig::Elt->new('td');
         $font = XML::Twig::Elt->new('font');
-        $font->set_att( 'color', 'maroon' );
+        $font->set_att( 'color', 'white' );
         $font->set_text($lemma);
         $font->paste( 'last_child', $td );
         $td->paste( 'last_child', $tr );
