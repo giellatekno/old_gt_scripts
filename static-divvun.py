@@ -108,13 +108,13 @@ class StaticSiteBuilder:
 
         print "Done building "
 
-    def tobootstrap(self, lang):
+    def add_language_changer(self, lang):
         builddir = os.path.join(self.builddir, "build/site/en")
 
         for root, dirs, files in os.walk(builddir):
             for f in files:
                 if f.endswith('.html'):
-                    f2b = Forrest2Bootstrap(os.path.join(root, f))
+                    f2b = LanguageAdder(os.path.join(root, f))
                     f2b.convert(lang, self.langs, builddir)
 
     def rename_site_files(self, lang):
@@ -152,7 +152,8 @@ class StaticSiteBuilder:
         '''
         for lang in self.langs:
             self.buildsite(lang)
-            self.tobootstrap(lang)
+            if len(self.langs) > 1:
+                self.add_language_changer(lang)
             self.rename_site_files(lang)
 
     def copy_to_site(self):
@@ -165,9 +166,8 @@ class StaticSiteBuilder:
         subp.wait()
 
 
-class Forrest2Bootstrap(object):
-    '''Class to convert an html document built with forrest
-    to use the Twitter Bootstrap framework
+class LanguageAdder(object):
+    '''Add a language changer to an html document
     '''
     def __init__(self, f):
         self.f = f
@@ -181,298 +181,6 @@ class Forrest2Bootstrap(object):
     def getelement(self, tag):
         return self.getroot().find(
             './/' + tag, namespaces=self.namespace)
-
-    def handle_head(self):
-        head = self.getelement('head')
-
-        for element in head:
-            if element.tag != 'title':
-                element.getparent().remove(element)
-
-
-        e1 = etree.Element('meta')
-        e1.set('charset', 'utf-8')
-        head.append(e1)
-
-        e2 = etree.Element('meta')
-        e2.set('name', 'viewport')
-        e2.set('content', 'width=device-width, initial-scale=1')
-        head.append(e2)
-
-        e3 = etree.Element('link')
-        e3.set('rel', 'stylesheet')
-        e3.set( 'href', 'http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
-        head.append(e3)
-
-    def remove_unwanted(self):
-        body = self.getelement('body')
-
-        unwanted = {
-            'div': {
-                'id': ['branding-tagline-name', 'branding-tagline-tagline',
-                       'publishedStrip', 'level2tabs', 'roundbottom', 'logos'],
-                'class': ['searchbox', 'breadtrail', 'trail']
-                },
-            }
-
-        for tag, attribs in unwanted.items():
-            for key, values in attribs.items():
-                for value in values:
-                    elements = body.xpath('.//' + tag +
-                                  '[@' + key + '="' + value + '"]',
-                                  namespaces=self.namespace)
-
-                    for e in elements:
-                        e.getparent().remove(e)
-
-
-    def add_bootstrap_body(self):
-        body = self.getelement('body')
-        b = ['https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js',
-             'http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js']
-        for value in b:
-            s = etree.Element('script')
-            s.set('src', value)
-            body.append(s)
-
-    def handle_body(self):
-        self.remove_unwanted()
-        self.add_bootstrap_body()
-        self.set_bootstrap_classes()
-
-    def set_bootstrap_classes(self):
-        body = self.getelement('body')
-
-        container = body.find('.//div[@id="main"]',
-                              namespaces=self.namespace)
-        try:
-            container.set('class', 'container-fluid')
-        except AttributeError as e:
-            print >>sys.stderr, str(e)
-            print >>sys.stderr, self.f
-            sys.exit(2)
-
-
-        header = body.find('.//div[@class="header"]',
-                           namespaces=self.namespace)
-        header.set('class', 'header col-sm-12')
-        header.insert(0, self.nav_main_hook2navbar())
-
-        self.menu2accordion()
-        leftbar = body.find('.//div[@id="menu"]',
-                            namespaces=self.namespace)
-        leftbar.set('class', 'col-sm-3')
-
-        content = body.find('.//div[@id="content"]',
-                            namespaces=self.namespace)
-        content.set('class', 'col-sm-9')
-
-        for img in content.xpath('.//img',
-                                 namespaces=self.namespace):
-            if img.get('class') != 'icon':
-                img.set('class', 'img-responsive')
-
-        for table in content.xpath('.//table',
-                                 namespaces=self.namespace):
-            if table.get('class') == 'invisible':
-                table.attrib.pop('class')
-
-        self.fix_footer()
-
-    def fix_footer(self):
-        body = self.getelement('body')
-
-        grouplogo = body.find('.//div[@class="grouplogo"]')
-        grouplogo.set('class', 'col-sm-3')
-        grouplogo.find('.//img').set('height', '150')
-
-
-        footer = body.find('.//div[@id="footer"]')
-        footer.set('class', 'col-sm-9')
-
-        footer_parent = footer.getparent()
-        footer_index = footer_parent.index(footer)
-
-        new_footer = etree.Element('div')
-        new_footer.set('class', 'row')
-
-        new_footer.append(grouplogo)
-        new_footer.append(footer)
-
-        footer_parent.insert(footer_index, new_footer)
-
-    def nav_main_hook2navbar(self):
-        body = self.getelement('body')
-
-        button = etree.Element('button')
-        button.set('type', 'button')
-        button.set('class', 'navbar-toggle')
-        button.set('data-toggle', 'collapse')
-        button.set('data-target', '#myNavbar')
-
-        for i in range(0, 3):
-            span = etree.Element('span')
-            span.set('class', 'icon-bar')
-            button.append(span)
-
-        navbar_header = body.find('.//div[@class="projectlogo"]')
-        navbar_header.set('class', 'navbar-header')
-        navbar_header.append(button)
-
-        navbar_header.find('./a').set('class', 'navbar-brand')
-        navbar_header.find('.//img').set('height', '30')
-
-        menu_div = etree.Element('div')
-        menu_div.set('id', 'myNavbar')
-        menu_div.set('class', 'collapse navbar-collapse')
-        huff = self.get_forrest_tabs()
-        menu_div.append(huff)
-
-        div_fluid = etree.Element('div')
-        div_fluid.set('class', 'container-fluid')
-        div_fluid.append(navbar_header)
-        div_fluid.append(menu_div)
-
-        nav = etree.Element('nav')
-        nav.set('class', 'navbar navbar-default')
-        nav.append(div_fluid)
-
-        return nav
-
-    def get_forrest_tabs(self):
-        body = self.getelement('body')
-
-        nav_main = body.find('.//ul[@id="tabs"]',
-                              namespaces=self.namespace)
-        nav_main.attrib.pop('id')
-        nav_main.set('class', 'nav navbar-nav')
-
-        for li in nav_main:
-            if li.get('class') == 'current':
-                li.set('class', 'active')
-            else:
-                if li.get('class') is not None:
-                    li.attrib.pop('class')
-
-            li[0].attrib.pop('class')
-
-        return nav_main
-        body = self.getelement('body')
-
-    def menu2accordion(self):
-        '''
-        class "menupage" -> class="panel-collapse collapse in", forelderen til dette elementet skal være åpen
-        class "menuitem" -> remove class
-        li class "pagegroup" -> div class "panel panel-default"
-            etterfølgende span blir
-            div class panel-heading
-                h4 panel-title
-                    a data-toggle="collapse", etc
-            ul class menuitemgroup -> omsluttes av div class panel-body, fjern klassen
-        '''
-        body = self.getelement('body')
-        menu = body.find('.//div[@id="menu"]',
-                              namespaces=self.namespace)
-        menu.set('class', 'nav nav-sidebar')
-        menu.attrib.pop('id')
-        menu.tag = 'ul'
-        menu_parent = menu.getparent()
-        menu_index = menu_parent.index(menu)
-
-
-        new_menu = etree.Element('div')
-        new_menu.set('id', 'menu')
-        new_menu.append(menu)
-
-        menu_parent.insert(menu_index, new_menu)
-
-        for element in menu.iter():
-            c = element.get('class')
-            if c == 'menutitle':
-                element.tag = 'li'
-                self.pagegroup2panelgroup(element)
-            elif c == 'menuitem':
-                element.attrib.pop('class')
-                element.tag = 'li'
-            elif c == 'menupage':
-                element.tag = 'li'
-            elif (c == 'menuitemgroup' or c == 'selectedmenuitemgroup'):
-                self.menuitemgroup2panelcollapse(element)
-
-        self.set_in(menu)
-
-    def set_in(self, menu):
-        '''Open all the collapsed menu items that contain the active document
-        '''
-        collapse = menu.xpath('.//div[@class="accordion-collapse collapse"]',
-                              namespaces=self.namespace)
-        for c in collapse:
-            menupage = c.find('.//li[@class="menupage"]',
-                                 namespaces=self.namespace)
-            if menupage is not None:
-                c.set('class', 'accordion-collapse collapse in')
-
-    def menuitemgroup2panelcollapse(self, element):
-        id = element.get('id').replace('.', '_')
-        element.attrib.pop('class')
-        element.attrib.pop('id')
-        #element.attrib.pop('style')
-        element.tag = 'ul'
-        parent = element.getparent()
-        index = parent.index(element)
-
-        panelbody = etree.Element('div')
-        panelbody.set('class', 'accordion-body')
-        panelbody.append(element)
-
-        panelcollapse = etree.Element('div')
-        panelcollapse.set('class', 'accordion-collapse collapse')
-        panelcollapse.set('id', id)
-        panelcollapse.append(panelbody)
-
-        parent.insert(index, panelcollapse)
-
-    def pagegroup2panelgroup(self, element):
-        id = element.get('id').replace('.', '_')
-        element.attrib.pop('id')
-        element.attrib.pop('onclick')
-        try:
-            element.attrib.pop('style')
-        except KeyError:
-            pass
-
-        element.insert(0, self.panelhead(element, id))
-
-        element.tag = 'div'
-        element.set('class', 'accordion accordion-default')
-
-        element_parent = element.getparent()
-        index = element_parent.index(element)
-
-        panelgroup = etree.Element('div')
-        panelgroup.set('class', 'accordion-group')
-        panelgroup.set('id', id)
-        panelgroup.append(element)
-
-        element_parent.insert(index, panelgroup)
-
-    def panelhead(self, element, id):
-        a = etree.Element('a')
-        a.set('data-toggle', 'collapse')
-        a.set('data-parent', '#' + id)
-        a.set('href', '#' + id.replace('Title', ''))
-        a.text = element.text
-        element.text = None
-
-        h4 = etree.Element('h4')
-        h4.set('class', 'accordion-title')
-        h4.append(a)
-
-        panel_heading = etree.Element('div')
-        panel_heading.set('class', 'accordion-heading')
-        panel_heading.append(h4)
-
-        return panel_heading
 
     def add_lang_info(self, lang, langs, builddir):
         body = self.getelement('body')
@@ -520,8 +228,6 @@ class Forrest2Bootstrap(object):
         return right_menu
 
     def convert(self, lang, langs, builddir):
-        self.handle_head()
-        self.handle_body()
         self.add_lang_info(lang, langs, builddir)
         with open(self.f, 'w') as huff:
             huff.write(etree.tostring(self.tree, encoding='utf8',
