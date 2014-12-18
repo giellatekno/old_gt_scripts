@@ -52,7 +52,7 @@ done
 
 DATE=`date +%Y-%m-%d`
 
-for xmltype in converted analysed
+for xmltype in analysed
 do
     # The directory on divvun.no that files should be synced to
     DIRECTORY=/Users/hoavda/Public/corp/freecorpus/$xmltype/$DATE
