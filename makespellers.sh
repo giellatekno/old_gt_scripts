@@ -15,6 +15,8 @@ echo " -------------------------------------------------------------------------
 cd $GTHOME/langs/fao && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst --enable-spellers --enable-hyperminimisation --disable-analysers --disable-generators && nice time make && sudo make install  
 echo " -------------------------------------------------------------------------------------- fin, Finnish "
 cd $GTHOME/langs/fin && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst --enable-spellers --enable-hyperminimisation --disable-analysers --disable-generators && nice time make && sudo make install 
+echo " -------------------------------------------------------------------------------------- kal, Greenlandic "
+cd $GTHOME/langs/kal && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst --enable-spellers  --disable-analysers --disable-generators && nice time make && sudo make install
 echo " -------------------------------------------------------------------------------------- kca, Khanty "
 cd $GTHOME/langs/kca && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst --enable-spellers --enable-hyperminimisation --disable-analysers --disable-generators && nice time make && sudo make install  
 echo " -------------------------------------------------------------------------------------- kpv, Komi Zyryan "
@@ -42,6 +44,8 @@ cd $GTHOME/langs/sje && pwd && nice ./autogen.sh -l && nice ./configure --with-h
 echo " -------------------------------------------------------------------------------------- sma, South Saami "
 cd $GTHOME/langs/sma && pwd && nice ./autogen.sh -l && nice ./configure --enable-oahpa --with-hfst --enable-spellers && nice time make && sudo make install    # adjectives.lexc
 #cd $GTHOME/langs/sma && pwd && nice ./autogen.sh -l && nice ./configure --enable-oahpa --with-hfst --enable-spellers && nice time make && sudo make install   # adjectives-oahpa.lexc
+echo " -------------------------------------------------------------------------------------- sme, North Saami "
+cd $GTHOME/langs/sme && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst --enable-spellers  --disable-analysers --disable-generators && nice time make && sudo make install
 echo " -------------------------------------------------------------------------------------- smj, Lule Saami "
 cd $GTHOME/langs/smj && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst --enable-spellers --enable-hyperminimisation --disable-analysers --disable-generators && nice time make && sudo make install  
 
