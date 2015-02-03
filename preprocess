@@ -1052,13 +1052,13 @@ sub compute_end_and_restpunct
     }
 
 
-    if (defined($rest_punct) && $rest_punct != "") {
+    if (defined($rest_punct) && $rest_punct ne "") {
         my @rp = split(//, $rest_punct);
         verbose ("add_array", "$word", __LINE__);
         add_array($tokens_aref, \@rp);
     }
 
-    if (defined($end_punct) && $end_punct != "") {
+    if (defined($end_punct) && $end_punct ne "") {
         my @ep = split(//, $end_punct);
         verbose ("add_array", "$word", __LINE__);
         add_array($tokens_aref, \@ep);
