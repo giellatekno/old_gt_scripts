@@ -306,7 +306,7 @@ sub process_words {
 
             my $word = $w_token->{word};
 
-            if ($word) {
+            if (defined ($word) && $word ne "") {
 
                 verbose("process_words", $word , __LINE__);
                 # An array for storing the tokens, each token in its own slot.
@@ -586,7 +586,7 @@ sub handle_leading_punctuation {
         concatenate_three_or_more_leading_dots  ($1, $2, $5, $word, $w_token, \@words, \@next_words, \@tokens);
     } else {
         $word = handle_two_or_less_leading_dots($word, \@tokens);
-        if ($word) {
+        if (defined ($word) && $word ne "") {
             if ($word =~ /^[\W]?\pL+/) {
                 # Examine the type of the string. If the expression contains
                 # alphabetical characters optionally preceded by one punctuation
@@ -1023,7 +1023,7 @@ sub compute_end_and_restpunct
 
     # Process first the abbreviation or word
     # that is attached to the numeral
-    if ($end_word) {
+    if (defined($end_word) && $end_word != "") {
         verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
         my $abbr = $end_word;
         if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
@@ -1044,7 +1044,7 @@ sub compute_end_and_restpunct
         verbose ("add_token", "$word", __LINE__);
         add_token($tokens_aref, $w_token, $word);
 
-        if ($end_word) {
+        if (defined($end_word) && $end_word != "") {
             verbose ("add_token", "$end_word", __LINE__);
             add_token($tokens_aref, $w_token, $end_word);
         }
@@ -1052,13 +1052,13 @@ sub compute_end_and_restpunct
     }
 
 
-    if ($rest_punct) {
+    if (defined($rest_punct) && $rest_punct != "") {
         my @rp = split(//, $rest_punct);
         verbose ("add_array", "$word", __LINE__);
         add_array($tokens_aref, \@rp);
     }
 
-    if ($end_punct) {
+    if (defined($end_punct) && $end_punct != "") {
         my @ep = split(//, $end_punct);
         verbose ("add_array", "$word", __LINE__);
         add_array($tokens_aref, \@ep);
@@ -1302,7 +1302,7 @@ sub print_tokens{
         if ($space && $t->{space}) {
             print $ltag, $t->{space}, $rtag, "\n";
         }
-        if ($t->{word}) {
+        if (defined($t->{word}) && $t->{word} ne "") {
             if ($t->{word} !~ /^$/) {
                 my $w = $t->{word};
                 $w =~ s/ $//;
