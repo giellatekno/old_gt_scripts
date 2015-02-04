@@ -1023,7 +1023,7 @@ sub compute_end_and_restpunct
 
     # Process first the abbreviation or word
     # that is attached to the numeral
-    if (defined($end_word) && $end_word != "") {
+    if (defined($end_word) && $end_word ne "") {
         verbose ("process_numeral/is_word_abbreviation", $end_word, __LINE__);
         my $abbr = $end_word;
         if (( $abbr =~ s/\.$//)  && ($abbrs{$abbr} || $abbrs{lc($abbr)})) {
@@ -1044,7 +1044,7 @@ sub compute_end_and_restpunct
         verbose ("add_token", "$word", __LINE__);
         add_token($tokens_aref, $w_token, $word);
 
-        if (defined($end_word) && $end_word != "") {
+        if (defined($end_word) && $end_word ne "") {
             verbose ("add_token", "$end_word", __LINE__);
             add_token($tokens_aref, $w_token, $end_word);
         }
