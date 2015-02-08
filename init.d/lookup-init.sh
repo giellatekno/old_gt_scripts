@@ -20,7 +20,7 @@ alias deng='$LOOKUP $GTHOME/experiment-langs/eng/src/generator-gt-desc.xfst'
 alias dest2='$LOOKUP $GTHOME/experiment-langs/est/src/generator-gt-desc.xfst'
 
 alias damh='$LOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.xfst'
-alias dbak='$LOOKUP $GTHOME/startup-langs/bak/src/generator-gt-desc.xfst'
+alias dbak='$LOOKUP $GTHOME/langs/bak/src/generator-gt-desc.xfst'
 alias dbla='$LOOKUP $GTHOME/startup-langs/bla/src/generator-gt-desc.xfst'
 alias devn='$LOOKUP $GTHOME/startup-langs/evn/src/generator-gt-desc.xfst'
 alias dsel='$LOOKUP $GTHOME/startup-langs/sel/src/generator-gt-desc.xfst'
@@ -81,7 +81,7 @@ alias ueng='$LOOKUP $GTHOME/experiment-langs/eng/src/analyser-gt-desc.xfst'
 alias uest2='$LOOKUP $GTHOME/experiment-langs/est/src/analyser-gt-desc.xfst'
 
 alias uamh='$LOOKUP $GTHOME/startup-langs/amh/src/analyser-gt-desc.xfst'
-alias ubak='$LOOKUP $GTHOME/startup-langs/bak/src/analyser-gt-desc.xfst'
+alias ubak='$LOOKUP $GTHOME/langs/bak/src/analyser-gt-desc.xfst'
 alias ubla='$LOOKUP $GTHOME/startup-langs/bla/src/analyser-gt-desc.xfst'
 alias uevn='$LOOKUP $GTHOME/startup-langs/evn/src/analyser-gt-desc.xfst'
 alias usel='$LOOKUP $GTHOME/startup-langs/sel/src/analyser-gt-desc.xfst'
@@ -158,7 +158,7 @@ alias друс='$LOOKUP $GTHOME/langs/rus/src/generator-gt-desc.xfst'
 # Languages in newinfra, Normative variants:
 
 alias damhNorm='$LOOKUP $GTHOME/startup-langs/amh/src/generator-gt-norm.xfst'
-alias dbakNorm='$LOOKUP $GTHOME/startup-langs/bak/src/generator-gt-norm.xfst'
+alias dbakNorm='$LOOKUP $GTHOME/langs/bak/src/generator-gt-norm.xfst'
 alias dblaNorm='$LOOKUP $GTHOME/startup-langs/bla/src/generator-gt-norm.xfst'
 alias devnNorm='$LOOKUP $GTHOME/startup-langs/evn/src/generator-gt-norm.xfst'
 alias dselNorm='$LOOKUP $GTHOME/startup-langs/sel/src/generator-gt-norm.xfst'
@@ -345,7 +345,7 @@ alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 # HFST aliases
 
 alias hdamh='$HLOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.hfstol'
-alias hdbak='$HLOOKUP $GTHOME/startup-langs/bak/src/generator-gt-desc.hfstol'
+alias hdbak='$HLOOKUP $GTHOME/langs/bak/src/generator-gt-desc.hfstol'
 alias hdbla='$HLOOKUP $GTHOME/startup-langs/bla/src/generator-gt-desc.hfstol'
 alias hdevn='$HLOOKUP $GTHOME/startup-langs/evn/src/generator-gt-desc.hfstol'
 alias hdsel='$HLOOKUP $GTHOME/startup-langs/sel/src/generator-gt-desc.hfstol'
@@ -402,7 +402,7 @@ alias hdyrk='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.hfstol'
 
 
 alias huamh='$HLOOKUP $GTHOME/startup-langs/amh/src/analyser-gt-desc.hfstol'
-alias hubak='$HLOOKUP $GTHOME/startup-langs/bak/src/analyser-gt-desc.hfstol'
+alias hubak='$HLOOKUP $GTHOME/langs/bak/src/analyser-gt-desc.hfstol'
 alias hubla='$HLOOKUP $GTHOME/startup-langs/bla/src/analyser-gt-desc.hfstol'
 alias huevn='$HLOOKUP $GTHOME/startup-langs/evn/src/analyser-gt-desc.hfstol'
 alias husto='$HLOOKUP $GTHOME/startup-langs/sto/src/analyser-gt-desc.hfstol'
@@ -460,7 +460,7 @@ alias huyrk='$HLOOKUP $GTHOME/langs/yrk/src/analyser-gt-desc.hfstol'
 
 # Normative variants:
 alias hdamhNorm='$HLOOKUP $GTHOME/startup-langs/amh/src/generator-gt-norm.hfstol'
-alias hdbakNorm='$HLOOKUP $GTHOME/startup-langs/bak/src/generator-gt-norm.hfstol'
+alias hdbakNorm='$HLOOKUP $GTHOME/langs/bak/src/generator-gt-norm.hfstol'
 alias hdblaNorm='$HLOOKUP $GTHOME/startup-langs/bla/src/generator-gt-norm.hfstol'
 alias hdevnNorm='$HLOOKUP $GTHOME/startup-langs/evn/src/generator-gt-norm.hfstol'
 alias hdstoNorm='$HLOOKUP $GTHOME/startup-langs/sto/src/generator-gt-norm.hfstol'
@@ -518,7 +518,7 @@ alias hdyrkNorm='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-norm.hfstol'
 
 
 alias huamhNorm='$HLOOKUP $GTHOME/startup-langs/amh/src/analyser-gt-norm.hfstol'
-alias hubakNorm='$HLOOKUP $GTHOME/startup-langs/bak/src/analyser-gt-norm.hfstol'
+alias hubakNorm='$HLOOKUP $GTHOME/langs/bak/src/analyser-gt-norm.hfstol'
 alias hublaNorm='$HLOOKUP $GTHOME/startup-langs/bla/src/analyser-gt-norm.hfstol'
 alias huevnNorm='$HLOOKUP $GTHOME/startup-langs/evn/src/analyser-gt-norm.hfstol'
 alias huselNorm='$HLOOKUP $GTHOME/startup-langs/sel/src/analyser-gt-norm.hfstol'
