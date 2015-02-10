@@ -137,6 +137,16 @@ alias uvro='$LOOKUP $GTHOME/langs/vro/src/analyser-gt-desc.xfst'
 alias uyrk='$LOOKUP $GTHOME/langs/yrk/src/analyser-gt-desc.xfst'
 
 
+# Dictionary transducers
+
+alias usmnDict='$LOOKUP $GTHOME/langs/smn/src/analyser-dict-gt-desc.xfst'
+alias dsmnDict='$LOOKUP $GTHOME/langs/smn/src/generator-dict-gt-norm.xfst'
+
+alias husmnDict='$HLOOKUP $GTHOME/langs/smn/src/analyser-dict-gt-desc.hfstol'
+alias hdsmnDict='$HLOOKUP $GTHOME/langs/smn/src/generator-dict-gt-norm.hfstol'
+
+
+
 # Languages in newinfra, lazy cyrillic aliases:
 
 alias уком='$LOOKUP $GTHOME/langs/kpv/src/analyser-gt-desc.xfst'
