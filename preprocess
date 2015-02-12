@@ -2,6 +2,9 @@
 use warnings;
 use strict;
 use utf8;
+use open 'utf8';
+# permit named arguments
+use Getopt::Long;
 
 
 # These definitions ensure that the script works
@@ -9,7 +12,6 @@ use utf8;
 binmode( STDIN, ':utf8' );
 binmode( STDOUT, ':utf8' );
 binmode( STDERR, ':utf8' );
-use open 'utf8';
 
 # preprocess
 # Perl-script for text preprocessing
@@ -24,8 +26,6 @@ use open 'utf8';
 #
 # $Id$
 
-# permit named arguments
-use Getopt::Long;
 
 my %abbrs;
 my %corrections;
