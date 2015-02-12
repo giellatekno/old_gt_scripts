@@ -891,7 +891,7 @@ sub test_idiom {
 
                 verbose ("test_idiom", $idiom, __LINE__);
 
-                if ($idioms{$idiom2} || $idioms{lc($idiom2)} || $idioms{($ucidiom2)}) {
+                if ($idioms{$idiom2} || $idioms{lc($idiom2)}) {
                     for (my $j=0; $j <= $i; $j++) {
                         # Construct the new multiword processing unit.
                         # Remove the parts of the multiword expression from
