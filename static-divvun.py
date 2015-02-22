@@ -67,15 +67,14 @@ class StaticSiteBuilder:
         print "Validating..."
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "validate"],
-                                stdout=self.logfile, stderr=self.logfile)
-        subp.wait()
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (output, error) = subp.communicate()
+        self.logfile.writelines(output)
+        self.logfile.writelines(error)
 
         if subp.returncode != 0:
             if "Could not validate document" in error:
                 print >>sys.stderr, "\n\nCould not validate doc\n\n"
-                self.logfile.writelines(output)
-                self.logfile.writelines(error)
-
                 raise SystemExit(subp.returncode)
 
     def set_forrest_lang(self, lang):
