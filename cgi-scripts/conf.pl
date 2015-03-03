@@ -82,7 +82,7 @@ sub init_variables {
         my $fstflags = "-flags mbTT -utf8";
         my $dis_rle = "$fstdir/disambiguation.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguation.bin";  # binary file
-	my $syn_rle = "$fstdir/functions.cg3";    # all-Saami syn file
+	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
 	my $dep_rle = "$fstdir/dependency.cg3";  # text
 	my $dep_bin = "$fstdir/dependency.bin";  # binary file
 	my $translate_script;
@@ -156,7 +156,7 @@ sub init_variables {
 #		http_die '--no-alert','404 Not Found',"disambiguation.cg3: Disambiguation is not supported";
 	}
 	if ($action eq "disamb" && ! -f $syn_rle) { 
-		http_die '--no-alert','404 Not Found',"The file functions.cg3 is not found: Syntactic function analysis is not supported";
+		http_die '--no-alert','404 Not Found',"The file korp.cg3 is not found: Syntactic function analysis is not supported";
 	}
 	if ($action eq "dependency" && ! -f $dep_rle) { 
 		http_die '--no-alert','404 Not Found',"The file dependency.cg3 is not found: Dependency analysis is not supported";
