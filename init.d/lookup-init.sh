@@ -377,6 +377,12 @@ alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 
 # HFST aliases
 
+alias hdkhk='$HLOOKUP $GTHOME/startup-langs/khk/src/generator-gt-desc.hfstol'
+alias hdkjh='$HLOOKUP $GTHOME/startup-langs/kjh/src/generator-gt-desc.hfstol'
+alias hdtyv='$HLOOKUP $GTHOME/startup-langs/tyv/src/generator-gt-desc.hfstol'
+alias hdxal='$HLOOKUP $GTHOME/startup-langs/xal/src/generator-gt-desc.hfstol'
+alias hdxwo='$HLOOKUP $GTHOME/startup-langs/xwo/src/generator-gt-desc.hfstol'
+
 alias hdamh='$HLOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.hfstol'
 alias hdbak='$HLOOKUP $GTHOME/langs/bak/src/generator-gt-desc.hfstol'
 alias hdbla='$HLOOKUP $GTHOME/startup-langs/bla/src/generator-gt-desc.hfstol'
@@ -432,6 +438,13 @@ alias hdudm='$HLOOKUP $GTHOME/langs/udm/src/generator-gt-desc.hfstol'
 alias hdvep='$HLOOKUP $GTHOME/langs/vep/src/generator-gt-desc.hfstol'
 alias hdvro='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-desc.hfstol'
 alias hdyrk='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.hfstol'
+
+
+alias hukhk='$HLOOKUP $GTHOME/startup-langs/khk/src/analyser-gt-desc.hfstol'
+alias hukjh='$HLOOKUP $GTHOME/startup-langs/kjh/src/analyser-gt-desc.hfstol'
+alias hutyv='$HLOOKUP $GTHOME/startup-langs/tyv/src/analyser-gt-desc.hfstol'
+alias huxal='$HLOOKUP $GTHOME/startup-langs/xal/src/analyser-gt-desc.hfstol'
+alias huxwo='$HLOOKUP $GTHOME/startup-langs/xwo/src/analyser-gt-desc.hfstol'
 
 
 alias huamh='$HLOOKUP $GTHOME/startup-langs/amh/src/analyser-gt-desc.hfstol'
