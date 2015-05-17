@@ -209,7 +209,7 @@ sub init_variables {
 #    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
 # if ... (4 languages with syn_rle) ... else the rest
-	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")) {
+	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
 	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8"; 
 	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8 | $bindir/vislcg3 -g $dep_rle -C UTF-8"; 
 	}
