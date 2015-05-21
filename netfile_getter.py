@@ -38,7 +38,7 @@ class ArticleSaver:
 
 		self.lg = ngram.NGram(self.gthome + '/tools/lang-guesser/LM/')
 		self.change_variables = {}
-		self.set_variable('sub_email', 'divvun@samediggi.no')
+		self.set_variable('sub_email', 'feedback@divvun.no')
 		self.filebuffer = ''
 		self.files_to_commit = []
 		

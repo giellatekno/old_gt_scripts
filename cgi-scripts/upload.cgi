@@ -16,7 +16,7 @@ CGI::Alert::custom_browser_text << '-END-';
 <h1>Error in uploading the file.</h1>
 <p>[MSG]</p>
 <p>Our maintainers have been informed.</p>
-<p>Send feedback and questions to <a href="mailto:divvun@samediggi.no?subject=Feedback%C2%A0upload.cgi">divvun@samediggi.no</mail></p>
+<p>Send feedback and questions to <a href="mailto:feedback@divvun.no?subject=Feedback%C2%A0upload.cgi">feedback@divvun.no</mail></p>
 <p><a href="http://www.divvun.no/upload/upload_corpus_file.html">Upload more files</a> </p>
 <p><a href="http://www.divvun.no/"> Divvun main page</a></p>
 -END-
