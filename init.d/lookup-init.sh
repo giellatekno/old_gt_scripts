@@ -158,9 +158,14 @@ alias uyrk='$LOOKUP $GTHOME/langs/yrk/src/analyser-gt-desc.xfst'
 
 alias usmnDict='$LOOKUP $GTHOME/langs/smn/src/analyser-dict-gt-desc.xfst'
 alias dsmnDict='$LOOKUP $GTHOME/langs/smn/src/generator-dict-gt-norm.xfst'
+alias usmsDict='$LOOKUP $GTHOME/langs/sms/src/analyser-dict-gt-desc.xfst'
+alias dsmsDict='$LOOKUP $GTHOME/langs/sms/src/generator-dict-gt-norm.xfst'
+
 
 alias husmnDict='$HLOOKUP $GTHOME/langs/smn/src/analyser-dict-gt-desc.hfstol'
 alias hdsmnDict='$HLOOKUP $GTHOME/langs/smn/src/generator-dict-gt-norm.hfstol'
+alias husmsDict='$HLOOKUP $GTHOME/langs/sms/src/analyser-dict-gt-desc.hfstol'
+alias hdsmsDict='$HLOOKUP $GTHOME/langs/sms/src/generator-dict-gt-norm.hfstol'
 
 
 
