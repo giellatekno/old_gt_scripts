@@ -20,16 +20,16 @@ do
     for lang in sma sme smj
     do
         # count how many files are potentially convertible
-        xsls=`find orig/$lang -name \*.xsl|wc -l`
+        xsls=`find $CORPUS/orig/$lang -name \*.xsl|wc -l`
 
         # count how many files that really got converted
-        cxmls=`find converted/$lang -name \*.xml|wc -l`
+        cxmls=`find $CORPUS/converted/$lang -name \*.xml|wc -l`
 
         # count how many files that really got analysed
-        axmls=`find analysed/$lang -name \*.xml|wc -l`
+        axmls=`find $CORPUS/analysed/$lang -name \*.xml|wc -l`
 
         # print the facts
-        echo "$lang xsls $xsls cxml $cxmls axml $axmls $corpus"
+        echo "$lang xsls $xsls cxml $cxmls axml $axmls $CORPUS"
     done
 
     DIRECTORY=${CORPUSES[$CORPUS]}
