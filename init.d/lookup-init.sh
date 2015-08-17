@@ -360,11 +360,13 @@ alias uhun='$LOOKUP $GTHOME/kt/hun/bin/hun.fst'
 
 
 # Bilingual transducers:
+
 alias engsme='$LOOKUP $GTHOME/words/dicts/engsme/bin/engsme.fst'
 alias finsme='$LOOKUP $GTHOME/words/dicts/finsme/bin/finsme.fst'
+alias finsmn='$LOOKUP $GTHOME/words/dicts/finsmn/bin/finsmn.fst'
 alias fitswe='$LOOKUP $GTHOME/kvensk/fitswe/bin/fitswe.fst'
 alias fkvnob='$LOOKUP $GTHOME/words/dicts/fkvnob/bin/fkvnob.fst'
-alias kaldan='$LOOKUP -flags mbTT -utf8 $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
+alias kaldan='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldan.fst'
 alias kaleng='$LOOKUP $GTHOME/words/dicts/kaleng/bin/kaleng.fst'
 alias nobfkv='$LOOKUP $GTHOME/words/dicts/nobfkv/bin/nobfkv.fst'
 alias nobsma='$LOOKUP $GTHOME/words/dicts/nobsma/bin/nobsma.fst'
@@ -374,7 +376,10 @@ alias smeeng='$LOOKUP $GTHOME/words/dicts/smeeng/bin/smeeng.fst'
 alias smefin='$LOOKUP $GTHOME/words/dicts/smefin/bin/smefin.fst'
 alias smenob='$LOOKUP $GTHOME/words/dicts/smenob/bin/smenob.fst'
 alias smesmj='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smesmj.fst'
+alias smesmn='$LOOKUP $GTHOME/words/dicts/smesmn/bin/smesmn.fst'
 alias smjsme='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smjsme.fst'
+alias smnfin='$LOOKUP $GTHOME/words/dicts/smnfin/bin/smnfin.fst'
+alias smnsme='$LOOKUP $GTHOME/words/dicts/smnsme/bin/smnsme.fst'
 alias swefit='$LOOKUP $GTHOME/words/dicts/swefit/bin/swefit.fst'
 
 # Other transducers
