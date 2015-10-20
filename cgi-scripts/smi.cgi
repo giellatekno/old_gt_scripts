@@ -8,7 +8,7 @@ use strict;
 
 use utf8;
 use HTML::Entities;
-use Unicode::String qw(utf8 latin1);
+#use Unicode::String qw(utf8 latin1);
 use XML::Twig;
 
 use CGI::Minimal;
@@ -608,7 +608,7 @@ sub printinitialhtmlcodes {
     
     # Get the texts for selection menu
     my %labels;
-    my @modes = qw(minimal standard full dialect);
+    my @modes = qw(minimal standard full);
     for my $m (@modes) { $labels{$m} = $selection->first_child_text("\@type='$m'"); }
     my %pos_labels;
     my @poses;
@@ -835,7 +835,7 @@ sub printfinalhtmlcodes {
   my $p = XML::Twig::Elt->new(p=> $copyright);
   my $br = XML::Twig::Elt->new('br');
   $br->paste('last_child', $p);
-  my $a = XML::Twig::Elt->new(a=> {href=>'http://giellatekno.uit.no/'},'http://giellatekno.uit.no/');
+  my $a = XML::Twig::Elt->new(a=> {href=>'http://giellatekno.uit.no/doc/lang/sme/docu-mini-smi-grammartags.html'},'Morphological tags');
   $a->paste('last_child', $p);
   $p->paste('last_child', $body);
   
