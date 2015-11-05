@@ -20,7 +20,7 @@ module load automake/1.13.1
 cd $GTHOME/gtcore
 make
 
-for lang in sma sme smj fkv smn
+for lang in sma sme smj fkv smn sms
 do
     # build fst needed for analysis
     cd $GTHOME/langs/$lang
