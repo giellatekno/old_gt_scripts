@@ -25,6 +25,10 @@ do
     # build fst needed for analysis
     cd $GTHOME/langs/$lang
     make
+    cd $GTHOME/langs/$lang/tools/preprocess
+    rm abbr.txt
+    make abbr
+
 
     for corpus in $GTFREE $GTBOUND
     do
