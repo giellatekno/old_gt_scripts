@@ -17,7 +17,7 @@ CORPUSES=(
 
 for CORPUS in "${!CORPUSES[@]}"
 do
-    for lang in sma sme smj fkv
+    for lang in sma sme smj fkv smn sms
     do
         # count how many files are potentially convertible
         xsls=`find $CORPUS/orig/$lang -name \*.xsl|wc -l`
