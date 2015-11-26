@@ -83,6 +83,8 @@ class StaticSiteBuilder:
                 inplace=1):
             if 'forrest.jvmargs' in line:
                 line = 'forrest.jvmargs=-Djava.awt.headless=true -Dfile.encoding=utf-8 -Duser.language=' + lang
+            if 'project.i18n' in line:
+                line = 'project.i18n=true'
             print line.rstrip()
 
     def buildsite(self, lang):
