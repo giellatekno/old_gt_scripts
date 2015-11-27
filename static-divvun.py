@@ -3,9 +3,8 @@
 
 """This script builds a multilingual forrest site.
 --destination (-d) an ssh destination
---vcs (-c) the version control system
 --sitehome (-s) where sd and techdoc lives
---langs (-l) comma separated list of languages"""
+"""
 
 import subprocess
 import os
