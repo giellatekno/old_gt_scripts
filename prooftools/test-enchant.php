@@ -7,7 +7,10 @@ print_r($bprovides);
 $dicts = enchant_broker_list_dicts($r);
 print_r($dicts);
 
-$tag = 'se_NO';
+// voikko and enchant only offers fi as of now (20151204)
+// se is packaged as fi can be downloaded from
+// http://divvun.no/static_files/zhfsts/se_avvir.zhfst
+$tag = 'fi';
 if (enchant_broker_dict_exists($r,$tag)) {
     $d = enchant_broker_request_dict($r, $tag);
     $dprovides = enchant_dict_describe($d);
