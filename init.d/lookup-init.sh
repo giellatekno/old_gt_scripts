@@ -385,6 +385,7 @@ alias smjsme='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smjsme.fst'
 alias smnfin='$LOOKUP $GTHOME/words/dicts/smnfin/bin/smnfin.fst'
 alias smnsme='$LOOKUP $GTHOME/words/dicts/smnsme/bin/smnsme.fst'
 alias swefit='$LOOKUP $GTHOME/words/dicts/swefit/bin/swefit.fst'
+alias myvmdf='$LOOKUP $GTHOME/words/dicts/myvmdf/bin/myvmdf.fst'
 
 # Other transducers
 alias ogeo='$LOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.fst'
