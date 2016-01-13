@@ -130,6 +130,7 @@ sub init_variables {
 						  minimal => "$fstdir/paradigm_min.$lang.txt",
 						  standard => "$fstdir/paradigm_standard.$lang.txt",
 						  full => "$fstdir/paradigm_full.$lang.txt",
+						  test => "$fstdir/paradigm_test.$lang.txt",
 						  dialect => "$fstdir/paradigm_full.$lang.txt",
 						  );
 		if ($mode) { $paradigmfile = $paradigmfiles{$mode}; }
@@ -139,6 +140,7 @@ sub init_variables {
 	if (-f $paradigmfiles{minimal}) { $lang_actions{minimal} = 1; }
 	if (-f $paradigmfiles{standard}) { $lang_actions{standard} = 1; }
 	if (-f $paradigmfiles{full} || -f $gen_norm_fst ) { $lang_actions{full} = 1; }
+	if (-f $paradigmfiles{test} || -f $gen_norm_fst ) { $lang_actions{test} = 1; }
 	}
 	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
 	else { $gen_norm_fst = $gen_fst; }
