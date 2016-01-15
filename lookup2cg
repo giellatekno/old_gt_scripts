@@ -53,7 +53,6 @@ while(<>) {
   my @lines = split(/\n/, $_);
   for my $line (@lines) {
     next if ($line =~ /^\s*$/);
-    
     # store word to a scalar and
     # analysis (=base form and tags) to an array
     my $analysis;
@@ -197,7 +196,6 @@ sub select_lexicalized {
 
 sub format_compound {
 	my ($refbase, $refline, $refword) = @_;
-
 	my $boundary_count = ($$refbase =~ tr/\#//);
 
 	# Take only the analysis of the last part of the compound
@@ -222,7 +220,6 @@ sub format_compound {
 	my $i=4;
 	# this is the problem with Bug 1746: the substring
 	my $substring = substr($last_word,0,$i);
-	
 	while ($i > 1) {
 	    if ($$refword =~ m/.*(\Q$substring\E)/) {
 		my $pos = rindex $$refword,$substring,;
@@ -281,7 +278,6 @@ sub format_compound {
 	  
 	  if ($refword =~ m/.*\Q$wf_substring\E/) {
 	    my $orig = $$refbase;
-	    
 	    $$refbase =~ s/(^[^\+]+).*$/$1\#$last_word/;
 	    
 	    # coping with geassi vs. geasse issue
@@ -307,7 +303,10 @@ sub format_compound {
 		}
 		# If the compound boundary is found, mark it with #
 		if ($$refbase =~ /.*\Q$substring\E/) {
-			$$refbase =~ s/(\Q$substring\E.*\#)/\#$1/;
+		  # bug fix for bug 2011; test input string: guovloguovddášsuohkanat
+		  # test: echo 'gieđagieđasuohkan' | usme | lookup2cg
+		  # test: echo 'guovloguovddášsuohkanat' | usme | lookup2cg
+			$$refbase =~ s/(.+)(\Q$substring\E.*\#)/$1\#$2/;
 		}
 	}
 	if ($third_last_word) {
