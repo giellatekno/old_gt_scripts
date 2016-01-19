@@ -239,7 +239,16 @@ sub format_compound {
 	  # it, in order to mark the result as a compound.
 	  my $orig = $$refbase;
 	  $$refbase = $$refword;
-	  $$refbase =~ s/(^.*)\Q$substring\E.*$/$1\#$last_word/;
+	  my $substring_counter = () = $last_word =~ /$substring/gi;
+	  # bug fix for bug : input 'vuertemetjiehtjele'
+	  # test: echo 'vuertemetjiehtjele' | usma VS echo 'vuertemetjiehtjele' | usma | lookup2cg
+	  if ($substring_counter > 1) {
+	    $$refbase =~ s/(^.*)\Q$substring\E.*\Q$substring\E.*$/$1\#$last_word/;
+	  }
+	  else {
+	    $$refbase =~ s/(^.*)\Q$substring\E.*$/$1\#$last_word/;
+	  }
+
 	  if ($orig =~ m/^\p{isLower}/) {
 	    $$refbase = lcfirst($$refbase);
 	  }
