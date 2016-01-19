@@ -240,15 +240,9 @@ sub format_compound {
 	  my $orig = $$refbase;
 	  $$refbase = $$refword;
 	  my $substring_counter = () = $last_word =~ /$substring/gi;
-	  # bug fix for bug : input 'vuertemetjiehtjele'
+	  # bug fix for bug 949: input 'vuertemetjiehtjele'
 	  # test: echo 'vuertemetjiehtjele' | usma VS echo 'vuertemetjiehtjele' | usma | lookup2cg
-	  if ($substring_counter > 1) {
-	    $$refbase =~ s/(^.*)\Q$substring\E.*\Q$substring\E.*$/$1\#$last_word/;
-	  }
-	  else {
-	    $$refbase =~ s/(^.*)\Q$substring\E.*$/$1\#$last_word/;
-	  }
-
+	  $$refbase =~ s/(^.*)(\Q$substring\E.*){$substring_counter}$/$1\#$last_word/;
 	  if ($orig =~ m/^\p{isLower}/) {
 	    $$refbase = lcfirst($$refbase);
 	  }
