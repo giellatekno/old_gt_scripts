@@ -359,8 +359,6 @@ alias   дбхр='$LOOKUP $GTHOME/st/bxr/bin/ibxr.fst'
 alias   убхр='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
 
 # Other FU languages:
-alias dhun='$LOOKUP $GTHOME/kt/hun/bin/ihun.fst'
-alias uhun='$LOOKUP $GTHOME/kt/hun/bin/hun.fst'
 
 
 
