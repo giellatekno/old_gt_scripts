@@ -23,20 +23,6 @@ export LC_ALL=no_NO.UTF-8
 FORREST_HOME=$HOME/forrest
 PATH=$PATH:$FORREST_HOME/bin
 
-update_trunk()
-{
-    cd
-    if ! [ -x $HOME/gtsvn ]; then
-        svn co https://victorio.uit.no/langtech/trunk gtsvn
-        svn co https://victorio.uit.no/biggies/trunk big
-    else
-        cd $HOME/gtsvn
-        svn up
-        cd $HOME/big
-        svn up
-    fi
-}
-
 # This function takes two arguments:
 # The first is where it should work
 # The second is where it should send the built files
@@ -79,7 +65,6 @@ then
   echo "Usage: `basename $0` <dir of forrest tree> <ssh destination>"
   exit $E_BADARGS
 else
-    update_trunk
     build_and_copy_site $1 $2
 fi
 
