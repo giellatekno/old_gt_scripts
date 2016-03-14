@@ -24,12 +24,12 @@ for lang in sma sme smj fkv smn sms
 do
     # build fst needed for analysis
     cd $GTHOME/langs/$lang
-    make
+    time make
     if [ $lang != "sms" ]
     then
         cd $GTHOME/langs/$lang/tools/preprocess
         rm abbr.txt
-        make abbr
+        time make abbr
     fi
 
 
@@ -46,4 +46,3 @@ do
         echo "finished analysing $corpus:$lang"
     done
 done
-
