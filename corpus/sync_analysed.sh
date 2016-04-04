@@ -38,4 +38,8 @@ do
     ssh boerre@divvun.no "if [ -d \"$DIRECTORY\" ]; then echo \"$DIRECTORY exists\"; else mkdir $DIRECTORY;fi"
     # sync the file to freecorpus
     rsync -qaz $CORPUS/analysed/ boerre@divvun.no:$DIRECTORY
+    # remove analysed files. If the analysis job is not run during the night,
+    # this assures we won't get stale data synced to divvun.no
+    rm -rf $CORPUS/analysed
+
 done

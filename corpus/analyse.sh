@@ -36,9 +36,6 @@ do
     for corpus in $GTFREE $GTBOUND
     do
         cd $corpus
-        # remove old analysed files, making sure
-        # old analysed files are not included, only new ones
-        rm -rf analysed/$lang
 
         # analyse the converted files
         time analyse_corpus $lang converted/$lang
