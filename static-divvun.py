@@ -20,17 +20,21 @@ import time
 
 
 class StaticSiteBuilder(object):
-    '''Class to build a multilingual static version of the divvun site.'''
+    '''Class to build a multilingual static version of the divvun site.
+
+    Args:
+        builddir (str):     The directory where the forrest site is
+        destination (str):  Where the built site is copied (using rsync)
+        langs (list):       List of langs to be built
+
+    Attributes:
+        builddir (str): The directory where the forrest site is
+        destination (str): where the built site is copied (using rsync)
+        langs (list): list of langs to be built
+        logfile (file handle)
+    '''
 
     def __init__(self, builddir, destination, langs):
-        '''
-            builddir: The directory where the forrest site is
-            destination: where the built site is copied (using ssh)
-            langs: list of langs to be built
-
-            Revert files that might be changed
-            Clean up the build directory of the forrest site
-        '''
         print('Setting up...')
         if builddir.endswith('/'):
             builddir = builddir[:-1]
@@ -77,6 +81,11 @@ class StaticSiteBuilder(object):
                 raise SystemExit(subp.returncode)
 
     def set_forrest_lang(self, lang):
+        '''Set the language that should be built
+
+        Args:
+            lang (str): a two or three character long string
+        '''
         for line in fileinput.FileInput(
             os.path.join(self.builddir, 'forrest.properties'),
                 inplace=1):
@@ -97,6 +106,9 @@ class StaticSiteBuilder(object):
         Build site. stdout and stderr are stored in output and error,
         respectively.
         If we aren't able to rename the built site, exit program
+
+        Args:
+            lang (str): a two or three character long string
         '''
         # This ensures that the build directory is build/site/en
         os.environ['LC_ALL'] = 'C'
@@ -113,19 +125,27 @@ class StaticSiteBuilder(object):
         print('Done building ')
 
     def add_language_changer(self, lang):
+        '''Add a language changer in all .html files for one language
+
+        Args:
+            lang (str): a two or three character long string
+        '''
         builddir = os.path.join(self.builddir, 'build/site/en')
 
         for root, dirs, files in os.walk(builddir):
             for f in files:
                 if f.endswith('.html'):
                     f2b = LanguageAdder(os.path.join(root, f))
-                    f2b.convert(lang, self.langs, builddir)
+                    f2b.add_lang_info(lang, self.langs, builddir)
 
     def rename_site_files(self, lang):
         '''Search for files ending with html and pdf in the build site.
 
         Give all these files the ending '.lang'.
         Move them to the 'built' dir
+
+        Args:
+            lang (str): a two or three character long string
         '''
 
         builddir = os.path.join(self.builddir, 'build/site/en')
@@ -171,27 +191,65 @@ class StaticSiteBuilder(object):
 
 
 class LanguageAdder(object):
-    '''Add a language changer to an html document'''
-    def __init__(self, f):
-        self.f = f
+    '''Add a language changer to an html document
+
+    Args:
+        filename (str):     path to the html file
+
+    Attributes:
+        filename (str):     path to the html file
+        namespace (dict):   the namespace used in the html document
+        tree (lxml etree):  an lxml etree of the parsed file
+    '''
+    def __init__(self, filename):
+        self.filename = filename
         self.namespace = {'html': 'http://www.w3.org/1999/xhtml'}
         parser = etree.HTMLParser()
-        self.tree = etree.parse(f, parser)
+        self.tree = etree.parse(filename, parser)
 
     def getroot(self):
         return self.tree.getroot()
 
     def getelement(self, tag):
+        '''Find the first element of the name tag
+
+        Args:
+            tag (str): name of the interesting tag
+
+        '''
         return self.getroot().find(
             './/' + tag, namespaces=self.namespace)
 
     def add_lang_info(self, lang, langs, builddir):
+        '''Create the language navigation element and add it to self.tree
+
+        Write the self.tree to self.filename
+
+        Args:
+            lang (str):     The language of this document
+            langs (list):   The list of all languages that should added to the
+                            language element
+            builddir (str): The basedir where the html files are found
+        '''
         body = self.getelement('body')
-        my_nav_bar = body.find('.//div[@id='myNavbar']',
+        my_nav_bar = body.find('.//div[@id="myNavbar"]',
                                namespaces=self.namespace)
         my_nav_bar.append(self.make_lang_menu(lang, langs, builddir))
 
+        with open(self.filename, 'w') as huff:
+            huff.write(etree.tostring(self.tree, encoding='utf8',
+                                      pretty_print=True, method='html'))
+
     def make_lang_menu(self, this_lang, langs, builddir):
+        '''Make the language menu for this_lang
+
+        Args:
+            lang (str):     The language of this document
+            langs (list):   The list of all languages that should added to the
+                            language element
+            builddir (str): The basedir where the html files are found
+
+        '''
         trlangs = {u'fi': u'Suomeksi', u'no': u'På norsk',
                    u'sma': u'Åarjelsaemien', u'se': u'Davvisámegillii',
                    u'smj': u'Julevsábmáj', u'sv': u'På svenska',
@@ -223,19 +281,13 @@ class LanguageAdder(object):
             if lang != this_lang:
                 li = etree.Element('li')
                 a = etree.Element('a')
-                filename = '/' + lang + self.f.replace(builddir, '')
+                filename = '/' + lang + self.filename.replace(builddir, '')
                 a.set('href', filename)
                 a.text = trlangs[lang]
                 li.append(a)
                 dropdown_menu.append(li)
 
         return right_menu
-
-    def convert(self, lang, langs, builddir):
-        self.add_lang_info(lang, langs, builddir)
-        with open(self.f, 'w') as huff:
-            huff.write(etree.tostring(self.tree, encoding='utf8',
-                                      pretty_print=True, method='html'))
 
 
 def parse_options():
