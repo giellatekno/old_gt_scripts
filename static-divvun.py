@@ -190,6 +190,12 @@ class StaticSiteBuilder(object):
             stdout=self.logfile, stderr=self.logfile)
         subp.wait()
 
+        ckdir = os.path.join(self.builddir, 'src/documentation/resources/ckeditor')
+        if os.path.exists(ckdir):
+            subp = subprocess.Popen(
+                ['rsync', '-avz', '-e', 'ssh', ckdir, self.destination + 'skin/'],
+                stdout=self.logfile, stderr=self.logfile)
+
 
 class LanguageAdder(object):
     '''Add a language changer to an html document
