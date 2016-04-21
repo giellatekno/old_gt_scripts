@@ -6,6 +6,8 @@
 --sitehome (-s) where sd and techdoc lives
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
 import argparse
 import fileinput
 import glob
@@ -29,7 +31,7 @@ class StaticSiteBuilder(object):
             Revert files that might be changed
             Clean up the build directory of the forrest site
         """
-        print "Setting up..."
+        print("Setting up...")
         if builddir.endswith('/'):
             builddir = builddir[:-1]
         self.builddir = builddir
@@ -48,7 +50,7 @@ class StaticSiteBuilder(object):
         subp.wait()
 
         if subp.returncode != 0:
-            print >>sys.stderr, "forrest clean failed"
+            print("forrest clean failed", file=sys.stderr)
 
         if os.path.isdir(os.path.join(self.builddir, "built")):
             shutil.rmtree(os.path.join(self.builddir, "built"))
@@ -61,7 +63,7 @@ class StaticSiteBuilder(object):
 
     def validate(self):
         '''Run forrest validate'''
-        print "Validating..."
+        print("Validating...")
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "validate"],
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -71,7 +73,7 @@ class StaticSiteBuilder(object):
 
         if subp.returncode != 0:
             if "Could not validate document" in error:
-                print >>sys.stderr, "\n\nCould not validate doc\n\n"
+                print("\n\nCould not validate doc\n\n", file=sys.stderr)
                 raise SystemExit(subp.returncode)
 
     def set_forrest_lang(self, lang):
@@ -85,7 +87,7 @@ class StaticSiteBuilder(object):
                 )
             if 'project.i18n' in line:
                 line = 'project.i18n=true'
-            print line.rstrip()
+            print(line.rstrip())
 
     def buildsite(self, lang):
         """Builds a site in the specified language
@@ -101,14 +103,14 @@ class StaticSiteBuilder(object):
 
         os.chdir(self.builddir)
         self.set_forrest_lang(lang)
-        print "Building", lang, "..."
+        print("Building", lang, "...")
         subp = subprocess.Popen(["forrest", "site"],
                                 stdout=self.logfile, stderr=self.logfile)
         subp.wait()
         if subp.returncode != 0:
-            print >>sys.stderr, "Linking errors detected when building", lang
+            print("Linking errors detected when building", lang, file=sys.stderr)
 
-        print "Done building "
+        print("Done building ")
 
     def add_language_changer(self, lang):
         builddir = os.path.join(self.builddir, "build/site/en")
