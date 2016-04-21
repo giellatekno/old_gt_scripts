@@ -26,7 +26,7 @@ class StaticSiteBuilder(object):
         """
             builddir: The directory where the forrest site is
             destination: where the built site is copied (using ssh)
-            vcs: version control system, either svn or git
+            langs: list of langs to be built
 
             Revert files that might be changed
             Clean up the build directory of the forrest site
