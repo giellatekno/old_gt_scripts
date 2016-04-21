@@ -6,19 +6,19 @@
 --sitehome (-s) where sd and techdoc lives
 """
 
-import subprocess
-import os
-import sys
-import shutil
-import time
 import argparse
 import fileinput
 import glob
 import lxml.etree as etree
+import os
+import shutil
+import subprocess
+import sys
+import time
 
-class StaticSiteBuilder:
-    """This class is used to build a multilingual static version of the divvun site.
-    """
+
+class StaticSiteBuilder(object):
+    """Class to build a multilingual static version of the divvun site."""
 
     def __init__(self, builddir, destination, langs):
         """
@@ -56,13 +56,11 @@ class StaticSiteBuilder:
         os.mkdir(os.path.join(self.builddir, "built"))
 
     def __del__(self):
-        """Close the logfile
-        """
+        """Close the logfile"""
         self.logfile.close()
 
     def validate(self):
-        '''Run forrest validate
-        '''
+        '''Run forrest validate'''
         print "Validating..."
         os.chdir(self.builddir)
         subp = subprocess.Popen(["forrest", "validate"],
@@ -81,13 +79,17 @@ class StaticSiteBuilder:
             os.path.join(self.builddir, "forrest.properties"),
                 inplace=1):
             if 'forrest.jvmargs' in line:
-                line = 'forrest.jvmargs=-Djava.awt.headless=true -Dfile.encoding=utf-8 -Duser.language=' + lang
+                line = (
+                    'forrest.jvmargs=-Djava.awt.headless=true '
+                    '-Dfile.encoding=utf-8 -Duser.language={}'.format(lang)
+                )
             if 'project.i18n' in line:
                 line = 'project.i18n=true'
             print line.rstrip()
 
     def buildsite(self, lang):
         """Builds a site in the specified language
+
         Clean up the build files
         Validate files. If they don't validate, exit program
         Build site. stdout and stderr are stored in output and error,
@@ -118,8 +120,10 @@ class StaticSiteBuilder:
                     f2b.convert(lang, self.langs, builddir)
 
     def rename_site_files(self, lang):
-        """Search for files ending with html and pdf in the build site. Give all
-        these files the ending '.lang'. Move them to the 'built' dir
+        """Search for files ending with html and pdf in the build site.
+
+        Give all these files the ending '.lang'.
+        Move them to the 'built' dir
         """
 
         builddir = os.path.join(self.builddir, "build/site/en")
@@ -148,8 +152,7 @@ class StaticSiteBuilder:
             shutil.move(builddir, os.path.join(builtdir, lang))
 
     def build_all_langs(self):
-        '''Build all the langs
-        '''
+        '''Build all the langs'''
         for lang in self.langs:
             self.buildsite(lang)
             if len(self.langs) > 1:
@@ -157,8 +160,7 @@ class StaticSiteBuilder:
             self.rename_site_files(lang)
 
     def copy_to_site(self):
-        """Copy the entire site to self.destination
-        """
+        """Copy the entire site to self.destination"""
         builtdir = os.path.join(self.builddir, "built/")
         subp = subprocess.Popen(
             ["rsync", "-avz", "-e", "ssh", builtdir, self.destination],
@@ -167,8 +169,7 @@ class StaticSiteBuilder:
 
 
 class LanguageAdder(object):
-    '''Add a language changer to an html document
-    '''
+    '''Add a language changer to an html document'''
     def __init__(self, f):
         self.f = f
         self.namespace = {'html': 'http://www.w3.org/1999/xhtml'}
@@ -185,13 +186,14 @@ class LanguageAdder(object):
     def add_lang_info(self, lang, langs, builddir):
         body = self.getelement('body')
         my_nav_bar = body.find('.//div[@id="myNavbar"]',
-                           namespaces=self.namespace)
+                               namespaces=self.namespace)
         my_nav_bar.append(self.make_lang_menu(lang, langs, builddir))
 
     def make_lang_menu(self, this_lang, langs, builddir):
-        trlangs = {u"fi": u"Suomeksi", u"no": u"På norsk", u"sma": u"Åarjelsaemien",
-                   u"se": u"Davvisámegillii", u"smj": u"Julevsábmáj",
-                   u"sv": u"På svenska", u"en": u"In English"}
+        trlangs = {u"fi": u"Suomeksi", u"no": u"På norsk",
+                   u"sma": u"Åarjelsaemien", u"se": u"Davvisámegillii",
+                   u"smj": u"Julevsábmáj", u"sv": u"På svenska",
+                   u"en": u"In English"}
 
         right_menu = etree.Element('ul')
         right_menu.set('class', 'nav navbar-nav navbar-right')
