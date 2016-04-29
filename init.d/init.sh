@@ -118,6 +118,7 @@ else
   prepend_path PATH $HOME/bin
   prepend_path PATH $GTHOME/gt/script
   prepend_path PATH $GTHOME/gt/script/corpus
+  prepend_path PATH $GTCORE/scripts
 fi
 
 # setup the path to private bins if $GTPRIV is defined:
