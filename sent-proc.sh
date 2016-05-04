@@ -161,7 +161,7 @@ pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2c
 
 if [ $l == fao ] || [ $l == crk ]; then
     dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguation.cg3 $t"
-    syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/korp.cg3 $t"
+    syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/functions.cg3 $t"
 else
     dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
     syn_cmd=$dis_cmd" | vislcg3 -g $GTCORE/$SD_PATH/korp.cg3 $t"
