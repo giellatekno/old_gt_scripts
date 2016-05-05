@@ -367,6 +367,7 @@ alias   убхр='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
 
 # Bilingual transducers:
 
+alias crkeng='$LOOKUP $GTHOME/words/dicts/crkeng/bin/crkeng-all.fst'
 alias engsme='$LOOKUP $GTHOME/words/dicts/engsme/bin/engsme-all.fst'
 alias finsme='$LOOKUP $GTHOME/words/dicts/finsme/bin/finsme-all.fst'
 alias finsmn='$LOOKUP $GTHOME/words/dicts/finsmn/bin/finsmn-all.fst'
@@ -377,6 +378,7 @@ alias kaleng='$LOOKUP $GTHOME/words/dicts/kaleng/bin/kaleng-all.fst'
 alias myvmdf='$LOOKUP $GTHOME/words/dicts/nobfkv/bin/myvmdf-all.fst'
 alias nobfkv='$LOOKUP $GTHOME/words/dicts/nobfkv/bin/nobfkv-all.fst'
 alias nobsma='$LOOKUP $GTHOME/words/dicts/nobsma/bin/nobsma-all.fst'
+alias nobsmj='$LOOKUP $GTHOME/words/dicts/nobsmj/bin/nobsmj-all.fst'
 alias nobsme='$LOOKUP $GTHOME/words/dicts/nobsme/bin/nobsme-all.fst'
 alias smanob='$LOOKUP $GTHOME/words/dicts/smanob/bin/smanob-all.fst'
 alias smeeng='$LOOKUP $GTHOME/words/dicts/smeeng/bin/smeeng-all.fst'
