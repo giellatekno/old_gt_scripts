@@ -15,7 +15,7 @@
 ########################################################################
 
 # this CGI script is called whenever a user submits an analysis request
-# from the FORM on the Northern Haida HTML page
+# from the FORM on the Northern Sami HTML page
 
 # For manual testing, see comments at the bottom of the file
 
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $hdnfstdir/transcriptor-numbers2text-desc.xfst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $hdnfstdir/transcriptor-numbers-digit2text.filtered.lookup.xfst` ;
 # $utilitydir/lookup -flags mbL" => "LTT -d $hdnfstdir/transcriptor-numbers2text-desc.xfst` ;
 # testing line two here, lauri's advice.
 #back with line one

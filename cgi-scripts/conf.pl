@@ -221,7 +221,7 @@ sub init_variables {
 
 # for the next debug, this is the variable-free version of $dependency:
 # /usr/local/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 -C UTF-8
-# /usr/local/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/nob/sme/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 -C UTF-8
+# /usr/local/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 -C UTF-8
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
