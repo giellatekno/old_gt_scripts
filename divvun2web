@@ -19,10 +19,6 @@
 # scp $HOME/.ssh/id_rsa.pub <user>@victorio.uit.no:.ssh/authorized_keys2
 #
 
-export LC_ALL=no_NO.UTF-8
-FORREST_HOME=$HOME/forrest
-PATH=$PATH:$FORREST_HOME/bin
-
 # This function takes two arguments:
 # The first is where it should work
 # The second is where it should send the built files
