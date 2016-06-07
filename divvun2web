@@ -38,8 +38,8 @@ build_and_copy_site()
 	if [ "$?"  == "0" ]
 	then
 		BUILDLOG=buildlog`date "+%Y-%m-%d-%H-%M"`
-		forrest &> BUILDLOG
-		wc -l BUILDLOG
+		forrest &> $BUILDLOG
+		wc -l $BUILDLOG
 		cd $BUILDDIR/build/site
 		# Fix defective utf-8 characters
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'
