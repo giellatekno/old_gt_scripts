@@ -41,7 +41,9 @@ build_and_copy_site()
 	forrest validate-xdocs
 	if [ "$?"  == "0" ]
 	then
-		nice -n 10 forrest
+		BUILDLOG=buildlog`date "+%Y-%m-%d-%H-%M"`
+		forrest &> BUILDLOG
+		wc -l BUILDLOG
 		cd $BUILDDIR/build/site
 		# Fix defective utf-8 characters
 		find . -name "*.html" | LC_ALL=C xargs perl -p -i -e 's/&Atilde;&cedil;/ø/g'
