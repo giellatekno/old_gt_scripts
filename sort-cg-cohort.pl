@@ -48,9 +48,9 @@ sub process_sentence
     
     foreach (@cohort) {
       my ($lemma, $lines) = split(/\n/, $_, 2);
-      my @lines = split(/\n\t\"/, $lines);
+      my @lines = split(/\n(?=\t\")/, $lines);
       my @newlines = sort @lines;
-      my $sortlines = join("\n\t\"", @newlines);
+      my $sortlines = join("\n", @newlines);
       unless ($lemma =~ /^\"/) { $lemma = "\"".$lemma; }
       print "$lemma\n$sortlines\n";
     }
