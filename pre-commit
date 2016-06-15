@@ -4,6 +4,7 @@
 Most of it comes from: http://wordaligned.org/articles/a-subversion-pre-commit-hook
 '''
 from __future__ import print_function
+import io
 import lxml.etree as etree
 from optparse import OptionParser
 import subprocess
@@ -35,6 +36,11 @@ def files_changed(look_cmd):
         if added_or_updated(line)]
 
 
+def file_contents(filename, look_cmd):
+    '''Return a file's contents for this transaction'''
+    return command_output("%s %s" % (look_cmd % "cat", filename))
+
+
 def is_valid_xml(fname):
     '''Check if an xml file is valid
 
@@ -57,7 +63,7 @@ def check_xml_files(look_cmd):
     for ff in files_changed(look_cmd):
         if ff.endswith('.xml'):
             try:
-                is_valid_xml(ff)
+                is_valid_xml(io.BytesIO(file_contents(ff, look_cmd)))
             except etree.XMLSyntaxError as e:
                 errors += 1
                 print(ff, 'is not wellformed\nError:', e,
