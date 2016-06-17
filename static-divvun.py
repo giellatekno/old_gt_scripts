@@ -43,45 +43,47 @@ class StaticSiteBuilder(object):
         if builddir.endswith('/'):
             builddir = builddir[:-1]
         self.builddir = builddir
+        self.clean()
+
         if not destination.endswith('/'):
             destination = destination + '/'
         self.destination = destination
         self.langs = langs
 
-        self.logfile = open(
-            os.path.join(self.builddir,
-                         'buildlog' + time.strftime('%Y-%m-%d-%H-%M',
-                                                    time.localtime())), 'w')
-        os.chdir(self.builddir)
-        subp = subprocess.Popen(['forrest', 'clean'],
-                                stdout=self.logfile, stderr=self.logfile)
-        subp.wait()
-
-        if subp.returncode != 0:
-            print('forrest clean failed', file=sys.stderr)
+        self.logfile_name = os.path.join(self.builddir,
+                                         'buildlog' + time.strftime(
+                                             '%Y-%m-%d-%H-%M',
+                                             time.localtime()))
 
         if os.path.isdir(os.path.join(self.builddir, 'built')):
             shutil.rmtree(os.path.join(self.builddir, 'built'))
 
         os.mkdir(os.path.join(self.builddir, 'built'))
 
-    def __del__(self):
-        '''Close the logfile'''
-        self.logfile.close()
+    def clean(self):
+        subp = subprocess.Popen('forrest clean'.split(),
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                cwd=self.builddir)
+        subp.wait()
+        if subp.returncode != 0:
+            print('forrest clean failed in {}'.format(self.builddir), file=sys.stderr)
+            raise SystemExit(subp.returncode)
 
     def validate(self):
         '''Run forrest validate'''
         print('Validating...')
-        os.chdir(self.builddir)
-        subp = subprocess.Popen(['forrest', 'validate'],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subp = subprocess.Popen('forrest validate'.split(),
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                cwd=self.builddir)
         (output, error) = subp.communicate()
-        self.logfile.writelines(output)
-        self.logfile.writelines(error)
 
         if subp.returncode != 0:
+            with open(self.logfile_name, 'w') as logfile:
+                logfile.writelines(output)
+                logfile.writelines(error)
+
             if 'Could not validate document' in error:
-                print('\n\nCould not validate doc\n\n', file=sys.stderr)
+                print('Invalid xml files found, site was not built', file=sys.stderr)
                 raise SystemExit(subp.returncode)
 
     def set_forrest_lang(self, lang):
@@ -152,13 +154,21 @@ class StaticSiteBuilder(object):
         # This ensures that the build directory is build/site/en
         os.environ['LC_ALL'] = 'C'
 
-        os.chdir(self.builddir)
         self.set_forrest_lang(lang)
         print('Building', lang, '...')
-        subp = subprocess.Popen(['forrest', 'site'],
-                                stdout=self.logfile, stderr=self.logfile)
+        subp = subprocess.Popen('forrest site'.split(),
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                cwd=self.builddir)
+        (output, error) = subp.communicate()
         subp.wait()
+
         if subp.returncode != 0:
+            with open(self.logfile_name, 'w') as logfile:
+                print('Errors', file=logfile)
+                print(error, file=logfile)
+                print('Stdout', file=logfile)
+                print(output, file=logfile)
+
             self.parse_broken_links()
 
     def add_language_changer(self, this_lang):
@@ -224,14 +234,15 @@ class StaticSiteBuilder(object):
         builtdir = os.path.join(self.builddir, 'built/')
         subp = subprocess.Popen(
             ['rsync', '-avz', '-e', 'ssh', builtdir, self.destination],
-            stdout=self.logfile, stderr=self.logfile)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         subp.wait()
 
         ckdir = os.path.join(self.builddir, 'src/documentation/resources/ckeditor')
         if os.path.exists(ckdir):
             subp = subprocess.Popen(
                 ['rsync', '-avz', '-e', 'ssh', ckdir, self.destination + 'skin/'],
-                stdout=self.logfile, stderr=self.logfile)
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subp.wait()
 
 
 class LanguageAdder(object):
