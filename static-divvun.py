@@ -11,6 +11,7 @@ from __future__ import print_function
 
 import argparse
 import collections
+import datetime
 import fileinput
 import glob
 import os
@@ -39,7 +40,6 @@ class StaticSiteBuilder(object):
     '''
 
     def __init__(self, builddir, destination, langs):
-        print('Setting up...')
         if builddir.endswith('/'):
             builddir = builddir[:-1]
         self.builddir = builddir
@@ -71,7 +71,6 @@ class StaticSiteBuilder(object):
 
     def validate(self):
         '''Run forrest validate'''
-        print('Validating...')
         subp = subprocess.Popen('forrest validate'.split(),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 cwd=self.builddir)
@@ -106,7 +105,7 @@ class StaticSiteBuilder(object):
 
     def parse_broken_links(self):
         '''Since the brokenlinks.xml file is not valid xml, do plain text parsing'''
-        print('Broken links', file=sys.stderr)
+        print('Broken links:', file=sys.stderr)
 
         counter = collections.Counter()
         for line in fileinput.FileInput(os.path.join(self.builddir, 'build',
@@ -138,6 +137,44 @@ class StaticSiteBuilder(object):
             if 'tca2' in name:
                 print(name, file=sys.stderr, end=' ')
             print('{} broken links'.format(number), file=sys.stderr)
+        print()
+
+    def parse_buildtimes(self, log):
+        def print_buildtime_distribution(buildtimes):
+            print('\nDistribution of build times')
+            print('approx seconds: number of links')
+            for build_time in sorted(buildtimes, reverse=True):
+                print('{}: #{}'.format(build_time, len(buildtimes[build_time])))
+            print()
+
+        def print_longest_buildtimes(buildtimes):
+            def make_info(time, buildtimes):
+                return '{time}: {infolist}'.format(
+                    time=datetime.timedelta(seconds=build_time),
+                    infolist=', '.join(' '.join(info_item)
+                                       for info_item in buildtimes[build_time]))
+
+            limit = 10
+            longest_buildtimes = [make_info(build_time, buildtimes)
+                                  for build_time in sorted(buildtimes, reverse=True)
+                                  if build_time > limit]
+            if longest_buildtimes:
+                print('Longest buildtimes h:mm:ss lasting longer than {}'.format(limit))
+                print('\n'.join(longest_buildtimes))
+                print()
+
+        buildline = re.compile('^\* \[\d+/\d+\].+Kb.+/.+')
+        buildtimes = collections.defaultdict(list)
+        info = collections.namedtuple('info', ['link', 'size'])
+
+        for line in log.split('\n'):
+            if buildline.match(line):
+                parts = line.split()
+                seconds = int(parts[-3].split('.')[0])
+                buildtimes[seconds].append(info(link=parts[-1], size=parts[-2]))
+
+        print_buildtime_distribution(buildtimes)
+        print_longest_buildtimes(buildtimes)
 
     def buildsite(self, lang):
         '''Builds a site in the specified language
@@ -155,12 +192,13 @@ class StaticSiteBuilder(object):
         os.environ['LC_ALL'] = 'C'
 
         self.set_forrest_lang(lang)
-        print('Building', lang, '...')
         subp = subprocess.Popen('forrest site'.split(),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 cwd=self.builddir)
         (output, error) = subp.communicate()
         subp.wait()
+
+        self.parse_buildtimes(output)
 
         if subp.returncode != 0:
             with open(self.logfile_name, 'w') as logfile:
