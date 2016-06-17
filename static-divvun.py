@@ -18,8 +18,6 @@ import os
 import re
 import shutil
 import subprocess
-import sys
-import time
 
 import lxml.etree as etree
 
@@ -105,7 +103,10 @@ class StaticSiteBuilder(object):
             print(line.rstrip())
 
     def parse_broken_links(self):
-        '''Since the brokenlinks.xml file is not valid xml, do plain text parsing'''
+        '''Parse brokenlinks.xml
+
+        Since the xml file is not valid xml, do plain text parsing
+        '''
         logger.error('Broken links:')
 
         counter = collections.Counter()
@@ -122,7 +123,8 @@ class StaticSiteBuilder(object):
 
                     message = line[:line.rfind('"')]
                     text = line[line.rfind('>') + 1:]
-                    logger.error('{message}: {text}\n'.format(message=message, text=text))
+                    logger.error('{message}: {text}\n'.format(
+                        message=message, text=text))
             elif '<link' in line:
                 line = line.strip().replace('<link message="', '')
                 logger.error('{message}'.format(message=line))
@@ -132,7 +134,8 @@ class StaticSiteBuilder(object):
 
                 message = line[:line.rfind('"')]
                 text = line[line.rfind('>') + 1:]
-                logger.error('{message}: {text}\n'.format(message=message, text=text))
+                logger.error('{message}: {text}\n'.format(message=message,
+                                                          text=text))
 
         for name, number in counter.items():
             if 'tca2' in name:
@@ -144,21 +147,26 @@ class StaticSiteBuilder(object):
             logger.info('\nDistribution of build times')
             logger.info('approx seconds: number of links')
             for build_time in sorted(buildtimes, reverse=True):
-                logger.info('{}: #{}'.format(build_time, len(buildtimes[build_time])))
+                logger.info('{}: #{}'.format(build_time,
+                                             len(buildtimes[build_time])))
 
         def print_longest_buildtimes(buildtimes):
-            def make_info(time, buildtimes):
+            def make_info(build_time, buildtimes):
                 return '{time}: {infolist}'.format(
                     time=datetime.timedelta(seconds=build_time),
-                    infolist=', '.join(' '.join(info_item)
-                                       for info_item in buildtimes[build_time]))
+                    infolist=', '.join(
+                        ' '.join(info_item)
+                        for info_item in buildtimes[build_time]))
 
             limit = 10
             longest_buildtimes = [make_info(build_time, buildtimes)
-                                  for build_time in sorted(buildtimes, reverse=True)
+                                  for build_time in sorted(buildtimes,
+                                                           reverse=True)
                                   if build_time > limit]
             if longest_buildtimes:
-                logger.info('Longest buildtimes h:mm:ss lasting longer than {}'.format(limit))
+                logger.info(
+                    'Longest buildtimes h:mm:ss lasting longer '
+                    'than {}'.format(limit))
                 logger.info('\n'.join(longest_buildtimes))
 
         buildline = re.compile('^\* \[\d+/\d+\].+Kb.+/.+')
@@ -169,7 +177,8 @@ class StaticSiteBuilder(object):
             if buildline.match(line):
                 parts = line.split()
                 seconds = int(parts[-3].split('.')[0])
-                buildtimes[seconds].append(info(link=parts[-1], size=parts[-2]))
+                buildtimes[seconds].append(info(link=parts[-1],
+                                                size=parts[-2]))
 
         print_buildtime_distribution(buildtimes)
         print_longest_buildtimes(buildtimes)
@@ -251,7 +260,6 @@ class StaticSiteBuilder(object):
                     if file_.endswith('.html') or file_.endswith('.pdf'):
                         newname = file_ + '.' + lang
 
-                    fullname = os.path.join(root, file_)
                     shutil.copy(
                         os.path.join(root, file_),
                         os.path.join(goal_dir, newname))
@@ -270,7 +278,8 @@ class StaticSiteBuilder(object):
     def copy_to_site(self):
         '''Copy the entire site to self.destination'''
         builtdir = os.path.join(self.builddir, 'built/')
-        logger.info('Copying from {src} to {dst}'.format(src=builtdir, dst=self.destination))
+        logger.info('Copying from {src} to {dst}'.format(
+            src=builtdir, dst=self.destination))
         subp = subprocess.Popen(
             ['rsync', '-avz', '-e', 'ssh', builtdir, self.destination],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -282,11 +291,14 @@ class StaticSiteBuilder(object):
 
         logger.info('Done copying')
 
-        ckdir = os.path.join(self.builddir, 'src/documentation/resources/ckeditor')
+        ckdir = os.path.join(self.builddir,
+                             'src/documentation/resources/ckeditor')
         if os.path.exists(ckdir):
-            logger.info('Copying ckeditor from {src} to {dst}'.format(src=ckdir, dst=self.destination + 'skin/'))
+            logger.info('Copying ckeditor from {src} to {dst}'.format(
+                src=ckdir, dst=self.destination + 'skin/'))
             subp = subprocess.Popen(
-                ['rsync', '-avz', '-e', 'ssh', ckdir, self.destination + 'skin/'],
+                ['rsync', '-avz', '-e', 'ssh', ckdir,
+                 self.destination + 'skin/'],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             (output, error) = subp.communicate()
             for line in output.split('\n'):
@@ -294,6 +306,7 @@ class StaticSiteBuilder(object):
             for line in error.split('\n'):
                 logger.error(line)
             logger.info('Done copying ckeditor')
+
 
 class LanguageAdder(object):
     '''Add a language changer to an html document
@@ -370,7 +383,8 @@ class LanguageAdder(object):
             if lang != self.this_lang:
                 li = etree.Element('li')
                 a = etree.Element('a')
-                filename = '/' + lang + self.filename.replace(self.builddir, '')
+                filename = '/' + lang + self.filename.replace(self.builddir,
+                                                              '')
                 a.set('href', filename)
                 a.text = trlangs[lang]
                 li.append(a)
