@@ -8,15 +8,19 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import argparse
+import collections
 import fileinput
 import glob
-import lxml.etree as etree
 import os
+import re
 import shutil
 import subprocess
 import sys
 import time
+
+import lxml.etree as etree
 
 
 class StaticSiteBuilder(object):
@@ -98,6 +102,41 @@ class StaticSiteBuilder(object):
                 line = 'project.i18n=true'
             print(line.rstrip())
 
+    def parse_broken_links(self):
+        '''Since the brokenlinks.xml file is not valid xml, do plain text parsing'''
+        print('Broken links', file=sys.stderr)
+
+        counter = collections.Counter()
+        for line in fileinput.FileInput(os.path.join(self.builddir, 'build',
+                                                     'tmp',
+                                                     'brokenlinks.xml')):
+            if '<link' in line and '</link>' in line:
+                if 'tca2testing' in line:
+                    counter['tca2testing'] += 1
+                else:
+                    counter['broken'] += 1
+                    line = line.strip().replace('<link message="', '')
+                    line = line.replace('</link>', '')
+
+                    message = line[:line.rfind('"')]
+                    text = line[line.rfind('>') + 1:]
+                    print('{message}: {text}\n'.format(message=message, text=text), file=sys.stderr)
+            elif '<link' in line:
+                line = line.strip().replace('<link message="', '')
+                print('{message}'.format(message=line), end=' ', file=sys.stderr)
+            elif '</link>' in line:
+                counter['broken'] += 1
+                line = line.strip().replace('</link>', '')
+
+                message = line[:line.rfind('"')]
+                text = line[line.rfind('>') + 1:]
+                print('{message}: {text}\n'.format(message=message, text=text), file=sys.stderr)
+
+        for name, number in counter.items():
+            if 'tca2' in name:
+                print(name, file=sys.stderr, end=' ')
+            print('{} broken links'.format(number), file=sys.stderr)
+
     def buildsite(self, lang):
         '''Builds a site in the specified language
 
@@ -120,9 +159,7 @@ class StaticSiteBuilder(object):
                                 stdout=self.logfile, stderr=self.logfile)
         subp.wait()
         if subp.returncode != 0:
-            print('Linking errors detected when building', lang, file=sys.stderr)
-
-        print('Done building ')
+            self.parse_broken_links()
 
     def add_language_changer(self, this_lang):
         '''Add a language changer in all .html files for one language
