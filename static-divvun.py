@@ -5,7 +5,6 @@
 --destination (-d) an ssh destination
 --sitehome (-s) where sd and techdoc lives
 '''
-
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -14,6 +13,7 @@ import collections
 import datetime
 import fileinput
 import glob
+import logging
 import os
 import re
 import shutil
@@ -22,6 +22,10 @@ import sys
 import time
 
 import lxml.etree as etree
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class StaticSiteBuilder(object):
@@ -49,28 +53,24 @@ class StaticSiteBuilder(object):
             destination = destination + '/'
         self.destination = destination
         self.langs = langs
-
-        self.logfile_name = os.path.join(self.builddir,
-                                         'buildlog' + time.strftime(
-                                             '%Y-%m-%d-%H-%M',
-                                             time.localtime()))
-
         if os.path.isdir(os.path.join(self.builddir, 'built')):
             shutil.rmtree(os.path.join(self.builddir, 'built'))
 
         os.mkdir(os.path.join(self.builddir, 'built'))
 
     def clean(self):
+        logger.info('Cleaning')
         subp = subprocess.Popen('forrest clean'.split(),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 cwd=self.builddir)
-        subp.wait()
+        (output, error) = subp.communicate()
         if subp.returncode != 0:
-            print('forrest clean failed in {}'.format(self.builddir), file=sys.stderr)
+            logger.warn('forrest clean failed in {}'.format(self.builddir))
             raise SystemExit(subp.returncode)
 
     def validate(self):
         '''Run forrest validate'''
+        logger.info('Validating')
         subp = subprocess.Popen('forrest validate'.split(),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 cwd=self.builddir)
@@ -82,7 +82,7 @@ class StaticSiteBuilder(object):
                 logfile.writelines(error)
 
             if 'Could not validate document' in error:
-                print('Invalid xml files found, site was not built', file=sys.stderr)
+                logger.warn('Invalid xml files found, site was not built')
                 raise SystemExit(subp.returncode)
 
     def set_forrest_lang(self, lang):
@@ -91,6 +91,7 @@ class StaticSiteBuilder(object):
         Args:
             lang (str): a two or three character long string
         '''
+        logger.debug('Setting language {}'.format(lang))
         for line in fileinput.FileInput(
             os.path.join(self.builddir, 'forrest.properties'),
                 inplace=1):
@@ -105,7 +106,7 @@ class StaticSiteBuilder(object):
 
     def parse_broken_links(self):
         '''Since the brokenlinks.xml file is not valid xml, do plain text parsing'''
-        print('Broken links:', file=sys.stderr)
+        logger.error('Broken links:')
 
         counter = collections.Counter()
         for line in fileinput.FileInput(os.path.join(self.builddir, 'build',
@@ -121,31 +122,29 @@ class StaticSiteBuilder(object):
 
                     message = line[:line.rfind('"')]
                     text = line[line.rfind('>') + 1:]
-                    print('{message}: {text}\n'.format(message=message, text=text), file=sys.stderr)
+                    logger.error('{message}: {text}\n'.format(message=message, text=text))
             elif '<link' in line:
                 line = line.strip().replace('<link message="', '')
-                print('{message}'.format(message=line), end=' ', file=sys.stderr)
+                logger.error('{message}'.format(message=line))
             elif '</link>' in line:
                 counter['broken'] += 1
                 line = line.strip().replace('</link>', '')
 
                 message = line[:line.rfind('"')]
                 text = line[line.rfind('>') + 1:]
-                print('{message}: {text}\n'.format(message=message, text=text), file=sys.stderr)
+                logger.error('{message}: {text}\n'.format(message=message, text=text))
 
         for name, number in counter.items():
             if 'tca2' in name:
-                print(name, file=sys.stderr, end=' ')
-            print('{} broken links'.format(number), file=sys.stderr)
-        print()
+                logger.error(name)
+            logger.error('{} broken links'.format(number))
 
     def parse_buildtimes(self, log):
         def print_buildtime_distribution(buildtimes):
-            print('\nDistribution of build times')
-            print('approx seconds: number of links')
+            logger.info('\nDistribution of build times')
+            logger.info('approx seconds: number of links')
             for build_time in sorted(buildtimes, reverse=True):
-                print('{}: #{}'.format(build_time, len(buildtimes[build_time])))
-            print()
+                logger.info('{}: #{}'.format(build_time, len(buildtimes[build_time])))
 
         def print_longest_buildtimes(buildtimes):
             def make_info(time, buildtimes):
@@ -159,9 +158,8 @@ class StaticSiteBuilder(object):
                                   for build_time in sorted(buildtimes, reverse=True)
                                   if build_time > limit]
             if longest_buildtimes:
-                print('Longest buildtimes h:mm:ss lasting longer than {}'.format(limit))
-                print('\n'.join(longest_buildtimes))
-                print()
+                logger.info('Longest buildtimes h:mm:ss lasting longer than {}'.format(limit))
+                logger.info('\n'.join(longest_buildtimes))
 
         buildline = re.compile('^\* \[\d+/\d+\].+Kb.+/.+')
         buildtimes = collections.defaultdict(list)
@@ -189,6 +187,7 @@ class StaticSiteBuilder(object):
             lang (str): a two or three character long string
         '''
         # This ensures that the build directory is build/site/en
+        logger.debug('Building {}'.format(lang))
         os.environ['LC_ALL'] = 'C'
 
         self.set_forrest_lang(lang)
@@ -196,16 +195,16 @@ class StaticSiteBuilder(object):
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 cwd=self.builddir)
         (output, error) = subp.communicate()
-        subp.wait()
 
         self.parse_buildtimes(output)
 
         if subp.returncode != 0:
-            with open(self.logfile_name, 'w') as logfile:
-                print('Errors', file=logfile)
-                print(error, file=logfile)
-                print('Stdout', file=logfile)
-                print(output, file=logfile)
+            logging.error('Errors')
+            for line in error.split('\n'):
+                logging.debug(line)
+            logging.debug('Stdout')
+            for line in output.split('\n'):
+                logging.debug(line)
 
             self.parse_broken_links()
 
@@ -261,6 +260,7 @@ class StaticSiteBuilder(object):
 
     def build_all_langs(self):
         '''Build all the langs'''
+        logger.info('Building all langs')
         for lang in self.langs:
             self.buildsite(lang)
             if len(self.langs) > 1:
@@ -270,18 +270,30 @@ class StaticSiteBuilder(object):
     def copy_to_site(self):
         '''Copy the entire site to self.destination'''
         builtdir = os.path.join(self.builddir, 'built/')
+        logger.info('Copying from {src} to {dst}'.format(src=builtdir, dst=self.destination))
         subp = subprocess.Popen(
             ['rsync', '-avz', '-e', 'ssh', builtdir, self.destination],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        subp.wait()
+        (output, error) = subp.communicate()
+        for line in output.split('\n'):
+            logger.debug(line)
+        for line in error.split('\n'):
+            logger.error(line)
+
+        logger.info('Done copying')
 
         ckdir = os.path.join(self.builddir, 'src/documentation/resources/ckeditor')
         if os.path.exists(ckdir):
+            logger.info('Copying ckeditor from {src} to {dst}'.format(src=ckdir, dst=self.destination + 'skin/'))
             subp = subprocess.Popen(
                 ['rsync', '-avz', '-e', 'ssh', ckdir, self.destination + 'skin/'],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            subp.wait()
-
+            (output, error) = subp.communicate()
+            for line in output.split('\n'):
+                logger.debug(line)
+            for line in error.split('\n'):
+                logger.error(line)
+            logger.info('Done copying ckeditor')
 
 class LanguageAdder(object):
     '''Add a language changer to an html document
@@ -323,8 +335,7 @@ class LanguageAdder(object):
         '''
         my_nav_bar = self.tree.getroot().find('.//div[@id="myNavbar"]',
                                               namespaces=self.namespace)
-        if my_nav_bar is not None:
-            my_nav_bar.append(self.make_lang_menu())
+        my_nav_bar.append(self.make_lang_menu())
 
     def make_lang_menu(self):
         '''Make the language menu for self.this_lang'''
