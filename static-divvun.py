@@ -197,7 +197,7 @@ class StaticSiteBuilder(object):
         self.parse_buildtimes(output)
 
         if subp.returncode != 0:
-            logging.error('Errors')
+            logging.debug('Errors')
             for line in error.split('\n'):
                 logging.debug(line)
             logging.debug('Stdout')
@@ -205,6 +205,7 @@ class StaticSiteBuilder(object):
                 logging.debug(line)
 
             self.parse_broken_links()
+
 
     def add_language_changer(self, this_lang):
         '''Add a language changer in all .html files for one language
