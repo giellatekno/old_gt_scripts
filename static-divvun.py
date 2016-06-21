@@ -21,7 +21,7 @@ import subprocess
 
 import lxml.etree as etree
 
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -419,7 +419,7 @@ def main():
         if args.verbosity == 'debug':
             logging.info(
                 'Logging level is set to debug. Output will very verbose')
-        logging.basicConfig(level=logging_dict[args.verbosity])
+        logger.setLevel(logging_dict[args.verbosity])
     else:
         logging.error('-V|--verbosity must be one of: {}\n{} was given.'.format(
             '|'.join(logging_dict.keys()), args.verbosity))
