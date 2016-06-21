@@ -56,31 +56,17 @@ class StaticSiteBuilder(object):
         os.mkdir(os.path.join(self.builddir, 'built'))
 
     def clean(self):
-        logger.info('Cleaning')
-        subp = subprocess.Popen('forrest clean'.split(),
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                cwd=self.builddir)
-        (output, error) = subp.communicate()
-        if subp.returncode != 0:
+        (returncode, _) = self.run_command('forrest validate')
+        if returncode != 0:
             logger.warn('forrest clean failed in {}'.format(self.builddir))
-            raise SystemExit(subp.returncode)
+            raise SystemExit(returncode)
 
     def validate(self):
         '''Run forrest validate'''
-        logger.info('Validating')
-        subp = subprocess.Popen('forrest validate'.split(),
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                cwd=self.builddir)
-        (output, error) = subp.communicate()
-
-        if subp.returncode != 0:
-            with open(self.logfile_name, 'w') as logfile:
-                logfile.writelines(output)
-                logfile.writelines(error)
-
-            if 'Could not validate document' in error:
-                logger.warn('Invalid xml files found, site was not built')
-                raise SystemExit(subp.returncode)
+        (returncode, _) = self.run_command('forrest validate')
+        if returncode != 0:
+            logger.warn('Invalid xml files found, site was not built')
+            raise SystemExit(returncode)
 
     def set_forrest_lang(self, lang):
         '''Set the language that should be built
@@ -188,25 +174,14 @@ class StaticSiteBuilder(object):
         os.environ['LC_ALL'] = 'C'
 
         self.set_forrest_lang(lang)
-        subp = subprocess.Popen('forrest site'.split(),
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                cwd=self.builddir)
+
         before = datetime.datetime.now()
-        (output, error) = subp.communicate()
-        logger.info('Building {} lasted {}'.format(lang, datetime.datetime.now() - before))
+        (_, output) = self.run_command('forrest site')
+        logger.info('Building {} lasted {}'.format(
+            lang, datetime.datetime.now() - before))
 
         self.parse_buildtimes(output)
-
-        if subp.returncode != 0:
-            logging.debug('Errors')
-            for line in error.split('\n'):
-                logging.debug(line)
-            logging.debug('Stdout')
-            for line in output.split('\n'):
-                logging.debug(line)
-
-            self.parse_broken_links()
-
+        self.parse_broken_links()
 
     def add_language_changer(self, this_lang):
         '''Add a language changer in all .html files for one language
@@ -266,44 +241,50 @@ class StaticSiteBuilder(object):
                 self.add_language_changer(lang)
             self.rename_site_files(lang)
 
-    def copy_to_site(self):
-        '''Copy the entire site to self.destination'''
-        builtdir = os.path.join(self.builddir, 'built/')
-        logger.info('Copying from {src} to {dst}'.format(
-            src=builtdir, dst=self.destination))
+    def run_command(self, command):
+        '''Run a shell command
+
+        Arguments:
+            command: string containing the shell command
+        '''
+        logger.info('Running {}'.format(command))
         subp = subprocess.Popen(
-            ['rsync', '-avz', '-e', 'ssh', builtdir, self.destination],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            command.split(),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.builddir)
+
         (output, error) = subp.communicate()
 
         if subp.returncode != 0:
+            logger.error('{} finished with errors'.format(command))
+            logger.error('stdout')
             for line in output.split('\n'):
                 logger.error(line)
+            logger.error('stderr')
             for line in error.split('\n'):
                 logger.error(line)
         else:
-            logger.info('Done copying')
+            logger.info('{} finished without errors'.format(command))
             logger.debug('stdout')
             logger.debug(output)
             logger.debug('stderr')
             logger.debug(error)
 
+        return (subp.returncode, output)
+
+    def copy_to_site(self):
+        '''Copy the entire site to self.destination'''
+        (returncode, _) = self.run_command('rsync -avz -e ssh {src} {dst}'.format(
+            src=os.path.join(self.builddir, 'built/'), dst=self.destination))
+        if returncode != 0:
+            raise SystemExit(returncode)
+
         ckdir = os.path.join(self.builddir,
                              'src/documentation/resources/ckeditor')
         if os.path.exists(ckdir):
-            logger.info('Copying ckeditor from {src} to {dst}'.format(
+            self.run_command('rsync -avz -e ssh {src} {dst}'.format(
                 src=ckdir, dst=self.destination + 'skin/'))
-            subp = subprocess.Popen(
-                ['rsync', '-avz', '-e', 'ssh', ckdir,
-                 self.destination + 'skin/'],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            (output, error) = subp.communicate()
-            for line in output.split('\n'):
-                logger.debug(line)
-            for line in error.split('\n'):
-                logger.error(line)
-            logger.info('Done copying ckeditor')
-
+            if returncode != 0:
+                raise SystemExit(returncode)
 
 class LanguageAdder(object):
     '''Add a language changer to an html document
