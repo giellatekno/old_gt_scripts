@@ -144,13 +144,6 @@ class StaticSiteBuilder(object):
 
     def parse_buildtimes(self, log):
         def print_buildtime_distribution(buildtimes):
-            logger.info('\nDistribution of build times')
-            logger.info('approx seconds: number of links')
-            for build_time in sorted(buildtimes, reverse=True):
-                logger.info('{}: #{}'.format(build_time,
-                                             len(buildtimes[build_time])))
-
-        def print_longest_buildtimes(buildtimes):
             def make_info(build_time, buildtimes):
                 return '{time}: {infolist}'.format(
                     time=datetime.timedelta(seconds=build_time),
@@ -158,16 +151,14 @@ class StaticSiteBuilder(object):
                         ' '.join(info_item)
                         for info_item in buildtimes[build_time]))
 
-            limit = 10
-            longest_buildtimes = [make_info(build_time, buildtimes)
-                                  for build_time in sorted(buildtimes,
-                                                           reverse=True)
-                                  if build_time > limit]
-            if longest_buildtimes:
-                logger.info(
-                    'Longest buildtimes h:mm:ss lasting longer '
-                    'than {}'.format(limit))
-                logger.info('\n'.join(longest_buildtimes))
+            logger.info('\nDistribution of build times')
+            logger.info('approx seconds: number of links')
+            for build_time in sorted(buildtimes, reverse=True):
+                if len(buildtimes[build_time]) < 10:
+                    logger.info(make_info(build_time, buildtimes))
+                else:
+                    logger.info('{}s: {}'.format(
+                        build_time, len(buildtimes[build_time])))
 
         buildline = re.compile('^\* \[\d+/\d+\].+Kb.+/.+')
         buildtimes = collections.defaultdict(list)
@@ -179,9 +170,7 @@ class StaticSiteBuilder(object):
                 seconds = int(parts[-3].split('.')[0])
                 buildtimes[seconds].append(info(link=parts[-1],
                                                 size=parts[-2]))
-
         print_buildtime_distribution(buildtimes)
-        print_longest_buildtimes(buildtimes)
 
     def buildsite(self, lang):
         '''Builds a site in the specified language
