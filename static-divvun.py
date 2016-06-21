@@ -22,7 +22,6 @@ import subprocess
 import lxml.etree as etree
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -398,6 +397,11 @@ def parse_options():
     parser.add_argument('--sitehome', '-s',
                         help='where the forrest site lives',
                         required=True)
+    parser.add_argument('--verbosity', '-V',
+                        help='Set the logger level, default is warning\n'
+                        'The allowed values are: warning, info, debug\n'
+                        'Default is info.',
+                        default='info')
     parser.add_argument('langs', help='list of languages',
                         nargs='+')
 
@@ -406,7 +410,20 @@ def parse_options():
 
 
 def main():
+    logging_dict = {'info': logging.INFO,
+                    'warning': logging.WARNING,
+                    'debug': logging.DEBUG}
     args = parse_options()
+
+    if args.verbosity in logging_dict.keys():
+        if args.verbosity == 'debug':
+            logging.info(
+                'Logging level is set to debug. Output will very verbose')
+        logging.basicConfig(level=logging_dict[args.verbosity])
+    else:
+        logging.error('-V|--verbosity must be one of: {}\n{} was given.'.format(
+            '|'.join(logging_dict.keys()), args.verbosity))
+        sys.exit(1)
 
     lockname = os.path.join(args.sitehome, '.lock')
     if not os.path.exists(lockname):
