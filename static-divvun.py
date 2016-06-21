@@ -408,10 +408,23 @@ def parse_options():
 def main():
     args = parse_options()
 
-    builder = StaticSiteBuilder(args.sitehome, args.destination, args.langs)
-    builder.validate()
-    builder.build_all_langs()
-    builder.copy_to_site()
+    lockname = os.path.join(args.sitehome, '.lock')
+    if not os.path.exists(lockname):
+        with open(lockname, 'w') as lockfile:
+            print(datetime.datetime.now(), file=lockfile)
+
+        builder = StaticSiteBuilder(args.sitehome, args.destination, args.langs)
+        builder.validate()
+        builder.build_all_langs()
+        builder.copy_to_site()
+        os.remove(lockname)
+    else:
+        with open(lockname) as lockfile:
+            dateformat = "%Y-%m-%d %H:%M:%S.%f"
+            datestring = lockfile.read().strip()
+            starttime = datetime.datetime.strptime(datestring, dateformat)
+            delta = datetime.datetime.now() - starttime
+            logger.error('A build of this site is still running and was started {} ago'.format(delta))
 
 
 if __name__ == '__main__':
