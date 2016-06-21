@@ -191,7 +191,9 @@ class StaticSiteBuilder(object):
         subp = subprocess.Popen('forrest site'.split(),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                 cwd=self.builddir)
+        before = datetime.datetime.now()
         (output, error) = subp.communicate()
+        logger.info('Building {} lasted {}'.format(lang, datetime.datetime.now() - before))
 
         self.parse_buildtimes(output)
 
