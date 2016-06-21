@@ -273,12 +273,18 @@ class StaticSiteBuilder(object):
             ['rsync', '-avz', '-e', 'ssh', builtdir, self.destination],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (output, error) = subp.communicate()
-        for line in output.split('\n'):
-            logger.debug(line)
-        for line in error.split('\n'):
-            logger.error(line)
 
-        logger.info('Done copying')
+        if subp.returncode != 0:
+            for line in output.split('\n'):
+                logger.error(line)
+            for line in error.split('\n'):
+                logger.error(line)
+        else:
+            logger.info('Done copying')
+            logger.debug('stdout')
+            logger.debug(output)
+            logger.debug('stderr')
+            logger.debug(error)
 
         ckdir = os.path.join(self.builddir,
                              'src/documentation/resources/ckeditor')
