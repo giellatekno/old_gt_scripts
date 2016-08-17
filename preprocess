@@ -101,7 +101,7 @@ my $SINGLE_PUNCT = $quotations . $parentheses . quotemeta("?!,;/\\") . $other;
 
 # Regex for tokens that nevertheless contain punctuation that
 # is specified in variable $SINGLE_PUNCT.
-my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.com|\.txt|\.no|¹|²|³|™';
+my $CONTAIN_PUNCT = 'ja\/dahje|http|:\/\/|km\/h|www|@|\.jpg|\.doc|\.pdf|\.html|\.com|\.txt|\.no|¹|²|³|⁴|⁵|⁶|⁷|⁸|⁹|™';
 if ($xml) {
     $CONTAIN_PUNCT .= "|<.*>";
 }
