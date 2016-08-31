@@ -16,8 +16,18 @@ source $HOME/.bash_profile
 module load autoconf/2.69
 module load automake/1.13.1
 
-# Make sure gtcore is the latest, greatest
-cd $GTHOME/gtcore
+svn up $GTHOME
+
+# Make sure giella-core is the latest, greatest
+cd $GTHOME/giella-core
+./autogen.sh
+./configure
+make -j
+
+# Make sure giella-shared is the latest, greatest
+cd $GTHOME/giella-shared
+./autogen.sh
+./configure
 make -j
 
 for lang in sma sme smj fkv smn sms
