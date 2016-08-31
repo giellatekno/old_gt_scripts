@@ -10,22 +10,22 @@
 #PBS -A uit-sami-001
 
 # Read environment variables that are needed
-source $HOME/.bash_profile
+. "$HOME/.bash_profile"
 
 # Load modules that are needed by make in the lang directories
 module load autoconf/2.69
 module load automake/1.13.1
 
-svn up $GTHOME
+svn up "$GTHOME"
 
 # Make sure giella-core is the latest, greatest
-cd $GTHOME/giella-core
+cd "$GTHOME/giella-core"
 ./autogen.sh
 ./configure
 make -j
 
 # Make sure giella-shared is the latest, greatest
-cd $GTHOME/giella-shared
+cd "$GTHOME/giella-shared"
 ./autogen.sh
 ./configure
 make -j
@@ -33,11 +33,11 @@ make -j
 for lang in sma sme smj fkv smn sms
 do
     # build fst needed for analysis
-    cd $GTHOME/langs/$lang
+    cd "$GTHOME/langs/$lang"
     time make -j
     if [ $lang != "sms" ]
     then
-        cd $GTHOME/langs/$lang/tools/preprocess
+        cd "$GTHOME/langs/$lang/tools/preprocess"
         rm abbr.txt
         time make -j abbr
     fi
@@ -45,7 +45,7 @@ do
 
     for corpus in $GTFREE $GTBOUND
     do
-        cd $corpus
+        cd "$corpus"
 
         # analyse the converted files
         time analyse_corpus $lang converted/$lang
