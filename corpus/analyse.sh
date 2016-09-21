@@ -16,8 +16,6 @@
 module load autoconf/2.69
 module load automake/1.13.1
 
-svn up "$GTHOME"
-
 # Make sure giella-core is the latest, greatest
 cd "$GTHOME/giella-core"
 ./autogen.sh
