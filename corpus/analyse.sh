@@ -30,8 +30,10 @@ make -j
 
 for lang in sma sme smj fkv smn sms
 do
-    # build fst needed for analysis
     cd "$GTHOME/langs/$lang"
+    # to make *really* sure the latest, greatest fsts are built
+    make clean
+    # build fst needed for analysis
     time make -j
     if [ $lang != "sms" ]
     then
@@ -44,10 +46,7 @@ do
     for corpus in $GTFREE $GTBOUND
     do
         cd "$corpus"
-
-        # analyse the converted files
         time analyse_corpus $lang converted/$lang
-
         echo "finished analysing $corpus:$lang"
     done
 done
