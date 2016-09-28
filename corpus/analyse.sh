@@ -31,6 +31,8 @@ make -j
 for lang in sma sme smj fkv smn sms
 do
     cd "$GTHOME/langs/$lang"
+    # make sure no files unknown to svn are hanging around
+    svn st|grep ?|cut -f8 -d" "|xargs rm -rf
     # to make *really* sure the latest, greatest fsts are built
     make clean
     # build fst needed for analysis
