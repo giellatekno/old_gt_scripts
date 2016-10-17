@@ -260,6 +260,16 @@ class DivvunLogHandler(object):
     """
 
     our_targets = {
+        'DivvunInstaller.exe': 'MSOffice/Windows XP/7',
+        'msofficedivvuntools.msi': 'MSOffice/Windows 7/8',
+        'sami-proofing-tools.dmg': 'MSOffice/Mac',
+        'indesign-divvuntools.dmg': 'InDesign/Mac',
+        'smi-pack.zip': 'OpenOffice.org, pre 3.0',
+        'smi.oxt': 'OpenOffice.org 3.0',
+        'hunspell-se.tar.gz': 'Hunspell/Unix, Northern Sami',
+        'hunspell-smj.tar.gz': 'Hunspell/Unix, Lule Sami',
+        'smi.zip': 'Hunspell/Generic'}
+
     def __init__(self, log_directory, outfile):
         """Initialise the DivvunLogHandler class.
 
@@ -268,16 +278,6 @@ class DivvunLogHandler(object):
             outfile (str): path to the report file.
         """
         self.outfile = outfile
-        self.our_targets = {
-            'DivvunInstaller.exe': 'MSOffice/Windows XP/7',
-            'msofficedivvuntools.msi': 'MSOffice/Windows 7/8',
-            'sami-proofing-tools.dmg': 'MSOffice/Mac',
-            'indesign-divvuntools.dmg': 'InDesign/Mac',
-            'smi-pack.zip': 'OpenOffice.org, pre 3.0',
-            'smi.oxt': 'OpenOffice.org 3.0',
-            'hunspell-se.tar.gz': 'Hunspell/Unix, Northern Sami',
-            'hunspell-smj.tar.gz': 'Hunspell/Unix, Lule Sami',
-            'smi.zip': 'Hunspell/Generic'}
         self.report_file = etree.Element('document')
         self.logparser = DivvunApacheLogParser(log_directory,
                                                self.our_targets.keys())
