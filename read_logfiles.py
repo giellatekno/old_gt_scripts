@@ -236,10 +236,10 @@ class DivvunLogHandler(object):
             self.totals[target] = 0
 
     def get_max_and_min_date(self):
-        '''Set max and min date
+        """Set max and min date
         If the date is not found in the xml file, if the xml file does not
         exist or if the file is empty, set default values.
-        '''
+        """
         try:
             doc = etree.parse(self.outfile)
             self.logparser.set_mindate(datetime.datetime.strptime(
@@ -284,8 +284,8 @@ class DivvunLogHandler(object):
         return body
 
     def total_found(self):
-        '''Sum up the number of lines found
-        '''
+        """Sum up the number of lines found
+        """
         return sum([len(
             self.logparser.found_lists[key]) for key in
             self.logparser.found_lists.keys()]) + \
