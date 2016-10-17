@@ -16,7 +16,7 @@ from logsparser.lognormalizer import LogNormalizer
 normalizer = LogNormalizer('/usr/share/logsparser/normalizers')
 
 
-class DivvunApacheLogParser:
+class DivvunApacheLogParser(object):
     def __init__(self, log_directory, our_targets):
         """
         Initialize the variables the class needs to handle:
