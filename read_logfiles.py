@@ -294,10 +294,10 @@ class DivvunLogHandler(object):
         """
         try:
             doc = etree.parse(self.outfile)
-            self.logparser.set_mindate(datetime.datetime.strptime(
-                doc.find('//em[@id="mindate"]').text, '%Y-%m-%d %H:%M:%S'))
-            self.logparser.set_maxdate(datetime.datetime.strptime(
-                doc.find('//em[@id="maxdate"]').text, '%Y-%m-%d %H:%M:%S'))
+            self.logparser.mindate = datetime.datetime.strptime(
+                doc.find('//em[@id="mindate"]').text, '%Y-%m-%d %H:%M:%S')
+            self.logparser.maxdate = datetime.datetime.strptime(
+                doc.find('//em[@id="maxdate"]').text, '%Y-%m-%d %H:%M:%S')
         except (IOError, etree.XMLSyntaxError, AttributeError):
             self.logparser.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
             self.logparser.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
