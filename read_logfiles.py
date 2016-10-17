@@ -4,15 +4,16 @@
 This script parses apache log files found in a given directory.
 It outputs an xml file, readable by forrest
 """
-import os
+import argparse
+import datetime
 import glob
 import gzip
-import datetime
-import lxml.etree as etree
-import argparse
+import os
 
 import GeoIP
+import lxml.etree as etree
 from logsparser.lognormalizer import LogNormalizer
+
 normalizer = LogNormalizer('/usr/share/logsparser/normalizers')
 
 
