@@ -152,12 +152,6 @@ class DivvunApacheLogParser(object):
         self.log_directory = log_directory
         self.found_newlines = False
 
-    def set_mindate(self, date):
-        self.mindate = date
-
-    def set_maxdate(self, date):
-        self.maxdate = date
-
     def is_bot(self, line):
         """Check if the line contains one of the bots in self.bots
         Tried to implement this check as a regex, but runtime
@@ -179,9 +173,9 @@ class DivvunApacheLogParser(object):
 
     def set_date(self, date):
         if date < self.mindate:
-            self.set_mindate(date)
+            self.mindate = date
         if date > self.maxdate:
-            self.set_maxdate(date)
+            self.maxdate = date
 
     def is_target(self, line):
         for target in self.found_lists.keys():
@@ -253,8 +247,8 @@ class DivvunLogHandler(object):
             self.logparser.set_maxdate(datetime.datetime.strptime(
                 doc.find('//em[@id="maxdate"]').text, '%Y-%m-%d %H:%M:%S'))
         except (IOError, etree.XMLSyntaxError, AttributeError):
-            self.logparser.set_mindate(datetime.datetime(2100, 1, 1, 0, 0, 0))
-            self.logparser.set_maxdate(datetime.datetime(2000, 1, 1, 0, 0, 0))
+            self.logparser.mindate = datetime.datetime(2100, 1, 1, 0, 0, 0)
+            self.logparser.maxdate = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
     def generate_report(self):
         if self.logparser.found_newlines:
