@@ -265,53 +265,53 @@ class DivvunLogHandler(object):
 
     our_targets = {
         'DivvunInstaller.exe':
-            'MSOffice/Windows XP/7',
+            u'MSOffice/Windows XP/7 (Lule/North/South Sámi)',
         'msofficedivvuntools.msi':
-            'MSOffice/Windows 7/8',
+            u'MSOffice/Windows 7/8 (Lule/North/South Sámi)',
         'sami-proofing-tools.dmg':
-            'MSOffice/Mac',
+            u'MSOffice/Mac (Lule/North/South Sámi)',
         'indesign-divvuntools.dmg':
-            'InDesign/Mac',
+            u'InDesign/Mac (Lule/North/South Sámi)',
         'smi-pack.zip':
-            'OpenOffice.org, pre 3.0',
+            u'OpenOffice.org, pre 3.0 (Lule/North/South Sámi)',
         'smi.oxt':
-            'OpenOffice.org 3.0',
+            u'OpenOffice.org 3.0 (Lule/North/South Sámi)',
         'hunspell-se.tar.gz':
-            'Hunspell/Unix, Northern Sámi',
+            u'Hunspell/Unix, Northern Sámi',
         'hunspell-smj.tar.gz':
-            'Hunspell/Unix, Lule Sámi',
+            u'Hunspell/Unix, Lule Sámi',
         'smi.zip':
-            'Hunspell/Generic',
+            u'Hunspell/Generic (Lule/North/South Sámi)',
         'Divvun-sme.msi':
-            'Divvun 4 MS Office North Sámi',
+            u'Divvun 4 MS Office North Sámi',
         'Divvun-smj.msi':
-            'Divvun 4 MS Office Lule Sámi',
+            u'Divvun 4 MS Office Lule Sámi',
         'Divvun-sma.msi':
-            'Divvun 4 MS Office South Sámi',
+            u'Divvun 4 MS Office South Sámi',
         'Divvun-sme.xpi':
-            'Divvun 4 Firefox (Didriksen) North Sámi',
+            u'Divvun 4 Firefox (Didriksen) North Sámi',
         'Divvun-smj.xpi':
-            'Divvun 4 Firefox (Didriksen) Lule Sámi',
+            u'Divvun 4 Firefox (Didriksen) Lule Sámi',
         'Divvun-sma.xpi':
-            'Divvun 4 Firefox (Didriksen) South Sámi',
+            u'Divvun 4 Firefox (Didriksen) South Sámi',
         'Mozvoikko-sme.xpi':
-            'Divvun 4 Firefox (MozVoikko) North Sámi',
+            u'Divvun 4 Firefox (MozVoikko) North Sámi',
         'Mozvoikko-smj.xpi':
-            'Divvun 4 Firefox (MozVoikko) Lule Sámi',
+            u'Divvun 4 Firefox (MozVoikko) Lule Sámi',
         'Mozvoikko-sma.xpi':
-            'Divvun 4 Firefox (MozVoikko) South Sámi',
+            u'Divvun 4 Firefox (MozVoikko) South Sámi',
         'MacVoikko-Northern_Sami-se.service.zip':
-            'Divvun 4 OS X North Sámi',
+            u'Divvun 4 OS X North Sámi',
         'MacVoikko-Lule_Sami-smj.service.zip':
-            'Divvun 4 OS X Lule Sámi',
+            u'Divvun 4 OS X Lule Sámi',
         'MacVoikko-Southern_Sami-sma.service.zip':
-            'Divvun 4 OS X South Sámi',
+            u'Divvun 4 OS X South Sámi',
         'se_LO-voikko-5.0.oxt':
-            'Divvun 4 LibreOffice North Sámi',
+            u'Divvun 4 LibreOffice North Sámi',
         'smj_LO-voikko-5.0.oxt':
-            'Divvun 4 LibreOffice Lule Sámi',
+            u'Divvun 4 LibreOffice Lule Sámi',
         'sma_LO-voikko-5.0.oxt':
-            'Divvun 4 LibreOffice South Sámi',
+            u'Divvun 4 LibreOffice South Sámi',
     }
 
     def __init__(self, log_directory, outfile):
@@ -405,16 +405,16 @@ class DivvunLogHandler(object):
         """
         p = etree.Element('p')
         p.text = u'All of the Divvun tools have been downloaded ' + \
-            str(self.total_found()) + u' times between '
+            unicode(self.total_found()) + u' times between '
 
         em_min = etree.SubElement(p, 'em')
         em_min.set('id', 'mindate')
-        em_min.text = str(self.logparser.mindate)
+        em_min.text = unicode(self.logparser.mindate)
         em_min.tail = u' and '
 
         em_max = etree.SubElement(p, 'em')
         em_max.set('id', 'maxdate')
-        em_max.text = str(self.logparser.maxdate)
+        em_max.text = unicode(self.logparser.maxdate)
 
         return p
 
@@ -434,8 +434,8 @@ class DivvunLogHandler(object):
             li = etree.Element('li')
             ul.append(li)
             li.text = self.our_targets[target] + \
-                ' has been downloaded ' + \
-                str(self.totals[target]) + ' times'
+                u' has been downloaded ' + \
+                unicode(self.totals[target]) + u' times'
 
         return ul
 
@@ -460,7 +460,7 @@ class DivvunLogHandler(object):
         section = self.make_section('Downloads sorted by year')
 
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]),
+            subsection = self.make_section(unicode(self.our_targets[target]),
                                            target_=target)
 
             table = etree.Element('table')
@@ -468,7 +468,7 @@ class DivvunLogHandler(object):
 
             year_dict = self.get_focus_dict(target, 'year')
             for found_line in self.logparser.found_lists[target]:
-                year = str(found_line['date'].year)
+                year = unicode(found_line['date'].year)
                 if year in year_dict:
                     year_dict[year] += 1
                 else:
@@ -523,7 +523,7 @@ class DivvunLogHandler(object):
         for year in sorted(dict_,
                            key=dict_.get,
                            reverse=True):
-            table.append(self.make_table_row([str(year), dict_[year]], 'td',
+            table.append(self.make_table_row([unicode(year), dict_[year]], 'td',
                                              class_))
 
     def make_section(self, text, target_=None):
@@ -541,7 +541,7 @@ class DivvunLogHandler(object):
         if class_ is not None:
             tr.set("class", class_)
         for text in text_list:
-            etree.SubElement(tr, element).text = str(text)
+            etree.SubElement(tr, element).text = unicode(text)
 
         return tr
 
@@ -550,7 +550,7 @@ class DivvunLogHandler(object):
         section = self.make_section('Downloads sorted by useragent')
 
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]),
+            subsection = self.make_section(unicode(self.our_targets[target]),
                                            target_=target)
 
             table = etree.Element('table')
@@ -576,7 +576,7 @@ class DivvunLogHandler(object):
 
         locator = GeoIP.new(GeoIP.GEOIP_MEMORY_CACHE)
         for target in self.our_targets.keys():
-            subsection = self.make_section(str(self.our_targets[target]),
+            subsection = self.make_section(unicode(self.our_targets[target]),
                                            target_=target)
 
             table = etree.Element('table')
