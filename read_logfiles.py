@@ -260,15 +260,55 @@ class DivvunLogHandler(object):
     """
 
     our_targets = {
-        'DivvunInstaller.exe': 'MSOffice/Windows XP/7',
-        'msofficedivvuntools.msi': 'MSOffice/Windows 7/8',
-        'sami-proofing-tools.dmg': 'MSOffice/Mac',
-        'indesign-divvuntools.dmg': 'InDesign/Mac',
-        'smi-pack.zip': 'OpenOffice.org, pre 3.0',
-        'smi.oxt': 'OpenOffice.org 3.0',
-        'hunspell-se.tar.gz': 'Hunspell/Unix, Northern Sami',
-        'hunspell-smj.tar.gz': 'Hunspell/Unix, Lule Sami',
-        'smi.zip': 'Hunspell/Generic'}
+        'DivvunInstaller.exe':
+            'MSOffice/Windows XP/7',
+        'msofficedivvuntools.msi':
+            'MSOffice/Windows 7/8',
+        'sami-proofing-tools.dmg':
+            'MSOffice/Mac',
+        'indesign-divvuntools.dmg':
+            'InDesign/Mac',
+        'smi-pack.zip':
+            'OpenOffice.org, pre 3.0',
+        'smi.oxt':
+            'OpenOffice.org 3.0',
+        'hunspell-se.tar.gz':
+            'Hunspell/Unix, Northern Sámi',
+        'hunspell-smj.tar.gz':
+            'Hunspell/Unix, Lule Sámi',
+        'smi.zip':
+            'Hunspell/Generic',
+        'Divvun-sme.msi':
+            'Divvun 4 MS Office North Sámi',
+        'Divvun-smj.msi':
+            'Divvun 4 MS Office Lule Sámi',
+        'Divvun-sma.msi':
+            'Divvun 4 MS Office South Sámi',
+        'Divvun-sme.xpi':
+            'Divvun 4 Firefox (Didriksen) North Sámi',
+        'Divvun-smj.xpi':
+            'Divvun 4 Firefox (Didriksen) Lule Sámi',
+        'Divvun-sma.xpi':
+            'Divvun 4 Firefox (Didriksen) South Sámi',
+        'Mozvoikko-sme.xpi':
+            'Divvun 4 Firefox (MozVoikko) North Sámi',
+        'Mozvoikko-smj.xpi':
+            'Divvun 4 Firefox (MozVoikko) Lule Sámi',
+        'Mozvoikko-sma.xpi':
+            'Divvun 4 Firefox (MozVoikko) South Sámi',
+        'MacVoikko-Northern_Sami-se.service.zip':
+            'Divvun 4 OS X North Sámi',
+        'MacVoikko-Lule_Sami-smj.service.zip':
+            'Divvun 4 OS X Lule Sámi',
+        'MacVoikko-Southern_Sami-sma.service.zip':
+            'Divvun 4 OS X South Sámi',
+        'se_LO-voikko-5.0.oxt':
+            'Divvun 4 LibreOffice North Sámi',
+        'smj_LO-voikko-5.0.oxt':
+            'Divvun 4 LibreOffice Lule Sámi',
+        'sma_LO-voikko-5.0.oxt':
+            'Divvun 4 LibreOffice South Sámi',
+    }
 
     def __init__(self, log_directory, outfile):
         """Initialise the DivvunLogHandler class.
