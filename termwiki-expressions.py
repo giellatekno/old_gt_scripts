@@ -42,7 +42,10 @@ for text in tree.getroot().xpath(
                     l = lines.popleft()
                     if (l.startswith(u'{{Related expression') or
                             l.startswith(u'{{Related_expression')):
-                        (expression_info, pos) = bot.parse_related_expression(lines, sanctioned)
+                        try:
+                            (expression_info, pos) = bot.parse_related_expression(lines, sanctioned)
+                        except bot.BotException:
+                            break
                         concept.add_expression(expression_info)
                         concept.expression_infos.pos = pos
                     elif l.startswith(u'{{Related concept'):
