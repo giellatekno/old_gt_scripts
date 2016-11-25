@@ -52,12 +52,12 @@ for text in tree.getroot().xpath(
                         concept.add_related_concept(bot.parse_related_concept(lines))
                     else:
                         raise BotException('unhandled', l.strip())
-            except importer.ExpressionException:
-                pass
-            except KeyError:
-                pass
-            except ValueError:
-                pass
+            except importer.ExpressionException as e:
+                print(bot.lineno(), str(e), text.text, '\n', file=sys.stderr)
+            except KeyError as e:
+                print(bot.lineno(), str(e), text.text, '\n', file=sys.stderr)
+            except ValueError as e:
+                print(bot.lineno(), str(e), text.text, '\n', file=sys.stderr)
             else:
                 se = concept.expression_infos.get_expressions_set(u'se')
                 fi = concept.expression_infos.get_expressions_set(u'fi')
