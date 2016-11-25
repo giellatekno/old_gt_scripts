@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 '''Print se and fi entries from the daily termwiki dump to stdout
 
@@ -36,7 +36,7 @@ for text in tree.getroot().xpath(
         if l.startswith(u'{{Concept'):
             try:
                 (concept_info, sanctioned) = bot.parse_concept(lines)
-                for key, info in concept_info.iteritems():
+                for key, info in concept_info.items():
                     concept.add_concept_info(key, info)
                 while len(lines) > 0:
                     l = lines.popleft()
