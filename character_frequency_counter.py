@@ -19,7 +19,7 @@ for line in infile:
     # create a character:frequency dictionary
 
     for char in line.lower():
-	cf_dic[char] = cf_dic.get(char, 0) + 1
+        cf_dic[char] = cf_dic.get(char, 0) + 1
 
 
 print "Characters sorted by frequency:"
@@ -30,5 +30,5 @@ value_key = sorted([(v, k) for k, v in cf_dic.items()], reverse=True)
 for vk in value_key:
     # don't show space and newline
     if vk[1] not in u" \n0123456789.¶,-–:«»!()?[]/'’…":
-	c = unicode(vk[1]).encode('utf8')
-        print c , vk[0]
+        c = unicode(vk[1]).encode('utf8')
+        print c, vk[0]
