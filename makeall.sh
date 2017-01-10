@@ -50,7 +50,7 @@ cd ../lut && pwd && nice ./autogen.sh -l && nice ./configure && nice time make
 echo " -------------------------------------------------------------------------------------- mdf, Moksha "
 cd ../mdf && pwd && nice ./autogen.sh -l && nice ./configure && nice time make 
 echo " -------------------------------------------------------------------------------------- mhr, Meadow Mari "
-cd ../mhr && pwd && nice ./autogen.sh -l && nice ./configure && nice time make 
+cd ../mhr && pwd && nice ./autogen.sh -l && nice ./configure --with-hfst --without-xfst && nice time make 
 echo " -------------------------------------------------------------------------------------- mns, Northern Mansi "
 cd ../mns && pwd && nice ./autogen.sh -l && nice ./configure && nice time make 
 echo " -------------------------------------------------------------------------------------- mrj, Hill Mari "
