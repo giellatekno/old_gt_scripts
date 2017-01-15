@@ -153,7 +153,7 @@ sentence="${sentence//(/\(}"
 sentence="${sentence//)/\)}"
 
 # path to the shared syntax
-SD_PATH='giella-shared/smi/src/syntax'
+SD_PATH='../giella-shared/smi/src/syntax'
 
 # define commands
 # common pos_cmd
