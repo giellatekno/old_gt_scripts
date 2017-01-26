@@ -68,13 +68,13 @@ my $size;
 # The xml specifications, name of dtd-file and root node.
 print $FH1 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 #print $FH1 qq|<!DOCTYPE summary PUBLIC "-//DIVVUN//DTD Corpus Summary V1.0//EN" |;
-#print $FH1 qq|"/home/saara/gt/dtd/corpus-summary.dtd">|;
+#print $FH1 qq|"/home/saara/giella-core/schemas/corpus-summary.dtd">|;
 print $FH1 qq|\n<summary>|;
 
 # The xml specifications, name of dtd-file and root node.
 print $FH2 qq|<?xml version='1.0'  encoding="UTF-8"?>|;
 #print $FH2 qq|<!DOCTYPE count PUBLIC "-//DIVVUN//DTD Corpus Summary Count V1.0//EN" |;
-#print $FH2 qq|"/home/saara/gt/dtd/corpus-summary-count.dtd">|;
+#print $FH2 qq|"/home/saara/giella-core/schemas/corpus-summary-count.dtd">|;
 
 
 if ($language) { $dir = $corpdir . "/$language"; }
