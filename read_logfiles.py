@@ -267,7 +267,7 @@ class DivvunLogHandler(object):
         'DivvunInstaller.exe':
             u'MSOffice/Windows XP/7 (Lule/North/South Sámi)',
         'msofficedivvuntools.msi':
-            u'MSOffice/Windows 7/8 (Lule/North/South Sámi)',
+            u'MSOffice/Windows 7/8/10 (Lule/North/South Sámi)',
         'sami-proofing-tools.dmg':
             u'MSOffice/Mac (Lule/North/South Sámi)',
         'indesign-divvuntools.dmg':
@@ -284,9 +284,15 @@ class DivvunLogHandler(object):
             u'Hunspell/Generic (Lule/North/South Sámi)',
         'Divvun-sme.msi':
             u'Divvun 4 MS Office North Sámi',
+        'Divvun-sme-latest.exe':
+            u'Divvun 4 MS Office North Sámi',
         'Divvun-smj.msi':
             u'Divvun 4 MS Office Lule Sámi',
+        'Divvun-smj-latest.exe':
+            u'Divvun 4 MS Office Lule Sámi',
         'Divvun-sma.msi':
+            u'Divvun 4 MS Office South Sámi',
+        'Divvun-sma-latest.exe':
             u'Divvun 4 MS Office South Sámi',
         'Divvun-sme.xpi':
             u'Divvun 4 Firefox (Didriksen) North Sámi',
