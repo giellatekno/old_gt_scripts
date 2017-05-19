@@ -39,7 +39,7 @@ if (xsl_filename.rfind('.xsl') > 0):
             variable.attrib['select'] = "'" + value + "'"
         else:
             print >>sys.stderr, 'Sorry, the xsl variable %s does not exist' % (key)
-
+    root.tail = '\n'
     try:
         tree.write(xsl_filename, encoding="utf-8", xml_declaration = True)
     except IOError:
