@@ -88,12 +88,12 @@ shift $((OPTIND-1))
 # language parameter test and abbr file assignment
 if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
     lg='langs'
-    if [  -f $GTHOME/$lg/$l/tools/preprocess/abbr.txt ]; then
-       abbr="--abbr=$GTHOME/$lg/$l/tools/preprocess/abbr.txt"  # <--- new infra
+    if [  -f $GTHOME/$lg/$l/tools/tokenisers/abbr.txt ]; then
+       abbr="--abbr=$GTHOME/$lg/$l/tools/tokenisers/abbr.txt"  # <--- new infra
     else
        abbr=''
        echo "Warning: no abbr file found" 1>&2;
-       echo "  $GTHOME/$lg/$l/tools/preprocess/abbr.txt" 1>&2;
+       echo "  $GTHOME/$lg/$l/tools/tokenisers/abbr.txt" 1>&2;
        echo "............. preprocessing without it!" 1>&2;
     fi 
 # commented this branch due to the sme moved to the langs in newinfra
