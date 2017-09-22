@@ -762,6 +762,9 @@ alias ugeo='$LOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.fst'
 
 # Direct sentence analysis:
 
+alias kpvtoka="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst"
+
+
 alias bakdep="sent-proc.sh -l bak -s dep"
 alias bakdept="sent-proc.sh -l bak -s dep -t"
 alias bakdis="sent-proc.sh -l bak -s dis"
