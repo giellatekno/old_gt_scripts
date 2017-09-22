@@ -762,7 +762,14 @@ alias ugeo='$LOOKUP $GTHOME/words/dicts/smi/geo/bin/geo.fst'
 
 # Direct sentence analysis:
 
-alias kpvtoka="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst"
+alias kpvtoka="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \
+               sed 's/ <W:0.0000000000>//g;'"
+alias kpvtoks="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \
+               vislcg3 -g $GTHOME/langs/kpv/src/syntax/disambiguation.cg3 | \
+               sed 's/ <W:0.0000000000>//g;'"
+alias kpvtokst="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \
+               vislcg3 -g $GTHOME/langs/kpv/src/syntax/disambiguation.cg3 -t | \
+               sed 's/ <W:0.0000000000>//g;'"
 
 
 alias bakdep="sent-proc.sh -l bak -s dep"
