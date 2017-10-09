@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where idate-sme.fst is stored
+# The directory where  transcriptor-date-digit2text.filtered.lookup.xfst is stored
 $smefstdir = "/opt/smi/sme/bin" ;
 
 
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/idate-sme.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/transcriptor-date-digit2text.filtered.lookup.xfst` ;
 # $utilitydir/lookup -flags mbL" => "LTT -d $smefstdir/idate-sme.fst` ;
 # testing line two here, lauri's advice.
 #back with line one

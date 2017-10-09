@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where iclock-smj.fst is stored
+# The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $smjfstdir = "/opt/smi/smj/bin" ;
 
 
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags L\" => \"LTT  -utf8 -d $smjfstdir/iclock-smj.fst` ;
+ $utilitydir/lookup -flags L\" => \"LTT  -utf8 -d $smjfstdir/transcriptor-clock-digit2text.filtered.lookup.xfst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display

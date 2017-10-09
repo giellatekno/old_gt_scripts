@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where iclock-sme.fst is stored
+# The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $smefstdir = "/opt/smi/sme/bin" ;
 
 
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/iclock-sme.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/transcriptor-clock-digit2text.filtered.lookup.xfst` ;
 # $utilitydir/lookup -flags mbL" => "LTT -d $smefstdir/iclock-sme.fst` ;
 # testing line two here, lauri's advice.
 #back with line one

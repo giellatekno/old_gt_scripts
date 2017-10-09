@@ -29,7 +29,7 @@
 # The directory where utilities like 'lookup' are stored
 #$utilitydir =    "/opt/xerox/bin" ; # new lookup
 $utilitydir = "/opt/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin" ; # old, commercial lookup
-# The directory where iclock-myv.fst is stored
+# The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $myvfstdir = "/opt/smi/myv/bin" ;
 
 
@@ -165,7 +165,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d  -utf8 $myvfstdir/iclock-myv.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d  -utf8 $myvfstdir/transcriptor-clock-digit2text.filtered.lookup.xfst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display

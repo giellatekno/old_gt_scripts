@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where iclock-crk.fst is stored
+# The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $crkfstdir = "/opt/smi/crk/bin" ;
 
 

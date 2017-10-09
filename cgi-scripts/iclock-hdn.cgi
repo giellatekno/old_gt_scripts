@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where iclock-hdn.fst is stored
+# The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $hdnfstdir = "/opt/smi/hdn/bin" ;
 
 

@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where idate-sma.fst is stored
+# The directory where  transcriptor-date-digit2text.filtered.lookup.xfst is stored
 $smafstdir = "/opt/smi/sma/bin" ;
 
 
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smafstdir/idate-sma.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smafstdir/transcriptor-date-digit2text.filtered.lookup.xfst` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
