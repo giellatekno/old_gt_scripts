@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/opt/xerox/bin" ;
-# The directory where liv-num.fst is stored
+# The directory where transcriptor-numbers2text-desc.xfst is stored
 $livfstdir = "/opt/smi/liv/bin" ;
 
 
@@ -164,7 +164,7 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $livfstdir/liv-num.fst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $livfstdir/transcriptor-numbers2text-desc.xfst` ;
 # $utilitydir/lookup -flags mbL" => "LTT -d $livfstdir/liv-num.fst` ;
 # testing line two here, lauri's advice.
 #back with line one
