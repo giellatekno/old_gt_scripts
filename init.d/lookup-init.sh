@@ -771,9 +771,12 @@ alias kpvtokst="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tok
                vislcg3 -g $GTHOME/langs/kpv/src/syntax/disambiguation.cg3 -t | \
                sed 's/ <W:0.0000000000>//g;'"
 
-alias myvtoka="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst "
-alias myvtoks="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst |  vislcg3 -g $GTHOME/langs/myv/src/syntax/disambiguation.cg3 "
-alias myvtokst="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | vislcg3 -g $GTHOME/langs/myv/src/syntax/disambiguation.cg3 -t "
+alias myvtoka="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \  
+               sed 's/ <W:0.0000000000>//g;'"
+alias myvtoks="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst |  vislcg3 -g $GTHOME/langs/myv/src/syntax/disambiguation.cg3 | \  
+               sed 's/ <W:0.0000000000>//g;'"
+alias myvtokst="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | vislcg3 -g $GTHOME/langs/myv/src/syntax/disambiguation.cg3 -t | \  
+               sed 's/ <W:0.0000000000>//g;'"
 
 
 alias bakdep="sent-proc.sh -l bak -s dep"
