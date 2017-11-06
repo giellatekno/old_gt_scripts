@@ -1,67 +1,63 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-'''Print se and fi entries from the daily termwiki dump to stdout
+'''Print entries from the daily termwiki dump to stdout
 
-The se and fi output are separated by a tab.
+The lang1 and lang2 output are separated by a tab.
 
 If there are several expressions in each language, they are separated by
 a comma.
 '''
-from __future__ import print_function
-import collections
-import lxml.etree as etree
+import argparse
 import os
 import sys
 
+import lxml.etree as etree
+
 sys.path.append(os.path.join(os.getenv('GTHOME'), 'tools/TermWikiImporter'))
 
-from termwikiimporter import bot
-from termwikiimporter import importer
+from termwikiimporter import read_termwiki
 
 
+def parse_options():
+    """Parse options given to the script."""
+    parser = argparse.ArgumentParser(
+        description='Print sanctioned tab separated term sets')
 
-DUMP = os.path.join(os.getenv('GTHOME'), 'words/terms/termwiki/dump.xml')
+    parser.add_argument('lang1', choices=['fi', 'nb', 'nn', 'sv', 'se', 'sma',
+                                          'smj', 'smn', 'sms', 'lat', 'en'])
+    parser.add_argument('lang2', choices=['fi', 'nb', 'nn', 'sv', 'se', 'sma',
+                                          'smj', 'smn', 'sms', 'lat', 'en'])
 
-tree = etree.parse(DUMP)
+    args = parser.parse_args()
 
-for text in tree.getroot().xpath(
-        './/m:text',
-        namespaces={'m': 'http://www.mediawiki.org/xml/export-0.10/'}):
-    if text.text is not None:
-        sanctioned = {}
-        concept = importer.Concept()
-        lines = collections.deque(text.text.split(u'\n'))
+    return args
 
-        l = lines.popleft()
-        if l.startswith(u'{{Concept'):
-            try:
-                (concept_info, sanctioned) = bot.parse_concept(lines)
-                for key, info in concept_info.items():
-                    concept.add_concept_info(key, info)
-                while len(lines) > 0:
-                    l = lines.popleft()
-                    if (l.startswith(u'{{Related expression') or
-                            l.startswith(u'{{Related_expression')):
-                        try:
-                            (expression_info, pos) = bot.parse_related_expression(lines, sanctioned)
-                        except bot.BotException:
-                            break
-                        concept.add_expression(expression_info)
-                        concept.expression_infos.pos = pos
-                    elif l.startswith(u'{{Related concept'):
-                        concept.add_related_concept(bot.parse_related_concept(lines))
-                    else:
-                        raise BotException('unhandled', l.strip())
-            except importer.ExpressionException as e:
-                print(bot.lineno(), str(e), text.text, '\n', file=sys.stderr)
-            except KeyError as e:
-                print(bot.lineno(), str(e), text.text, '\n', file=sys.stderr)
-            except ValueError as e:
-                print(bot.lineno(), str(e), text.text, '\n', file=sys.stderr)
-            else:
-                se = concept.expression_infos.get_expressions_set(u'se')
-                fi = concept.expression_infos.get_expressions_set(u'fi')
-                if se or fi:
-                    print('\t'.join(
-                        [','.join(se), ','.join(fi)]))
 
+def main():
+    args = parse_options()
+    if args.lang1 == args.lang2:
+        raise SystemExit(
+            'Please specify different languages for lang1 and lang2')
+
+    tree = etree.parse(
+        os.path.join(os.getenv('GTHOME'), 'words/terms/termwiki/dump.xml'))
+
+    for text in tree.getroot().xpath(
+            './/m:text',
+            namespaces={'m': 'http://www.mediawiki.org/xml/export-0.10/'}):
+        if text is not None and text.text is not None and '{{Concept' in text.text:
+            term = read_termwiki.parse_termwiki_concept(text.text)
+
+            langs = {args.lang1: set(), args.lang2: set()}
+            for expression in term['related_expressions']:
+                if expression['language'] == args.lang1 or expression['language'] == args.lang2:
+                    if expression['sanctioned'] == 'Yes' or expression['sanctioned'] == 'True':
+                        langs[expression['language']].add(expression['expression'])
+
+            if langs[args.lang1] and langs[args.lang2]:
+                print('{}\t{}'.format(', '.join(langs[args.lang1]),
+                                      ', '.join(langs[args.lang2])))
+
+
+if __name__ == '__main__':
+    main()
