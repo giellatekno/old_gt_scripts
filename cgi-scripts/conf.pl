@@ -47,7 +47,8 @@ sub init_variables {
 	# The directory where utilities like 'lookup' are stored
 	my $utilitydir = "/usr/local/bin"; # for newinfra
 	# The directory for vislcg and lookup2cg
-	my $bindir = "/usr/local/bin"; # new infra
+#	my $bindir = "/usr/local/bin"; # new infra
+	my $bindir = "/usr/bin"; # new infra
 	# The directory for hfst tools
         my $hfstutilitydir = "/usr/local/bin";
         my $hfstlookup = "hfst-lookup";
@@ -97,7 +98,7 @@ sub init_variables {
 		}
 		else {
 			$translate_script = "$commondir/translate.pl";
-			$translate_fst = "$fstdir/$lang$tr_lang.fst";
+			$translate_fst = "$fstdir/$lang$tr_lang-all.fst";
 			$translate = "$translate_script --fst=$translate_fst";
 		}
 	}
