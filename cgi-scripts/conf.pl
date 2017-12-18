@@ -213,16 +213,16 @@ sub init_variables {
 
 # if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8"; 
-	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $syn_rle -C UTF-8 | $bindir/vislcg3 -g $dep_rle -C UTF-8"; 
+	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
-		$disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8";  
-		$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle -C UTF-8 | $bindir/vislcg3 -g $dep_rle -C UTF-8"; }
+		$disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle ";  
+		$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
 
 # for the next debug, this is the variable-free version of $dependency:
-# /usr/local/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 -C UTF-8
-# /usr/local/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3 -C UTF-8  | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 -C UTF-8
+# /usr/local/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
+# /usr/local/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
