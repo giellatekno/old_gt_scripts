@@ -2,11 +2,11 @@
 
 # sent-disamb.sh
 # This is a shell script for analysing sentences with the vislcg3 parser.
-# It gives the analysis, and optionally the number of the disambiguation rules.
+# It gives the analysis, and optionally the number of the disambiguator rules.
 
 # usage:
 # <script_name> (-t) -l <lang_code> <sentence_to_analyze>
-# to output the number of disambiguation rules, too, use the parameter '-t'
+# to output the number of disambiguator rules, too, use the parameter '-t'
 # parametized for language (sme as default)
 # input sentence either coming from the pipe or at the end in quotation marks
 # parametrized for processing step: -s pos, -s dis, -s syn, -s dep
@@ -55,11 +55,11 @@ usage() {
     echo "                       or"  1>&2;
     echo "       2. cat FILE or echo \"INPUT_TEXT\" | $0 [-t] [-l LANG] [-s PROCESSING_STEP] "  1>&2;
     echo "-l language code: sme North Saami (default), sma South Saami, etc."  1>&2;
-    echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"  1>&2;
-    echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"  1>&2;
+    echo "-s processing step: pos part-of-speech tagging without disambiguator which is (default)"  1>&2;
+    echo "   processing step: dis part-of-speech tagging with disambiguator with vislcg3"  1>&2;
     echo "   processing step: syn assigning syntactic functions via vislcg3"  1>&2;
     echo "   processing step: dep dependency parsing with vislcg3"  1>&2;
-    echo "-t print traces of the disambiguation or parsing step"  1>&2;
+    echo "-t print traces of the disambiguator or parsing step"  1>&2;
     echo "-h print this text"  1>&2;
     exit 1;
 } 
@@ -133,7 +133,7 @@ fi
 
 if [[ "${long_lang_list[*]}" =~ (^|[^[:alpha:]])$l([^[:alpha:]]|$) ]]; then
     MORPH="$LOOKUP $current_path/src/analyser-disamb-gt-desc.xfst"
-    DIS="$current_path/src/syntax/disambiguation.cg3"
+    DIS="$current_path/src/syntax/disambiguator.cg3"
 else
     MORPH="$LOOKUP -q -flags mbTT -utf8 $current_path/bin/$l.fst"
     DIS="$current_path/src/$l-dis.rle"
@@ -161,7 +161,7 @@ SD_PATH='../giella-shared/smi/src/syntax'
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTCORE/scripts/lookup2cg"
 
 if [ $l == fao ] || [ $l == crk ]; then
-    dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguation.cg3 $t"
+    dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguator.cg3 $t"
     syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/functions.cg3 $t"
 else
     dis_cmd=$pos_cmd" | vislcg3 -g $DIS $t"
