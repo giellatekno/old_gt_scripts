@@ -2,11 +2,11 @@
 
 # sent-disamb.sh
 # This is a shell script for analysing sentences with the vislcg3 parser.
-# It gives the analysis, and optionally the number of the disambiguation rules.
+# It gives the analysis, and optionally the number of the disambiguator rules.
 
 # usage:
 # <script_name> (-t) -l=<lang_code> <sentence_to_analyze>
-# to output the number of disambiguation rules, too, use the parameter '-t'
+# to output the number of disambiguator rules, too, use the parameter '-t'
 # parametized for language (sme as default)
 # input sentence either coming from the pipe or at the end in quotation marks
 # parametrized for processing step: -s=pos, -s=dis, -s=dep, -s=syn
@@ -101,7 +101,7 @@ fi
 
 if  [[ "$l" == est ]] || [[ "$l" == fao ]] || [[ "$l" == fin ]] || [[ "$l" == fkv ]] || [[ "$l" == hdn ]] || [[ "$l" == ipk ]] || [[ "$l" == izh ]] || [[ "$l" == kal ]] || [[ "$l" == kca ]] || [[ "$l" == kpv ]] || [[ "$l" == liv ]] || [[ "$l" == mdf ]] || [[ "$l" == mhr ]] || [[ "$l" == mrj ]] || [[ "$l" == myv ]] || [[ "$l" == ndl ]] || [[ "$l" == nio ]] || [[ "$l" == nob ]] || [[ "$l" == olo ]] || [[ "$l" == sjd ]] || [[ "$l" == sje ]] || [[ "$l" == sma ]] || [[ "$l" == smj ]] || [[ "$l" == smn ]] || [[ "$l" == sms ]] || [[ "$l" == som ]] || [[ "$l" == tat ]] || [[ "$l" == tlh ]] || [[ "$l" == tuv ]] || [[ "$l" == udm ]] || [[ "$l" == vep ]] || [[ "$l" == vro ]] || [[ "$l" == yrk ]] || [[ "$l" == zul ]]  
 then 
-	DIS="$GTHOME/$lg/$l/src/syntax/disambiguation.cg3"
+	DIS="$GTHOME/$lg/$l/src/syntax/disambiguator.cg3"
 else
 	DIS="$GTHOME/$lg/$l/src/$l-dis.rle"
 fi
@@ -112,11 +112,11 @@ print_help() {
     echo "                       or"
     echo "       2. cat FILE or echo \"INPUT_TEXT\" | sent-proc.sh [-t] [-l=LANG] [-s=PROCESSING_STEP] "
     echo "-l language code: sme North Saami (default), sma South Saami, etc."
-    echo "-s processing step: pos part-of-speech tagging without disambiguation which is (default)"
-    echo "   processing step: dis part-of-speech tagging with disambiguation with vislcg3"
+    echo "-s processing step: pos part-of-speech tagging without disambiguator which is (default)"
+    echo "   processing step: dis part-of-speech tagging with disambiguator with vislcg3"
     echo "   processing step: syn assigning syntactic functions via vislcg3"
     echo "   processing step: dep dependency parsing with vislcg3"
-    echo "-t print traces of the disambiguation or parsing step"
+    echo "-t print traces of the disambiguator or parsing step"
     echo "-h print this text"
     exit
 } 
@@ -164,7 +164,7 @@ if [[ $l == fao ]]
 then
 
 pos_cmd="echo $sentence | preprocess $abbr | $MORPH | $GTHOME/gt/script/lookup2cg"
-dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguation.cg3 $t"
+dis_cmd=$pos_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/disambiguator.cg3 $t"
 syn_cmd=$dis_cmd" | vislcg3 -g $GTHOME/$lg/$l/src/syntax/functions.cg3 $t"  #$GTHOME/gt/sme/src/smi-syn.rle
 dep_cmd=$syn_cmd" | vislcg3 -g $GTCORE/$sdPATH/dependency.cg3 $t" #$GTHOME/gt/smi/src/smi-dep.rle
 
