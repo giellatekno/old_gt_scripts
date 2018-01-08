@@ -766,18 +766,18 @@ alias kpvtoka="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/toke
                sed 's/ <W:0.0000000000>//g;'"
 alias kpvtoks="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \
                vislcg3 -g $GTHOME/langs/kpv/src/syntax/disambiguator
-# Addition to ensure we use the ordinary disambiguation file                                                                                                                                  
+# Addition to ensure we use the ordinary disambiguator file                                                                                                                                  
 # (to be removed if we make our own)                                                                                                                                                          
-disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguation.cg3
+disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguator.cg3
         cp $< $@
 
 .cg3 | \
                sed 's/ <W:0.0000000000>//g;'"
 alias kpvtokst="hfst-tokenise --giella-cg $GTHOME/langs/kpv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \
                vislcg3 -g $GTHOME/langs/kpv/src/syntax/disambiguator
-# Addition to ensure we use the ordinary disambiguation file                                                                                                                                  
+# Addition to ensure we use the ordinary disambiguator file                                                                                                                                  
 # (to be removed if we make our own)                                                                                                                                                          
-disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguation.cg3
+disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguator.cg3
         cp $< $@
 
 .cg3 -t | \
@@ -786,17 +786,17 @@ disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguation.cg3
 alias myvtoka="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | \  
                sed 's/ <W:0.0000000000>//g;'"
 alias myvtoks="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst |  vislcg3 -g $GTHOME/langs/myv/src/syntax/disambiguator
-# Addition to ensure we use the ordinary disambiguation file                                                                                                                                  
+# Addition to ensure we use the ordinary disambiguator file                                                                                                                                  
 # (to be removed if we make our own)                                                                                                                                                          
-disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguation.cg3
+disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguator.cg3
         cp $< $@
 
 .cg3 | \  
                sed 's/ <W:0.0000000000>//g;'"
 alias myvtokst="hfst-tokenise --giella-cg $GTHOME/langs/myv/tools/tokenisers/tokeniser-disamb-gt-desc.pmhfst | vislcg3 -g $GTHOME/langs/myv/src/syntax/disambiguator
-# Addition to ensure we use the ordinary disambiguation file                                                                                                                                  
+# Addition to ensure we use the ordinary disambiguator file                                                                                                                                  
 # (to be removed if we make our own)                                                                                                                                                          
-disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguation.cg3
+disambiguator.cg3: $(top_srcdir)/src/syntax/disambiguator.cg3
         cp $< $@
 
 .cg3 -t | \  
