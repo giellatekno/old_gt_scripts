@@ -32,6 +32,7 @@ class DivvunApacheLogParser(object):
         '80legs.com',
         'AcoonBot',
         'AhrefsBot',
+        'Applebot',
         'AraBot',
         'Arachmo',
         'BDFetch',
@@ -54,6 +55,7 @@ class DivvunApacheLogParser(object):
         'Eniro NO',
         'Eurobot',
         'Exabot',
+        'ExtLinksBot',
         'Ezooms',
         'FAST Search Enterprise Crawler',
         'FDM 3.x',
@@ -63,6 +65,7 @@ class DivvunApacheLogParser(object):
         'GSLFbot',
         'Gaisbot',
         'Gigabot',
+        'Gluten Free Crawler',
         'Googlebot',
         'HTTrack',
         'Hailoobot',
@@ -73,6 +76,7 @@ class DivvunApacheLogParser(object):
         'Jeeves',
         'LexxeBot',
         'Linguee Bot',
+        'LinkCheck',
         'LinksCrawler',
         'MJ12bot',
         'MSIECrawler',
@@ -110,6 +114,7 @@ class DivvunApacheLogParser(object):
         'Yahoo! Slurp',
         'Yandex',
         'Yanga WorldSearch',
+        'Yeti/1.1',
         'archive-no.com',
         'archive.org_bot',
         'awcheckBot',
@@ -148,6 +153,7 @@ class DivvunApacheLogParser(object):
         'webalta',
         'www.wotbox.com',
         'yacybot',
+        'yoozBot',
     ]
 
     def __init__(self, log_directory, our_targets):
