@@ -5,12 +5,17 @@
 It outputs an xml file, readable by forrest
 """
 
+from __future__ import absolute_import, print_function, unicode_literals
+
 import argparse
 import datetime
 import glob
 import gzip
 import os
+import sys
+import operator
 
+from collections import defaultdict
 import GeoIP
 import lxml.etree as etree
 from logsparser.lognormalizer import LogNormalizer
@@ -169,6 +174,8 @@ class DivvunApacheLogParser(object):
             self.found_lists[target] = []
         self.log_directory = log_directory
         self.found_newlines = False
+        self.found = defaultdict(int)
+        self.useragents = set()
 
     def is_bot(self, line):
         """Check if the line contains one of the bots in self.bots.
@@ -230,25 +237,44 @@ class DivvunApacheLogParser(object):
         Args:
             filename (str): path to the log file.
         """
+        unwanted = ['.mp3', '.docx', '.doc', '.pdf', '.jpg', '.JPG', '.gif',
+                    '.tiff', '.png', '.html', '.AVI', '.dotx', '.jar', '.MP3',
+                    ]
         old_mindate = self.mindate
         old_maxdate = self.maxdate
         for line in self.get_infile(filename):
-            target = self.is_target(line)
-            if (target is not None and self.is_bot(line) is False and
-                    ' 200 ' in line):
-                l = {'raw': line,
-                     'body': line}
-                normalizer.normalize(l)
-                if l['date'] < old_mindate or l['date'] > old_maxdate:
+            # target = self.is_target(line)
+            if ('/static_files' in line and not self.is_bot(line) and
+                    ' 200 ' in line and 'dict' not in line and
+                    'XXE' not in line and 'komXkom' not in line and
+                    'tmx' not in line and 'nob2sme' not in line):
+                parsed_line = {'raw': line, 'body': line}
+                normalizer.normalize(parsed_line)
+                if parsed_line['date'] < old_mindate or parsed_line['date'] > old_maxdate:
                     self.found_newlines = True
-                    self.found_lists[target].append(l)
-                    self.set_date(l['date'])
+                    filename, file_extension = os.path.splitext(parsed_line['url_path'])
+                    if file_extension and file_extension not in unwanted:
+                        self.found[os.path.basename(parsed_line['url_path'])] += 1
+                    if parsed_line.get('useragent'):
+                        self.useragents.add(parsed_line['useragent'])
+                    #print(parsed_line)
+                    # self.found_lists[target].append(parsed_line)
+                    self.set_date(parsed_line['date'])
 
     def parse_apachelogs(self):
         """Parse all log files found in self.log_directory."""
         for access_file in glob.glob(
                 os.path.join(self.log_directory, '*access*')):
+            print('Parsing', access_file)
             self.parse_apachelog(access_file)
+
+        for found in sorted(self.found.items(), key=operator.itemgetter(1),
+                            reverse=True):
+            print(found[0], found[1])
+        print('len', len(self.found))
+        #for user in self.useragents:
+            #print(user)
+        #print(len(self.useragents))
 
     def debug_input(self):
         """Write the lines that have been deemed as valid downloads."""
@@ -373,7 +399,7 @@ class DivvunLogHandler(object):
 "-//APACHE//DTD Documentation V2.0//EN" \
 "http://forrest.apache.org/dtd/document-v20.dtd">'))
         else:
-            print 'No need to write new report'
+            print('No need to write new report')
 
     def write_header(self):
         """Make the header of the report file.
@@ -570,11 +596,14 @@ class DivvunLogHandler(object):
 
             useragent_dict = self.get_focus_dict(target, 'useragent')
             for found_line in self.logparser.found_lists[target]:
-                useragent = found_line['useragent']
-                if useragent in useragent_dict:
-                    useragent_dict[useragent] = useragent_dict[useragent] + 1
-                else:
-                    useragent_dict[useragent] = 1
+                try:
+                    useragent = found_line['useragent']
+                    if useragent in useragent_dict:
+                        useragent_dict[useragent] += 1
+                    else:
+                        useragent_dict[useragent] = 1
+                except KeyError:
+                    print('No useragent', found_line, file=sys.stderr)
 
             self.make_table_body(table, useragent_dict, 'useragent')
             subsection.append(table)
@@ -643,8 +672,8 @@ def main():
 
     divvun_parser = DivvunLogHandler(args.log_directory, args.xmlfile)
     divvun_parser.parse_apachelogs()
-    divvun_parser.generate_report()
-    divvun_parser.debug_input()
+    # divvun_parser.generate_report()
+    # divvun_parser.debug_input()
 
 
 if __name__ == "__main__":
