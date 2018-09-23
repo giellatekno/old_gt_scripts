@@ -24,7 +24,7 @@ use langTools::XMLStruct;
 
 
 # Configuration: variable definitions etc.
-require "conf.pl";
+require "/var/www/cgi-bin/smi/conf.pl";
 
 ########################################################################
 #
