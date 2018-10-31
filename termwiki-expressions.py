@@ -15,7 +15,7 @@ import lxml.etree as etree
 
 sys.path.append(os.path.join(os.getenv('GTHOME'), 'tools/TermWikiImporter'))
 
-from termwikiimporter import read_termwiki
+from termwikiimporter import bot
 
 
 def parse_options():
@@ -39,24 +39,8 @@ def main():
         raise SystemExit(
             'Please specify different languages for lang1 and lang2')
 
-    tree = etree.parse(
-        os.path.join(os.getenv('GTHOME'), 'words/terms/termwiki/dump.xml'))
-
-    for text in tree.getroot().xpath(
-            './/m:text',
-            namespaces={'m': 'http://www.mediawiki.org/xml/export-0.10/'}):
-        if text is not None and text.text is not None and '{{Concept' in text.text:
-            term = read_termwiki.parse_termwiki_concept(text.text)
-
-            langs = {args.lang1: set(), args.lang2: set()}
-            for expression in term['related_expressions']:
-                if expression['language'] == args.lang1 or expression['language'] == args.lang2:
-                    if expression['sanctioned'] == 'Yes' or expression['sanctioned'] == 'True':
-                        langs[expression['language']].add(expression['expression'])
-
-            if langs[args.lang1] and langs[args.lang2]:
-                print('{}\t{}'.format(', '.join(langs[args.lang1]),
-                                      ', '.join(langs[args.lang2])))
+    dumphandler = bot.DumpHandler()
+    dumphandler.print_expression_pairs(args.lang1, args.lang2)
 
 
 if __name__ == '__main__':
