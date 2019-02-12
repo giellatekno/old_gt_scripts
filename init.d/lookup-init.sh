@@ -346,26 +346,25 @@ alias умывНорм='$LOOKUP $GTHOME/langs/myv/src/analyser-gt-norm.xfst'
 alias уудмНорм='$LOOKUP $GTHOME/langs/udm/src/analyser-gt-norm.xfst'
 alias уыркНорм='$LOOKUP $GTHOME/langs/udm/src/analyser-gt-norm.xfst'
 
+alias   дбхр='$LOOKUP $GTHOME/langs/bxr/src/generator-gt-desc.xfst'
+alias   убхр='$LOOKUP $GTHOME/langs/bxr/src/analyser-gt-desc.xfst'
 
-# Other languages in the old infra:
 
-alias   damh='$LOOKUP $GTHOME/st/amh/bin/iamh.fst'
-alias   dces='$LOOKUP $GTHOME/st/ces/bin/ices.fst'
-alias   deus='$LOOKUP $GTHOME/st/eus/bin/ieus.fst'
-alias   diku='$LOOKUP $GTHOME/st/iku/bin/iiku.fst'
-alias   dnno='$LOOKUP $GTHOME/st/nno/bin/inno.fst'
-alias   dnon='$LOOKUP $GTHOME/st/non/bin/inon.fst'
+alias   damh='$LOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.xfst'
+alias   dces='$LOOKUP $GTHOME/experiment-langs/ces/src/generator-gt-desc.xfst'
+alias   deus='$LOOKUP $GTHOME/startup-langs/eus/src/generator-gt-desc.xfst'
+alias   diku='$LOOKUP $GTHOME/startup-langs/iku/src/generator-gt-desc.xfst'
+alias   dnno='$LOOKUP $GTHOME/startup-langs/nno/src/generator-gt-desc.xfst'
+alias   dnon='$LOOKUP $GTHOME/startup-langs/non/src/generator-gt-desc.xfst'
 
-alias   uamh='$LOOKUP $GTHOME/st/amh/bin/amh.fst'
-alias   uces='$LOOKUP $GTHOME/st/ces/bin/ces.fst'
-alias   ueus='$LOOKUP $GTHOME/st/eus/bin/eus.fst'
-alias   uiku='$LOOKUP $GTHOME/st/iku/bin/iku.fst'
-alias   unno='$LOOKUP $GTHOME/st/nno/bin/nno.fst'
+alias   uamh='$LOOKUP $GTHOME/startup-langs/amh/src/analyser-gt-desc.xfst'
+alias   uces='$LOOKUP $GTHOME/experiment-langs/ces/src/analyser-gt-desc.xfst'
+alias   ueus='$LOOKUP $GTHOME/startup-langs/eus/src/analyser-gt-desc.xfst'
+alias   uiku='$LOOKUP $GTHOME/startup-langs/iku/src/analyser-gt-desc.xfst'
+alias   unno='$LOOKUP $GTHOME/startup-langs/nno/src/analyser-gt-desc.xfst'
 alias   unon='$LOOKUP $GTHOME/startup-langs/non/src/analyser-gt-desc.xfst'
 
 
-alias   дбхр='$LOOKUP $GTHOME/st/bxr/bin/ibxr.fst'
-alias   убхр='$LOOKUP $GTHOME/st/bxr/bin/bxr.fst'
 
 # Other FU languages:
 
