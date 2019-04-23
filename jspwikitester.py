@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -31,22 +31,24 @@ In a second terminal, go to the same directory and run this program.
 
 import os
 import sys
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 
-xdocs = 'src/documentation/content/xdocs'
+xdocs = 'src/documentation/content/techdoc'
 
 for root, dirs, files in os.walk(xdocs, followlinks=True):
     for f in files:
         if f.endswith('.jspwiki'):
             url = 'http://localhost:8888' + root.replace(xdocs, '') + '/' + f.replace('jspwiki', 'html')
 
-            print url,
+            #print(url, end=' ')
             try:
                 t0 = time.time()
-                response = urllib2.urlopen(url)
+                response = urllib.request.urlopen(url)
                 html = response.read()
                 response.close()
-                print time.time() - t0
-            except urllib2.HTTPError:
-                print "\t!!!whoops!!!", os.path.join(root, f)
+                #print(time.time() - t0)
+            except urllib.error.HTTPError:
+                print("\t!!!whoops!!!", os.path.join(root, f), file=sys.stderr)
+            except UnicodeEncodeError:
+                print(f'unicode {url}')
