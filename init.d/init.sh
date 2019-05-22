@@ -114,6 +114,8 @@ else
 
   PATH=/usr/local/bin:$PATH
   prepend_path PATH $HOME/.local/bin
+  prepend_path PATH $HOME/Library/Python/3.7/bin
+  prepend_path PATH $HOME/Library/Python/3.6/bin
   prepend_path PATH $HOME/Library/Python/2.7/bin
   prepend_path PATH $HOME/bin
   prepend_path PATH $GTHOME/gt/script
