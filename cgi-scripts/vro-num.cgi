@@ -27,7 +27,7 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/opt/xerox/bin" ;
+$utilitydir =    "/usr/local/bin" ;
 # The directory where transcriptor-numbers2text-desc.xfst is stored
 $vrofstdir = "/opt/smi/vro/bin" ;
 

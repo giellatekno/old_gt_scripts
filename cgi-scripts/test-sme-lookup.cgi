@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-$utilitydir = "/opt/xerox/bin" ;
+$utilitydir = "/usr/local/bin" ;
 $smefstdir = "/opt/smi/sme/bin" ;
 
 &printinitialhtmlcodes ;

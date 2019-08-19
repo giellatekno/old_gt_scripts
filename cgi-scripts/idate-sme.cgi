@@ -27,7 +27,7 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/opt/xerox/bin" ;
+$utilitydir =    "/usr/local/bin" ;
 # The directory where  transcriptor-date-digit2text.filtered.lookup.xfst is stored
 $smefstdir = "/opt/smi/sme/bin" ;
 

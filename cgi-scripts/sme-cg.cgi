@@ -28,7 +28,7 @@ use CGI;
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-my $utilitydir = "/opt/xerox/bin" ;
+my $utilitydir = "/usr/local/bin" ;
 # The directory where sme.fst is stored
 my $smefstdir = "/opt/smi/sme/bin" ;
 # The directory for vislcg and lookup2cg
