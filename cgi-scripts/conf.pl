@@ -45,12 +45,11 @@ sub init_variables {
 	
 	# System-Specific directories
 	# The directory where utilities like 'lookup' are stored
-	my $utilitydir = "/usr/local/bin"; # for newinfra
+	my $utilitydir = "/usr/bin"; 
 	# The directory for vislcg and lookup2cg
-#	my $bindir = "/usr/local/bin"; # new infra
-	my $bindir = "/usr/bin"; # new infra
+	my $bindir = "/usr/bin"; # 
 	# The directory for hfst tools
-        my $hfstutilitydir = "/usr/local/bin";
+        my $hfstutilitydir = "/usr/bin";
         my $hfstlookup = "hfst-lookup";
 	
 	# The fst's and other tools
@@ -69,7 +68,8 @@ sub init_variables {
 	
 	my $fst = "$fstdir/analyser-disamb-gt-desc.xfst";
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.xfst";
-#    my $hfst = "$fstdir/$lang.hfstol";
+	my $hfst = "$fstdir/analyser-disamb-gt-desc.hfstol";
+	my $hfst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
 	my $gen_fst = "$fstdir/generator-gt-desc.xfst";
 	my $gen_norm_fst = "$fstdir/generator-gt-norm.xfst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
@@ -103,8 +103,8 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
-#	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
-#	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
+	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
+	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
 #	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $dep_rle) { $lang_actions{dependency} = 1; } # text file
@@ -150,9 +150,9 @@ sub init_variables {
 		http_die '--no-alert','404 Not Found',"analyser-gt-desc.xfst is not in the $lang/bin folder";
 	}
 # testing
-#	if ($action eq "hfstanalyze" && ! -f $hfst) { 
-#		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
-#	}
+	if ($action eq "hfstanalyze" && ! -f $hfst) { 
+		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
+	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
 		http_die '--no-alert','404 Not Found',"The file disambiguation.cg3 is not found: Disambiguation is not supported";
 #	if ($action eq "disamb" && ! -f $dis_bin) { 
@@ -221,8 +221,8 @@ sub init_variables {
 		$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
 
 # for the next debug, this is the variable-free version of $dependency:
-# /usr/local/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
-# /usr/local/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/local/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/local/bin/lookup2cg | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/local/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
+# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
+# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
