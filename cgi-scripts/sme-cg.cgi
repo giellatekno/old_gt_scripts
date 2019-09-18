@@ -22,7 +22,7 @@ use CGI;
 # this CGI script is called whenever a user submits an analysis request
 # from the FORM on the Northern Sami HTML page
 
-# The script uses Perl module CGI.pm to retrieve and handle 
+# The script uses Perl module CGI.pm to retrieve and handle
 # information from HTML form and generating new HTML pages.
 
 # System-Specific directories
@@ -30,9 +30,11 @@ use CGI;
 # The directory where utilities like 'lookup' are stored
 my $utilitydir = "/usr/local/bin" ;
 # The directory where sme.fst is stored
-my $smefstdir = "/opt/smi/sme/bin" ;
+#my $smefstdir = "/opt/smi/sme/bin" ;
+my $smefstdir = "/Users/car010/main/langs/sme/gtoahpa_fst" ;
 # The directory for vislcg and lookup2cg
-my $bindir = "/www/opt/cg/bin" ;
+#my $bindir = "/www/opt/cg/bin" ;
+my $bindir = "/Users/car010/main/langs/sme/gtoahpa_fst" ;
 
 my $wordlimit = 50 ;       # adjust as appropriate; prevent large-scale (ab)use
 
@@ -57,7 +59,7 @@ my $wordlimit = 50 ;       # adjust as appropriate; prevent large-scale (ab)use
 #      Note that the space typed by the user will be replaced by a plus sign
 #      for transmission.
 
-#  Compare these descriptions against the FORM in the HTML page to see 
+#  Compare these descriptions against the FORM in the HTML page to see
 #    where these fields (and their labels and values) are coming from.
 
 
@@ -86,7 +88,7 @@ if ($action =~ /disamb/)
 { $disamb=1; }
 
 # Special characters in the text (e.g. literal ampersands, plus signs
-# and equal signs 
+# and equal signs
 # typed by the user) must be encoded for transmission, to prevent confusion with
 # the delimiters used by CGI); here is the magic formula to undo the CGI encodings
 
@@ -105,7 +107,7 @@ $text = digr_utf8($text);
 # { $text = utf8_7bit($text); }
 
 # Remove the unsecure characters from the input.
-$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
+$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g;
 
 # Change linebreaks to space and check the word limit
 my @words = split(/[\s]+/, $text);
@@ -125,21 +127,21 @@ my $result;
 
 if ($disamb) {
      $result = `echo $text | $bindir/preprocess --abbr=$smefstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 -d $smefstdir/sme.fst | \ 
+			$utilitydir/lookup -flags mbTT -utf8 -d $smefstdir/sme.fst | \
 			$bindir/lookup2cg | $bindir/vislcg --grammar=$smefstdir/sme-dis.rle`; }
 else {
 	$result = `echo $text | $bindir/preprocess --abbr=$smefstdir/abbr.txt | \
-			$utilitydir/lookup -flags mbTT -utf8 -d $smefstdir/sme.fst | \ 
+			$utilitydir/lookup -flags mbTT -utf8 -d $smefstdir/sme.fst | \
 			$bindir/lookup2cg`;
 }
- 
+
 #  Now we need to parse the $result string to output the information as HTML
-#  This information will be directed automatically back 
+#  This information will be directed automatically back
 #  to the user's browser for display
 
-# first split the $result into solutiongroups 
+# first split the $result into solutiongroups
 # (one solutiongroup for each input word)
-# given the input that 'vislcg' gets (output of lookup2cg), solutiongroups are 
+# given the input that 'vislcg' gets (output of lookup2cg), solutiongroups are
 # separated by the marking of the first word: "<.
 
     # splits the result using "< as a delimiter between the groups
@@ -147,27 +149,27 @@ else {
 	my @solutiongroups;
     @solutiongroups = split(/\"</, $result) ;
 
-# the following is basically a loop over the original input words, now 
+# the following is basically a loop over the original input words, now
 # associated with their solutions
 
     foreach $solutiongroup (@solutiongroups) {
 		print "\n<P>" ;
-		
+
 		$cnt = 0 ;
-		
+
 		# each $solutiongroup contains the analysis
 		# or analyses for a single input word.  Multiple
 		# analyses are separated by a newline
-		
+
 		my @lexicalstrings;
 		@lexicalstrings = split(/\n/, $solutiongroup) ;
-		
+
 		# each lexicalstring looks like
-		
+
 		# now loop through the analyses for a single input word
-		
+
 		foreach $lexicalstring (@lexicalstrings) {
-			
+
 			# Print the input word
 			if ( $lexicalstring =~ />/ ) {
 				$lexicalstring =~ s/>\"//g; #remove >"
@@ -182,7 +184,7 @@ else {
 		# these subroutines print out suitable HTML codes
 	}
 
-	
+
 # print out the final HTML codes and end
 &printfinalhtmlcodes ;
 
@@ -202,7 +204,7 @@ sub printinitialhtmlcodes {
 	print $output->header(-type => 'text/html',
 						  -charset => 'utf-8');
 	print	$output->start_html('Sami morfologiija');
-						 
+
 	print $output->h2("Romssa universitehta");
 	print $output->p("Copyright &copy; Giellatekno.");
 	print $output->hr;
@@ -222,24 +224,24 @@ sub printsolution {
 
     if ($num) {
 		print $output->br;
-		print "&nbsp;&nbsp;&nbsp;&nbsp; $unicode_solution \n"; 
+		print "&nbsp;&nbsp;&nbsp;&nbsp; $unicode_solution \n";
 	}
-    else { 
-		print "\n $unicode_solution" ; 
+    else {
+		print "\n $unicode_solution" ;
 	}
 }
 
 sub printwordlimit {
-    print $output->b("\nWord limit is $wordlimit.\n");	
+    print $output->b("\nWord limit is $wordlimit.\n");
 }
 
 # Subroutine to convert Latin-1 to utf-8
 # calls script 7bit-utf8.pl
 sub unicode {
 	my $text  = shift(@_);
-	
+
 	# removing characters that would harm the shell.
-	$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g; 
+	$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g;
 #	$utext = `echo $text | $bindir/7bit-utf8.pl`;
 	return $text;
 }
@@ -362,7 +364,7 @@ $ctext =~ s/T1/Ŧ/g ;
 $ctext =~ s/t1/ŧ/g ;
 $ctext =~ s/Z1/Ž/g ;
 $ctext =~ s/z1/ž/g ;
-	
+
 return $ctext;
 }
 
@@ -370,7 +372,7 @@ sub utf8_7bit {
 	my $ctext  = shift(@_);
 
 	# removing characters that would harm the shell.
-#	$ctext =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}:'"]/ /g; 
+#	$ctext =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}:'"]/ /g;
 
 $ctext =~ s/\304\214/C1/g ;
 $ctext =~ s/\304\215/c1/g ;
@@ -386,7 +388,7 @@ $ctext =~ s/\305\275/Z1/g ;
 $ctext =~ s/\305\276/z1/g ;
 
 $ctext =~ s/\303\200/�/g ;
-$ctext =~ s/\303\201/�/g ;    
+$ctext =~ s/\303\201/�/g ;
 $ctext =~ s/\303\202/�/g ;
 $ctext =~ s/\303\203/�/g ;
 $ctext =~ s/\303\204/�/g ;
@@ -470,4 +472,3 @@ $ctext =~ s/\377//g ;
 
 	return $ctext;
 }
-
