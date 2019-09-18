@@ -328,7 +328,7 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
   } # End of paradigm output
 
   # Paste the result to the html-structure, print final html-codes.
-    if (! $json eq 'true') {
+    if ($json ne 'true') {
         if ($output && $action ne "paradigm") { $output->paste('last_child', $body); }
         printfinalhtmlcodes($page, $body) ;
         $body->print;
