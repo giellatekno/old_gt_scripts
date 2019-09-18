@@ -15,7 +15,7 @@ our ( $VERSION, @ISA, @EXPORT, @EXPORT_OK );
 @ISA = qw(Exporter);
 
 @EXPORT =
-  qw(&dis2html &hyph2html &gen2html &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &paradigm2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
+  qw(&dis2html &hyph2html &gen2html &gen2json &preprocess2xml &dis2xml &analyzer2xml &hyph2xml &paradigm2xml &gen2xml &xml2preprocess &xml2words &xml2dis $fst %dis_tools %action %prep_tools $language $xml_in $xml_out $args &process_paras &get_action &dis2corpus_xml);
 @EXPORT_OK = qw(&process_paras);
 
 our (
@@ -494,7 +494,7 @@ sub gen2html {
             $td = XML::Twig::Elt->new('td');
             ( $colored_analysis = $analysis ) =~
 	      #s/(\+)/<font color=\"grey\">$1<\/font>/g;
-	      # replace '+' by whitespace character, as agreed upon with Lene and Trond 
+	      # replace '+' by whitespace character, as agreed upon with Lene and Trond
               s/(\+)/ /g;
             $td->set_text($colored_analysis);
             $td->paste( 'last_child', $tr );
@@ -518,6 +518,83 @@ sub gen2html {
         return $string;
     }
 }
+
+sub gen2json {
+    my ( $text, $paradigm, $structure, $fulllemma ) = @_;
+
+    my $tr;
+    my $td;
+    my $font;
+    my $lemma;
+    my $analysis;
+    my $output;
+    my $ind;
+    $output = '';
+
+    if ( !$text ) {
+        if ($structure) { return $output; }
+        my $string = $output->sprint;
+        $output->delete;
+        return $string;
+    }
+    my $first_part;
+    if ($fulllemma) { ( $first_part = $fulllemma ) =~ s/\#[^\#]+$//; }
+
+    my @input = split( /\n/, $text );
+
+    my $prev_analysis    = "";
+    my $colored_analysis = "";
+    $output .= '{';
+    $output .= 'analyses: {';
+    $ind = 0;
+    for my $out (@input) {
+        chomp $out;
+        $ind = $ind+1;
+
+        my ( $line, $form ) = split( /\t/, $out, 2 );
+        next if ( !$form );
+        $form =~ s/^\s+//;
+        if ($fulllemma) { $form = $first_part . $form; }
+        $form =~ s/\#//g;
+
+        ( $lemma, $analysis ) = split( /\+/, $line, 2 );
+        if ($fulllemma) { $lemma = $fulllemma; $lemma =~ s/\#//g; }
+
+        #$output .= 'analyses: "' .$analysis .'",'
+        #$output .= '["form": ' .$form .', ';
+
+        if ( $analysis && $prev_analysis eq $analysis ) {
+          $output .= ', ' .$form;
+        } else {
+          if ($ind == 1){
+            $output .= '"' .$analysis .'": ' .'[' .$form;
+          } else {
+            $output .= '], "' .$analysis .'": ' .'[' .$form;
+          }
+          if ($ind == @input) {
+            $output .= ']}}';
+          }
+        }
+
+        if ($analysis) {
+            ( $colored_analysis = $analysis ) =~
+	      #s/(\+)/<font color=\"grey\">$1<\/font>/g;
+	      # replace '+' by whitespace character, as agreed upon with Lene and Trond
+              s/(\+)/ /g;
+        }
+
+        $prev_analysis = $analysis;
+    }
+    if ($tr) { $output .= $tr; }
+
+    if ($structure) { return $output; }
+    else {
+        my $string = $output->sprint;
+        $output->delete;
+        return $string;
+    }
+}
+
 
 # Move preprocessor output  to xml-structure
 sub preprocess2xml {
