@@ -12,11 +12,16 @@ use HTML::Entities;
 use XML::Twig;
 
 use CGI::Minimal;
+use CGI;
 #use CGI qw/:standard :html3 *table *dl/;
 #$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
 #$CGI::POST_MAX        = 1_024 * 1_024;
 use CGI::Alert ('chiara.argese@uit.no', 'http_die');
+
+#use Encode qw( encode_utf8 );
+#use JSON::MaybeXS ();
+#use JSON::MaybeXS qw(encode_json decode_json);
 
 # Use project's utility functions.
 use langTools::Util;
@@ -58,9 +63,9 @@ our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$gene
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### GET THE INPUT #####
-
 $text="";  #The text to be analysed
 my $query = CGI::Minimal->new;
+my $query2 = new CGI;
 
 $text = $query->param('text');
 $pos = $query->param('pos');
@@ -231,6 +236,8 @@ else {
 ######################################
 
 my $output;
+my $out_json;
+my $encoded;
 if (!$xml_out) {
   if ( $action eq "disamb" ||
        $action eq "dependency") {
@@ -334,7 +341,8 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
         $body->print;
         print "</html>";
     } else {
-      print $output;
+	print $query2->header(-type=>'application/json');
+	print $output;
     }
 } # End of if (!$xml_out)
 else {

@@ -559,9 +559,6 @@ sub gen2json {
         ( $lemma, $analysis ) = split( /\+/, $line, 2 );
         if ($fulllemma) { $lemma = $fulllemma; $lemma =~ s/\#//g; }
 
-        #$output .= 'analyses: "' .$analysis .'",'
-        #$output .= '["form": ' .$form .', ';
-
         if ( $analysis && $prev_analysis eq $analysis ) {
           $output .= ', "' .$form .'"';
         } else {
@@ -569,9 +566,6 @@ sub gen2json {
             $output .= '"' .$analysis .'": ' .'[' .'"' .$form .'"';
           } else {
             $output .= '], "' .$analysis .'": ' .'[' .'"' .$form .'"';
-          }
-          if ($ind == @input) {
-            $output .= ']}}';
           }
         }
 
@@ -584,14 +578,8 @@ sub gen2json {
 
         $prev_analysis = $analysis;
     }
-    if ($tr) { $output .= $tr; }
-
-    if ($structure) { return $output; }
-    else {
-        my $string = $output->sprint;
-        $output->delete;
-        return $string;
-    }
+    $output .= ']}}';
+    return $output;
 }
 
 
