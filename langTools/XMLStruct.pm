@@ -529,7 +529,6 @@ sub gen2json {
     my $analysis;
     my $output;
     my $ind;
-    $output = '';
 
     if ( !$text ) {
         if ($structure) { return $output; }
@@ -544,8 +543,8 @@ sub gen2json {
 
     my $prev_analysis    = "";
     my $colored_analysis = "";
-    $output .= '{';
-    $output .= 'analyses: {';
+    $output = '{';
+    $output .= '"analyses": {';
     $ind = 0;
     for my $out (@input) {
         chomp $out;
@@ -564,12 +563,12 @@ sub gen2json {
         #$output .= '["form": ' .$form .', ';
 
         if ( $analysis && $prev_analysis eq $analysis ) {
-          $output .= ', ' .$form;
+          $output .= ', "' .$form .'"';
         } else {
           if ($ind == 1){
-            $output .= '"' .$analysis .'": ' .'[' .$form;
+            $output .= '"' .$analysis .'": ' .'[' .'"' .$form .'"';
           } else {
-            $output .= '], "' .$analysis .'": ' .'[' .$form;
+            $output .= '], "' .$analysis .'": ' .'[' .'"' .$form .'"';
           }
           if ($ind == @input) {
             $output .= ']}}';
