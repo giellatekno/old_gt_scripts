@@ -341,7 +341,7 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
         $body->print;
         print "</html>";
     } else {
-	print $query2->header(-type=>'application/json');
+	print $query2->header("application/json;charset=UTF-8");
 	print $output;
     }
 } # End of if (!$xml_out)
