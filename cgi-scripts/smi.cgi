@@ -884,7 +884,7 @@ sub printfinalhtmlcodes {
   my $p = XML::Twig::Elt->new(p=> $copyright);
   my $br = XML::Twig::Elt->new('br');
   $br->paste('last_child', $p);
-  my $a = XML::Twig::Elt->new(a=> {href=>'http://giellalt.uit.no/doc/lang/sme/docu-mini-smi-grammartags.html'},'Morphological tags');
+  my $a = XML::Twig::Elt->new(a=> {href=>'https://giellalt.uit.no/lang/sme/docu-mini-smi-grammartags.html'},'Morphological tags');
   $a->paste('last_child', $p);
   $p->paste('last_child', $body);
 
