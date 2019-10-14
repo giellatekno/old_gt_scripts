@@ -2,7 +2,7 @@
 
 
 
-$utilitydir =    "/usr/local/bin" ;
+$utilitydir =    "/usr/bin" ;
 $smefstdir = "/opt/smi/sme/bin" ;
 
 &printinitialhtmlcodes ;

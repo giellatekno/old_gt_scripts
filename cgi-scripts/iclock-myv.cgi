@@ -27,7 +27,7 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-#$utilitydir =    "/usr/local/bin" ; # new lookup
+#$utilitydir =    "/usr/bin" ; # new lookup
 $utilitydir = "/opt/xerox/c-fsm/ix86-linux2.6-gcc3.4/bin" ; # old, commercial lookup
 # The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $myvfstdir = "/opt/smi/myv/bin" ;

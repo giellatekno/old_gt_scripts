@@ -27,7 +27,7 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/usr/local/bin" ;
+$utilitydir =    "/usr/bin" ;
 # The directory where transcriptor-numbers2text-desc.xfst is stored
 $crkfstdir = "/opt/smi/crk/bin" ;
 

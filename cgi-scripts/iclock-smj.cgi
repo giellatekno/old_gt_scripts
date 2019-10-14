@@ -27,7 +27,7 @@
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/usr/local/bin" ;
+$utilitydir =    "/usr/bin" ;
 # The directory where transcriptor-clock-digit2text.filtered.lookup.xfst is stored
 $smjfstdir = "/opt/smi/smj/bin" ;
 
