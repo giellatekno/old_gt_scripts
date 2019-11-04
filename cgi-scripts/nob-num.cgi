@@ -3,9 +3,9 @@
 
 ########################################################################
 #
-#nno-lookup.pl
+#nob-lookup.pl
 #
-# resides:  Web Folder:cgi-bin:smi:nno-lookup.cgi
+# resides:  Web Folder:cgi-bin:smi:nob-lookup.cgi
 #
 #       called from FORM on skjema.html page; output HTML
 #
@@ -29,7 +29,7 @@
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/usr/bin" ;
 # The directory where transcriptor-numbers2text-desc.xfst is stored
-$nnofstdir = "/opt/smi/nno/bin" ;
+$nobfstdir = "/opt/smi/nob/bin" ;
 
 
 &printinitialhtmlcodes ;         # see the subroutine below
@@ -164,8 +164,8 @@ $allwords = join(" ", @words) ;
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT  -utf8 -d $nnofstdir/transcriptor-numbers2text-desc.xfst` ;
-# $utilitydir/lookup -flags mbL" => "LTT -d $nnofstdir/transcriptor-numbers2text-desc.xfst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT  -utf8 -d $nobfstdir/transcriptor-numbers2text-desc.xfst` ;
+# $utilitydir/lookup -flags mbL" => "LTT -d $nobfstdir/transcriptor-numbers2text-desc.xfst` ;
 # testing line two here, lauri's advice.
 #back with line one
 
