@@ -28,7 +28,7 @@
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/usr/bin" ;
-# The directory where transcriptor-numbers2text-desc.xfst is stored
+# The directory where transcriptor-numbers-digit2text.filtered.lookup.xfst is stored
 $nobfstdir = "/opt/smi/nob/bin" ;
 
 
@@ -58,7 +58,7 @@ $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (a
 #      Note that the space typed by the user will be replaced by a plus sign
 #      for transmission.
 
-#  Compare these descriptions against the FORM in the HTML page to see 
+#  Compare these descriptions against the FORM in the HTML page to see
 #    where these fields (and their labels and values) are coming from.
 
 
@@ -71,7 +71,7 @@ $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (a
 
 # text=word+word+word
 
- 
+
 @query =  $ENV{'QUERY_STRING'}  ;
 
 # the input field holds the text itself (word or words)
@@ -89,7 +89,7 @@ if ($name ne "text") {
 }
 
 
-# special characters in the text (e.g. literal ampersands, plus signs and equal signs 
+# special characters in the text (e.g. literal ampersands, plus signs and equal signs
 # typed by the user) must be encoded for transmission, to prevent confusion with
 # the delimiters used by CGI); here is the magic formula to undo the CGI encodings
 
@@ -149,9 +149,9 @@ $allwords = join(" ", @words) ;
 # the same backquoting trick will be used to lookup the input words in
 # using the 'lookup' utility, which will access the aymara.fst transducer
 
-# we will take the string of space-separated input words in the Perl variable 
+# we will take the string of space-separated input words in the Perl variable
 # $allwords (computed above), pipe them to a very simple tokenizer that puts
-# one word on each line (i.e. inserts a newline character between words), and 
+# one word on each line (i.e. inserts a newline character between words), and
 # then pipe that tokenized "file" to the 'lookup' utility
 
 
@@ -159,13 +159,13 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses transcriptor-numbers2text-desc.xfst)
+#         (which has some flags set, and which accesses transcriptor-numbers-digit2text.filtered.lookup.xfst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT  -utf8 -d $nobfstdir/transcriptor-numbers2text-desc.xfst` ;
-# $utilitydir/lookup -flags mbL" => "LTT -d $nobfstdir/transcriptor-numbers2text-desc.xfst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT  -utf8 -d $nobfstdir/transcriptor-numbers-digit2text.filtered.lookup.xfst` ;
+# $utilitydir/lookup -flags mbL" => "LTT -d $nobfstdir/transcriptor-numbers-digit2text.filtered.lookup.xfst` ;
 # testing line two here, lauri's advice.
 #back with line one
 
@@ -179,7 +179,7 @@ $result = `echo $allwords | tr " " "\n" | \
 
 @solutiongroups = split(/\n\n/, $result) ;
 
-# the following is basically a loop over the original input words, now 
+# the following is basically a loop over the original input words, now
 # associated with their solutions
 
 foreach $solutiongroup (@solutiongroups) {
@@ -265,6 +265,3 @@ sub printsolution {
     $solution =~ s/\=\>/\=\> / ;
     print "\n<BR>\n$num.  $solution" ;
 }
-
-
-
