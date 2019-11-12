@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+use utf8;
 
 while (<>) 
 {
