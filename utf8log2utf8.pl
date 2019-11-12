@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use utf8;
 
-while (<>) 
+while (<>)
 {
 
 
@@ -9,8 +9,8 @@ s/Ã¡/á/g ;
 
 s/=C3=81/Á/g ;
 s/=C3=A1/á/g ;
-s/=C4=8C/Č/g ; 
-s/=C4=8D/č/g ; 
+s/=C4=8C/Č/g ;
+s/=C4=8D/č/g ;
 
 
 # LATIN 1
