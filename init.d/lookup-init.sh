@@ -18,7 +18,6 @@ export HLOOKUP='hfst-lookup -q'
 alias deng='$LOOKUP $GTHOME/experiment-langs/eng/src/generator-gt-desc.xfst'
 alias dest2='$LOOKUP $GTHOME/experiment-langs/est/src/generator-gt-desc.xfst'
 
-
 alias dkhk='$LOOKUP $GTHOME/startup-langs/khk/src/generator-gt-desc.xfst'
 alias dkjh='$LOOKUP $GTHOME/startup-langs/kjh/src/generator-gt-desc.xfst'
 alias dtyv='$LOOKUP $GTHOME/startup-langs/tyv/src/generator-gt-desc.xfst'
@@ -46,6 +45,7 @@ alias ddeu='$LOOKUP $GTHOME/langs/deu/src/generator-gt-desc.xfst'
 alias dest='$LOOKUP $GTHOME/langs/est/src/generator-gt-desc.xfst'
 alias dfao='$LOOKUP $GTHOME/langs/fao/src/generator-gt-desc.xfst'
 alias dfin='$LOOKUP $GTHOME/langs/fin/src/generator-gt-desc.xfst'
+alias dfit='$LOOKUP $GTHOME/langs/fit/src/generator-gt-desc.xfst'
 alias dfkv='$LOOKUP $GTHOME/langs/fkv/src/generator-gt-desc.xfst'
 alias dhdn='$LOOKUP $GTHOME/langs/hdn/src/generator-gt-desc.xfst'
 alias dhun='$LOOKUP $GTHOME/langs/hun/src/generator-gt-desc.xfst'
@@ -118,6 +118,7 @@ alias udeu='$LOOKUP $GTHOME/langs/deu/src/analyser-gt-desc.xfst'
 alias uest='$LOOKUP $GTHOME/langs/est/src/analyser-gt-desc.xfst'
 alias ufao='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.xfst'
 alias ufin='$LOOKUP $GTHOME/langs/fin/src/analyser-gt-desc.xfst'
+alias ufit='$LOOKUP $GTHOME/langs/fit/src/analyser-gt-desc.xfst'
 alias ufkv='$LOOKUP $GTHOME/langs/fkv/src/analyser-gt-desc.xfst'
 alias uhdn='$LOOKUP $GTHOME/langs/hdn/src/analyser-gt-desc.xfst'
 alias uhun='$LOOKUP $GTHOME/langs/hun/src/analyser-gt-desc.xfst'
@@ -224,6 +225,7 @@ alias dchrNorm='$LOOKUP $GTHOME/langs/chr/src/generator-gt-norm.xfst'
 alias destNorm='$LOOKUP $GTHOME/langs/est/src/generator-gt-norm.xfst'
 alias dfaoNorm='$LOOKUP $GTHOME/langs/fao/src/generator-gt-norm.xfst'
 alias dfinNorm='$LOOKUP $GTHOME/langs/fin/src/generator-gt-norm.xfst'
+alias dfitNorm='$LOOKUP $GTHOME/langs/fit/src/generator-gt-norm.xfst'
 alias dfkvNorm='$LOOKUP $GTHOME/langs/fkv/src/generator-gt-norm.xfst'
 alias dhdnNorm='$LOOKUP $GTHOME/langs/hdn/src/generator-gt-norm.xfst'
 alias dhunNorm='$LOOKUP $GTHOME/langs/hun/src/generator-gt-norm.xfst'
@@ -291,6 +293,7 @@ alias uchrNorm='$LOOKUP $GTHOME/langs/chr/src/analyser-gt-norm.xfst'
 alias uestNorm='$LOOKUP $GTHOME/langs/est/src/analyser-gt-norm.xfst'
 alias ufaoNorm='$LOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.xfst'
 alias ufinNorm='$LOOKUP $GTHOME/langs/fin/src/analyser-gt-norm.xfst'
+alias ufitNorm='$LOOKUP $GTHOME/langs/fit/src/analyser-gt-norm.xfst'
 alias ufkvNorm='$LOOKUP $GTHOME/langs/fkv/src/analyser-gt-norm.xfst'
 alias uhdnNorm='$LOOKUP $GTHOME/langs/hdn/src/analyser-gt-norm.xfst'
 alias uhunNorm='$LOOKUP $GTHOME/langs/hun/src/analyser-gt-norm.xfst'
@@ -349,7 +352,6 @@ alias уыркНорм='$LOOKUP $GTHOME/langs/udm/src/analyser-gt-norm.xfst'
 alias   дбхр='$LOOKUP $GTHOME/langs/bxr/src/generator-gt-desc.xfst'
 alias   убхр='$LOOKUP $GTHOME/langs/bxr/src/analyser-gt-desc.xfst'
 
-
 alias   damh='$LOOKUP $GTHOME/startup-langs/amh/src/generator-gt-desc.xfst'
 alias   dces='$LOOKUP $GTHOME/experiment-langs/ces/src/generator-gt-desc.xfst'
 alias   deus='$LOOKUP $GTHOME/startup-langs/eus/src/generator-gt-desc.xfst'
@@ -405,9 +407,11 @@ alias smenob='$LOOKUP $GTHOME/words/dicts/smenob/bin/smenob-all.fst'
 alias smesma='$LOOKUP $GTHOME/words/dicts/smesma/bin/smesma-all.fst'
 alias smesmj='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smesmj-all.fst'
 alias smesmn='$LOOKUP $GTHOME/words/dicts/smesmn/bin/smesmn-all.fst'
+alias smespa='$LOOKUP $GTHOME/words/dicts/smespa/bin/smespa-all.fst'
 alias smjsme='$LOOKUP $GTHOME/words/dicts/smesmj/bin/smjsme-all.fst'
 alias smnfin='$LOOKUP $GTHOME/words/dicts/smnfin/bin/smnfin-all.fst'
 alias smnsme='$LOOKUP $GTHOME/words/dicts/smnsme/bin/smnsme-all.fst'
+alias spasme='$LOOKUP $GTHOME/words/dicts/spasme/bin/spasme-all.fst'
 alias swefit='$LOOKUP $GTHOME/words/dicts/swefit/bin/swefit-all.fst'
 
 # Other transducers
@@ -416,6 +420,10 @@ alias kaldic='$LOOKUP $GTHOME/words/dicts/kaldan/bin/kaldic.fst'
 
 
 # HFST aliases
+
+
+
+alias hdspa='$HLOOKUP $GTHOME/external-langs/spa/src/generator-gt-desc.hfstol'
 
 alias hdkhk='$HLOOKUP $GTHOME/startup-langs/khk/src/generator-gt-desc.hfstol'
 alias hdkjh='$HLOOKUP $GTHOME/startup-langs/kjh/src/generator-gt-desc.hfstol'
@@ -442,6 +450,7 @@ alias hdchr='$HLOOKUP $GTHOME/langs/chr/src/generator-gt-desc.hfstol'
 alias hddeu='$HLOOKUP $GTHOME/langs/deu/src/generator-gt-desc.hfstol'
 alias hdest='$HLOOKUP $GTHOME/langs/est/src/generator-gt-desc.hfstol'
 alias hdfao='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-desc.hfstol'
+alias hdfit='$HLOOKUP $GTHOME/langs/fit/src/generator-gt-desc.hfstol'
 alias hdfin='$HLOOKUP $GTHOME/langs/fin/src/generator-gt-desc.hfstol'
 alias hdfkv='$HLOOKUP $GTHOME/langs/fkv/src/generator-gt-desc.hfstol'
 alias hdhdn='$HLOOKUP $GTHOME/langs/hdn/src/generator-gt-desc.hfstol'
@@ -485,6 +494,8 @@ alias hdvro='$HLOOKUP $GTHOME/langs/vro/src/generator-gt-desc.hfstol'
 alias hdyrk='$HLOOKUP $GTHOME/langs/yrk/src/generator-gt-desc.hfstol'
 
 
+alias huspa='$HLOOKUP $GTHOME/external-langs/spa/src/analyser-gt-desc.hfstol'
+
 alias hukhk='$HLOOKUP $GTHOME/startup-langs/khk/src/analyser-gt-desc.hfstol'
 alias hukjh='$HLOOKUP $GTHOME/startup-langs/kjh/src/analyser-gt-desc.hfstol'
 alias hutyv='$HLOOKUP $GTHOME/startup-langs/tyv/src/analyser-gt-desc.hfstol'
@@ -510,6 +521,7 @@ alias hudeu='$HLOOKUP $GTHOME/langs/deu/src/analyser-gt-desc.hfstol'
 alias huest='$HLOOKUP $GTHOME/langs/est/src/analyser-gt-desc.hfstol'
 alias hufao='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-desc.hfstol'
 alias hufin='$HLOOKUP $GTHOME/langs/fin/src/analyser-gt-desc.hfstol'
+alias hufit='$HLOOKUP $GTHOME/langs/fit/src/analyser-gt-desc.hfstol'
 alias hufkv='$HLOOKUP $GTHOME/langs/fkv/src/analyser-gt-desc.hfstol'
 alias huhdn='$HLOOKUP $GTHOME/langs/hdn/src/analyser-gt-desc.hfstol'
 alias huhun='$HLOOKUP $GTHOME/langs/hun/src/analyser-gt-desc.hfstol'
@@ -575,6 +587,7 @@ alias hddeuNorm='$HLOOKUP $GTHOME/langs/deu/src/generator-gt-norm.hfstol'
 alias hdestNorm='$HLOOKUP $GTHOME/langs/est/src/generator-gt-norm.hfstol'
 alias hdfaoNorm='$HLOOKUP $GTHOME/langs/fao/src/generator-gt-norm.hfstol'
 alias hdfinNorm='$HLOOKUP $GTHOME/langs/fin/src/generator-gt-norm.hfstol'
+alias hdfitNorm='$HLOOKUP $GTHOME/langs/fit/src/generator-gt-norm.hfstol'
 alias hdfkvNorm='$HLOOKUP $GTHOME/langs/fkv/src/generator-gt-norm.hfstol'
 alias hdhdnNorm='$HLOOKUP $GTHOME/langs/hdn/src/generator-gt-norm.hfstol'
 alias hdhunNorm='$HLOOKUP $GTHOME/langs/hun/src/generator-gt-norm.hfstol'
@@ -635,6 +648,7 @@ alias huchrNorm='$HLOOKUP $GTHOME/langs/chr/src/analyser-gt-norm.hfstol'
 alias huestNorm='$HLOOKUP $GTHOME/langs/est/src/analyser-gt-norm.hfstol'
 alias hufaoNorm='$HLOOKUP $GTHOME/langs/fao/src/analyser-gt-norm.hfstol'
 alias hufinNorm='$HLOOKUP $GTHOME/langs/fin/src/analyser-gt-norm.hfstol'
+alias hufitNorm='$HLOOKUP $GTHOME/langs/fit/src/analyser-gt-norm.hfstol'
 alias hufkvNorm='$HLOOKUP $GTHOME/langs/fkv/src/analyser-gt-norm.hfstol'
 alias huhdnNorm='$HLOOKUP $GTHOME/langs/hdn/src/analyser-gt-norm.hfstol'
 alias huhunNorm='$HLOOKUP $GTHOME/langs/hun/src/analyser-gt-norm.hfstol'
@@ -845,6 +859,11 @@ alias findep="sent-proc.sh -l fin -s dep"
 alias findept="sent-proc.sh -l fin -s dep -t"
 alias findis="sent-proc.sh -l fin -s dis"
 alias findist="sent-proc.sh -l fin -s dis -t"
+
+alias fitdep="sent-proc.sh -l fit -s dep"
+alias fitdept="sent-proc.sh -l fit -s dep -t"
+alias fitdis="sent-proc.sh -l fit -s dis"
+alias fitdist="sent-proc.sh -l fit -s dis -t"
 
 alias fkvdep="sent-proc.sh -l fkv -s dep"
 alias fkvdept="sent-proc.sh -l fkv -s dep -t"
