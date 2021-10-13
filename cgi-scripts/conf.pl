@@ -81,8 +81,8 @@ sub init_variables {
 	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
 	my $tok_fst = "$fstdir/tok.fst"; # not in use
         my $fstflags = "-flags mbTT -utf8";
-        my $dis_rle = "$fstdir/disambiguation.cg3";  # text file
-	my $dis_bin = "$fstdir/disambiguation.bin";  # binary file
+        my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
+	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
 	my $dep_rle = "$fstdir/dependency.cg3";  # text
 	my $dep_bin = "$fstdir/dependency.bin";  # binary file
@@ -154,9 +154,9 @@ sub init_variables {
 		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
 	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
-		http_die '--no-alert','404 Not Found',"The file disambiguation.cg3 is not found: Disambiguation is not supported";
+		http_die '--no-alert','404 Not Found',"The file disambiguator.cg3 is not found: Disambiguation is not supported";
 #	if ($action eq "disamb" && ! -f $dis_bin) { 
-#		http_die '--no-alert','404 Not Found',"disambiguation.cg3: Disambiguation is not supported";
+#		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
 	}
 	if ($action eq "disamb" && ! -f $syn_rle) { 
 		http_die '--no-alert','404 Not Found',"The file korp.cg3 is not found: Syntactic function analysis is not supported";
@@ -221,8 +221,8 @@ sub init_variables {
 		$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
 
 # for the next debug, this is the variable-free version of $dependency:
-# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguation.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
-# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguation.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
+# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
+# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
