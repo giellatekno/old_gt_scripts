@@ -105,6 +105,7 @@ $json = $query->param('json');
 # Remove the unsecure characters from the input.
 $json =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
+if ($pos =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid pos.\n" };
 if (! $lang && $action ne "placenames" ) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
 if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
 if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
