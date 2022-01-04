@@ -83,17 +83,27 @@ $plang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # Action is either "generate" or "analyze" or "paradigm" or "placenames"
 $action = $query->param('action');
+# Remove the unsecure characters from the input.
+$action =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
+
 # Paradigm mode: minimal, standard, full, full with dialectal variation
 $mode = $query->param('mode');
+# Remove the unsecure characters from the input.
+$mode =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
+
 # The language for lemma translation in disambiguation.
 $tr_lang = $query->param('translate');
 if (! $tr_lang) { $tr_lang = "none"; }
+# Remove the unsecure characters from the input.
+$tr_lang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # Input and output can be xml.
 $xml_in = $query->param('xml_in');
 $xml_out = $query->param('xml_out');
 
 $json = $query->param('json');
+# Remove the unsecure characters from the input.
+$json =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 if (! $lang && $action ne "placenames" ) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
 if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
