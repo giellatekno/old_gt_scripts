@@ -55,7 +55,6 @@ require "/var/www/cgi-bin/smi/conf.pl";
 # information from HTML form and generating new HTML pages.
 
 # Variables retrieved from the query.
-#our ($text,$pos,$charset,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang);
 our ($text,$pos,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang,$json);
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
@@ -106,6 +105,12 @@ $json = $query->param('json');
 $json =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 if ($pos =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid pos.\n" };
+if ($lang =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid plang.\n" };
+if ($plang =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid plang.\n" };
+if ($action =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid actoin.\n" };
+if ($mode =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid mode.\n" };
+if ($tr_lang =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid tr_lang.\n" };
+if ($json =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid json.\n" };
 if (! $lang && $action ne "placenames" ) { http_die '--no-alert','400 Bad Request',"<b>lang</b> parameter missing.\n" };
 if (! $text) { http_die '--no-alert','400 Bad Request',"No text given.\n" };
 if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
