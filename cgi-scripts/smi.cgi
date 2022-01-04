@@ -68,10 +68,18 @@ my $query = CGI::Minimal->new;
 my $query2 = new CGI;
 
 $text = $query->param('text');
+
 $pos = $query->param('pos');
-#$charset = $query->param('charset');
+# Remove the unsecure characters from the input.
+$pos =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
+
 $lang = $query->param('lang');
+# Remove the unsecure characters from the input.
+$lang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
+
 $plang = $query->param('plang');
+# Remove the unsecure characters from the input.
+$plang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # Action is either "generate" or "analyze" or "paradigm" or "placenames"
 $action = $query->param('action');
@@ -187,8 +195,7 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 $text = digr_utf8($text);
 
 # Remove the unsecure characters from the input.
-#$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}:'"]/ /g;
-$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;  # Deleted colon from this set to avoid removing colon from the word forms as NRK:s (Heli)
+$text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # ` This stupid dummy line is here just to restore emacs syntax colouring.
 
