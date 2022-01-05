@@ -12,9 +12,6 @@ This file contains a descrition of the current directory.
 conf.pl --- used in: ../../gt/script/cgi-scripts/smi.cgi
 ../../techdoc/infra/docu-cgi-bin.xml
 
-detect-os.pl --- used in: NULL
-This was Børres setup. Check whether it is obsloete
-
 iclock-sma.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
@@ -36,15 +33,6 @@ sma-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
 
-sme-cg.cgi --- used in: NULL
-Obsolete
-
-sme-lookup.pl.bu --- used in: NULL
-Obsolete
-
-sme-lookup.pl.bu2 --- used in: NULL
-Obsolete
-
 sme-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
@@ -59,33 +47,6 @@ smj-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
 ../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
 
 test-sme-lookup.cgi --- used in: ../../gt/www/auto-a-sme.html
-
-upload.cgi --- used in: ../../gt/script/cgi-scripts/xsl-process.cgi
-../../gt/script/convert2xml.pl
-../../techdoc/admin/weekly/2006/Meeting_2006-02-06.jspwiki
-../../techdoc/ling/corpus_conversion_tech.xml
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload-corpus-file.html
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.en.html
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.fi.html
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.html
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.nb.html
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.se.html
-../../xtdoc/sd/src/documentation/content/xdocs/upload/upload_corpus_file.smj.html
-
-utf8-sme-lookup.cgi --- used in: NULL
-Obsolete
-
-win9x-sme-lookup.cgi --- used in: NULL
-Obsolete
-
-winuni-sme-lookup.cgi --- used in: NULL
-Obsolete
-
-xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
-../../techdoc/ling/corpus_conversion.xml
-../../techdoc/ling/corpus_conversion_tech.xml
-
-
 
    emacs --- two emacs lisp files
 
@@ -105,12 +66,12 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 
 
 
-2. files: 
+2. files:
 
  1. makefiles:
    corpus.make
 
- 2. txt files: 
+ 2. txt files:
    00_README.txt --- this file
    crontab.txt
    digr-utf8.txt
@@ -130,7 +91,7 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
                                       ../../gt/script/copy_corpus_bin.sh;
 
    corpus_chmod.sh --- used in: techdoc/ling/corpus_conversion_tech.xml;
-   corpus_fix_meta.sh --- used in: gt/script/change_xsl.xsl; 
+   corpus_fix_meta.sh --- used in: gt/script/change_xsl.xsl;
                                    techdoc/ling/corpus_conversion_tech.xml;
    corpus_missing_orig.sh --- used in: NULL
    corpus_rename.sh --- used in: techdoc/ling/corpus_conversion_tech.xml;
@@ -138,7 +99,7 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
    corpus_zip.sh --- used in: techdoc/ling/corpus_conversion_tech.xml;
    dis.sh --- used in: gt/script/cealkka2;
                        gt/script/sme-multisyn.sh;
-                       gt/script/sme-visl.sh; 
+                       gt/script/sme-visl.sh;
                        gt/script/smj-multi.sh;
                        gt/script/teaksta.sh;
                        gt/sme/src/sme-olddis.rle;
@@ -169,7 +130,7 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
                              ../../techdoc/tools/docu-sme-manual.xml
 
    sme-multisyn.sh --- used in: ../../techdoc/tools/docu-sme-manual.xml
-   
+
    sme-visl.sh --- used in: NULL
    smj-dis.sh --- used in: ../../gt/script/smj-multi.sh
                            ../../gt/script/teaksta.sh
@@ -178,7 +139,7 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
    smj-multi.sh --- used in: ../../gt/script/teaksta.sh
                              ../../techdoc/tools/docu-sme-manual.xml
 
-   sortlargeplx.sh --- used in: NULL 
+   sortlargeplx.sh --- used in: NULL
    syll.sh --- used in: ../../gt/sma/src/twol-sma.txt
                         ../../gt/tmp/twol-sma-tmp.txt
 
@@ -797,11 +758,10 @@ xsl-process.cgi --- used in: ../../gt/script/cgi-scripts/upload.cgi
 ../../gt/script/corpus-parallel.pl
 
    text_cat --- used in: => moved to ../../tools/lang-guesser/text_cat.pl
-../../gt/script/convert2xml.pl => no path correction needed 
+../../gt/script/convert2xml.pl => no path correction needed
 ../../gt/script/copy_bin.sh => path correction
 ../../gt/script/copy_corpus_bin.sh => path correction
 
    text_cat README --- used in: just a text file!!! => moved to ../../tools/lang-guesser/README.txt
 
    upper.regex --- used in: NULL => deleted
-
