@@ -56,6 +56,7 @@ require "/var/www/cgi-bin/smi/conf.pl";
 
 # Variables retrieved from the query.
 our ($text,$pos,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang,$json);
+
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
 our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,$lat2syll,$syll2lat,%avail_pos, %lang_actions, $translate,$placenames);
@@ -67,26 +68,32 @@ my $query = CGI::Minimal->new;
 my $query2 = new CGI;
 
 $text = $query->param('text');
+if (! $text ) { $text = '';}
 
 $pos = $query->param('pos');
+if (! $pos ) { $pos = '';}
 # Remove the unsecure characters from the input.
 $pos =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 $lang = $query->param('lang');
+if (! $lang ) { $lang = '';}
 # Remove the unsecure characters from the input.
 $lang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 $plang = $query->param('plang');
+if (! $plang ) { $plang = '';}
 # Remove the unsecure characters from the input.
 $plang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # Action is either "generate" or "analyze" or "paradigm" or "placenames"
 $action = $query->param('action');
+if (! $action) { $action= '';}
 # Remove the unsecure characters from the input.
 $action =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # Paradigm mode: minimal, standard, full, full with dialectal variation
 $mode = $query->param('mode');
+if (! $mode) { $mode= '';}
 # Remove the unsecure characters from the input.
 $mode =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
@@ -98,9 +105,13 @@ $tr_lang =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 # Input and output can be xml.
 $xml_in = $query->param('xml_in');
+if (! $xml_in) { $xml_in = '';}
+
 $xml_out = $query->param('xml_out');
+if (! $xml_out) { $xml_out = '';}
 
 $json = $query->param('json');
+if (! $json) { $json= '';}
 # Remove the unsecure characters from the input.
 $json =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
