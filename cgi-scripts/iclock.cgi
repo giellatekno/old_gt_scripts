@@ -37,7 +37,7 @@ $text =~ s/%(..)/pack("c",hex($1))/ge ;
 $text =~ s/\+/ /g ;
 
 #Removing the unsecure characters from the input.
-$text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}:'"]/ /g;
+$text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}'"]/ /g;
 
 # make space before punctuation
 $text =~ s/\?/ \?/g ;
