@@ -48,24 +48,24 @@ $text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
-$utilitydir =    "/usr/bin" ;
+my $utilitydir =    "/usr/bin" ;
 # The directory where  transcriptor-date-digit2text.filtered.lookup.xfst is stored
-$fstdir = "/opt/smi/$lang/bin" ;
+my $fstdir = "/opt/smi/$lang/bin" ;
 unless (-d $fstdir) { http_die '--no-alert','400 Bad Request',"fstdir does not exist.\n" };
 
 &printinitialhtmlcodes ;         # see the subroutine below
                                  # prints out the usual HTML header info
 
-$wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (ab)use
+my $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (ab)use
 
-@words = split(/\s+/, $text) ;
+my @words = split(/\s+/, $text) ;
 
 
 # Limit the input to a certain number of words (specified in variable $wordlimit
 # set above)
 
 if (@words > $wordlimit) {
-    $upperindex = $wordlimit - 1 ;
+    my $upperindex = $wordlimit - 1 ;
     @words = @words[0..$upperindex] ;
 }
 
@@ -81,7 +81,7 @@ if (@words == 0) {
 # join the words back into a single string
 
 # each remaining word now separated by spaces
-$allwords = join(" ", @words) ;
+my $allwords = join(" ", @words) ;
 
 # The morphological analysis will be done using the 'lookup' utility,
 # which takes a tokenized "file" as input (i.e. one word to a line)
@@ -110,7 +110,7 @@ $allwords = join(" ", @words) ;
 # 3.  The output of lookup is assigned as the value of $result
 
 
-$result = `echo $allwords | tr " " "\n" | \
+my $result = `echo $allwords | tr " " "\n" | \
  $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $fstdir/transcriptor-date-digit2text.filtered.lookup.xfst` ;
 # $utilitydir/lookup -flags mbL" => "LTT -d $fstdir/idate-sme.fst` ;
 # testing line two here, lauri's advice.
@@ -124,30 +124,30 @@ $result = `echo $allwords | tr " " "\n" | \
 # given the way that 'lookup' formats its results, solutiongroups are separated by
 # two newline characters
 
-@solutiongroups = split(/\n\n/, $result) ;
+my @solutiongroups = split(/\n\n/, $result) ;
 
 # the following is basically a loop over the original input words, now
 # associated with their solutions
 
-foreach $solutiongroup (@solutiongroups) {
+foreach my $solutiongroup (@solutiongroups) {
     print "\n<BR><HR SIZE=2 NOSHADE>\n" ;
 
-    $cnt = 0 ;
+    my $cnt = 0 ;
 
   # each $solutiongroup contains the analysis
   # or analyses for a single input word.  Multiple
   # analyses are separated by a newline
 
-    @lexicalstrings = split(/\n/, $solutiongroup) ;
+    my @lexicalstrings = split(/\n/, $solutiongroup) ;
 
   # each lexicalstring looks like
   #       input=>root [CAT]
 
   # now loop through the analyses for a single input word
 
-    foreach $lexicalstring (@lexicalstrings) {
-	&printsolution($lexicalstring, ++$cnt) ;
-#    &printglosses($lexicalstring) ;
+    foreach my $lexicalstring (@lexicalstrings) {
+        &printsolution($lexicalstring, ++$cnt) ;
+#       &printglosses($lexicalstring) ;
     }
 
   # these subroutines print out suitable HTML codes
