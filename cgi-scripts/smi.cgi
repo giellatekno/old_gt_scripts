@@ -105,7 +105,7 @@ $json = $query->param('json');
 $json =~ s/[\/;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 
 if ($pos =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid pos.\n" };
-if ($lang =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid plang.\n" };
+if ($lang =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid lang.\n" };
 if ($plang =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid plang.\n" };
 if ($action =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid actoin.\n" };
 if ($mode =~ /\s/) { http_die '--no-alert','400 Bad Request',"Invalid mode.\n" };
