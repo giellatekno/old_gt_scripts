@@ -1,36 +1,57 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
+use utf8;
+use CGI::Minimal;
+use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
+my %titles = (
+    myv => 'Lullis&aacute;megiel lohkos&aacute;nit',
+    sjd => 'Lullis&aacute;megiel lohkos&aacute;nit',
+    sma => 'Lullis&aacute;megiel lohkos&aacute;nit',
+    sme => 'Davvis&aacute;megiel lohkos&aacute;nit',
+    smn => 'Lullis&aacute;megiel lohkos&aacute;nit'
+);
 
-########################################################################
-#
-#sjd-lookup.pl
-#
-# resides:  Web Folder:cgi-bin:smi:sjd-lookup.cgi
-#
-#       called from FORM on skjema.html page; output HTML
-#
-# Original written by Ken Beesley, Xerox, for Aymara.
-# reviewed and modified 12 april 2002, Trond Trosterud
-#
-########################################################################
+# Variables retrieved from the query.
+our ($text,$lang);
+my $query = CGI::Minimal->new;
 
-# this CGI script is called whenever a user submits an analysis request
-# from the FORM on the Southern Sami HTML page
+$text = $query->param('text');
+$lang = $query->param('lang');
+# special characters in the text (e.g. literal ampersands, plus signs and equal signs
+# typed by the user) must be encoded for transmission, to prevent confusion with
+# the delimiters used by CGI); here is the magic formula to undo the CGI encodings
 
-# For manual testing, see comments at the bottom of the file
+if (! $text ) { http_die '--no-alert','400 Bad Request',"Empty text.\n" };
+if (! $lang ) { http_die '--no-alert','400 Bad Request',"No lang.\n" };
+if (length($lang) != 3) { http_die '--no-alert','400 Bad Request',"Lang must be three chars.\n" };
 
-# the output of this script (output using the normal Perl 'print' commands)
-# is an HTML file, sent back to the user's browser for display.  (How it
-# gets back to the user's browser is a mystery to me--the web server must
-# take care of this.)
+$text =~ s/%(..)/pack("c",hex($1))/ge ;
+
+# change the plus signs back to the original spaces typed by the user
+$text =~ s/\+/ /g ;
+
+#Removing the unsecure characters from the input.
+$text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}:'"]/ /g;
+
+# make space before punctuation
+$text =~ s/\?/ \?/g ;
+$text =~ s/\./ \./g ;
+$text =~ s/\,/ \,/g ;
+
+$text =~ s/^\s+// ;         # chop any whitespace off the front
+$text =~ s/\s+$// ;         # chop any whitespace off the back
+$text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
+
 
 # System-Specific directories
 
 # The directory where utilities like 'lookup' are stored
 $utilitydir =    "/usr/bin" ;
 # The directory where  transcriptor-date-digit2text.filtered.lookup.xfst is stored
-$sjdfstdir = "/opt/smi/sjd/bin" ;
-
+$fstdir = "/opt/smi/$lang/bin" ;
+unless (-d $fstdir) { http_die '--no-alert','400 Bad Request',"fstdir does not exist.\n" };
 
 &printinitialhtmlcodes ;         # see the subroutine below
                                  # prints out the usual HTML header info
@@ -58,7 +79,7 @@ $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (a
 #      Note that the space typed by the user will be replaced by a plus sign
 #      for transmission.
 
-#  Compare these descriptions against the FORM in the HTML page to see 
+#  Compare these descriptions against the FORM in the HTML page to see
 #    where these fields (and their labels and values) are coming from.
 
 
@@ -71,7 +92,7 @@ $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (a
 
 # text=word+word+word
 
- 
+
 @query =  $ENV{'QUERY_STRING'}  ;
 
 # the input field holds the text itself (word or words)
@@ -89,7 +110,7 @@ if ($name ne "text") {
 }
 
 
-# special characters in the text (e.g. literal ampersands, plus signs and equal signs 
+# special characters in the text (e.g. literal ampersands, plus signs and equal signs
 # typed by the user) must be encoded for transmission, to prevent confusion with
 # the delimiters used by CGI); here is the magic formula to undo the CGI encodings
 
@@ -101,7 +122,7 @@ $text =~ s/\+/ /g ;
 #Removing the unsecure characters from the input.
 $text =~ s/[;<>\*\|`&\$!#\(\)\[\]\{\}'"]/ /g;
 
-# make space before question marks
+# make space before punctuation
 $text =~ s/\?/ \?/g ;
 #$text =~ s/\./ \./g ;
 $text =~ s/\,/ \,/g ;
@@ -149,9 +170,9 @@ $allwords = join(" ", @words) ;
 # the same backquoting trick will be used to lookup the input words in
 # using the 'lookup' utility, which will access the aymara.fst transducer
 
-# we will take the string of space-separated input words in the Perl variable 
+# we will take the string of space-separated input words in the Perl variable
 # $allwords (computed above), pipe them to a very simple tokenizer that puts
-# one word on each line (i.e. inserts a newline character between words), and 
+# one word on each line (i.e. inserts a newline character between words), and
 # then pipe that tokenized "file" to the 'lookup' utility
 
 
@@ -159,12 +180,15 @@ $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses idate-sjd.fst)
+#         (which has some flags set, and which accesses idate-sme.fst)
 # 3.  The output of lookup is assigned as the value of $result
 
 
 $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $sjdfstdir/transcriptor-date-digit2text.filtered.lookup.xfst` ;
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $fstdir/transcriptor-date-digit2text.filtered.lookup.xfst` ;
+# $utilitydir/lookup -flags mbL" => "LTT -d $fstdir/idate-sme.fst` ;
+# testing line two here, lauri's advice.
+#back with line one
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
@@ -176,7 +200,7 @@ $result = `echo $allwords | tr " " "\n" | \
 
 @solutiongroups = split(/\n\n/, $result) ;
 
-# the following is basically a loop over the original input words, now 
+# the following is basically a loop over the original input words, now
 # associated with their solutions
 
 foreach $solutiongroup (@solutiongroups) {
@@ -228,7 +252,7 @@ sub printinitialhtmlcodes
 #               Print out a standard HTML header
 
     print "Content-TYPE: text/html; charset=UTF-8\n\n" ;
-    print "<HEAD>\n<TITLE>Lullis&aacute;megiel lohkos&aacute;nit </TITLE>\n</HEAD>\n\n" ;
+    print "<HEAD>\n<TITLE>$titles{$lang}</TITLE>\n</HEAD>\n\n" ;
 
 #    print "<BODY BGCOLOR=\"#D0FFD0\">\n<P>\n\n" ;
 
@@ -262,6 +286,3 @@ sub printsolution {
     $solution =~ s/\=\>/\=\> / ;
     print "\n<BR>\n$num.  $solution" ;
 }
-
-
-
