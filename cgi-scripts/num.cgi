@@ -1,15 +1,13 @@
 #!/usr/bin/perl -w
 use strict;
+use warnings;
 use utf8;
 use CGI::Minimal;
+use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
 ########################################################################
 #
-#sme-lookup.pl
-#
-# resides:  Web Folder:cgi-bin:smi:sme-lookup.cgi
-#
-#       called from FORM on skjema.html page; output HTML
+# Numerals to words
 #
 # Original written by Ken Beesley, Xerox, for Aymara.
 # reviewed and modified 12 april 2002, Trond Trosterud
@@ -26,74 +24,19 @@ use CGI::Minimal;
 # gets back to the user's browser is a mystery to me--the web server must
 # take care of this.)
 
-# System-Specific directories
+# Variables retrieved from the query.
+our ($text,$lang);
+my $query = CGI::Minimal->new;
 
-# The directory where utilities like 'lookup' are stored
-my $utilitydir =    "/usr/bin" ;
-# The directory where transcriptor-numbers2text-desc.xfst is stored
-my $smefstdir = "/opt/smi/sme/bin" ;
-
-
-&printinitialhtmlcodes ;         # see the subroutine below
-                                 # prints out the usual HTML header info
-
-my $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (ab)use
-
-# GET THE INPUT
-
-#         The data arrives by GET method (from the HTML FORM
-#         in the HTML input page being viewed by the user)
-
-# The format of the data sent to the CGI script in GET mode is a string
-# separated into "fields".  Each field represents the data from one GUI
-# widget in the HTML FORM.  (Compare the FORM to the fields listed
-# below.)  Fields are separated with an ampersand.
-
-# In the present example, the FORM contain one GUI widgets, transmitted
-# to the CGI script in a field:
-
-#      A string of characters, typed into an HTML TEXTAREA widget.  The FORM
-#      specifies that these characters are to be labeled as "text".  So
-#      if the user types "utanaka utamankapxarakiwa" in the TEXTAREA, it
-#      will be transmitted to the CGI script as the field
-#             text=utanaka+utamankapxarakiwa
-#      Note that the space typed by the user will be replaced by a plus sign
-#      for transmission.
-
-#  Compare these descriptions against the FORM in the HTML page to see
-#    where these fields (and their labels and values) are coming from.
-
-
-# the data is encoded for transmission
-#  1.  any spaces in the original user input are replaced with plus signs
-#  2.  other special characters are encoded (see below for decoding steps)
-
-# with the GET method, the input is available in the environment variable
-#       QUERY_STRING, with fields separated by ampersands, e.g.
-
-# text=word+word+word
-
-
-my @query =  $ENV{'QUERY_STRING'}  ;
-
-# the input field holds the text itself (word or words)
-# in the format
-# text=word1+word2+word3+word4...
-# (literal spaces typed by the user were replaced with plus signs for
-# transmission)
-
-our ($name, $text) = split(/\=/, shift(@query)) ; # try to get only one field...
-#($name, $text) = split(/\=/, shift(@queryfield)) ; # original...
-
-
-if ($name ne "text") {
-    print "Error: Expected text in QUERY_STRING\n" ;
-}
-
-
+$text = $query->param('text');
+$lang = $query->param('lang');
 # special characters in the text (e.g. literal ampersands, plus signs and equal signs
 # typed by the user) must be encoded for transmission, to prevent confusion with
 # the delimiters used by CGI); here is the magic formula to undo the CGI encodings
+
+if (! $text ) { http_die '--no-alert','400 Bad Request',"Empty text.\n" };
+if (! $lang ) { http_die '--no-alert','400 Bad Request',"No lang.\n" };
+if (length($lang) != 3) { http_die '--no-alert','400 Bad Request',"Lang must be three chars.\n" };
 
 $text =~ s/%(..)/pack("c",hex($1))/ge ;
 
@@ -112,6 +55,21 @@ $text =~ s/^\s+// ;         # chop any whitespace off the front
 $text =~ s/\s+$// ;         # chop any whitespace off the back
 $text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
 
+
+# System-Specific directories
+
+# The directory where utilities like 'lookup' are stored
+my $utilitydir =    "/usr/bin" ;
+# The directory where transcriptor-numbers2text-desc.xfst is stored
+my $fstdir = "/opt/smi/$lang/bin" ;
+unless (-d $fstdir) { http_die '--no-alert','400 Bad Request',"fstdir does not exist.\n" };
+
+&printinitialhtmlcodes ;         # see the subroutine below
+                                 # prints out the usual HTML header info
+
+my $wordlimit = 50 ;                # adjust as appropriate; prevent large-scale (ab)use
+
+
 # split the text into words crudely on spaces
 my @words = split(/\s+/, $text) ;
 
@@ -129,7 +87,6 @@ if (@words > $wordlimit) {
 if (@words == 0) {
     print "\n<BR>\nNo words received.\n" ;
     &printfinalhtmlcodes ;
-    return "No Words Received" ;
 }
 
 # if we reach here, then the user did indeed one or more words;
@@ -166,18 +123,7 @@ my $allwords = join(" ", @words) ;
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $smefstdir/transcriptor-numbers2text-desc.xfst` ;
-# $utilitydir/lookup -flags mbL" => "LTT -d $smefstdir/transcriptor-numbers2text-desc.xfst` ;
-# testing line two here, lauri's advice.
-#back with line one
-
-#  ***** Now we need to parse the $result string to output the information as HTML ***
-#  This information will be directed automatically back to the user's browser for display
-
-
-# first split the $result into solutiongroups (one solutiongroup for each input word)
-# given the way that 'lookup' formats its results, solutiongroups are separated by
-# two newline characters
+ $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $fstdir/transcriptor-numbers2text-desc.xfst` ;
 
 my @solutiongroups = split(/\n\n/, $result) ;
 
