@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use utf8;
+use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
 # Show custom text to remote viewer
 CGI::Alert::custom_browser_text <<END;
