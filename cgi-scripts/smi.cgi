@@ -1,21 +1,4 @@
 #!/usr/bin/perl
-
-use strict;
-use warnings;
-use utf8;
-use HTML::Entities;
-use XML::Twig;
-use CGI::Minimal;
-use CGI;
-use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
-
-# Use project's utility functions.
-use langTools::Util;
-use langTools::XMLStruct;
-
-# Configuration: variable definitions etc.
-require "/var/www/cgi-bin/smi/conf.pl";
-
 ########################################################################
 #
 #smi-cg.cgi
@@ -38,6 +21,22 @@ require "/var/www/cgi-bin/smi/conf.pl";
 
 # The script uses Perl module CGI.pm to retrieve and handle
 # information from HTML form and generating new HTML pages.
+
+use strict;
+use warnings;
+use utf8;
+use HTML::Entities;
+use XML::Twig;
+use CGI::Minimal;
+use CGI;
+use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
+
+# Use project's utility functions.
+use langTools::Util;
+use langTools::XMLStruct;
+
+# Configuration: variable definitions etc.
+require "/var/www/cgi-bin/smi/conf.pl";
 
 # Variables retrieved from the query.
 our ($text,$pos,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang,$json);
