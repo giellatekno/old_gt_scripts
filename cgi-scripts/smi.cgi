@@ -17,7 +17,7 @@ use CGI;
 #$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
 #$CGI::POST_MAX        = 1_024 * 1_024;
-use CGI::Alert ('chiara.argese@uit.no', 'http_die');
+use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
 #use Encode qw( encode_utf8 );
 #use JSON::MaybeXS ();
