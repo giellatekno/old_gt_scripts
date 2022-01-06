@@ -70,6 +70,7 @@ sub init_variables {
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.xfst";
 	my $hfst = "$fstdir/analyser-disamb-gt-desc.hfstol";
 	my $hfst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
+	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst";
 	my $gen_fst = "$fstdir/generator-gt-desc.xfst";
 	my $gen_norm_fst = "$fstdir/generator-gt-norm.xfst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
@@ -191,6 +192,7 @@ sub init_variables {
 	}
 	if (!$plang || ! $page_languages{$plang}) { $plang = "eng"; }
 
+	# preprocess soon deprecated 6.1.22.
 	if (-f "$fstdir/abbr.txt") {
 		$preprocess = "$bindir/preprocess --abbr=$fstdir/abbr.txt";
 	}
@@ -200,6 +202,7 @@ sub init_variables {
 #	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
 #	}
 
+	# Migrating to hfst: investigate how to avoid $preprocess here 6.1.22.
 	if ($action eq "paradigm") {
     	$analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
     } elsif ($action eq "analyze" && $lang eq "sme") {
@@ -213,12 +216,15 @@ sub init_variables {
 
 # if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
+	    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+	    $dependency =  "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+	    # old version, to be deleted when dust settles, 6.1.22
+#	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+#	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
-		$disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle ";  
-		$dependency = "$analyze | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
+		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
+		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
 
 # for the next debug, this is the variable-free version of $dependency:
 # /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
