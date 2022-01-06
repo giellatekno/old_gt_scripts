@@ -200,7 +200,7 @@ $text =~ s/[;<>\*\|`&\$!\#\(\)\[\]\{\}'"]/ /g;
 # Change linebreaks to space and check the word limit
 my @words = split(/[\s]+/, $text);
 $text = join(' ', splice(@words,0,$wordlimit));
-if (@words && ! $xml_out) { &printwordlimit; }
+if (@words && ! $xml_out) { http_die '--no-alert','400 Bad Request',"Too many words in input. The limit is $wordlimit.\n" };
 
 # And here is where the actual lookup gets done:
 # ###############################################
@@ -860,8 +860,4 @@ sub printfinalhtmlcodes {
   $a->paste('last_child', $p);
   $p->paste('last_child', $body);
 
-}
-
-sub printwordlimit {
-    print $out->b("\nWord limit is $wordlimit.\n");
 }
