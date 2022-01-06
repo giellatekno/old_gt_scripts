@@ -113,10 +113,6 @@ if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 ##### INITIALIZE  ####
 &init_variables;
 
-# temporary files
-#open (FH, ">$tmpfile");
-#open (LFH, ">>$logfile");
-
 my @candidates;
 my $document;
 my $page;
@@ -184,17 +180,8 @@ if ($xml_in) {
   }
 }
 
-# no charset radio buttons
-#if($charset eq "latin1") {
-#  $text = Unicode::String::latin1( $text);
-#}
-
 # Convert html-entity to unicode
 decode_entities( $text );
-
-#print LFH "PARAM $action, $lang, $plang";
-#if ($action eq "paradigm") { print LFH "$pos"; }
-#print LFH "\n$text\n";
 
 # Special characters in the text (e.g. literal ampersands, plus signs
 # and equal signs
@@ -259,12 +246,9 @@ my $encoded;
 if (!$xml_out) {
   if ( $action eq "disamb" ||
        $action eq "dependency") {
-    #$result =~ s/</&lt\;/g;
     $output = dis2html($result,1);
-    #$output = $result;
   }
   elsif ($action eq "analyze") {
-    #$result =~ s/</&lt\;/g;
     $output = dis2html($result,1);
   }
 elsif ($action eq "generate") { $output = gen2html($result,0,1); }
@@ -397,10 +381,6 @@ sub generate_paradigm {
   my $i=0;
   if ($pos eq "Any") { $anypos = 1; }
 
-  #	print FH "GEN-NORM: $gen_norm_lookup\n";
-  #	print FH "GEN: $gen_lookup\n";
-  #	print FH "PARADIGMFILE: $paradigmfile\n";
-  #	if ($mode) { print FH "MODE: $mode\n"; }
   # Initialize paradigm list
   generate_taglist($paradigmfile,$tagfile,\%paradigms);
 
@@ -480,7 +460,6 @@ sub generate_paradigm {
 	$poses{$anl}{fulllemma} = $fulllemma;
 	$poses{$anl}{ranking} = 3;
       }
-      #print FH "POS $anlpos\nlemma $anllemma\nfulllemma  $poses{$anl}{fulllemma}\n";
     }
     # The derivations are treated separately
     elsif ($anl =~ m/^(.+\+(V|N|Adv|A).*?)\+(V|N|Adv|A)\+/) {
@@ -490,7 +469,6 @@ sub generate_paradigm {
       $derivations{$anl}{lemma} = $word_der;
       $derivations{$anl}{pos} = $word_pos;
       push (@der_anl, $anl);
-      #print FH "POS $word_pos\n WORD_DER $word_der\n";
     }
   }
   # Select the analyses for the best match for the user input.
@@ -504,7 +482,6 @@ sub generate_paradigm {
     for my $anl (@analyzes_noder) {
       if ($poses{$anl}{pos} eq $pos || $anypos) {
 	if ($poses{$anl}{lemma} eq $word && $avail_pos{$poses{$anl}{pos}}) {
-	  #print FH "FIRST $anl\n";
 	  $first_cand = $poses{$anl};
 	  $cand_p = $poses{$anl}{pos};
 	  $cand_w = $poses{$anl}{lemma};
@@ -610,15 +587,12 @@ sub call_para {
   }
 
   if ($all) {
-    #print FH "FORMS $all";
     my $generated;
     if ($mode && $mode eq "dialect") {
-      #print FH "GEN $gen_lookup\n";
       $generated = `echo \"$all\" | $gen_lookup`;
     }
     else {
       $generated = `echo \"$all\" | $gen_norm_lookup`;
-      #print FH "GEN $gen_norm_lookup\n";
     }
     my @all_cand = split(/\n+/, $generated);
     for my $a (@all_cand) {
@@ -626,7 +600,6 @@ sub call_para {
 	$answer .= $a . "\n\n";
       }
     }
-    #		if ($answer) { print FH "ANS $answer";}
   }
 
   return $answer;
@@ -637,19 +610,11 @@ sub printinitialhtmlcodes {
 
   my $tmp_tool = $tool;
   if ($tool =~ /hyphenate|transcribe|convert|lat2syll|syll2lat|disamb|dependency/) { $tmp_tool = "analyze"; }
-  #	print FH "TOOL $tool $tmp_tool\n";
-
   # Read the texts from the XML-file.
 
   # Header title
   my $title = $texts->first_child_text("title[ \@tool='$tmp_tool' and \@lang='$lang']");
   if (! $title) { $title = $texts->first_child_text("title[\@tool='$tmp_tool']"); }
-
-  # First title on the texts
-  #	my $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool' and \@lang='$lang']");
-  #	if (! $h1) { $h1 = $texts->first_child_text("h1[\@tool='$tmp_tool']"); }
-  #	if ($h1) { my $h1_new=XML::Twig::Elt->new(p=>$h1);
-  #			   $h1_new->paste( 'last_child', $body); }
 
   # References to the form texts
   my $selection = $texts->first_child("selection[\@tool='$tmp_tool' and \@lang='$lang']");
@@ -760,8 +725,6 @@ sub printinitialhtmlcodes {
     my $textarea = XML::Twig::Elt->new(input => {type=>'text',name=>'text','size'=>50});
     $textarea->paste('last_child', $td);
 
-    #my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
-    #$input->paste('last_child', $td);
     my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'plang',value=> $plang});
     $input->paste('last_child', $td);
     $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'action',value=> 'placenames'});
@@ -861,15 +824,6 @@ sub printinitialhtmlcodes {
   $input->paste('last_child', $td);
   $input = XML::Twig::Elt->new(input=>{type=> 'reset',value=> $reset_text});
   $input->paste('last_child', $td);
-  #disable utf8 and latin1 radio buttons
-  #my $input_utf8 = XML::Twig::Elt->new(input=> {type=> 'radio',name=> 'charset',value=>'utf-8'},'utf-8');
-  #my $input_l1 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'charset',value=> 'latin-1'},'latin-1');
-
-  #if ($charset eq "latin-1") { $input_l1->set_att('checked'=>1); }
-  #else { $input_utf8->set_att('checked'=>1); }
-
-  #$input_utf8->paste('last_child',$td);
-  #$input_l1->paste('last_child',$td);
   $td->paste('last_child', $tr);
 
   $tr->paste('last_child', $table);
@@ -909,5 +863,5 @@ sub printfinalhtmlcodes {
 }
 
 sub printwordlimit {
-  #    print $out->b("\nWord limit is $wordlimit.\n");
+    print $out->b("\nWord limit is $wordlimit.\n");
 }
