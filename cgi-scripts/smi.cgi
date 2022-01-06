@@ -1,32 +1,17 @@
 #!/usr/bin/perl -w
 
-# Debugging
-#use CGI::Debug;
-#use lib '/home/saara/gt/script';
-
 use strict;
 
 use utf8;
 use HTML::Entities;
-#use Unicode::String qw(utf8 latin1);
 use XML::Twig;
-
 use CGI::Minimal;
 use CGI;
-#use CGI qw/:standard :html3 *table *dl/;
-#$CGI::DISABLE_UPLOADS = 0;
-# limit posts to 1 meg max
-#$CGI::POST_MAX        = 1_024 * 1_024;
 use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
-
-#use Encode qw( encode_utf8 );
-#use JSON::MaybeXS ();
-#use JSON::MaybeXS qw(encode_json decode_json);
 
 # Use project's utility functions.
 use langTools::Util;
 use langTools::XMLStruct;
-
 
 # Configuration: variable definitions etc.
 require "/var/www/cgi-bin/smi/conf.pl";
