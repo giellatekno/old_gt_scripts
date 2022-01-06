@@ -1,7 +1,7 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
-
+use warnings;
 use utf8;
 use HTML::Entities;
 use XML::Twig;
