@@ -1,9 +1,6 @@
 #!/usr/bin/perl -w
 
-use strict;
-use warnings;
 use utf8;
-use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
 # Show custom text to remote viewer
 CGI::Alert::custom_browser_text <<END;
@@ -18,23 +15,23 @@ Content-type: text/html
 <p><a href="http://giellatekno.uit.no/">giellatekno.uit.no</a></p>
 END
 
-my @EXPORT = qw(&init_variables);
+@EXPORT = qw(&init_variables);
 
 sub init_variables {
 
-	my $uit_href="http://uit.no/";
-	my $giellatekno_href="http://giellatekno.uit.no/";
-	my $projectlogo = "http://giellatekno.uit.no/images/project.png";
-	my $unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
-	my $analyze = "";
+	$uit_href="http://uit.no/";
+	$giellatekno_href="http://giellatekno.uit.no/";
+	$projectlogo = "http://giellatekno.uit.no/images/project.png";
+	$unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
+	$analyze = "";
 	my %page_languages = (sme => 1,
 			      sma => 1,
 			      eng => 1,
 			      nno => 1,
 			      fin => 1,
 			      rus => 1);
-
-	my %avail_pos = (Any => 1,
+	
+	%avail_pos = (Any => 1,
 		      N => 1 ,
 		      V => 1 ,
 		      A => 1,
@@ -42,34 +39,33 @@ sub init_variables {
 		      Pron => 1,
 		      Num => 1);
 
-	my $lang;
 	if (!$lang) { $lang=''; }
 
-	my $wordlimit = 450 ;       # adjust as appropriate; prevent large-scale use
-
+	$wordlimit = 450 ;       # adjust as appropriate; prevent large-scale use
+	
 	# System-Specific directories
 	# The directory where utilities like 'lookup' are stored
-	my $utilitydir = "/usr/bin";
+	my $utilitydir = "/usr/bin"; 
 	# The directory for vislcg and lookup2cg
-	my $bindir = "/usr/bin"; #
+	my $bindir = "/usr/bin"; # 
 	# The directory for hfst tools
         my $hfstutilitydir = "/usr/bin";
         my $hfstlookup = "hfst-lookup";
-
+	
 	# The fst's and other tools
 	my $optdir = "/opt/smi";
 	my $commondir = "/opt/smi/common/bin";
 	my $fstdir = "$optdir/$lang/bin" ;
-
+	
 	my $tmpdir = "/tmp";
-	my $tmpfile=$tmpdir . "/smi-test2.txt";
+	$tmpfile=$tmpdir . "/smi-test2.txt";
 	my $time = `date +%m-%d-%H-%M`;
 	chomp $time;
-	my $logfile = $tmpdir . "/cgi-" . $time . ".log";
-
-	my $tagfile = "$fstdir/korpustags.$lang.txt";
+	$logfile = $tmpdir . "/cgi-" . $time . ".log";
+	
+	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
-
+	
 	my $fst = "$fstdir/analyser-disamb-gt-desc.xfst";
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.xfst";
 	my $hfst = "$fstdir/analyser-disamb-gt-desc.hfstol";
@@ -95,20 +91,18 @@ sub init_variables {
 	my $translate_lex;
 	my $translate_fst;
 	my $geo_fst = "$commondir/geo.fst";
-	my $tr_lang;
 	if ($tr_lang ne "none") {
-		if ($lang eq "dan") {
+		if ($lang eq "dan") { 
 			$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
 			$translate_lex = "$fstdir/$lang$tr_lang-lex.txt";
-			my $translate = "$translate_script $translate_lex";
+			$translate = "$translate_script $translate_lex";
 		}
 		else {
 			$translate_script = "$commondir/translate.pl";
 			$translate_fst = "$fstdir/$lang$tr_lang-all.fst";
-			my $translate = "$translate_script --fst=$translate_fst";
+			$translate = "$translate_script --fst=$translate_fst";
 		}
 	}
-	my %lang_actions;
 	if (-f $fst) { $lang_actions{analyze} = 1; }
 	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
 	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
@@ -125,25 +119,22 @@ sub init_variables {
 	# Find out which of the translated languages are available for this lang.
 	my @translated_langs = qw(dan nob);
 	for (@translated_langs) {
-		my $lex = "$fstdir/$lang$_" . "-lex.txt";
-		my $fst_tr = "$fstdir/$lang$_" . ".fst";
+		$lex = "$fstdir/$lang$_" . "-lex.txt";
+		$fst_tr = "$fstdir/$lang$_" . ".fst";
 		if (-f $lex || -f $fst_tr) { $lang_actions{translate}{$_} = 1; }
 	}
 
     # Files to generate paradigm
 	# Search first the language-specific paradigms, otherwise use
 	# the paradigmfiles for sme.
-	my $action;
-	my $mode;
 	if ($action eq "paradigm") {
-		my %paradigmfiles = (
+		%paradigmfiles = (
 						  minimal => "$fstdir/paradigm_min.$lang.txt",
 						  standard => "$fstdir/paradigm_standard.$lang.txt",
 						  full => "$fstdir/paradigm_full.$lang.txt",
 						  test => "$fstdir/paradigm_test.$lang.txt",
 						  dialect => "$fstdir/paradigm_full.$lang.txt",
 						  );
-		my $paradigmfile;
 		if ($mode) { $paradigmfile = $paradigmfiles{$mode}; }
 		if (! $mode || ! -f $paradigmfile) { $paradigmfile="$fstdir/paradigm.$lang.txt"; }
 		if (! -f $paradigmfile) { $paradigmfile="$commondir/paradigm.txt"; }
@@ -156,22 +147,22 @@ sub init_variables {
 	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
 	else { $gen_norm_fst = $gen_fst; }
 
-	if ($action eq "analyze" && ! -f $fst_without_semtags) {
+	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
 		http_die '--no-alert','404 Not Found',"analyser-gt-desc.xfst is not in the $lang/bin folder";
 	}
 # testing
-	if ($action eq "hfstanalyze" && ! -f $hfst) {
+	if ($action eq "hfstanalyze" && ! -f $hfst) { 
 		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
 	}
-	if ($action eq "disamb" && ! -f $dis_rle) {
+	if ($action eq "disamb" && ! -f $dis_rle) { 
 		http_die '--no-alert','404 Not Found',"The file disambiguator.cg3 is not found: Disambiguation is not supported";
-#	if ($action eq "disamb" && ! -f $dis_bin) {
+#	if ($action eq "disamb" && ! -f $dis_bin) { 
 #		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
 	}
-	if ($action eq "disamb" && ! -f $syn_rle) {
+	if ($action eq "disamb" && ! -f $syn_rle) { 
 		http_die '--no-alert','404 Not Found',"The file korp.cg3 is not found: Syntactic function analysis is not supported";
 	}
-	if ($action eq "dependency" && ! -f $dep_rle) {
+	if ($action eq "dependency" && ! -f $dep_rle) { 
 		http_die '--no-alert','404 Not Found',"The file dependency.cg3 is not found: Dependency analysis is not supported";
 	}
 	if ($action eq "generate" && ! -f $gen_fst) {
@@ -196,14 +187,12 @@ sub init_variables {
 	if ($action eq "paradigm" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
 	}
-	if ($tr_lang ne "none" && ( ! -f $translate_script && ! -f $translate_lex && -f $translate_fst ) ) {
+	if ($tr_lang ne "none" && ( ! -f $translate_script && ! -f $translate_lex && -f $translate_fst ) ) { 
 		http_die '--no-alert','404 Not Found', "Translation to language \"$tr_lang\" is not supported";
 	}
-	my $plang;
 	if (!$plang || ! $page_languages{$plang}) { $plang = "eng"; }
 
 	# preprocess soon deprecated 6.1.22.
-	my $preprocess;
 	if (-f "$fstdir/abbr.txt") {
 		$preprocess = "$bindir/preprocess --abbr=$fstdir/abbr.txt";
 	}
@@ -221,46 +210,44 @@ sub init_variables {
     } elsif ( $action eq "analyze" ) {
 	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
     }
-
-
+    
+    
 #    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
 # if ... (4 languages with syn_rle) ... else the rest
-	my $disamb;
-	my $dependency;
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-	    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle ";
+	    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
 	    $dependency =  "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
 	    # old version, to be deleted when dust settles, 6.1.22
-#	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle ";
-#	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+#	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+#	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
-	else {
-		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";
+	else { 
+		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
 		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
 
 # for the next debug, this is the variable-free version of $dependency:
-# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3
-# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3
+# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
+# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
-	my $gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
-	my $gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
-    my $generate = "tr ' ' '\n' | $gen_lookup";
-    my $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
+	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
+	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
+    $generate = "tr ' ' '\n' | $gen_lookup";
+    $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
 #    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
-    my $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
-    my $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
+    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
+    $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
     my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
 
-	my $placenames = "$utilitydir/lookup $fstflags $geo_fst";
+	$placenames = "$utilitydir/lookup $fstflags $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
-    my $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
-    my $lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
-    my $syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
+    $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
+    $lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
+    $syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
 
     # File where the language is stored.
-	my $langfile="$commondir/cgi-$plang.xml";
+	$langfile="$commondir/cgi-$plang.xml";
 }
 
-1;
+1; 
