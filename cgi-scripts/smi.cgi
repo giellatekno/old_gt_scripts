@@ -432,10 +432,10 @@ sub generate_paradigm {
       $$answer_href{$i}{pos} = $pos;
       $$answer_href{$i}{para} = $answer;
       for my $a (@analyzes) {
-	if ($pos eq "Pron" && $a =~ /$pos/) {
-	  my $rest;
-	  ($rest, $$answer_href{$i}{anl}) = split(/\s+/, $a);
-	}
+        if ($pos eq "Pron" && $a =~ /$pos/) {
+          my $rest;
+          ($rest, $$answer_href{$i}{anl}) = split(/\s+/, $a);
+        }
       }
       $i++;
       if ($pos eq "Pron") { format_pron($answer_href, 0); }
