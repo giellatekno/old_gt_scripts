@@ -141,7 +141,7 @@ my $body;
 my $giellatekno_logo;
 
 # Initialize HTML-page
-if(! $xml_out) {
+if (! $xml_out) {
     if ($json eq 'true') {
     $document = XML::Twig->new(keep_encoding => 1);
     if (! $document->safe_parsefile ("$langfile")) {
@@ -201,7 +201,7 @@ if ($xml_in) {
 }
 
 # no charset radio buttons
-#if($charset eq "latin1") {
+#if ($charset eq "latin1") {
 #  $text = Unicode::String::latin1( $text);
 #}
 
@@ -283,7 +283,7 @@ if (!$xml_out) {
     #$result =~ s/</&lt\;/g;
     $output = dis2html($result,1);
   }
-elsif ($action eq "generate") { $output = gen2html($result,0,1); }
+  elsif ($action eq "generate") { $output = gen2html($result,0,1); }
   elsif ($action eq "hyphenate") { $output = hyph2html($result,1); }
   elsif ($action eq "transcribe") { $output = hyph2html($result,1); }
   elsif ($action eq "convert") { $output = hyph2html($result,1); }
@@ -311,7 +311,7 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
       for (my $j=0; $j<$result; $j++) {
         if ($answer{$j}{pos} && $answer{$j}{form}) {
           my $text2 = $answer{$j}{form} . ": ";
-          if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
+          if ($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
           else {
             $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
             $text2 .= ", $answer{$j}{pos}";
@@ -330,7 +330,7 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
       for (my $j=0; $j<$result; $j++) {
         if ($answer{$j}{pos} && $answer{$j}{form}) {
           my $text2 = $answer{$j}{form} . ": ";
-          if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
+          if ($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
           else {
             $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
             $text2 .= " ($answer{$j}{pos})";
@@ -427,7 +427,7 @@ sub generate_paradigm {
   # when it is given by the user, ie we know the POS:
   if (!$anypos) {
     $answer = call_para($word, \@{$paradigms{$pos}});
-    if($answer) {
+    if ($answer) {
       $$answer_href{$i}{form} = $text;
       $$answer_href{$i}{pos} = $pos;
       $$answer_href{$i}{para} = $answer;
@@ -548,7 +548,7 @@ sub generate_paradigm {
       }
     }
     # If there was no exact match pick the first analysis.
-    if(! $first_cand && @candidates) {
+    if (! $first_cand && @candidates) {
       while(@candidates) {
         my $anl = shift(@candidates);
         $answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
