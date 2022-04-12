@@ -6,23 +6,23 @@ use utf8;
 CGI::Alert::custom_browser_text <<END;
 Content-type: text/html
 
-	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "https://www.w3.org/TR/html4/loose.dtd">
 		<html>
 		<head>
 		<meta http-equiv="Content-type" content="text/html; charset=UTF-8"><h1>Error in the analysis.</h1>
 <p>[MSG]</p>
-<p><a href="http://www.giellatekno.uit.no/">Back</a> </p>
-<p><a href="http://giellatekno.uit.no/">giellatekno.uit.no</a></p>
+<p><a href="https://www.giellatekno.uit.no/">Back</a> </p>
+<p><a href="https://giellatekno.uit.no/">giellatekno.uit.no</a></p>
 END
 
 @EXPORT = qw(&init_variables);
 
 sub init_variables {
 
-	$uit_href="http://uit.no/";
-	$giellatekno_href="http://giellatekno.uit.no/";
-	$projectlogo = "http://giellatekno.uit.no/images/project.png";
-	$unilogo = "http://giellatekno.uit.no/images/unilogo_mid.gif";
+	$uit_href="https://uit.no/";
+	$giellatekno_href="https://giellatekno.uit.no/";
+	$projectlogo = "https://giellatekno.uit.no/images/giellatekno_logo_official.png";
+	$unilogo = "https://giellatekno.uit.no/images/unilogo_mid.png";
 	$analyze = "";
 	my %page_languages = (sme => 1,
 			      sma => 1,

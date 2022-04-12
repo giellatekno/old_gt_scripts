@@ -136,7 +136,7 @@ if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 my @candidates;
 my $document;
 my $page;
-my $form_action="http://gtweb.uit.no/cgi-bin/smi/smi.cgi";
+my $form_action="https://gtweb.uit.no/cgi-bin/smi/smi.cgi";
 my $body;
 my $giellatekno_logo;
 
@@ -899,7 +899,7 @@ sub print_header {
   print <<EOH ;
 Content-type: text/html
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "https://www.w3.org/TR/html4/loose.dtd">
                 <html>
                 <head>
                 <meta http-equiv="Content-type" content="text/html; charset=UTF-8">
