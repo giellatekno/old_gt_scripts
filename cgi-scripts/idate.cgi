@@ -6,11 +6,11 @@ use CGI::Minimal;
 use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
 my %titles = (
-    myv => 'Lullis&aacute;megiel lohkos&aacute;nit',
-    sjd => 'Lullis&aacute;megiel lohkos&aacute;nit',
-    sma => 'Lullis&aacute;megiel lohkos&aacute;nit',
-    sme => 'Davvis&aacute;megiel lohkos&aacute;nit',
-    smn => 'Lullis&aacute;megiel lohkos&aacute;nit'
+  myv => 'Lullis&aacute;megiel lohkos&aacute;nit',
+  sjd => 'Lullis&aacute;megiel lohkos&aacute;nit',
+  sma => 'Lullis&aacute;megiel lohkos&aacute;nit',
+  sme => 'Davvis&aacute;megiel lohkos&aacute;nit',
+  smn => 'Lullis&aacute;megiel lohkos&aacute;nit'
 );
 
 # Variables retrieved from the query.
@@ -60,16 +60,16 @@ my @words = split(/\s+/, $text) ;
 # set above)
 
 if (@words > $wordlimit) {
-    my $upperindex = $wordlimit - 1 ;
-    @words = @words[0..$upperindex] ;
+  my $upperindex = $wordlimit - 1 ;
+  @words = @words[0..$upperindex] ;
 }
 
 # make a check to see if there are any words at all
 
 if (@words == 0) {
-    print "\n<BR>\nNo words received.\n" ;
-    &printfinalhtmlcodes ;
-    return "No Words Received" ;
+  print "\n<BR>\nNo words received.\n" ;
+  &printfinalhtmlcodes ;
+  return "No Words Received" ;
 }
 
 # if we reach here, then the user did indeed one or more words;
@@ -125,24 +125,24 @@ my @solutiongroups = split(/\n\n/, $result) ;
 # associated with their solutions
 
 foreach my $solutiongroup (@solutiongroups) {
-    print "\n<BR><HR SIZE=2 NOSHADE>\n" ;
+  print "\n<BR><HR SIZE=2 NOSHADE>\n" ;
 
-    my $cnt = 0 ;
+  my $cnt = 0 ;
 
   # each $solutiongroup contains the analysis
   # or analyses for a single input word.  Multiple
   # analyses are separated by a newline
 
-    my @lexicalstrings = split(/\n/, $solutiongroup) ;
+  my @lexicalstrings = split(/\n/, $solutiongroup) ;
 
   # each lexicalstring looks like
   #       input=>root [CAT]
 
   # now loop through the analyses for a single input word
 
-    foreach my $lexicalstring (@lexicalstrings) {
-        &printsolution($lexicalstring, ++$cnt) ;
-#       &printglosses($lexicalstring) ;
+  foreach my $lexicalstring (@lexicalstrings) {
+      &printsolution($lexicalstring, ++$cnt) ;
+      #       &printglosses($lexicalstring) ;
     }
 
   # these subroutines print out suitable HTML codes
@@ -170,40 +170,40 @@ print "<HR SIZE=4 NOSHADE>\n<BR>\n\n" ;
 
 sub printinitialhtmlcodes
 {
-#               Print out a standard HTML header
+  #               Print out a standard HTML header
 
-    print "Content-TYPE: text/html; charset=UTF-8\n\n" ;
-    print "<HEAD>\n<TITLE>$titles{$lang}</TITLE>\n</HEAD>\n\n" ;
+  print "Content-TYPE: text/html; charset=UTF-8\n\n" ;
+  print "<HEAD>\n<TITLE>$titles{$lang}</TITLE>\n</HEAD>\n\n" ;
 
-#    print "<BODY BGCOLOR=\"#D0FFD0\">\n<P>\n\n" ;
+  #    print "<BODY BGCOLOR=\"#D0FFD0\">\n<P>\n\n" ;
 
-#               Include some Copyright notices
+  #               Include some Copyright notices
 
-    print "<H2 ALIGN=\"center\">Romssa universitehta</H2>\n\n" ;
-    print "Copyright &copy; Giellatekno.\n<BR>\n<BR>\n" ;
+  print "<H2 ALIGN=\"center\">Romssa universitehta</H2>\n\n" ;
+  print "Copyright &copy; Giellatekno.\n<BR>\n<BR>\n" ;
 
-# consider trying to automate the update of the release number
-#    print "Pre-Release Version 0.1\n<BR>\n" ;
+  # consider trying to automate the update of the release number
+  #    print "Pre-Release Version 0.1\n<BR>\n" ;
 
-# get the date and time from the Xerox-side operating system, and display it
-#    $time = `date` ;
-#    chop ($time) ;
-#    print "$time\n<BR>\n\n" ;
+  # get the date and time from the Xerox-side operating system, and display it
+  #    $time = `date` ;
+  #    chop ($time) ;
+  #    print "$time\n<BR>\n\n" ;
 }
 
 sub printfinalhtmlcodes
 {
-    print "\n<ADDRESS>\n" ;
-    print "\nS&aacute;mi giellateknologiija<BR>\n" ;
-    print "http://giellatekno.uit.no/\n<BR>\n" ;
-    print "</ADDRESS>\n" ;
+  print "\n<ADDRESS>\n" ;
+  print "\nS&aacute;mi giellateknologiija<BR>\n" ;
+  print "http://giellatekno.uit.no/\n<BR>\n" ;
+  print "</ADDRESS>\n" ;
 
-    print "\n</BODY>\n" ;
+  print "\n</BODY>\n" ;
 }
 
 
 sub printsolution {
-    my ($solution, $num) = @_ ;
-    $solution =~ s/\=\>/\=\> / ;
-    print "\n<BR>\n$num.  $solution" ;
+  my ($solution, $num) = @_ ;
+  $solution =~ s/\=\>/\=\> / ;
+  print "\n<BR>\n$num.  $solution" ;
 }

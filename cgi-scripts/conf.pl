@@ -81,8 +81,8 @@ sub init_variables {
 	my $lat2syll_fst = "$fstdir/latin2syllabics.xfst";
 	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
 	my $tok_fst = "$fstdir/tok.fst"; # not in use
-        my $fstflags = "-flags mbTT -utf8";
-        my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
+  my $fstflags = "-flags mbTT -utf8";
+  my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
 	my $dep_rle = "$fstdir/dependency.cg3";  # text
@@ -139,10 +139,10 @@ sub init_variables {
 		if (! $mode || ! -f $paradigmfile) { $paradigmfile="$fstdir/paradigm.$lang.txt"; }
 		if (! -f $paradigmfile) { $paradigmfile="$commondir/paradigm.txt"; }
 
-	if (-f $paradigmfiles{minimal}) { $lang_actions{minimal} = 1; }
-	if (-f $paradigmfiles{standard}) { $lang_actions{standard} = 1; }
-	if (-f $paradigmfiles{full} || -f $gen_norm_fst ) { $lang_actions{full} = 1; }
-	if (-f $paradigmfiles{test} || -f $gen_norm_fst ) { $lang_actions{test} = 1; }
+    if (-f $paradigmfiles{minimal}) { $lang_actions{minimal} = 1; }
+    if (-f $paradigmfiles{standard}) { $lang_actions{standard} = 1; }
+    if (-f $paradigmfiles{full} || -f $gen_norm_fst ) { $lang_actions{full} = 1; }
+    if (-f $paradigmfiles{test} || -f $gen_norm_fst ) { $lang_actions{test} = 1; }
 	}
 	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
 	else { $gen_norm_fst = $gen_fst; }
@@ -156,8 +156,8 @@ sub init_variables {
 	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
 		http_die '--no-alert','404 Not Found',"The file disambiguator.cg3 is not found: Disambiguation is not supported";
-	#	if ($action eq "disamb" && ! -f $dis_bin) { 
-	#		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
+	  #	if ($action eq "disamb" && ! -f $dis_bin) { 
+	  #		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
 	}
 	if ($action eq "disamb" && ! -f $syn_rle) { 
 		http_die '--no-alert','404 Not Found',"The file korp.cg3 is not found: Syntactic function analysis is not supported";
@@ -216,15 +216,16 @@ sub init_variables {
 
 	# if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-	    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-	    $dependency =  "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
-	    # old version, to be deleted when dust settles, 6.1.22
+    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+    $dependency =  "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+    # old version, to be deleted when dust settles, 6.1.22
 		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
 		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
 		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
-		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
+		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
+  }
 
 	# for the next debug, this is the variable-free version of $dependency:
 	# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
@@ -232,19 +233,20 @@ sub init_variables {
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
-    $generate = "tr ' ' '\n' | $gen_lookup";
-    $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
+  $generate = "tr ' ' '\n' | $gen_lookup";
+  $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
 	#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
-    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
-    $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
-    my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
+  $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
+  $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
+  my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
 
 	$placenames = "$utilitydir/lookup $fstflags $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
-    $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
-    $lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
-    $syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
+  
+  $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
+  $lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
+  $syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
 
     # File where the language is stored.
 	$langfile="$commondir/cgi-$plang.xml";

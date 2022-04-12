@@ -143,43 +143,43 @@ my $giellatekno_logo;
 # Initialize HTML-page
 if(! $xml_out) {
     if ($json eq 'true') {
-        $document = XML::Twig->new(keep_encoding => 1);
-        if (! $document->safe_parsefile ("$langfile")) {
-            print "parsing the XML-file failed: $@\n";
-            exit;
-        }
-        $page = $document->root;
-
-        $body = XML::Twig::Elt->new("body");
-        $body->set_pretty_print('record');
-        $body->set_empty_tag_style ('expand');
+    $document = XML::Twig->new(keep_encoding => 1);
+    if (! $document->safe_parsefile ("$langfile")) {
+      print "parsing the XML-file failed: $@\n";
+      exit;
     }
-    else {
-        # Parse language file.
-        $document = XML::Twig->new(keep_encoding => 1);
-        if (! $document->safe_parsefile ("$langfile")) {
-            print "parsing the XML-file failed: $@\n";
-            exit;
-        }
-        $page = $document->root;
+    $page = $document->root;
 
-        $body = XML::Twig::Elt->new("body");
-        $body->set_pretty_print('record');
-        $body->set_empty_tag_style ('expand');
-
-        my $a = XML::Twig::Elt->new(a=>{href=>$uit_href},'The University of Troms&oslash; >');
-        $a->paste('last_child',$body);
-        $a = XML::Twig::Elt->new(a=>{href=>$giellatekno_href},'Giellatekno >');
-        $a->paste('last_child',$body);
-        my $br = XML::Twig::Elt->new('br');
-        $br->paste('last_child', $body);
-
-        $giellatekno_logo = XML::Twig::Elt->new(a=>{href=>$giellatekno_href});
-        my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, style=>'border: none;', title=>'Giellatekno'});
-        $img->paste('last_child', $giellatekno_logo);
-
-        &printinitialhtmlcodes($action, $page, $body);
+    $body = XML::Twig::Elt->new("body");
+    $body->set_pretty_print('record');
+    $body->set_empty_tag_style ('expand');
+  }
+  else {
+    # Parse language file.
+    $document = XML::Twig->new(keep_encoding => 1);
+    if (! $document->safe_parsefile ("$langfile")) {
+      print "parsing the XML-file failed: $@\n";
+      exit;
     }
+    $page = $document->root;
+
+    $body = XML::Twig::Elt->new("body");
+    $body->set_pretty_print('record');
+    $body->set_empty_tag_style ('expand');
+
+    my $a = XML::Twig::Elt->new(a=>{href=>$uit_href},'The University of Troms&oslash; >');
+    $a->paste('last_child',$body);
+    $a = XML::Twig::Elt->new(a=>{href=>$giellatekno_href},'Giellatekno >');
+    $a->paste('last_child',$body);
+    my $br = XML::Twig::Elt->new('br');
+    $br->paste('last_child', $body);
+
+    $giellatekno_logo = XML::Twig::Elt->new(a=>{href=>$giellatekno_href});
+    my $img= XML::Twig::Elt->new(img=>{src=>$projectlogo, style=>'border: none;', title=>'Giellatekno'});
+    $img->paste('last_child', $giellatekno_logo);
+
+    &printinitialhtmlcodes($action, $page, $body);
+  }
 }
 
 # Process input XML
@@ -274,7 +274,7 @@ my $out_json;
 my $encoded;
 if (!$xml_out) {
   if ( $action eq "disamb" ||
-       $action eq "dependency") {
+      $action eq "dependency") {
     #$result =~ s/</&lt\;/g;
     $output = dis2html($result,1);
     #$output = $result;
@@ -292,7 +292,7 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
   elsif ($action eq "placenames") { $output = dis2html($result,1); }
   # PARADIGM OUTPUT
   elsif ($action eq "paradigm") {
-      my $grammar = $page->first_child("grammar");
+    my $grammar = $page->first_child("grammar");
     # Format error messages
     if ($result == -1) {
       my $no_result = $page->first_child_text("noresult[\@tool='paradigm']");
@@ -307,38 +307,38 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
       $p=XML::Twig::Elt->new(p=>$no_result);
       $p->paste('last_child',$body);
     }
-      if ($json eq 'true') {
-          for (my $j=0; $j<$result; $j++) {
-              if ($answer{$j}{pos} && $answer{$j}{form}) {
-                  my $text2 = $answer{$j}{form} . ": ";
-                  if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
-                  else {
-                      $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
-                      $text2 .= ", $answer{$j}{pos}";
-                  }
-                  #my $start_json=XML::Twig::Elt->new(start_json=>$text2);
-                  my $start_json = '{';
-                  $start_json .= $text2;
-              }
-              # Format paradigm list to html.
-              # If minimal mode, show only first paradigm
-              $output = gen2json($answer{$j}{para},0,1,$answer{$j}{fulllemma});
-              last if (! $mode || $mode eq "minimal");
+    if ($json eq 'true') {
+      for (my $j=0; $j<$result; $j++) {
+        if ($answer{$j}{pos} && $answer{$j}{form}) {
+          my $text2 = $answer{$j}{form} . ": ";
+          if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
+          else {
+            $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
+            $text2 .= ", $answer{$j}{pos}";
           }
+          #my $start_json=XML::Twig::Elt->new(start_json=>$text2);
+          my $start_json = '{';
+          $start_json .= $text2;
+        }
+        # Format paradigm list to html.
+        # If minimal mode, show only first paradigm
+        $output = gen2json($answer{$j}{para},0,1,$answer{$j}{fulllemma});
+        last if (! $mode || $mode eq "minimal");
       }
+    }
     else {
       for (my $j=0; $j<$result; $j++) {
         if ($answer{$j}{pos} && $answer{$j}{form}) {
-  	my $text2 = $answer{$j}{form} . ": ";
-  	if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
-  	else {
-  	  $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
-  	  $text2 .= " ($answer{$j}{pos})";
-  	}
-  	my $p=XML::Twig::Elt->new('p');
-  	my $b=XML::Twig::Elt->new(b=>$text2);
-  	$b->paste('last_child',$p);
-  	$p->paste('last_child',$body);
+          my $text2 = $answer{$j}{form} . ": ";
+          if($answer{$j}{anl}) { $text2 .= $answer{$j}{anl} . "   "; }
+          else {
+            $text2 .= $grammar->first_child_text("pos[\@type='$answer{$j}{pos}']");
+            $text2 .= " ($answer{$j}{pos})";
+          }
+          my $p=XML::Twig::Elt->new('p');
+          my $b=XML::Twig::Elt->new(b=>$text2);
+          $b->paste('last_child',$p);
+          $p->paste('last_child',$body);
         }
         # Format paradigm list to html.
         # If minimal mode, show only first paradigm
@@ -356,11 +356,11 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
         push(@content, $br);
 
         for my $c (keys %candits) {
-  	$c =~ s/^([^\+]+)/"<font color=\"indianred\">".$1."<\/font>"/e;
-  	$c =~ s/(\+)/<font color=\"grey\">$1<\/font>/g;
-  	push(@content, $c);
-  	my $br_copy = $br->copy;
-  	push (@content, $br_copy);
+          $c =~ s/^([^\+]+)/"<font color=\"indianred\">".$1."<\/font>"/e;
+          $c =~ s/(\+)/<font color=\"grey\">$1<\/font>/g;
+          push(@content, $c);
+          my $br_copy = $br->copy;
+          push (@content, $br_copy);
         }
         $p->set_content(@content);
         $p->paste('last_child', $body);
@@ -370,13 +370,13 @@ elsif ($action eq "generate") { $output = gen2html($result,0,1); }
 
   # Paste the result to the html-structure, print final html-codes.
     if ($json ne 'true') {
-        if ($output && $action ne "paradigm") { $output->paste('last_child', $body); }
-        printfinalhtmlcodes($page, $body) ;
-        $body->print;
-        print "</html>";
+      if ($output && $action ne "paradigm") { $output->paste('last_child', $body); }
+      printfinalhtmlcodes($page, $body) ;
+      $body->print;
+      print "</html>";
     } else {
-	print $query2->header("application/json;charset=UTF-8");
-	print $output;
+      print $query2->header("application/json;charset=UTF-8");
+      print $output;
     }
 } # End of if (!$xml_out)
 else {
@@ -467,23 +467,23 @@ sub generate_paradigm {
       # If the analysis contains #, and does not start with something else than + followed by #
       # it is a compound:
       if ($anl =~/\#/ && $anl !~ /^[^\+]+\#[^\#]+$/) {
-	my $anltmp = $anl;
-	# Note: Is the following line needed when we negate /Der/ 15 lines further up?
-	$anltmp =~ s/\#\+Der\d\+Der\//\#/g;
-	$anltmp =~ /^(.*\#.*?)\+(.*)$/;
-	$anltmp = $1;
-	my $line2 = $2;
-	format_compound(\$anltmp, \$line2, \$word);
-	$fulllemma=$anltmp;
-	($anlpos) = split(/\+/, $line2);
-	($anllemma = $anltmp) =~ s/^.*\#([^\#]+)$/$1/;
-	#print FH "$anltmp ja $line2 ja $anllemma ja $anlpos\n";
+        my $anltmp = $anl;
+        # Note: Is the following line needed when we negate /Der/ 15 lines further up?
+        $anltmp =~ s/\#\+Der\d\+Der\//\#/g;
+        $anltmp =~ /^(.*\#.*?)\+(.*)$/;
+        $anltmp = $1;
+        my $line2 = $2;
+        format_compound(\$anltmp, \$line2, \$word);
+        $fulllemma=$anltmp;
+        ($anlpos) = split(/\+/, $line2);
+        ($anllemma = $anltmp) =~ s/^.*\#([^\#]+)$/$1/;
+        #print FH "$anltmp ja $line2 ja $anllemma ja $anlpos\n";
       }
       # if not, it is NOT a compound (nor a derivation):
       else {
-	my @line = split (/\+/, $anl);
-	$anllemma=$line[0];
-	$anlpos=$line[1];
+        my @line = split (/\+/, $anl);
+        $anllemma=$line[0];
+        $anlpos=$line[1];
       }
       # pos and word
       next if (! $anypos && $pos ne $anlpos);
@@ -493,8 +493,8 @@ sub generate_paradigm {
       $poses{$anl}{pos} = $anlpos;
 
       if ($fulllemma) {
-	$poses{$anl}{fulllemma} = $fulllemma;
-	$poses{$anl}{ranking} = 3;
+        $poses{$anl}{fulllemma} = $fulllemma;
+        $poses{$anl}{ranking} = 3;
       }
       #print FH "POS $anlpos\nlemma $anllemma\nfulllemma  $poses{$anl}{fulllemma}\n";
     }
@@ -519,47 +519,47 @@ sub generate_paradigm {
   if (! %$answer_href || $anypos) {
     for my $anl (@analyzes_noder) {
       if ($poses{$anl}{pos} eq $pos || $anypos) {
-	if ($poses{$anl}{lemma} eq $word && $avail_pos{$poses{$anl}{pos}}) {
-	  #print FH "FIRST $anl\n";
-	  $first_cand = $poses{$anl};
-	  $cand_p = $poses{$anl}{pos};
-	  $cand_w = $poses{$anl}{lemma};
-	  if ($poses{$anl}{fulllemma}) {
-	    $cand_fulllemma = $poses{$anl}{fulllemma};
-	  }
-	  $cand_anl = $anl;
-	}
-	else {
-	  push (@candidates, $anl);
-	}
+        if ($poses{$anl}{lemma} eq $word && $avail_pos{$poses{$anl}{pos}}) {
+          #print FH "FIRST $anl\n";
+          $first_cand = $poses{$anl};
+          $cand_p = $poses{$anl}{pos};
+          $cand_w = $poses{$anl}{lemma};
+          if ($poses{$anl}{fulllemma}) {
+            $cand_fulllemma = $poses{$anl}{fulllemma};
+          }
+          $cand_anl = $anl;
+        }
+        else {
+          push (@candidates, $anl);
+        }
       }
     }
     # If the lemma matches to the input, generate paradigm
   FIRST_CAND: {
       if ($first_cand) {
-	$answer = call_para($cand_w, \@{$paradigms{$cand_p}});
-	if (! $answer) { $first_cand=0; $$cand_href{$cand_anl}=1; last FIRST_CAND; }
-	$$answer_href{$i}{form} = $text;
-	$$answer_href{$i}{pos} = $cand_p;
-	$$answer_href{$i}{anl} = $cand_anl;
-	$$answer_href{$i}{fulllemma} = $cand_fulllemma;
-	$$answer_href{$i}{para} = $answer;
-	$i++;
+        $answer = call_para($cand_w, \@{$paradigms{$cand_p}});
+        if (! $answer) { $first_cand=0; $$cand_href{$cand_anl}=1; last FIRST_CAND; }
+        $$answer_href{$i}{form} = $text;
+        $$answer_href{$i}{pos} = $cand_p;
+        $$answer_href{$i}{anl} = $cand_anl;
+        $$answer_href{$i}{fulllemma} = $cand_fulllemma;
+        $$answer_href{$i}{para} = $answer;
+        $i++;
       }
     }
     # If there was no exact match pick the first analysis.
     if(! $first_cand && @candidates) {
       while(@candidates) {
-	my $anl = shift(@candidates);
-	$answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
-	if (! $answer) { next; }
-	$$answer_href{$i}{form} = $text;
-	$$answer_href{$i}{pos} = $poses{$anl}{pos};
-	$$answer_href{$i}{anl} = $anl;
-	$$answer_href{$i}{fulllemma} = $poses{$anl}{fulllemma};
-	$$answer_href{$i}{para} = $answer;
-	$i++;
-	last;
+        my $anl = shift(@candidates);
+        $answer = call_para($poses{$anl}{lemma}, \@{$paradigms{$poses{$anl}{pos}}});
+        if (! $answer) { next; }
+        $$answer_href{$i}{form} = $text;
+        $$answer_href{$i}{pos} = $poses{$anl}{pos};
+        $$answer_href{$i}{anl} = $anl;
+        $$answer_href{$i}{fulllemma} = $poses{$anl}{fulllemma};
+        $$answer_href{$i}{para} = $answer;
+        $i++;
+        last;
       }
     }
   }
@@ -577,12 +577,12 @@ sub generate_paradigm {
 
     if ($answer) {
       if (! $$answer_href{form} ) {
-	$$answer_href{$i}{form} = $text;
-	$$answer_href{$i}{pos} = $p;
-	$$answer_href{$i}{anl} = $d;
-	$$answer_href{$i}{para} = $answer;
-	$$answer_href{$i}{der} = 1;
-	$i++;
+        $$answer_href{$i}{form} = $text;
+        $$answer_href{$i}{pos} = $p;
+        $$answer_href{$i}{anl} = $d;
+        $$answer_href{$i}{para} = $answer;
+        $$answer_href{$i}{der} = 1;
+        $i++;
       }
     }
   }
@@ -639,7 +639,7 @@ sub call_para {
     my @all_cand = split(/\n+/, $generated);
     for my $a (@all_cand) {
       if ($a !~ /\+\?/) {
-	$answer .= $a . "\n\n";
+      	$answer .= $a . "\n\n";
       }
     }
     #		if ($answer) { print FH "ANS $answer";}
@@ -725,11 +725,11 @@ sub printinitialhtmlcodes {
 
     for my $m (@modes) {
       if ($lang_actions{$m}) {
-	my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'mode',value=> $m},$labels{$m});
-	if ($mode && $mode eq $m ) { $input->set_att("checked", 1); }
-	$input->paste('last_child', $td);
-	my $br = XML::Twig::Elt->new('br');
-	$br->paste('last_child', $td);
+        my $input = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'mode',value=> $m},$labels{$m});
+        if ($mode && $mode eq $m ) { $input->set_att("checked", 1); }
+        $input->paste('last_child', $td);
+        my $br = XML::Twig::Elt->new('br');
+        $br->paste('last_child', $td);
       }
     }
     my $input= XML::Twig::Elt->new(input=> {type=> 'hidden',name=>'lang',value=> $lang});
@@ -802,13 +802,13 @@ sub printinitialhtmlcodes {
       next if (! $lang_actions{$t});
       $labels{$t} = $selection->first_child_text("\@tool='$t'" );
       if ($t eq "disamb" && $lang_actions{translate}) {
-	my $lang_texts = $texts->first_child("selection[\@tool='translate']");
-	if ($lang_texts) {
-	  for my $l (keys %{$lang_actions{translate}}) {
-	    $labels{translate}{$l} = $lang_texts->first_child_text("select[\@lang='$l']");
-	  }
-	  $labels{translate}{none} = $lang_texts->first_child_text("select[\@lang='none']");
-	}
+        my $lang_texts = $texts->first_child("selection[\@tool='translate']");
+        if ($lang_texts) {
+          for my $l (keys %{$lang_actions{translate}}) {
+            $labels{translate}{$l} = $lang_texts->first_child_text("select[\@lang='$l']");
+          }
+          $labels{translate}{none} = $lang_texts->first_child_text("select[\@lang='none']");
+        }
       }
     }
     my $tr = XML::Twig::Elt->new("tr");
@@ -836,20 +836,20 @@ sub printinitialhtmlcodes {
       # Add translation radio buttons besides the
       # disambiguation button.
       if ($l eq "disamb" && $lang_actions{translate}) {
-	my $text = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[";
-	push (@tmp, $text);
-	for my $lg (keys %{$lang_actions{translate}}) {
-	  my $text = $labels{translate}{$lg};
-	  my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>$lg},$text);
-	  if ($tr_lang eq $lg ) { $input2->set_att('checked', 1); }
-	  push (@tmp, $input2);
-	}
-	$text = $labels{translate}{none};
-	my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>'none'},$text);
-	if ($tr_lang eq 'none') { $input2->set_att(checked=>'yes'); }
-	push (@tmp, $input2);
-	$text = "&#160;]";
-	push (@tmp, $text);
+        my $text = "&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;[";
+        push (@tmp, $text);
+        for my $lg (keys %{$lang_actions{translate}}) {
+          my $text = $labels{translate}{$lg};
+          my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>$lg},$text);
+          if ($tr_lang eq $lg ) { $input2->set_att('checked', 1); }
+          push (@tmp, $input2);
+        }
+        $text = $labels{translate}{none};
+        my $input2 = XML::Twig::Elt->new(input=>{type=> 'radio',name=> 'translate',value=>'none'},$text);
+        if ($tr_lang eq 'none') { $input2->set_att(checked=>'yes'); }
+        push (@tmp, $input2);
+        $text = "&#160;]";
+        push (@tmp, $text);
       }
       my $br = XML::Twig::Elt->new('br');
       push (@tmp, $br);
