@@ -107,9 +107,9 @@ sub init_variables {
 	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
 	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
-#	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
+	#	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $dep_rle) { $lang_actions{dependency} = 1; } # text file
-#	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
+	#	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
@@ -150,14 +150,14 @@ sub init_variables {
 	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
 		http_die '--no-alert','404 Not Found',"analyser-gt-desc.xfst is not in the $lang/bin folder";
 	}
-# testing
+	# testing
 	if ($action eq "hfstanalyze" && ! -f $hfst) { 
 		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
 	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
 		http_die '--no-alert','404 Not Found',"The file disambiguator.cg3 is not found: Disambiguation is not supported";
-#	if ($action eq "disamb" && ! -f $dis_bin) { 
-#		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
+	#	if ($action eq "disamb" && ! -f $dis_bin) { 
+	#		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
 	}
 	if ($action eq "disamb" && ! -f $syn_rle) { 
 		http_die '--no-alert','404 Not Found',"The file korp.cg3 is not found: Syntactic function analysis is not supported";
@@ -198,9 +198,9 @@ sub init_variables {
 	}
 	else { $preprocess = "$bindir/preprocess"; }
 
-#	if ($lang eq "sme" && $action eq "analyze" ) {
-#	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
-#	}
+	#	if ($lang eq "sme" && $action eq "analyze" ) {
+	#	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+	#	}
 
 	# Migrating to hfst: investigate how to avoid $preprocess here 6.1.22.
 	if ($action eq "paradigm") {
@@ -212,29 +212,29 @@ sub init_variables {
     }
     
     
-#    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
+	#    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
 
-# if ... (4 languages with syn_rle) ... else the rest
+	# if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
 	    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
 	    $dependency =  "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
 	    # old version, to be deleted when dust settles, 6.1.22
-#	    $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-#	    $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
+		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
 		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
 		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; }
 
-# for the next debug, this is the variable-free version of $dependency:
-# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
-# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
+	# for the next debug, this is the variable-free version of $dependency:
+	# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
+	# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
     $generate = "tr ' ' '\n' | $gen_lookup";
     $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
-#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
+	#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
     $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
     $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
     my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
