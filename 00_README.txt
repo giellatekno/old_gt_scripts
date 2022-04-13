@@ -1,5 +1,5 @@
 
-This file contains a descrition of the current directory.
+This file contains a description of the current directory.
 
 1. directories:
 
@@ -9,44 +9,20 @@ This file contains a descrition of the current directory.
 
    cgi-scripts --- some or all? To check.
 
-conf.pl --- used in: ../../gt/script/cgi-scripts/smi.cgi
-../../techdoc/infra/docu-cgi-bin.xml
+      conf.pl --- used in: ../../gt/script/cgi-scripts/smi.cgi
+      ../../techdoc/infra/docu-cgi-bin.xml
 
-iclock-sma.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
+      iclock.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
+      ../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
+      ../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
 
-iclock-sme.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
+      num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
+      ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
+      ../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
+      ../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
 
-iclock-smj.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
-
-sjd-num.cgi --- used in: ../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
-
-sma-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
-
-sme-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
-
-smi.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
-../../xtdoc/gtuit/src/documentation/resources/stylesheets/cgi-interface.xsl
-
-smj-num.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.en.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.nn.html
-../../xtdoc/gtuit/src/documentation/content/xdocs/num.se.html
-
-test-sme-lookup.cgi --- used in: ../../gt/www/auto-a-sme.html
+      smi.cgi --- used in: ../../techdoc/infra/docu-cgi-bin.xml
+      ../../xtdoc/gtuit/src/documentation/resources/stylesheets/cgi-interface.xsl
 
    emacs --- two emacs lisp files
 
