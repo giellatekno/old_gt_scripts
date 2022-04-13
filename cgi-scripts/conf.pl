@@ -81,8 +81,8 @@ sub init_variables {
 	my $lat2syll_fst = "$fstdir/latin2syllabics.xfst";
 	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
 	my $tok_fst = "$fstdir/tok.fst"; # not in use
-  my $fstflags = "-flags mbTT -utf8";
-  my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
+  	my $fstflags = "-flags mbTT -utf8";
+  	my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
 	my $dep_rle = "$fstdir/dependency.cg3";  # text
@@ -225,7 +225,7 @@ sub init_variables {
 	else { 
 		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
 		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
-  }
+  	}
 
 	# for the next debug, this is the variable-free version of $dependency:
 	# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
@@ -233,20 +233,20 @@ sub init_variables {
 
 	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
 	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
-  $generate = "tr ' ' '\n' | $gen_lookup";
-  $generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
+	$generate = "tr ' ' '\n' | $gen_lookup";
+	$generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
 	#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
-  $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
-  $transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
-  my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
+	$hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
+	$transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
+	my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
 
 	$placenames = "$utilitydir/lookup $fstflags $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
   
-  $convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
-  $lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
-  $syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
+	$convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
+	$lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
+	$syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
 
     # File where the language is stored.
 	$langfile="$commondir/cgi-$plang.xml";
