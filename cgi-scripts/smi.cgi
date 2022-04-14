@@ -23,6 +23,9 @@ use CGI::Alert ('chiara.argese@uit.no', 'http_die');
 #use JSON::MaybeXS ();
 #use JSON::MaybeXS qw(encode_json decode_json);
 
+# To read variable "hostname"
+use Sys::Hostname;
+
 # Use project's utility functions.
 use langTools::Util;
 use langTools::XMLStruct;
@@ -62,6 +65,16 @@ our ($text,$pos,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang,$json);
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
 our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,$lat2syll,$syll2lat,%avail_pos, %lang_actions, $translate,$placenames);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
+
+##### DEVELOPMENT OR PRODUCTION #####
+
+my $host = hostname;
+my $devel;
+if ($host == 'gtweb-01') {
+  $devel = 1;
+} else {
+  $devel = 0;
+}
 
 ##### GET THE INPUT #####
 $text="";  #The text to be analysed
@@ -140,8 +153,8 @@ my $page;
 my $form_action;
 my $server_name = CGI::url(-base);
 my $script_name = $ENV{SCRIPT_NAME};
-# If server is localhost
-if ($server_name == "http://localhost" && $script_name) {
+# If developing, use local url. On production server, use gtweb url.
+if ($devel && $server_name && $script_name) {
   $form_action = $server_name . $script_name ;
 } else {
   $form_action="https://gtweb.uit.no/cgi-bin/smi/smi.cgi";
