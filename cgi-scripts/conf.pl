@@ -66,13 +66,13 @@ sub init_variables {
 	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
-	my $fst = "$fstdir/analyser-disamb-gt-desc.hfstol";
-	my $fst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
+	my $fst = "$fstdir/analyser-disamb-gt-desc.xfst";
+	my $fst_without_semtags = "$fstdir/analyser-gt-desc.xfst";
 	my $hfst = "$fstdir/analyser-disamb-gt-desc.hfstol";
 	my $hfst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
 	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst";
-	my $gen_fst = "$fstdir/generator-gt-desc.hfstol";
-	my $gen_norm_fst = "$fstdir/generator-gt-norm.hfstol";
+	my $gen_fst = "$fstdir/generator-gt-desc.xfst";
+	my $gen_norm_fst = "$fstdir/generator-gt-norm.xfst";
 	my $hyph_fst = "$fstdir/hyph-$lang.fst";
 	my $hyphrules_fst = "$fstdir/hyphenation.xfst";
 	my $num_fst = "$fstdir/transcriptor-numbers2text-desc.xfst";
@@ -231,8 +231,8 @@ sub init_variables {
 	# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
 	# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
-	$gen_lookup = "$utilitydir/hfst-lookup $fstflags -d $gen_fst" ;
-	$gen_norm_lookup = "$utilitydir/hfst-lookup $fstflags -d $gen_norm_fst" ;
+	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
+	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
 	$generate = "tr ' ' '\n' | $gen_lookup";
 	$generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
 	#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
