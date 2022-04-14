@@ -2,7 +2,7 @@
 
 # Debugging
 #use CGI::Debug;
-#use lib '/home/saara/gt/script';
+#use lib '/home/trond/gt/main/gt/script';
 
 use strict;
 
@@ -29,7 +29,8 @@ use langTools::XMLStruct;
 
 
 # Configuration: variable definitions etc.
-require "/var/www/cgi-bin/smi/conf.pl";
+require "/var/www/cgi-bin/smi/conf.pl"; # on server
+# require "/usr/lib/cgi-bin/smi/conf.pl"; # local testing
 
 ########################################################################
 #
@@ -136,7 +137,15 @@ if (! $action) { http_die '--no-alert','400 Bad Request',"No action given.\n" };
 my @candidates;
 my $document;
 my $page;
-my $form_action="https://gtweb.uit.no/cgi-bin/smi/smi.cgi";
+my $form_action;
+my $server_name = CGI::url(-base);
+my $script_name = $ENV{SCRIPT_NAME};
+# If server is localhost
+if ($server_name == "http://localhost" && $script_name) {
+  $form_action = $server_name . $script_name ;
+} else {
+  $form_action="https://gtweb.uit.no/cgi-bin/smi/smi.cgi";
+}
 my $body;
 my $giellatekno_logo;
 
