@@ -68,13 +68,8 @@ our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### DEVELOPMENT OR PRODUCTION #####
 
-my $host = hostname;
-my $devel;
-if ($host == 'gtweb-01') {
-  $devel = 1;
-} else {
-  $devel = 0;
-}
+# Set $devel to 1 when testing locally, 0 when on production server
+my $devel = 0 ;
 
 ##### GET THE INPUT #####
 $text="";  #The text to be analysed
@@ -151,11 +146,11 @@ my @candidates;
 my $document;
 my $page;
 my $form_action;
-my $server_name = CGI::url(-base);
+my $server_name = $ENV{SERVER_NAME};
 my $script_name = $ENV{SCRIPT_NAME};
 # If developing, use local url. On production server, use gtweb url.
 if ($devel && $server_name && $script_name) {
-  $form_action = $server_name . $script_name ;
+  $form_action = "http://" . $server_name . $script_name ;
 } else {
   $form_action="https://gtweb.uit.no/cgi-bin/smi/smi.cgi";
 }
