@@ -49,8 +49,7 @@ sub init_variables {
 	# The directory for vislcg and lookup2cg
 	my $bindir = "/usr/bin"; # 
 	# The directory for hfst tools
-        my $hfstutilitydir = "/usr/bin";
-        my $hfstlookup = "hfst-lookup";
+	my $hfstutilitydir = "/usr/bin";
 	
 	# The fst's and other tools
 	my $optdir = "/opt/smi";
@@ -66,22 +65,19 @@ sub init_variables {
 	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
-	my $fst = "$fstdir/analyser-disamb-gt-desc.xfst";
-	my $fst_without_semtags = "$fstdir/analyser-gt-desc.xfst";
-	my $hfst = "$fstdir/analyser-disamb-gt-desc.hfstol";
-	my $hfst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
+	my $fst = "$fstdir/analyser-disamb-gt-desc.hfstol";
+	my $fst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
 	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst";
-	my $gen_fst = "$fstdir/generator-gt-desc.xfst";
-	my $gen_norm_fst = "$fstdir/generator-gt-norm.xfst";
-	my $hyph_fst = "$fstdir/hyph-$lang.fst";
-	my $hyphrules_fst = "$fstdir/hyphenation.xfst";
-	my $num_fst = "$fstdir/transcriptor-numbers2text-desc.xfst";
-	my $phon_fst = "$fstdir/text2ipa.xfst";
-	my $orth_fst = "$fstdir/oldorthography2norm.xfst";
-	my $lat2syll_fst = "$fstdir/latin2syllabics.xfst";
-	my $syll2lat_fst = "$fstdir/syllabics2latin.xfst";
-	my $tok_fst = "$fstdir/tok.fst"; # not in use
+	my $gen_fst = "$fstdir/generator-gt-desc.hfstol";
+	my $gen_norm_fst = "$fstdir/generator-gt-norm.hfstol";
+	my $hyph_fst = "$fstdir/hyphenator-gt-desc.hfstol"; # --enable-fst-hyphenator
+	my $num_fst = "$fstdir/transcriptor-numbers-digit2text.filtered.lookup.hfstol";
+	my $phon_fst = "$fstdir/txt2ipa.compose.hfst"; # --enable-phonetic
+	my $orth_fst = "$fstdir/oldorthography2norm.compose.hfst"; # only for kal
+	my $lat2syll_fst = "$fstdir/Latn-to-Cans.compose.hfst"; # previously latin2syllabics.xfst. Only for crk
+	my $syll2lat_fst = "$fstdir/Cans-to-Latn.compose.hfst"; # previously syllabics2latin.xfst. Only for crk
   	my $fstflags = "-flags mbTT -utf8";
+	my $hfstflags = "--beam=0";
   	my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
@@ -104,8 +100,6 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
-	if (-f $hfst) { $lang_actions{hfstanalyze} = 1; } # Trond testing hfst?!
-	if (-f $hfst) { $lang_actions{analyze} = 1; } # Trond testing hfst?!
 	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
 	#	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
 	if (-f $dep_rle) { $lang_actions{dependency} = 1; } # text file
@@ -148,11 +142,7 @@ sub init_variables {
 	else { $gen_norm_fst = $gen_fst; }
 
 	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
-		http_die '--no-alert','404 Not Found',"analyser-gt-desc.xfst is not in the $lang/bin folder";
-	}
-	# testing
-	if ($action eq "hfstanalyze" && ! -f $hfst) { 
-		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
+		http_die '--no-alert','404 Not Found',"$fst_without_semtags is not in the $lang/bin folder";
 	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
 		http_die '--no-alert','404 Not Found',"The file $dis_rle is not found: Disambiguation is not supported";
@@ -174,7 +164,6 @@ sub init_variables {
 	if ($action eq "transcribe" && ! -f $phon_fst) {
 		http_die '--no-alert','404 Not Found',"$phon_fst ($lang): Phonetic representation is not supported";
 	}
-
 	if ($action eq "convert" && ! -f $orth_fst) {
 		http_die '--no-alert','404 Not Found',"$orth_fst ($lang): Orthographic representation is not supported";
 	}
@@ -203,12 +192,13 @@ sub init_variables {
 	#	}
 
 	# Migrating to hfst: investigate how to avoid $preprocess here 6.1.22.
+	# What about "$hfstutilitydir/hfst-tokenize $hfst_tokenize" (no -cg)
 	if ($action eq "paradigm") {
-    	$analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+    	$analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags";
     } elsif ($action eq "analyze" && $lang eq "sme") {
-	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags";
     } elsif ( $action eq "analyze" ) {
-	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
+	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags";
     }
     
     
@@ -216,37 +206,39 @@ sub init_variables {
 
 	# if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-    $disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-    $dependency =  "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
-    # old version, to be deleted when dust settles, 6.1.22
+		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+		$dependency =  "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+		# old version, to be deleted when dust settles, 6.1.22
 		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
 		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
-		$disamb = "$utilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
-		$dependency = "$utilitydir/hfst-tokenize -cg $hfst_tokenize || $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
+		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
+		$dependency = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
   	}
 
 	# for the next debug, this is the variable-free version of $dependency:
 	# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
 	# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
-	$gen_lookup = "$utilitydir/lookup $fstflags -d $gen_fst" ;
-	$gen_norm_lookup = "$utilitydir/lookup $fstflags -d $gen_norm_fst" ;
+	$gen_lookup = "$hfstutilitydir/hfst-lookup $hfstflags $gen_fst" ;
+	$gen_norm_lookup = "$hfstutilitydir/hfst-lookup $hfstflags $gen_norm_fst" ;
 	$generate = "tr ' ' '\n' | $gen_lookup";
 	$generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
-	#    $hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
-	$hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
-	$transcribe = "$preprocess | $utilitydir/lookup $fstflags $phon_fst";
-	my $complextranscribe = "$preprocess | $utilitydir/lookup $fstflags $num_fst | cut -f2 | $utilitydir/lookup $fstflags $hyphrules_fst | cut -f2 | $utilitydir/lookup $fstflags $phon_fst" ;
+	$hyphenate = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst"; # | $commondir/hyph-filter.pl"; # this out
+	#$hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
+	$transcribe = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst";
+	my $complextranscribe = "$preprocess | $hfstutilitydir/hfst-lookup $fstflags $num_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst" ;
 
 	$placenames = "$utilitydir/lookup $fstflags $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
   
-	$convert = "$preprocess | $utilitydir/lookup $fstflags $orth_fst";
-	$lat2syll = "$preprocess | $utilitydir/lookup $fstflags $lat2syll_fst";
-	$syll2lat = "$preprocess | $utilitydir/lookup $fstflags $syll2lat_fst";
+	$convert = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $orth_fst";
+	$lat2syll = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $lat2syll_fst";
+	$syll2lat = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $syll2lat_fst";
+
+	$remove_weight = "sed 's/	[0-9].*//g'";
 
     # File where the language is stored.
 	$langfile="$commondir/cgi-$plang.xml";

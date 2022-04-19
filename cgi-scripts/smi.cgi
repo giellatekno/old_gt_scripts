@@ -17,7 +17,7 @@ use CGI;
 #$CGI::DISABLE_UPLOADS = 0;
 # limit posts to 1 meg max
 #$CGI::POST_MAX        = 1_024 * 1_024;
-use CGI::Alert ('chiara.argese@uit.no', 'http_die');
+use CGI::Alert ('trond.trosterud@uit.no', 'http_die');
 
 #use Encode qw( encode_utf8 );
 #use JSON::MaybeXS ();
@@ -63,7 +63,7 @@ our ($text,$pos,$lang,$plang,$xml_in,$xml_out,$action,$mode,$tr_lang,$json);
 
 # Variable definitions, included in smi.cgi
 our ($wordlimit,$utilitydir,$bindir,$paradigmfile,%paradigmfiles,$tmpfile,$tagfile,$langfile,$logfile,$div_file);
-our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,$lat2syll,$syll2lat,%avail_pos, %lang_actions, $translate,$placenames);
+our ($preprocess,$analyze,$disamb,$dependency,$gen_lookup,$gen_norm_lookup,$generate,$generate_norm,$hyphenate,$transcribe,$convert,$lat2syll,$syll2lat,%avail_pos, %lang_actions, $translate,$placenames,$remove_weight);
 our ($uit_href,$giellatekno_href,$projectlogo,$unilogo);
 
 ##### DEVELOPMENT OR PRODUCTION #####
@@ -271,7 +271,7 @@ elsif ($action eq "dependency") {
   if ($translate) { $result = `echo $text | $dependency | $translate | $coloring`; }
   else { $result = `echo $text | $dependency | $coloring`; }
 }
-elsif ($action eq "analyze") { $result = `echo $text | $analyze | $coloring_a`; }
+elsif ($action eq "analyze") { $result = `echo $text | $analyze | $remove_weight | $coloring_a`; }
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
 elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
 elsif ($action eq "convert") { $result = `echo $text | $convert`; }
@@ -647,10 +647,10 @@ sub call_para {
     my $generated;
     if ($mode && $mode eq "dialect") {
       #print FH "GEN $gen_lookup\n";
-      $generated = `echo \"$all\" | $gen_lookup`;
+      $generated = `echo \"$all\" | $gen_lookup | $remove_weight`;
     }
     else {
-      $generated = `echo \"$all\" | $gen_norm_lookup`;
+      $generated = `echo \"$all\" | $gen_norm_lookup | $remove_weight`;
       #print FH "GEN $gen_norm_lookup\n";
     }
     my @all_cand = split(/\n+/, $generated);
