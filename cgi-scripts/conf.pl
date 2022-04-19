@@ -155,37 +155,37 @@ sub init_variables {
 		http_die '--no-alert','404 Not Found',"$lang.hfst.ol: gogoAnalysis is not supported";
 	}
 	if ($action eq "disamb" && ! -f $dis_rle) { 
-		http_die '--no-alert','404 Not Found',"The file disambiguator.cg3 is not found: Disambiguation is not supported";
+		http_die '--no-alert','404 Not Found',"The file $dis_rle is not found: Disambiguation is not supported";
 	  #	if ($action eq "disamb" && ! -f $dis_bin) { 
 	  #		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
 	}
 	if ($action eq "disamb" && ! -f $syn_rle) { 
-		http_die '--no-alert','404 Not Found',"The file korp.cg3 is not found: Syntactic function analysis is not supported";
+		http_die '--no-alert','404 Not Found',"The file $syn_rle is not found: Syntactic function analysis is not supported";
 	}
 	if ($action eq "dependency" && ! -f $dep_rle) { 
-		http_die '--no-alert','404 Not Found',"The file dependency.cg3 is not found: Dependency analysis is not supported";
+		http_die '--no-alert','404 Not Found',"The file $dep_rle is not found: Dependency analysis is not supported";
 	}
 	if ($action eq "generate" && ! -f $gen_fst) {
-		http_die '--no-alert','404 Not Found',"i$lang.fst: Generation is not supported";
+		http_die '--no-alert','404 Not Found',"$gen_fst ($lang): Generation is not supported";
 	}
 	if ($action eq "hyphenate" && ! -f $hyph_fst) {
-		http_die '--no-alert','404 Not Found',"hyph-$lang.fst: Hyphenation is not supported";
+		http_die '--no-alert','404 Not Found',"$hyph_fst ($lang): Hyphenation is not supported";
 	}
 	if ($action eq "transcribe" && ! -f $phon_fst) {
-		http_die '--no-alert','404 Not Found',"phon-$lang.fst: Phonetic representation is not supported";
+		http_die '--no-alert','404 Not Found',"$phon_fst ($lang): Phonetic representation is not supported";
 	}
 
 	if ($action eq "convert" && ! -f $orth_fst) {
-		http_die '--no-alert','404 Not Found',"orth-$lang.fst: Orthographic representation is not supported";
+		http_die '--no-alert','404 Not Found',"$orth_fst ($lang): Orthographic representation is not supported";
 	}
 	if ($action eq "lat2syll" && ! -f $lat2syll_fst) {
-		http_die '--no-alert','404 Not Found',"latin2syllabics.xfst: Conversion to syllabics is not supported";
+		http_die '--no-alert','404 Not Found',"$lat2syll_fst ($lang): Conversion to syllabics is not supported";
 	}
 	if ($action eq "syll2lat" && ! -f $syll2lat_fst) {
-		http_die '--no-alert','404 Not Found',"syllabics2latin.xfst: Conversion from syllabics is not supported";
+		http_die '--no-alert','404 Not Found',"$syll2lat_fst ($lang): Conversion from syllabics is not supported";
 	}
 	if ($action eq "paradigm" && ! -f $gen_fst) {
-		http_die '--no-alert','404 Not Found',"i$lang.fst: Paradigm generation is not supported";
+		http_die '--no-alert','404 Not Found',"$gen_fst ($lang): Paradigm generation is not supported";
 	}
 	if ($tr_lang ne "none" && ( ! -f $translate_script && ! -f $translate_lex && -f $translate_fst ) ) { 
 		http_die '--no-alert','404 Not Found', "Translation to language \"$tr_lang\" is not supported";
