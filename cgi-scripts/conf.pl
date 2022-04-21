@@ -67,7 +67,7 @@ sub init_variables {
 	
 	my $fst = "$fstdir/analyser-disamb-gt-desc.hfstol";
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
-	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst";
+	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst"; # --enable-tokenisers
 	my $gen_fst = "$fstdir/generator-gt-desc.hfstol";
 	my $gen_norm_fst = "$fstdir/generator-gt-norm.hfstol";
 	my $hyph_fst = "$fstdir/hyphenator-gt-desc.hfstol"; # --enable-fst-hyphenator
