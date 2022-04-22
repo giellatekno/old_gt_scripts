@@ -193,10 +193,10 @@ sub init_variables {
 
 	# Doing this in two steps to use an analyser which gives output with pluses. 
 	# Otherwise, analyzing e.g. alit oahppu is problematic
-	if ($action eq "paradigm") {
+	if (($action eq "paradigm" || $action eq "analyze") && $lang eq "sme") {
     	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
-    } elsif ( $action eq "analyze" ) {
-	    $analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
+    } elsif ($action eq "paradigm" || $action eq "analyze") {
+	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     }
     
     
