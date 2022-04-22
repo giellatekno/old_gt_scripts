@@ -191,14 +191,12 @@ sub init_variables {
 	#	    $analyze = "$preprocess | $utilitydir/lookup $fstflags $fst_without_semtags";
 	#	}
 
-	# Migrating to hfst: investigate how to avoid $preprocess here 6.1.22.
-	# What about "$hfstutilitydir/hfst-tokenize $hfst_tokenize" (no -cg)
+	# Doing this in two steps to use an analyser which gives output with pluses. 
+	# Otherwise, analyzing e.g. alit oahppu is problematic
 	if ($action eq "paradigm") {
-    	$analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags";
-    } elsif ($action eq "analyze" && $lang eq "sme") {
-	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags";
+    	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     } elsif ( $action eq "analyze" ) {
-	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags";
+	    $analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     }
     
     
