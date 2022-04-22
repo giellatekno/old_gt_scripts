@@ -68,6 +68,7 @@ sub init_variables {
 	my $fst = "$fstdir/analyser-disamb-gt-desc.hfstol";
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
 	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst"; # --enable-tokenisers
+	my $has_tokenizer = 0 ;
 	my $gen_fst = "$fstdir/generator-gt-desc.hfstol";
 	my $gen_norm_fst = "$fstdir/generator-gt-norm.hfstol";
 	my $hyph_fst = "$fstdir/hyphenator-gt-desc.hfstol"; # --enable-fst-hyphenator
@@ -140,6 +141,7 @@ sub init_variables {
 	}
 	if (-f $gen_norm_fst) { $lang_actions{dialect} = 1; }
 	else { $gen_norm_fst = $gen_fst; }
+	if (-f $hfst_tokenize) { $has_tokenizer = 1 ;}
 
 	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
 		http_die '--no-alert','404 Not Found',"$fst_without_semtags is not in the $lang/bin folder";
@@ -193,7 +195,7 @@ sub init_variables {
 
 	# Doing this in two steps to use an analyser which gives output with pluses. 
 	# Otherwise, analyzing e.g. alit oahppu is problematic
-	if (($action eq "paradigm" || $action eq "analyze") && $lang eq "sme") {
+	if (($action eq "paradigm" || $action eq "analyze") && $has_tokenizer) {
     	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     } elsif ($action eq "paradigm" || $action eq "analyze") {
 	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
