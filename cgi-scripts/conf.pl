@@ -65,6 +65,7 @@ sub init_variables {
 	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
+	my $lc_all = "LC_ALL=en_US.UTF-8";
 	my $fst = "$fstdir/analyser-disamb-gt-desc.hfstol";
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
 	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst"; # --enable-tokenisers
@@ -196,7 +197,7 @@ sub init_variables {
 	# Doing this in two steps to use an analyser which gives output with pluses. 
 	# Otherwise, analyzing e.g. alit oahppu is problematic
 	if (($action eq "paradigm" || $action eq "analyze") && $has_tokenizer) {
-    	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
+    	$analyze = "$lc_all $hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     } elsif ($action eq "paradigm" || $action eq "analyze") {
 	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     }
@@ -206,15 +207,15 @@ sub init_variables {
 
 	# if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-		$dependency =  "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+		$disamb = "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+		$dependency =  "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
 		# old version, to be deleted when dust settles, 6.1.22
 		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
 		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
-		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
-		$dependency = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
+		$disamb = "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
+		$dependency = "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
   	}
 
 	# for the next debug, this is the variable-free version of $dependency:
