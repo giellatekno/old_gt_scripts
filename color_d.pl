@@ -28,7 +28,7 @@ while (<STDIN>)
     
     # morpho-syntax
     if ($lang eq "sme") {
-      s/ (N|A|Adv|V|Pron|CS|CC|Adp|Po|Pr|Interj|Pcle|Num|Coll|Prop|Pers|Dem|Interr|Refl|Recipr|Rel|Indef|CLB)( [^\@]*)/ <font color="yellow"><b>$1<\/b>$2<\/font>/ ;
+      s/ (N|A|Adv|V|Pron|CS|CC|Adp|Po|Pr|Interj|Pcle|Num|Coll|Prop|Pers|Dem|Interr|Refl|Recipr|Rel|Indef|CLB)( [^\@]*)/ <font color="green"><b>$1<\/b>$2<\/font>/ ;
 #  Ess|Sg|Du|Pl|Nom|Gen|Acc|Ill|Loc|Com|SgCmp|SgNomCmp|SgGenCmp|PlGenCmp|Cmpnd|Guess|ShCmp
 #  First|Last|None|CmpOnly|SgNomLeft|SgGenLeft|PlGenLeft|SgLeft|AllCmp
 #  DefSgGenCmp|DefPlGenCmp|DefCmp
