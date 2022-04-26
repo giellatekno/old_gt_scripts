@@ -265,11 +265,11 @@ if ($action eq "generate")  { $result = `echo $text | $generate_norm`; }
 elsif ($action eq "paradigm") { $result = generate_paradigm($text, $pos, \%answer, \%candits); }
 elsif ($action eq "disamb") {
   if ($translate) { $result = `echo $text | $disamb | $translate | $coloring`; }
-  else { $result = `echo $text | $disamb | $coloring`; }
+  else { $result = `echo "$text" | $disamb | $coloring`; }
 }
 elsif ($action eq "dependency") {
   if ($translate) { $result = `echo $text | $dependency | $translate | $coloring`; }
-  else { $result = `echo $text | $dependency | $coloring`; }
+  else { $result = `echo "$text" | $dependency | $coloring`; }
 }
 elsif ($action eq "analyze") { $result = `echo $text | $analyze | $remove_weight | $coloring_a`; }
 elsif ($action eq "hyphenate") { $result = `echo $text | $hyphenate`; }
@@ -340,6 +340,7 @@ if (!$xml_out) {
         # Format paradigm list to html.
         # If minimal mode, show only first paradigm
         $output = gen2json($answer{$j}{para},0,1,$answer{$j}{fulllemma});
+        if (!$output) {$output = ''}
         last if (! $mode || $mode eq "minimal");
       }
     }
