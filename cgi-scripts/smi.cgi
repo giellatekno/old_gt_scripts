@@ -340,9 +340,9 @@ if (!$xml_out) {
         # Format paradigm list to html.
         # If minimal mode, show only first paradigm
         $output = gen2json($answer{$j}{para},0,1,$answer{$j}{fulllemma});
-        if (!$output) {$output = ''}
         last if (! $mode || $mode eq "minimal");
       }
+      if (!$output) {$output = ''};
     }
     else {
       for (my $j=0; $j<$result; $j++) {
