@@ -87,7 +87,7 @@ sub init_variables {
 	my $translate_script;
 	my $translate_lex;
 	my $translate_fst;
-	my $geo_fst = "$commondir/geo.fst";
+	my $geo_fst = "$commondir/geo.hfst";
 	if ($tr_lang ne "none") {
 		if ($lang eq "dan") { 
 			$translate_script = "$fstdir/addtrad_$lang$tr_lang.pl";
@@ -230,7 +230,7 @@ sub init_variables {
 	$transcribe = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst";
 	my $complextranscribe = "$preprocess | $hfstutilitydir/hfst-lookup $fstflags $num_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst" ;
 
-	$placenames = "$utilitydir/lookup $fstflags $geo_fst";
+	$placenames = "$hfstutilitydir/hfst-lookup $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
   

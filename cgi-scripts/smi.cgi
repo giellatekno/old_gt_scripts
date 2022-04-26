@@ -277,7 +277,7 @@ elsif ($action eq "transcribe") { $result = `echo $text | $transcribe`; }
 elsif ($action eq "convert") { $result = `echo $text | $convert`; }
 elsif ($action eq "lat2syll") { $result = `echo $text | $lat2syll`; }
 elsif ($action eq "syll2lat") { $result = `echo $text | $syll2lat`; }
-elsif ($action eq "placenames") { $result = `echo $text | $placenames`; }
+elsif ($action eq "placenames") { $result = `echo $text | $placenames | $remove_weight`; }
 else {
   if (!$xml_out)  { print "<p>No action given</p>"; }
   else { print "<error>No parameter for action recieved</error>"; }
