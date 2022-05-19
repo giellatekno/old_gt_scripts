@@ -79,7 +79,7 @@ sub init_variables {
 	my $lat2syll_fst = "$fstdir/Latn-to-Cans.compose.hfst"; # previously latin2syllabics.xfst. Only for crk
 	my $syll2lat_fst = "$fstdir/Cans-to-Latn.compose.hfst"; # previously syllabics2latin.xfst. Only for crk
   	my $fstflags = "-flags mbTT -utf8";
-	my $hfstflags = "--beam=0";
+	my $hfstflags = "-q --beam=0"; # -q to avoid ">" being sent to stderr at every lookup
   	my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
