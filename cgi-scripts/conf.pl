@@ -45,11 +45,11 @@ sub init_variables {
 	
 	# System-Specific directories
 	# The directory where utilities like 'lookup' are stored
-	my $utilitydir = "/usr/bin"; 
+	my $utilitydir = "/usr/local/bin"; 
 	# The directory for vislcg and lookup2cg
 	my $bindir = "/usr/bin"; # 
 	# The directory for hfst tools
-	my $hfstutilitydir = "/usr/bin";
+        my $hfstutilitydir = "/usr/bin";
 	
 	# The fst's and other tools
 	my $optdir = "/opt/smi";
@@ -65,7 +65,6 @@ sub init_variables {
 	$tagfile = "$fstdir/korpustags.$lang.txt";
 	if (! -f $tagfile) { $tagfile="$commondir/korpustags.txt"; }
 	
-	my $lc_all = "LC_ALL=en_US.UTF-8";
 	my $fst = "$fstdir/analyser-disamb-gt-desc.hfstol";
 	my $fst_without_semtags = "$fstdir/analyser-gt-desc.hfstol";
 	my $hfst_tokenize = "$fstdir/tokeniser-disamb-gt-desc.pmhfst"; # --enable-tokenisers
@@ -79,7 +78,7 @@ sub init_variables {
 	my $lat2syll_fst = "$fstdir/Latn-to-Cans.compose.hfst"; # previously latin2syllabics.xfst. Only for crk
 	my $syll2lat_fst = "$fstdir/Cans-to-Latn.compose.hfst"; # previously syllabics2latin.xfst. Only for crk
   	my $fstflags = "-flags mbTT -utf8";
-	my $hfstflags = "-q --beam=0"; # -q to avoid ">" being sent to stderr at every lookup
+	my $hfstflags = "--beam=0";
   	my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
@@ -144,6 +143,7 @@ sub init_variables {
 	else { $gen_norm_fst = $gen_fst; }
 	if (-f $hfst_tokenize) { $has_tokenizer = 1 ;}
 
+
 	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
 		http_die '--no-alert','404 Not Found',"$fst_without_semtags is not in the $lang/bin folder";
 	}
@@ -197,7 +197,7 @@ sub init_variables {
 	# Doing this in two steps to use an analyser which gives output with pluses. 
 	# Otherwise, analyzing e.g. alit oahppu is problematic
 	if (($action eq "paradigm" || $action eq "analyze") && $has_tokenizer) {
-    	$analyze = "$lc_all $hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
+    	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     } elsif ($action eq "paradigm" || $action eq "analyze") {
 	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
     }
@@ -207,15 +207,15 @@ sub init_variables {
 
 	# if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-		$disamb = "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-		$dependency =  "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
-		# old version, to be deleted when dust settles, 6.1.22
+    $disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
+    $dependency =  "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+    # old version, to be deleted when dust settles, 6.1.22
 		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
 		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
 	}
 	else { 
-		$disamb = "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
-		$dependency = "$lc_all $hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
+		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
+		$dependency = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
   	}
 
 	# for the next debug, this is the variable-free version of $dependency:
@@ -228,8 +228,9 @@ sub init_variables {
 	$generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
 	$hyphenate = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst"; # | $commondir/hyph-filter.pl"; # this out
 	#$hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
+	$removeq = "sed \"s/\+//g ; s/\?//g\"";
 	$transcribe = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst";
-	my $complextranscribe = "$preprocess | $hfstutilitydir/hfst-lookup $fstflags $num_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst" ;
+	my $complextranscribe = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $num_fst | cut -f2 | $removeq | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst" ;
 
 	$placenames = "$hfstutilitydir/hfst-lookup $geo_fst";
 
