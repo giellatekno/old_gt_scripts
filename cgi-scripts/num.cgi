@@ -60,7 +60,7 @@ $text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
 
 # The directory where utilities like 'lookup' are stored
 my $utilitydir =    "/usr/bin" ;
-# The directory where transcriptor-numbers2text-desc.xfst is stored
+# The directory where transcriptor-numbers-digit2text.filtered.lookup.hfstol is stored
 my $fstdir = "/opt/smi/$lang/bin" ;
 unless (-d $fstdir) { http_die '--no-alert','400 Bad Request',"fstdir does not exist.\n" };
 
@@ -118,12 +118,13 @@ my $allwords = join(" ", @words) ;
 # ###############################################
 # 1.  echo the string $allwords via a pipe to tr, which replaces spaces with newlines
 # 2.  pipe the now tokenized text (one word per line) to the lookup application
-#         (which has some flags set, and which accesses transcriptor-numbers2text-desc.xfst)
-# 3.  The output of lookup is assigned as the value of $result
+#         (which accesses transcriptor-numbers-digit2text.filtered.lookup.hfstol)
+# 3.  Remove weight from output string
+# 4.  The output of lookup is assigned as the value of $result
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/lookup -flags mbL\" => \"LTT -d -utf8 $fstdir/transcriptor-numbers2text-desc.xfst` ;
+ $utilitydir/hfst-lookup $fstdir/transcriptor-numbers-digit2text.filtered.lookup.hfstol | sed "s/0.000000//"` ;
 
 my @solutiongroups = split(/\n\n/, $result) ;
 
