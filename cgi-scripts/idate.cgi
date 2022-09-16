@@ -46,7 +46,9 @@ $text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
 my $utilitydir =    "/usr/bin" ;
 # The directory where  transcriptor-date-digit2text.filtered.lookup.hfstol is stored
 my $fstdir = "/opt/smi/$lang/bin" ;
-unless (-d $fstdir) { http_die '--no-alert','400 Bad Request',"fstdir does not exist.\n" };
+unless (-d $fstdir) { http_die '--no-alert','404 Not found',"fstdir does not exist.\n" };
+my $date_fst = "$fstdir/transcriptor-date-digit2text.filtered.lookup.hfstol";
+unless (-f $date_fst) { http_die '--no-alert','404 Not found',"$date_fst does not exist.\n" };
 
 &printinitialhtmlcodes ;         # see the subroutine below
                                  # prints out the usual HTML header info
@@ -106,7 +108,7 @@ my $allwords = join(" ", @words) ;
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/hfst-lookup  $fstdir/transcriptor-date-digit2text.filtered.lookup.hfstol | sed "s/0.000000//"` ;
+ $utilitydir/hfst-lookup  $date_fst | sed "s/0.000000//"` ;
 
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***

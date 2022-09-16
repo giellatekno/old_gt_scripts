@@ -55,7 +55,9 @@ $text =~ s/\s+/\ /g ;       # squeeze any multiple whitespaces into one
 my $utilitydir =    "/usr/bin" ;
 # The directory where  transcriptor-clock-digit2text.filtered.lookup.hfstol is stored
 my $fstdir = "/opt/smi/$lang/bin" ;
-unless (-d $fstdir) { http_die '--no-alert','400 Bad Request',"fstdir does not exist.\n" };
+unless (-d $fstdir) { http_die '--no-alert','404 Not found',"fstdir does not exist.\n" };
+my $clock_fst = "$fstdir/transcriptor-clock-digit2text.filtered.lookup.hfstol";
+unless (-f $clock_fst) { http_die '--no-alert','404 Not found',"$clock_fst does not exist.\n" };
 
 &printinitialhtmlcodes ;         # see the subroutine below
                                  # prints out the usual HTML header info
@@ -115,7 +117,7 @@ my $allwords = join(" ", @words) ;
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/hfst-lookup  $fstdir/transcriptor-clock-digit2text.filtered.lookup.hfstol | sed "s/0.000000//"` ;
+ $utilitydir/hfst-lookup  $clock_fst | sed "s/0.000000//"` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
