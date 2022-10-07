@@ -126,7 +126,7 @@ my $allwords = join(" ", @words) ;
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/hfst-lookup $num_fst | sed "s/0.000000//"` ;
+ $utilitydir/hfst-lookup -q $num_fst | sed "s/0.000000//"` ;
 
 my @solutiongroups = split(/\n\n/, $result) ;
 

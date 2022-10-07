@@ -108,7 +108,7 @@ my $allwords = join(" ", @words) ;
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/hfst-lookup  $date_fst | sed "s/0.000000//"` ;
+ $utilitydir/hfst-lookup -q $date_fst | sed "s/0.000000//"` ;
 
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***

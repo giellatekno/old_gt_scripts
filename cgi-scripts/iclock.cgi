@@ -117,7 +117,7 @@ my $allwords = join(" ", @words) ;
 
 
 my $result = `echo $allwords | tr " " "\n" | \
- $utilitydir/hfst-lookup  $clock_fst | sed "s/0.000000//"` ;
+ $utilitydir/hfst-lookup -q $clock_fst | sed "s/0.000000//"` ;
 
 #  ***** Now we need to parse the $result string to output the information as HTML ***
 #  This information will be directed automatically back to the user's browser for display
