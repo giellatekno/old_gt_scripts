@@ -49,7 +49,8 @@ sub init_variables {
 	# The directory for vislcg and lookup2cg
 	my $bindir = "/usr/bin"; # 
 	# The directory for hfst tools
-        my $hfstutilitydir = "/usr/bin";
+    my $hfstutilitydir = "/usr/bin";
+	my $hfst_lookup = "$hfstutilitydir/hfst-lookup";
 	
 	# The fst's and other tools
 	my $optdir = "/opt/smi";
@@ -78,7 +79,7 @@ sub init_variables {
 	my $lat2syll_fst = "$fstdir/Latn-to-Cans.compose.hfst"; # previously latin2syllabics.xfst. Only for crk
 	my $syll2lat_fst = "$fstdir/Cans-to-Latn.compose.hfst"; # previously syllabics2latin.xfst. Only for crk
   	my $fstflags = "-flags mbTT -utf8";
-	my $hfstflags = "--beam=0";
+	my $hfstflags = "-q --beam=0";
   	my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
 	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
@@ -197,13 +198,13 @@ sub init_variables {
 	# Doing this in two steps to use an analyser which gives output with pluses. 
 	# Otherwise, analyzing e.g. alit oahppu is problematic
 	if (($action eq "paradigm" || $action eq "analyze") && $has_tokenizer) {
-    	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
+    	$analyze = "$hfstutilitydir/hfst-tokenize $hfstflags $hfst_tokenize | $hfst_lookup $hfstflags $fst_without_semtags ";
     } elsif ($action eq "paradigm" || $action eq "analyze") {
-	    $analyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $fst_without_semtags ";
+	    $analyze = "$preprocess | $hfst_lookup $hfstflags $fst_without_semtags ";
     }
     
     
-	#    $hfstanalyze = "$preprocess | $hfstutilitydir/hfst-lookup $hfst";
+	#    $hfstanalyze = "$preprocess | $hfst_lookup $hfst";
 
 	# if ... (4 languages with syn_rle) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
@@ -222,23 +223,23 @@ sub init_variables {
 	# /usr/bin/preprocess --abbr=/opt/smi/sme/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/sme/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/sme/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/sme/bin/dependency.cg3 
 	# /usr/bin/preprocess --abbr=/opt/smi/nob/bin/abbr.txt | /usr/bin/lookup -flags mbTT -utf8 /opt/smi/nob/bin/analyser-gt-desc.xfst | /usr/bin/lookup2cg | /usr/bin/vislcg3 -g /opt/smi/nob/bin/disambiguator.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/functions.cg3   | /usr/bin/vislcg3 -g /opt/smi/nob/bin/dependency.cg3 
 
-	$gen_lookup = "$hfstutilitydir/hfst-lookup $hfstflags $gen_fst" ;
-	$gen_norm_lookup = "$hfstutilitydir/hfst-lookup $hfstflags $gen_norm_fst" ;
+	$gen_lookup = "$hfst_lookup $hfstflags $gen_fst" ;
+	$gen_norm_lookup = "$hfst_lookup $hfstflags $gen_norm_fst" ;
 	$generate = "tr ' ' '\n' | $gen_lookup";
 	$generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
-	$hyphenate = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst"; # | $commondir/hyph-filter.pl"; # this out
+	$hyphenate = "$preprocess | $hfst_lookup $hfstflags $hyph_fst"; # | $commondir/hyph-filter.pl"; # this out
 	#$hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
 	$removeq = "sed \"s/\+//g ; s/\?//g\"";
-	$transcribe = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst";
-	my $complextranscribe = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $num_fst | cut -f2 | $removeq | $hfstutilitydir/hfst-lookup $hfstflags $hyph_fst | cut -f2 | $hfstutilitydir/hfst-lookup $hfstflags $phon_fst" ;
+	$transcribe = "$preprocess | $hfst_lookup $hfstflags $phon_fst";
+	my $complextranscribe = "$preprocess | $hfst_lookup $hfstflags $num_fst | cut -f2 | $removeq | $hfst_lookup $hfstflags $hyph_fst | cut -f2 | $hfst_lookup $hfstflags $phon_fst" ;
 
-	$placenames = "$hfstutilitydir/hfst-lookup $geo_fst";
+	$placenames = "$hfst_lookup -q $geo_fst";
 
 	if ($lang eq "sme") { $transcribe = $complextranscribe; }
   
-	$convert = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $orth_fst";
-	$lat2syll = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $lat2syll_fst";
-	$syll2lat = "$preprocess | $hfstutilitydir/hfst-lookup $hfstflags $syll2lat_fst";
+	$convert = "$preprocess | $hfst_lookup $hfstflags $orth_fst";
+	$lat2syll = "$preprocess | $hfst_lookup $hfstflags $lat2syll_fst";
+	$syll2lat = "$preprocess | $hfst_lookup $hfstflags $syll2lat_fst";
 
 	$remove_weight = "sed 's/	[0-9].*//g'";
 
