@@ -227,7 +227,7 @@ sub init_variables {
 	$gen_norm_lookup = "$hfst_lookup $hfstflags $gen_norm_fst" ;
 	$generate = "tr ' ' '\n' | $gen_lookup";
 	$generate_norm = "tr ' ' '\n' | $gen_norm_lookup";
-	$hyphenate = "$preprocess | $hfst_lookup $hfstflags $hyph_fst"; # | $commondir/hyph-filter.pl"; # this out
+	$hyphenate = "$preprocess | $hfst_lookup $hfstflags $hyph_fst | $commondir/hyph-filter.pl"; # this out
 	#$hyphenate = "$preprocess | $utilitydir/lookup $fstflags $hyphrules_fst ";  # this in, until hyph-filter works
 	$removeq = "sed \"s/\+//g ; s/\?//g\"";
 	$transcribe = "$preprocess | $hfst_lookup $hfstflags $phon_fst";
