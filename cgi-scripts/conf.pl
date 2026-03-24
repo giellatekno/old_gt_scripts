@@ -53,7 +53,7 @@ sub init_variables {
 	my $hfst_lookup = "$hfstutilitydir/hfst-lookup";
 	
 	# The fst's and other tools
-	my $optdir = "/usr/share";
+	my $optdir = "/usr/share/giella";
 	my $commondir = "/opt/smi/common/bin";
 	my $fstdir = "$optdir/$lang" ;
 	
