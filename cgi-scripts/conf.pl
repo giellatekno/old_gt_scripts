@@ -53,9 +53,9 @@ sub init_variables {
 	my $hfst_lookup = "$hfstutilitydir/hfst-lookup";
 	
 	# The fst's and other tools
-	my $optdir = "/opt/smi";
+	my $optdir = "/usr/share";
 	my $commondir = "/opt/smi/common/bin";
-	my $fstdir = "$optdir/$lang/bin" ;
+	my $fstdir = "$optdir/$lang" ;
 	
 	my $tmpdir = "/tmp";
 	$tmpfile=$tmpdir . "/smi-test2.txt";
