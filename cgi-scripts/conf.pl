@@ -82,7 +82,8 @@ sub init_variables {
 	my $hfstflags = "-q --beam=0";
   	my $dis_rle = "$fstdir/disambiguator.cg3";  # text file
 	my $dis_bin = "$fstdir/disambiguator.bin";  # binary file
-	my $syn_rle = "$fstdir/korp.cg3";    # all-Saami syn file
+	my $syn_rle = "$fstdir/functions.cg3";    # text
+	my $syn_bin = "$fstdir/functions.bin";    # text
 	my $dep_rle = "$fstdir/dependency.cg3";  # text
 	my $dep_bin = "$fstdir/dependency.bin";  # binary file
 	my $translate_script;
@@ -102,10 +103,10 @@ sub init_variables {
 		}
 	}
 	if (-f $fst) { $lang_actions{analyze} = 1; }
-	if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
-	#	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
-	if (-f $dep_rle) { $lang_actions{dependency} = 1; } # text file
-	#	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
+	#if (-f $dis_rle) { $lang_actions{disamb} = 1; } # text file
+	if (-f $dis_bin) { $lang_actions{disamb} = 1; } # binary file
+	#if (-f $dep_rle) { $lang_actions{dependency} = 1; } # text file
+	if (-f $dep_bin) { $lang_actions{dependency} = 1; } # binary file
 	if (-f $hyph_fst) { $lang_actions{hyphenate} = 1; }
 	if (-f $phon_fst) { $lang_actions{transcribe} = 1; }
 	if (-f $orth_fst) { $lang_actions{convert} = 1; }
@@ -148,16 +149,16 @@ sub init_variables {
 	if ($action eq "analyze" && ! -f $fst_without_semtags) { 
 		http_die '--no-alert','404 Not Found',"$fst_without_semtags is not in the $lang/bin folder";
 	}
-	if ($action eq "disamb" && ! -f $dis_rle) { 
-		http_die '--no-alert','404 Not Found',"The file $dis_rle is not found: Disambiguation is not supported";
+	if ($action eq "disamb" && ! -f $dis_bin) { 
+		http_die '--no-alert','404 Not Found',"The file $dis_bin is not found: Disambiguation is not supported";
 	  #	if ($action eq "disamb" && ! -f $dis_bin) { 
 	  #		http_die '--no-alert','404 Not Found',"disambiguator.cg3: Disambiguation is not supported";
 	}
-	if ($action eq "disamb" && ! -f $syn_rle) { 
-		http_die '--no-alert','404 Not Found',"The file $syn_rle is not found: Syntactic function analysis is not supported";
+	if ($action eq "disamb" && ! -f $syn_bin) { 
+		http_die '--no-alert','404 Not Found',"The file $syn_bin is not found: Syntactic function analysis is not supported";
 	}
-	if ($action eq "dependency" && ! -f $dep_rle) { 
-		http_die '--no-alert','404 Not Found',"The file $dep_rle is not found: Dependency analysis is not supported";
+	if ($action eq "dependency" && ! -f $dep_bin) { 
+		http_die '--no-alert','404 Not Found',"The file $dep_bin is not found: Dependency analysis is not supported";
 	}
 	if ($action eq "generate" && ! -f $gen_fst) {
 		http_die '--no-alert','404 Not Found',"$gen_fst ($lang): Generation is not supported";
@@ -206,17 +207,17 @@ sub init_variables {
     
 	#    $hfstanalyze = "$preprocess | $hfst_lookup $hfst";
 
-	# if ... (4 languages with syn_rle) ... else the rest
+	# if ... (4 languages with syn_bin) ... else the rest
 	if (($lang eq "fao")||($lang eq "sma")||($lang eq "sme")||($lang eq "smj")||($lang eq "nob")) {
-    $disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-    $dependency =  "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle";
+    $disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_bin | $bindir/vislcg3 -g $syn_bin "; 
+    $dependency =  "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_bin | $bindir/vislcg3 -g $syn_bin | $bindir/vislcg3 -g $dep_bin";
     # old version, to be deleted when dust settles, 6.1.22
-		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle "; 
-		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_rle | $bindir/vislcg3 -g $syn_rle | $bindir/vislcg3 -g $dep_rle"; 
+		# $disamb = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin | $bindir/vislcg3 -g $syn_bin "; 
+		# $dependency = "$preprocess | $utilitydir/lookup $fstflags $fst | $bindir/lookup2cg | $bindir/vislcg3 -g $dis_bin | $bindir/vislcg3 -g $syn_bin | $bindir/vislcg3 -g $dep_bin"; 
 	}
 	else { 
-		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle ";  
-		$dependency = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_rle  | $bindir/vislcg3 -g $dep_rle "; 
+		$disamb = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_bin ";  
+		$dependency = "$hfstutilitydir/hfst-tokenize -cg $hfst_tokenize | $bindir/vislcg3 -g $dis_bin  | $bindir/vislcg3 -g $dep_bin "; 
   	}
 
 	# for the next debug, this is the variable-free version of $dependency:
